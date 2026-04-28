@@ -18,7 +18,7 @@
 | 范围 | 当前状态 | 是否需要修改 | 处理决定 |
 |---|---|---|---|
 | `.NET 10` solution、项目分层、`scripts/dev-env.sh` | 工程骨架已可 build/test | 暂不需要 | 保留。 |
-| `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot | 需要后续扩展 | P1 加 `protocolVersion`、错误码、reconnect 字段和 TypeScript DTO 生成。 |
+| `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN` | 需要后续扩展 | P1 加 `protocolVersion`、错误码、reconnect 字段和 TypeScript DTO 生成。 |
 | `GameHub` | 支持 Join、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送 | 需要后续扩展 | 保留；补 Ready、Reconnect、RequestSnapshot、错误码和玩家座位限制。 |
 | `MatchSession` | 支持串行、幂等、journal、占位状态 | 需要规则审查 | 串行和幂等可保留；规则状态和 prompt 只是占位。 |
 | `PlaceholderRuleEngine` | 对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状 | 需要重审 | 标记 `NEEDS_RULE_AUDIT`；补 PDF/FAQ evidence 后决定是否改行为。 |
@@ -49,9 +49,9 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 明确 `PASS` 与 `END_TURN` 的协议语义边界，避免把旧 Java `PASS -> TURN_ENDED` 当作最终规则。
-2. 再做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
-3. 补 event sequence、recovery 字段和断线重连恢复校验。
+1. 做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
+2. 补 event sequence、recovery 字段和断线重连恢复校验。
+3. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
 
 ## 5. 重审验收
 

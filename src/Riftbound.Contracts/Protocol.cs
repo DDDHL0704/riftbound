@@ -36,6 +36,10 @@ public sealed record WsServerMessage(
 
 public abstract record GameCommand(string CmdType);
 
+public sealed record PassPriorityCommand() : GameCommand("PASS_PRIORITY");
+
+public sealed record PassFocusCommand() : GameCommand("PASS_FOCUS");
+
 public sealed record PassCommand() : GameCommand("PASS");
 
 public sealed record EndTurnCommand() : GameCommand("END_TURN");

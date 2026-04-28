@@ -24,8 +24,9 @@
   - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
   - P1 SQL 已补 ruleset/FAQ/audit 字段和 `oracle_fixtures` 索引表；启动时按 `Sql/*.sql` 顺序初始化/迁移。
   - 当前 3 条 Java legacy fixture 的 evidence 已细化；FAQ 未发现推翻通用 `PASS` / `END_TURN` 的条目，但 `PASS -> TURN_ENDED` 被标记为 legacy mismatch candidate。
+  - 协议层已新增 `PASS_PRIORITY`、`PASS_FOCUS`，并记录 `END_TURN` 与 legacy `PASS` 的语义边界。
 
-下一步先明确 `PASS` 与 `END_TURN` 的协议语义边界；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
+下一步扩展 P1/P2 加入、座位状态和玩家视角 snapshot；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -40,6 +41,7 @@
 - `GameHub` 可让 P1/P2 加入同一房间。
 - `MatchSession` 对同一房间命令严格串行。
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
+- 协议层明确区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，裸 `PASS` 仅用于 legacy 兼容。
 - `IRuleEngine` 的输出能被事件和快照投影消费。
 - PostgreSQL EventStore schema 草案完成，包含规则版本/FAQ/audit 元数据，并能由开发环境启动时初始化。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。

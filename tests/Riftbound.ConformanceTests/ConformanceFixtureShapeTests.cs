@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -37,6 +38,19 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("room", message.RoomId);
         Assert.Equal("P1", message.PlayerId);
         Assert.Equal(7, message.ServerTick);
+    }
+
+    [Theory]
+    [InlineData("PASS_PRIORITY", typeof(PassPriorityCommand))]
+    [InlineData("PASS_FOCUS", typeof(PassFocusCommand))]
+    [InlineData("PASS", typeof(PassCommand))]
+    [InlineData("END_TURN", typeof(EndTurnCommand))]
+    public void GameCommandMapperKeepsPassAndEndTurnSemanticsDistinct(string cmdType, Type expectedType)
+    {
+        var command = GameCommandJsonMapper.Map(JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement);
+
+        Assert.IsType(expectedType, command);
+        Assert.Equal(cmdType, command.CmdType);
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal
