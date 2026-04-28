@@ -70,7 +70,7 @@ seed + initial setup + command log
 
 ## 2.1 P2 schema v2 草案
 
-P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，但 runner 尚未把 `initialState` 应用成真实局面，也尚未执行 P2 规则断言：
+P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；P2 expected 仍未升级为完整规则断言：
 
 ```json
 {
@@ -116,7 +116,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-下一步是把 schema v2 接入 runner 的初始状态构造和 canonical diff，再让上述样例从“只验证形状”升级为“验证规则行为”。
+下一步是把 schema v2 的 richer `expected` 接入 canonical diff，再让上述样例从“只验证形状/初始状态”升级为“验证规则行为”。
 
 ## 3. Fixture 后续必须补齐
 

@@ -176,8 +176,8 @@ flowchart LR
 当前入口：
 
 - 先执行 `docs/p2-rules-preflight.md`，不要直接扩展全卡牌行为。
-- 已完成 schema v2 形状读取和 `MatchState` 基础权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`。
-- 下一步先把 `initialState` 应用到 runner，再实现符文池与回合开始流程。
+- 已完成 schema v2 形状读取、runner 初始状态应用，以及 `MatchState` 基础权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`。
+- 下一步实现符文池与回合开始流程。
 
 规则域：
 

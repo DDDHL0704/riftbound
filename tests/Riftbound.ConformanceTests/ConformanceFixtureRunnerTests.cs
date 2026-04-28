@@ -72,6 +72,33 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "END_TURN" }, fixture.Expected.Prompts?["P2"].Actions);
     }
 
+    [Fact]
+    public async Task RunnerAppliesP2InitialStateBeforeFirstCommand()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start.fixture.json"),
+            CancellationToken.None);
+        var ruleEngine = new CapturingRuleEngine();
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            ruleEngine,
+            CancellationToken.None);
+
+        var captured = Assert.IsType<MatchState>(ruleEngine.CapturedState);
+        Assert.Equal(2, captured.TurnNumber);
+        Assert.Equal("P2", captured.ActivePlayerId);
+        Assert.Equal("P2", captured.TurnPlayerId);
+        Assert.Equal("TURN_START", captured.Phase);
+        Assert.Equal("NEUTRAL_CLOSED", captured.TimingState);
+        Assert.Equal(MatchStatuses.InProgress, captured.Status);
+        Assert.Equal(new RunePool(1, 1), captured.RunePools["P2"]);
+        Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, captured.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(new[] { "P2-MAIN-001" }, captured.PlayerZones["P2"].MainDeck);
+        Assert.Equal(1, result.FinalTick);
+        Assert.Equal("TURN_START", result.FinalState.Phase);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
@@ -113,5 +140,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             """{"type":11,"roomId":"room","playerId":"P1","serverTick":7,"payload":{"code":"UNSUPPORTED_COMMAND","message":"sample"},"protocolVersion":1,"schemaVersion":1}""",
             json);
+    }
+
+    private sealed class CapturingRuleEngine : IRuleEngine
+    {
+        public MatchState? CapturedState { get; private set; }
+
+        public ValueTask<ResolutionResult> ResolveAsync(
+            MatchState state,
+            PlayerIntent intent,
+            GameCommand command,
+            CancellationToken cancellationToken)
+        {
+            CapturedState = state;
+            var nextState = state with
+            {
+                Tick = state.Tick + 1
+            };
+            return ValueTask.FromResult(new ResolutionResult(
+                true,
+                null,
+                nextState,
+                [],
+                ResolutionResult.BuildSnapshots(nextState),
+                ResolutionResult.BuildPrompts(nextState)));
+        }
     }
 }

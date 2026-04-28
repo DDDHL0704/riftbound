@@ -111,7 +111,8 @@ public sealed record ConformanceExpectedPrompt(
 public sealed record ConformanceRunResult(
     long FinalTick,
     IReadOnlyList<string> EventKinds,
-    IReadOnlyDictionary<string, ActionPromptDto> Prompts);
+    IReadOnlyDictionary<string, ActionPromptDto> Prompts,
+    MatchState FinalState);
 
 public static class ConformanceFixtureRunner
 {
@@ -121,21 +122,8 @@ public static class ConformanceFixtureRunner
         CancellationToken cancellationToken)
     {
         var journal = new RecordingMatchJournal();
-        var session = new MatchSession(fixture.RoomId, ruleEngine, journal);
-        foreach (var playerId in fixture.Players)
-        {
-            session.EnsurePlayer(playerId);
-        }
-
-        foreach (var playerId in fixture.Players)
-        {
-            await session.ReadyAsync(
-                    playerId,
-                    $"fixture-ready-{playerId}",
-                    JsonSerializer.SerializeToElement(new { cmdType = "READY" }),
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
+        var session = await CreateSessionAsync(fixture, ruleEngine, journal, cancellationToken)
+            .ConfigureAwait(false);
 
         ResolutionResult? last = null;
         foreach (var command in fixture.Commands)
@@ -161,7 +149,142 @@ public static class ConformanceFixtureRunner
             .Select(gameEvent => gameEvent.Kind)
             .ToArray();
 
-        return new ConformanceRunResult(last.State.Tick, eventKinds, last.Prompts);
+        return new ConformanceRunResult(last.State.Tick, eventKinds, last.Prompts, last.State);
+    }
+
+    private static async ValueTask<MatchSession> CreateSessionAsync(
+        ConformanceFixture fixture,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        CancellationToken cancellationToken)
+    {
+        if (fixture.InitialState is not null)
+        {
+            return new MatchSession(BuildInitialState(fixture), ruleEngine, journal);
+        }
+
+        var session = new MatchSession(fixture.RoomId, ruleEngine, journal);
+        foreach (var playerId in fixture.Players)
+        {
+            session.EnsurePlayer(playerId);
+        }
+
+        return await ReadySessionAsync(session, fixture.Players, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<MatchSession> ReadySessionAsync(
+        MatchSession session,
+        IReadOnlyList<string> playerIds,
+        CancellationToken cancellationToken)
+    {
+        foreach (var playerId in playerIds)
+        {
+            await session.ReadyAsync(
+                    playerId,
+                    $"fixture-ready-{playerId}",
+                    JsonSerializer.SerializeToElement(new { cmdType = "READY" }),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return session;
+    }
+
+    private static MatchState BuildInitialState(ConformanceFixture fixture)
+    {
+        var initial = fixture.InitialState
+            ?? throw new InvalidOperationException($"Fixture {fixture.FixtureId} does not define initialState.");
+        var seats = BuildSeats(fixture.Players);
+        var activePlayerId = NormalizePlayerId(
+            initial.ActivePlayerId,
+            fixture.Players.FirstOrDefault() ?? "P1");
+        var turnPlayerId = NormalizePlayerId(initial.TurnPlayerId, activePlayerId);
+        var turnNumber = initial.TurnNumber ?? 1;
+        var phase = NormalizeText(initial.Phase, MatchPhases.Main);
+        var timingState = NormalizeText(initial.TimingState, TimingStates.NeutralOpen);
+
+        return new MatchState(
+            fixture.RoomId,
+            0,
+            turnNumber,
+            activePlayerId,
+            seats,
+            MatchStatuses.InProgress,
+            fixture.Players,
+            turnPlayerId,
+            phase,
+            timingState,
+            BuildRunePools(initial, fixture.Players),
+            BuildPlayerZones(initial, fixture.Players));
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)
+    {
+        return playerIds
+            .Select((playerId, index) => new
+            {
+                PlayerId = NormalizePlayerId(playerId, $"P{index + 1}"),
+                Seat = $"P{index + 1}"
+            })
+            .ToDictionary(entry => entry.PlayerId, entry => entry.Seat, StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, RunePool> BuildRunePools(
+        ConformanceInitialState initial,
+        IReadOnlyList<string> playerIds)
+    {
+        return playerIds.ToDictionary(
+            playerId => NormalizePlayerId(playerId, playerId),
+            playerId => initial.RunePools is not null
+                && initial.RunePools.TryGetValue(playerId, out var runePool)
+                    ? runePool
+                    : RunePool.Empty,
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, PlayerZones> BuildPlayerZones(
+        ConformanceInitialState initial,
+        IReadOnlyList<string> playerIds)
+    {
+        return playerIds.ToDictionary(
+            playerId => NormalizePlayerId(playerId, playerId),
+            playerId => initial.Players is not null
+                && initial.Players.TryGetValue(playerId, out var zones)
+                    ? ToPlayerZones(zones)
+                    : PlayerZones.Empty,
+            StringComparer.Ordinal);
+    }
+
+    private static PlayerZones ToPlayerZones(ConformancePlayerInitialState zones)
+    {
+        return new PlayerZones(
+            NormalizeZone(zones.MainDeck),
+            NormalizeZone(zones.RuneDeck),
+            NormalizeZone(zones.Hand),
+            NormalizeZone(zones.Base),
+            NormalizeZone(zones.Battlefields),
+            NormalizeZone(zones.Graveyard),
+            NormalizeZone(zones.Banished),
+            NormalizeZone(zones.LegendZone),
+            NormalizeZone(zones.ChampionZone));
+    }
+
+    private static IReadOnlyList<string> NormalizeZone(IReadOnlyList<string>? zone)
+    {
+        return (zone ?? [])
+            .Where(cardId => !string.IsNullOrWhiteSpace(cardId))
+            .Select(cardId => cardId.Trim())
+            .ToArray();
+    }
+
+    private static string NormalizePlayerId(string? playerId, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(playerId) ? fallback : playerId.Trim();
+    }
+
+    private static string NormalizeText(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

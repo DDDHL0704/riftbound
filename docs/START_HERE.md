@@ -96,7 +96,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 54 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 55 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -120,8 +120,9 @@
 - `InMemoryMatchSessionRegistry` 已接入 `IMatchRecoveryStore` 异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、P1/P2 seat、lastEventSequence 和已见过的 intent，用于防止重启后重复提交污染事件流，不把玩家视角 snapshot 当完整权威规则状态；跨 room recovery frame 会被 `RECOVERY_INCONSISTENT` 拒绝。
 - `state_snapshots` 权威状态快照表已加入 P1 schema 和 `004_p1_state_snapshots.sql` 迁移；`PostgresMatchJournal` 会写入服务端 `MatchState`，`PostgresMatchRecoveryStore` 会优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致；本机 PostgreSQL state snapshot smoke 通过。
 - `IMatchPlayerStore`、`PostgresMatchPlayerStore` 和 `ReconnectTokenHasher` 已接入；Join/Reconnect 会把 reconnect token 以 `sha256:` hash 写入 `match_players.reconnect_token_hash`，恢复后的 session 可用旧 token hash 重连，并在重连成功后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect，不能用 Join 直接领取新 token；本机 PostgreSQL token smoke 通过，库中不保存 token 明文。
-- P2 preflight 已开始落代码：`ConformanceFixture` 已能读取 schema v2 的 `initialState`、P2 `expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为规则审查后的回合开始样例，但暂不由 runner 执行规则断言。
-- `MatchState` 已增加 P2 权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`；snapshot timing 已投影这些字段，后续实现符文池与回合开始/结束流程时必须继续维护 `state_snapshots.payload`。
+- P2 preflight 已开始落代码：`ConformanceFixture` 已能读取 schema v2 的 `initialState`、P2 `expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为规则审查后的回合开始样例。
+- conformance runner 已能把 P2 `initialState` 应用为真实权威初始局面，不再走 Join/Ready 覆盖 `TURN_START`；P2 expected 仍未升级为完整规则断言。
+- `MatchState` 已增加 P2 权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`；snapshot timing 已投影 timing 字段，玩家 `handSize` 来自权威手牌区，后续实现符文池与回合开始/结束流程时必须继续维护 `state_snapshots.payload`。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -133,7 +134,7 @@
 
 第一批任务：
 
-1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：先让 runner 能把 `initialState` 应用到 `MatchState`，再实现符文池和回合开始流程。
+1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：下一步实现符文池和回合开始流程，让 `p2-preflight-turn-start.fixture.json` 从形状测试升级为行为 conformance。
 2. 接着实现 `END_TURN` 的回合结束特殊清理与回合推进，再做 `PASS_PRIORITY` / FEPR，最后做 `PASS_FOCUS` / 法术对决最小流程。
 3. P1 协议错误码保持稳定；P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
 4. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
