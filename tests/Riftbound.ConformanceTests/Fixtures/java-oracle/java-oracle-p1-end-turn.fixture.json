@@ -1,5 +1,24 @@
 {
+  "auditStatus" : "NEEDS_RULE_AUDIT",
   "catalogVersion" : "official-2026-04-27",
+  "faqVersion" : "CORE-260330 + JFAQ-251023 initial evidence; audit incomplete",
+  "rulesEvidence" : [ {
+    "source" : "CORE-260330",
+    "locator" : "p28-p29 rule 315",
+    "note" : "回合开始包含唤醒、据守、召出符文和抽牌等步骤。"
+  }, {
+    "source" : "CORE-260330",
+    "locator" : "p29-p31 rules 316-317",
+    "note" : "主阶段结束会进入回合结束阶段，随后执行回合结束特殊清理并推进回合队列。"
+  }, {
+    "source" : "CORE-260330",
+    "locator" : "p57 rule 413",
+    "note" : "抽牌是限定行动，开始阶段和规则效果可指示玩家抽牌。"
+  }, {
+    "source" : "JFAQ-251023",
+    "locator" : "p6-p7 questions 5.1-5.2",
+    "note" : "FAQ 澄清清理与特殊清理期间不结算合法项目，并重复至状态稳定。"
+  } ],
   "commands" : [ {
     "clientIntentId" : "java-end-turn-1",
     "cmd" : {

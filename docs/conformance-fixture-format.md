@@ -139,4 +139,4 @@ mvn -pl server -am \
 - `java-oracle-p1-end-turn.fixture.json`
 - `java-oracle-p1-duplicate-pass.fixture.json`
 
-C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。`ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；由于旧 Java 未纳入四份 FAQ，缺少 `rulesEvidence` 的 legacy fixture 会被视为需要规则重审。若 FAQ 裁决与 Java 行为冲突，后续 expected 应以 PDF/FAQ 为准。
+C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。`ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；现有 3 条 legacy fixture 已补初始 evidence，但仍标记为 `NEEDS_RULE_AUDIT`。若 FAQ 裁决与 Java 行为冲突，后续 expected 应以 PDF/FAQ 为准。

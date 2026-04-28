@@ -21,7 +21,8 @@
 3. `docs/phase-1.md`
 4. `docs/rules-authority-and-audit.md`
 5. `docs/development-audit-status.md`
-6. `docs/rules-card-baseline.md`
+6. `docs/rules-evidence-index.md`
+7. `docs/rules-card-baseline.md`
 
 `docs/START_HERE.md` 是防偏离入口：它记录当前目标、资料优先级、立即开发顺序、P1 禁止范围和验收门禁。
 
@@ -64,6 +65,7 @@ curl http://127.0.0.1:5088/catalog/summary
 - `docs/START_HERE.md`：新窗口接手指南，先读它以恢复目标和当前阶段。
 - `docs/rules-authority-and-audit.md`：五份 PDF 的规则权威、冲突裁决和已开发部分重审协议。
 - `docs/development-audit-status.md`：当前已开发内容的保留、修改和重审状态。
+- `docs/rules-evidence-index.md`：五份 PDF/FAQ 到规则域、fixture 和实现状态的证据索引。
 - `docs/rules-card-baseline.md`：规则 PDF/FAQ 与官网卡牌快照基线。
 - `docs/master-development-plan.md`：后续开发主线和阶段验收标准。
 - `docs/phase-1.md`：第一阶段联机底座任务清单。

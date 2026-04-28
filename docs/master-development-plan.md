@@ -101,7 +101,7 @@ flowchart LR
 - `docs/rules-authority-and-audit.md`
 - `docs/development-audit-status.md`
 - `docs/master-development-plan.md`
-- 后续生成 `docs/rules-evidence-index.md`
+- `docs/rules-evidence-index.md`
 - 后续生成 `data/official-card-catalog.json`
 - 后续生成 `data/functional-units.json`
 
@@ -570,11 +570,10 @@ Browser Use 阶段性测试：
 
 立即执行：
 
-1. 建立 `docs/rules-evidence-index.md`，抽取五份 PDF/FAQ 的目录、关键词、问题编号和相关规则域。
-2. 给现有 `PASS`、`END_TURN`、重复 `PASS` 三条 fixture 增加 `rulesEvidence`、`faqVersion`、`auditStatus`。
-3. 将 Java exporter 输出结构升级为 `legacyOracle`，保留旧 `oracle` 字段一段时间做兼容。
-4. 修改 P1 SQL 草案，补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
-5. 再完成第一批 10 条 fixture：
+1. 继续细化 `docs/rules-evidence-index.md`，把当前 3 条 fixture 的页码/问题编号确认到可验收状态。
+2. 将 Java exporter 输出结构升级为 `legacyOracle`，保留旧 `oracle` 字段一段时间做兼容。
+3. 修改 P1 SQL 草案，补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
+4. 再完成第一批 10 条 fixture：
    - P1/P2 加入和视角快照
    - 幂等重复提交
    - 符文横置/回收
@@ -585,7 +584,7 @@ Browser Use 阶段性测试：
    - 基础法术伤害
    - 装备装配
    - owner/controller 边界
-6. 在 C# 侧继续完善 fixture runner 和 canonical JSON diff。
+5. 在 C# 侧继续完善 fixture runner 和 canonical JSON diff。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

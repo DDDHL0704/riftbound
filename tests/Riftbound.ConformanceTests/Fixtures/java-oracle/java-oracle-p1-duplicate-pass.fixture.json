@@ -1,5 +1,16 @@
 {
+  "auditStatus" : "NEEDS_RULE_AUDIT",
   "catalogVersion" : "official-2026-04-27",
+  "faqVersion" : "engineering-invariant; no gameplay PDF/FAQ ruling yet",
+  "rulesEvidence" : [ {
+    "source" : "docs/phase-1.md",
+    "locator" : "P1 MatchSession idempotency",
+    "note" : "重复 clientIntentId 是服务端权威和网络重试幂等契约，不属于卡牌规则 PDF 裁决。"
+  }, {
+    "source" : "docs/rules-evidence-index.md",
+    "locator" : "Current Fixture Audit Mapping",
+    "note" : "该 fixture 保留为工程回归对照，不能作为游戏规则完成证据。"
+  } ],
   "commands" : [ {
     "clientIntentId" : "java-pass-duplicate-1",
     "cmd" : {

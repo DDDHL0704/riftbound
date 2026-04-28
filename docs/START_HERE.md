@@ -52,9 +52,10 @@
 4. `docs/phase-1.md`
 5. `docs/rules-authority-and-audit.md`
 6. `docs/development-audit-status.md`
-7. `docs/rules-card-baseline.md`
-8. `docs/conformance-fixture-format.md`
-9. 如需迁移背景，再读旧项目的 `docs/dotnet-migration-plan.md`
+7. `docs/rules-evidence-index.md`
+8. `docs/rules-card-baseline.md`
+9. `docs/conformance-fixture-format.md`
+10. 如需迁移背景，再读旧项目的 `docs/dotnet-migration-plan.md`
 
 如果上下文不够，再回到旧 Java 项目阅读：
 
@@ -97,6 +98,7 @@
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus` 字段。
+- `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 的规则域索引和当前 fixture 审查映射。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -108,12 +110,11 @@
 
 第一批任务：
 
-1. 抽取五份 PDF 的目录、关键词和 FAQ 问题索引。
-2. 给现有 `PASS`、`END_TURN`、重复 `PASS` 三条 fixture 增加规则依据记录。
-3. 扩展 fixture 格式：`rulesEvidence + legacyOracle + expected`，让 Java 输出降级为旧实现对照。
-4. 修改 P1 SQL 草案，补 `ruleset_version` / `faq_version` / fixture audit 相关字段。
-5. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
-6. 再扩展 P1 的重连 token 和 command log 原始 payload。
+1. 细化 `docs/rules-evidence-index.md` 中当前 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
+2. 扩展 fixture 格式：`legacyOracle + expected`，让 Java 输出降级为旧实现对照。
+3. 修改 P1 SQL 草案，补 `ruleset_version` / `faq_version` / fixture audit 相关字段。
+4. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
+5. 再扩展 P1 的重连 token 和 command log 原始 payload。
 
 P1 验收前不要开始：
 
@@ -173,7 +174,7 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 
 ```text
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
-先读取 README.md、docs/START_HERE.md、docs/master-development-plan.md、docs/phase-1.md、docs/rules-authority-and-audit.md、docs/development-audit-status.md、docs/rules-card-baseline.md。
+先读取 README.md、docs/START_HERE.md、docs/master-development-plan.md、docs/phase-1.md、docs/rules-authority-and-audit.md、docs/development-audit-status.md、docs/rules-evidence-index.md、docs/rules-card-baseline.md。
 目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
 当前阶段只推进 P1：先完成五份 PDF 的规则索引和现有 fixture 重审，再继续扩展联机底座、Persistence/CardCatalog、conformance runner。
 不要重做最终 UI，不要全量迁移卡牌，不要提交规则 PDF/FAQ，不要回退现有改动。
