@@ -64,13 +64,14 @@ seed + initial setup + command log
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass-priority.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-short-rune-deck.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
 
 ## 2.1 P2 schema v2 草案
 
-P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；P2 expected 仍未升级为完整规则断言：
+P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为。P2 richer expected 的通用 canonical diff 仍需继续补齐：
 
 ```json
 {
@@ -116,7 +117,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-下一步是把 schema v2 的 richer `expected` 接入 canonical diff，再让上述样例从“只验证形状/初始状态”升级为“验证规则行为”。
+下一步是把 schema v2 的 richer `expected` 接入通用 canonical diff，而不是只在单个测试中手写断言。
 
 ## 3. Fixture 后续必须补齐
 

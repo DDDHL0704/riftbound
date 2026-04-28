@@ -86,7 +86,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         var captured = Assert.IsType<MatchState>(ruleEngine.CapturedState);
-        Assert.Equal(2, captured.TurnNumber);
+        Assert.Equal(4, captured.TurnNumber);
         Assert.Equal("P2", captured.ActivePlayerId);
         Assert.Equal("P2", captured.TurnPlayerId);
         Assert.Equal("TURN_START", captured.Phase);
@@ -97,6 +97,56 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "P2-MAIN-001" }, captured.PlayerZones["P2"].MainDeck);
         Assert.Equal(1, result.FinalTick);
         Assert.Equal("TURN_START", result.FinalState.Phase);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineResolvesP2TurnStartPreflightFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.NotNull(fixture.Expected.FinalState);
+        Assert.Equal(fixture.Expected.FinalState.TurnNumber, result.FinalState.TurnNumber);
+        Assert.Equal(fixture.Expected.FinalState.ActivePlayerId, result.FinalState.ActivePlayerId);
+        Assert.Equal(fixture.Expected.FinalState.TurnPlayerId, result.FinalState.TurnPlayerId);
+        Assert.Equal(fixture.Expected.FinalState.Phase, result.FinalState.Phase);
+        Assert.Equal(fixture.Expected.FinalState.TimingState, result.FinalState.TimingState);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P2"]);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].RuneDeck);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].MainDeck);
+        Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(
+            new[] { "P2-RUNE-001", "P2-RUNE-002" },
+            result.FinalState.PlayerZones["P2"].Base);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineCallsAvailableRunesWhenRuneDeckIsShort()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start-short-rune-deck.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P2"]);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(new[] { "P2-RUNE-ONLY" }, result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
     }
 
     [Theory]

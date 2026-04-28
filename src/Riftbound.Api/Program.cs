@@ -13,7 +13,7 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddRiftboundPersistence(builder.Configuration);
-builder.Services.AddSingleton<IRuleEngine, PlaceholderRuleEngine>();
+builder.Services.AddSingleton<IRuleEngine, CoreRuleEngine>();
 builder.Services.AddSingleton<IMatchSessionRegistry, InMemoryMatchSessionRegistry>();
 
 var app = builder.Build();
