@@ -490,6 +490,7 @@ public sealed class MatchSession : IMatchSession
                     completedEventSequence,
                     result.Accepted,
                     result.ErrorMessage,
+                    result.State,
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
@@ -515,6 +516,14 @@ public sealed class MatchSession : IMatchSession
 
     private static MatchState RestoreState(MatchRecoveryFrame recovery)
     {
+        if (recovery.AuthoritativeState is not null)
+        {
+            return recovery.AuthoritativeState with
+            {
+                Tick = recovery.CurrentTick
+            };
+        }
+
         if (recovery.PlayerViews.Count == 0)
         {
             return MatchState.Create(recovery.RoomId) with

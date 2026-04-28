@@ -115,6 +115,43 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RegistryHydratesRecoveredSessionFromAuthoritativeState()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            4,
+            3,
+            "bob",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            4,
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            authoritativeState);
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(frame));
+
+        var session = await registry.GetOrCreateAsync("room-a", CancellationToken.None);
+
+        var snapshot = session.SnapshotFor("alice");
+        Assert.Equal(4, snapshot.Tick);
+        Assert.Equal(3, snapshot.TurnNumber);
+        Assert.Equal("bob", snapshot.ActivePlayerId);
+        Assert.Equal("P1", PlayerSeat(snapshot, "alice"));
+        Assert.Equal("P2", PlayerSeat(snapshot, "bob"));
+    }
+
+    [Fact]
     public async Task RecoveredDuplicateIntentDoesNotWriteJournalOrAdvanceTick()
     {
         var journal = new RecordingMatchJournal();
@@ -227,6 +264,38 @@ public sealed class MatchRecoveryTests
         var errors = MatchRecoveryValidator.Validate("room-a", 0, [], [], playerViews);
 
         Assert.Contains(errors, error => error.Contains("disagrees on active player", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void RecoveryValidatorRejectsPlayerViewsThatDisagreeWithAuthoritativeState()
+    {
+        var playerViews = new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal)
+        {
+            ["alice"] = PlayerView("alice", 1, 0, activePlayerId: "alice"),
+            ["bob"] = PlayerView("bob", 1, 0, activePlayerId: "alice")
+        };
+        var authoritativeState = new MatchState(
+            "room-a",
+            1,
+            1,
+            "bob",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            playerViews,
+            authoritativeState);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("disagrees with authoritative state active player", StringComparison.Ordinal));
     }
 
     private static RecoveredEvent RecoveredEvent(long sequence, string kind)

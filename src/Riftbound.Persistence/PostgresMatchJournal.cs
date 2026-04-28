@@ -23,6 +23,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         await UpsertMatchAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await InsertCommandAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await InsertEventsAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
+        await UpsertStateSnapshotAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await UpsertSnapshotsAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await UpsertPromptsAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
 
@@ -183,6 +184,38 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             AddJson(command, "payload", snapshot);
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
+    }
+
+    private static async Task UpsertStateSnapshotAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction transaction,
+        MatchJournalEntry entry,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            insert into state_snapshots (
+                match_id, state_tick, last_event_sequence,
+                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+            )
+            values (
+                @match_id, @state_tick, @last_event_sequence,
+                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+            )
+            on conflict (match_id, state_tick, last_event_sequence) do update
+            set ruleset_version = excluded.ruleset_version,
+                faq_version = excluded.faq_version,
+                rules_audit_status = excluded.rules_audit_status,
+                rules_evidence = excluded.rules_evidence,
+                payload = excluded.payload,
+                created_at = now();
+            """;
+        await using var command = new NpgsqlCommand(sql, connection, transaction);
+        command.Parameters.AddWithValue("match_id", entry.RoomId);
+        command.Parameters.AddWithValue("state_tick", entry.AuthoritativeState.Tick);
+        command.Parameters.AddWithValue("last_event_sequence", entry.CompletedEventSequence);
+        AddRulesetParameters(command, entry);
+        AddJson(command, "payload", entry.AuthoritativeState);
+        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task UpsertPromptsAsync(

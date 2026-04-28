@@ -537,7 +537,8 @@ Browser Use 阶段性测试：
 | `match_players` | 玩家座位、连接状态、重连 token hash |
 | `command_log` | 客户端意图、命令原文、幂等键、结果、规则依据 |
 | `game_events` | 权威事件流，按 match 内 `event_sequence` 单调排序 |
-| `snapshots` | 周期性全量快照和玩家视角快照，记录规则依据和 `last_event_sequence` |
+| `state_snapshots` | 服务端权威完整状态快照，记录 `last_event_sequence`，用于恢复和回放校验 |
+| `snapshots` | 玩家视角快照，记录规则依据和 `last_event_sequence`，只用于重连视图和一致性校验 |
 | `official_cards` | 官网卡牌条目 |
 | `functional_units` | 后端功能逻辑单元 |
 | `card_behavior_status` | 卡牌实现和验收状态 |
@@ -572,7 +573,6 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - 权威 full-state snapshot 和 hydrate 流程
    - `match_players.reconnect_token_hash` 持久化重连
    - 幂等重复提交
    - 符文横置/回收
@@ -583,7 +583,7 @@ Browser Use 阶段性测试：
    - 基础法术伤害
    - 装备装配
    - owner/controller 边界
-2. 在 C# 侧继续完善 fixture runner、canonical JSON diff、event sequence、权威 full-state snapshot 和 recovery hydrate。
+2. 在 C# 侧继续完善 fixture runner、canonical JSON diff、event sequence、权威状态快照和 recovery hydrate。
 3. 新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留为 Java legacy oracle 对照。
 
 已完成的 P1 底座项：
@@ -592,7 +592,8 @@ Browser Use 阶段性测试：
 - recovery 读取/校验路径已建立：可从 PostgreSQL 读取 match、command、events、最新 snapshot/prompt，并校验 event sequence、command 边界和 player view sequence。
 - `001_p1_event_store.sql` 已避免在旧库缺少 003 新列时提前创建 sequence 索引。
 - P1 提交路径错误码已覆盖未知玩家、unsupported command 和重复 intent 冲突；未 Join 的玩家提交命令不会隐式入座。
-- RoomRegistry/MatchSession 恢复入口已接入：可恢复 P1 底座状态、lastEventSequence 和已见过 intent；full-state snapshot 未完成前，不把玩家视角 snapshot 当完整权威规则状态。
+- RoomRegistry/MatchSession 恢复入口已接入：可恢复 P1 底座状态、lastEventSequence 和已见过 intent；恢复优先使用权威 `state_snapshots`，玩家视角 snapshot 只作为重连视图和一致性校验依据。
+- `state_snapshots` 权威状态快照已接入 journal、PostgreSQL schema 和 recovery；恢复时优先使用与当前 `last_event_sequence` 对齐的服务端 `MatchState`。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

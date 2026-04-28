@@ -37,7 +37,8 @@ public sealed record MatchRecoveryFrame(
     IReadOnlyList<RecoveredCommand> Commands,
     IReadOnlyList<RecoveredEvent> Events,
     IReadOnlyDictionary<string, RecoveredPlayerView> PlayerViews,
-    IReadOnlyList<string> ValidationErrors)
+    IReadOnlyList<string> ValidationErrors,
+    MatchState? AuthoritativeState = null)
 {
     public bool IsConsistent => ValidationErrors.Count == 0;
 
@@ -74,7 +75,8 @@ public static class MatchRecoveryValidator
         long lastEventSequence,
         IReadOnlyList<RecoveredCommand> commands,
         IReadOnlyList<RecoveredEvent> events,
-        IReadOnlyDictionary<string, RecoveredPlayerView> playerViews)
+        IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
+        MatchState? authoritativeState = null)
     {
         var errors = new List<string>();
 
@@ -92,6 +94,7 @@ public static class MatchRecoveryValidator
         ValidateCommands(lastEventSequence, commands, events, errors);
         ValidatePlayerViews(lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
+        ValidateAuthoritativeState(roomId, authoritativeState, playerViews, errors);
 
         return errors;
     }
@@ -242,6 +245,42 @@ public static class MatchRecoveryValidator
             if (!SeatsEqual(baselineSeats, seats))
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees on player seats");
+            }
+        }
+    }
+
+    private static void ValidateAuthoritativeState(
+        string roomId,
+        MatchState? authoritativeState,
+        IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
+        List<string> errors)
+    {
+        if (authoritativeState is null)
+        {
+            return;
+        }
+
+        if (!string.Equals(authoritativeState.RoomId, roomId, StringComparison.Ordinal))
+        {
+            errors.Add($"authoritative state room {authoritativeState.RoomId} does not match recovery room {roomId}");
+        }
+
+        foreach (var view in playerViews.Values)
+        {
+            if (view.Snapshot.TurnNumber != authoritativeState.TurnNumber)
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state turn number");
+            }
+
+            if (!string.Equals(view.Snapshot.ActivePlayerId, authoritativeState.ActivePlayerId, StringComparison.Ordinal))
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state active player");
+            }
+
+            var viewSeats = ExtractSeats(view.Snapshot);
+            if (!SeatsEqual(authoritativeState.Seats, viewSeats))
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
         }
     }

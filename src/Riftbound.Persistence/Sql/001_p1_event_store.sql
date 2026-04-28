@@ -79,6 +79,20 @@ create table if not exists snapshots (
     unique (match_id, player_id, snapshot_tick)
 );
 
+create table if not exists state_snapshots (
+    id bigserial primary key,
+    match_id text not null references matches(match_id) on delete cascade,
+    state_tick bigint not null,
+    last_event_sequence bigint not null default 0,
+    ruleset_version text not null default 'rules-260330',
+    faq_version text not null default 'official-pdf-faq-set-2026-04-28',
+    rules_audit_status text not null default 'NEEDS_RULE_AUDIT',
+    rules_evidence jsonb not null default '[]'::jsonb,
+    payload jsonb not null,
+    created_at timestamptz not null default now(),
+    unique (match_id, state_tick, last_event_sequence)
+);
+
 create table if not exists action_prompts (
     id bigserial primary key,
     match_id text not null references matches(match_id) on delete cascade,
@@ -140,6 +154,7 @@ create table if not exists oracle_fixtures (
 create index if not exists idx_command_log_match_tick on command_log(match_id, completed_tick);
 create index if not exists idx_game_events_match_tick on game_events(match_id, event_tick, event_order);
 create index if not exists idx_snapshots_match_player_tick on snapshots(match_id, player_id, snapshot_tick);
+create index if not exists idx_state_snapshots_match_sequence on state_snapshots(match_id, last_event_sequence);
 create index if not exists idx_action_prompts_match_player_tick on action_prompts(match_id, player_id, prompt_tick);
 create index if not exists idx_official_cards_functional_unit on official_cards(functional_unit_id);
 create index if not exists idx_oracle_fixtures_audit_status on oracle_fixtures(audit_status);

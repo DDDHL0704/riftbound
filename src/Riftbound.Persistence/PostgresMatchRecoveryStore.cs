@@ -24,12 +24,18 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         var commands = await LoadCommandsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
         var events = await LoadEventsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
         var playerViews = await LoadPlayerViewsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
+        var authoritativeState = await LoadAuthoritativeStateAsync(
+            connection,
+            roomId,
+            metadata.LastEventSequence,
+            cancellationToken).ConfigureAwait(false);
         var validationErrors = MatchRecoveryValidator.Validate(
             metadata.RoomId,
             metadata.LastEventSequence,
             commands,
             events,
-            playerViews);
+            playerViews,
+            authoritativeState);
 
         return new MatchRecoveryFrame(
             metadata.RoomId,
@@ -38,7 +44,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             commands,
             events,
             playerViews,
-            validationErrors);
+            validationErrors,
+            authoritativeState);
     }
 
     private static async Task<MatchRecoveryMetadata?> LoadMetadataAsync(
@@ -163,6 +170,27 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         }
 
         return views;
+    }
+
+    private static async Task<MatchState?> LoadAuthoritativeStateAsync(
+        NpgsqlConnection connection,
+        string roomId,
+        long lastEventSequence,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            select payload::text
+            from state_snapshots
+            where match_id = @match_id
+              and last_event_sequence = @last_event_sequence
+            order by last_event_sequence desc, state_tick desc, id desc
+            limit 1;
+            """;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("match_id", roomId);
+        command.Parameters.AddWithValue("last_event_sequence", lastEventSequence);
+        var payload = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        return payload is string json ? Deserialize<MatchState>(json) : null;
     }
 
     private static async Task<IReadOnlyDictionary<string, RecoveredPrompt>> LoadLatestPromptsAsync(

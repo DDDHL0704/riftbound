@@ -27,6 +27,7 @@ public sealed record MatchJournalEntry(
     long CompletedEventSequence,
     bool Accepted,
     string? ErrorMessage,
+    MatchState AuthoritativeState,
     IReadOnlyList<GameEvent> Events,
     IReadOnlyDictionary<string, SnapshotDto> Snapshots,
     IReadOnlyDictionary<string, ActionPromptDto> Prompts,
