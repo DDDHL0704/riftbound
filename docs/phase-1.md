@@ -46,7 +46,7 @@
   - conformance runner 已能把 P2 `initialState` 应用为权威初始状态，包含 turn/phase/timing、符文池和玩家区域。
   - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文；燃尽 fixture 已验证主牌堆为空、废牌堆可回收时对手得 1 分并完成抽牌；`END_TURN` fixture 已验证 P1 主阶段结束后执行最小回合结束清理、推进到 P2 并自动结算 P2 回合开始；特殊清理 fixture 已验证单位伤害移除和本回合内效果失效；清理重复 fixture 已验证特殊清理造成状态变化后追加一次常规清理检查。
 
-下一步继续 P2 preflight：把《惩戒》逻辑抽成可扩展 card behavior handler/registry。普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝；FEPR、法术对决、连续燃尽胜利和首个官方法术打出结算通道已通过 fixture。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
+下一步继续 P2 preflight：迁移第二张低复杂度官方卡，并逐步补 richer expected canonical diff。普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝；FEPR、法术对决、连续燃尽胜利和首个官方法术打出结算通道已通过 fixture，且《惩戒》已进入最小 card behavior registry。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 

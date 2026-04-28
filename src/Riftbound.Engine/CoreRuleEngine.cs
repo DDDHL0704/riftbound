@@ -5,10 +5,6 @@ namespace Riftbound.Engine;
 public sealed class CoreRuleEngine : IRuleEngine
 {
     private const int WinningScore = 8;
-    private const string PunishmentCardNo = "UNL-007/219";
-    private const int PunishmentCost = 2;
-    private const int PunishmentDamage = 3;
-    private const string PunishmentEffectKind = "PUNISHMENT_DAMAGE_3";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -80,7 +76,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        if (!string.Equals(command.CardNo, PunishmentCardNo, StringComparison.Ordinal))
+        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
         {
             return RejectWithCorePrompts(
                 state,
@@ -100,27 +96,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         var targetObjectId = command.TargetObjectIds.Count == 1
             ? command.TargetObjectIds[0]
             : string.Empty;
-        if (!IsBattlefieldObject(state, targetObjectId))
+        if (command.TargetObjectIds.Count != behavior.RequiredTargetCount
+            || !IsBattlefieldObject(state, targetObjectId))
         {
             return RejectWithCorePrompts(
                 state,
-                "Punishment requires exactly one battlefield unit target.",
+                $"{behavior.DisplayName} requires exactly one battlefield unit target.",
                 ErrorCodes.InvalidTarget);
         }
 
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < PunishmentCost)
+        if (currentPool.Mana < behavior.ManaCost)
         {
             return RejectWithCorePrompts(
                 state,
-                "Not enough mana to play Punishment.",
+                $"Not enough mana to play {behavior.DisplayName}.",
                 ErrorCodes.InsufficientCost);
         }
 
         runePools[intent.PlayerId] = currentPool with
         {
-            Mana = currentPool.Mana - PunishmentCost
+            Mana = currentPool.Mana - behavior.ManaCost
         };
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -135,10 +132,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
             intent.PlayerId,
             command.SourceObjectId,
-            PunishmentEffectKind,
+            behavior.EffectKind,
             command.CardNo,
             [targetObjectId],
-            PunishmentDamage);
+            behavior.DamageAmount);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -155,7 +152,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             new GameEvent(
                 "CARD_PLAYED",
-                $"{intent.PlayerId} 打出惩戒",
+                $"{intent.PlayerId} 打出{behavior.DisplayName}",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
@@ -164,15 +161,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }),
             new GameEvent(
                 "COST_PAID",
-                $"{intent.PlayerId} 支付 {PunishmentCost} 点费用",
+                $"{intent.PlayerId} 支付 {behavior.ManaCost} 点费用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["mana"] = PunishmentCost
+                    ["mana"] = behavior.ManaCost
                 }),
             new GameEvent(
                 "STACK_ITEM_ADDED",
-                "惩戒加入结算链",
+                $"{behavior.DisplayName}加入结算链",
                 new Dictionary<string, object?>
                 {
                     ["stackItemId"] = stackItem.StackItemId,
@@ -455,7 +452,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
-        if (!string.Equals(stackItem.EffectKind, PunishmentEffectKind, StringComparison.Ordinal)
+        if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || stackItem.TargetObjectIds.Count != 1
             || stackItem.DamageAmount <= 0)
         {
@@ -488,7 +485,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             [
                 new GameEvent(
                     "DAMAGE_APPLIED",
-                    "惩戒造成 3 点伤害",
+                    $"{behavior.DisplayName}造成 {stackItem.DamageAmount} 点伤害",
                     new Dictionary<string, object?>
                     {
                         ["sourceObjectId"] = stackItem.SourceObjectId,

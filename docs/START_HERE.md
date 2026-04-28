@@ -135,8 +135,8 @@
 
 第一批任务：
 
-1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：下一步把 `PLAY_CARD` 通道抽成可扩展的最小 card behavior handler/registry，不再把《惩戒》逻辑硬编码散落在规则引擎里。
-2. 接着逐批迁移基础卡牌能力，先选费用、目标、入栈、结算和对象状态都较低复杂度的样例。
+1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：`PLAY_CARD` 已有最小 card behavior registry；下一步迁移第二张低复杂度官方卡，优先选择同类“费用 + 单目标 + 伤害/状态”的法术。
+2. 同时准备 richer expected canonical diff，减少 fixture 测试中的手写断言。
 3. P1 协议错误码保持稳定；P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
 4. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
 5. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
