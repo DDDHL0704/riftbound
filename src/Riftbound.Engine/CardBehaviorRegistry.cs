@@ -79,6 +79,14 @@ public static class CardBehaviorRegistry
             6,
             1),
         new(
+            "UNL-061/219",
+            "台前作秀",
+            2,
+            "CENTER_STAGE_DRAW_1",
+            0,
+            0,
+            DrawCount: 1),
+        new(
             "OGN·024/298",
             "虚空索敌",
             3,

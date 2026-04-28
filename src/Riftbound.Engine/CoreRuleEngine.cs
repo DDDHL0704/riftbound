@@ -525,58 +525,61 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            || stackItem.TargetObjectIds.Count != 1)
+            || stackItem.TargetObjectIds.Count != behavior.RequiredTargetCount)
         {
             return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, []);
         }
 
-        var targetObjectId = stackItem.TargetObjectIds[0];
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
-            ? existingTarget
-            : new CardObjectState(targetObjectId);
-
         var events = new List<GameEvent>();
-        var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
-        if (damageAmount > 0)
+        if (behavior.RequiredTargetCount > 0)
         {
-            targetState = targetState with
-            {
-                Damage = targetState.Damage + damageAmount
-            };
-            events.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = targetObjectId,
-                    ["damage"] = damageAmount
-                }));
-        }
+            var targetObjectId = stackItem.TargetObjectIds[0];
+            var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                ? existingTarget
+                : new CardObjectState(targetObjectId);
 
-        if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
-        {
-            targetState = targetState with
+            var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
+            if (damageAmount > 0)
             {
-                UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                    .Concat([behavior.StatusEffectId])
-                    .Distinct(StringComparer.Ordinal)
-                    .OrderBy(effectId => effectId, StringComparer.Ordinal)
-                    .ToArray()
-            };
-            events.Add(new GameEvent(
-                "STATUS_EFFECT_APPLIED",
-                $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
-                new Dictionary<string, object?>
+                targetState = targetState with
                 {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = targetObjectId,
-                    ["effectId"] = behavior.StatusEffectId
-                }));
-        }
+                    Damage = targetState.Damage + damageAmount
+                };
+                events.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["damage"] = damageAmount
+                    }));
+            }
 
-        cardObjects[targetObjectId] = targetState;
+            if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
+            {
+                targetState = targetState with
+                {
+                    UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                        .Concat([behavior.StatusEffectId])
+                        .Distinct(StringComparer.Ordinal)
+                        .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                        .ToArray()
+                };
+                events.Add(new GameEvent(
+                    "STATUS_EFFECT_APPLIED",
+                    $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["effectId"] = behavior.StatusEffectId
+                    }));
+            }
+
+            cardObjects[targetObjectId] = targetState;
+        }
 
         var playerZones = NormalizeZonesForSeats(state);
         var playerScores = state.PlayerScores;
