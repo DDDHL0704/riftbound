@@ -99,6 +99,7 @@
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus` 字段。
 - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 的规则域索引和当前 fixture 审查映射。
+- Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -111,10 +112,9 @@
 第一批任务：
 
 1. 细化 `docs/rules-evidence-index.md` 中当前 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
-2. 扩展 fixture 格式：`legacyOracle + expected`，让 Java 输出降级为旧实现对照。
-3. 修改 P1 SQL 草案，补 `ruleset_version` / `faq_version` / fixture audit 相关字段。
-4. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
-5. 再扩展 P1 的重连 token 和 command log 原始 payload。
+2. 修改 P1 SQL 草案，补 `ruleset_version` / `faq_version` / fixture audit 相关字段。
+3. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
+4. 再扩展 P1 的重连 token 和 command log 原始 payload。
 
 P1 验收前不要开始：
 

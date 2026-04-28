@@ -18,12 +18,20 @@ public sealed record ConformanceFixture(
     string? RulesVersion = null,
     string? FaqVersion = null,
     string? CatalogVersion = null,
-    string? JavaCommit = null)
+    string? JavaCommit = null,
+    JsonElement? LegacyOracle = null,
+    JsonElement? Oracle = null)
 {
     public bool RequiresRuleAudit =>
         string.Equals(AuditStatus, "NEEDS_RULE_AUDIT", StringComparison.OrdinalIgnoreCase)
         || RulesEvidence is null
         || RulesEvidence.Count == 0;
+
+    public bool HasLegacyOracle =>
+        LegacyOracle is { ValueKind: JsonValueKind.Object };
+
+    public bool HasCompatibilityOracle =>
+        Oracle is { ValueKind: JsonValueKind.Object };
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

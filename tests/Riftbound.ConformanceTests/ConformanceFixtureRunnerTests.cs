@@ -39,6 +39,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("75bf7cf", fixture.JavaCommit);
         Assert.Equal(new[] { "TURN_ENDED" }, fixture.Expected.EventKinds);
         Assert.True(fixture.RequiresRuleAudit);
+        Assert.NotEmpty(fixture.RulesEvidence ?? []);
+        Assert.True(fixture.HasLegacyOracle);
+        Assert.True(fixture.HasCompatibilityOracle);
     }
 
     [Theory]
@@ -64,6 +67,9 @@ public sealed class ConformanceFixtureRunnerTests
         }
 
         Assert.True(fixture.RequiresRuleAudit);
+        Assert.NotEmpty(fixture.RulesEvidence ?? []);
+        Assert.True(fixture.HasLegacyOracle);
+        Assert.True(fixture.HasCompatibilityOracle);
     }
 
     [Fact]

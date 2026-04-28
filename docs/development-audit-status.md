@@ -50,9 +50,8 @@
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
 1. 细化 `docs/rules-evidence-index.md` 中现有 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
-2. 修改 Java exporter 输出结构：新增 `legacyOracle`，保留旧 `oracle` 一段时间做兼容。
-3. 修改 P1 SQL 草案：补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
-4. 再做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
+2. 修改 P1 SQL 草案：补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
+3. 再做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
 
 ## 5. 重审验收
 

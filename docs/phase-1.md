@@ -21,8 +21,9 @@
   - `PASS`、`END_TURN`、重复 `PASS` 的事件日志 fixture 已与 C# 当前规则骨架对齐，但尚未完成四份 FAQ 重审。
   - `ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；旧 Java fixture 因缺少规则依据会被视为 `RequiresRuleAudit`。
   - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 到规则域和当前 fixture 的初始索引。
+  - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
 
-下一步先细化现有 3 条 fixture 的规则依据和 FAQ 冲突检查，并把 Java exporter 输出结构升级为 `legacyOracle`；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
+下一步先细化现有 3 条 fixture 的规则依据和 FAQ 冲突检查，并补 P1 SQL 中的规则/FAQ/audit 字段；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
 
 ## 不做范围
 

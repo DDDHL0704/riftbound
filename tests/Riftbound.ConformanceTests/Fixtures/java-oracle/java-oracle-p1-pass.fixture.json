@@ -1,24 +1,6 @@
 {
   "auditStatus" : "NEEDS_RULE_AUDIT",
   "catalogVersion" : "official-2026-04-27",
-  "faqVersion" : "CORE-260330 + JFAQ-251023 initial evidence; audit incomplete",
-  "rulesEvidence" : [ {
-    "source" : "CORE-260330",
-    "locator" : "p27-p28 rules 309-313",
-    "note" : "回合状态、优先行动权和焦点决定玩家是否能进行自决行动。"
-  }, {
-    "source" : "CORE-260330",
-    "locator" : "p35 rules 338-340",
-    "note" : "结算链流程中的让过会传递优先行动权，并在所有玩家让过后进入结算。"
-  }, {
-    "source" : "CORE-260330",
-    "locator" : "p36 rules 347-348",
-    "note" : "法术对决中的让过会影响焦点传递和法术对决关闭。"
-  }, {
-    "source" : "JFAQ-251023",
-    "locator" : "p4-p5 questions 3.1-3.3",
-    "note" : "FAQ 澄清焦点、活跃玩家和初始结算链后的优先行动权。"
-  } ],
   "commands" : [ {
     "clientIntentId" : "java-pass-1",
     "cmd" : {
@@ -35,9 +17,10 @@
       "P2" : [ "WAIT" ]
     }
   },
+  "faqVersion" : "CORE-260330 + JFAQ-251023 initial evidence; audit incomplete",
   "fixtureId" : "java-oracle-p1-pass",
   "javaCommit" : "75bf7cf",
-  "oracle" : {
+  "legacyOracle" : {
     "events" : [ {
       "kind" : "TURN_ENDED",
       "description" : "Player One 选择暂不行动",
@@ -131,58 +114,6 @@
             "targetScope" : "FRIENDLY_SLEEPING_BATTLEFIELD_UNIT"
           }
         }, {
-          "id" : "P1-ARENA_CROWD_FAVORITE-2:NORMAL",
-          "type" : "PLAY_CARD",
-          "cardId" : "P1-ARENA_CROWD_FAVORITE-2",
-          "cardCode" : "ARENA_CROWD_FAVORITE",
-          "cardName" : "竞技场人气王",
-          "cardType" : "UNIT",
-          "mode" : "NORMAL",
-          "playable" : false,
-          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
-          "requirement" : {
-            "experienceCost" : 0,
-            "genericRuneCost" : 0,
-            "resourceCost" : 3,
-            "runeCost" : {
-              "FURY" : 1
-            },
-            "totalRuneCost" : 1
-          },
-          "costCheck" : {
-            "availableExperience" : 0,
-            "availableGenericRunes" : 0,
-            "availableResource" : 0,
-            "availableRunes" : { },
-            "experienceSatisfied" : true,
-            "missingExperience" : 0,
-            "missingGenericRunes" : 0,
-            "missingResource" : 3,
-            "missingRunes" : {
-              "FURY" : 1
-            },
-            "modeAllowed" : true,
-            "payable" : false,
-            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
-            "requiredExperience" : 0,
-            "requiredGenericRunes" : 0,
-            "requiredResource" : 3,
-            "requiredRunes" : {
-              "FURY" : 1
-            },
-            "requiredTotalRunes" : 1,
-            "resourceSatisfied" : false,
-            "runeSatisfied" : false
-          },
-          "prompt" : {
-            "cardId" : "P1-ARENA_CROWD_FAVORITE-2",
-            "mode" : "NORMAL",
-            "optionalCosts" : [ ],
-            "requiredTargets" : [ ]
-          },
-          "combat" : { },
-          "payload" : { }
-        }, {
           "id" : "P1-YVNA-11:NORMAL",
           "type" : "PLAY_CARD",
           "cardId" : "P1-YVNA-11",
@@ -236,19 +167,19 @@
           "combat" : { },
           "payload" : { }
         }, {
-          "id" : "P1-YVNA-12:NORMAL",
+          "id" : "P1-ARENA_CROWD_FAVORITE-4:NORMAL",
           "type" : "PLAY_CARD",
-          "cardId" : "P1-YVNA-12",
-          "cardCode" : "YVNA",
-          "cardName" : "伊焚娜",
+          "cardId" : "P1-ARENA_CROWD_FAVORITE-4",
+          "cardCode" : "ARENA_CROWD_FAVORITE",
+          "cardName" : "竞技场人气王",
           "cardType" : "UNIT",
           "mode" : "NORMAL",
           "playable" : false,
-          "reason" : "普通资源不足：还缺 2；符能不足：还缺 FURY 1",
+          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
           "requirement" : {
             "experienceCost" : 0,
             "genericRuneCost" : 0,
-            "resourceCost" : 2,
+            "resourceCost" : 3,
             "runeCost" : {
               "FURY" : 1
             },
@@ -262,16 +193,16 @@
             "experienceSatisfied" : true,
             "missingExperience" : 0,
             "missingGenericRunes" : 0,
-            "missingResource" : 2,
+            "missingResource" : 3,
             "missingRunes" : {
               "FURY" : 1
             },
             "modeAllowed" : true,
             "payable" : false,
-            "reason" : "普通资源不足：还缺 2；符能不足：还缺 FURY 1",
+            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
             "requiredExperience" : 0,
             "requiredGenericRunes" : 0,
-            "requiredResource" : 2,
+            "requiredResource" : 3,
             "requiredRunes" : {
               "FURY" : 1
             },
@@ -280,8 +211,7 @@
             "runeSatisfied" : false
           },
           "prompt" : {
-            "cardId" : "P1-YVNA-12",
-            "hintText" : "伏击需要选择一处已有己方单位的战场。",
+            "cardId" : "P1-ARENA_CROWD_FAVORITE-4",
             "mode" : "NORMAL",
             "optionalCosts" : [ ],
             "requiredTargets" : [ ]
@@ -289,19 +219,19 @@
           "combat" : { },
           "payload" : { }
         }, {
-          "id" : "P1-BROMEIN_LORD-6:NORMAL",
+          "id" : "P1-ARENA_CROWD_FAVORITE-2:NORMAL",
           "type" : "PLAY_CARD",
-          "cardId" : "P1-BROMEIN_LORD-6",
-          "cardCode" : "BROMEIN_LORD",
-          "cardName" : "布罗梅因领主",
+          "cardId" : "P1-ARENA_CROWD_FAVORITE-2",
+          "cardCode" : "ARENA_CROWD_FAVORITE",
+          "cardName" : "竞技场人气王",
           "cardType" : "UNIT",
           "mode" : "NORMAL",
           "playable" : false,
-          "reason" : "普通资源不足：还缺 5；符能不足：还缺 FURY 1",
+          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
           "requirement" : {
             "experienceCost" : 0,
             "genericRuneCost" : 0,
-            "resourceCost" : 5,
+            "resourceCost" : 3,
             "runeCost" : {
               "FURY" : 1
             },
@@ -315,16 +245,16 @@
             "experienceSatisfied" : true,
             "missingExperience" : 0,
             "missingGenericRunes" : 0,
-            "missingResource" : 5,
+            "missingResource" : 3,
             "missingRunes" : {
               "FURY" : 1
             },
             "modeAllowed" : true,
             "payable" : false,
-            "reason" : "普通资源不足：还缺 5；符能不足：还缺 FURY 1",
+            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
             "requiredExperience" : 0,
             "requiredGenericRunes" : 0,
-            "requiredResource" : 5,
+            "requiredResource" : 3,
             "requiredRunes" : {
               "FURY" : 1
             },
@@ -333,11 +263,73 @@
             "runeSatisfied" : false
           },
           "prompt" : {
-            "cardId" : "P1-BROMEIN_LORD-6",
-            "hintText" : "伏击需要选择一处已有己方单位的战场。",
+            "cardId" : "P1-ARENA_CROWD_FAVORITE-2",
             "mode" : "NORMAL",
             "optionalCosts" : [ ],
             "requiredTargets" : [ ]
+          },
+          "combat" : { },
+          "payload" : { }
+        }, {
+          "id" : "P1-GRIM_APOTHECARY-9:NORMAL",
+          "type" : "PLAY_CARD",
+          "cardId" : "P1-GRIM_APOTHECARY-9",
+          "cardCode" : "GRIM_APOTHECARY",
+          "cardName" : "阴森药剂师",
+          "cardType" : "UNIT",
+          "mode" : "NORMAL",
+          "playable" : false,
+          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+          "requirement" : {
+            "experienceCost" : 0,
+            "genericRuneCost" : 0,
+            "resourceCost" : 3,
+            "runeCost" : {
+              "FURY" : 1
+            },
+            "totalRuneCost" : 1
+          },
+          "costCheck" : {
+            "availableExperience" : 0,
+            "availableGenericRunes" : 0,
+            "availableResource" : 0,
+            "availableRunes" : { },
+            "experienceSatisfied" : true,
+            "missingExperience" : 0,
+            "missingGenericRunes" : 0,
+            "missingResource" : 3,
+            "missingRunes" : {
+              "FURY" : 1
+            },
+            "modeAllowed" : true,
+            "payable" : false,
+            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+            "requiredExperience" : 0,
+            "requiredGenericRunes" : 0,
+            "requiredResource" : 3,
+            "requiredRunes" : {
+              "FURY" : 1
+            },
+            "requiredTotalRunes" : 1,
+            "resourceSatisfied" : false,
+            "runeSatisfied" : false
+          },
+          "prompt" : {
+            "cardId" : "P1-GRIM_APOTHECARY-9",
+            "hintText" : "伏击需要选择一处已有己方单位的战场。",
+            "mode" : "NORMAL",
+            "optionalCosts" : [ ],
+            "requiredTargets" : [ {
+              "id" : "recallFriendly",
+              "label" : "选择最多一名战场上的友方单位返回其所属手牌",
+              "max" : 1,
+              "min" : 0,
+              "selector" : {
+                "filters" : [ "BATTLEFIELD" ],
+                "side" : "SELF",
+                "zone" : "UNIT"
+              }
+            } ]
           },
           "combat" : { },
           "payload" : { }
@@ -428,53 +420,8 @@
             "deckSize" : 7,
             "equipmentDetail" : [ ],
             "experience" : 0,
-            "hand" : [ "ARENA_CROWD_FAVORITE", "YVNA", "YVNA", "BROMEIN_LORD" ],
+            "hand" : [ "YVNA", "ARENA_CROWD_FAVORITE", "ARENA_CROWD_FAVORITE", "GRIM_APOTHECARY" ],
             "handDetail" : [ {
-              "behavior" : "SPEND_TWO_EXPERIENCE_GAIN_SELF_BUFF",
-              "buff" : null,
-              "buffAttackBonus" : 0,
-              "cardNumber" : "UNL-102/219",
-              "code" : "ARENA_CROWD_FAVORITE",
-              "cost" : 3,
-              "damageMarked" : 0,
-              "displayName" : "竞技场人气王",
-              "genericRuneCost" : 0,
-              "hasBuff" : false,
-              "hasDeathknell" : false,
-              "hasGanking" : false,
-              "id" : "P1-ARENA_CROWD_FAVORITE-2",
-              "keywordDescriptions" : {
-                "HUNT" : ""
-              },
-              "keywordDescriptionsZh" : {
-                "HUNT" : ""
-              },
-              "keywordValues" : {
-                "HUNT" : 1
-              },
-              "keywords" : [ "HUNT" ],
-              "keywordsZh" : [ "狩猎" ],
-              "lethalThreshold" : 3,
-              "mainDeckCardForLegion" : true,
-              "maxHp" : 3,
-              "might" : 3,
-              "name" : "Arena Crowd Favorite",
-              "nameZh" : "竞技场人气王",
-              "ownerId" : "P1",
-              "remainingBeforeLethal" : 3,
-              "resourceCost" : 3,
-              "runeColors" : [ "FURY" ],
-              "runeCost" : {
-                "FURY" : 1
-              },
-              "spellTiming" : "NONE",
-              "text" : "Hunt. Spend 2 experience: give me BUFF.",
-              "textZh" : "{{狩猎}}（当我征服或据守一处战场时，获得1点经验值。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
-              "timingKeyword" : "NONE",
-              "type" : "UNIT",
-              "typeZh" : "单位",
-              "zone" : "HAND"
-            }, {
               "assault" : 2,
               "assaultPrinted" : 2,
               "buff" : null,
@@ -523,67 +470,109 @@
               "typeZh" : "单位",
               "zone" : "HAND"
             }, {
-              "assault" : 2,
-              "assaultPrinted" : 2,
+              "behavior" : "SPEND_TWO_EXPERIENCE_GAIN_SELF_BUFF",
               "buff" : null,
               "buffAttackBonus" : 0,
-              "cardNumber" : "UNL-002/219",
-              "code" : "YVNA",
-              "cost" : 2,
+              "cardNumber" : "UNL-102/219",
+              "code" : "ARENA_CROWD_FAVORITE",
+              "cost" : 3,
               "damageMarked" : 0,
-              "displayName" : "伊焚娜",
+              "displayName" : "竞技场人气王",
               "genericRuneCost" : 0,
               "hasBuff" : false,
               "hasDeathknell" : false,
               "hasGanking" : false,
-              "id" : "P1-YVNA-12",
+              "id" : "P1-ARENA_CROWD_FAVORITE-4",
               "keywordDescriptions" : {
-                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way.",
-                "ASSAULT" : "ASSAULT 2: If I attack, I get +2 might."
+                "HUNT" : ""
               },
               "keywordDescriptionsZh" : {
-                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。",
-                "ASSAULT" : "强攻2：如果我是进攻方，则战力 +2。"
+                "HUNT" : ""
               },
               "keywordValues" : {
-                "ASSAULT" : 2
+                "HUNT" : 1
               },
-              "keywords" : [ "ASSAULT", "AMBUSH" ],
-              "keywordsZh" : [ "强攻2", "伏击" ],
-              "lethalThreshold" : 1,
+              "keywords" : [ "HUNT" ],
+              "keywordsZh" : [ "狩猎" ],
+              "lethalThreshold" : 3,
               "mainDeckCardForLegion" : true,
-              "maxHp" : 1,
-              "might" : 1,
-              "name" : "Yvna",
-              "nameZh" : "伊焚娜",
+              "maxHp" : 3,
+              "might" : 3,
+              "name" : "Arena Crowd Favorite",
+              "nameZh" : "竞技场人气王",
               "ownerId" : "P1",
-              "remainingBeforeLethal" : 1,
-              "resourceCost" : 2,
+              "remainingBeforeLethal" : 3,
+              "resourceCost" : 3,
               "runeColors" : [ "FURY" ],
               "runeCost" : {
                 "FURY" : 1
               },
               "spellTiming" : "NONE",
-              "text" : "Ambush. Assault 2.",
-              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）",
+              "text" : "Hunt. Spend 2 experience: give me BUFF.",
+              "textZh" : "{{狩猎}}（当我征服或据守一处战场时，获得1点经验值。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
               "timingKeyword" : "NONE",
               "type" : "UNIT",
               "typeZh" : "单位",
               "zone" : "HAND"
             }, {
-              "behavior" : "AMBUSH_ON_PLAY_GRANT_OTHER_ALLIES_ASSAULT",
+              "behavior" : "SPEND_TWO_EXPERIENCE_GAIN_SELF_BUFF",
               "buff" : null,
               "buffAttackBonus" : 0,
-              "cardNumber" : "UNL-012/219",
-              "code" : "BROMEIN_LORD",
-              "cost" : 5,
+              "cardNumber" : "UNL-102/219",
+              "code" : "ARENA_CROWD_FAVORITE",
+              "cost" : 3,
               "damageMarked" : 0,
-              "displayName" : "布罗梅因领主",
+              "displayName" : "竞技场人气王",
               "genericRuneCost" : 0,
               "hasBuff" : false,
               "hasDeathknell" : false,
               "hasGanking" : false,
-              "id" : "P1-BROMEIN_LORD-6",
+              "id" : "P1-ARENA_CROWD_FAVORITE-2",
+              "keywordDescriptions" : {
+                "HUNT" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "HUNT" : ""
+              },
+              "keywordValues" : {
+                "HUNT" : 1
+              },
+              "keywords" : [ "HUNT" ],
+              "keywordsZh" : [ "狩猎" ],
+              "lethalThreshold" : 3,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 3,
+              "might" : 3,
+              "name" : "Arena Crowd Favorite",
+              "nameZh" : "竞技场人气王",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 3,
+              "resourceCost" : 3,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Hunt. Spend 2 experience: give me BUFF.",
+              "textZh" : "{{狩猎}}（当我征服或据守一处战场时，获得1点经验值。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "AMBUSH_ON_PLAY_OPTIONAL_RECALL_FRIENDLY_BATTLEFIELD_UNIT",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-021/219",
+              "code" : "GRIM_APOTHECARY",
+              "cost" : 3,
+              "damageMarked" : 0,
+              "displayName" : "阴森药剂师",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P1-GRIM_APOTHECARY-9",
               "keywordDescriptions" : {
                 "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way."
               },
@@ -593,22 +582,22 @@
               "keywordValues" : { },
               "keywords" : [ "AMBUSH" ],
               "keywordsZh" : [ "伏击" ],
-              "lethalThreshold" : 5,
+              "lethalThreshold" : 3,
               "mainDeckCardForLegion" : true,
-              "maxHp" : 5,
-              "might" : 5,
-              "name" : "Bromein Lord",
-              "nameZh" : "布罗梅因领主",
+              "maxHp" : 3,
+              "might" : 3,
+              "name" : "Grim Apothecary",
+              "nameZh" : "阴森药剂师",
               "ownerId" : "P1",
-              "remainingBeforeLethal" : 5,
-              "resourceCost" : 5,
+              "remainingBeforeLethal" : 3,
+              "resourceCost" : 3,
               "runeColors" : [ "FURY" ],
               "runeCost" : {
                 "FURY" : 1
               },
               "spellTiming" : "NONE",
-              "text" : "Ambush. When you play me, other units you have here gain Assault this turn.",
-              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，让你此处的其他单位本回合内获得{{强攻}}。（如果他们是进攻方，则{{S}}+1。）",
+              "text" : "Ambush. When you play me, you may return a friendly battlefield unit to its owner's hand.",
+              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，你可以选择让一名战场上的友方单位返回其所属的手牌。",
               "timingKeyword" : "NONE",
               "type" : "UNIT",
               "typeZh" : "单位",
@@ -670,7 +659,7 @@
               },
               "list" : [ {
                 "code" : "FURY_BASIC",
-                "id" : "P1-RUNE-FURY_BASIC-8",
+                "id" : "P1-RUNE-FURY_BASIC-7",
                 "name" : "Fury Channel",
                 "nameZh" : "狂怒导符",
                 "ownerId" : "P1",
@@ -678,7 +667,7 @@
                 "state" : "ACTIVE"
               }, {
                 "code" : "FURY_BASIC",
-                "id" : "P1-RUNE-FURY_BASIC-9",
+                "id" : "P1-RUNE-FURY_BASIC-10",
                 "name" : "Fury Channel",
                 "nameZh" : "狂怒导符",
                 "ownerId" : "P1",
@@ -1073,7 +1062,7 @@
               },
               "list" : [ {
                 "code" : "FURY_BASIC",
-                "id" : "P1-RUNE-FURY_BASIC-8",
+                "id" : "P1-RUNE-FURY_BASIC-7",
                 "name" : "Fury Channel",
                 "nameZh" : "狂怒导符",
                 "ownerId" : "P1",
@@ -1081,7 +1070,7 @@
                 "state" : "ACTIVE"
               }, {
                 "code" : "FURY_BASIC",
-                "id" : "P1-RUNE-FURY_BASIC-9",
+                "id" : "P1-RUNE-FURY_BASIC-10",
                 "name" : "Fury Channel",
                 "nameZh" : "狂怒导符",
                 "ownerId" : "P1",
@@ -1202,99 +1191,53 @@
             "deckSize" : 8,
             "equipmentDetail" : [ ],
             "experience" : 0,
-            "hand" : [ "STALKING_SNOW_WOLF", "DARIUS", "POPPY_HELPING_HAND" ],
+            "hand" : [ "POPPY_HELPING_HAND", "POPPY_HELPING_HAND", "STALKING_SNOW_WOLF" ],
             "handDetail" : [ {
-              "behavior" : "AMBUSH_SACRIFICE_KINDRED_UNIT",
+              "behavior" : "SPEND_EXPERIENCE_TO_REDUCE_COST_THREE",
               "buff" : null,
               "buffAttackBonus" : 0,
-              "cardNumber" : "UNL-166/219",
-              "code" : "STALKING_SNOW_WOLF",
-              "cost" : 4,
+              "cardNumber" : "UNL-178/219",
+              "code" : "POPPY_HELPING_HAND",
+              "cost" : 6,
               "damageMarked" : 0,
-              "displayName" : "追猎雪狼",
+              "displayName" : "波比",
               "genericRuneCost" : 0,
               "hasBuff" : false,
               "hasDeathknell" : false,
               "hasGanking" : false,
-              "id" : "P2-STALKING_SNOW_WOLF-10",
+              "hasTank" : true,
+              "id" : "P2-POPPY_HELPING_HAND-5",
               "keywordDescriptions" : {
-                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way."
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way.",
+                "TANK" : "TANK: Must take lethal damage before other targets can be damaged."
               },
               "keywordDescriptionsZh" : {
-                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。"
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。",
+                "TANK" : "壁垒：必须先对我分配致命伤害后才能伤及其他目标。"
               },
               "keywordValues" : { },
-              "keywords" : [ "AMBUSH" ],
-              "keywordsZh" : [ "伏击" ],
-              "lethalThreshold" : 6,
+              "keywords" : [ "TANK", "AMBUSH" ],
+              "keywordsZh" : [ "壁垒", "伏击" ],
+              "lethalThreshold" : 5,
               "mainDeckCardForLegion" : true,
-              "maxHp" : 6,
-              "might" : 6,
-              "name" : "Stalking Snow Wolf",
-              "nameZh" : "追猎雪狼",
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Poppy, Helping Hand",
+              "nameZh" : "波比",
               "ownerId" : "P2",
-              "remainingBeforeLethal" : 6,
-              "resourceCost" : 4,
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 6,
               "runeColors" : [ "ORDER" ],
               "runeCost" : {
                 "ORDER" : 1
               },
               "spellTiming" : "NONE",
-              "text" : "Ambush. You must destroy a Bird, Cat, Dog, or Poro unit you control as an additional cost to play me. You may play me to that unit's lane, even if you have no other units there.",
-              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n你必须摧毁一名自己控制的“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，作为打出我的额外费用。你可以选择将我打出至该单位所在的战场（即使你在该处没有其他单位）。",
+              "tank" : true,
+              "tankPrinted" : true,
+              "text" : "You may spend 3 experience as an additional cost to play me to reduce my cost by 3. Ambush. Tank.",
+              "textZh" : "你可以选择消耗3经验，作为打出我的额外费用，以此让我的费用减少{{3}}。\n{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{壁垒}}（我在战斗中首先承担伤害。）",
               "timingKeyword" : "NONE",
-              "traits" : [ "犬形" ],
-              "type" : "UNIT",
-              "typeZh" : "单位",
-              "zone" : "HAND"
-            }, {
-              "behavior" : "SECOND_CARD_PLAYED_READY_SELF_TEMP_MIGHT_TWO",
-              "buff" : null,
-              "buffAttackBonus" : 0,
-              "cardNumber" : "OGN·027/298",
-              "code" : "DARIUS",
-              "cost" : 5,
-              "damageMarked" : 0,
-              "displayName" : "德莱厄斯",
-              "genericRuneCost" : 0,
-              "hasBuff" : false,
-              "hasDeathknell" : false,
-              "hasGanking" : false,
-              "id" : "P2-DARIUS-3",
-              "keywordDescriptions" : {
-                "CHAMPION" : "",
-                "DARIUS" : "",
-                "FURY" : "",
-                "NOXUS" : "",
-                "TRIFARIAN" : ""
-              },
-              "keywordDescriptionsZh" : {
-                "CHAMPION" : "",
-                "DARIUS" : "",
-                "FURY" : "",
-                "NOXUS" : "",
-                "TRIFARIAN" : ""
-              },
-              "keywordValues" : { },
-              "keywords" : [ "NOXUS", "CHAMPION", "TRIFARIAN", "DARIUS", "FURY" ],
-              "keywordsZh" : [ "诺克萨斯", "冠军", "帝国军", "德莱厄斯", "狂怒" ],
-              "lethalThreshold" : 5,
-              "mainDeckCardForLegion" : true,
-              "maxHp" : 5,
-              "might" : 5,
-              "name" : "Darius",
-              "nameZh" : "德莱厄斯",
-              "ownerId" : "P2",
-              "remainingBeforeLethal" : 5,
-              "resourceCost" : 5,
-              "runeColors" : [ "FURY" ],
-              "runeCost" : {
-                "FURY" : 1
-              },
-              "spellTiming" : "NONE",
-              "text" : "Whenever you play your second card in a turn, I get +2 might this turn and become ready.",
-              "textZh" : "每当你在回合中打出第二张牌时，让我本回合内{{S}}+2，并让我变为活跃状态。",
-              "timingKeyword" : "NONE",
+              "traits" : [ "约德尔人" ],
               "type" : "UNIT",
               "typeZh" : "英雄单位",
               "zone" : "HAND"
@@ -1346,6 +1289,1508 @@
               "traits" : [ "约德尔人" ],
               "type" : "UNIT",
               "typeZh" : "英雄单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "AMBUSH_SACRIFICE_KINDRED_UNIT",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-166/219",
+              "code" : "STALKING_SNOW_WOLF",
+              "cost" : 4,
+              "damageMarked" : 0,
+              "displayName" : "追猎雪狼",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P2-STALKING_SNOW_WOLF-11",
+              "keywordDescriptions" : {
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way."
+              },
+              "keywordDescriptionsZh" : {
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。"
+              },
+              "keywordValues" : { },
+              "keywords" : [ "AMBUSH" ],
+              "keywordsZh" : [ "伏击" ],
+              "lethalThreshold" : 6,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 6,
+              "might" : 6,
+              "name" : "Stalking Snow Wolf",
+              "nameZh" : "追猎雪狼",
+              "ownerId" : "P2",
+              "remainingBeforeLethal" : 6,
+              "resourceCost" : 4,
+              "runeColors" : [ "ORDER" ],
+              "runeCost" : {
+                "ORDER" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Ambush. You must destroy a Bird, Cat, Dog, or Poro unit you control as an additional cost to play me. You may play me to that unit's lane, even if you have no other units there.",
+              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n你必须摧毁一名自己控制的“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，作为打出我的额外费用。你可以选择将我打出至该单位所在的战场（即使你在该处没有其他单位）。",
+              "timingKeyword" : "NONE",
+              "traits" : [ "犬形" ],
+              "type" : "UNIT",
+              "typeZh" : "单位",
+              "zone" : "HAND"
+            } ],
+            "handSize" : 3,
+            "isFirst" : false,
+            "legend" : {
+              "cardNumber" : "UNL-201/219",
+              "code" : "VOIDREAVER",
+              "displayName" : "虚空掠夺者",
+              "exhausted" : false,
+              "id" : "P2-LEGEND-VOIDREAVER-1",
+              "keywordDescriptions" : {
+                "NOXUS" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "NOXUS" : ""
+              },
+              "keywords" : [ "NOXUS" ],
+              "keywordsZh" : [ "诺克萨斯" ],
+              "name" : "Voidreaver",
+              "nameZh" : "虚空掠夺者",
+              "runeColors" : [ "BODY", "MIND" ],
+              "spellTiming" : "NONE",
+              "temporaryModifiers" : { },
+              "text" : "When you win a battle, gain 1 experience. Spend 1 experience, exhaust: give a unit BUFF. Spend 2 experience, exhaust: move a friendly exhausted unit on a battlefield to its base.",
+              "textZh" : "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+              "timingKeyword" : "NONE",
+              "turnMarkers" : { }
+            },
+            "mainDeckCardsPlayedThisTurn" : 0,
+            "name" : "Player Two",
+            "resourcePool" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "resources" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "runeDeckDetail" : {
+              "counts" : {
+                "ORDER" : 12
+              },
+              "size" : 12
+            },
+            "runeDeckSize" : 12,
+            "runeInventory" : {
+              "counts" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "list" : [ ],
+              "recycled" : { }
+            },
+            "runes" : {
+              "available" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "gainedThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "pendingRecall" : { },
+              "recalled" : { },
+              "spentThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "total" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "turnIncome" : { }
+            },
+            "score" : 0,
+            "trash" : [ ],
+            "trashDetail" : [ ],
+            "trashSize" : 0
+          }
+        },
+        "lanes" : {
+          "L1" : {
+            "attackers" : [ ],
+            "attackersDetail" : [ ],
+            "contestedBy" : null,
+            "controller" : null,
+            "defenders" : [ ],
+            "defendersDetail" : [ ],
+            "hasStagedCombat" : false,
+            "inCombat" : false
+          },
+          "L2" : {
+            "attackers" : [ ],
+            "attackersDetail" : [ ],
+            "contestedBy" : null,
+            "controller" : null,
+            "defenders" : [ ],
+            "defendersDetail" : [ ],
+            "hasStagedCombat" : false,
+            "inCombat" : false
+          }
+        },
+        "stack" : [ ],
+        "extraTurns" : [ ],
+        "timing" : {
+          "gameOver" : false,
+          "pendingCounterPayment" : false,
+          "pendingShowdowns" : 0,
+          "pendingTriggeredAbility" : false,
+          "showdownActive" : false,
+          "stackOpen" : true,
+          "stackSize" : 0,
+          "turnPhase" : "ACTION",
+          "windowState" : "OPEN",
+          "winnerPlayerId" : null,
+          "winningScore" : 8
+        },
+        "turnState" : "NEUTRAL_OPEN",
+        "currentCombatLaneId" : null,
+        "stagedCombatLanes" : [ ]
+      }
+    }
+  },
+  "oracle" : {
+    "events" : [ {
+      "kind" : "TURN_ENDED",
+      "description" : "Player One 选择暂不行动",
+      "payload" : { }
+    } ],
+    "prompts" : {
+      "P1" : {
+        "playerId" : "P1",
+        "actionable" : true,
+        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
+        "availableActions" : [ {
+          "id" : "PASS",
+          "type" : "PASS",
+          "cardId" : "",
+          "cardCode" : "",
+          "cardName" : "",
+          "cardType" : "",
+          "mode" : "",
+          "playable" : true,
+          "reason" : "让过当前窗口",
+          "requirement" : { },
+          "costCheck" : { },
+          "prompt" : { },
+          "combat" : { },
+          "payload" : { }
+        }, {
+          "id" : "END_TURN",
+          "type" : "END_TURN",
+          "cardId" : "",
+          "cardCode" : "",
+          "cardName" : "",
+          "cardType" : "",
+          "mode" : "",
+          "playable" : true,
+          "reason" : "结束当前回合",
+          "requirement" : { },
+          "costCheck" : { },
+          "prompt" : { },
+          "combat" : { },
+          "payload" : { }
+        }, {
+          "id" : "ACTIVATE_ABILITY:P1-LEGEND-VOIDREAVER-1:VOIDREAVER_SPEND_ONE_EXPERIENCE_EXHAUST_BUFF_UNIT",
+          "type" : "ACTIVATE_ABILITY",
+          "cardId" : "",
+          "cardCode" : "",
+          "cardName" : "",
+          "cardType" : "",
+          "mode" : "",
+          "playable" : false,
+          "reason" : "经验不足，无法激活 虚空掠夺者 的技能",
+          "requirement" : { },
+          "costCheck" : { },
+          "prompt" : { },
+          "combat" : { },
+          "payload" : {
+            "abilityKey" : "VOIDREAVER_SPEND_ONE_EXPERIENCE_EXHAUST_BUFF_UNIT",
+            "commandType" : "ACTIVATE_ABILITY",
+            "experienceCost" : 1,
+            "label" : "消耗 1 经验，横置：给予一名单位增益",
+            "requiredTargets" : 1,
+            "sourceCode" : "VOIDREAVER",
+            "sourceId" : "P1-LEGEND-VOIDREAVER-1",
+            "sourceName" : "虚空掠夺者",
+            "sourceType" : "LEGEND",
+            "targetScope" : "ANY_UNIT"
+          }
+        }, {
+          "id" : "ACTIVATE_ABILITY:P1-LEGEND-VOIDREAVER-1:VOIDREAVER_SPEND_TWO_EXPERIENCE_EXHAUST_RECALL_SLEEPING_FRIENDLY_UNIT",
+          "type" : "ACTIVATE_ABILITY",
+          "cardId" : "",
+          "cardCode" : "",
+          "cardName" : "",
+          "cardType" : "",
+          "mode" : "",
+          "playable" : false,
+          "reason" : "经验不足，无法激活 虚空掠夺者 的技能",
+          "requirement" : { },
+          "costCheck" : { },
+          "prompt" : { },
+          "combat" : { },
+          "payload" : {
+            "abilityKey" : "VOIDREAVER_SPEND_TWO_EXPERIENCE_EXHAUST_RECALL_SLEEPING_FRIENDLY_UNIT",
+            "commandType" : "ACTIVATE_ABILITY",
+            "experienceCost" : 2,
+            "label" : "消耗 2 经验，横置：将一名休眠友方战场单位移回基地",
+            "requiredTargets" : 1,
+            "sourceCode" : "VOIDREAVER",
+            "sourceId" : "P1-LEGEND-VOIDREAVER-1",
+            "sourceName" : "虚空掠夺者",
+            "sourceType" : "LEGEND",
+            "targetScope" : "FRIENDLY_SLEEPING_BATTLEFIELD_UNIT"
+          }
+        }, {
+          "id" : "P1-YVNA-11:NORMAL",
+          "type" : "PLAY_CARD",
+          "cardId" : "P1-YVNA-11",
+          "cardCode" : "YVNA",
+          "cardName" : "伊焚娜",
+          "cardType" : "UNIT",
+          "mode" : "NORMAL",
+          "playable" : false,
+          "reason" : "普通资源不足：还缺 2；符能不足：还缺 FURY 1",
+          "requirement" : {
+            "experienceCost" : 0,
+            "genericRuneCost" : 0,
+            "resourceCost" : 2,
+            "runeCost" : {
+              "FURY" : 1
+            },
+            "totalRuneCost" : 1
+          },
+          "costCheck" : {
+            "availableExperience" : 0,
+            "availableGenericRunes" : 0,
+            "availableResource" : 0,
+            "availableRunes" : { },
+            "experienceSatisfied" : true,
+            "missingExperience" : 0,
+            "missingGenericRunes" : 0,
+            "missingResource" : 2,
+            "missingRunes" : {
+              "FURY" : 1
+            },
+            "modeAllowed" : true,
+            "payable" : false,
+            "reason" : "普通资源不足：还缺 2；符能不足：还缺 FURY 1",
+            "requiredExperience" : 0,
+            "requiredGenericRunes" : 0,
+            "requiredResource" : 2,
+            "requiredRunes" : {
+              "FURY" : 1
+            },
+            "requiredTotalRunes" : 1,
+            "resourceSatisfied" : false,
+            "runeSatisfied" : false
+          },
+          "prompt" : {
+            "cardId" : "P1-YVNA-11",
+            "hintText" : "伏击需要选择一处已有己方单位的战场。",
+            "mode" : "NORMAL",
+            "optionalCosts" : [ ],
+            "requiredTargets" : [ ]
+          },
+          "combat" : { },
+          "payload" : { }
+        }, {
+          "id" : "P1-ARENA_CROWD_FAVORITE-4:NORMAL",
+          "type" : "PLAY_CARD",
+          "cardId" : "P1-ARENA_CROWD_FAVORITE-4",
+          "cardCode" : "ARENA_CROWD_FAVORITE",
+          "cardName" : "竞技场人气王",
+          "cardType" : "UNIT",
+          "mode" : "NORMAL",
+          "playable" : false,
+          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+          "requirement" : {
+            "experienceCost" : 0,
+            "genericRuneCost" : 0,
+            "resourceCost" : 3,
+            "runeCost" : {
+              "FURY" : 1
+            },
+            "totalRuneCost" : 1
+          },
+          "costCheck" : {
+            "availableExperience" : 0,
+            "availableGenericRunes" : 0,
+            "availableResource" : 0,
+            "availableRunes" : { },
+            "experienceSatisfied" : true,
+            "missingExperience" : 0,
+            "missingGenericRunes" : 0,
+            "missingResource" : 3,
+            "missingRunes" : {
+              "FURY" : 1
+            },
+            "modeAllowed" : true,
+            "payable" : false,
+            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+            "requiredExperience" : 0,
+            "requiredGenericRunes" : 0,
+            "requiredResource" : 3,
+            "requiredRunes" : {
+              "FURY" : 1
+            },
+            "requiredTotalRunes" : 1,
+            "resourceSatisfied" : false,
+            "runeSatisfied" : false
+          },
+          "prompt" : {
+            "cardId" : "P1-ARENA_CROWD_FAVORITE-4",
+            "mode" : "NORMAL",
+            "optionalCosts" : [ ],
+            "requiredTargets" : [ ]
+          },
+          "combat" : { },
+          "payload" : { }
+        }, {
+          "id" : "P1-ARENA_CROWD_FAVORITE-2:NORMAL",
+          "type" : "PLAY_CARD",
+          "cardId" : "P1-ARENA_CROWD_FAVORITE-2",
+          "cardCode" : "ARENA_CROWD_FAVORITE",
+          "cardName" : "竞技场人气王",
+          "cardType" : "UNIT",
+          "mode" : "NORMAL",
+          "playable" : false,
+          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+          "requirement" : {
+            "experienceCost" : 0,
+            "genericRuneCost" : 0,
+            "resourceCost" : 3,
+            "runeCost" : {
+              "FURY" : 1
+            },
+            "totalRuneCost" : 1
+          },
+          "costCheck" : {
+            "availableExperience" : 0,
+            "availableGenericRunes" : 0,
+            "availableResource" : 0,
+            "availableRunes" : { },
+            "experienceSatisfied" : true,
+            "missingExperience" : 0,
+            "missingGenericRunes" : 0,
+            "missingResource" : 3,
+            "missingRunes" : {
+              "FURY" : 1
+            },
+            "modeAllowed" : true,
+            "payable" : false,
+            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+            "requiredExperience" : 0,
+            "requiredGenericRunes" : 0,
+            "requiredResource" : 3,
+            "requiredRunes" : {
+              "FURY" : 1
+            },
+            "requiredTotalRunes" : 1,
+            "resourceSatisfied" : false,
+            "runeSatisfied" : false
+          },
+          "prompt" : {
+            "cardId" : "P1-ARENA_CROWD_FAVORITE-2",
+            "mode" : "NORMAL",
+            "optionalCosts" : [ ],
+            "requiredTargets" : [ ]
+          },
+          "combat" : { },
+          "payload" : { }
+        }, {
+          "id" : "P1-GRIM_APOTHECARY-9:NORMAL",
+          "type" : "PLAY_CARD",
+          "cardId" : "P1-GRIM_APOTHECARY-9",
+          "cardCode" : "GRIM_APOTHECARY",
+          "cardName" : "阴森药剂师",
+          "cardType" : "UNIT",
+          "mode" : "NORMAL",
+          "playable" : false,
+          "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+          "requirement" : {
+            "experienceCost" : 0,
+            "genericRuneCost" : 0,
+            "resourceCost" : 3,
+            "runeCost" : {
+              "FURY" : 1
+            },
+            "totalRuneCost" : 1
+          },
+          "costCheck" : {
+            "availableExperience" : 0,
+            "availableGenericRunes" : 0,
+            "availableResource" : 0,
+            "availableRunes" : { },
+            "experienceSatisfied" : true,
+            "missingExperience" : 0,
+            "missingGenericRunes" : 0,
+            "missingResource" : 3,
+            "missingRunes" : {
+              "FURY" : 1
+            },
+            "modeAllowed" : true,
+            "payable" : false,
+            "reason" : "普通资源不足：还缺 3；符能不足：还缺 FURY 1",
+            "requiredExperience" : 0,
+            "requiredGenericRunes" : 0,
+            "requiredResource" : 3,
+            "requiredRunes" : {
+              "FURY" : 1
+            },
+            "requiredTotalRunes" : 1,
+            "resourceSatisfied" : false,
+            "runeSatisfied" : false
+          },
+          "prompt" : {
+            "cardId" : "P1-GRIM_APOTHECARY-9",
+            "hintText" : "伏击需要选择一处已有己方单位的战场。",
+            "mode" : "NORMAL",
+            "optionalCosts" : [ ],
+            "requiredTargets" : [ {
+              "id" : "recallFriendly",
+              "label" : "选择最多一名战场上的友方单位返回其所属手牌",
+              "max" : 1,
+              "min" : 0,
+              "selector" : {
+                "filters" : [ "BATTLEFIELD" ],
+                "side" : "SELF",
+                "zone" : "UNIT"
+              }
+            } ]
+          },
+          "combat" : { },
+          "payload" : { }
+        } ],
+        "reason" : "当前玩家普通开环行动"
+      },
+      "P2" : {
+        "playerId" : "P2",
+        "actionable" : false,
+        "actions" : [ "WAIT" ],
+        "availableActions" : [ ],
+        "reason" : "等待对手行动"
+      }
+    },
+    "snapshots" : {
+      "P1" : {
+        "tick" : 1,
+        "turnNumber" : 1,
+        "activePlayerId" : "P1",
+        "players" : {
+          "P1" : {
+            "banished" : [ ],
+            "banishedDetail" : [ ],
+            "banishedSize" : 0,
+            "baseDetail" : [ ],
+            "baseEquipments" : [ ],
+            "cardsPlayedThisTurn" : 0,
+            "champion" : {
+              "active" : true,
+              "behavior" : "SECOND_CARD_PLAYED_READY_SELF_TEMP_MIGHT_TWO",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "OGN·027/298",
+              "code" : "DARIUS",
+              "controllerId" : "P1",
+              "cost" : 5,
+              "damageMarked" : 0,
+              "displayName" : "德莱厄斯",
+              "exhausted" : false,
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "hasStun" : false,
+              "hasTemporary" : false,
+              "hp" : 5,
+              "id" : "P1-DARIUS-1",
+              "keywordDescriptions" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordValues" : { },
+              "keywords" : [ "NOXUS", "CHAMPION", "TRIFARIAN", "DARIUS", "FURY" ],
+              "keywordsZh" : [ "诺克萨斯", "冠军", "帝国军", "德莱厄斯", "狂怒" ],
+              "lethalDamage" : false,
+              "lethalThreshold" : 5,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Darius",
+              "nameZh" : "德莱厄斯",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 5,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "stunned" : false,
+              "text" : "Whenever you play your second card in a turn, I get +2 might this turn and become ready.",
+              "textZh" : "每当你在回合中打出第二张牌时，让我本回合内{{S}}+2，并让我变为活跃状态。",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "英雄单位",
+              "zone" : "CHAMPION"
+            },
+            "deckSize" : 7,
+            "equipmentDetail" : [ ],
+            "experience" : 0,
+            "hand" : [ "YVNA", "ARENA_CROWD_FAVORITE", "ARENA_CROWD_FAVORITE", "GRIM_APOTHECARY" ],
+            "handDetail" : [ {
+              "assault" : 2,
+              "assaultPrinted" : 2,
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-002/219",
+              "code" : "YVNA",
+              "cost" : 2,
+              "damageMarked" : 0,
+              "displayName" : "伊焚娜",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P1-YVNA-11",
+              "keywordDescriptions" : {
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way.",
+                "ASSAULT" : "ASSAULT 2: If I attack, I get +2 might."
+              },
+              "keywordDescriptionsZh" : {
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。",
+                "ASSAULT" : "强攻2：如果我是进攻方，则战力 +2。"
+              },
+              "keywordValues" : {
+                "ASSAULT" : 2
+              },
+              "keywords" : [ "ASSAULT", "AMBUSH" ],
+              "keywordsZh" : [ "强攻2", "伏击" ],
+              "lethalThreshold" : 1,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 1,
+              "might" : 1,
+              "name" : "Yvna",
+              "nameZh" : "伊焚娜",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 1,
+              "resourceCost" : 2,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Ambush. Assault 2.",
+              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{强攻2}}（如果我是进攻方，则{{S}}+2。）",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "SPEND_TWO_EXPERIENCE_GAIN_SELF_BUFF",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-102/219",
+              "code" : "ARENA_CROWD_FAVORITE",
+              "cost" : 3,
+              "damageMarked" : 0,
+              "displayName" : "竞技场人气王",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P1-ARENA_CROWD_FAVORITE-4",
+              "keywordDescriptions" : {
+                "HUNT" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "HUNT" : ""
+              },
+              "keywordValues" : {
+                "HUNT" : 1
+              },
+              "keywords" : [ "HUNT" ],
+              "keywordsZh" : [ "狩猎" ],
+              "lethalThreshold" : 3,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 3,
+              "might" : 3,
+              "name" : "Arena Crowd Favorite",
+              "nameZh" : "竞技场人气王",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 3,
+              "resourceCost" : 3,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Hunt. Spend 2 experience: give me BUFF.",
+              "textZh" : "{{狩猎}}（当我征服或据守一处战场时，获得1点经验值。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "SPEND_TWO_EXPERIENCE_GAIN_SELF_BUFF",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-102/219",
+              "code" : "ARENA_CROWD_FAVORITE",
+              "cost" : 3,
+              "damageMarked" : 0,
+              "displayName" : "竞技场人气王",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P1-ARENA_CROWD_FAVORITE-2",
+              "keywordDescriptions" : {
+                "HUNT" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "HUNT" : ""
+              },
+              "keywordValues" : {
+                "HUNT" : 1
+              },
+              "keywords" : [ "HUNT" ],
+              "keywordsZh" : [ "狩猎" ],
+              "lethalThreshold" : 3,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 3,
+              "might" : 3,
+              "name" : "Arena Crowd Favorite",
+              "nameZh" : "竞技场人气王",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 3,
+              "resourceCost" : 3,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Hunt. Spend 2 experience: give me BUFF.",
+              "textZh" : "{{狩猎}}（当我征服或据守一处战场时，获得1点经验值。）\n消耗2经验：给予我{{增益}}。（如果我未拥有增益，则获得一个{{S}}+1增益。）",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "AMBUSH_ON_PLAY_OPTIONAL_RECALL_FRIENDLY_BATTLEFIELD_UNIT",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-021/219",
+              "code" : "GRIM_APOTHECARY",
+              "cost" : 3,
+              "damageMarked" : 0,
+              "displayName" : "阴森药剂师",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P1-GRIM_APOTHECARY-9",
+              "keywordDescriptions" : {
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way."
+              },
+              "keywordDescriptionsZh" : {
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。"
+              },
+              "keywordValues" : { },
+              "keywords" : [ "AMBUSH" ],
+              "keywordsZh" : [ "伏击" ],
+              "lethalThreshold" : 3,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 3,
+              "might" : 3,
+              "name" : "Grim Apothecary",
+              "nameZh" : "阴森药剂师",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 3,
+              "resourceCost" : 3,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Ambush. When you play me, you may return a friendly battlefield unit to its owner's hand.",
+              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n当你打出我时，你可以选择让一名战场上的友方单位返回其所属的手牌。",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "单位",
+              "zone" : "HAND"
+            } ],
+            "handSize" : 4,
+            "isFirst" : true,
+            "legend" : {
+              "cardNumber" : "UNL-201/219",
+              "code" : "VOIDREAVER",
+              "displayName" : "虚空掠夺者",
+              "exhausted" : false,
+              "id" : "P1-LEGEND-VOIDREAVER-1",
+              "keywordDescriptions" : {
+                "NOXUS" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "NOXUS" : ""
+              },
+              "keywords" : [ "NOXUS" ],
+              "keywordsZh" : [ "诺克萨斯" ],
+              "name" : "Voidreaver",
+              "nameZh" : "虚空掠夺者",
+              "runeColors" : [ "BODY", "MIND" ],
+              "spellTiming" : "NONE",
+              "temporaryModifiers" : { },
+              "text" : "When you win a battle, gain 1 experience. Spend 1 experience, exhaust: give a unit BUFF. Spend 2 experience, exhaust: move a friendly exhausted unit on a battlefield to its base.",
+              "textZh" : "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+              "timingKeyword" : "NONE",
+              "turnMarkers" : { }
+            },
+            "mainDeckCardsPlayedThisTurn" : 0,
+            "name" : "Player One",
+            "resourcePool" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "resources" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "runeDeckDetail" : {
+              "counts" : {
+                "FURY" : 10
+              },
+              "size" : 10
+            },
+            "runeDeckSize" : 10,
+            "runeInventory" : {
+              "counts" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 2,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "list" : [ {
+                "code" : "FURY_BASIC",
+                "id" : "P1-RUNE-FURY_BASIC-7",
+                "name" : "Fury Channel",
+                "nameZh" : "狂怒导符",
+                "ownerId" : "P1",
+                "runeType" : "FURY",
+                "state" : "ACTIVE"
+              }, {
+                "code" : "FURY_BASIC",
+                "id" : "P1-RUNE-FURY_BASIC-10",
+                "name" : "Fury Channel",
+                "nameZh" : "狂怒导符",
+                "ownerId" : "P1",
+                "runeType" : "FURY",
+                "state" : "ACTIVE"
+              } ],
+              "recycled" : { }
+            },
+            "runes" : {
+              "available" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "gainedThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "pendingRecall" : { },
+              "recalled" : { },
+              "spentThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "total" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "turnIncome" : { }
+            },
+            "score" : 0,
+            "trash" : [ ],
+            "trashDetail" : [ ],
+            "trashSize" : 0
+          },
+          "P2" : {
+            "banished" : [ ],
+            "banishedDetail" : [ ],
+            "banishedSize" : 0,
+            "baseDetail" : [ ],
+            "baseEquipments" : [ ],
+            "cardsPlayedThisTurn" : 0,
+            "champion" : {
+              "active" : true,
+              "behavior" : "SECOND_CARD_PLAYED_READY_SELF_TEMP_MIGHT_TWO",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "OGN·027/298",
+              "code" : "DARIUS",
+              "controllerId" : "P2",
+              "cost" : 5,
+              "damageMarked" : 0,
+              "displayName" : "德莱厄斯",
+              "exhausted" : false,
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "hasStun" : false,
+              "hasTemporary" : false,
+              "hp" : 5,
+              "id" : "P2-DARIUS-1",
+              "keywordDescriptions" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordValues" : { },
+              "keywords" : [ "NOXUS", "CHAMPION", "TRIFARIAN", "DARIUS", "FURY" ],
+              "keywordsZh" : [ "诺克萨斯", "冠军", "帝国军", "德莱厄斯", "狂怒" ],
+              "lethalDamage" : false,
+              "lethalThreshold" : 5,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Darius",
+              "nameZh" : "德莱厄斯",
+              "ownerId" : "P2",
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 5,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "stunned" : false,
+              "text" : "Whenever you play your second card in a turn, I get +2 might this turn and become ready.",
+              "textZh" : "每当你在回合中打出第二张牌时，让我本回合内{{S}}+2，并让我变为活跃状态。",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "英雄单位",
+              "zone" : "CHAMPION"
+            },
+            "deckSize" : 8,
+            "equipmentDetail" : [ ],
+            "experience" : 0,
+            "hand" : [ "__HIDDEN__", "__HIDDEN__", "__HIDDEN__" ],
+            "handSize" : 3,
+            "isFirst" : false,
+            "legend" : {
+              "cardNumber" : "UNL-201/219",
+              "code" : "VOIDREAVER",
+              "displayName" : "虚空掠夺者",
+              "exhausted" : false,
+              "id" : "P2-LEGEND-VOIDREAVER-1",
+              "keywordDescriptions" : {
+                "NOXUS" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "NOXUS" : ""
+              },
+              "keywords" : [ "NOXUS" ],
+              "keywordsZh" : [ "诺克萨斯" ],
+              "name" : "Voidreaver",
+              "nameZh" : "虚空掠夺者",
+              "runeColors" : [ "BODY", "MIND" ],
+              "spellTiming" : "NONE",
+              "temporaryModifiers" : { },
+              "text" : "When you win a battle, gain 1 experience. Spend 1 experience, exhaust: give a unit BUFF. Spend 2 experience, exhaust: move a friendly exhausted unit on a battlefield to its base.",
+              "textZh" : "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+              "timingKeyword" : "NONE",
+              "turnMarkers" : { }
+            },
+            "mainDeckCardsPlayedThisTurn" : 0,
+            "name" : "Player Two",
+            "resourcePool" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "resources" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "runeDeckDetail" : {
+              "counts" : {
+                "ORDER" : 12
+              },
+              "size" : 12
+            },
+            "runeDeckSize" : 12,
+            "runeInventory" : {
+              "counts" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "list" : [ ],
+              "recycled" : { }
+            },
+            "runes" : {
+              "available" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "gainedThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "pendingRecall" : { },
+              "recalled" : { },
+              "spentThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "total" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "turnIncome" : { }
+            },
+            "score" : 0,
+            "trash" : [ ],
+            "trashDetail" : [ ],
+            "trashSize" : 0
+          }
+        },
+        "lanes" : {
+          "L1" : {
+            "attackers" : [ ],
+            "attackersDetail" : [ ],
+            "contestedBy" : null,
+            "controller" : null,
+            "defenders" : [ ],
+            "defendersDetail" : [ ],
+            "hasStagedCombat" : false,
+            "inCombat" : false
+          },
+          "L2" : {
+            "attackers" : [ ],
+            "attackersDetail" : [ ],
+            "contestedBy" : null,
+            "controller" : null,
+            "defenders" : [ ],
+            "defendersDetail" : [ ],
+            "hasStagedCombat" : false,
+            "inCombat" : false
+          }
+        },
+        "stack" : [ ],
+        "extraTurns" : [ ],
+        "timing" : {
+          "gameOver" : false,
+          "pendingCounterPayment" : false,
+          "pendingShowdowns" : 0,
+          "pendingTriggeredAbility" : false,
+          "showdownActive" : false,
+          "stackOpen" : true,
+          "stackSize" : 0,
+          "turnPhase" : "ACTION",
+          "windowState" : "OPEN",
+          "winnerPlayerId" : null,
+          "winningScore" : 8
+        },
+        "turnState" : "NEUTRAL_OPEN",
+        "currentCombatLaneId" : null,
+        "stagedCombatLanes" : [ ]
+      },
+      "P2" : {
+        "tick" : 1,
+        "turnNumber" : 1,
+        "activePlayerId" : "P1",
+        "players" : {
+          "P1" : {
+            "banished" : [ ],
+            "banishedDetail" : [ ],
+            "banishedSize" : 0,
+            "baseDetail" : [ ],
+            "baseEquipments" : [ ],
+            "cardsPlayedThisTurn" : 0,
+            "champion" : {
+              "active" : true,
+              "behavior" : "SECOND_CARD_PLAYED_READY_SELF_TEMP_MIGHT_TWO",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "OGN·027/298",
+              "code" : "DARIUS",
+              "controllerId" : "P1",
+              "cost" : 5,
+              "damageMarked" : 0,
+              "displayName" : "德莱厄斯",
+              "exhausted" : false,
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "hasStun" : false,
+              "hasTemporary" : false,
+              "hp" : 5,
+              "id" : "P1-DARIUS-1",
+              "keywordDescriptions" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordValues" : { },
+              "keywords" : [ "NOXUS", "CHAMPION", "TRIFARIAN", "DARIUS", "FURY" ],
+              "keywordsZh" : [ "诺克萨斯", "冠军", "帝国军", "德莱厄斯", "狂怒" ],
+              "lethalDamage" : false,
+              "lethalThreshold" : 5,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Darius",
+              "nameZh" : "德莱厄斯",
+              "ownerId" : "P1",
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 5,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "stunned" : false,
+              "text" : "Whenever you play your second card in a turn, I get +2 might this turn and become ready.",
+              "textZh" : "每当你在回合中打出第二张牌时，让我本回合内{{S}}+2，并让我变为活跃状态。",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "英雄单位",
+              "zone" : "CHAMPION"
+            },
+            "deckSize" : 7,
+            "equipmentDetail" : [ ],
+            "experience" : 0,
+            "hand" : [ "__HIDDEN__", "__HIDDEN__", "__HIDDEN__", "__HIDDEN__" ],
+            "handSize" : 4,
+            "isFirst" : true,
+            "legend" : {
+              "cardNumber" : "UNL-201/219",
+              "code" : "VOIDREAVER",
+              "displayName" : "虚空掠夺者",
+              "exhausted" : false,
+              "id" : "P1-LEGEND-VOIDREAVER-1",
+              "keywordDescriptions" : {
+                "NOXUS" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "NOXUS" : ""
+              },
+              "keywords" : [ "NOXUS" ],
+              "keywordsZh" : [ "诺克萨斯" ],
+              "name" : "Voidreaver",
+              "nameZh" : "虚空掠夺者",
+              "runeColors" : [ "BODY", "MIND" ],
+              "spellTiming" : "NONE",
+              "temporaryModifiers" : { },
+              "text" : "When you win a battle, gain 1 experience. Spend 1 experience, exhaust: give a unit BUFF. Spend 2 experience, exhaust: move a friendly exhausted unit on a battlefield to its base.",
+              "textZh" : "当你赢得一场战斗时，获得1经验。\n消耗1经验，{{横置}}：给予一名单位{{增益}}。\n消耗2经验，{{横置}}：将战场上一名处于休眠状态的友方单位移动到其基地。",
+              "timingKeyword" : "NONE",
+              "turnMarkers" : { }
+            },
+            "mainDeckCardsPlayedThisTurn" : 0,
+            "name" : "Player One",
+            "resourcePool" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "resources" : {
+              "available" : 0,
+              "gainedThisTurn" : 0,
+              "spentThisTurn" : 0
+            },
+            "runeDeckDetail" : {
+              "counts" : {
+                "FURY" : 10
+              },
+              "size" : 10
+            },
+            "runeDeckSize" : 10,
+            "runeInventory" : {
+              "counts" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 2,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "list" : [ {
+                "code" : "FURY_BASIC",
+                "id" : "P1-RUNE-FURY_BASIC-7",
+                "name" : "Fury Channel",
+                "nameZh" : "狂怒导符",
+                "ownerId" : "P1",
+                "runeType" : "FURY",
+                "state" : "ACTIVE"
+              }, {
+                "code" : "FURY_BASIC",
+                "id" : "P1-RUNE-FURY_BASIC-10",
+                "name" : "Fury Channel",
+                "nameZh" : "狂怒导符",
+                "ownerId" : "P1",
+                "runeType" : "FURY",
+                "state" : "ACTIVE"
+              } ],
+              "recycled" : { }
+            },
+            "runes" : {
+              "available" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "gainedThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "pendingRecall" : { },
+              "recalled" : { },
+              "spentThisTurn" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "total" : {
+                "BODY" : 0,
+                "CALM" : 0,
+                "CHAOS" : 0,
+                "FURY" : 0,
+                "MIND" : 0,
+                "ORDER" : 0
+              },
+              "turnIncome" : { }
+            },
+            "score" : 0,
+            "trash" : [ ],
+            "trashDetail" : [ ],
+            "trashSize" : 0
+          },
+          "P2" : {
+            "banished" : [ ],
+            "banishedDetail" : [ ],
+            "banishedSize" : 0,
+            "baseDetail" : [ ],
+            "baseEquipments" : [ ],
+            "cardsPlayedThisTurn" : 0,
+            "champion" : {
+              "active" : true,
+              "behavior" : "SECOND_CARD_PLAYED_READY_SELF_TEMP_MIGHT_TWO",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "OGN·027/298",
+              "code" : "DARIUS",
+              "controllerId" : "P2",
+              "cost" : 5,
+              "damageMarked" : 0,
+              "displayName" : "德莱厄斯",
+              "exhausted" : false,
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "hasStun" : false,
+              "hasTemporary" : false,
+              "hp" : 5,
+              "id" : "P2-DARIUS-1",
+              "keywordDescriptions" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordDescriptionsZh" : {
+                "CHAMPION" : "",
+                "DARIUS" : "",
+                "FURY" : "",
+                "NOXUS" : "",
+                "TRIFARIAN" : ""
+              },
+              "keywordValues" : { },
+              "keywords" : [ "NOXUS", "CHAMPION", "TRIFARIAN", "DARIUS", "FURY" ],
+              "keywordsZh" : [ "诺克萨斯", "冠军", "帝国军", "德莱厄斯", "狂怒" ],
+              "lethalDamage" : false,
+              "lethalThreshold" : 5,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Darius",
+              "nameZh" : "德莱厄斯",
+              "ownerId" : "P2",
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 5,
+              "runeColors" : [ "FURY" ],
+              "runeCost" : {
+                "FURY" : 1
+              },
+              "spellTiming" : "NONE",
+              "stunned" : false,
+              "text" : "Whenever you play your second card in a turn, I get +2 might this turn and become ready.",
+              "textZh" : "每当你在回合中打出第二张牌时，让我本回合内{{S}}+2，并让我变为活跃状态。",
+              "timingKeyword" : "NONE",
+              "type" : "UNIT",
+              "typeZh" : "英雄单位",
+              "zone" : "CHAMPION"
+            },
+            "deckSize" : 8,
+            "equipmentDetail" : [ ],
+            "experience" : 0,
+            "hand" : [ "POPPY_HELPING_HAND", "POPPY_HELPING_HAND", "STALKING_SNOW_WOLF" ],
+            "handDetail" : [ {
+              "behavior" : "SPEND_EXPERIENCE_TO_REDUCE_COST_THREE",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-178/219",
+              "code" : "POPPY_HELPING_HAND",
+              "cost" : 6,
+              "damageMarked" : 0,
+              "displayName" : "波比",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "hasTank" : true,
+              "id" : "P2-POPPY_HELPING_HAND-5",
+              "keywordDescriptions" : {
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way.",
+                "TANK" : "TANK: Must take lethal damage before other targets can be damaged."
+              },
+              "keywordDescriptionsZh" : {
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。",
+                "TANK" : "壁垒：必须先对我分配致命伤害后才能伤及其他目标。"
+              },
+              "keywordValues" : { },
+              "keywords" : [ "TANK", "AMBUSH" ],
+              "keywordsZh" : [ "壁垒", "伏击" ],
+              "lethalThreshold" : 5,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Poppy, Helping Hand",
+              "nameZh" : "波比",
+              "ownerId" : "P2",
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 6,
+              "runeColors" : [ "ORDER" ],
+              "runeCost" : {
+                "ORDER" : 1
+              },
+              "spellTiming" : "NONE",
+              "tank" : true,
+              "tankPrinted" : true,
+              "text" : "You may spend 3 experience as an additional cost to play me to reduce my cost by 3. Ambush. Tank.",
+              "textZh" : "你可以选择消耗3经验，作为打出我的额外费用，以此让我的费用减少{{3}}。\n{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{壁垒}}（我在战斗中首先承担伤害。）",
+              "timingKeyword" : "NONE",
+              "traits" : [ "约德尔人" ],
+              "type" : "UNIT",
+              "typeZh" : "英雄单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "SPEND_EXPERIENCE_TO_REDUCE_COST_THREE",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-178/219",
+              "code" : "POPPY_HELPING_HAND",
+              "cost" : 6,
+              "damageMarked" : 0,
+              "displayName" : "波比",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "hasTank" : true,
+              "id" : "P2-POPPY_HELPING_HAND-4",
+              "keywordDescriptions" : {
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way.",
+                "TANK" : "TANK: Must take lethal damage before other targets can be damaged."
+              },
+              "keywordDescriptionsZh" : {
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。",
+                "TANK" : "壁垒：必须先对我分配致命伤害后才能伤及其他目标。"
+              },
+              "keywordValues" : { },
+              "keywords" : [ "TANK", "AMBUSH" ],
+              "keywordsZh" : [ "壁垒", "伏击" ],
+              "lethalThreshold" : 5,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 5,
+              "might" : 5,
+              "name" : "Poppy, Helping Hand",
+              "nameZh" : "波比",
+              "ownerId" : "P2",
+              "remainingBeforeLethal" : 5,
+              "resourceCost" : 6,
+              "runeColors" : [ "ORDER" ],
+              "runeCost" : {
+                "ORDER" : 1
+              },
+              "spellTiming" : "NONE",
+              "tank" : true,
+              "tankPrinted" : true,
+              "text" : "You may spend 3 experience as an additional cost to play me to reduce my cost by 3. Ambush. Tank.",
+              "textZh" : "你可以选择消耗3经验，作为打出我的额外费用，以此让我的费用减少{{3}}。\n{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n{{壁垒}}（我在战斗中首先承担伤害。）",
+              "timingKeyword" : "NONE",
+              "traits" : [ "约德尔人" ],
+              "type" : "UNIT",
+              "typeZh" : "英雄单位",
+              "zone" : "HAND"
+            }, {
+              "behavior" : "AMBUSH_SACRIFICE_KINDRED_UNIT",
+              "buff" : null,
+              "buffAttackBonus" : 0,
+              "cardNumber" : "UNL-166/219",
+              "code" : "STALKING_SNOW_WOLF",
+              "cost" : 4,
+              "damageMarked" : 0,
+              "displayName" : "追猎雪狼",
+              "genericRuneCost" : 0,
+              "hasBuff" : false,
+              "hasDeathknell" : false,
+              "hasGanking" : false,
+              "id" : "P2-STALKING_SNOW_WOLF-11",
+              "keywordDescriptions" : {
+                "AMBUSH" : "AMBUSH: May be played to a lane with a friendly unit; gains reaction this way."
+              },
+              "keywordDescriptionsZh" : {
+                "AMBUSH" : "伏击：可打出到有己方单位的战场；以此方式打出时获得反应。"
+              },
+              "keywordValues" : { },
+              "keywords" : [ "AMBUSH" ],
+              "keywordsZh" : [ "伏击" ],
+              "lethalThreshold" : 6,
+              "mainDeckCardForLegion" : true,
+              "maxHp" : 6,
+              "might" : 6,
+              "name" : "Stalking Snow Wolf",
+              "nameZh" : "追猎雪狼",
+              "ownerId" : "P2",
+              "remainingBeforeLethal" : 6,
+              "resourceCost" : 4,
+              "runeColors" : [ "ORDER" ],
+              "runeCost" : {
+                "ORDER" : 1
+              },
+              "spellTiming" : "NONE",
+              "text" : "Ambush. You must destroy a Bird, Cat, Dog, or Poro unit you control as an additional cost to play me. You may play me to that unit's lane, even if you have no other units there.",
+              "textZh" : "{{伏击}}（你可以选择将我作为{{反应}}牌，打出到有己方单位的战场。）\n你必须摧毁一名自己控制的“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，作为打出我的额外费用。你可以选择将我打出至该单位所在的战场（即使你在该处没有其他单位）。",
+              "timingKeyword" : "NONE",
+              "traits" : [ "犬形" ],
+              "type" : "UNIT",
+              "typeZh" : "单位",
               "zone" : "HAND"
             } ],
             "handSize" : 3,
@@ -1493,6 +2938,23 @@
   },
   "players" : [ "P1", "P2" ],
   "roomId" : "java-oracle-p1-pass",
+  "rulesEvidence" : [ {
+    "locator" : "p27-p28 rules 309-313",
+    "note" : "回合状态、优先行动权和焦点决定玩家是否能进行自决行动。",
+    "source" : "CORE-260330"
+  }, {
+    "locator" : "p35 rules 338-340",
+    "note" : "结算链流程中的让过会传递优先行动权，并在所有玩家让过后进入结算。",
+    "source" : "CORE-260330"
+  }, {
+    "locator" : "p36 rules 347-348",
+    "note" : "法术对决中的让过会影响焦点传递和法术对决关闭。",
+    "source" : "CORE-260330"
+  }, {
+    "locator" : "p4-p5 questions 3.1-3.3",
+    "note" : "FAQ 澄清焦点、活跃玩家和初始结算链后的优先行动权。",
+    "source" : "JFAQ-251023"
+  } ],
   "rulesVersion" : "rules-260330",
   "schemaVersion" : 1,
   "source" : "java-oracle"
