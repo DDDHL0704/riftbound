@@ -77,9 +77,36 @@ public sealed class GameHubJoinTests
         Assert.Contains(("connection-2", "room:room-a:player:alice"), reconnectGroups.Added);
         var reconnectMessage = Assert.Single(reconnectClients.CallerClient.JoinedMessages);
         Assert.Equal(MessageType.RECONNECT, reconnectMessage.Type);
-        Assert.Equal(join, reconnectMessage.Payload);
+        var reconnect = Assert.IsType<PlayerSessionDto>(reconnectMessage.Payload);
+        Assert.Equal(join.PlayerId, reconnect.PlayerId);
+        Assert.Equal(join.Seat, reconnect.Seat);
+        Assert.StartsWith("rt_", reconnect.ReconnectToken, StringComparison.Ordinal);
+        Assert.NotEqual(join.ReconnectToken, reconnect.ReconnectToken);
         Assert.Single(reconnectClients.CallerClient.Snapshots);
         Assert.Single(reconnectClients.CallerClient.Prompts);
+    }
+
+    [Fact]
+    public async Task JoinRoomPersistsReconnectTokenHashWithoutPlaintext()
+    {
+        var playerStore = new RecordingMatchPlayerStore();
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            NoopMatchRecoveryStore.Instance,
+            playerStore);
+        var clients = new RecordingHubClients();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(clients.CallerClient.JoinedMessages).Payload);
+        var saved = Assert.Single(playerStore.Saved);
+        Assert.Equal("room-a", saved.RoomId);
+        Assert.Equal("alice", saved.PlayerId);
+        Assert.Equal("P1", saved.Seat);
+        Assert.Equal(ReconnectTokenHasher.Hash(join.ReconnectToken), saved.ReconnectTokenHash);
+        Assert.DoesNotContain(join.ReconnectToken, saved.ReconnectTokenHash, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -348,4 +375,38 @@ public sealed class GameHubJoinTests
             return ValueTask.CompletedTask;
         }
     }
+
+    private sealed class RecordingMatchPlayerStore : IMatchPlayerStore
+    {
+        public List<SavedPlayer> Saved { get; } = [];
+
+        public ValueTask SavePlayerSessionAsync(
+            string roomId,
+            string playerId,
+            string seat,
+            string reconnectTokenHash,
+            CancellationToken cancellationToken)
+        {
+            Saved.Add(new SavedPlayer(roomId, playerId, seat, reconnectTokenHash));
+            return ValueTask.CompletedTask;
+        }
+
+        public ValueTask<bool> HasReconnectTokenHashAsync(
+            string roomId,
+            string playerId,
+            string reconnectTokenHash,
+            CancellationToken cancellationToken)
+        {
+            return ValueTask.FromResult(Saved.Any(saved =>
+                string.Equals(saved.RoomId, roomId, StringComparison.Ordinal)
+                && string.Equals(saved.PlayerId, playerId, StringComparison.Ordinal)
+                && string.Equals(saved.ReconnectTokenHash, reconnectTokenHash, StringComparison.Ordinal)));
+        }
+    }
+
+    private sealed record SavedPlayer(
+        string RoomId,
+        string PlayerId,
+        string Seat,
+        string ReconnectTokenHash);
 }

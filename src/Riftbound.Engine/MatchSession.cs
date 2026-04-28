@@ -222,7 +222,14 @@ public interface IMatchSession
 
     PlayerSessionDto EnsurePlayer(string playerId);
 
+    ValueTask<PlayerSessionDto> EnsurePlayerAsync(string playerId, CancellationToken cancellationToken);
+
     PlayerSessionDto ReconnectPlayer(string playerId, string reconnectToken);
+
+    ValueTask<PlayerSessionDto> ReconnectPlayerAsync(
+        string playerId,
+        string reconnectToken,
+        CancellationToken cancellationToken);
 
     SnapshotDto SnapshotFor(string playerId);
 
@@ -246,11 +253,12 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
     private readonly IMatchRecoveryStore recoveryStore;
+    private readonly IMatchPlayerStore playerStore;
     private readonly Dictionary<string, IMatchSession> sessions = new();
     private readonly SemaphoreSlim gate = new(1, 1);
 
     public InMemoryMatchSessionRegistry(IRuleEngine ruleEngine, IMatchJournal journal)
-        : this(ruleEngine, journal, NoopMatchRecoveryStore.Instance)
+        : this(ruleEngine, journal, NoopMatchRecoveryStore.Instance, NoopMatchPlayerStore.Instance)
     {
     }
 
@@ -258,10 +266,20 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         IRuleEngine ruleEngine,
         IMatchJournal journal,
         IMatchRecoveryStore recoveryStore)
+        : this(ruleEngine, journal, recoveryStore, NoopMatchPlayerStore.Instance)
+    {
+    }
+
+    public InMemoryMatchSessionRegistry(
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchRecoveryStore recoveryStore,
+        IMatchPlayerStore playerStore)
     {
         this.ruleEngine = ruleEngine;
         this.journal = journal;
         this.recoveryStore = recoveryStore;
+        this.playerStore = playerStore;
     }
 
     public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
@@ -288,7 +306,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         var recovery = await recoveryStore.LoadAsync(roomId, cancellationToken).ConfigureAwait(false);
         if (recovery is null)
         {
-            return new MatchSession(roomId, ruleEngine, journal);
+            return new MatchSession(roomId, ruleEngine, journal, playerStore);
         }
 
         if (!string.Equals(recovery.RoomId, roomId, StringComparison.Ordinal))
@@ -298,7 +316,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
                 $"match recovery returned room {recovery.RoomId} for requested room {roomId}");
         }
 
-        return MatchSession.Restore(recovery, ruleEngine, journal);
+        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore);
     }
 }
 
@@ -306,10 +324,11 @@ public sealed class MatchSession : IMatchSession
 {
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
+    private readonly IMatchPlayerStore playerStore;
     private readonly object seatGate = new();
     private readonly SemaphoreSlim serialGate = new(1, 1);
     private readonly Dictionary<string, string> seats = new();
-    private readonly Dictionary<string, string> reconnectTokens = new();
+    private readonly Dictionary<string, string?> reconnectTokens = new();
     private readonly Dictionary<string, CachedResolution> intentCache = new();
     private MatchState state;
     private long lastEventSequence;
@@ -320,10 +339,20 @@ public sealed class MatchSession : IMatchSession
     }
 
     public MatchSession(string roomId, IRuleEngine ruleEngine, IMatchJournal journal)
+        : this(roomId, ruleEngine, journal, NoopMatchPlayerStore.Instance)
+    {
+    }
+
+    public MatchSession(
+        string roomId,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore)
     {
         RoomId = roomId;
         this.ruleEngine = ruleEngine;
         this.journal = journal;
+        this.playerStore = playerStore;
         state = MatchState.Create(roomId);
     }
 
@@ -333,17 +362,19 @@ public sealed class MatchSession : IMatchSession
         IReadOnlyDictionary<string, string> restoredSeats,
         IReadOnlyList<RecoveredCommand> restoredCommands,
         IRuleEngine ruleEngine,
-        IMatchJournal journal)
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore)
     {
         RoomId = restoredState.RoomId;
         this.ruleEngine = ruleEngine;
         this.journal = journal;
+        this.playerStore = playerStore;
         state = restoredState;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
         {
             seats[playerId] = seat;
-            reconnectTokens[playerId] = NewReconnectToken();
+            reconnectTokens[playerId] = null;
         }
 
         foreach (var command in restoredCommands)
@@ -369,6 +400,15 @@ public sealed class MatchSession : IMatchSession
         IRuleEngine ruleEngine,
         IMatchJournal journal)
     {
+        return Restore(recovery, ruleEngine, journal, NoopMatchPlayerStore.Instance);
+    }
+
+    public static MatchSession Restore(
+        MatchRecoveryFrame recovery,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore)
+    {
         if (!recovery.IsConsistent)
         {
             throw new MatchSessionException(
@@ -383,7 +423,8 @@ public sealed class MatchSession : IMatchSession
             state.Seats,
             recovery.Commands,
             ruleEngine,
-            journal);
+            journal,
+            playerStore);
     }
 
     public PlayerSessionDto EnsurePlayer(string playerId)
@@ -412,6 +453,28 @@ public sealed class MatchSession : IMatchSession
         }
     }
 
+    public async ValueTask<PlayerSessionDto> EnsurePlayerAsync(
+        string playerId,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        lock (seatGate)
+        {
+            if (seats.ContainsKey(normalizedPlayerId)
+                && (!reconnectTokens.TryGetValue(normalizedPlayerId, out var liveToken)
+                    || string.IsNullOrWhiteSpace(liveToken)))
+            {
+                throw new MatchSessionException(
+                    ErrorCodes.InvalidReconnectToken,
+                    "reconnect token required for existing player");
+            }
+        }
+
+        var playerSession = EnsurePlayer(normalizedPlayerId);
+        await PersistPlayerSessionAsync(playerSession, cancellationToken).ConfigureAwait(false);
+        return playerSession;
+    }
+
     public PlayerSessionDto ReconnectPlayer(string playerId, string reconnectToken)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
@@ -426,6 +489,46 @@ public sealed class MatchSession : IMatchSession
 
             return PlayerSessionFor(normalizedPlayerId);
         }
+    }
+
+    public async ValueTask<PlayerSessionDto> ReconnectPlayerAsync(
+        string playerId,
+        string reconnectToken,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        var normalizedToken = reconnectToken?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(normalizedToken))
+        {
+            throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "invalid reconnect token");
+        }
+
+        bool valid;
+        lock (seatGate)
+        {
+            RequirePlayer(normalizedPlayerId);
+            valid = reconnectTokens.TryGetValue(normalizedPlayerId, out var expectedToken)
+                && !string.IsNullOrWhiteSpace(expectedToken)
+                && string.Equals(expectedToken, normalizedToken, StringComparison.Ordinal);
+        }
+
+        if (!valid)
+        {
+            var tokenHash = ReconnectTokenHasher.Hash(normalizedToken);
+            valid = await playerStore.HasReconnectTokenHashAsync(
+                    RoomId,
+                    normalizedPlayerId,
+                    tokenHash,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        if (!valid)
+        {
+            throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "invalid reconnect token");
+        }
+
+        return await RotateReconnectTokenAsync(normalizedPlayerId, cancellationToken).ConfigureAwait(false);
     }
 
     public SnapshotDto SnapshotFor(string playerId)
@@ -552,7 +655,41 @@ public sealed class MatchSession : IMatchSession
 
     private PlayerSessionDto PlayerSessionFor(string playerId)
     {
-        return new PlayerSessionDto(playerId, seats[playerId], reconnectTokens[playerId]);
+        if (!reconnectTokens.TryGetValue(playerId, out var reconnectToken)
+            || string.IsNullOrWhiteSpace(reconnectToken))
+        {
+            reconnectToken = NewReconnectToken();
+            reconnectTokens[playerId] = reconnectToken;
+        }
+
+        return new PlayerSessionDto(playerId, seats[playerId], reconnectToken);
+    }
+
+    private async ValueTask<PlayerSessionDto> RotateReconnectTokenAsync(
+        string playerId,
+        CancellationToken cancellationToken)
+    {
+        PlayerSessionDto playerSession;
+        lock (seatGate)
+        {
+            reconnectTokens[playerId] = NewReconnectToken();
+            playerSession = PlayerSessionFor(playerId);
+        }
+
+        await PersistPlayerSessionAsync(playerSession, cancellationToken).ConfigureAwait(false);
+        return playerSession;
+    }
+
+    private ValueTask PersistPlayerSessionAsync(
+        PlayerSessionDto playerSession,
+        CancellationToken cancellationToken)
+    {
+        return playerStore.SavePlayerSessionAsync(
+            RoomId,
+            playerSession.PlayerId,
+            playerSession.Seat,
+            ReconnectTokenHasher.Hash(playerSession.ReconnectToken),
+            cancellationToken);
     }
 
     private void RequirePlayer(string playerId)

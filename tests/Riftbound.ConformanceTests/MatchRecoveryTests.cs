@@ -215,6 +215,48 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RecoveredSessionAcceptsPersistedReconnectTokenAndRotatesIt()
+    {
+        const string oldToken = "rt_old_token";
+        var playerStore = new RecordingMatchPlayerStore();
+        playerStore.Seed("room-a", "alice", ReconnectTokenHasher.Hash(oldToken));
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(RecoveryFrame(currentTick: 2, lastEventSequence: 6)),
+            playerStore);
+        var session = await registry.GetOrCreateAsync("room-a", CancellationToken.None);
+
+        var reconnect = await session.ReconnectPlayerAsync("alice", oldToken, CancellationToken.None);
+
+        Assert.Equal("alice", reconnect.PlayerId);
+        Assert.Equal("P1", reconnect.Seat);
+        Assert.StartsWith("rt_", reconnect.ReconnectToken, StringComparison.Ordinal);
+        Assert.NotEqual(oldToken, reconnect.ReconnectToken);
+        Assert.Equal(
+            ReconnectTokenHasher.Hash(reconnect.ReconnectToken),
+            playerStore.HashFor("room-a", "alice"));
+        await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.ReconnectPlayerAsync("alice", oldToken, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task RecoveredExistingPlayerMustUseReconnectInsteadOfJoin()
+    {
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(RecoveryFrame(currentTick: 2, lastEventSequence: 6)));
+        var session = await registry.GetOrCreateAsync("room-a", CancellationToken.None);
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.EnsurePlayerAsync("alice", CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.InvalidReconnectToken, error.Code);
+        Assert.Equal("reconnect token required for existing player", error.Message);
+    }
+
+    [Fact]
     public async Task RegistryRejectsInconsistentRecoveryFrame()
     {
         var frame = new MatchRecoveryFrame(
@@ -392,6 +434,43 @@ public sealed class MatchRecoveryTests
         {
             Entries.Add(entry);
             return ValueTask.CompletedTask;
+        }
+    }
+
+    private sealed class RecordingMatchPlayerStore : IMatchPlayerStore
+    {
+        private readonly Dictionary<(string RoomId, string PlayerId), string> hashes = new();
+
+        public void Seed(string roomId, string playerId, string reconnectTokenHash)
+        {
+            hashes[(roomId, playerId)] = reconnectTokenHash;
+        }
+
+        public string? HashFor(string roomId, string playerId)
+        {
+            return hashes.TryGetValue((roomId, playerId), out var hash) ? hash : null;
+        }
+
+        public ValueTask SavePlayerSessionAsync(
+            string roomId,
+            string playerId,
+            string seat,
+            string reconnectTokenHash,
+            CancellationToken cancellationToken)
+        {
+            hashes[(roomId, playerId)] = reconnectTokenHash;
+            return ValueTask.CompletedTask;
+        }
+
+        public ValueTask<bool> HasReconnectTokenHashAsync(
+            string roomId,
+            string playerId,
+            string reconnectTokenHash,
+            CancellationToken cancellationToken)
+        {
+            var matches = hashes.TryGetValue((roomId, playerId), out var hash)
+                && string.Equals(hash, reconnectTokenHash, StringComparison.Ordinal);
+            return ValueTask.FromResult(matches);
         }
     }
 }

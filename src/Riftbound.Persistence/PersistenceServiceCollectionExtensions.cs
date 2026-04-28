@@ -17,12 +17,14 @@ public static class PersistenceServiceCollectionExtensions
         {
             services.AddSingleton<IMatchJournal>(NoopMatchJournal.Instance);
             services.AddSingleton<IMatchRecoveryStore>(NoopMatchRecoveryStore.Instance);
+            services.AddSingleton<IMatchPlayerStore>(NoopMatchPlayerStore.Instance);
             return services;
         }
 
         services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
         services.AddSingleton<IMatchJournal, PostgresMatchJournal>();
         services.AddSingleton<IMatchRecoveryStore, PostgresMatchRecoveryStore>();
+        services.AddSingleton<IMatchPlayerStore, PostgresMatchPlayerStore>();
         services.AddHostedService<PostgresSchemaInitializer>();
         return services;
     }

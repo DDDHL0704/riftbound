@@ -36,8 +36,9 @@
   - 手写 C# placeholder fixture 已迁移为 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
   - `InMemoryMatchSessionRegistry` 已接入异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、seat、lastEventSequence 和已见过 intent，避免把玩家视角 snapshot 误当完整规则状态。
   - `state_snapshots` 权威状态快照表和 `004_p1_state_snapshots.sql` 已加入；journal 写入服务端 `MatchState`，recovery 优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致。
+  - `IMatchPlayerStore` 和 `PostgresMatchPlayerStore` 已接入；Join/Reconnect 只持久化 `sha256:` reconnect token hash，恢复后的 session 可用旧 token hash 重连，并在成功重连后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect。
 
-下一步把 reconnect token 接入 `match_players.reconnect_token_hash`，并继续做协议错误码治理；新增 fixture 不再使用裸 `PASS`。
+下一步补 `Ready` / 房间生命周期最小状态机，并继续做协议错误码治理；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -63,6 +64,8 @@
 - recovery 读取/校验路径可从 PostgreSQL 取回事件流和最新玩家视图，并拒绝 event sequence 缺口或未来 snapshot。
 - RoomRegistry/MatchSession 可从 recovery frame 恢复 P1 底座状态；重启后的重复 intent 不推进 tick、不重复写 journal。
 - `state_snapshots` 保存服务端权威 `MatchState`，恢复时优先使用权威状态而不是从玩家视角 snapshot 反推。
+- `match_players.reconnect_token_hash` 保存 reconnect token hash，不保存明文；重连成功会轮换 token/hash。
+- 恢复后的已有玩家不能通过 Join 直接领取新 token，必须用旧 token 走 Reconnect 验证。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。
 - solution 级 `restore/build/test` 可作为新窗口默认验证入口。
 - PDF/FAQ 规则依据覆盖首批高价值路径。

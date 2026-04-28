@@ -573,7 +573,7 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - `match_players.reconnect_token_hash` 持久化重连
+   - `Ready` / 房间生命周期最小状态机
    - 幂等重复提交
    - 符文横置/回收
    - EndTurn/Pass
@@ -594,6 +594,7 @@ Browser Use 阶段性测试：
 - P1 提交路径错误码已覆盖未知玩家、unsupported command 和重复 intent 冲突；未 Join 的玩家提交命令不会隐式入座。
 - RoomRegistry/MatchSession 恢复入口已接入：可恢复 P1 底座状态、lastEventSequence 和已见过 intent；恢复优先使用权威 `state_snapshots`，玩家视角 snapshot 只作为重连视图和一致性校验依据。
 - `state_snapshots` 权威状态快照已接入 journal、PostgreSQL schema 和 recovery；恢复时优先使用与当前 `last_event_sequence` 对齐的服务端 `MatchState`。
+- `match_players.reconnect_token_hash` 持久化重连已接入；服务端只保存 `sha256:` hash，重连成功会轮换 token/hash，恢复后的 session 可用旧 token hash 重连，不能通过 Join 直接领取新 token。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

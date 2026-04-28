@@ -28,7 +28,7 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
         try
         {
             session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
-            playerSession = session.EnsurePlayer(normalizedPlayerId);
+            playerSession = await session.EnsurePlayerAsync(normalizedPlayerId, Context.ConnectionAborted);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
@@ -57,7 +57,10 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
         try
         {
             session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
-            playerSession = session.ReconnectPlayer(normalizedPlayerId, reconnectToken);
+            playerSession = await session.ReconnectPlayerAsync(
+                normalizedPlayerId,
+                reconnectToken,
+                Context.ConnectionAborted);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
