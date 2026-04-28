@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SignalR;
@@ -132,6 +133,24 @@ public sealed class GameHubJoinTests
         Assert.Equal("player is not in room", payload.Message);
     }
 
+    [Fact]
+    public async Task SubmitIntentPreservesOriginalCommandPayloadInJournal()
+    {
+        var journal = new RecordingMatchJournal();
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"keep-me"}""").RootElement.Clone();
+
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-raw-payload", cmd);
+
+        var entry = Assert.Single(journal.Entries);
+        Assert.Equal("PASS_PRIORITY", entry.CommandType);
+        Assert.NotNull(entry.RawCommand);
+        Assert.Equal("keep-me", entry.RawCommand.Value.GetProperty("clientNote").GetString());
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
@@ -262,6 +281,17 @@ public sealed class GameHubJoinTests
 
         public override void Abort()
         {
+        }
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
         }
     }
 }

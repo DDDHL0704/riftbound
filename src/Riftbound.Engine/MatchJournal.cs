@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -19,6 +20,7 @@ public sealed record MatchJournalEntry(
     string PlayerId,
     string ClientIntentId,
     string CommandType,
+    JsonElement? RawCommand,
     long StartedTick,
     long CompletedTick,
     long StartedEventSequence,

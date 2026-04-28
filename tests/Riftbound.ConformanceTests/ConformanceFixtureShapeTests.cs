@@ -14,8 +14,8 @@ public sealed class ConformanceFixtureShapeTests
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine(), journal);
         session.EnsurePlayer("P1");
 
-        var first = await session.SubmitAsync("P1", "intent-1", new PassCommand(), CancellationToken.None);
-        var duplicate = await session.SubmitAsync("P1", "intent-1", new PassCommand(), CancellationToken.None);
+        var first = await session.SubmitAsync("P1", "intent-1", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        var duplicate = await session.SubmitAsync("P1", "intent-1", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
 
         Assert.True(first.Accepted);
         Assert.True(duplicate.Accepted);
@@ -32,15 +32,30 @@ public sealed class ConformanceFixtureShapeTests
         session.EnsurePlayer("P1");
         session.EnsurePlayer("P2");
 
-        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), CancellationToken.None);
-        await session.SubmitAsync("P1", "intent-end-turn", new EndTurnCommand(), CancellationToken.None);
-        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), CancellationToken.None);
+        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        await session.SubmitAsync("P1", "intent-end-turn", new EndTurnCommand(), RawCommand("END_TURN"), CancellationToken.None);
+        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
 
         Assert.Equal(2, journal.Entries.Count);
         Assert.Equal(0, journal.Entries[0].StartedEventSequence);
         Assert.Equal(1, journal.Entries[0].CompletedEventSequence);
         Assert.Equal(1, journal.Entries[1].StartedEventSequence);
         Assert.Equal(6, journal.Entries[1].CompletedEventSequence);
+    }
+
+    [Fact]
+    public async Task JournalEntryKeepsOriginalCommandPayload()
+    {
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        var raw = JsonDocument.Parse("""{"cmdType":"PASS","clientNote":"keep-me"}""").RootElement.Clone();
+
+        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), raw, CancellationToken.None);
+
+        var entry = Assert.Single(journal.Entries);
+        Assert.NotNull(entry.RawCommand);
+        Assert.Equal("keep-me", entry.RawCommand.Value.GetProperty("clientNote").GetString());
     }
 
     [Fact]
@@ -134,5 +149,10 @@ public sealed class ConformanceFixtureShapeTests
     {
         var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
         return Assert.IsType<string>(player["seat"]);
+    }
+
+    private static JsonElement RawCommand(string cmdType)
+    {
+        return JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement.Clone();
     }
 }

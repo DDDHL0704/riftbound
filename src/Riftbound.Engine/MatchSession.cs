@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -231,6 +232,7 @@ public interface IMatchSession
         string playerId,
         string clientIntentId,
         GameCommand command,
+        JsonElement? rawCommand,
         CancellationToken cancellationToken);
 }
 
@@ -346,6 +348,7 @@ public sealed class MatchSession : IMatchSession
         string playerId,
         string clientIntentId,
         GameCommand command,
+        JsonElement? rawCommand,
         CancellationToken cancellationToken)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
@@ -382,6 +385,7 @@ public sealed class MatchSession : IMatchSession
                     normalizedPlayerId,
                     normalizedIntentId,
                     command.CmdType,
+                    rawCommand,
                     startedTick,
                     result.State.Tick,
                     startedEventSequence,

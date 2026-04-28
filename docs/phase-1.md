@@ -29,8 +29,9 @@
   - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和满员错误。
   - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
   - P1 SQL 和 `PostgresMatchJournal` 已补全局 `event_sequence`、command 起止 sequence、snapshot/prompt `last_event_sequence`；新库/旧库迁移 smoke 通过。
+  - `MatchJournalEntry` 已携带客户端原始命令 JSON；`GameHub.SubmitIntent` 到 journal 的 raw payload 已有测试覆盖，PostgreSQL `command_log.payload.rawCommand` 可用于回放和审计。
 
-下一步补 command log 原始 payload、recovery 读取/校验路径，并继续扩大稳定错误码覆盖面；新增 fixture 不再使用裸 `PASS`。
+下一步补 recovery 读取/校验路径，并继续扩大稳定错误码覆盖面；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -50,6 +51,7 @@
 - `IRuleEngine` 的输出能被事件和快照投影消费。
 - PostgreSQL EventStore schema 草案完成，包含规则版本/FAQ/audit 元数据，并能由开发环境启动时初始化。
 - 事件日志具有 match 内单调 `event_sequence`，command/snapshot/prompt 能记录对应 sequence 边界。
+- command log payload 保留客户端原始命令 JSON，用于后续 command log 回放和审计。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。
 - solution 级 `restore/build/test` 可作为新窗口默认验证入口。
 - PDF/FAQ 规则依据覆盖首批高价值路径。

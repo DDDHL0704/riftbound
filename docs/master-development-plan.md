@@ -572,7 +572,6 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - command log 原始 payload
    - recovery 读取/校验路径
    - 幂等重复提交
    - 符文横置/回收
@@ -585,6 +584,10 @@ Browser Use 阶段性测试：
    - owner/controller 边界
 2. 在 C# 侧继续完善 fixture runner、canonical JSON diff、event sequence 和 recovery 校验。
 3. 新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留为 Java legacy oracle 对照。
+
+已完成的 P1 底座项：
+
+- command log 已保留客户端原始 payload；`SubmitIntent` 的 JSON 原文会进入 journal，并由 PostgreSQL payload 保存为 `rawCommand`。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

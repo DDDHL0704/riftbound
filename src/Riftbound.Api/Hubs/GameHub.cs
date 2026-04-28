@@ -112,20 +112,35 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
 
     public Task Pass(string roomId, string playerId, string clientIntentId)
     {
-        return SubmitCommand(roomId, playerId, clientIntentId, new PassCommand());
+        return SubmitCommand(
+            roomId,
+            playerId,
+            clientIntentId,
+            new PassCommand(),
+            JsonSerializer.SerializeToElement(new { cmdType = "PASS" }));
     }
 
     public Task EndTurn(string roomId, string playerId, string clientIntentId)
     {
-        return SubmitCommand(roomId, playerId, clientIntentId, new EndTurnCommand());
+        return SubmitCommand(
+            roomId,
+            playerId,
+            clientIntentId,
+            new EndTurnCommand(),
+            JsonSerializer.SerializeToElement(new { cmdType = "END_TURN" }));
     }
 
     public Task SubmitIntent(string roomId, string playerId, string clientIntentId, JsonElement cmd)
     {
-        return SubmitCommand(roomId, playerId, clientIntentId, GameCommandJsonMapper.Map(cmd));
+        return SubmitCommand(roomId, playerId, clientIntentId, GameCommandJsonMapper.Map(cmd), cmd.Clone());
     }
 
-    private async Task SubmitCommand(string roomId, string playerId, string clientIntentId, GameCommand command)
+    private async Task SubmitCommand(
+        string roomId,
+        string playerId,
+        string clientIntentId,
+        GameCommand command,
+        JsonElement rawCommand)
     {
         var session = sessions.GetOrCreate(roomId);
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
@@ -136,6 +151,7 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
                 normalizedPlayerId,
                 clientIntentId,
                 command,
+                rawCommand,
                 Context.ConnectionAborted);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)

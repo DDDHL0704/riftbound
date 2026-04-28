@@ -92,6 +92,7 @@ public static class ConformanceFixtureRunner
                     command.PlayerId,
                     command.ClientIntentId,
                     mapped,
+                    command.Cmd.Clone(),
                     cancellationToken)
                 .ConfigureAwait(false);
         }
