@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-turn-start-burnout",
+  "description": "Turn start draw step applies burnout when the turn player's main deck is empty, then draws after recycling the graveyard.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302004,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p28-p29 rule 315.4; p57 rule 413.4; p90 rule 431.2; 1v1 rule 481.7",
+      "note": "抽牌阶段主牌堆为空时执行燃尽：尽可能完成抽牌，将废牌堆回收至主牌堆，选择对手获得 1 分，再完成剩余抽牌。本样例使用 P2 非首个回合。"
+    }
+  ],
+  "roomId": "p2-preflight-burnout-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302004,
+    "turnNumber": 4,
+    "activePlayerId": "P2",
+    "turnPlayerId": "P2",
+    "phase": "TURN_START",
+    "timingState": "NEUTRAL_CLOSED",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 1, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": ["P2-RECYCLE-001"],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-burnout",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_START_BEGAN",
+      "RUNES_CALLED",
+      "BURNOUT_APPLIED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "BURNOUT_APPLIED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 4,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 1,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}

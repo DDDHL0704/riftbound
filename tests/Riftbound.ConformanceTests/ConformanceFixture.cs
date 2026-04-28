@@ -69,7 +69,8 @@ public sealed record ConformanceInitialState(
     string? Phase = null,
     string? TimingState = null,
     IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
-    IReadOnlyDictionary<string, RunePool>? RunePools = null);
+    IReadOnlyDictionary<string, RunePool>? RunePools = null,
+    IReadOnlyDictionary<string, int>? Scores = null);
 
 public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? MainDeck = null,
@@ -97,7 +98,8 @@ public sealed record ConformanceExpectedState(
     string? TurnPlayerId = null,
     string? Phase = null,
     string? TimingState = null,
-    IReadOnlyDictionary<string, RunePool>? RunePools = null);
+    IReadOnlyDictionary<string, RunePool>? RunePools = null,
+    IReadOnlyDictionary<string, int>? Scores = null);
 
 public sealed record ConformanceExpectedEvent(
     string Kind,
@@ -215,7 +217,8 @@ public static class ConformanceFixtureRunner
             phase,
             timingState,
             BuildRunePools(initial, fixture.Players),
-            BuildPlayerZones(initial, fixture.Players));
+            BuildPlayerZones(initial, fixture.Players),
+            BuildPlayerScores(initial, fixture.Players));
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)
@@ -252,6 +255,18 @@ public static class ConformanceFixtureRunner
                 && initial.Players.TryGetValue(playerId, out var zones)
                     ? ToPlayerZones(zones)
                     : PlayerZones.Empty,
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> BuildPlayerScores(
+        ConformanceInitialState initial,
+        IReadOnlyList<string> playerIds)
+    {
+        return playerIds.ToDictionary(
+            playerId => NormalizePlayerId(playerId, playerId),
+            playerId => initial.Scores is not null && initial.Scores.TryGetValue(playerId, out var score)
+                ? score
+                : 0,
             StringComparer.Ordinal);
     }
 

@@ -42,11 +42,11 @@
   - `state_snapshots` 权威状态快照表和 `004_p1_state_snapshots.sql` 已加入；journal 写入服务端 `MatchState`，recovery 优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致。
   - `IMatchPlayerStore` 和 `PostgresMatchPlayerStore` 已接入；Join/Reconnect 只持久化 `sha256:` reconnect token hash，恢复后的 session 可用旧 token hash 重连，并在成功重连后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect。
   - P2 preflight 第一刀已完成：fixture schema v2 可读取 `initialState`、`expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为回合开始、召出符文、抽牌、清空符文池的规则审查样例。
-  - `MatchState` 已加入 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`，snapshot timing 已投影这些 P2 权威 timing 字段；当前只是状态地基，尚未实现真实符文池/回合开始自动结算。
+  - `MatchState` 已加入 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`，snapshot timing 已投影这些 P2 权威 timing 字段；当前只是状态地基，尚未实现真实符文池/回合开始自动结算。
   - conformance runner 已能把 P2 `initialState` 应用为权威初始状态，包含 turn/phase/timing、符文池和玩家区域。
-  - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文。
+  - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文；燃尽 fixture 已验证主牌堆为空、废牌堆可回收时对手得 1 分并完成抽牌。
 
-下一步继续 P2 preflight：补主牌堆为空/燃尽 fixture；随后实现 `END_TURN` 特殊清理并把回合开始自动结算接到回合推进后，再做 `PASS_PRIORITY` / FEPR、`PASS_FOCUS` / 法术对决最小流程。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
+下一步继续 P2 preflight：实现 `END_TURN` 特殊清理并把回合开始自动结算接到回合推进后，再做 `PASS_PRIORITY` / FEPR、`PASS_FOCUS` / 法术对决最小流程。废牌堆也为空导致连续燃尽/胜利判定另建后续 fixture。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -79,7 +79,7 @@
 - `match_players.reconnect_token_hash` 保存 reconnect token hash，不保存明文；重连成功会轮换 token/hash。
 - 恢复后的已有玩家不能通过 Join 直接领取新 token，必须用旧 token 走 Reconnect 验证。
 - P2 fixture schema 能表达 `initialState`、权威最终状态、事件序列、玩家 prompt；runner 能把 `initialState` 应用为真实权威状态，当前已有回合开始 preflight 样例。
-- `MatchState` 能保存并投影 P2 基础权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`。
+- `MatchState` 能保存并投影 P2 基础权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。
 - solution 级 `restore/build/test` 可作为新窗口默认验证入口。
 - PDF/FAQ 规则依据覆盖首批高价值路径。

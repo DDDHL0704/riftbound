@@ -72,9 +72,10 @@
 | `java-oracle-p1-pass` | `NEEDS_RULE_AUDIT` | `CORE-260330` p27 rule 310, p27-p28 rules 312-313, p34-p35 rules 335-340, p36 rules 347-348；`JFAQ-251023` p4-p5 questions 3.1-3.3；`BREAK-JFAQ-260416` p2-p5 scan | 拆清 `PASS_PRIORITY`、`PASS_FOCUS`、主阶段 `END_TURN` 的协议语义；旧 Java `PASS -> TURN_ENDED` 只能当 legacy 行为。 |
 | `java-oracle-p1-end-turn` | `NEEDS_RULE_AUDIT` | `CORE-260330` p29 rules 315.3-315.4, p30 rules 316.1-316.6, p30-p31 rules 317.1-317.3, p31 rules 318-322, p57 rule 413；`JFAQ-251023` p6-p7 questions 5.1-5.2；`BREAK-JFAQ-260416` p11 scan | 明确 `END_TURN` 是主阶段结束意图；后续事件需要拆成回合结束、特殊清理、符文池清空、下一回合开始、召出和抽牌。 |
 | `java-oracle-p1-duplicate-pass` | `NEEDS_RULE_AUDIT` | 工程幂等契约；`command_log(match_id, player_id, client_intent_id)` 唯一；不属于卡牌规则 PDF 裁决 | 保留为服务端权威/网络重试 fixture；不要把它当作游戏规则 fixture。 |
-| `p2-preflight-turn-start-runes-and-draw` | `RULE_AUDITED` | `CORE-260330` p20 rules 164-167, p28-p29 rule 315, rule 430, rule 481.7 | 已验证 P2 非首个回合普通回合开始：召出 2 张符文、抽 1 张牌、抽牌阶段结束清空符文池、进入主阶段；后续补燃尽 fixture。 |
-| `p2-preflight-turn-start-short-rune-deck` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3.b.1, rule 430, rule 481.7 | 已验证符文牌堆不足两张时有多少召出多少；后续补燃尽 fixture。 |
-| `p2-preflight-turn-start-first-p2-extra-rune` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3, rule 430, rule 481.7 | 已验证 1v1 第二个行动玩家首个召出阶段额外召出 1 张符文；后续补燃尽 fixture。 |
+| `p2-preflight-turn-start-runes-and-draw` | `RULE_AUDITED` | `CORE-260330` p20 rules 164-167, p28-p29 rule 315, rule 430, rule 481.7 | 已验证 P2 非首个回合普通回合开始：召出 2 张符文、抽 1 张牌、抽牌阶段结束清空符文池、进入主阶段。 |
+| `p2-preflight-turn-start-short-rune-deck` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3.b.1, rule 430, rule 481.7 | 已验证符文牌堆不足两张时有多少召出多少。 |
+| `p2-preflight-turn-start-first-p2-extra-rune` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3, rule 430, rule 481.7 | 已验证 1v1 第二个行动玩家首个召出阶段额外召出 1 张符文。 |
+| `p2-preflight-turn-start-burnout` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.4, p57 rule 413.4, p90 rule 431.2, rule 481.7 | 已验证抽牌阶段主牌堆为空且废牌堆有牌可回收时执行燃尽、对手得 1 分、回收后完成抽牌；连续燃尽/胜利判定后续单独补。 |
 
 ## 6.1 当前三条 Fixture 冲突检查结论
 

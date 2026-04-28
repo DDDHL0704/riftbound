@@ -31,15 +31,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var calledRuneTarget = RuneCallCount(state);
         var calledRunes = currentZones.RuneDeck.Take(calledRuneTarget).ToArray();
         var remainingRuneDeck = currentZones.RuneDeck.Skip(calledRunes.Length).ToArray();
-        var mainDeck = currentZones.MainDeck.ToArray();
-        var drawnCard = mainDeck.Take(1).ToArray();
-        var remainingMainDeck = mainDeck.Skip(drawnCard.Length).ToArray();
+        var drawResult = DrawOne(state, turnPlayerId, currentZones);
 
         playerZones[turnPlayerId] = currentZones with
         {
-            MainDeck = remainingMainDeck,
+            MainDeck = drawResult.MainDeck,
             RuneDeck = remainingRuneDeck,
-            Hand = currentZones.Hand.Concat(drawnCard).ToArray(),
+            Hand = currentZones.Hand.Concat(drawResult.DrawnCards).ToArray(),
+            Graveyard = drawResult.Graveyard,
             Base = currentZones.Base.Concat(calledRunes).ToArray()
         };
 
@@ -50,14 +49,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             Phase = MatchPhases.Main,
             TimingState = TimingStates.NeutralOpen,
             RunePools = ClearRunePools(state),
-            PlayerZones = playerZones
+            PlayerZones = playerZones,
+            PlayerScores = drawResult.PlayerScores
         };
 
         return new ResolutionResult(
             true,
             null,
             nextState,
-            BuildTurnStartEvents(state, calledRunes.Length, drawnCard.Length),
+            BuildTurnStartEvents(state, calledRunes.Length, drawResult),
             ResolutionResult.BuildSnapshots(nextState),
             ResolutionResult.BuildPrompts(nextState));
     }
@@ -90,12 +90,59 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(seat, "P2", StringComparison.Ordinal);
     }
 
+    private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones)
+    {
+        var playerScores = NormalizeScoresForSeats(state);
+        if (zones.MainDeck.Count > 0)
+        {
+            return new DrawResult(
+                zones.MainDeck.Skip(1).ToArray(),
+                zones.Graveyard,
+                [zones.MainDeck[0]],
+                false,
+                null,
+                playerScores);
+        }
+
+        var opponentId = OpponentOf(state, playerId);
+        if (opponentId is not null)
+        {
+            playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;
+        }
+
+        var recycledMainDeck = zones.Graveyard.ToArray();
+        var drawnCards = recycledMainDeck.Take(1).ToArray();
+        return new DrawResult(
+            recycledMainDeck.Skip(drawnCards.Length).ToArray(),
+            [],
+            drawnCards,
+            true,
+            opponentId,
+            playerScores);
+    }
+
+    private static Dictionary<string, int> NormalizeScoresForSeats(MatchState state)
+    {
+        return state.Seats.Keys.ToDictionary(
+            playerId => playerId,
+            playerId => state.PlayerScores.TryGetValue(playerId, out var score) ? score : 0,
+            StringComparer.Ordinal);
+    }
+
+    private static string? OpponentOf(MatchState state, string playerId)
+    {
+        return state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .FirstOrDefault(candidate => !string.Equals(candidate, playerId, StringComparison.Ordinal));
+    }
+
     private static IReadOnlyList<GameEvent> BuildTurnStartEvents(
         MatchState state,
         int calledRuneCount,
-        int drawnCardCount)
+        DrawResult drawResult)
     {
-        return
+        List<GameEvent> events =
         [
             new GameEvent(
                 "TURN_START_BEGAN",
@@ -111,29 +158,52 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = state.TurnPlayerId,
                     ["count"] = calledRuneCount
-                }),
-            new GameEvent(
-                "CARD_DRAWN",
-                $"{state.TurnPlayerId} 抽 {drawnCardCount} 张牌",
+                })
+        ];
+
+        if (drawResult.BurnoutApplied)
+        {
+            events.Add(new GameEvent(
+                "BURNOUT_APPLIED",
+                $"{state.TurnPlayerId} 执行燃尽",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = state.TurnPlayerId,
-                    ["count"] = drawnCardCount
-                }),
-            new GameEvent(
-                "RUNE_POOL_CLEARED",
-                "所有玩家的符文池已清空",
-                new Dictionary<string, object?>
-                {
-                    ["playerIds"] = state.Seats.Keys.ToArray()
-                }),
-            new GameEvent(
-                "MAIN_PHASE_BEGAN",
-                $"{state.TurnPlayerId} 进入主阶段",
-                new Dictionary<string, object?>
-                {
-                    ["turnPlayerId"] = state.TurnPlayerId
-                })
-        ];
+                    ["scoredPlayerId"] = drawResult.ScoredPlayerId
+                }));
+        }
+
+        events.Add(new GameEvent(
+            "CARD_DRAWN",
+            $"{state.TurnPlayerId} 抽 {drawResult.DrawnCards.Count} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = state.TurnPlayerId,
+                ["count"] = drawResult.DrawnCards.Count
+            }));
+        events.Add(new GameEvent(
+            "RUNE_POOL_CLEARED",
+            "所有玩家的符文池已清空",
+            new Dictionary<string, object?>
+            {
+                ["playerIds"] = state.Seats.Keys.ToArray()
+            }));
+        events.Add(new GameEvent(
+            "MAIN_PHASE_BEGAN",
+            $"{state.TurnPlayerId} 进入主阶段",
+            new Dictionary<string, object?>
+            {
+                ["turnPlayerId"] = state.TurnPlayerId
+            }));
+
+        return events;
     }
+
+    private sealed record DrawResult(
+        IReadOnlyList<string> MainDeck,
+        IReadOnlyList<string> Graveyard,
+        IReadOnlyList<string> DrawnCards,
+        bool BurnoutApplied,
+        string? ScoredPlayerId,
+        IReadOnlyDictionary<string, int> PlayerScores);
 }

@@ -170,6 +170,28 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineAppliesBurnoutDuringTurnStartDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start-burnout.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal(1, result.FinalState.PlayerScores["P1"]);
+        Assert.Equal(0, result.FinalState.PlayerScores["P2"]);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].MainDeck);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(new[] { "P2-RECYCLE-001" }, result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, result.FinalState.PlayerZones["P2"].Base);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
