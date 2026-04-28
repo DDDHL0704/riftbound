@@ -23,7 +23,7 @@ seed + initial setup + command log
 ```json
 {
   "schemaVersion": 1,
-  "fixtureId": "p1-placeholder-pass",
+  "fixtureId": "p1-placeholder-pass-priority",
   "description": "human readable reason",
   "source": "java-oracle | manual-csharp-skeleton",
   "auditStatus": "NEEDS_RULE_AUDIT | RULE_AUDITED",
@@ -41,15 +41,15 @@ seed + initial setup + command log
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-pass-1",
+      "clientIntentId": "intent-pass-priority-1",
       "cmd": {
-        "cmdType": "PASS"
+        "cmdType": "PASS_PRIORITY"
       }
     }
   ],
   "expected": {
     "finalTick": 1,
-    "eventKinds": ["TURN_ENDED"],
+    "eventKinds": ["PASS_PRIORITY"],
     "promptActions": {
       "P1": ["PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN"],
       "P2": ["WAIT"]
@@ -62,7 +62,7 @@ seed + initial setup + command log
 
 现有样例：
 
-- `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass-priority.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`

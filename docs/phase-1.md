@@ -33,6 +33,7 @@
   - `IMatchRecoveryStore` 和 `PostgresMatchRecoveryStore` 已能读取 match、command、events、最新 snapshot/prompt，`MatchRecoveryValidator` 已覆盖 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
   - `001_p1_event_store.sql` 不再创建依赖后续迁移新列的 sequence 索引，旧库升级顺序已恢复为 `001 -> 002 -> 003`。
   - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom；Hub 级错误码测试覆盖未知玩家提交、unsupported command 和重复 intent 冲突。
+  - 手写 C# placeholder fixture 已迁移为 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
 
 下一步接入 RoomRegistry/MatchSession 恢复入口，并继续做协议错误码治理；新增 fixture 不再使用裸 `PASS`。
 

@@ -104,6 +104,7 @@
 - P1 PostgreSQL schema 和 `PostgresMatchJournal` 已补 `ruleset_version`、`faq_version`、`rules_audit_status`、`rules_evidence`；schema initializer 会按文件名顺序执行 `Sql/*.sql`。
 - 当前 3 条 Java legacy fixture 的 evidence 已细化到具体页码、规则号/FAQ 问题号，并记录 `PASS -> TURN_ENDED` 是 legacy mismatch candidate。
 - `docs/protocol-semantics.md` 已明确 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN` 的协议边界；`PASS` 仅保留为 legacy 兼容。
+- 手写 C# placeholder fixture 已迁移为 `p1-placeholder-pass-priority.fixture.json`，使用显式 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
 - `MatchSession` 已能为前两名加入者分配稳定 `P1` / `P2` 座位，并在 snapshot 的 `players` 视图中暴露 seat；第三名玩家会被拒绝。
 - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和第三人满员错误。
 - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
@@ -125,7 +126,7 @@
 
 1. 设计并接入 RoomRegistry/MatchSession 的恢复入口；在没有权威 full-state snapshot 前，只把 player snapshot 当恢复校验和重连视图，不把它误当完整规则状态。
 2. 继续补协议错误码治理：P1 保持 room/join/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
-3. 开始把新 fixture 从裸 `PASS` 迁移到 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`。
+3. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
 4. 后续把内存 reconnect token 接入 `match_players.reconnect_token_hash`。
 
 P1 验收前不要开始：

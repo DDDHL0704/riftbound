@@ -9,7 +9,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task FixtureRunnerReplaysCommandLogAndChecksExpectedShape()
     {
         var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p1-placeholder-pass.fixture.json"),
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p1-placeholder-pass-priority.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(

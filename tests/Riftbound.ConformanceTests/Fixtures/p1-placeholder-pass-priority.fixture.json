@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "fixtureId": "p1-placeholder-pass",
-  "description": "C# fixture runner shape check until Java oracle exporter emits the same format.",
+  "fixtureId": "p1-placeholder-pass-priority",
+  "description": "C# fixture runner shape check using explicit PASS_PRIORITY protocol semantics.",
   "source": "manual-csharp-skeleton",
   "roomId": "fixture-room",
   "players": ["P1", "P2"],
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-pass-1",
+      "clientIntentId": "intent-pass-priority-1",
       "cmd": {
-        "cmdType": "PASS"
+        "cmdType": "PASS_PRIORITY"
       }
     }
   ],
   "expected": {
     "finalTick": 1,
-    "eventKinds": ["TURN_ENDED"],
+    "eventKinds": ["PASS_PRIORITY"],
     "promptActions": {
       "P1": [
         "PLAY_CARD",
