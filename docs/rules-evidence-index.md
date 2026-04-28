@@ -76,6 +76,7 @@
 | `p2-preflight-turn-start-short-rune-deck` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3.b.1, rule 430, rule 481.7 | 已验证符文牌堆不足两张时有多少召出多少。 |
 | `p2-preflight-turn-start-first-p2-extra-rune` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3, rule 430, rule 481.7 | 已验证 1v1 第二个行动玩家首个召出阶段额外召出 1 张符文。 |
 | `p2-preflight-turn-start-burnout` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.4, p57 rule 413.4, p90 rule 431.2, rule 481.7 | 已验证抽牌阶段主牌堆为空且废牌堆有牌可回收时执行燃尽、对手得 1 分、回收后完成抽牌；连续燃尽/胜利判定后续单独补。 |
+| `p2-preflight-end-turn-advances-to-next-start` | `RULE_AUDITED` | `CORE-260330` p29-p31 rules 316.1-317.3, p20 rules 164-167, p28-p29 rule 315, rule 481.7；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证 P1 主阶段 `END_TURN` 会记录回合结束声明、执行无伤害/无持续效果的最小特殊清理、清空符文池、推进到 P2，并自动结算 P2 回合开始；完整特殊清理后续单独补。 |
 
 ## 6.1 当前三条 Fixture 冲突检查结论
 

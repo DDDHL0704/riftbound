@@ -192,6 +192,39 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, result.FinalState.PlayerZones["P2"].Base);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineAdvancesEndTurnToNextTurnStart()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-end-turn-advances-to-next-start.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.NotNull(fixture.Expected.FinalState);
+        Assert.Equal(fixture.Expected.FinalState.TurnNumber, result.FinalState.TurnNumber);
+        Assert.Equal(fixture.Expected.FinalState.ActivePlayerId, result.FinalState.ActivePlayerId);
+        Assert.Equal(fixture.Expected.FinalState.TurnPlayerId, result.FinalState.TurnPlayerId);
+        Assert.Equal(fixture.Expected.FinalState.Phase, result.FinalState.Phase);
+        Assert.Equal(fixture.Expected.FinalState.TimingState, result.FinalState.TimingState);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P2"]);
+        Assert.Equal(0, result.FinalState.PlayerScores["P1"]);
+        Assert.Equal(0, result.FinalState.PlayerScores["P2"]);
+        Assert.Equal(new[] { "P2-RUNE-004" }, result.FinalState.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(
+            new[] { "P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003" },
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P2"].Actions);
+        Assert.False(result.Prompts["P1"].Actionable);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]

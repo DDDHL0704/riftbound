@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-end-turn-advances-to-next-start",
+  "description": "END_TURN from P1 main phase performs minimal turn-end cleanup, advances to P2, then automatically resolves P2 turn start.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302005,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p29-p31 rules 316.1-317.3; p20 rules 164-167; p28-p29 rule 315; 1v1 rule 481.7",
+      "note": "主阶段结束意图进入回合结束流程；完成最小特殊清理后推进至下一玩家回合开始，并执行召出符文、抽牌和抽牌阶段结束清空符文池。"
+    },
+    {
+      "source": "JFAQ_251023.pdf",
+      "locator": "p6-p7 questions 5.1-5.2",
+      "note": "FAQ 对清理/特殊清理的补充要求后续继续细化；本样例只覆盖无伤害、无本回合持续效果的最小清理闭环。"
+    }
+  ],
+  "roomId": "p2-preflight-end-turn-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302005,
+    "turnNumber": 1,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 1 },
+      "P2": { "mana": 0, "power": 1 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-end-turn",
+      "cmd": {
+        "cmdType": "END_TURN"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_END_DECLARED",
+      "TURN_END_CLEANUP_STARTED",
+      "RUNE_POOL_CLEARED",
+      "TURN_PLAYER_ADVANCED",
+      "TURN_START_BEGAN",
+      "RUNES_CALLED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_END_DECLARED" },
+      { "kind": "TURN_END_CLEANUP_STARTED" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "TURN_PLAYER_ADVANCED" },
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 2,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}
