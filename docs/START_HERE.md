@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 33 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 39 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -113,6 +113,7 @@
 - `IMatchRecoveryStore`、`PostgresMatchRecoveryStore` 和 `MatchRecoveryValidator` 已建立最小恢复读取/校验路径：可读取 match、command、events、最新 snapshot/prompt，并校验 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
 - `001_p1_event_store.sql` 已移除依赖 003 新列的 sequence 索引创建，旧库可按 `001 -> 002 -> 003` 顺序升级。
 - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom；Hub 级测试覆盖 `PLAYER_NOT_IN_ROOM`、`UNSUPPORTED_COMMAND`、`CLIENT_INTENT_CONFLICT` 三条命令提交错误路径。
+- `InMemoryMatchSessionRegistry` 已接入 `IMatchRecoveryStore` 异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、P1/P2 seat、lastEventSequence 和已见过的 intent，用于防止重启后重复提交污染事件流，不把玩家视角 snapshot 当完整权威规则状态；跨 room recovery frame 会被 `RECOVERY_INCONSISTENT` 拒绝。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -124,10 +125,10 @@
 
 第一批任务：
 
-1. 设计并接入 RoomRegistry/MatchSession 的恢复入口；在没有权威 full-state snapshot 前，只把 player snapshot 当恢复校验和重连视图，不把它误当完整规则状态。
-2. 继续补协议错误码治理：P1 保持 room/join/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
-3. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
-4. 后续把内存 reconnect token 接入 `match_players.reconnect_token_hash`。
+1. 设计权威 full-state snapshot schema 和 hydrate 流程；玩家视角 snapshot 继续只用于重连视图和一致性校验。
+2. 把内存 reconnect token 接入 `match_players.reconnect_token_hash`，并明确 token 轮换、泄漏防护和恢复后重连策略。
+3. 继续补协议错误码治理：P1 保持 room/join/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
+4. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
 
 P1 验收前不要开始：
 

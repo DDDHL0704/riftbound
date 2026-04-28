@@ -572,7 +572,8 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - RoomRegistry/MatchSession 恢复入口
+   - 权威 full-state snapshot 和 hydrate 流程
+   - `match_players.reconnect_token_hash` 持久化重连
    - 幂等重复提交
    - 符文横置/回收
    - EndTurn/Pass
@@ -591,6 +592,7 @@ Browser Use 阶段性测试：
 - recovery 读取/校验路径已建立：可从 PostgreSQL 读取 match、command、events、最新 snapshot/prompt，并校验 event sequence、command 边界和 player view sequence。
 - `001_p1_event_store.sql` 已避免在旧库缺少 003 新列时提前创建 sequence 索引。
 - P1 提交路径错误码已覆盖未知玩家、unsupported command 和重复 intent 冲突；未 Join 的玩家提交命令不会隐式入座。
+- RoomRegistry/MatchSession 恢复入口已接入：可恢复 P1 底座状态、lastEventSequence 和已见过 intent；full-state snapshot 未完成前，不把玩家视角 snapshot 当完整权威规则状态。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

@@ -34,8 +34,9 @@
   - `001_p1_event_store.sql` 不再创建依赖后续迁移新列的 sequence 索引，旧库升级顺序已恢复为 `001 -> 002 -> 003`。
   - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom；Hub 级错误码测试覆盖未知玩家提交、unsupported command 和重复 intent 冲突。
   - 手写 C# placeholder fixture 已迁移为 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
+  - `InMemoryMatchSessionRegistry` 已接入异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、seat、lastEventSequence 和已见过 intent，避免把玩家视角 snapshot 误当完整规则状态。
 
-下一步接入 RoomRegistry/MatchSession 恢复入口，并继续做协议错误码治理；新增 fixture 不再使用裸 `PASS`。
+下一步设计权威 full-state snapshot 和 hydrate 流程，并把 reconnect token 接入 `match_players.reconnect_token_hash`；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -59,6 +60,7 @@
 - 事件日志具有 match 内单调 `event_sequence`，command/snapshot/prompt 能记录对应 sequence 边界。
 - command log payload 保留客户端原始命令 JSON，用于后续 command log 回放和审计。
 - recovery 读取/校验路径可从 PostgreSQL 取回事件流和最新玩家视图，并拒绝 event sequence 缺口或未来 snapshot。
+- RoomRegistry/MatchSession 可从 recovery frame 恢复 P1 底座状态；重启后的重复 intent 不推进 tick、不重复写 journal。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。
 - solution 级 `restore/build/test` 可作为新窗口默认验证入口。
 - PDF/FAQ 规则依据覆盖首批高价值路径。

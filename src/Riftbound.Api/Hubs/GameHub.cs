@@ -22,11 +22,12 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
 {
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
-        var session = sessions.GetOrCreate(roomId);
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        IMatchSession session;
         PlayerSessionDto playerSession;
         try
         {
+            session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = session.EnsurePlayer(normalizedPlayerId);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
@@ -50,11 +51,12 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
 
     public async Task Reconnect(string roomId, string playerId, string reconnectToken)
     {
-        var session = sessions.GetOrCreate(roomId);
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        IMatchSession session;
         PlayerSessionDto playerSession;
         try
         {
+            session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             playerSession = session.ReconnectPlayer(normalizedPlayerId, reconnectToken);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
@@ -78,10 +80,10 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
 
     public async Task RequestSnapshot(string roomId, string playerId)
     {
-        var session = sessions.GetOrCreate(roomId);
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
         try
         {
+            var session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
@@ -142,11 +144,11 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
         GameCommand command,
         JsonElement rawCommand)
     {
-        var session = sessions.GetOrCreate(roomId);
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
         ResolutionResult result;
         try
         {
+            var session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
             result = await session.SubmitAsync(
                 normalizedPlayerId,
                 clientIntentId,

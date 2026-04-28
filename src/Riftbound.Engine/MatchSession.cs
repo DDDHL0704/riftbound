@@ -238,26 +238,67 @@ public interface IMatchSession
 
 public interface IMatchSessionRegistry
 {
-    IMatchSession GetOrCreate(string roomId);
+    ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken);
 }
 
-public sealed class InMemoryMatchSessionRegistry(IRuleEngine ruleEngine, IMatchJournal journal) : IMatchSessionRegistry
+public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 {
+    private readonly IRuleEngine ruleEngine;
+    private readonly IMatchJournal journal;
+    private readonly IMatchRecoveryStore recoveryStore;
     private readonly Dictionary<string, IMatchSession> sessions = new();
-    private readonly object gate = new();
+    private readonly SemaphoreSlim gate = new(1, 1);
 
-    public IMatchSession GetOrCreate(string roomId)
+    public InMemoryMatchSessionRegistry(IRuleEngine ruleEngine, IMatchJournal journal)
+        : this(ruleEngine, journal, NoopMatchRecoveryStore.Instance)
     {
-        lock (gate)
+    }
+
+    public InMemoryMatchSessionRegistry(
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchRecoveryStore recoveryStore)
+    {
+        this.ruleEngine = ruleEngine;
+        this.journal = journal;
+        this.recoveryStore = recoveryStore;
+    }
+
+    public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
+    {
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
             if (!sessions.TryGetValue(roomId, out var session))
             {
-                session = new MatchSession(roomId, ruleEngine, journal);
+                session = await CreateSessionAsync(roomId, cancellationToken).ConfigureAwait(false);
                 sessions.Add(roomId, session);
             }
 
             return session;
         }
+        finally
+        {
+            gate.Release();
+        }
+    }
+
+    private async ValueTask<IMatchSession> CreateSessionAsync(string roomId, CancellationToken cancellationToken)
+    {
+        var recovery = await recoveryStore.LoadAsync(roomId, cancellationToken).ConfigureAwait(false);
+        if (recovery is null)
+        {
+            return new MatchSession(roomId, ruleEngine, journal);
+        }
+
+        if (!string.Equals(recovery.RoomId, roomId, StringComparison.Ordinal))
+        {
+            throw new MatchSessionException(
+                ErrorCodes.RecoveryInconsistent,
+                $"match recovery returned room {recovery.RoomId} for requested room {roomId}");
+        }
+
+        return MatchSession.Restore(recovery, ruleEngine, journal);
     }
 }
 
@@ -286,7 +327,64 @@ public sealed class MatchSession : IMatchSession
         state = MatchState.Create(roomId);
     }
 
+    private MatchSession(
+        MatchState restoredState,
+        long restoredLastEventSequence,
+        IReadOnlyDictionary<string, string> restoredSeats,
+        IReadOnlyList<RecoveredCommand> restoredCommands,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal)
+    {
+        RoomId = restoredState.RoomId;
+        this.ruleEngine = ruleEngine;
+        this.journal = journal;
+        state = restoredState;
+        lastEventSequence = restoredLastEventSequence;
+        foreach (var (playerId, seat) in restoredSeats)
+        {
+            seats[playerId] = seat;
+            reconnectTokens[playerId] = NewReconnectToken();
+        }
+
+        foreach (var command in restoredCommands)
+        {
+            var result = new ResolutionResult(
+                command.Accepted,
+                command.ErrorMessage,
+                restoredState,
+                [],
+                ResolutionResult.BuildSnapshots(restoredState),
+                ResolutionResult.BuildPrompts(restoredState),
+                command.Accepted ? null : ErrorCodes.UnsupportedCommand);
+            intentCache[$"{command.PlayerId}:{command.ClientIntentId}"] = new CachedResolution(
+                command.CommandType,
+                result);
+        }
+    }
+
     public string RoomId { get; }
+
+    public static MatchSession Restore(
+        MatchRecoveryFrame recovery,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal)
+    {
+        if (!recovery.IsConsistent)
+        {
+            throw new MatchSessionException(
+                ErrorCodes.RecoveryInconsistent,
+                $"match recovery is inconsistent: {string.Join("; ", recovery.ValidationErrors)}");
+        }
+
+        var state = RestoreState(recovery);
+        return new MatchSession(
+            state,
+            recovery.LastEventSequence,
+            state.Seats,
+            recovery.Commands,
+            ruleEngine,
+            journal);
+    }
 
     public PlayerSessionDto EnsurePlayer(string playerId)
     {
@@ -414,6 +512,29 @@ public sealed class MatchSession : IMatchSession
     }
 
     private sealed record CachedResolution(string CommandType, ResolutionResult Result);
+
+    private static MatchState RestoreState(MatchRecoveryFrame recovery)
+    {
+        if (recovery.PlayerViews.Count == 0)
+        {
+            return MatchState.Create(recovery.RoomId) with
+            {
+                Tick = recovery.CurrentTick
+            };
+        }
+
+        var baseline = recovery.PlayerViews.Values
+            .OrderBy(view => view.PlayerId, StringComparer.Ordinal)
+            .First()
+            .Snapshot;
+        var seats = MatchRecoveryValidator.ExtractSeats(baseline);
+        return new MatchState(
+            recovery.RoomId,
+            recovery.CurrentTick,
+            baseline.TurnNumber,
+            baseline.ActivePlayerId,
+            seats);
+    }
 
     private string NextOpenSeat()
     {

@@ -91,6 +91,7 @@ public static class MatchRecoveryValidator
         ValidateEvents(lastEventSequence, events, errors);
         ValidateCommands(lastEventSequence, commands, events, errors);
         ValidatePlayerViews(lastEventSequence, playerViews, errors);
+        ValidatePlayerViewAgreement(playerViews, errors);
 
         return errors;
     }
@@ -209,5 +210,94 @@ public static class MatchRecoveryValidator
                 errors.Add($"prompt for {view.PlayerId} has payload player {view.Prompt.PlayerId}");
             }
         }
+    }
+
+    private static void ValidatePlayerViewAgreement(
+        IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
+        List<string> errors)
+    {
+        if (playerViews.Count <= 1)
+        {
+            return;
+        }
+
+        var baseline = playerViews.Values
+            .OrderBy(view => view.PlayerId, StringComparer.Ordinal)
+            .First()
+            .Snapshot;
+        var baselineSeats = ExtractSeats(baseline);
+        foreach (var view in playerViews.Values)
+        {
+            if (view.Snapshot.TurnNumber != baseline.TurnNumber)
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees on turn number");
+            }
+
+            if (!string.Equals(view.Snapshot.ActivePlayerId, baseline.ActivePlayerId, StringComparison.Ordinal))
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees on active player");
+            }
+
+            var seats = ExtractSeats(view.Snapshot);
+            if (!SeatsEqual(baselineSeats, seats))
+            {
+                errors.Add($"snapshot for {view.PlayerId} disagrees on player seats");
+            }
+        }
+    }
+
+    public static IReadOnlyDictionary<string, string> ExtractSeats(SnapshotDto snapshot)
+    {
+        var seats = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (playerId, player) in snapshot.Players)
+        {
+            if (TryReadSeat(player, out var seat))
+            {
+                seats[playerId] = seat;
+            }
+        }
+
+        return seats;
+    }
+
+    private static bool TryReadSeat(object? player, out string seat)
+    {
+        if (player is IReadOnlyDictionary<string, object?> readOnlyDictionary
+            && readOnlyDictionary.TryGetValue("seat", out var readOnlySeat)
+            && readOnlySeat is string readOnlySeatString)
+        {
+            seat = readOnlySeatString;
+            return true;
+        }
+
+        if (player is IDictionary<string, object?> dictionary
+            && dictionary.TryGetValue("seat", out var dictionarySeat)
+            && dictionarySeat is string dictionarySeatString)
+        {
+            seat = dictionarySeatString;
+            return true;
+        }
+
+        if (player is JsonElement { ValueKind: JsonValueKind.Object } json
+            && json.TryGetProperty("seat", out var jsonSeat)
+            && jsonSeat.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(jsonSeat.GetString()))
+        {
+            seat = jsonSeat.GetString()!;
+            return true;
+        }
+
+        seat = string.Empty;
+        return false;
+    }
+
+    private static bool SeatsEqual(
+        IReadOnlyDictionary<string, string> left,
+        IReadOnlyDictionary<string, string> right)
+    {
+        return left.Count == right.Count
+            && left.All(entry =>
+                right.TryGetValue(entry.Key, out var seat)
+                && string.Equals(seat, entry.Value, StringComparison.Ordinal));
     }
 }

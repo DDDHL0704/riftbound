@@ -43,6 +43,7 @@ public static class ErrorCodes
     public const string InvalidReconnectToken = "INVALID_RECONNECT_TOKEN";
     public const string ClientIntentConflict = "CLIENT_INTENT_CONFLICT";
     public const string UnsupportedCommand = "UNSUPPORTED_COMMAND";
+    public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
 }
 
 public sealed record ErrorDto(

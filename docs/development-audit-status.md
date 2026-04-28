@@ -20,9 +20,9 @@
 | `.NET 10` solution、项目分层、`scripts/dev-env.sh` | 工程骨架已可 build/test | 暂不需要 | 保留。 |
 | `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，并有 `ErrorDto` / `PlayerSessionDto` | 需要后续扩展 | P1 加 `protocolVersion`、TypeScript DTO 生成，并扩大稳定错误码覆盖面。 |
 | `GameHub` | 支持 Join、Reconnect、RequestSnapshot、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；加入/重连/快照/提交错误有最小 SignalR 级测试 | 需要后续扩展 | 保留；补 Ready、生产级 reconnect token 持久化和 P2 规则错误码。 |
-| `MatchSession` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat、内存 reconnect token；提交命令要求玩家已 JoinRoom | 需要规则审查 | 串行、幂等、座位、内存重连可保留；规则状态和 prompt 只是占位。 |
+| `MatchSession` / `InMemoryMatchSessionRegistry` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat、内存 reconnect token；提交命令要求玩家已 JoinRoom；registry 可从 recovery frame 恢复 P1 底座状态和已见过 intent | 需要规则审查 | 串行、幂等、座位、恢复入口、内存重连可保留；规则状态和 prompt 只是占位，full-state snapshot 未完成。 |
 | `PlaceholderRuleEngine` | 对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状 | 需要重审 | 标记 `NEEDS_RULE_AUDIT`；补 PDF/FAQ evidence 后决定是否改行为。 |
-| `PostgresMatchJournal`、`PostgresMatchRecoveryStore` 和 P1 SQL | 能记录命令、事件、snapshot、prompt，并写入 ruleset/FAQ/audit 元数据、event sequence 边界和客户端原始 command payload；已能读取恢复帧并校验 sequence 连续性 | 需要后续扩展 | 保留；后续补 RoomRegistry/MatchSession 恢复入口、权威 full-state snapshot 和持久化重连 token。 |
+| `PostgresMatchJournal`、`PostgresMatchRecoveryStore` 和 P1 SQL | 能记录命令、事件、snapshot、prompt，并写入 ruleset/FAQ/audit 元数据、event sequence 边界和客户端原始 command payload；已能读取恢复帧并校验 sequence 连续性 | 需要后续扩展 | 保留；后续补权威 full-state snapshot、hydrate 流程和持久化重连 token。 |
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
 | `ConformanceFixture` | 能回放 command log 并比较 event/prompt | 已补规则审查字段 | 新增 `rulesEvidence`、`faqVersion`、`auditStatus` 读取能力；旧 fixture 默认需要重审。 |
 | 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐，evidence 已细化 | 必须重审 | 保留为 legacy oracle；`PASS -> TURN_ENDED` 标记为 legacy mismatch candidate。 |
@@ -49,9 +49,10 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 接入 RoomRegistry/MatchSession 恢复入口；在权威 full-state snapshot 完成前，只把 player snapshot 作为重连视图和恢复校验依据。
-2. 继续协议错误码治理；P1 提交路径已覆盖未知玩家、unsupported command、重复 intent 冲突，P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。
-3. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
+1. 设计权威 full-state snapshot schema 和 hydrate 流程；在 full-state 完成前，只把 player snapshot 作为重连视图和恢复校验依据。
+2. 把 reconnect token 接入 `match_players.reconnect_token_hash`，明确恢复后重连策略。
+3. 继续协议错误码治理；P1 提交路径已覆盖未知玩家、unsupported command、重复 intent 冲突，P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。
+4. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
 
 ## 5. 重审验收
 
