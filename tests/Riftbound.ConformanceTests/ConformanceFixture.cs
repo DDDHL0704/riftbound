@@ -70,7 +70,8 @@ public sealed record ConformanceInitialState(
     string? TimingState = null,
     IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
-    IReadOnlyDictionary<string, int>? Scores = null);
+    IReadOnlyDictionary<string, int>? Scores = null,
+    IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null);
 
 public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? MainDeck = null,
@@ -82,6 +83,10 @@ public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? Banished = null,
     IReadOnlyList<string>? LegendZone = null,
     IReadOnlyList<string>? ChampionZone = null);
+
+public sealed record ConformanceCardObjectState(
+    int? Damage = null,
+    IReadOnlyList<string>? UntilEndOfTurnEffects = null);
 
 public sealed record ConformanceExpected(
     long FinalTick,
@@ -99,7 +104,8 @@ public sealed record ConformanceExpectedState(
     string? Phase = null,
     string? TimingState = null,
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
-    IReadOnlyDictionary<string, int>? Scores = null);
+    IReadOnlyDictionary<string, int>? Scores = null,
+    IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null);
 
 public sealed record ConformanceExpectedEvent(
     string Kind,
@@ -218,7 +224,8 @@ public static class ConformanceFixtureRunner
             timingState,
             BuildRunePools(initial, fixture.Players),
             BuildPlayerZones(initial, fixture.Players),
-            BuildPlayerScores(initial, fixture.Players));
+            BuildPlayerScores(initial, fixture.Players),
+            BuildCardObjects(initial));
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)
@@ -268,6 +275,19 @@ public static class ConformanceFixtureRunner
                 ? score
                 : 0,
             StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, CardObjectState> BuildCardObjects(ConformanceInitialState initial)
+    {
+        return (initial.CardObjects ?? new Dictionary<string, ConformanceCardObjectState>(StringComparer.Ordinal))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
+            .ToDictionary(
+                entry => entry.Key.Trim(),
+                entry => new CardObjectState(
+                    entry.Key.Trim(),
+                    entry.Value.Damage ?? 0,
+                    entry.Value.UntilEndOfTurnEffects),
+                StringComparer.Ordinal);
     }
 
     private static PlayerZones ToPlayerZones(ConformancePlayerInitialState zones)

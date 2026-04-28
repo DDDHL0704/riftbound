@@ -57,6 +57,36 @@ public sealed record PlayerZones(
     public static PlayerZones Empty { get; } = new([], [], [], [], [], [], [], [], []);
 }
 
+public sealed record CardObjectState
+{
+    [JsonConstructor]
+    public CardObjectState(
+        string? objectId = null,
+        int damage = 0,
+        IReadOnlyList<string>? untilEndOfTurnEffects = null)
+    {
+        ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
+        Damage = Math.Max(0, damage);
+        UntilEndOfTurnEffects = NormalizeEffects(untilEndOfTurnEffects);
+    }
+
+    public string ObjectId { get; init; }
+
+    public int Damage { get; init; }
+
+    public IReadOnlyList<string> UntilEndOfTurnEffects { get; init; }
+
+    private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
+    {
+        return (effectIds ?? [])
+            .Where(effectId => !string.IsNullOrWhiteSpace(effectId))
+            .Select(effectId => effectId.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+}
+
 public sealed record MatchState
 {
     public MatchState(
@@ -65,7 +95,7 @@ public sealed record MatchState
         int turnNumber,
         string activePlayerId,
         IReadOnlyDictionary<string, string> seats)
-        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null)
+        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null, null)
     {
     }
 
@@ -83,7 +113,8 @@ public sealed record MatchState
         string? timingState = null,
         IReadOnlyDictionary<string, RunePool>? runePools = null,
         IReadOnlyDictionary<string, PlayerZones>? playerZones = null,
-        IReadOnlyDictionary<string, int>? playerScores = null)
+        IReadOnlyDictionary<string, int>? playerScores = null,
+        IReadOnlyDictionary<string, CardObjectState>? cardObjects = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -108,6 +139,7 @@ public sealed record MatchState
         RunePools = NormalizeRunePools(runePools);
         PlayerZones = NormalizePlayerZones(playerZones);
         PlayerScores = NormalizePlayerScores(playerScores);
+        CardObjects = NormalizeCardObjects(cardObjects);
     }
 
     public string RoomId { get; init; }
@@ -136,6 +168,8 @@ public sealed record MatchState
 
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
+    public IReadOnlyDictionary<string, CardObjectState> CardObjects { get; init; }
+
     public static MatchState Create(string roomId)
     {
         return new MatchState(
@@ -151,7 +185,8 @@ public sealed record MatchState
             TimingStates.Room,
             new Dictionary<string, RunePool>(StringComparer.Ordinal),
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal),
-            new Dictionary<string, int>(StringComparer.Ordinal));
+            new Dictionary<string, int>(StringComparer.Ordinal),
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
     }
 
     private static string InferStatus(IReadOnlyDictionary<string, string> seats)
@@ -214,6 +249,28 @@ public sealed record MatchState
                 entry => entry.Key.Trim(),
                 entry => entry.Value,
                 StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, CardObjectState> NormalizeCardObjects(
+        IReadOnlyDictionary<string, CardObjectState>? cardObjects)
+    {
+        return (cardObjects ?? new Dictionary<string, CardObjectState>(StringComparer.Ordinal))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
+            .ToDictionary(
+                entry => entry.Key.Trim(),
+                entry => NormalizeCardObject(entry.Key, entry.Value),
+                StringComparer.Ordinal);
+    }
+
+    private static CardObjectState NormalizeCardObject(string objectId, CardObjectState state)
+    {
+        var normalizedObjectId = string.IsNullOrWhiteSpace(state.ObjectId)
+            ? objectId.Trim()
+            : state.ObjectId.Trim();
+        return new CardObjectState(
+            normalizedObjectId,
+            state.Damage,
+            state.UntilEndOfTurnEffects);
     }
 
     private static PlayerZones NormalizeZones(PlayerZones zones)

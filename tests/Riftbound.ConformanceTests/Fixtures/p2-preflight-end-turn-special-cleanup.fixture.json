@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-end-turn-special-cleanup",
+  "description": "END_TURN from main phase removes marked unit damage and expires until-end-of-turn effects before advancing to the next turn.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302006,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p30-p31 rules 317.2.a-317.2.f; p31-p33 rules 318-324",
+      "note": "回合结束失效步骤启动一次特殊清理，插入为所有单位移除伤害、令期限为本回合内的效果同时失效、清空符文池等步骤；若清理期间产生新的清理需求，后续应进入常规清理。"
+    },
+    {
+      "source": "JFAQ_251023.pdf",
+      "locator": "p6-p7 questions 5.1-5.2",
+      "note": "FAQ 澄清清理期间不结算合法项目、不授予或传递优先行动权/焦点；特殊清理若引发再次清理，应调用常规清理而非重复特殊清理。本样例先覆盖插入的伤害移除和本回合内效果失效。"
+    }
+  ],
+  "roomId": "p2-preflight-special-cleanup-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302006,
+    "turnNumber": 3,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 1 },
+      "P2": { "mana": 1, "power": 1 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-UNIT-DAMAGED", "P1-UNIT-BUFFED"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-UNIT-DAMAGED": {
+        "damage": 3,
+        "untilEndOfTurnEffects": []
+      },
+      "P1-UNIT-BUFFED": {
+        "damage": 1,
+        "untilEndOfTurnEffects": ["effect-temp-keyword", "effect-temp-power"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-special-cleanup",
+      "cmd": {
+        "cmdType": "END_TURN"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_END_DECLARED",
+      "TURN_END_CLEANUP_STARTED",
+      "DAMAGE_REMOVED",
+      "UNTIL_END_OF_TURN_EXPIRED",
+      "RUNE_POOL_CLEARED",
+      "TURN_PLAYER_ADVANCED",
+      "TURN_START_BEGAN",
+      "RUNES_CALLED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_END_DECLARED" },
+      { "kind": "TURN_END_CLEANUP_STARTED" },
+      { "kind": "DAMAGE_REMOVED" },
+      { "kind": "UNTIL_END_OF_TURN_EXPIRED" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "TURN_PLAYER_ADVANCED" },
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 4,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "cardObjects": {
+        "P1-UNIT-DAMAGED": {
+          "damage": 0,
+          "untilEndOfTurnEffects": []
+        },
+        "P1-UNIT-BUFFED": {
+          "damage": 0,
+          "untilEndOfTurnEffects": []
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}

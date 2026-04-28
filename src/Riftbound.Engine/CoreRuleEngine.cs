@@ -29,6 +29,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)
     {
         var nextPlayerId = NextPlayerId(state);
+        var cleanupResult = ApplyTurnEndCleanup(state);
         var nextTurnState = state with
         {
             TurnNumber = state.TurnNumber + 1,
@@ -36,10 +37,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             TurnPlayerId = nextPlayerId,
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
-            RunePools = ClearRunePools(state)
+            RunePools = ClearRunePools(state),
+            CardObjects = cleanupResult.CardObjects
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
-        var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId)
+        var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult)
             .Concat(turnStartResult.Events)
             .ToArray();
 
@@ -127,6 +129,43 @@ public sealed class CoreRuleEngine : IRuleEngine
         return players[(turnPlayerIndex + 1) % players.Length];
     }
 
+    private static CleanupResult ApplyTurnEndCleanup(MatchState state)
+    {
+        var damagedObjectIds = new List<string>();
+        var expiredEffectIds = new List<string>();
+        var cardObjects = state.CardObjects.ToDictionary(
+            entry => entry.Key,
+            entry =>
+            {
+                var objectState = entry.Value;
+                var untilEndEffects = objectState.UntilEndOfTurnEffects
+                    .Where(effectId => !string.IsNullOrWhiteSpace(effectId))
+                    .ToArray();
+                if (objectState.Damage <= 0 && untilEndEffects.Length == 0)
+                {
+                    return objectState;
+                }
+
+                if (objectState.Damage > 0)
+                {
+                    damagedObjectIds.Add(entry.Key);
+                }
+                expiredEffectIds.AddRange(untilEndEffects);
+
+                return objectState with
+                {
+                    Damage = 0,
+                    UntilEndOfTurnEffects = []
+                };
+            },
+            StringComparer.Ordinal);
+
+        return new CleanupResult(
+            cardObjects,
+            damagedObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
+            expiredEffectIds.Distinct(StringComparer.Ordinal).OrderBy(effectId => effectId, StringComparer.Ordinal).ToArray());
+    }
+
     private static int RuneCallCount(MatchState state)
     {
         return IsSecondActionPlayersFirstTurn(state) ? 3 : 2;
@@ -203,9 +242,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<GameEvent> BuildTurnEndEvents(
         MatchState state,
         string playerId,
-        string nextTurnPlayerId)
+        string nextTurnPlayerId,
+        CleanupResult cleanupResult)
     {
-        return
+        List<GameEvent> events =
         [
             new GameEvent(
                 "TURN_END_DECLARED",
@@ -222,7 +262,35 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["turnPlayerId"] = state.TurnPlayerId,
                     ["phase"] = state.Phase
-                }),
+                })
+        ];
+
+        if (cleanupResult.DamagedObjectIds.Count > 0)
+        {
+            events.Add(new GameEvent(
+                "DAMAGE_REMOVED",
+                "回合结束特殊清理移除单位伤害",
+                new Dictionary<string, object?>
+                {
+                    ["objectIds"] = cleanupResult.DamagedObjectIds.ToArray(),
+                    ["count"] = cleanupResult.DamagedObjectIds.Count
+                }));
+        }
+
+        if (cleanupResult.ExpiredEffectIds.Count > 0)
+        {
+            events.Add(new GameEvent(
+                "UNTIL_END_OF_TURN_EXPIRED",
+                "期限为本回合内的效果同时失效",
+                new Dictionary<string, object?>
+                {
+                    ["effectIds"] = cleanupResult.ExpiredEffectIds.ToArray(),
+                    ["count"] = cleanupResult.ExpiredEffectIds.Count
+                }));
+        }
+
+        events.AddRange(
+        [
             new GameEvent(
                 "RUNE_POOL_CLEARED",
                 "回合结束时所有玩家的符文池已清空",
@@ -240,7 +308,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["turnPlayerId"] = nextTurnPlayerId,
                     ["turnNumber"] = state.TurnNumber + 1
                 })
-        ];
+        ]);
+
+        return events;
     }
 
     private static IReadOnlyList<GameEvent> BuildTurnStartEvents(
@@ -312,4 +382,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool BurnoutApplied,
         string? ScoredPlayerId,
         IReadOnlyDictionary<string, int> PlayerScores);
+
+    private sealed record CleanupResult(
+        IReadOnlyDictionary<string, CardObjectState> CardObjects,
+        IReadOnlyList<string> DamagedObjectIds,
+        IReadOnlyList<string> ExpiredEffectIds);
 }
