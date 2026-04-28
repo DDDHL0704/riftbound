@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 26 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 29 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -109,6 +109,8 @@
 - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
 - P1 SQL 和 `PostgresMatchJournal` 已补 `event_sequence`、command 起止 event sequence、snapshot/prompt `last_event_sequence`，并通过新库/旧库迁移 smoke。
 - `MatchJournalEntry` 和 `PostgresMatchJournal` 已保留客户端原始命令 JSON；`SubmitIntent` 的原文会进入 `command_log.payload.rawCommand`，便于后续回放、审计和 canonical diff。
+- `IMatchRecoveryStore`、`PostgresMatchRecoveryStore` 和 `MatchRecoveryValidator` 已建立最小恢复读取/校验路径：可读取 match、command、events、最新 snapshot/prompt，并校验 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
+- `001_p1_event_store.sql` 已移除依赖 003 新列的 sequence 索引创建，旧库可按 `001 -> 002 -> 003` 顺序升级。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -120,7 +122,7 @@
 
 第一批任务：
 
-1. 补 recovery 读取/校验路径，基于 snapshot + event sequence 恢复房间。
+1. 设计并接入 RoomRegistry/MatchSession 的恢复入口；在没有权威 full-state snapshot 前，只把 player snapshot 当恢复校验和重连视图，不把它误当完整规则状态。
 2. 继续扩大稳定错误码覆盖面，尤其是非法命令、未知玩家提交、重复 intent 冲突和 unsupported command。
 3. 开始把新 fixture 从裸 `PASS` 迁移到 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`。
 4. 后续把内存 reconnect token 接入 `match_players.reconnect_token_hash`。

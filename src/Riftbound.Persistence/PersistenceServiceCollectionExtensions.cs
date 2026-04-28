@@ -16,11 +16,13 @@ public static class PersistenceServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             services.AddSingleton<IMatchJournal>(NoopMatchJournal.Instance);
+            services.AddSingleton<IMatchRecoveryStore>(NoopMatchRecoveryStore.Instance);
             return services;
         }
 
         services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
         services.AddSingleton<IMatchJournal, PostgresMatchJournal>();
+        services.AddSingleton<IMatchRecoveryStore, PostgresMatchRecoveryStore>();
         services.AddHostedService<PostgresSchemaInitializer>();
         return services;
     }

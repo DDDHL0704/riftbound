@@ -138,9 +138,7 @@ create table if not exists oracle_fixtures (
 );
 
 create index if not exists idx_command_log_match_tick on command_log(match_id, completed_tick);
-create index if not exists idx_command_log_match_sequence on command_log(match_id, completed_event_sequence);
 create index if not exists idx_game_events_match_tick on game_events(match_id, event_tick, event_order);
-create index if not exists idx_game_events_match_sequence on game_events(match_id, event_sequence);
 create index if not exists idx_snapshots_match_player_tick on snapshots(match_id, player_id, snapshot_tick);
 create index if not exists idx_action_prompts_match_player_tick on action_prompts(match_id, player_id, prompt_tick);
 create index if not exists idx_official_cards_functional_unit on official_cards(functional_unit_id);

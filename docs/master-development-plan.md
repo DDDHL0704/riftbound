@@ -572,7 +572,7 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - recovery 读取/校验路径
+   - RoomRegistry/MatchSession 恢复入口
    - 幂等重复提交
    - 符文横置/回收
    - EndTurn/Pass
@@ -582,12 +582,14 @@ Browser Use 阶段性测试：
    - 基础法术伤害
    - 装备装配
    - owner/controller 边界
-2. 在 C# 侧继续完善 fixture runner、canonical JSON diff、event sequence 和 recovery 校验。
+2. 在 C# 侧继续完善 fixture runner、canonical JSON diff、event sequence、权威 full-state snapshot 和 recovery hydrate。
 3. 新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留为 Java legacy oracle 对照。
 
 已完成的 P1 底座项：
 
 - command log 已保留客户端原始 payload；`SubmitIntent` 的 JSON 原文会进入 journal，并由 PostgreSQL payload 保存为 `rawCommand`。
+- recovery 读取/校验路径已建立：可从 PostgreSQL 读取 match、command、events、最新 snapshot/prompt，并校验 event sequence、command 边界和 player view sequence。
+- `001_p1_event_store.sql` 已避免在旧库缺少 003 新列时提前创建 sequence 索引。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 
