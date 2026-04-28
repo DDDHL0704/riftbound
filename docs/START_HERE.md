@@ -136,7 +136,7 @@
 第一批任务：
 
 1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：`PLAY_CARD` 已有最小 card behavior registry，并覆盖两张低复杂度官方伤害法术；《渊海狩咒》已覆盖基础 2 点伤害和“控制正面朝下卡牌则改为 4 点伤害”的条件路径。
-2. 下一步准备 richer expected canonical diff，减少 fixture 测试中的手写断言，再逐批迁移更多低复杂度官方卡牌。
+2. richer expected diff 已开始接入，当前可比较 final tick、event kinds、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；下一步逐批迁移更多低复杂度官方卡牌，并继续扩大通用 diff 覆盖面。
 3. P1 协议错误码保持稳定；P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
 4. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
 5. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。

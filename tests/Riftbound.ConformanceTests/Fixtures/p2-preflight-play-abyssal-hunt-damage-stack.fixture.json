@@ -132,6 +132,13 @@
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-ABYSSAL-HUNT"]
+        }
+      },
+      "stackItems": [],
       "cardObjects": {
         "P2-UNIT-001": {
           "damage": 2,

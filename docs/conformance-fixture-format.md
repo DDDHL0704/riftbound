@@ -84,7 +84,7 @@ seed + initial setup + command log
 
 ## 2.1 P2 schema v2 草案
 
-P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为，`p2-preflight-end-turn-advances-to-next-start.fixture.json` 已验证 `END_TURN` 后自动推进并结算下一回合开始，`p2-preflight-end-turn-special-cleanup.fixture.json` 已验证 `cardObjects` 中的伤害与本回合内效果会被特殊清理处理，`p2-preflight-cleanup-repeats-until-stable.fixture.json` 已验证特殊清理后的常规清理重复事件，`p2-preflight-pass-priority-does-not-end-turn.fixture.json` 已验证拒绝态不推进 tick 或事件。P2 richer expected 的通用 canonical diff 仍需继续补齐：
+P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为，`p2-preflight-end-turn-advances-to-next-start.fixture.json` 已验证 `END_TURN` 后自动推进并结算下一回合开始，`p2-preflight-end-turn-special-cleanup.fixture.json` 已验证 `cardObjects` 中的伤害与本回合内效果会被特殊清理处理，`p2-preflight-cleanup-repeats-until-stable.fixture.json` 已验证特殊清理后的常规清理重复事件，`p2-preflight-pass-priority-does-not-end-turn.fixture.json` 已验证拒绝态不推进 tick 或事件。`ConformanceFixtureRunner.CompareExpected` 已开始通用比较 final tick、event kinds、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；后续继续扩展 snapshots/events payload canonical diff：
 
 ```json
 {
@@ -120,6 +120,20 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
         "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P2": {
+          "hand": ["P2-MAIN-001"],
+          "base": ["P2-RUNE-001", "P2-RUNE-002"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-UNIT-001": {
+          "damage": 0,
+          "untilEndOfTurnEffects": [],
+          "isFaceDown": false
+        }
       }
     },
     "events": [
@@ -137,7 +151,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-schema v2 目前已支持 P2 初始状态中的 turn/phase/timing、符文池、玩家区域、对象状态、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。下一步是把 richer `expected` 接入通用 canonical diff，而不是只在单个测试中手写断言。
+schema v2 目前已支持 P2 初始状态和 expected 中的 turn/phase/timing、符文池、玩家区域、对象状态、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`CompareExpected` 已接入三条出牌 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
 
 ## 3. Fixture 后续必须补齐
 

@@ -120,6 +120,7 @@ public sealed record ConformanceExpectedState(
     string? Phase = null,
     string? TimingState = null,
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
+    IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
     IReadOnlyDictionary<string, int>? Scores = null,
     IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null,
     string? PriorityPlayerId = null,
@@ -180,6 +181,19 @@ public static class ConformanceFixtureRunner
             .ToArray();
 
         return new ConformanceRunResult(last.State.Tick, eventKinds, last.Prompts, last.State);
+    }
+
+    public static IReadOnlyList<string> CompareExpected(
+        ConformanceFixture fixture,
+        ConformanceRunResult result)
+    {
+        var mismatches = new List<string>();
+        AddMismatch(mismatches, "finalTick", fixture.Expected.FinalTick, result.FinalTick);
+        CompareSequence(mismatches, "eventKinds", fixture.Expected.EventKinds, result.EventKinds);
+        ComparePromptActions(mismatches, fixture.Expected.PromptActions, result.Prompts);
+        CompareExpectedPrompts(mismatches, fixture.Expected.Prompts, result.Prompts);
+        CompareExpectedState(mismatches, fixture.Expected.FinalState, result.FinalState);
+        return mismatches;
     }
 
     private static async ValueTask<MatchSession> CreateSessionAsync(
@@ -363,6 +377,255 @@ public static class ConformanceFixtureRunner
     private static string NormalizeText(string? value, string fallback)
     {
         return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+    }
+
+    private static void CompareExpectedState(
+        List<string> mismatches,
+        ConformanceExpectedState? expected,
+        MatchState actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        AddMismatch(mismatches, "finalState.turnNumber", expected.TurnNumber, actual.TurnNumber);
+        AddMismatch(mismatches, "finalState.activePlayerId", expected.ActivePlayerId, actual.ActivePlayerId);
+        AddMismatch(mismatches, "finalState.turnPlayerId", expected.TurnPlayerId, actual.TurnPlayerId);
+        AddMismatch(mismatches, "finalState.phase", expected.Phase, actual.Phase);
+        AddMismatch(mismatches, "finalState.timingState", expected.TimingState, actual.TimingState);
+        AddMismatch(mismatches, "finalState.priorityPlayerId", expected.PriorityPlayerId, actual.PriorityPlayerId);
+        CompareSequence(mismatches, "finalState.passedPriorityPlayerIds", expected.PassedPriorityPlayerIds, actual.PassedPriorityPlayerIds);
+        AddMismatch(mismatches, "finalState.focusPlayerId", expected.FocusPlayerId, actual.FocusPlayerId);
+        CompareSequence(mismatches, "finalState.passedFocusPlayerIds", expected.PassedFocusPlayerIds, actual.PassedFocusPlayerIds);
+        AddMismatch(mismatches, "finalState.winnerPlayerId", expected.WinnerPlayerId, actual.WinnerPlayerId);
+        CompareRunePools(mismatches, expected.RunePools, actual.RunePools);
+        ComparePlayerScores(mismatches, expected.Scores, actual.PlayerScores);
+        ComparePlayerZones(mismatches, expected.Players, actual.PlayerZones);
+        CompareCardObjects(mismatches, expected.CardObjects, actual.CardObjects);
+        CompareStackItems(mismatches, expected.StackItems, actual.StackItems);
+    }
+
+    private static void ComparePromptActions(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> expected,
+        IReadOnlyDictionary<string, ActionPromptDto> actual)
+    {
+        foreach (var (playerId, actions) in expected)
+        {
+            if (!actual.TryGetValue(playerId, out var prompt))
+            {
+                mismatches.Add($"prompts.{playerId}: missing prompt");
+                continue;
+            }
+
+            CompareSequence(mismatches, $"promptActions.{playerId}", actions, prompt.Actions);
+        }
+    }
+
+    private static void CompareExpectedPrompts(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, ConformanceExpectedPrompt>? expected,
+        IReadOnlyDictionary<string, ActionPromptDto> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, expectedPrompt) in expected)
+        {
+            if (!actual.TryGetValue(playerId, out var actualPrompt))
+            {
+                mismatches.Add($"prompts.{playerId}: missing prompt");
+                continue;
+            }
+
+            AddMismatch(mismatches, $"prompts.{playerId}.actionable", expectedPrompt.Actionable, actualPrompt.Actionable);
+            CompareSequence(mismatches, $"prompts.{playerId}.actions", expectedPrompt.Actions, actualPrompt.Actions);
+        }
+    }
+
+    private static void CompareRunePools(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, RunePool>? expected,
+        IReadOnlyDictionary<string, RunePool> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, expectedPool) in expected)
+        {
+            if (!actual.TryGetValue(playerId, out var actualPool))
+            {
+                mismatches.Add($"finalState.runePools.{playerId}: missing pool");
+                continue;
+            }
+
+            AddMismatch(mismatches, $"finalState.runePools.{playerId}", expectedPool, actualPool);
+        }
+    }
+
+    private static void ComparePlayerScores(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, int>? expected,
+        IReadOnlyDictionary<string, int> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, expectedScore) in expected)
+        {
+            if (!actual.TryGetValue(playerId, out var actualScore))
+            {
+                mismatches.Add($"finalState.scores.{playerId}: missing score");
+                continue;
+            }
+
+            AddMismatch(mismatches, $"finalState.scores.{playerId}", expectedScore, actualScore);
+        }
+    }
+
+    private static void ComparePlayerZones(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, ConformancePlayerInitialState>? expected,
+        IReadOnlyDictionary<string, PlayerZones> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, expectedZones) in expected)
+        {
+            if (!actual.TryGetValue(playerId, out var actualZones))
+            {
+                mismatches.Add($"finalState.players.{playerId}: missing zones");
+                continue;
+            }
+
+            CompareSequence(mismatches, $"finalState.players.{playerId}.mainDeck", expectedZones.MainDeck, actualZones.MainDeck);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.runeDeck", expectedZones.RuneDeck, actualZones.RuneDeck);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.hand", expectedZones.Hand, actualZones.Hand);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.base", expectedZones.Base, actualZones.Base);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.battlefields", expectedZones.Battlefields, actualZones.Battlefields);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.graveyard", expectedZones.Graveyard, actualZones.Graveyard);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.banished", expectedZones.Banished, actualZones.Banished);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.legendZone", expectedZones.LegendZone, actualZones.LegendZone);
+            CompareSequence(mismatches, $"finalState.players.{playerId}.championZone", expectedZones.ChampionZone, actualZones.ChampionZone);
+        }
+    }
+
+    private static void CompareCardObjects(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, ConformanceCardObjectState>? expected,
+        IReadOnlyDictionary<string, CardObjectState> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (objectId, expectedObject) in expected)
+        {
+            if (!actual.TryGetValue(objectId, out var actualObject))
+            {
+                mismatches.Add($"finalState.cardObjects.{objectId}: missing card object");
+                continue;
+            }
+
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.damage", expectedObject.Damage, actualObject.Damage);
+            CompareSequence(
+                mismatches,
+                $"finalState.cardObjects.{objectId}.untilEndOfTurnEffects",
+                expectedObject.UntilEndOfTurnEffects,
+                actualObject.UntilEndOfTurnEffects);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isFaceDown", expectedObject.IsFaceDown, actualObject.IsFaceDown);
+        }
+    }
+
+    private static void CompareStackItems(
+        List<string> mismatches,
+        IReadOnlyList<ConformanceStackItemState>? expected,
+        IReadOnlyList<StackItemState> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        AddMismatch(mismatches, "finalState.stackItems.count", expected.Count, actual.Count);
+        for (var i = 0; i < Math.Min(expected.Count, actual.Count); i++)
+        {
+            var expectedItem = expected[i];
+            var actualItem = actual[i];
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].stackItemId", expectedItem.StackItemId, actualItem.StackItemId);
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].controllerId", expectedItem.ControllerId, actualItem.ControllerId);
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].sourceObjectId", expectedItem.SourceObjectId, actualItem.SourceObjectId);
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].effectKind", expectedItem.EffectKind, actualItem.EffectKind);
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].cardNo", expectedItem.CardNo, actualItem.CardNo);
+            CompareSequence(mismatches, $"finalState.stackItems[{i}].targetObjectIds", expectedItem.TargetObjectIds, actualItem.TargetObjectIds);
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].damageAmount", expectedItem.DamageAmount, actualItem.DamageAmount);
+        }
+    }
+
+    private static void CompareSequence<T>(
+        List<string> mismatches,
+        string path,
+        IReadOnlyList<T>? expected,
+        IReadOnlyList<T> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        if (!expected.SequenceEqual(actual))
+        {
+            mismatches.Add($"{path}: expected [{string.Join(", ", expected)}], actual [{string.Join(", ", actual)}]");
+        }
+    }
+
+    private static void AddMismatch<T>(
+        List<string> mismatches,
+        string path,
+        T? expected,
+        T actual)
+        where T : struct
+    {
+        if (expected.HasValue && !EqualityComparer<T>.Default.Equals(expected.Value, actual))
+        {
+            mismatches.Add($"{path}: expected {expected.Value}, actual {actual}");
+        }
+    }
+
+    private static void AddMismatch<T>(
+        List<string> mismatches,
+        string path,
+        T? expected,
+        T? actual)
+        where T : class
+    {
+        if (expected is not null && !EqualityComparer<T>.Default.Equals(expected, actual))
+        {
+            mismatches.Add($"{path}: expected {expected}, actual {actual?.ToString() ?? "<null>"}");
+        }
+    }
+
+    private static void AddMismatch(
+        List<string> mismatches,
+        string path,
+        string? expected,
+        string? actual)
+    {
+        if (expected is not null && !string.Equals(expected, actual, StringComparison.Ordinal))
+        {
+            mismatches.Add($"{path}: expected {expected}, actual {actual ?? "<null>"}");
+        }
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

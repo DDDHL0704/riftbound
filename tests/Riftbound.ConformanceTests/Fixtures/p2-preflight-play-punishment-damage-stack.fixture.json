@@ -137,6 +137,13 @@
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-PUNISHMENT"]
+        }
+      },
+      "stackItems": [],
       "cardObjects": {
         "P2-UNIT-001": {
           "damage": 3,

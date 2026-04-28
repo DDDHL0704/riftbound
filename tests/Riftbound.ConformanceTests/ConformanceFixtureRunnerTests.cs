@@ -317,16 +317,7 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
-        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
-        Assert.Equal("MAIN", result.FinalState.Phase);
-        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
-        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Empty(result.FinalState.StackItems);
-        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(new[] { "P1-SPELL-PUNISHMENT" }, result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
     }
 
     [Fact]
@@ -341,16 +332,7 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
-        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
-        Assert.Equal("MAIN", result.FinalState.Phase);
-        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
-        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
-        Assert.Empty(result.FinalState.StackItems);
-        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(new[] { "P1-SPELL-ABYSSAL-HUNT" }, result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
     }
 
     [Fact]
@@ -365,16 +347,7 @@ public sealed class ConformanceFixtureRunnerTests
             new CoreRuleEngine(),
             CancellationToken.None);
 
-        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
-        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
-        Assert.Equal("MAIN", result.FinalState.Phase);
-        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
-        Assert.Empty(result.FinalState.StackItems);
-        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(new[] { "P1-SPELL-ABYSSAL-HUNT" }, result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.True(result.FinalState.CardObjects["P1-FACE-DOWN-001"].IsFaceDown);
-        Assert.Equal(4, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
     }
 
     [Fact]
