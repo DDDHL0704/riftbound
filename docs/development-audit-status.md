@@ -25,7 +25,7 @@
 | `PostgresMatchJournal` 和 P1 SQL | 能记录命令、事件、snapshot、prompt，并写入 ruleset/FAQ/audit 元数据 | 需要后续扩展 | 保留；后续补 event sequence、recovery 字段和恢复校验。 |
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
 | `ConformanceFixture` | 能回放 command log 并比较 event/prompt | 已补规则审查字段 | 新增 `rulesEvidence`、`faqVersion`、`auditStatus` 读取能力；旧 fixture 默认需要重审。 |
-| 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐 | 必须重审 | 保留为 legacy oracle；补 evidence 后再决定 expected。 |
+| 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐，evidence 已细化 | 必须重审 | 保留为 legacy oracle；`PASS -> TURN_ENDED` 标记为 legacy mismatch candidate。 |
 | 前端 UI | 尚未开始 | 暂不开始最终 UI | P2/P2.5 后做开发期测试 UI。 |
 
 ## 3. 计划需要调整的点
@@ -49,7 +49,7 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 细化 `docs/rules-evidence-index.md` 中现有 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
+1. 明确 `PASS` 与 `END_TURN` 的协议语义边界，避免把旧 Java `PASS -> TURN_ENDED` 当作最终规则。
 2. 再做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
 3. 补 event sequence、recovery 字段和断线重连恢复校验。
 

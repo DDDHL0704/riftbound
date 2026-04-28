@@ -571,7 +571,7 @@ Browser Use 阶段性测试：
 
 立即执行：
 
-1. 继续细化 `docs/rules-evidence-index.md`，把当前 3 条 fixture 的页码/问题编号确认到可验收状态。
+1. 明确 `PASS` 与 `END_TURN` 的协议语义边界，记录旧 Java `PASS -> TURN_ENDED` 的 legacy mismatch candidate。
 2. 完成第一批高价值 fixture：
    - P1/P2 加入和视角快照
    - 幂等重复提交

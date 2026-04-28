@@ -37,6 +37,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("rules-260330", fixture.RulesVersion);
         Assert.Equal("official-2026-04-27", fixture.CatalogVersion);
         Assert.Equal("75bf7cf", fixture.JavaCommit);
+        Assert.Equal(2603301001L, fixture.Seed);
         Assert.Equal(new[] { "TURN_ENDED" }, fixture.Expected.EventKinds);
         Assert.True(fixture.RequiresRuleAudit);
         Assert.NotEmpty(fixture.RulesEvidence ?? []);

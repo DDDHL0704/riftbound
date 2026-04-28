@@ -69,9 +69,15 @@
 
 | Fixture | 状态 | 初始证据 | 下一步 |
 |---|---|---|---|
-| `java-oracle-p1-pass` | `NEEDS_RULE_AUDIT` | `CORE-260330` p27-p28, p35-p36；`JFAQ-251023` p4-p5 | 明确普通开环、普通闭环、法术对决中的 `PASS` 是否需要拆成不同 command/intent。 |
-| `java-oracle-p1-end-turn` | `NEEDS_RULE_AUDIT` | `CORE-260330` p28-p31, p57；`JFAQ-251023` p6-p7 | 明确 `END_TURN` 是否只是主阶段自决行动，事件是否要拆成回合结束清理、下一回合开始、召出、抽牌。 |
-| `java-oracle-p1-duplicate-pass` | `NEEDS_RULE_AUDIT` | 工程幂等契约；不属于卡牌规则 PDF 裁决 | 保留为服务端权威/网络重试 fixture；不要把它当作游戏规则 fixture。 |
+| `java-oracle-p1-pass` | `NEEDS_RULE_AUDIT` | `CORE-260330` p27 rule 310, p27-p28 rules 312-313, p34-p35 rules 335-340, p36 rules 347-348；`JFAQ-251023` p4-p5 questions 3.1-3.3；`BREAK-JFAQ-260416` p2-p5 scan | 拆清 `PASS_PRIORITY`、`PASS_FOCUS`、主阶段 `END_TURN` 的协议语义；旧 Java `PASS -> TURN_ENDED` 只能当 legacy 行为。 |
+| `java-oracle-p1-end-turn` | `NEEDS_RULE_AUDIT` | `CORE-260330` p29 rules 315.3-315.4, p30 rules 316.1-316.6, p30-p31 rules 317.1-317.3, p31 rules 318-322, p57 rule 413；`JFAQ-251023` p6-p7 questions 5.1-5.2；`BREAK-JFAQ-260416` p11 scan | 明确 `END_TURN` 是主阶段结束意图；后续事件需要拆成回合结束、特殊清理、符文池清空、下一回合开始、召出和抽牌。 |
+| `java-oracle-p1-duplicate-pass` | `NEEDS_RULE_AUDIT` | 工程幂等契约；`command_log(match_id, player_id, client_intent_id)` 唯一；不属于卡牌规则 PDF 裁决 | 保留为服务端权威/网络重试 fixture；不要把它当作游戏规则 fixture。 |
+
+## 6.1 当前三条 Fixture 冲突检查结论
+
+- `PASS`：`CORE-260330` 将“让过”分别放在 FEPR 和法术对决语境中，且优先行动权/焦点决定谁能行动。`JFAQ-251023` questions 3.1-3.3 澄清焦点、活跃玩家和初始结算链；`BREAK-JFAQ-260416` p2-p5 的普通开环/法术对决个案未发现推翻通用 `PASS` 语义的条目。当前旧 Java 把初始 `PASS` 记成 `TURN_ENDED`，这是 legacy mismatch candidate。
+- `END_TURN`：`CORE-260330` rules 316.6-317.3 支持主阶段结束后进入回合结束流程，并在下一回合开始执行召出、抽牌等步骤。`JFAQ-251023` questions 5.1-5.2 补充清理和特殊清理；`BREAK-JFAQ-260416` p11 仅发现额外回合相关个案，未改变裸 `END_TURN` 通用流程。
+- `duplicate-pass`：这是网络重试和服务端权威幂等 fixture，不由游戏规则 PDF 裁决。它的验收依据是 command log 唯一键、同一 `clientIntentId` 不重复推进 tick、不重复写事件。
 
 ## 7. 索引维护规则
 

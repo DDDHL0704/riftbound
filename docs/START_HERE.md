@@ -97,10 +97,11 @@
 - `dotnet test Riftbound.slnx --no-build` 通过，当前 10 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
-- `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus` 字段。
+- `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
 - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 的规则域索引和当前 fixture 审查映射。
 - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
 - P1 PostgreSQL schema 和 `PostgresMatchJournal` 已补 `ruleset_version`、`faq_version`、`rules_audit_status`、`rules_evidence`；schema initializer 会按文件名顺序执行 `Sql/*.sql`。
+- 当前 3 条 Java legacy fixture 的 evidence 已细化到具体页码、规则号/FAQ 问题号，并记录 `PASS -> TURN_ENDED` 是 legacy mismatch candidate。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -112,7 +113,7 @@
 
 第一批任务：
 
-1. 细化 `docs/rules-evidence-index.md` 中当前 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
+1. 明确协议中 `PASS` 与 `END_TURN` 的语义边界，避免继续继承旧 Java 的 `PASS -> TURN_ENDED` 混淆。
 2. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
 3. 再扩展 P1 的重连 token、错误码和 command log 原始 payload。
 4. 完善 event sequence / recovery 字段，支撑后续断线重连与事件重放。

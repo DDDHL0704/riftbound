@@ -18,13 +18,14 @@
   - fixture runner 可读取 command log 格式并回放到 `MatchSession`。
   - 已从旧 Java 导出首批 3 条 legacy fixture：`java-oracle-p1-pass`、`java-oracle-p1-end-turn`、`java-oracle-p1-duplicate-pass`。
   - C# 测试可读取 Java fixture 元数据。
-  - `PASS`、`END_TURN`、重复 `PASS` 的事件日志 fixture 已与 C# 当前规则骨架对齐，但尚未完成四份 FAQ 重审。
-  - `ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；旧 Java fixture 因缺少规则依据会被视为 `RequiresRuleAudit`。
-  - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 到规则域和当前 fixture 的初始索引。
+  - `PASS`、`END_TURN`、重复 `PASS` 的事件日志 fixture 已与 C# 当前规则骨架对齐；已完成首轮 FAQ 冲突检查，但最终 expected 仍需按协议语义重审。
+  - `ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed`；旧 Java fixture 仍因 `auditStatus = NEEDS_RULE_AUDIT` 被视为 `RequiresRuleAudit`。
+  - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 到规则域和当前 fixture 的索引。
   - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
   - P1 SQL 已补 ruleset/FAQ/audit 字段和 `oracle_fixtures` 索引表；启动时按 `Sql/*.sql` 顺序初始化/迁移。
+  - 当前 3 条 Java legacy fixture 的 evidence 已细化；FAQ 未发现推翻通用 `PASS` / `END_TURN` 的条目，但 `PASS -> TURN_ENDED` 被标记为 legacy mismatch candidate。
 
-下一步先细化现有 3 条 fixture 的规则依据和 FAQ 冲突检查；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
+下一步先明确 `PASS` 与 `END_TURN` 的协议语义边界；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
 
 ## 不做范围
 

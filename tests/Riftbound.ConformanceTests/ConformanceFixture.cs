@@ -13,6 +13,7 @@ public sealed record ConformanceFixture(
     IReadOnlyList<string> Players,
     IReadOnlyList<ConformanceCommand> Commands,
     ConformanceExpected Expected,
+    long? Seed = null,
     IReadOnlyList<RuleEvidence>? RulesEvidence = null,
     string? AuditStatus = null,
     string? RulesVersion = null,
