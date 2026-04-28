@@ -89,7 +89,8 @@ public sealed record PlayCardCommand(
     string SourceObjectId,
     string CardNo,
     IReadOnlyList<string> TargetObjectIds,
-    string Mode = "") : GameCommand("PLAY_CARD");
+    string Mode = "",
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("PLAY_CARD");
 
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);

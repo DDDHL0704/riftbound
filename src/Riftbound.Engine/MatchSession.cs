@@ -101,7 +101,8 @@ public sealed record StackItemState
         string? effectKind = null,
         string? cardNo = null,
         IReadOnlyList<string>? targetObjectIds = null,
-        int damageAmount = 0)
+        int damageAmount = 0,
+        int effectRepeatCount = 1)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -110,6 +111,7 @@ public sealed record StackItemState
         CardNo = Normalize(cardNo);
         TargetObjectIds = NormalizeList(targetObjectIds);
         DamageAmount = Math.Max(0, damageAmount);
+        EffectRepeatCount = Math.Max(1, effectRepeatCount);
     }
 
     public string StackItemId { get; init; }
@@ -125,6 +127,8 @@ public sealed record StackItemState
     public IReadOnlyList<string> TargetObjectIds { get; init; }
 
     public int DamageAmount { get; init; }
+
+    public int EffectRepeatCount { get; init; }
 
     private static string Normalize(string? value)
     {

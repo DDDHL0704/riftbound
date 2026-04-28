@@ -73,7 +73,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var behavior = plan.Behavior;
         var targetObjectIds = plan.TargetObjectIds;
-        var runePools = PayMana(state, intent.PlayerId, behavior.ManaCost);
+        var runePools = PayMana(state, intent.PlayerId, plan.TotalManaCost);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
 
         var stackItem = new StackItemState(
@@ -83,7 +83,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmount);
+            behavior.DamageAmount,
+            plan.EffectRepeatCount);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -110,11 +111,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }),
             new GameEvent(
                 "COST_PAID",
-                $"{intent.PlayerId} 支付 {behavior.ManaCost} 点费用",
+                $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["mana"] = behavior.ManaCost
+                    ["mana"] = plan.TotalManaCost,
+                    ["optionalCosts"] = plan.OptionalCosts.ToArray()
                 }),
             new GameEvent(
                 "STACK_ITEM_ADDED",
@@ -127,7 +129,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["cardNo"] = stackItem.CardNo,
                     ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
                     ["effectKind"] = stackItem.EffectKind,
-                    ["mode"] = command.Mode
+                    ["mode"] = command.Mode,
+                    ["effectRepeatCount"] = stackItem.EffectRepeatCount
                 })
         };
 
@@ -191,8 +194,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!TryBuildOptionalCostPlan(command.OptionalCosts, behavior, out var optionalCosts, out var extraManaCost, out var effectRepeatCount))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Unsupported optional cost for {behavior.DisplayName}.",
+                ErrorCodes.UnsupportedCardBehavior);
+            return false;
+        }
+
+        var totalManaCost = behavior.ManaCost + extraManaCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < behavior.ManaCost)
+        if (currentPool.Mana < totalManaCost)
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -201,7 +214,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        plan = new PlayCardPlan(behavior, zones, targetObjectIds);
+        plan = new PlayCardPlan(behavior, zones, targetObjectIds, totalManaCost, effectRepeatCount, optionalCosts);
         return true;
     }
 
@@ -462,6 +475,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)
+    {
+        return (optionalCosts ?? [])
+            .Where(optionalCost => !string.IsNullOrWhiteSpace(optionalCost))
+            .Select(optionalCost => optionalCost.Trim())
+            .ToArray();
+    }
+
     private static Dictionary<string, RunePool> PayMana(MatchState state, string playerId, int manaCost)
     {
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -530,6 +551,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             && targetObjectIds.Distinct(StringComparer.Ordinal).Count() == targetObjectIds.Count;
     }
 
+    private static bool TryBuildOptionalCostPlan(
+        IReadOnlyList<string>? optionalCosts,
+        CardBehaviorDefinition behavior,
+        out IReadOnlyList<string> normalizedOptionalCosts,
+        out int extraManaCost,
+        out int effectRepeatCount)
+    {
+        normalizedOptionalCosts = NormalizeOptionalCosts(optionalCosts);
+        extraManaCost = 0;
+        effectRepeatCount = 1;
+
+        if (normalizedOptionalCosts.Count == 0)
+        {
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
+            && string.Equals(normalizedOptionalCosts[0], "ECHO", StringComparison.Ordinal)
+            && behavior.EchoManaCost > 0)
+        {
+            extraManaCost = behavior.EchoManaCost;
+            effectRepeatCount = 2;
+            return true;
+        }
+
+        return false;
+    }
+
     private static int MinTargetCount(CardBehaviorDefinition behavior)
     {
         return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
@@ -564,52 +613,55 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         if (behavior.RequiredTargetCount > 0)
         {
-            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
-                    ? existingTarget
-                    : new CardObjectState(targetObjectId);
-
-                var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
-                if (damageAmount > 0)
+                foreach (var targetObjectId in stackItem.TargetObjectIds)
                 {
-                    targetState = targetState with
-                    {
-                        Damage = targetState.Damage + damageAmount
-                    };
-                    events.Add(new GameEvent(
-                        "DAMAGE_APPLIED",
-                        $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
-                        new Dictionary<string, object?>
-                        {
-                            ["sourceObjectId"] = stackItem.SourceObjectId,
-                            ["targetObjectId"] = targetObjectId,
-                            ["damage"] = damageAmount
-                        }));
-                }
+                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                        ? existingTarget
+                        : new CardObjectState(targetObjectId);
 
-                if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
-                {
-                    targetState = targetState with
+                    var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
+                    if (damageAmount > 0)
                     {
-                        UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                            .Concat([behavior.StatusEffectId])
-                            .Distinct(StringComparer.Ordinal)
-                            .OrderBy(effectId => effectId, StringComparer.Ordinal)
-                            .ToArray()
-                    };
-                    events.Add(new GameEvent(
-                        "STATUS_EFFECT_APPLIED",
-                        $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
-                        new Dictionary<string, object?>
+                        targetState = targetState with
                         {
-                            ["sourceObjectId"] = stackItem.SourceObjectId,
-                            ["targetObjectId"] = targetObjectId,
-                            ["effectId"] = behavior.StatusEffectId
-                        }));
-                }
+                            Damage = targetState.Damage + damageAmount
+                        };
+                        events.Add(new GameEvent(
+                            "DAMAGE_APPLIED",
+                            $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["damage"] = damageAmount
+                            }));
+                    }
 
-                cardObjects[targetObjectId] = targetState;
+                    if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
+                    {
+                        targetState = targetState with
+                        {
+                            UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                                .Concat([behavior.StatusEffectId])
+                                .Distinct(StringComparer.Ordinal)
+                                .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                                .ToArray()
+                        };
+                        events.Add(new GameEvent(
+                            "STATUS_EFFECT_APPLIED",
+                            $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["effectId"] = behavior.StatusEffectId
+                            }));
+                    }
+
+                    cardObjects[targetObjectId] = targetState;
+                }
             }
         }
 
@@ -620,7 +672,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (behavior.DrawCount > 0)
             {
-                var drawResult = DrawCards(state, stackItem.ControllerId, controllerZones, behavior.DrawCount);
+                var drawResult = DrawCards(
+                    state,
+                    stackItem.ControllerId,
+                    controllerZones,
+                    behavior.DrawCount * stackItem.EffectRepeatCount);
                 controllerZones = controllerZones with
                 {
                     MainDeck = drawResult.MainDeck,
@@ -1159,7 +1215,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record PlayCardPlan(
         CardBehaviorDefinition Behavior,
         PlayerZones SourceZones,
-        IReadOnlyList<string> TargetObjectIds);
+        IReadOnlyList<string> TargetObjectIds,
+        int TotalManaCost,
+        int EffectRepeatCount,
+        IReadOnlyList<string> OptionalCosts);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

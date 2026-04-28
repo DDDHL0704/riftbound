@@ -26,7 +26,8 @@ public static class GameCommandJsonMapper
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "cardNo"),
                 TextArray(cmd, "targetObjectIds"),
-                Text(cmd, "mode")),
+                Text(cmd, "mode"),
+                TextArray(cmd, "optionalCosts")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

@@ -13,7 +13,8 @@ public sealed record CardBehaviorDefinition(
     int DrawCount = 0,
     string TargetScope = CardTargetScopes.BattlefieldUnit,
     int MinTargetCount = -1,
-    string Mode = "");
+    string Mode = "",
+    int EchoManaCost = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -88,7 +89,8 @@ public static class CardBehaviorRegistry
             "CENTER_STAGE_DRAW_1",
             0,
             0,
-            DrawCount: 1),
+            DrawCount: 1,
+            EchoManaCost: 2),
         new(
             "OGN·105/298",
             "星芒凝汇",

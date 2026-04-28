@@ -244,7 +244,8 @@ public sealed class ConformanceFixtureShapeTests
               "sourceObjectId": "P1-SPELL-PUNISHMENT",
               "cardNo": "UNL-007/219",
               "targetObjectIds": ["P2-UNIT-001"],
-              "mode": "BASE_UNIT_DAMAGE_4"
+              "mode": "BASE_UNIT_DAMAGE_4",
+              "optionalCosts": ["ECHO"]
             }
             """).RootElement));
 
@@ -252,6 +253,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("UNL-007/219", command.CardNo);
         Assert.Equal(new[] { "P2-UNIT-001" }, command.TargetObjectIds);
         Assert.Equal("BASE_UNIT_DAMAGE_4", command.Mode);
+        Assert.Equal(new[] { "ECHO" }, command.OptionalCosts);
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal
