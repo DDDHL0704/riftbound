@@ -19,6 +19,7 @@
   - 已从旧 Java 导出首批 3 条 legacy fixture：`java-oracle-p1-pass`、`java-oracle-p1-end-turn`、`java-oracle-p1-duplicate-pass`。
   - C# 测试可读取 Java fixture 元数据。
   - `PASS`、`END_TURN`、重复 `PASS` 的事件日志 fixture 已与 C# 当前规则骨架对齐，但尚未完成四份 FAQ 重审。
+  - `ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；旧 Java fixture 因缺少规则依据会被视为 `RequiresRuleAudit`。
 
 下一步先抽取五份 PDF/FAQ 的索引，并给现有 3 条 fixture 补齐规则依据；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
 

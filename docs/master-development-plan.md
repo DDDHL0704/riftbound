@@ -88,24 +88,27 @@ flowchart LR
 
 任务：
 
-1. 抽取 PDF 章节索引和关键词术语表。
+1. 抽取五份 PDF/FAQ 章节索引、FAQ 问题索引和关键词术语表。
 2. 导入官网卡牌快照。
 3. 生成 `OfficialCard`、`FunctionalUnit`、关键词分桶、动作分桶。
 4. 标记卡牌类型：单位、英雄单位、法术、传奇、装备、战场、符文、专属牌、指示物。
-5. 建立行为状态：`UNSEEN`、`BLOCKED_BY_RULE`、`RULE_READY`、`TEMPLATE_READY`、`IMPLEMENTED`、`CONFORMANCE_PASS`、`UI_SMOKE_PASS`。
-6. 建立规则状态：`UNMODELED`、`MODEL_READY`、`ENGINE_READY`、`CARD_VALIDATED`。
+5. 建立行为状态：`UNSEEN`、`NEEDS_RULE_AUDIT`、`BLOCKED_BY_RULE`、`RULE_READY`、`TEMPLATE_READY`、`IMPLEMENTED`、`CONFORMANCE_PASS`、`UI_SMOKE_PASS`。
+6. 建立规则状态：`UNMODELED`、`NEEDS_RULE_AUDIT`、`MODEL_READY`、`ENGINE_READY`、`CARD_VALIDATED`。
 
 产物：
 
 - `docs/rules-card-baseline.md`
+- `docs/rules-authority-and-audit.md`
+- `docs/development-audit-status.md`
 - `docs/master-development-plan.md`
+- 后续生成 `docs/rules-evidence-index.md`
 - 后续生成 `data/official-card-catalog.json`
 - 后续生成 `data/functional-units.json`
 
 验收：
 
 - 卡牌总数、类别数、功能单元数与官网快照一致。
-- 每个关键词都能映射到 PDF 规则编号。
+- 每个关键词都能映射到 PDF/FAQ 规则编号或问题编号。
 - 每个功能单元都有代表官方编号和所有映射条目。
 
 ## 6. P1：.NET 联机底座
@@ -567,12 +570,11 @@ Browser Use 阶段性测试：
 
 立即执行：
 
-1. 安装 .NET 10 SDK 并验证当前骨架可 build/test。
-2. 补 `Riftbound.Persistence` 和数据库迁移目录。
-3. 补 `Riftbound.CardCatalog`，导入官网卡牌快照。
-4. 生成 `OfficialCard` 和 `FunctionalUnit` 数据文件。
-5. 在 Java 侧增加 oracle fixture exporter。
-6. 完成第一批 10 条 fixture：
+1. 建立 `docs/rules-evidence-index.md`，抽取五份 PDF/FAQ 的目录、关键词、问题编号和相关规则域。
+2. 给现有 `PASS`、`END_TURN`、重复 `PASS` 三条 fixture 增加 `rulesEvidence`、`faqVersion`、`auditStatus`。
+3. 将 Java exporter 输出结构升级为 `legacyOracle`，保留旧 `oracle` 字段一段时间做兼容。
+4. 修改 P1 SQL 草案，补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
+5. 再完成第一批 10 条 fixture：
    - P1/P2 加入和视角快照
    - 幂等重复提交
    - 符文横置/回收
@@ -583,7 +585,7 @@ Browser Use 阶段性测试：
    - 基础法术伤害
    - 装备装配
    - owner/controller 边界
-7. 在 C# 侧建立 fixture runner 和 canonical JSON diff。
+6. 在 C# 侧继续完善 fixture runner 和 canonical JSON diff。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

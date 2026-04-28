@@ -13,10 +13,18 @@ public sealed record ConformanceFixture(
     IReadOnlyList<string> Players,
     IReadOnlyList<ConformanceCommand> Commands,
     ConformanceExpected Expected,
+    IReadOnlyList<RuleEvidence>? RulesEvidence = null,
+    string? AuditStatus = null,
     string? RulesVersion = null,
+    string? FaqVersion = null,
     string? CatalogVersion = null,
     string? JavaCommit = null)
 {
+    public bool RequiresRuleAudit =>
+        string.Equals(AuditStatus, "NEEDS_RULE_AUDIT", StringComparison.OrdinalIgnoreCase)
+        || RulesEvidence is null
+        || RulesEvidence.Count == 0;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -37,6 +45,11 @@ public sealed record ConformanceCommand(
     string PlayerId,
     string ClientIntentId,
     JsonElement Cmd);
+
+public sealed record RuleEvidence(
+    string Source,
+    string Locator,
+    string Note);
 
 public sealed record ConformanceExpected(
     long FinalTick,

@@ -26,7 +26,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task LoadsJavaOracleFixtureMetadataBeforeRulesAreMigrated()
+    public async Task LoadsLegacyJavaFixtureMetadataBeforeRulesAreAudited()
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "java-oracle", "java-oracle-p1-pass.fixture.json"),
@@ -38,13 +38,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("official-2026-04-27", fixture.CatalogVersion);
         Assert.Equal("75bf7cf", fixture.JavaCommit);
         Assert.Equal(new[] { "TURN_ENDED" }, fixture.Expected.EventKinds);
+        Assert.True(fixture.RequiresRuleAudit);
     }
 
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
     [InlineData("java-oracle-p1-duplicate-pass.fixture.json")]
-    public async Task JavaOracleFixtureMatchesCurrentRuleSkeleton(string fixtureFileName)
+    public async Task LegacyJavaFixtureMatchesCurrentRuleSkeletonButStillRequiresRuleAudit(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "java-oracle", fixtureFileName),
@@ -61,6 +62,8 @@ public sealed class ConformanceFixtureRunnerTests
         {
             Assert.Equal(actions, result.Prompts[playerId].Actions);
         }
+
+        Assert.True(fixture.RequiresRuleAudit);
     }
 
     [Fact]

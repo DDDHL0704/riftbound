@@ -71,3 +71,5 @@ P1 下一步不直接扩展更多玩法规则，先完成：
 2. 给现有 `PASS`、`END_TURN`、重复 `PASS` 三条 fixture 增加规则依据记录。
 3. 把 fixture 语义从单纯 `java-oracle` 扩展为 `rulesEvidence + legacyOracle + expected`。
 4. 建立 `NEEDS_RULE_AUDIT` 状态，防止已开发能力绕过 FAQ 重审。
+
+当前已开发内容的逐项状态见 `docs/development-audit-status.md`。

@@ -26,6 +26,8 @@ seed + initial setup + command log
   "fixtureId": "p1-placeholder-pass",
   "description": "human readable reason",
   "source": "java-oracle | manual-csharp-skeleton",
+  "auditStatus": "NEEDS_RULE_AUDIT | RULE_AUDITED",
+  "faqVersion": "optional FAQ file/date summary",
   "rulesEvidence": [
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -137,4 +139,4 @@ mvn -pl server -am \
 - `java-oracle-p1-end-turn.fixture.json`
 - `java-oracle-p1-duplicate-pass.fixture.json`
 
-C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。由于旧 Java 未纳入四份 FAQ，这三条 fixture 现在需要补齐 `rulesEvidence` 并重新审查；若 FAQ 裁决与 Java 行为冲突，后续 expected 应以 PDF/FAQ 为准。
+C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。`ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；由于旧 Java 未纳入四份 FAQ，缺少 `rulesEvidence` 的 legacy fixture 会被视为需要规则重审。若 FAQ 裁决与 Java 行为冲突，后续 expected 应以 PDF/FAQ 为准。
