@@ -58,7 +58,7 @@ seed + initial setup + command log
 }
 ```
 
-`expected.eventKinds` 表示写入事件日志的事件类型，而不是每次客户端重试返回的响应事件。重复 `clientIntentId` 必须不重复推进 tick，也不重复写入事件日志。
+`expected.eventKinds` 表示写入事件日志的规则事件类型，而不是每次客户端重试返回的响应事件。P1 runner 会先为 fixture 中的玩家自动执行 `READY`，但比较时过滤 `PLAYER_READY` / `MATCH_STARTED` 等房间生命周期事件；重复 `clientIntentId` 必须不重复推进 tick，也不重复写入规则事件日志。
 
 现有样例：
 

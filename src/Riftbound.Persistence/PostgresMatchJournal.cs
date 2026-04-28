@@ -42,11 +42,12 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
                 rules_audit_status, rules_evidence, updated_at
             )
             values (
-                @match_id, 'IN_PROGRESS', @current_tick, @last_event_sequence, @ruleset_version, @faq_version,
+                @match_id, @status, @current_tick, @last_event_sequence, @ruleset_version, @faq_version,
                 @rules_audit_status, @rules_evidence, now()
             )
             on conflict (match_id) do update
-            set current_tick = greatest(matches.current_tick, excluded.current_tick),
+            set status = excluded.status,
+                current_tick = greatest(matches.current_tick, excluded.current_tick),
                 last_event_sequence = greatest(matches.last_event_sequence, excluded.last_event_sequence),
                 ruleset_version = excluded.ruleset_version,
                 faq_version = excluded.faq_version,
@@ -56,6 +57,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", entry.RoomId);
+        command.Parameters.AddWithValue("status", entry.AuthoritativeState.Status);
         command.Parameters.AddWithValue("current_tick", entry.CompletedTick);
         command.Parameters.AddWithValue("last_event_sequence", entry.CompletedEventSequence);
         AddRulesetParameters(command, entry);

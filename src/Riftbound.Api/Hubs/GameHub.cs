@@ -135,6 +135,16 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
             JsonSerializer.SerializeToElement(new { cmdType = "END_TURN" }));
     }
 
+    public Task Ready(string roomId, string playerId, string clientIntentId)
+    {
+        return SubmitCommand(
+            roomId,
+            playerId,
+            clientIntentId,
+            new ReadyCommand(),
+            JsonSerializer.SerializeToElement(new { cmdType = "READY" }));
+    }
+
     public Task SubmitIntent(string roomId, string playerId, string clientIntentId, JsonElement cmd)
     {
         return SubmitCommand(roomId, playerId, clientIntentId, GameCommandJsonMapper.Map(cmd), cmd.Clone());
@@ -152,12 +162,18 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
         try
         {
             var session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
-            result = await session.SubmitAsync(
-                normalizedPlayerId,
-                clientIntentId,
-                command,
-                rawCommand,
-                Context.ConnectionAborted);
+            result = command is ReadyCommand
+                ? await session.ReadyAsync(
+                    normalizedPlayerId,
+                    clientIntentId,
+                    rawCommand,
+                    Context.ConnectionAborted)
+                : await session.SubmitAsync(
+                    normalizedPlayerId,
+                    clientIntentId,
+                    command,
+                    rawCommand,
+                    Context.ConnectionAborted);
         }
         catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
@@ -178,12 +194,15 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
             return;
         }
 
-        await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
-            MessageType.EVENTS,
-            roomId,
-            normalizedPlayerId,
-            result.State.Tick,
-            result.Events));
+        if (result.Events.Count > 0)
+        {
+            await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
+                EventMessageType(command, result),
+                roomId,
+                normalizedPlayerId,
+                result.State.Tick,
+                result.Events));
+        }
 
         foreach (var (snapshotPlayerId, snapshot) in result.Snapshots)
         {
@@ -204,6 +223,18 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
                 result.State.Tick,
                 prompt));
         }
+    }
+
+    private static MessageType EventMessageType(GameCommand command, ResolutionResult result)
+    {
+        if (command is not ReadyCommand)
+        {
+            return MessageType.EVENTS;
+        }
+
+        return result.Events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal))
+            ? MessageType.START
+            : MessageType.READY;
     }
 
     private static string RoomGroup(string roomId)

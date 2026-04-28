@@ -42,6 +42,8 @@ public static class ErrorCodes
     public const string RoomFull = "ROOM_FULL";
     public const string InvalidReconnectToken = "INVALID_RECONNECT_TOKEN";
     public const string ClientIntentConflict = "CLIENT_INTENT_CONFLICT";
+    public const string MatchNotStarted = "MATCH_NOT_STARTED";
+    public const string MatchFinished = "MATCH_FINISHED";
     public const string UnsupportedCommand = "UNSUPPORTED_COMMAND";
     public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
 }
@@ -56,6 +58,8 @@ public sealed record PlayerSessionDto(
     string ReconnectToken);
 
 public abstract record GameCommand(string CmdType);
+
+public sealed record ReadyCommand() : GameCommand("READY");
 
 public sealed record PassPriorityCommand() : GameCommand("PASS_PRIORITY");
 

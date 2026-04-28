@@ -573,7 +573,7 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - `Ready` / 房间生命周期最小状态机
+   - `Ready` / 房间生命周期最小状态机（已完成 P1 最小版）
    - 幂等重复提交
    - 符文横置/回收
    - EndTurn/Pass
@@ -591,10 +591,11 @@ Browser Use 阶段性测试：
 - command log 已保留客户端原始 payload；`SubmitIntent` 的 JSON 原文会进入 journal，并由 PostgreSQL payload 保存为 `rawCommand`。
 - recovery 读取/校验路径已建立：可从 PostgreSQL 读取 match、command、events、最新 snapshot/prompt，并校验 event sequence、command 边界和 player view sequence。
 - `001_p1_event_store.sql` 已避免在旧库缺少 003 新列时提前创建 sequence 索引。
-- P1 提交路径错误码已覆盖未知玩家、unsupported command 和重复 intent 冲突；未 Join 的玩家提交命令不会隐式入座。
+- P1 提交路径错误码已覆盖未知玩家、未开局、unsupported command 和重复 intent 冲突；未 Join 的玩家提交命令不会隐式入座。
 - RoomRegistry/MatchSession 恢复入口已接入：可恢复 P1 底座状态、lastEventSequence 和已见过 intent；恢复优先使用权威 `state_snapshots`，玩家视角 snapshot 只作为重连视图和一致性校验依据。
 - `state_snapshots` 权威状态快照已接入 journal、PostgreSQL schema 和 recovery；恢复时优先使用与当前 `last_event_sequence` 对齐的服务端 `MatchState`。
 - `match_players.reconnect_token_hash` 持久化重连已接入；服务端只保存 `sha256:` hash，重连成功会轮换 token/hash，恢复后的 session 可用旧 token hash 重连，不能通过 Join 直接领取新 token。
+- `Ready` / 房间生命周期最小状态机已接入：房间从 `EMPTY` 入座到 `SEATING`，双方 Ready 后进入 `IN_PROGRESS`，`FINISHED` 作为后续结算状态保留；Ready/Start lifecycle events 会进入 journal，未开局提交会稳定返回 `MATCH_NOT_STARTED`。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

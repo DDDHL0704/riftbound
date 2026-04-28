@@ -84,6 +84,16 @@ public static class ConformanceFixtureRunner
             session.EnsurePlayer(playerId);
         }
 
+        foreach (var playerId in fixture.Players)
+        {
+            await session.ReadyAsync(
+                    playerId,
+                    $"fixture-ready-{playerId}",
+                    JsonSerializer.SerializeToElement(new { cmdType = "READY" }),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         ResolutionResult? last = null;
         foreach (var command in fixture.Commands)
         {
@@ -103,6 +113,7 @@ public static class ConformanceFixtureRunner
         }
 
         var eventKinds = journal.Entries
+            .Where(entry => !string.Equals(entry.CommandType, "READY", StringComparison.Ordinal))
             .SelectMany(entry => entry.Events)
             .Select(gameEvent => gameEvent.Kind)
             .ToArray();

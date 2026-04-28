@@ -176,11 +176,72 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentBeforeReadyReturnsStableErrorCode()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-before-ready", cmd);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.MatchNotStarted, payload.Code);
+        Assert.Equal("match has not started", payload.Message);
+    }
+
+    [Fact]
+    public async Task ReadyStartsMatchAfterBothPlayersAreReady()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+
+        var aliceReadyClients = new RecordingHubClients();
+        await CreateHub(aliceReadyClients, new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", "alice", "ready-alice");
+
+        var readyMessage = Assert.Single(aliceReadyClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.READY, readyMessage.Type);
+        var readyEvents = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(readyMessage.Payload);
+        Assert.Contains(readyEvents, gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal));
+        Assert.DoesNotContain(readyEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+
+        var bobReadyClients = new RecordingHubClients();
+        await CreateHub(bobReadyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready("room-a", "bob", "ready-bob");
+
+        var startMessage = Assert.Single(bobReadyClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.START, startMessage.Type);
+        var startEvents = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(startMessage.Payload);
+        Assert.Contains(startEvents, gameEvent => string.Equals(gameEvent.Kind, "PLAYER_READY", StringComparison.Ordinal));
+        Assert.Contains(startEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+
+        var passClients = new RecordingHubClients();
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-after-start", pass);
+
+        Assert.Empty(passClients.CallerClient.Errors);
+        Assert.Equal(MessageType.EVENTS, Assert.Single(passClients.GroupClient.EventMessages).Type);
+    }
+
+    [Fact]
     public async Task SubmitIntentUnsupportedCommandReturnsStableErrorCode()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
         var clients = new RecordingHubClients();
         var cmd = JsonDocument.Parse("""{"cmdType":"FLIP_TABLE"}""").RootElement.Clone();
 
@@ -199,6 +260,9 @@ public sealed class GameHubJoinTests
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .SubmitIntent("room-a", "alice", "intent-same", pass);
@@ -221,12 +285,16 @@ public sealed class GameHubJoinTests
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
         var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY","clientNote":"keep-me"}""").RootElement.Clone();
 
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .SubmitIntent("room-a", "alice", "intent-raw-payload", cmd);
 
-        var entry = Assert.Single(journal.Entries);
+        var entry = Assert.Single(journal.Entries, entry =>
+            string.Equals(entry.CommandType, "PASS_PRIORITY", StringComparison.Ordinal));
         Assert.Equal("PASS_PRIORITY", entry.CommandType);
         Assert.NotNull(entry.RawCommand);
         Assert.Equal("keep-me", entry.RawCommand.Value.GetProperty("clientNote").GetString());
@@ -246,6 +314,14 @@ public sealed class GameHubJoinTests
             Groups = groups,
             Context = new TestHubCallerContext(connectionId)
         };
+    }
+
+    private static async Task ReadyBothAsync(IMatchSessionRegistry registry)
+    {
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .Ready("room-a", "alice", "ready-alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .Ready("room-a", "bob", "ready-bob");
     }
 
     private sealed class RecordingGameClient : IGameClient
@@ -295,31 +371,31 @@ public sealed class GameHubJoinTests
     {
         public RecordingGameClient CallerClient { get; } = new();
 
-        private RecordingGameClient BroadcastClient { get; } = new();
+        public RecordingGameClient GroupClient { get; } = new();
 
-        public IGameClient All => BroadcastClient;
+        public IGameClient All => GroupClient;
 
         public IGameClient Caller => CallerClient;
 
-        public IGameClient Others => BroadcastClient;
+        public IGameClient Others => GroupClient;
 
-        public IGameClient AllExcept(IReadOnlyList<string> excludedConnectionIds) => BroadcastClient;
+        public IGameClient AllExcept(IReadOnlyList<string> excludedConnectionIds) => GroupClient;
 
-        public IGameClient Client(string connectionId) => BroadcastClient;
+        public IGameClient Client(string connectionId) => GroupClient;
 
-        public IGameClient Clients(IReadOnlyList<string> connectionIds) => BroadcastClient;
+        public IGameClient Clients(IReadOnlyList<string> connectionIds) => GroupClient;
 
-        public IGameClient Group(string groupName) => BroadcastClient;
+        public IGameClient Group(string groupName) => GroupClient;
 
-        public IGameClient GroupExcept(string groupName, IReadOnlyList<string> excludedConnectionIds) => BroadcastClient;
+        public IGameClient GroupExcept(string groupName, IReadOnlyList<string> excludedConnectionIds) => GroupClient;
 
-        public IGameClient Groups(IReadOnlyList<string> groupNames) => BroadcastClient;
+        public IGameClient Groups(IReadOnlyList<string> groupNames) => GroupClient;
 
-        public IGameClient OthersInGroup(string groupName) => BroadcastClient;
+        public IGameClient OthersInGroup(string groupName) => GroupClient;
 
-        public IGameClient User(string userId) => BroadcastClient;
+        public IGameClient User(string userId) => GroupClient;
 
-        public IGameClient Users(IReadOnlyList<string> userIds) => BroadcastClient;
+        public IGameClient Users(IReadOnlyList<string> userIds) => GroupClient;
     }
 
     private sealed class RecordingGroupManager : IGroupManager

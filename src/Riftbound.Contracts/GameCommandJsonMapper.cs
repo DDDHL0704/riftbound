@@ -17,6 +17,7 @@ public static class GameCommandJsonMapper
 
         return cmdType switch
         {
+            "READY" => new ReadyCommand(),
             "PASS_PRIORITY" => new PassPriorityCommand(),
             "PASS_FOCUS" => new PassFocusCommand(),
             "PASS" => new PassCommand(),

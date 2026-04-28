@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -12,16 +13,88 @@ public interface IRuleEngine
         CancellationToken cancellationToken);
 }
 
-public sealed record MatchState(
-    string RoomId,
-    long Tick,
-    int TurnNumber,
-    string ActivePlayerId,
-    IReadOnlyDictionary<string, string> Seats)
+public static class MatchStatuses
 {
+    public const string Empty = "EMPTY";
+    public const string Seating = "SEATING";
+    public const string InProgress = "IN_PROGRESS";
+    public const string Finished = "FINISHED";
+}
+
+public sealed record MatchState
+{
+    public MatchState(
+        string roomId,
+        long tick,
+        int turnNumber,
+        string activePlayerId,
+        IReadOnlyDictionary<string, string> seats)
+        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null)
+    {
+    }
+
+    [JsonConstructor]
+    public MatchState(
+        string roomId,
+        long tick,
+        int turnNumber,
+        string activePlayerId,
+        IReadOnlyDictionary<string, string>? seats,
+        string? status = null,
+        IReadOnlyList<string>? readyPlayerIds = null)
+    {
+        RoomId = roomId;
+        Tick = tick;
+        TurnNumber = turnNumber;
+        ActivePlayerId = activePlayerId;
+        Seats = seats is null
+            ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(seats, StringComparer.Ordinal);
+        Status = string.IsNullOrWhiteSpace(status)
+            ? InferStatus(Seats)
+            : status.Trim();
+        ReadyPlayerIds = NormalizeReadyPlayers(readyPlayerIds);
+    }
+
+    public string RoomId { get; init; }
+
+    public long Tick { get; init; }
+
+    public int TurnNumber { get; init; }
+
+    public string ActivePlayerId { get; init; }
+
+    public IReadOnlyDictionary<string, string> Seats { get; init; }
+
+    public string Status { get; init; }
+
+    public IReadOnlyList<string> ReadyPlayerIds { get; init; }
+
     public static MatchState Create(string roomId)
     {
-        return new MatchState(roomId, 0, 1, "P1", new Dictionary<string, string>());
+        return new MatchState(
+            roomId,
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal),
+            MatchStatuses.Empty,
+            []);
+    }
+
+    private static string InferStatus(IReadOnlyDictionary<string, string> seats)
+    {
+        return seats.Count == 0 ? MatchStatuses.Empty : MatchStatuses.InProgress;
+    }
+
+    private static IReadOnlyList<string> NormalizeReadyPlayers(IReadOnlyList<string>? readyPlayerIds)
+    {
+        return (readyPlayerIds ?? [])
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Select(playerId => playerId.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
     }
 }
 
@@ -44,6 +117,7 @@ public sealed record ResolutionResult(
 
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
     {
+        var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new SnapshotDto(
             state.Tick,
             state.TurnNumber,
@@ -55,6 +129,7 @@ public sealed record ResolutionResult(
                     ["id"] = entry.Key,
                     ["name"] = entry.Key,
                     ["seat"] = entry.Value,
+                    ["ready"] = readyPlayers.Contains(entry.Key),
                     ["handSize"] = 0,
                     ["score"] = 0
                 }),
@@ -62,13 +137,29 @@ public sealed record ResolutionResult(
             [],
             new Dictionary<string, object?>
             {
-                ["phase"] = "ACTION"
+                ["phase"] = state.Status == MatchStatuses.InProgress ? "ACTION" : "ROOM",
+                ["roomStatus"] = state.Status,
+                ["readyPlayerIds"] = state.ReadyPlayerIds
             },
-            "NEUTRAL_OPEN"));
+            state.Status == MatchStatuses.InProgress ? "NEUTRAL_OPEN" : state.Status));
     }
 
     public static IReadOnlyDictionary<string, ActionPromptDto> BuildPrompts(MatchState state)
     {
+        if (state.Status != MatchStatuses.InProgress)
+        {
+            var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+            {
+                var ready = readyPlayers.Contains(playerId);
+                return new ActionPromptDto(
+                    playerId,
+                    !ready && state.Status != MatchStatuses.Finished,
+                    ready ? "已准备，等待对手" : "等待玩家准备",
+                    ready ? ["WAIT"] : ["READY"]);
+            });
+        }
+
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
             playerId,
             playerId == state.ActivePlayerId,
@@ -234,6 +325,12 @@ public interface IMatchSession
     SnapshotDto SnapshotFor(string playerId);
 
     ActionPromptDto PromptFor(string playerId);
+
+    ValueTask<ResolutionResult> ReadyAsync(
+        string playerId,
+        string clientIntentId,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken);
 
     ValueTask<ResolutionResult> SubmitAsync(
         string playerId,
@@ -447,7 +544,14 @@ public sealed class MatchSession : IMatchSession
             state = state with
             {
                 ActivePlayerId = seats.ContainsKey(state.ActivePlayerId) ? state.ActivePlayerId : normalizedPlayerId,
-                Seats = new Dictionary<string, string>(seats)
+                Seats = new Dictionary<string, string>(seats),
+                Status = state.Status == MatchStatuses.InProgress
+                    ? MatchStatuses.InProgress
+                    : MatchStatuses.Seating,
+                ReadyPlayerIds = state.ReadyPlayerIds
+                    .Where(seats.ContainsKey)
+                    .OrderBy(readyPlayerId => readyPlayerId, StringComparer.Ordinal)
+                    .ToArray()
             };
             return PlayerSessionFor(normalizedPlayerId);
         }
@@ -545,6 +649,134 @@ public sealed class MatchSession : IMatchSession
         return ResolutionResult.BuildPrompts(state)[normalizedPlayerId];
     }
 
+    public async ValueTask<ResolutionResult> ReadyAsync(
+        string playerId,
+        string clientIntentId,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        RequirePlayer(normalizedPlayerId);
+        var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
+        var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+
+        await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (intentCache.TryGetValue(cacheKey, out var cached))
+            {
+                if (!string.Equals(cached.CommandType, "READY", StringComparison.Ordinal))
+                {
+                    throw new MatchSessionException(
+                        ErrorCodes.ClientIntentConflict,
+                        "clientIntentId already belongs to another command");
+                }
+
+                return cached.Result;
+            }
+
+            if (state.Status == MatchStatuses.Finished)
+            {
+                throw new MatchSessionException(ErrorCodes.MatchFinished, "match already finished");
+            }
+
+            if (state.Status == MatchStatuses.InProgress)
+            {
+                var current = new ResolutionResult(
+                    true,
+                    null,
+                    state,
+                    [],
+                    ResolutionResult.BuildSnapshots(state),
+                    ResolutionResult.BuildPrompts(state));
+                intentCache[cacheKey] = new CachedResolution("READY", current);
+                return current;
+            }
+
+            var startedTick = state.Tick;
+            var startedEventSequence = lastEventSequence;
+            var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
+            var events = new List<GameEvent>();
+            var addedReady = readyPlayers.Add(normalizedPlayerId);
+
+            if (state.Status != MatchStatuses.InProgress && addedReady)
+            {
+                events.Add(new GameEvent(
+                    "PLAYER_READY",
+                    $"{normalizedPlayerId} 已准备",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = normalizedPlayerId
+                    }));
+            }
+
+            var nextStatus = state.Status;
+            if (state.Status != MatchStatuses.InProgress)
+            {
+                nextStatus = readyPlayers.Count == 2 && state.Seats.Count == 2
+                    ? MatchStatuses.InProgress
+                    : MatchStatuses.Seating;
+                if (nextStatus == MatchStatuses.InProgress)
+                {
+                    events.Add(new GameEvent(
+                        "MATCH_STARTED",
+                        "双方已准备，比赛开始",
+                        new Dictionary<string, object?>
+                        {
+                            ["activePlayerId"] = state.ActivePlayerId
+                        }));
+                }
+            }
+
+            var nextState = state with
+            {
+                Status = nextStatus,
+                ReadyPlayerIds = readyPlayers
+                    .OrderBy(readyPlayerId => readyPlayerId, StringComparer.Ordinal)
+                    .ToArray()
+            };
+            var result = new ResolutionResult(
+                true,
+                null,
+                nextState,
+                events,
+                ResolutionResult.BuildSnapshots(nextState),
+                ResolutionResult.BuildPrompts(nextState));
+
+            if (events.Count > 0)
+            {
+                var completedEventSequence = startedEventSequence + events.Count;
+                await journal.RecordAsync(new MatchJournalEntry(
+                        RoomId,
+                        normalizedPlayerId,
+                        normalizedIntentId,
+                        "READY",
+                        rawCommand,
+                        startedTick,
+                        nextState.Tick,
+                        startedEventSequence,
+                        completedEventSequence,
+                        true,
+                        null,
+                        nextState,
+                        events,
+                        result.Snapshots,
+                        result.Prompts,
+                        DateTimeOffset.UtcNow),
+                    cancellationToken).ConfigureAwait(false);
+                lastEventSequence = completedEventSequence;
+            }
+
+            state = nextState;
+            intentCache[cacheKey] = new CachedResolution("READY", result);
+            return result;
+        }
+        finally
+        {
+            serialGate.Release();
+        }
+    }
+
     public async ValueTask<ResolutionResult> SubmitAsync(
         string playerId,
         string clientIntentId,
@@ -554,9 +786,7 @@ public sealed class MatchSession : IMatchSession
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
         RequirePlayer(normalizedPlayerId);
-        var normalizedIntentId = string.IsNullOrWhiteSpace(clientIntentId)
-            ? Guid.NewGuid().ToString("N")
-            : clientIntentId.Trim();
+        var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
         var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -573,6 +803,11 @@ public sealed class MatchSession : IMatchSession
                 }
 
                 return cached.Result;
+            }
+
+            if (state.Status != MatchStatuses.InProgress)
+            {
+                throw new MatchSessionException(ErrorCodes.MatchNotStarted, "match has not started");
             }
 
             var startedTick = state.Tick;
@@ -706,6 +941,13 @@ public sealed class MatchSession : IMatchSession
     private static string NewReconnectToken()
     {
         return $"rt_{Guid.NewGuid():N}";
+    }
+
+    private static string NormalizeClientIntentId(string clientIntentId)
+    {
+        return string.IsNullOrWhiteSpace(clientIntentId)
+            ? Guid.NewGuid().ToString("N")
+            : clientIntentId.Trim();
     }
 
     private static string NormalizePlayerId(string playerId)

@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 44 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 48 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -107,12 +107,13 @@
 - 手写 C# placeholder fixture 已迁移为 `p1-placeholder-pass-priority.fixture.json`，使用显式 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
 - `MatchSession` 已能为前两名加入者分配稳定 `P1` / `P2` 座位，并在 snapshot 的 `players` 视图中暴露 seat；第三名玩家会被拒绝。
 - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和第三人满员错误。
-- `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
+- `GameHub.Reconnect`、`GameHub.RequestSnapshot`、`GameHub.Ready`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
 - P1 SQL 和 `PostgresMatchJournal` 已补 `event_sequence`、command 起止 event sequence、snapshot/prompt `last_event_sequence`，并通过新库/旧库迁移 smoke。
 - `MatchJournalEntry` 和 `PostgresMatchJournal` 已保留客户端原始命令 JSON；`SubmitIntent` 的原文会进入 `command_log.payload.rawCommand`，便于后续回放、审计和 canonical diff。
 - `IMatchRecoveryStore`、`PostgresMatchRecoveryStore` 和 `MatchRecoveryValidator` 已建立最小恢复读取/校验路径：可读取 match、command、events、最新 snapshot/prompt，并校验 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
 - `001_p1_event_store.sql` 已移除依赖 003 新列的 sequence 索引创建，旧库可按 `001 -> 002 -> 003` 顺序升级。
-- `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom；Hub 级测试覆盖 `PLAYER_NOT_IN_ROOM`、`UNSUPPORTED_COMMAND`、`CLIENT_INTENT_CONFLICT` 三条命令提交错误路径。
+- `MatchSession` 已接入 `EMPTY -> SEATING -> IN_PROGRESS` 的最小房间生命周期；`Ready` 会记录 `PLAYER_READY` / `MATCH_STARTED` lifecycle events，snapshot/prompt 暴露 ready 状态，未 Ready 开局前提交命令会被 `MATCH_NOT_STARTED` 拒绝。
+- `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom 且房间已开始；Hub 级测试覆盖 `PLAYER_NOT_IN_ROOM`、`MATCH_NOT_STARTED`、`UNSUPPORTED_COMMAND`、`CLIENT_INTENT_CONFLICT` 四条命令提交错误路径。
 - `InMemoryMatchSessionRegistry` 已接入 `IMatchRecoveryStore` 异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、P1/P2 seat、lastEventSequence 和已见过的 intent，用于防止重启后重复提交污染事件流，不把玩家视角 snapshot 当完整权威规则状态；跨 room recovery frame 会被 `RECOVERY_INCONSISTENT` 拒绝。
 - `state_snapshots` 权威状态快照表已加入 P1 schema 和 `004_p1_state_snapshots.sql` 迁移；`PostgresMatchJournal` 会写入服务端 `MatchState`，`PostgresMatchRecoveryStore` 会优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致；本机 PostgreSQL state snapshot smoke 通过。
 - `IMatchPlayerStore`、`PostgresMatchPlayerStore` 和 `ReconnectTokenHasher` 已接入；Join/Reconnect 会把 reconnect token 以 `sha256:` hash 写入 `match_players.reconnect_token_hash`，恢复后的 session 可用旧 token hash 重连，并在重连成功后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect，不能用 Join 直接领取新 token；本机 PostgreSQL token smoke 通过，库中不保存 token 明文。
@@ -127,8 +128,8 @@
 
 第一批任务：
 
-1. 补 `Ready` / 房间生命周期最小状态机：空房、入座、准备、进行中、结束；暂不进入匹配系统。
-2. 继续协议错误码治理：P1 保持 room/join/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
+1. 继续协议错误码治理：P1 保持 room/join/ready/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
+2. 准备下一组 P2 核心规则前，先把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ。
 3. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
 4. 后续扩展 `MatchState` 时，同步扩展 `state_snapshots` 的权威 payload，不把隐藏信息或完整规则状态塞进玩家视角 snapshot。
 

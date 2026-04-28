@@ -27,18 +27,20 @@
   - 协议层已新增 `PASS_PRIORITY`、`PASS_FOCUS`，并记录 `END_TURN` 与 legacy `PASS` 的语义边界。
   - `MatchSession` 已能分配稳定 `P1` / `P2` 座位，snapshot 暴露 seat，第三名玩家加入会被拒绝。
   - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和满员错误。
-  - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
+  - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、`GameHub.Ready`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
   - P1 SQL 和 `PostgresMatchJournal` 已补全局 `event_sequence`、command 起止 sequence、snapshot/prompt `last_event_sequence`；新库/旧库迁移 smoke 通过。
   - `MatchJournalEntry` 已携带客户端原始命令 JSON；`GameHub.SubmitIntent` 到 journal 的 raw payload 已有测试覆盖，PostgreSQL `command_log.payload.rawCommand` 可用于回放和审计。
   - `IMatchRecoveryStore` 和 `PostgresMatchRecoveryStore` 已能读取 match、command、events、最新 snapshot/prompt，`MatchRecoveryValidator` 已覆盖 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
   - `001_p1_event_store.sql` 不再创建依赖后续迁移新列的 sequence 索引，旧库升级顺序已恢复为 `001 -> 002 -> 003`。
-  - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom；Hub 级错误码测试覆盖未知玩家提交、unsupported command 和重复 intent 冲突。
+  - `MatchSession` 已接入最小房间生命周期：新房 `EMPTY`，入座后 `SEATING`，双方 `Ready` 后进入 `IN_PROGRESS`；`FINISHED` 已保留为后续结算状态。
+  - `Ready` 会记录 `PLAYER_READY` / `MATCH_STARTED` lifecycle events，Hub 会以 `READY` / `START` 消息广播；snapshot/prompt 暴露 ready 状态，conformance runner 会先 Ready 再回放规则命令，但比较时过滤 lifecycle events。
+  - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom 且房间已开始；Hub 级错误码测试覆盖未知玩家提交、未开局提交、unsupported command 和重复 intent 冲突。
   - 手写 C# placeholder fixture 已迁移为 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
   - `InMemoryMatchSessionRegistry` 已接入异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、seat、lastEventSequence 和已见过 intent，避免把玩家视角 snapshot 误当完整规则状态。
   - `state_snapshots` 权威状态快照表和 `004_p1_state_snapshots.sql` 已加入；journal 写入服务端 `MatchState`，recovery 优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致。
   - `IMatchPlayerStore` 和 `PostgresMatchPlayerStore` 已接入；Join/Reconnect 只持久化 `sha256:` reconnect token hash，恢复后的 session 可用旧 token hash 重连，并在成功重连后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect。
 
-下一步补 `Ready` / 房间生命周期最小状态机，并继续做协议错误码治理；新增 fixture 不再使用裸 `PASS`。
+下一步继续做协议错误码治理，并在进入 P2 核心规则前，把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -52,8 +54,10 @@
 
 - `GameHub` 可让 P1/P2 加入同一房间。
 - `MatchSession` 为前两名加入者分配稳定 `P1`/`P2` 座位，并拒绝第三名玩家。
+- `GameHub.Ready` 可让双方准备；第一名 Ready 广播 `READY`，第二名 Ready 广播 `START` 并进入 `IN_PROGRESS`。
 - `MatchSession` 对同一房间命令严格串行。
 - 未 Join 的玩家提交命令会被拒绝为 `PLAYER_NOT_IN_ROOM`，不再隐式入座。
+- 未 Ready 开局前提交命令会被拒绝为 `MATCH_NOT_STARTED`。
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
 - `UNSUPPORTED_COMMAND` 和 `CLIENT_INTENT_CONFLICT` 在 Hub 层有稳定错误码测试。
 - 协议层明确区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，裸 `PASS` 仅用于 legacy 兼容。

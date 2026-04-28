@@ -60,7 +60,7 @@ public sealed class PostgresMatchPlayerStore(NpgsqlDataSource dataSource) : IMat
     {
         const string sql = """
             insert into matches (match_id, status, updated_at)
-            values (@match_id, 'IN_PROGRESS', now())
+            values (@match_id, 'SEATING', now())
             on conflict (match_id) do update
             set updated_at = now();
             """;
