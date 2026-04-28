@@ -10,12 +10,19 @@ public sealed record CardBehaviorDefinition(
     string DamageConditionKind = CardDamageConditionKinds.None,
     int ConditionalDamageAmount = 0,
     string StatusEffectId = "",
-    int DrawCount = 0);
+    int DrawCount = 0,
+    string TargetScope = CardTargetScopes.BattlefieldUnit);
 
 public static class CardDamageConditionKinds
 {
     public const string None = "NONE";
     public const string ControllerHasFaceDownCard = "CONTROLLER_HAS_FACE_DOWN_CARD";
+}
+
+public static class CardTargetScopes
+{
+    public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
+    public const string AnyUnit = "ANY_UNIT";
 }
 
 public static class CardBehaviorRegistry
@@ -28,7 +35,8 @@ public static class CardBehaviorRegistry
             2,
             "PUNISHMENT_DAMAGE_3",
             3,
-            1),
+            1,
+            TargetScope: CardTargetScopes.AnyUnit),
         new(
             "UNL-014/219",
             "渊海狩咒",
@@ -54,7 +62,8 @@ public static class CardBehaviorRegistry
             1,
             CardDamageConditionKinds.None,
             0,
-            "STUNNED"),
+            "STUNNED",
+            TargetScope: CardTargetScopes.AnyUnit),
         new(
             "OGN·009/298",
             "海克斯射线",

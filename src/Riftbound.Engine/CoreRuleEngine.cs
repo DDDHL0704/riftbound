@@ -180,11 +180,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (targetObjectIds.Count != behavior.RequiredTargetCount
-            || targetObjectIds.Any(targetObjectId => !IsBattlefieldObject(state, targetObjectId)))
+            || targetObjectIds.Any(targetObjectId => !IsTargetObjectInScope(state, targetObjectId, behavior.TargetScope)))
         {
             rejection = RejectWithCorePrompts(
                 state,
-                $"{behavior.DisplayName} requires {behavior.RequiredTargetCount} battlefield unit target(s).",
+                $"{behavior.DisplayName} requires {behavior.RequiredTargetCount} {DescribeTargetScope(behavior.TargetScope)} target(s).",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -501,6 +501,25 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsTargetObjectInScope(MatchState state, string objectId, string targetScope)
+    {
+        if (IsBattlefieldObject(state, objectId))
+        {
+            return true;
+        }
+
+        return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static string DescribeTargetScope(string targetScope)
+    {
+        return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
+            ? "unit"
+            : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)

@@ -85,6 +85,7 @@
 | `p2-preflight-fepr-resolves-latest-keeps-remaining-stack` | `RULE_AUDITED` | `CORE-260330` p35 rule 340.4 | 已验证最新项目结算后若结算链仍不为空且无待处理项目，则新的最新项目控制者获得优先行动权。 |
 | `p2-preflight-spell-duel-pass-focus-closes-window` | `RULE_AUDITED` | `CORE-260330` p35-p36 rules 341-348；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证法术对决中当前焦点玩家让过后焦点传递，所有玩家让过焦点后关闭法术对决并回到普通主阶段。 |
 | `p2-preflight-play-punishment-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《惩戒》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 3 点伤害并进入废牌堆。 |
+| `p2-preflight-play-punishment-base-unit-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《惩戒》的“对一名单位”目标范围允许指定基地单位，而非仅限战场单位。 |
 | `p2-preflight-play-abyssal-hunt-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在未控制正面朝下卡牌时支付 1 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
 | `p2-preflight-play-abyssal-hunt-face-down-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在控制者控制正面朝下战场牌时改为造成 4 点伤害。 |
 | `p2-preflight-play-incinerate-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·003/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《焚烧》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
