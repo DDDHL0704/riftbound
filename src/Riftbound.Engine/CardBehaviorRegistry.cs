@@ -8,7 +8,8 @@ public sealed record CardBehaviorDefinition(
     int DamageAmount,
     int RequiredTargetCount,
     string DamageConditionKind = CardDamageConditionKinds.None,
-    int ConditionalDamageAmount = 0);
+    int ConditionalDamageAmount = 0,
+    string StatusEffectId = "");
 
 public static class CardDamageConditionKinds
 {
@@ -42,7 +43,17 @@ public static class CardBehaviorRegistry
             2,
             "INCINERATE_DAMAGE_2",
             2,
-            1)
+            1),
+        new(
+            "OGN·050/298",
+            "符文禁锢",
+            2,
+            "RUNE_PRISON_STUN_UNIT",
+            0,
+            1,
+            CardDamageConditionKinds.None,
+            0,
+            "STUNNED")
     ];
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)

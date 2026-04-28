@@ -502,10 +502,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
-        var damageAmount = 0;
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            || stackItem.TargetObjectIds.Count != 1
-            || (damageAmount = ResolveDamageAmount(state, stackItem, behavior)) <= 0)
+            || stackItem.TargetObjectIds.Count != 1)
         {
             return new StackResolutionResult(state.PlayerZones, state.CardObjects, []);
         }
@@ -515,10 +513,48 @@ public sealed class CoreRuleEngine : IRuleEngine
         var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
             ? existingTarget
             : new CardObjectState(targetObjectId);
-        cardObjects[targetObjectId] = targetState with
+
+        var events = new List<GameEvent>();
+        var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
+        if (damageAmount > 0)
         {
-            Damage = targetState.Damage + damageAmount
-        };
+            targetState = targetState with
+            {
+                Damage = targetState.Damage + damageAmount
+            };
+            events.Add(new GameEvent(
+                "DAMAGE_APPLIED",
+                $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["damage"] = damageAmount
+                }));
+        }
+
+        if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
+        {
+            targetState = targetState with
+            {
+                UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                    .Concat([behavior.StatusEffectId])
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                    .ToArray()
+            };
+            events.Add(new GameEvent(
+                "STATUS_EFFECT_APPLIED",
+                $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["effectId"] = behavior.StatusEffectId
+                }));
+        }
+
+        cardObjects[targetObjectId] = targetState;
 
         var playerZones = NormalizeZonesForSeats(state);
         if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones)
@@ -533,17 +569,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return new StackResolutionResult(
             playerZones,
             cardObjects,
-            [
-                new GameEvent(
-                    "DAMAGE_APPLIED",
-                    $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["damage"] = damageAmount
-                    })
-            ]);
+            events);
     }
 
     private static int ResolveDamageAmount(
