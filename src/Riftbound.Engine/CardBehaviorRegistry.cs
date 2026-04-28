@@ -15,7 +15,8 @@ public sealed record CardBehaviorDefinition(
     string TargetScope = CardTargetScopes.BattlefieldUnit,
     int MinTargetCount = -1,
     string Mode = "",
-    int EchoManaCost = 0);
+    int EchoManaCost = 0,
+    string DrawConditionKind = CardDrawConditionKinds.None);
 
 public static class CardDamageConditionKinds
 {
@@ -28,6 +29,12 @@ public static class CardTargetScopes
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+}
+
+public static class CardDrawConditionKinds
+{
+    public const string None = "NONE";
+    public const string TargetDestroyedByThisEffect = "TARGET_DESTROYED_BY_THIS_EFFECT";
 }
 
 public static class CardBehaviorRegistry
@@ -76,6 +83,15 @@ public static class CardBehaviorRegistry
             "HEXTECH_RAY_DAMAGE_3",
             3,
             1),
+        new(
+            "OGN·005/298",
+            "碎裂之火",
+            4,
+            "SHATTERED_FIRE_DAMAGE_3_DRAW_IF_DESTROYED",
+            3,
+            1,
+            DrawCount: 1,
+            DrawConditionKind: CardDrawConditionKinds.TargetDestroyedByThisEffect),
         new(
             "OGN·085/298",
             "彗星坠击",

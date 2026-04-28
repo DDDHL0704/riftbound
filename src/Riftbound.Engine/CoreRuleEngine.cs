@@ -612,6 +612,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
+        var destroyedObjectIds = new List<string>();
         if (behavior.RequiredTargetCount > 0)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
@@ -674,6 +675,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 ["ownerPlayerId"] = ownerPlayerId,
                                 ["destroyedByPlayerId"] = stackItem.ControllerId
                             }));
+                        destroyedObjectIds.Add(targetObjectId);
                         continue;
                     }
 
@@ -682,13 +684,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        events.AddRange(ApplyLethalDamageCleanup(playerZones, cardObjects, stackItem));
+        var lethalCleanup = ApplyLethalDamageCleanup(playerZones, cardObjects, stackItem);
+        events.AddRange(lethalCleanup.Events);
+        destroyedObjectIds.AddRange(lethalCleanup.DestroyedObjectIds
+            .Where(objectId => stackItem.TargetObjectIds.Contains(objectId, StringComparer.Ordinal)));
 
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
-            if (behavior.DrawCount > 0)
+            if (ShouldDrawForBehavior(behavior, destroyedObjectIds))
             {
                 var drawResult = DrawCards(
                     state,
@@ -757,12 +762,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
-    private static IReadOnlyList<GameEvent> ApplyLethalDamageCleanup(
+    private static bool ShouldDrawForBehavior(
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> destroyedObjectIds)
+    {
+        if (behavior.DrawCount <= 0)
+        {
+            return false;
+        }
+
+        return behavior.DrawConditionKind switch
+        {
+            CardDrawConditionKinds.None => true,
+            CardDrawConditionKinds.TargetDestroyedByThisEffect => destroyedObjectIds.Count > 0,
+            _ => false
+        };
+    }
+
+    private static LethalDamageCleanupResult ApplyLethalDamageCleanup(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem)
     {
         var events = new List<GameEvent>();
+        var destroyedObjectIds = new List<string>();
         var lethalObjectIds = cardObjects
             .Where(entry => entry.Value.Power > 0
                 && entry.Value.Damage > 0
@@ -779,6 +802,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            destroyedObjectIds.Add(objectId);
             events.Add(new GameEvent(
                 "UNIT_DESTROYED",
                 "致命伤害摧毁单位",
@@ -792,7 +816,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
         }
 
-        return events;
+        return new LethalDamageCleanupResult(events, destroyedObjectIds);
     }
 
     private static bool IsObjectOnField(
@@ -1330,6 +1354,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> PlayerScores,
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events);
+
+    private sealed record LethalDamageCleanupResult(
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> DestroyedObjectIds);
 
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
