@@ -63,11 +63,13 @@ public sealed record CardObjectState
     public CardObjectState(
         string? objectId = null,
         int damage = 0,
-        IReadOnlyList<string>? untilEndOfTurnEffects = null)
+        IReadOnlyList<string>? untilEndOfTurnEffects = null,
+        bool isFaceDown = false)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
         UntilEndOfTurnEffects = NormalizeEffects(untilEndOfTurnEffects);
+        IsFaceDown = isFaceDown;
     }
 
     public string ObjectId { get; init; }
@@ -75,6 +77,8 @@ public sealed record CardObjectState
     public int Damage { get; init; }
 
     public IReadOnlyList<string> UntilEndOfTurnEffects { get; init; }
+
+    public bool IsFaceDown { get; init; }
 
     private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
     {
@@ -349,7 +353,8 @@ public sealed record MatchState
         return new CardObjectState(
             normalizedObjectId,
             state.Damage,
-            state.UntilEndOfTurnEffects);
+            state.UntilEndOfTurnEffects,
+            state.IsFaceDown);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)

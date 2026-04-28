@@ -66,67 +66,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PlayCardCommand command)
     {
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal))
+        if (!TryBuildPlayCardPlan(state, intent, command, out var plan, out var rejection))
         {
-            return RejectWithCorePrompts(
-                state,
-                "PLAY_CARD is not allowed outside the turn player's ordinary open main phase.",
-                ErrorCodes.PhaseNotAllowed);
+            return rejection;
         }
 
-        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"Unsupported card behavior: {command.CardNo}",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
-            || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
-        {
-            return RejectWithCorePrompts(
-                state,
-                "Source card is not in the player's hand.",
-                ErrorCodes.CardNotInHand);
-        }
-
-        var targetObjectId = command.TargetObjectIds.Count == 1
-            ? command.TargetObjectIds[0]
-            : string.Empty;
-        if (command.TargetObjectIds.Count != behavior.RequiredTargetCount
-            || !IsBattlefieldObject(state, targetObjectId))
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"{behavior.DisplayName} requires exactly one battlefield unit target.",
-                ErrorCodes.InvalidTarget);
-        }
-
-        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var currentPool = runePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < behavior.ManaCost)
-        {
-            return RejectWithCorePrompts(
-                state,
-                $"Not enough mana to play {behavior.DisplayName}.",
-                ErrorCodes.InsufficientCost);
-        }
-
-        runePools[intent.PlayerId] = currentPool with
-        {
-            Mana = currentPool.Mana - behavior.ManaCost
-        };
-
-        var playerZones = NormalizeZonesForSeats(state);
-        playerZones[intent.PlayerId] = zones with
-        {
-            Hand = zones.Hand
-                .Where(cardId => !string.Equals(cardId, command.SourceObjectId, StringComparison.Ordinal))
-                .ToArray()
-        };
+        var behavior = plan.Behavior;
+        var targetObjectIds = plan.TargetObjectIds;
+        var runePools = PayMana(state, intent.PlayerId, behavior.ManaCost);
+        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
 
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
@@ -134,7 +82,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             behavior.EffectKind,
             command.CardNo,
-            [targetObjectId],
+            targetObjectIds,
             behavior.DamageAmount);
         var nextState = state with
         {
@@ -188,6 +136,71 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool TryBuildPlayCardPlan(
+        MatchState state,
+        PlayerIntent intent,
+        PlayCardCommand command,
+        out PlayCardPlan plan,
+        out ResolutionResult rejection)
+    {
+        plan = default!;
+        rejection = default!;
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "PLAY_CARD is not allowed outside the turn player's ordinary open main phase.",
+                ErrorCodes.PhaseNotAllowed);
+            return false;
+        }
+
+        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Unsupported card behavior: {command.CardNo}",
+                ErrorCodes.UnsupportedCardBehavior);
+            return false;
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "Source card is not in the player's hand.",
+                ErrorCodes.CardNotInHand);
+            return false;
+        }
+
+        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (targetObjectIds.Count != behavior.RequiredTargetCount
+            || targetObjectIds.Any(targetObjectId => !IsBattlefieldObject(state, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires {behavior.RequiredTargetCount} battlefield unit target(s).",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < behavior.ManaCost)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Not enough mana to play {behavior.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+            return false;
+        }
+
+        plan = new PlayCardPlan(behavior, zones, targetObjectIds);
+        return true;
     }
 
     private static bool CanPassPriority(MatchState state, string playerId)
@@ -436,6 +449,43 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
     }
 
+    private static IReadOnlyList<string> NormalizeTargetObjectIds(IReadOnlyList<string> targetObjectIds)
+    {
+        return targetObjectIds
+            .Where(targetObjectId => !string.IsNullOrWhiteSpace(targetObjectId))
+            .Select(targetObjectId => targetObjectId.Trim())
+            .ToArray();
+    }
+
+    private static Dictionary<string, RunePool> PayMana(MatchState state, string playerId, int manaCost)
+    {
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        runePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - manaCost
+        };
+
+        return runePools;
+    }
+
+    private static Dictionary<string, PlayerZones> RemoveSourceCardFromHand(
+        MatchState state,
+        string playerId,
+        PlayerZones zones,
+        string sourceObjectId)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        playerZones[playerId] = zones with
+        {
+            Hand = zones.Hand
+                .Where(cardId => !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal))
+                .ToArray()
+        };
+
+        return playerZones;
+    }
+
     private static IReadOnlyDictionary<string, RunePool> ClearRunePools(MatchState state)
     {
         return state.Seats.Keys.ToDictionary(
@@ -452,9 +502,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
+        var damageAmount = 0;
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || stackItem.TargetObjectIds.Count != 1
-            || stackItem.DamageAmount <= 0)
+            || (damageAmount = ResolveDamageAmount(state, stackItem, behavior)) <= 0)
         {
             return new StackResolutionResult(state.PlayerZones, state.CardObjects, []);
         }
@@ -466,7 +517,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             : new CardObjectState(targetObjectId);
         cardObjects[targetObjectId] = targetState with
         {
-            Damage = targetState.Damage + stackItem.DamageAmount
+            Damage = targetState.Damage + damageAmount
         };
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -485,14 +536,49 @@ public sealed class CoreRuleEngine : IRuleEngine
             [
                 new GameEvent(
                     "DAMAGE_APPLIED",
-                    $"{behavior.DisplayName}造成 {stackItem.DamageAmount} 点伤害",
+                    $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
                     new Dictionary<string, object?>
                     {
                         ["sourceObjectId"] = stackItem.SourceObjectId,
                         ["targetObjectId"] = targetObjectId,
-                        ["damage"] = stackItem.DamageAmount
+                        ["damage"] = damageAmount
                     })
             ]);
+    }
+
+    private static int ResolveDamageAmount(
+        MatchState state,
+        StackItemState stackItem,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.ConditionalDamageAmount > 0
+            && DamageConditionApplies(state, stackItem.ControllerId, behavior.DamageConditionKind))
+        {
+            return behavior.ConditionalDamageAmount;
+        }
+
+        return stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
+    }
+
+    private static bool DamageConditionApplies(MatchState state, string controllerId, string conditionKind)
+    {
+        return conditionKind switch
+        {
+            CardDamageConditionKinds.ControllerHasFaceDownCard => ControllerControlsFaceDownCard(state, controllerId),
+            _ => false
+        };
+    }
+
+    private static bool ControllerControlsFaceDownCard(MatchState state, string controllerId)
+    {
+        if (!state.PlayerZones.TryGetValue(controllerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.Battlefields.Any(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsFaceDown);
     }
 
     private static string NextPlayerId(MatchState state)
@@ -885,6 +971,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record BurnoutResult(
         string ScoredPlayerId,
         int ScoredPlayerScore);
+
+    private sealed record PlayCardPlan(
+        CardBehaviorDefinition Behavior,
+        PlayerZones SourceZones,
+        IReadOnlyList<string> TargetObjectIds);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

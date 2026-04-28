@@ -92,7 +92,8 @@ public sealed record ConformancePlayerInitialState(
 
 public sealed record ConformanceCardObjectState(
     int? Damage = null,
-    IReadOnlyList<string>? UntilEndOfTurnEffects = null);
+    IReadOnlyList<string>? UntilEndOfTurnEffects = null,
+    bool? IsFaceDown = null);
 
 public sealed record ConformanceStackItemState(
     string? StackItemId = null,
@@ -313,7 +314,8 @@ public static class ConformanceFixtureRunner
                 entry => new CardObjectState(
                     entry.Key.Trim(),
                     entry.Value.Damage ?? 0,
-                    entry.Value.UntilEndOfTurnEffects),
+                    entry.Value.UntilEndOfTurnEffects,
+                    entry.Value.IsFaceDown ?? false),
                 StringComparer.Ordinal);
     }
 

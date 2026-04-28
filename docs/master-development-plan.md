@@ -177,7 +177,7 @@ flowchart LR
 
 - 先执行 `docs/p2-rules-preflight.md`，不要直接扩展全卡牌行为。
 - 已完成 schema v2 形状读取、runner 初始状态应用、`MatchState` 基础权威字段、普通回合开始最小规则行为、`END_TURN` 自动推进到下一回合开始的最小闭环、回合结束特殊清理中的伤害移除/本回合内效果失效，以及清理重复/常规清理最小闭环。
-- 普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝且不会结束回合；有结算链项目时的 FEPR 让过、优先权转移、双方让过后的最新项目结算，以及结算链未空时新的最新项目控制者获得优先权已落地；法术对决中焦点让过、焦点转移和双方让过后关闭窗口已落地；连续燃尽导致对手立即获胜已落地；官方法术《惩戒》《渊海狩咒》的打出、费用、目标、入栈、结算伤害通道已落地，并已进入最小 card behavior registry；下一步抽通用 validator 并补条件效果。
+- 普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝且不会结束回合；有结算链项目时的 FEPR 让过、优先权转移、双方让过后的最新项目结算，以及结算链未空时新的最新项目控制者获得优先权已落地；法术对决中焦点让过、焦点转移和双方让过后关闭窗口已落地；连续燃尽导致对手立即获胜已落地；官方法术《惩戒》《渊海狩咒》的打出、费用、目标、入栈、结算伤害通道已落地，并已进入最小 card behavior registry；《渊海狩咒》正面朝下条件伤害已覆盖。下一步补 richer expected canonical diff。
 
 规则域：
 
@@ -579,9 +579,9 @@ Browser Use 阶段性测试：
 
 立即执行：
 
-1. 继续 P2 preflight：抽通用费用、目标、对象控制者/所属者和结算链入栈/结算 validator。
-2. 补《渊海狩咒》的正面朝下卡牌条件效果，并增加对应 fixture。
-3. 再逐批迁移高价值卡牌行为。
+1. 继续 P2 preflight：补 richer expected canonical diff，减少 fixture 测试手写断言。
+2. 再逐批迁移高价值卡牌行为，优先费用、单目标、伤害/本回合效果类。
+3. 随卡牌迁移继续抽象对象控制者/所属者、隐藏信息和结算链事件 payload。
 4. 在 C# 侧继续完善 fixture runner 的 richer expected canonical diff、event sequence、权威状态快照和 recovery hydrate。
 5. 新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留为 Java legacy oracle 对照。
 

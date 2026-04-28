@@ -77,6 +77,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-punishment-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-damage-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-face-down-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
@@ -108,7 +109,8 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
     "cardObjects": {
       "P2-UNIT-001": {
         "damage": 2,
-        "untilEndOfTurnEffects": ["effect-temp-power"]
+        "untilEndOfTurnEffects": ["effect-temp-power"],
+        "isFaceDown": false
       }
     }
   },

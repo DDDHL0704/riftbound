@@ -6,7 +6,15 @@ public sealed record CardBehaviorDefinition(
     int ManaCost,
     string EffectKind,
     int DamageAmount,
-    int RequiredTargetCount);
+    int RequiredTargetCount,
+    string DamageConditionKind = CardDamageConditionKinds.None,
+    int ConditionalDamageAmount = 0);
+
+public static class CardDamageConditionKinds
+{
+    public const string None = "NONE";
+    public const string ControllerHasFaceDownCard = "CONTROLLER_HAS_FACE_DOWN_CARD";
+}
 
 public static class CardBehaviorRegistry
 {
@@ -25,7 +33,9 @@ public static class CardBehaviorRegistry
             1,
             "ABYSSAL_HUNT_DAMAGE_2",
             2,
-            1)
+            1,
+            CardDamageConditionKinds.ControllerHasFaceDownCard,
+            4)
     ];
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
