@@ -63,6 +63,13 @@ public static class CardBehaviorRegistry
             3,
             1),
         new(
+            "OGN·085/298",
+            "彗星坠击",
+            5,
+            "COMET_STRIKE_DAMAGE_6",
+            6,
+            1),
+        new(
             "OGN·024/298",
             "虚空索敌",
             3,

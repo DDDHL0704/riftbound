@@ -90,6 +90,7 @@
 | `p2-preflight-play-incinerate-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·003/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《焚烧》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
 | `p2-preflight-play-hextech-ray-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·009/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《海克斯射线》支付 1 点费用、选择战场单位目标、加入结算链、双方让过后造成 3 点伤害并进入废牌堆。 |
 | `p2-preflight-hextech-ray-damage-clears-end-turn` | `RULE_AUDITED` | `CATALOG` OGN·009/298；`CORE-260330` p30-p33 rules 317-324, p39-p42 rules 355-356；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证官方法术《海克斯射线》造成的真实伤害会在随后 `END_TURN` 特殊清理中移除，并自动推进到下一回合开始。 |
+| `p2-preflight-play-comet-strike-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·085/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《彗星坠击》支付 5 点费用、选择战场单位目标、加入结算链、双方让过后造成 6 点伤害并进入废牌堆。 |
 | `p2-preflight-play-void-seeker-damage-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·024/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《虚空索敌》支付 3 点费用、选择战场单位目标、加入结算链、双方让过后造成 4 点伤害并让控制者抽 1 张牌。 |
 | `p2-preflight-void-seeker-draw-burnout-stack` | `RULE_AUDITED` | `CATALOG` OGN·024/298；`CORE-260330` p57 rule 413.4；p67 rule 431.2；p39-p42 rules 355-356 | 已验证官方法术《虚空索敌》的结算抽牌会在控制者主牌堆为空时触发燃尽，对手得 1 分，控制者回收废牌堆并抽到回收牌。 |
 | `p2-preflight-play-rune-prison-stun-stack` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《符文禁锢》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后施加 `STUNNED` 本回合内效果并进入废牌堆。 |
