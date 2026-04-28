@@ -26,8 +26,9 @@
   - 当前 3 条 Java legacy fixture 的 evidence 已细化；FAQ 未发现推翻通用 `PASS` / `END_TURN` 的条目，但 `PASS -> TURN_ENDED` 被标记为 legacy mismatch candidate。
   - 协议层已新增 `PASS_PRIORITY`、`PASS_FOCUS`，并记录 `END_TURN` 与 legacy `PASS` 的语义边界。
   - `MatchSession` 已能分配稳定 `P1` / `P2` 座位，snapshot 暴露 seat，第三名玩家加入会被拒绝。
+  - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和满员错误。
 
-下一步给 `GameHub.JoinRoom` 补双连接/满员拒绝的 SignalR 级测试或最小集成测试；新增 fixture 不再使用裸 `PASS`。
+下一步扩展重连 token、稳定错误码、command log 原始 payload、event sequence 和 recovery；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 

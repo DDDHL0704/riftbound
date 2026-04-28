@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 16 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 18 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -105,6 +105,7 @@
 - 当前 3 条 Java legacy fixture 的 evidence 已细化到具体页码、规则号/FAQ 问题号，并记录 `PASS -> TURN_ENDED` 是 legacy mismatch candidate。
 - `docs/protocol-semantics.md` 已明确 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN` 的协议边界；`PASS` 仅保留为 legacy 兼容。
 - `MatchSession` 已能为前两名加入者分配稳定 `P1` / `P2` 座位，并在 snapshot 的 `players` 视图中暴露 seat；第三名玩家会被拒绝。
+- `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和第三人满员错误。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -116,10 +117,10 @@
 
 第一批任务：
 
-1. 给 `GameHub.JoinRoom` 补双连接/满员拒绝的 SignalR 级测试或最小集成测试。
-2. 再扩展 P1 的重连 token、错误码和 command log 原始 payload。
-3. 完善 event sequence / recovery 字段，支撑后续断线重连与事件重放。
-4. 开始把新 fixture 从裸 `PASS` 迁移到 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`。
+1. 扩展 P1 的重连 token、稳定错误码和 command log 原始 payload。
+2. 完善 event sequence / recovery 字段，支撑后续断线重连与事件重放。
+3. 开始把新 fixture 从裸 `PASS` 迁移到 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`。
+4. 补 RequestSnapshot / Reconnect 的 Hub 级测试。
 
 P1 验收前不要开始：
 

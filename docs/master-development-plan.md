@@ -572,8 +572,8 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - GameHub 双连接加入和满员拒绝
-   - P1/P2 视角快照
+   - RequestSnapshot / Reconnect
+   - event sequence / recovery
    - 幂等重复提交
    - 符文横置/回收
    - EndTurn/Pass
