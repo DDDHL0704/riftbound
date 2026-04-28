@@ -4,6 +4,8 @@ namespace Riftbound.Engine;
 
 public sealed class CoreRuleEngine : IRuleEngine
 {
+    private const int WinningScore = 8;
+
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
     public ValueTask<ResolutionResult> ResolveAsync(
@@ -255,11 +257,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             ActivePlayerId = turnPlayerId,
-            Phase = MatchPhases.Main,
-            TimingState = TimingStates.NeutralOpen,
-            RunePools = ClearRunePools(state),
+            Status = drawResult.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            Phase = drawResult.WinnerPlayerId is null ? MatchPhases.Main : state.Phase,
+            TimingState = drawResult.WinnerPlayerId is null ? TimingStates.NeutralOpen : state.TimingState,
+            RunePools = drawResult.WinnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
             PlayerZones = playerZones,
-            PlayerScores = drawResult.PlayerScores
+            PlayerScores = drawResult.PlayerScores,
+            WinnerPlayerId = drawResult.WinnerPlayerId
         };
 
         return new ResolutionResult(
@@ -409,32 +413,58 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones)
     {
         var playerScores = NormalizeScoresForSeats(state);
-        if (zones.MainDeck.Count > 0)
-        {
-            return new DrawResult(
-                zones.MainDeck.Skip(1).ToArray(),
-                zones.Graveyard,
-                [zones.MainDeck[0]],
-                false,
-                null,
-                playerScores);
-        }
+        var mainDeck = zones.MainDeck.ToList();
+        var graveyard = zones.Graveyard.ToList();
+        var drawnCards = new List<string>();
+        var burnouts = new List<BurnoutResult>();
+        string? winnerPlayerId = null;
+        var remainingDrawCount = 1;
 
-        var opponentId = OpponentOf(state, playerId);
-        if (opponentId is not null)
+        while (remainingDrawCount > 0 && winnerPlayerId is null)
         {
+            if (mainDeck.Count > 0)
+            {
+                drawnCards.Add(mainDeck[0]);
+                mainDeck.RemoveAt(0);
+                remainingDrawCount--;
+                continue;
+            }
+
+            var opponentId = OpponentOf(state, playerId);
+            if (opponentId is null)
+            {
+                break;
+            }
+
+            if (graveyard.Count > 0)
+            {
+                mainDeck.AddRange(graveyard);
+                graveyard.Clear();
+            }
+
             playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;
+            burnouts.Add(new BurnoutResult(opponentId, playerScores[opponentId]));
+            winnerPlayerId = WinningPlayerId(playerScores);
         }
 
-        var recycledMainDeck = zones.Graveyard.ToArray();
-        var drawnCards = recycledMainDeck.Take(1).ToArray();
         return new DrawResult(
-            recycledMainDeck.Skip(drawnCards.Length).ToArray(),
-            [],
-            drawnCards,
-            true,
-            opponentId,
+            mainDeck.ToArray(),
+            graveyard.ToArray(),
+            drawnCards.ToArray(),
+            burnouts,
+            winnerPlayerId,
             playerScores);
+    }
+
+    private static string? WinningPlayerId(IReadOnlyDictionary<string, int> playerScores)
+    {
+        return playerScores
+            .Where(candidate => candidate.Value >= WinningScore
+                && playerScores
+                    .Where(other => !string.Equals(other.Key, candidate.Key, StringComparison.Ordinal))
+                    .All(other => candidate.Value > other.Value))
+            .Select(candidate => candidate.Key)
+            .FirstOrDefault();
     }
 
     private static Dictionary<string, int> NormalizeScoresForSeats(MatchState state)
@@ -602,7 +632,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         ];
 
-        if (drawResult.BurnoutApplied)
+        foreach (var (burnout, index) in drawResult.Burnouts.Select((burnout, index) => (burnout, index)))
         {
             events.Add(new GameEvent(
                 "BURNOUT_APPLIED",
@@ -610,8 +640,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = state.TurnPlayerId,
-                    ["scoredPlayerId"] = drawResult.ScoredPlayerId
+                    ["scoredPlayerId"] = burnout.ScoredPlayerId,
+                    ["scoredPlayerScore"] = burnout.ScoredPlayerScore,
+                    ["burnoutIndex"] = index + 1
                 }));
+        }
+
+        if (drawResult.WinnerPlayerId is not null)
+        {
+            events.Add(new GameEvent(
+                "MATCH_WON",
+                $"{drawResult.WinnerPlayerId} 达到获胜分数并获胜",
+                new Dictionary<string, object?>
+                {
+                    ["winnerPlayerId"] = drawResult.WinnerPlayerId,
+                    ["winningScore"] = WinningScore
+                }));
+            return events;
         }
 
         events.Add(new GameEvent(
@@ -644,9 +689,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> MainDeck,
         IReadOnlyList<string> Graveyard,
         IReadOnlyList<string> DrawnCards,
-        bool BurnoutApplied,
-        string? ScoredPlayerId,
+        IReadOnlyList<BurnoutResult> Burnouts,
+        string? WinnerPlayerId,
         IReadOnlyDictionary<string, int> PlayerScores);
+
+    private sealed record BurnoutResult(
+        string ScoredPlayerId,
+        int ScoredPlayerScore);
 
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,

@@ -76,7 +76,8 @@ public sealed record ConformanceInitialState(
     IReadOnlyList<string>? PassedPriorityPlayerIds = null,
     IReadOnlyList<ConformanceStackItemState>? StackItems = null,
     string? FocusPlayerId = null,
-    IReadOnlyList<string>? PassedFocusPlayerIds = null);
+    IReadOnlyList<string>? PassedFocusPlayerIds = null,
+    string? WinnerPlayerId = null);
 
 public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? MainDeck = null,
@@ -121,7 +122,8 @@ public sealed record ConformanceExpectedState(
     IReadOnlyList<string>? PassedPriorityPlayerIds = null,
     IReadOnlyList<ConformanceStackItemState>? StackItems = null,
     string? FocusPlayerId = null,
-    IReadOnlyList<string>? PassedFocusPlayerIds = null);
+    IReadOnlyList<string>? PassedFocusPlayerIds = null,
+    string? WinnerPlayerId = null);
 
 public sealed record ConformanceExpectedEvent(
     string Kind,
@@ -246,7 +248,8 @@ public static class ConformanceFixtureRunner
             initial.PassedPriorityPlayerIds,
             BuildStackItems(initial),
             initial.FocusPlayerId,
-            initial.PassedFocusPlayerIds);
+            initial.PassedFocusPlayerIds,
+            initial.WinnerPlayerId);
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)

@@ -96,7 +96,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 70 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 71 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -122,8 +122,8 @@
 - `IMatchPlayerStore`、`PostgresMatchPlayerStore` 和 `ReconnectTokenHasher` 已接入；Join/Reconnect 会把 reconnect token 以 `sha256:` hash 写入 `match_players.reconnect_token_hash`，恢复后的 session 可用旧 token hash 重连，并在重连成功后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect，不能用 Join 直接领取新 token；本机 PostgreSQL token smoke 通过，库中不保存 token 明文。
 - P2 preflight 已开始落代码：`ConformanceFixture` 已能读取 schema v2 的 `initialState`、P2 `expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为规则审查后的回合开始样例。
 - conformance runner 已能把 P2 `initialState` 应用为真实权威初始局面，不再走 Join/Ready 覆盖 `TURN_START`；P2 expected 仍未升级为完整规则断言。
-- `MatchState` 已增加 P2 权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`；snapshot 已投影 timing、公开结算链和焦点字段，玩家 `handSize` 和 `score` 来自权威状态，后续扩展对象状态、战场控制和卡牌效果时必须继续维护 `state_snapshots.payload`。
-- `CoreRuleEngine` 已接入 API DI，并保留 `PlaceholderRuleEngine` 作为 legacy fallback；当前已能通过 `p2-preflight-turn-start.fixture.json` 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空符文池、进入主阶段；也已通过 `p2-preflight-turn-start-short-rune-deck.fixture.json` 验证符文牌堆不足 2 张时有多少召出多少，通过 `p2-preflight-turn-start-first-p2-extra-rune.fixture.json` 验证 1v1 第二个行动玩家首个召出阶段额外召出 1 张符文，并通过 `p2-preflight-turn-start-burnout.fixture.json` 验证抽牌阶段主牌堆为空时燃尽、对手得 1 分、废牌堆回收后抽牌；`END_TURN` fixture 已覆盖回合推进、特殊清理、伤害移除、本回合内效果失效和清理重复；`PASS_PRIORITY` / FEPR fixture 已覆盖误提交拒绝、优先权让过、双方让过后结算最新项目、结算链未空时新的最新项目控制者获得优先权；`p2-preflight-spell-duel-pass-focus-closes-window.fixture.json` 已验证法术对决中焦点让过、焦点转移、双方让过后关闭法术对决并回到普通主阶段。
+- `MatchState` 已增加 P2 权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`、`winnerPlayerId`；snapshot 已投影 timing、公开结算链、焦点和赢家字段，玩家 `handSize` 和 `score` 来自权威状态，后续扩展对象状态、战场控制和卡牌效果时必须继续维护 `state_snapshots.payload`。
+- `CoreRuleEngine` 已接入 API DI，并保留 `PlaceholderRuleEngine` 作为 legacy fallback；当前已能通过 P2 fixture 验证普通回合开始、短符文牌堆、1v1 第二个行动玩家首个召出阶段额外符文、抽牌燃尽并回收废牌堆、连续燃尽导致对手立即获胜、`END_TURN` 回合推进和特殊/重复清理、`PASS_PRIORITY` / FEPR 让过与结算、`PASS_FOCUS` / 法术对决焦点让过与关闭窗口。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -135,8 +135,8 @@
 
 第一批任务：
 
-1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：下一步补废牌堆也为空导致连续燃尽/胜利判定 fixture。
-2. 接着准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
+1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：下一步准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
+2. 接着逐批迁移基础卡牌能力，先选费用、目标、入栈、结算和对象状态都较低复杂度的样例。
 3. P1 协议错误码保持稳定；P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
 4. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
 5. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。

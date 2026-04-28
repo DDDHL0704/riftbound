@@ -177,7 +177,7 @@ flowchart LR
 
 - 先执行 `docs/p2-rules-preflight.md`，不要直接扩展全卡牌行为。
 - 已完成 schema v2 形状读取、runner 初始状态应用、`MatchState` 基础权威字段、普通回合开始最小规则行为、`END_TURN` 自动推进到下一回合开始的最小闭环、回合结束特殊清理中的伤害移除/本回合内效果失效，以及清理重复/常规清理最小闭环。
-- 普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝且不会结束回合；有结算链项目时的 FEPR 让过、优先权转移、双方让过后的最新项目结算，以及结算链未空时新的最新项目控制者获得优先权已落地；法术对决中焦点让过、焦点转移和双方让过后关闭窗口已落地；下一步补连续燃尽/胜利判定 fixture，再准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
+- 普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝且不会结束回合；有结算链项目时的 FEPR 让过、优先权转移、双方让过后的最新项目结算，以及结算链未空时新的最新项目控制者获得优先权已落地；法术对决中焦点让过、焦点转移和双方让过后关闭窗口已落地；连续燃尽导致对手立即获胜已落地；下一步准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
 
 规则域：
 
@@ -579,8 +579,8 @@ Browser Use 阶段性测试：
 
 立即执行：
 
-1. 继续 P2 preflight：下一步补废牌堆也为空导致连续燃尽/胜利判定 fixture。
-2. 准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界，再逐批迁移高价值卡牌行为。
+1. 继续 P2 preflight：准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
+2. 再逐批迁移高价值卡牌行为。
 3. 在卡牌迁移前，先把费用、目标、对象控制者/所属者和结算链入栈事件的最小协议固定住。
 4. 在 C# 侧继续完善 fixture runner 的 richer expected canonical diff、event sequence、权威状态快照和 recovery hydrate。
 5. 新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留为 Java legacy oracle 对照。

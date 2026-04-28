@@ -124,7 +124,7 @@ public sealed record MatchState
         int turnNumber,
         string activePlayerId,
         IReadOnlyDictionary<string, string> seats)
-        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+        : this(roomId, tick, turnNumber, activePlayerId, seats, status: null)
     {
     }
 
@@ -148,7 +148,8 @@ public sealed record MatchState
         IReadOnlyList<string>? passedPriorityPlayerIds = null,
         IReadOnlyList<StackItemState>? stackItems = null,
         string? focusPlayerId = null,
-        IReadOnlyList<string>? passedFocusPlayerIds = null)
+        IReadOnlyList<string>? passedFocusPlayerIds = null,
+        string? winnerPlayerId = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -179,6 +180,7 @@ public sealed record MatchState
         StackItems = NormalizeStackItems(stackItems);
         FocusPlayerId = NormalizeOptionalText(focusPlayerId);
         PassedFocusPlayerIds = NormalizeTextList(passedFocusPlayerIds);
+        WinnerPlayerId = NormalizeOptionalText(winnerPlayerId);
     }
 
     public string RoomId { get; init; }
@@ -219,6 +221,8 @@ public sealed record MatchState
 
     public IReadOnlyList<string> PassedFocusPlayerIds { get; init; }
 
+    public string? WinnerPlayerId { get; init; }
+
     public static MatchState Create(string roomId)
     {
         return new MatchState(
@@ -240,7 +244,8 @@ public sealed record MatchState
             [],
             [],
             null,
-            []);
+            [],
+            null);
     }
 
     private static string InferStatus(IReadOnlyDictionary<string, string> seats)
@@ -429,6 +434,7 @@ public sealed record ResolutionResult(
                 ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
                 ["focusPlayerId"] = state.FocusPlayerId,
                 ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
+                ["winnerPlayerId"] = state.WinnerPlayerId,
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },

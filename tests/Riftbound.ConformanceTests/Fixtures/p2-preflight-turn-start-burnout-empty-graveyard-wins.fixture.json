@@ -1,35 +1,40 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-turn-start-burnout",
-  "description": "Turn start draw step applies burnout when the turn player's main deck is empty, then draws after recycling the graveyard.",
+  "fixtureId": "p2-preflight-turn-start-burnout-empty-graveyard-wins",
+  "description": "When turn start draw triggers burnout with an empty graveyard, burnout repeats until the opponent reaches the winning score and wins immediately.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
-  "seed": 2603302004,
+  "seed": 2603302012,
   "rulesEvidence": [
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p28-p29 rule 315.4; p57 rule 413.4; p67 rule 431.2; 1v1 rule 481.7",
-      "note": "抽牌阶段主牌堆为空时执行燃尽：尽可能完成抽牌，将废牌堆回收至主牌堆，选择对手获得 1 分，再完成剩余抽牌。本样例使用 P2 非首个回合。"
+      "locator": "p57 rule 413.4; p67-p68 rules 431.1-431.3",
+      "note": "抽牌不足时执行燃尽；若燃尽后主牌堆仍为空，尝试完成剩余抽牌会再次燃尽，直到对手达到获胜分并立即获胜。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p31 rule 323.1; p67 rule 431.3.b",
+      "note": "清理会检查获胜分，但燃尽得分达到获胜条件时立即获胜，无需等待清理发生。"
     }
   ],
-  "roomId": "p2-preflight-burnout-room",
+  "roomId": "p2-preflight-burnout-win-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302004,
+    "seed": 2603302012,
     "turnNumber": 4,
     "activePlayerId": "P2",
     "turnPlayerId": "P2",
     "phase": "TURN_START",
     "timingState": "NEUTRAL_CLOSED",
     "scores": {
-      "P1": 0,
+      "P1": 7,
       "P2": 0
     },
     "runePools": {
       "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 1, "power": 0 }
+      "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
@@ -49,7 +54,7 @@
         "hand": [],
         "base": [],
         "battlefields": [],
-        "graveyard": ["P2-RECYCLE-001"],
+        "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
@@ -59,7 +64,7 @@
   "commands": [
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-burnout",
+      "clientIntentId": "intent-p2-preflight-burnout-empty-graveyard",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -71,30 +76,27 @@
       "TURN_START_BEGAN",
       "RUNES_CALLED",
       "BURNOUT_APPLIED",
-      "CARD_DRAWN",
-      "RUNE_POOL_CLEARED",
-      "MAIN_PHASE_BEGAN"
+      "MATCH_WON"
     ],
     "events": [
       { "kind": "TURN_START_BEGAN" },
       { "kind": "RUNES_CALLED" },
       { "kind": "BURNOUT_APPLIED" },
-      { "kind": "CARD_DRAWN" },
-      { "kind": "RUNE_POOL_CLEARED" },
-      { "kind": "MAIN_PHASE_BEGAN" }
+      { "kind": "MATCH_WON" }
     ],
     "promptActions": {
       "P1": ["WAIT"],
-      "P2": ["END_TURN"]
+      "P2": ["WAIT"]
     },
     "finalState": {
       "turnNumber": 4,
       "activePlayerId": "P2",
       "turnPlayerId": "P2",
-      "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "phase": "TURN_START",
+      "timingState": "NEUTRAL_CLOSED",
+      "winnerPlayerId": "P1",
       "scores": {
-        "P1": 1,
+        "P1": 8,
         "P2": 0
       },
       "runePools": {
@@ -104,7 +106,7 @@
     },
     "prompts": {
       "P1": { "actionable": false, "actions": ["WAIT"] },
-      "P2": { "actionable": true, "actions": ["END_TURN"] }
+      "P2": { "actionable": false, "actions": ["WAIT"] }
     }
   }
 }

@@ -20,13 +20,13 @@
 | `.NET 10` solution、项目分层、`scripts/dev-env.sh` | 工程骨架已可 build/test | 暂不需要 | 保留。 |
 | `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `READY`、`PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，并有 `ErrorDto` / `PlayerSessionDto`；client/server envelope 已带默认 `protocolVersion = 1`、`schemaVersion = 1`；P2 规则拒绝已新增 `PHASE_NOT_ALLOWED` | 需要后续扩展 | P1 后续补 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本、事件 upcaster，并扩大稳定错误码覆盖面。 |
 | `GameHub` | 支持 Join、Reconnect、RequestSnapshot、Ready、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；加入/重连/Ready/快照/提交错误有最小 SignalR 级测试，空 `clientIntentId` 会稳定返回 `CLIENT_INTENT_ID_REQUIRED`；Join/Reconnect 走异步 token hash 持久化路径；API DI 已改用 `CoreRuleEngine` | 需要后续扩展 | 保留；后续补 P2 规则错误码。 |
-| `MatchSession` / `InMemoryMatchSessionRegistry` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat/ready、最小房间生命周期、reconnect token hash 持久化、重连 token 轮换；提交命令要求玩家已 JoinRoom、携带非空 `clientIntentId` 且房间已开始；registry 可从 recovery frame 恢复 P1 底座状态和已见过 intent，并优先使用权威 `MatchState`；`MatchState` 已有 P2 基础权威字段 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`；恢复后已有座位必须用 Reconnect 验证旧 token | 需要规则审查 | 串行、幂等、座位、Ready/lifecycle、恢复入口、持久化重连可保留；规则状态和 prompt 只是占位，后续扩展 MatchState 时必须同步扩展权威状态快照。 |
-| `PlaceholderRuleEngine` / `CoreRuleEngine` | `PlaceholderRuleEngine` 仍对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状；`CoreRuleEngine` 已实现 P2 普通回合开始、短符文牌堆、1v1 P2 首回合额外符文、燃尽、`END_TURN -> 下一回合开始` 最小闭环、回合结束特殊清理中的伤害移除/本回合内效果失效，`PASS_PRIORITY` / FEPR 最小让过与结算，以及 `PASS_FOCUS` / 法术对决焦点让过和关闭窗口，并将 placeholder 作为 legacy fallback | 需要继续规则审查 | P2 新规则继续进入 `CoreRuleEngine`；legacy placeholder 只保留为旧 fixture 对照和未迁移命令兜底。 |
+| `MatchSession` / `InMemoryMatchSessionRegistry` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat/ready、最小房间生命周期、reconnect token hash 持久化、重连 token 轮换；提交命令要求玩家已 JoinRoom、携带非空 `clientIntentId` 且房间已开始；registry 可从 recovery frame 恢复 P1 底座状态和已见过 intent，并优先使用权威 `MatchState`；`MatchState` 已有 P2 基础权威字段 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`、`winnerPlayerId`；恢复后已有座位必须用 Reconnect 验证旧 token | 需要规则审查 | 串行、幂等、座位、Ready/lifecycle、恢复入口、持久化重连可保留；规则状态和 prompt 只是占位，后续扩展 MatchState 时必须同步扩展权威状态快照。 |
+| `PlaceholderRuleEngine` / `CoreRuleEngine` | `PlaceholderRuleEngine` 仍对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状；`CoreRuleEngine` 已实现 P2 普通回合开始、短符文牌堆、1v1 P2 首回合额外符文、燃尽/连续燃尽立即胜利、`END_TURN -> 下一回合开始` 最小闭环、回合结束特殊清理中的伤害移除/本回合内效果失效，`PASS_PRIORITY` / FEPR 最小让过与结算，以及 `PASS_FOCUS` / 法术对决焦点让过和关闭窗口，并将 placeholder 作为 legacy fallback | 需要继续规则审查 | P2 新规则继续进入 `CoreRuleEngine`；legacy placeholder 只保留为旧 fixture 对照和未迁移命令兜底。 |
 | `PostgresMatchJournal`、`PostgresMatchRecoveryStore`、`PostgresMatchPlayerStore` 和 P1 SQL | 能记录命令、lifecycle/game events、权威 state snapshot、玩家 snapshot、prompt、match_players token hash，并写入 ruleset/FAQ/audit 元数据、event sequence 边界和客户端原始 command payload；`matches.status` 使用权威 `MatchState.Status` 更新；已能读取恢复帧并校验 sequence 连续性和权威状态一致性 | 需要后续扩展 | 保留；后续随核心规则状态扩展 `state_snapshots.payload`。 |
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
 | `ConformanceFixture` | 能回放 command log 并比较 event/prompt；已能读取 P2 schema v2 的 `initialState` 和 richer `expected`，并能把 `initialState` 应用为权威初始状态 | 已补规则审查字段 | 新增 `rulesEvidence`、`faqVersion`、`auditStatus` 读取能力；旧 fixture 默认需要重审；P2 fixture 当前验证形状和初始状态，后续接入 richer expected canonical diff。 |
 | 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐，evidence 已细化 | 必须重审 | 保留为 legacy oracle；`PASS -> TURN_ENDED` 标记为 legacy mismatch candidate。 |
-| P2 前置规则审查 | 已建立 `docs/p2-rules-preflight.md`，覆盖符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture；fixture schema、`MatchState` 基础权威字段、runner 初始状态应用、普通回合开始、短符文牌堆、1v1 首回合额外符文、燃尽行为、`END_TURN` 自动推进、特殊清理伤害/效果、清理重复、`PASS_PRIORITY` 误提交拒绝、FEPR 最小让过/结算、剩余结算链优先权和法术对决焦点让过 fixture 已落地 | 继续执行 | 下一步做废牌堆也为空导致连续燃尽/胜利判定 fixture；随后准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。 |
+| P2 前置规则审查 | 已建立 `docs/p2-rules-preflight.md`，覆盖符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture；fixture schema、`MatchState` 基础权威字段、runner 初始状态应用、普通回合开始、短符文牌堆、1v1 首回合额外符文、燃尽/连续燃尽胜利、`END_TURN` 自动推进、特殊清理伤害/效果、清理重复、`PASS_PRIORITY` 误提交拒绝、FEPR 最小让过/结算、剩余结算链优先权和法术对决焦点让过 fixture 已落地 | 继续执行 | 下一步准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。 |
 | 前端 UI | 尚未开始 | 暂不开始最终 UI | P2/P2.5 后做开发期测试 UI。 |
 
 ## 3. 计划需要调整的点
@@ -50,9 +50,9 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 继续 P2 preflight：补废牌堆也为空导致连续燃尽/胜利判定 fixture。
-2. 随后准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
-3. 再逐批迁移基础卡牌能力，先从能覆盖费用、目标、结算链和对象状态的低复杂度样例开始。
+1. 继续 P2 preflight：准备真实卡牌能力进入 FEPR 栈项目的最小 handler 边界。
+2. 再逐批迁移基础卡牌能力，先从能覆盖费用、目标、结算链和对象状态的低复杂度样例开始。
+3. 后续补 richer expected canonical diff，减少测试中手写断言的比例。
 4. P1 提交路径已覆盖未知玩家、空 intent、未开局、unsupported command、重复 intent 冲突；P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。
 5. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
 6. 后续扩展核心规则时，同步扩展 `MatchState` 和 `state_snapshots.payload`，玩家视角 snapshot 只作为重连视图和一致性校验依据。

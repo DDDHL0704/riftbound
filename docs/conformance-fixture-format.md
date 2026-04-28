@@ -129,7 +129,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-schema v2 目前已支持 P2 初始状态中的 turn/phase/timing、符文池、玩家区域、对象状态，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。下一步是把 richer `expected` 接入通用 canonical diff，而不是只在单个测试中手写断言。
+schema v2 目前已支持 P2 初始状态中的 turn/phase/timing、符文池、玩家区域、对象状态、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。下一步是把 richer `expected` 接入通用 canonical diff，而不是只在单个测试中手写断言。
 
 ## 3. Fixture 后续必须补齐
 

@@ -193,6 +193,32 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineAppliesRepeatedBurnoutWinImmediately()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal(MatchStatuses.Finished, result.FinalState.Status);
+        Assert.Equal("P1", result.FinalState.WinnerPlayerId);
+        Assert.Equal(8, result.FinalState.PlayerScores["P1"]);
+        Assert.Equal(0, result.FinalState.PlayerScores["P2"]);
+        Assert.Equal("TURN_START", result.FinalState.Phase);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].MainDeck);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "WAIT" }, result.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineAdvancesEndTurnToNextTurnStart()
     {
         var fixture = await ConformanceFixture.LoadAsync(
