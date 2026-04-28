@@ -94,12 +94,18 @@ public sealed record StackItemState
         string? stackItemId = null,
         string? controllerId = null,
         string? sourceObjectId = null,
-        string? effectKind = null)
+        string? effectKind = null,
+        string? cardNo = null,
+        IReadOnlyList<string>? targetObjectIds = null,
+        int damageAmount = 0)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
         SourceObjectId = Normalize(sourceObjectId);
         EffectKind = Normalize(effectKind);
+        CardNo = Normalize(cardNo);
+        TargetObjectIds = NormalizeList(targetObjectIds);
+        DamageAmount = Math.Max(0, damageAmount);
     }
 
     public string StackItemId { get; init; }
@@ -110,9 +116,23 @@ public sealed record StackItemState
 
     public string EffectKind { get; init; }
 
+    public string CardNo { get; init; }
+
+    public IReadOnlyList<string> TargetObjectIds { get; init; }
+
+    public int DamageAmount { get; init; }
+
     private static string Normalize(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static IReadOnlyList<string> NormalizeList(IReadOnlyList<string>? values)
+    {
+        return (values ?? [])
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .ToArray();
     }
 }
 
@@ -340,7 +360,10 @@ public sealed record MatchState
                 item.StackItemId,
                 item.ControllerId,
                 item.SourceObjectId,
-                item.EffectKind))
+                item.EffectKind,
+                item.CardNo,
+                item.TargetObjectIds,
+                item.DamageAmount))
             .ToArray();
     }
 
@@ -423,7 +446,10 @@ public sealed record ResolutionResult(
                 ["stackItemId"] = item.StackItemId,
                 ["controllerId"] = item.ControllerId,
                 ["sourceObjectId"] = item.SourceObjectId,
-                ["effectKind"] = item.EffectKind
+                ["effectKind"] = item.EffectKind,
+                ["cardNo"] = item.CardNo,
+                ["targetObjectIds"] = item.TargetObjectIds,
+                ["damageAmount"] = item.DamageAmount
             }).ToArray(),
             new Dictionary<string, object?>
             {

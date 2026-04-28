@@ -306,6 +306,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysPunishmentThroughStack()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-punishment-damage-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(new[] { "P1-SPELL-PUNISHMENT" }, result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsPunishmentWhenManaIsInsufficient()
+    {
+        var state = PunishmentState(mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-punishment-no-mana", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-PUNISHMENT", "UNL-007/219", ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new[] { "P1-SPELL-PUNISHMENT" }, result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsPunishmentWhenTargetIsInvalid()
+    {
+        var state = PunishmentState(mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-punishment-bad-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-PUNISHMENT", "UNL-007/219", ["P2-HAND-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsPassPriorityOutsidePriorityWindow()
     {
         var state = new MatchState(
@@ -652,6 +713,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             """{"type":11,"roomId":"room","playerId":"P1","serverTick":7,"payload":{"code":"UNSUPPORTED_COMMAND","message":"sample"},"protocolVersion":1,"schemaVersion":1}""",
             json);
+    }
+
+    private static MatchState PunishmentState(int mana)
+    {
+        return new MatchState(
+            "p2-punishment-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(mana, 0),
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PUNISHMENT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"],
+                    Hand = ["P2-HAND-001"]
+                }
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-001"] = new("P2-UNIT-001")
+            });
     }
 
     private sealed class CapturingRuleEngine : IRuleEngine

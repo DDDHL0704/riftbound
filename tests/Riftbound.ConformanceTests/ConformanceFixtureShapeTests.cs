@@ -235,6 +235,23 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(cmdType, command.CmdType);
     }
 
+    [Fact]
+    public void GameCommandMapperParsesPlayCardPayload()
+    {
+        var command = Assert.IsType<PlayCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-PUNISHMENT",
+              "cardNo": "UNL-007/219",
+              "targetObjectIds": ["P2-UNIT-001"]
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-SPELL-PUNISHMENT", command.SourceObjectId);
+        Assert.Equal("UNL-007/219", command.CardNo);
+        Assert.Equal(new[] { "P2-UNIT-001" }, command.TargetObjectIds);
+    }
+
     private sealed class RecordingMatchJournal : IMatchJournal
     {
         public List<MatchJournalEntry> Entries { get; } = [];

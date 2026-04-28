@@ -71,6 +71,11 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-end-turn-special-cleanup.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-cleanup-repeats-until-stable.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-pass-priority-does-not-end-turn.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-fepr-priority-pass-resolves-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-fepr-resolves-latest-keeps-remaining-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spell-duel-pass-focus-closes-window.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-punishment-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
@@ -186,7 +191,7 @@ P1 先导出 10 条：
 
 只有当 C# runner 能消费 Java exporter 输出，并且 fixture 已补齐 PDF/FAQ 规则依据后，后续规则迁移才进入正式 conformance 节奏。
 
-P2 第一批 fixture 的规则审查顺序见 `docs/p2-rules-preflight.md`。其中 `p2-turn-start-runes-and-draw`、`p2-end-turn-special-cleanup`、`p2-pass-priority-does-not-end-turn`、`p2-fepr-priority-pass-resolves-stack`、`p2-fepr-resolves-latest-keeps-remaining-stack`、`p2-spell-duel-pass-focus-closes-window` 是进入核心规则实现前的优先门禁。
+P2 第一批 fixture 的规则审查顺序见 `docs/p2-rules-preflight.md`。其中 `p2-turn-start-runes-and-draw`、`p2-end-turn-special-cleanup`、`p2-pass-priority-does-not-end-turn`、`p2-fepr-priority-pass-resolves-stack`、`p2-fepr-resolves-latest-keeps-remaining-stack`、`p2-spell-duel-pass-focus-closes-window`、`p2-turn-start-burnout-empty-graveyard-wins`、`p2-play-punishment-damage-stack` 是进入核心规则实现前的优先门禁。
 
 ## 6. 当前导出命令
 

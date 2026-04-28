@@ -5,6 +5,10 @@ namespace Riftbound.Engine;
 public sealed class CoreRuleEngine : IRuleEngine
 {
     private const int WinningScore = 8;
+    private const string PunishmentCardNo = "UNL-007/219";
+    private const int PunishmentCost = 2;
+    private const int PunishmentDamage = 3;
+    private const string PunishmentEffectKind = "PUNISHMENT_DAMAGE_3";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -23,6 +27,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal))
         {
             return ValueTask.FromResult(ResolveTurnStart(state));
+        }
+
+        if (command is PlayCardCommand playCardCommand)
+        {
+            return ValueTask.FromResult(ResolvePlayCard(state, intent, playCardCommand));
         }
 
         if (command is PassPriorityCommand && CanPassPriority(state, intent.PlayerId))
@@ -54,6 +63,134 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return fallback.ResolveAsync(state, intent, command, cancellationToken);
+    }
+
+    private static ResolutionResult ResolvePlayCard(
+        MatchState state,
+        PlayerIntent intent,
+        PlayCardCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PLAY_CARD is not allowed outside the turn player's ordinary open main phase.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(command.CardNo, PunishmentCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Unsupported card behavior: {command.CardNo}",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card is not in the player's hand.",
+                ErrorCodes.CardNotInHand);
+        }
+
+        var targetObjectId = command.TargetObjectIds.Count == 1
+            ? command.TargetObjectIds[0]
+            : string.Empty;
+        if (!IsBattlefieldObject(state, targetObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Punishment requires exactly one battlefield unit target.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < PunishmentCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Not enough mana to play Punishment.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        runePools[intent.PlayerId] = currentPool with
+        {
+            Mana = currentPool.Mana - PunishmentCost
+        };
+
+        var playerZones = NormalizeZonesForSeats(state);
+        playerZones[intent.PlayerId] = zones with
+        {
+            Hand = zones.Hand
+                .Where(cardId => !string.Equals(cardId, command.SourceObjectId, StringComparison.Ordinal))
+                .ToArray()
+        };
+
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            PunishmentEffectKind,
+            command.CardNo,
+            [targetObjectId],
+            PunishmentDamage);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+
+        var events = new[]
+        {
+            new GameEvent(
+                "CARD_PLAYED",
+                $"{intent.PlayerId} 打出惩戒",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = command.CardNo
+                }),
+            new GameEvent(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付 {PunishmentCost} 点费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = PunishmentCost
+                }),
+            new GameEvent(
+                "STACK_ITEM_ADDED",
+                "惩戒加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static bool CanPassPriority(MatchState state, string playerId)
@@ -101,6 +238,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             var nextPriorityPlayerId = remainingStack.Length == 0
                 ? null
                 : remainingStack[^1].ControllerId;
+            var stackResolution = ResolveStackItemEffect(state, resolvedItem);
             nextState = state with
             {
                 Tick = state.Tick + 1,
@@ -108,7 +246,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 TimingState = remainingStack.Length == 0 ? TimingStates.NeutralOpen : state.TimingState,
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = [],
-                StackItems = remainingStack
+                StackItems = remainingStack,
+                PlayerZones = stackResolution.PlayerZones,
+                CardObjects = stackResolution.CardObjects
             };
             events.Add(new GameEvent(
                 "STACK_ITEM_RESOLVED",
@@ -120,6 +260,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = resolvedItem.SourceObjectId,
                     ["effectKind"] = resolvedItem.EffectKind
                 }));
+            events.AddRange(stackResolution.Events);
         }
         else
         {
@@ -304,6 +445,57 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId => playerId,
             _ => RunePool.Empty,
             StringComparer.Ordinal);
+    }
+
+    private static bool IsBattlefieldObject(MatchState state, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
+    {
+        if (!string.Equals(stackItem.EffectKind, PunishmentEffectKind, StringComparison.Ordinal)
+            || stackItem.TargetObjectIds.Count != 1
+            || stackItem.DamageAmount <= 0)
+        {
+            return new StackResolutionResult(state.PlayerZones, state.CardObjects, []);
+        }
+
+        var targetObjectId = stackItem.TargetObjectIds[0];
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+            ? existingTarget
+            : new CardObjectState(targetObjectId);
+        cardObjects[targetObjectId] = targetState with
+        {
+            Damage = targetState.Damage + stackItem.DamageAmount
+        };
+
+        var playerZones = NormalizeZonesForSeats(state);
+        if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones)
+            && !controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
+        {
+            playerZones[stackItem.ControllerId] = controllerZones with
+            {
+                Graveyard = controllerZones.Graveyard.Concat([stackItem.SourceObjectId]).ToArray()
+            };
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            [
+                new GameEvent(
+                    "DAMAGE_APPLIED",
+                    "惩戒造成 3 点伤害",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["damage"] = stackItem.DamageAmount
+                    })
+            ]);
     }
 
     private static string NextPlayerId(MatchState state)
@@ -696,6 +888,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record BurnoutResult(
         string ScoredPlayerId,
         int ScoredPlayerScore);
+
+    private sealed record StackResolutionResult(
+        IReadOnlyDictionary<string, PlayerZones> PlayerZones,
+        IReadOnlyDictionary<string, CardObjectState> CardObjects,
+        IReadOnlyList<GameEvent> Events);
 
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,

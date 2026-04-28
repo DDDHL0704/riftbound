@@ -57,6 +57,10 @@ public static class ErrorCodes
     public const string MatchFinished = "MATCH_FINISHED";
     public const string UnsupportedCommand = "UNSUPPORTED_COMMAND";
     public const string PhaseNotAllowed = "PHASE_NOT_ALLOWED";
+    public const string InsufficientCost = "INSUFFICIENT_COST";
+    public const string InvalidTarget = "INVALID_TARGET";
+    public const string CardNotInHand = "CARD_NOT_IN_HAND";
+    public const string UnsupportedCardBehavior = "UNSUPPORTED_CARD_BEHAVIOR";
     public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
 }
 
@@ -80,6 +84,11 @@ public sealed record PassFocusCommand() : GameCommand("PASS_FOCUS");
 public sealed record PassCommand() : GameCommand("PASS");
 
 public sealed record EndTurnCommand() : GameCommand("END_TURN");
+
+public sealed record PlayCardCommand(
+    string SourceObjectId,
+    string CardNo,
+    IReadOnlyList<string> TargetObjectIds) : GameCommand("PLAY_CARD");
 
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);

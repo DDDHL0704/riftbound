@@ -22,7 +22,36 @@ public static class GameCommandJsonMapper
             "PASS_FOCUS" => new PassFocusCommand(),
             "PASS" => new PassCommand(),
             "END_TURN" => new EndTurnCommand(),
+            "PLAY_CARD" => new PlayCardCommand(
+                Text(cmd, "sourceObjectId"),
+                Text(cmd, "cardNo"),
+                TextArray(cmd, "targetObjectIds")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
+    }
+
+    private static string Text(JsonElement cmd, string propertyName)
+    {
+        return cmd.ValueKind == JsonValueKind.Object
+            && cmd.TryGetProperty(propertyName, out var property)
+            && property.ValueKind == JsonValueKind.String
+                ? property.GetString() ?? string.Empty
+                : string.Empty;
+    }
+
+    private static IReadOnlyList<string> TextArray(JsonElement cmd, string propertyName)
+    {
+        if (cmd.ValueKind != JsonValueKind.Object
+            || !cmd.TryGetProperty(propertyName, out var property)
+            || property.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return property
+            .EnumerateArray()
+            .Where(item => item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
+            .Select(item => item.GetString()!.Trim())
+            .ToArray();
     }
 }

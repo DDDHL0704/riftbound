@@ -98,7 +98,10 @@ public sealed record ConformanceStackItemState(
     string? StackItemId = null,
     string? ControllerId = null,
     string? SourceObjectId = null,
-    string? EffectKind = null);
+    string? EffectKind = null,
+    string? CardNo = null,
+    IReadOnlyList<string>? TargetObjectIds = null,
+    int? DamageAmount = null);
 
 public sealed record ConformanceExpected(
     long FinalTick,
@@ -321,7 +324,10 @@ public static class ConformanceFixtureRunner
                 item.StackItemId,
                 item.ControllerId,
                 item.SourceObjectId,
-                item.EffectKind))
+                item.EffectKind,
+                item.CardNo,
+                item.TargetObjectIds,
+                item.DamageAmount ?? 0))
             .ToArray();
     }
 
