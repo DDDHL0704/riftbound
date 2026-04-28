@@ -86,6 +86,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-seeker-damage-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-void-seeker-draw-burnout-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-stun-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-base-unit-stun-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-rune-prison-stun-expires-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`

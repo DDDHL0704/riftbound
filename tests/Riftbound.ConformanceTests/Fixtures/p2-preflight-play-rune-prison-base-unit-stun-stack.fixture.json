@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-rune-prison-base-unit-stun-stack",
+  "description": "Rune Prison can target and stun a unit in a base because the official text says one unit, not only a battlefield unit.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302025,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·050/298 符文禁锢",
+      "note": "官方卡面：费用 2；迅捷；眩晕一名单位；目标文本未限定为战场上的单位。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p33-p35 rules 327-340",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。"
+    }
+  ],
+  "roomId": "p2-preflight-rune-prison-base-unit-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302025,
+    "turnNumber": 13,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-RUNE-PRISON"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-rune-prison-base-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-RUNE-PRISON",
+        "cardNo": "OGN·050/298",
+        "targetObjectIds": ["P2-BASE-UNIT-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-rune-prison-base-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-rune-prison-base-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "STATUS_EFFECT_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      { "kind": "STATUS_EFFECT_APPLIED" }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 13,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-RUNE-PRISON"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-BASE-UNIT-001": {
+          "damage": 0,
+          "untilEndOfTurnEffects": ["STUNNED"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

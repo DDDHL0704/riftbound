@@ -471,6 +471,21 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysRunePrisonAgainstBaseUnitThroughStack()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-rune-prison-base-unit-stun-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineExpiresRunePrisonStunAtEndTurn()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -513,6 +528,46 @@ public sealed class ConformanceFixtureRunnerTests
             state,
             new PlayerIntent("intent-punishment-bad-target", "P1", "PLAY_CARD"),
             new PlayCardCommand("P1-SPELL-PUNISHMENT", "UNL-007/219", ["P2-HAND-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBattlefieldOnlySpellWhenTargetIsBaseUnit()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HEXTECH-RAY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hextech-ray-base-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-HEXTECH-RAY", "OGN·009/298", ["P2-BASE-UNIT-001"]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
