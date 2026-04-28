@@ -548,7 +548,7 @@ Browser Use 阶段性测试：
 
 - `command_log(match_id, player_id, client_intent_id)` 唯一。
 - `game_events(match_id, event_sequence)` 唯一递增；保留 `event_tick/event_order` 用于同 tick 内展示和兼容。
-- 所有 JSON payload 带 `schemaVersion`。
+- 协议/fixture JSON envelope 带 `schemaVersion`；持久化 payload 后续按领域逐步补 payload 级版本或 upcaster。
 - journal 和 fixture 行必须带 `ruleset_version`、`faq_version`、audit 状态和 `rules_evidence`。
 - 卡牌快照版本进入 `matches`，保证旧对局可回放。
 
@@ -596,6 +596,7 @@ Browser Use 阶段性测试：
 - `state_snapshots` 权威状态快照已接入 journal、PostgreSQL schema 和 recovery；恢复时优先使用与当前 `last_event_sequence` 对齐的服务端 `MatchState`。
 - `match_players.reconnect_token_hash` 持久化重连已接入；服务端只保存 `sha256:` hash，重连成功会轮换 token/hash，恢复后的 session 可用旧 token hash 重连，不能通过 Join 直接领取新 token。
 - `Ready` / 房间生命周期最小状态机已接入：房间从 `EMPTY` 入座到 `SEATING`，双方 Ready 后进入 `IN_PROGRESS`，`FINISHED` 作为后续结算状态保留；Ready/Start lifecycle events 会进入 journal，未开局提交会稳定返回 `MATCH_NOT_STARTED`。
+- `WsClientMessage` / `WsServerMessage` 已接入默认 `protocolVersion = 1`、`schemaVersion = 1`，canonical JSON 测试已固定 camelCase envelope 字段；TypeScript DTO、客户端兼容策略和事件 upcaster 仍待后续补齐。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 
@@ -621,7 +622,7 @@ Browser Use 阶段性测试：
 |---|---|---|---|
 | P0 | 开发环境与 CI 基线 | P1 前 | 安装/锁定 .NET 10 SDK、Node 版本、Docker Compose、PostgreSQL、Redis；建立 `dotnet build/test`、前端 build、lint、schema 校验的 CI。 |
 | P0 | 本地一键启动 | P1 | 提供 `docker-compose.yml`、环境变量模板、数据库迁移命令、前后端启动脚本，保证 Browser Use smoke 可稳定复现。 |
-| P0 | 协议版本治理 | P1 | `protocolVersion`、`schemaVersion`、客户端兼容策略、TypeScript DTO 生成、SignalR 方法版本、事件 upcaster。 |
+| P0 | 协议版本治理 | P1 | `protocolVersion`、`schemaVersion` 已接入；后续补客户端兼容策略、TypeScript DTO 生成、SignalR 方法版本、事件 upcaster。 |
 | P0 | 确定性随机与回放 | P2 | 洗牌、抽牌、随机选择必须由 seed 和事件记录驱动，保证 legacy Java 与 C# 回放可复现。 |
 | P0 | 对局恢复策略 | P1-P2 | 明确 actor 崩溃后从 snapshot + events 或 command log 恢复；定义恢复校验、重复事件防护和未完成命令处理。 |
 | P0 | 五份 PDF 规则索引与重审 | P1 前 | 抽取核心规则和四份 FAQ 的目录、关键词、问题索引；已开发的 PASS、END_TURN、幂等等能力先标记 `NEEDS_RULE_AUDIT`，重审后再视为完成。 |

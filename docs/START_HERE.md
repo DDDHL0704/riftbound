@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 48 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 49 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -103,6 +103,7 @@
 - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
 - P1 PostgreSQL schema 和 `PostgresMatchJournal` 已补 `ruleset_version`、`faq_version`、`rules_audit_status`、`rules_evidence`；schema initializer 会按文件名顺序执行 `Sql/*.sql`。
 - 当前 3 条 Java legacy fixture 的 evidence 已细化到具体页码、规则号/FAQ 问题号，并记录 `PASS -> TURN_ENDED` 是 legacy mismatch candidate。
+- `WsClientMessage` / `WsServerMessage` 已接入默认 `protocolVersion = 1`、`schemaVersion = 1`；canonical JSON 测试已固定 camelCase envelope 字段。
 - `docs/protocol-semantics.md` 已明确 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN` 的协议边界；`PASS` 仅保留为 legacy 兼容。
 - 手写 C# placeholder fixture 已迁移为 `p1-placeholder-pass-priority.fixture.json`，使用显式 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
 - `MatchSession` 已能为前两名加入者分配稳定 `P1` / `P2` 座位，并在 snapshot 的 `players` 视图中暴露 seat；第三名玩家会被拒绝。
@@ -129,9 +130,10 @@
 第一批任务：
 
 1. 继续协议错误码治理：P1 保持 room/join/ready/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
-2. 准备下一组 P2 核心规则前，先把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ。
-3. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
-4. 后续扩展 `MatchState` 时，同步扩展 `state_snapshots` 的权威 payload，不把隐藏信息或完整规则状态塞进玩家视角 snapshot。
+2. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
+3. 准备下一组 P2 核心规则前，先把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ。
+4. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
+5. 后续扩展 `MatchState` 时，同步扩展 `state_snapshots` 的权威 payload，不把隐藏信息或完整规则状态塞进玩家视角 snapshot。
 
 P1 验收前不要开始：
 

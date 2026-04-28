@@ -1,4 +1,5 @@
 using Riftbound.Engine;
+using Riftbound.Contracts;
 using Xunit;
 
 namespace Riftbound.ConformanceTests;
@@ -76,13 +77,15 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public void CanonicalJsonKeepsStableCamelCaseEnvelope()
     {
-        var json = CanonicalJson.Serialize(new
-        {
-            FixtureId = "sample",
-            FinalTick = 1,
-            EventKinds = new[] { "PASS" }
-        });
+        var json = CanonicalJson.Serialize(new WsServerMessage(
+            MessageType.ERROR,
+            "room",
+            "P1",
+            7,
+            new ErrorDto(ErrorCodes.UnsupportedCommand, "sample")));
 
-        Assert.Equal("""{"fixtureId":"sample","finalTick":1,"eventKinds":["PASS"]}""", json);
+        Assert.Equal(
+            """{"type":11,"roomId":"room","playerId":"P1","serverTick":7,"payload":{"code":"UNSUPPORTED_COMMAND","message":"sample"},"protocolVersion":1,"schemaVersion":1}""",
+            json);
     }
 }

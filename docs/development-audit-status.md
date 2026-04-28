@@ -18,7 +18,7 @@
 | 范围 | 当前状态 | 是否需要修改 | 处理决定 |
 |---|---|---|---|
 | `.NET 10` solution、项目分层、`scripts/dev-env.sh` | 工程骨架已可 build/test | 暂不需要 | 保留。 |
-| `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `READY`、`PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，并有 `ErrorDto` / `PlayerSessionDto` | 需要后续扩展 | P1 加 `protocolVersion`、TypeScript DTO 生成，并扩大稳定错误码覆盖面。 |
+| `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `READY`、`PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，并有 `ErrorDto` / `PlayerSessionDto`；client/server envelope 已带默认 `protocolVersion = 1`、`schemaVersion = 1` | 需要后续扩展 | P1 后续补 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本、事件 upcaster，并扩大稳定错误码覆盖面。 |
 | `GameHub` | 支持 Join、Reconnect、RequestSnapshot、Ready、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；加入/重连/Ready/快照/提交错误有最小 SignalR 级测试；Join/Reconnect 走异步 token hash 持久化路径 | 需要后续扩展 | 保留；后续补 P2 规则错误码。 |
 | `MatchSession` / `InMemoryMatchSessionRegistry` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat/ready、最小房间生命周期、reconnect token hash 持久化、重连 token 轮换；提交命令要求玩家已 JoinRoom 且房间已开始；registry 可从 recovery frame 恢复 P1 底座状态和已见过 intent，并优先使用权威 `MatchState`；恢复后已有座位必须用 Reconnect 验证旧 token | 需要规则审查 | 串行、幂等、座位、Ready/lifecycle、恢复入口、持久化重连可保留；规则状态和 prompt 只是占位，后续扩展 MatchState 时必须同步扩展权威状态快照。 |
 | `PlaceholderRuleEngine` | 对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状 | 需要重审 | 标记 `NEEDS_RULE_AUDIT`；补 PDF/FAQ evidence 后决定是否改行为。 |

@@ -157,6 +157,23 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("room", message.RoomId);
         Assert.Equal("P1", message.PlayerId);
         Assert.Equal(7, message.ServerTick);
+        Assert.Equal(ProtocolDefaults.ProtocolVersion, message.ProtocolVersion);
+        Assert.Equal(ProtocolDefaults.SchemaVersion, message.SchemaVersion);
+    }
+
+    [Fact]
+    public void ClientEnvelopeDefaultsProtocolVersions()
+    {
+        var cmd = JsonDocument.Parse("""{"cmdType":"READY"}""").RootElement.Clone();
+
+        var message = new WsClientMessage(MessageType.READY, "room", "P1", "intent-ready", Cmd: cmd);
+
+        Assert.Equal(MessageType.READY, message.Type);
+        Assert.Equal("room", message.RoomId);
+        Assert.Equal("P1", message.PlayerId);
+        Assert.Equal("intent-ready", message.ClientIntentId);
+        Assert.Equal(ProtocolDefaults.ProtocolVersion, message.ProtocolVersion);
+        Assert.Equal(ProtocolDefaults.SchemaVersion, message.SchemaVersion);
     }
 
     [Theory]

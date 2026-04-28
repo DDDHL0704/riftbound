@@ -24,6 +24,7 @@
   - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
   - P1 SQL 已补 ruleset/FAQ/audit 字段和 `oracle_fixtures` 索引表；启动时按 `Sql/*.sql` 顺序初始化/迁移。
   - 当前 3 条 Java legacy fixture 的 evidence 已细化；FAQ 未发现推翻通用 `PASS` / `END_TURN` 的条目，但 `PASS -> TURN_ENDED` 被标记为 legacy mismatch candidate。
+  - `WsClientMessage` / `WsServerMessage` 已带默认 `protocolVersion = 1`、`schemaVersion = 1`，并有 canonical JSON 测试固定 camelCase envelope。
   - 协议层已新增 `PASS_PRIORITY`、`PASS_FOCUS`，并记录 `END_TURN` 与 legacy `PASS` 的语义边界。
   - `MatchSession` 已能分配稳定 `P1` / `P2` 座位，snapshot 暴露 seat，第三名玩家加入会被拒绝。
   - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和满员错误。
@@ -40,7 +41,7 @@
   - `state_snapshots` 权威状态快照表和 `004_p1_state_snapshots.sql` 已加入；journal 写入服务端 `MatchState`，recovery 优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致。
   - `IMatchPlayerStore` 和 `PostgresMatchPlayerStore` 已接入；Join/Reconnect 只持久化 `sha256:` reconnect token hash，恢复后的 session 可用旧 token hash 重连，并在成功重连后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect。
 
-下一步继续做协议错误码治理，并在进入 P2 核心规则前，把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ；新增 fixture 不再使用裸 `PASS`。
+下一步继续做协议错误码治理；协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster。在进入 P2 核心规则前，把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -61,6 +62,7 @@
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
 - `UNSUPPORTED_COMMAND` 和 `CLIENT_INTENT_CONFLICT` 在 Hub 层有稳定错误码测试。
 - 协议层明确区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，裸 `PASS` 仅用于 legacy 兼容。
+- WebSocket/SignalR envelope 带默认 `protocolVersion` 和 `schemaVersion`。
 - `IRuleEngine` 的输出能被事件和快照投影消费。
 - PostgreSQL EventStore schema 草案完成，包含规则版本/FAQ/audit 元数据，并能由开发环境启动时初始化。
 - 事件日志具有 match 内单调 `event_sequence`，command/snapshot/prompt 能记录对应 sequence 边界。

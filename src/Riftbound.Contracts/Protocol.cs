@@ -2,6 +2,12 @@ using System.Text.Json;
 
 namespace Riftbound.Contracts;
 
+public static class ProtocolDefaults
+{
+    public const int ProtocolVersion = 1;
+    public const int SchemaVersion = 1;
+}
+
 public enum MessageType
 {
     JOIN,
@@ -26,14 +32,18 @@ public sealed record WsClientMessage(
     string PlayerId,
     string? ClientIntentId = null,
     string? ReconnectToken = null,
-    JsonElement? Cmd = null);
+    JsonElement? Cmd = null,
+    int ProtocolVersion = ProtocolDefaults.ProtocolVersion,
+    int SchemaVersion = ProtocolDefaults.SchemaVersion);
 
 public sealed record WsServerMessage(
     MessageType Type,
     string RoomId,
     string PlayerId,
     long ServerTick,
-    object? Payload);
+    object? Payload,
+    int ProtocolVersion = ProtocolDefaults.ProtocolVersion,
+    int SchemaVersion = ProtocolDefaults.SchemaVersion);
 
 public static class ErrorCodes
 {
