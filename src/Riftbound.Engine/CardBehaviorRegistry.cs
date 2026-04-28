@@ -35,7 +35,14 @@ public static class CardBehaviorRegistry
             2,
             1,
             CardDamageConditionKinds.ControllerHasFaceDownCard,
-            4)
+            4),
+        new(
+            "OGS·003/024",
+            "焚烧",
+            2,
+            "INCINERATE_DAMAGE_2",
+            2,
+            1)
     ];
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
