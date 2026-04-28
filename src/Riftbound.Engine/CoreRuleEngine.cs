@@ -105,7 +105,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
-                    ["cardNo"] = command.CardNo
+                    ["cardNo"] = command.CardNo,
+                    ["mode"] = command.Mode
                 }),
             new GameEvent(
                 "COST_PAID",
@@ -125,7 +126,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["cardNo"] = stackItem.CardNo,
                     ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
-                    ["effectKind"] = stackItem.EffectKind
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["mode"] = command.Mode
                 })
         };
 
@@ -159,11 +161,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
+        if (!CardBehaviorRegistry.TryGetByCardNoAndMode(command.CardNo, command.Mode, out var behavior))
         {
             rejection = RejectWithCorePrompts(
                 state,
-                $"Unsupported card behavior: {command.CardNo}",
+                $"Unsupported card behavior or mode: {command.CardNo} {command.Mode}",
                 ErrorCodes.UnsupportedCardBehavior);
             return false;
         }
@@ -505,12 +507,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsTargetObjectInScope(MatchState state, string objectId, string targetScope)
     {
-        if (IsBattlefieldObject(state, objectId))
+        return targetScope switch
         {
-            return true;
-        }
+            CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
+            CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
+            _ => IsBattlefieldObject(state, objectId)
+        };
+    }
 
-        return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
+    private static bool IsBaseObject(MatchState state, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
     }
@@ -540,7 +547,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
             ? "unit"
-            : "battlefield unit";
+            : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
+                ? "base unit"
+                : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)

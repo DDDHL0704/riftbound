@@ -94,6 +94,7 @@
 | `p2-preflight-play-comet-strike-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·085/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《彗星坠击》支付 5 点费用、选择战场单位目标、加入结算链、双方让过后造成 6 点伤害并进入废牌堆。 |
 | `p2-preflight-play-center-stage-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-061/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p57 rule 413.4 | 已验证官方法术《台前作秀》不支付回响时的 0 目标基础路径：支付 2 点费用、加入结算链、双方让过后抽 1 张牌并进入废牌堆。 |
 | `p2-preflight-play-stellar-convergence-two-target-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·105/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《星芒凝汇》支付 6 点费用、选择最多两名单位、加入结算链、双方让过后对每名目标各造成 6 点伤害并进入废牌堆。 |
+| `p2-preflight-play-rocket-barrage-base-unit-mode-stack` | `RULE_AUDITED` | `CATALOG` SFD·077/221；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《火箭轰击》选择基地单位伤害模式时，支付 4 点费用、指定基地中的一名单位、加入结算链、双方让过后造成 4 点伤害并进入废牌堆。 |
 | `p2-preflight-play-void-seeker-damage-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·024/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《虚空索敌》支付 3 点费用、选择战场单位目标、加入结算链、双方让过后造成 4 点伤害并让控制者抽 1 张牌。 |
 | `p2-preflight-void-seeker-draw-burnout-stack` | `RULE_AUDITED` | `CATALOG` OGN·024/298；`CORE-260330` p57 rule 413.4；p67 rule 431.2；p39-p42 rules 355-356 | 已验证官方法术《虚空索敌》的结算抽牌会在控制者主牌堆为空时触发燃尽，对手得 1 分，控制者回收废牌堆并抽到回收牌。 |
 | `p2-preflight-play-rune-prison-stun-stack` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《符文禁锢》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后施加 `STUNNED` 本回合内效果并进入废牌堆。 |

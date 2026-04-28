@@ -243,13 +243,15 @@ public sealed class ConformanceFixtureShapeTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-SPELL-PUNISHMENT",
               "cardNo": "UNL-007/219",
-              "targetObjectIds": ["P2-UNIT-001"]
+              "targetObjectIds": ["P2-UNIT-001"],
+              "mode": "BASE_UNIT_DAMAGE_4"
             }
             """).RootElement));
 
         Assert.Equal("P1-SPELL-PUNISHMENT", command.SourceObjectId);
         Assert.Equal("UNL-007/219", command.CardNo);
         Assert.Equal(new[] { "P2-UNIT-001" }, command.TargetObjectIds);
+        Assert.Equal("BASE_UNIT_DAMAGE_4", command.Mode);
     }
 
     private sealed class RecordingMatchJournal : IMatchJournal

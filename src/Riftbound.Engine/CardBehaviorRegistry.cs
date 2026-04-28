@@ -12,7 +12,8 @@ public sealed record CardBehaviorDefinition(
     string StatusEffectId = "",
     int DrawCount = 0,
     string TargetScope = CardTargetScopes.BattlefieldUnit,
-    int MinTargetCount = -1);
+    int MinTargetCount = -1,
+    string Mode = "");
 
 public static class CardDamageConditionKinds
 {
@@ -23,6 +24,7 @@ public static class CardDamageConditionKinds
 public static class CardTargetScopes
 {
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
+    public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
 }
 
@@ -97,6 +99,15 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.AnyUnit,
             MinTargetCount: 1),
         new(
+            "SFD·077/221",
+            "火箭轰击",
+            4,
+            "ROCKET_BARRAGE_BASE_UNIT_DAMAGE_4",
+            4,
+            1,
+            TargetScope: CardTargetScopes.BaseUnit,
+            Mode: "BASE_UNIT_DAMAGE_4"),
+        new(
             "OGN·024/298",
             "虚空索敌",
             3,
@@ -118,6 +129,18 @@ public static class CardBehaviorRegistry
         return definition is not null;
     }
 
+    public static bool TryGetByCardNoAndMode(
+        string cardNo,
+        string mode,
+        out CardBehaviorDefinition definition)
+    {
+        var normalizedMode = NormalizeMode(mode);
+        definition = Definitions.FirstOrDefault(candidate =>
+            string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal)
+            && string.Equals(NormalizeMode(candidate.Mode), normalizedMode, StringComparison.Ordinal))!;
+        return definition is not null;
+    }
+
     public static bool TryGetByEffectKind(string effectKind, out CardBehaviorDefinition definition)
     {
         definition = Definitions.FirstOrDefault(candidate => string.Equals(
@@ -125,5 +148,10 @@ public static class CardBehaviorRegistry
             effectKind,
             StringComparison.Ordinal))!;
         return definition is not null;
+    }
+
+    private static string NormalizeMode(string? mode)
+    {
+        return string.IsNullOrWhiteSpace(mode) ? string.Empty : mode.Trim();
     }
 }
