@@ -42,11 +42,11 @@
   - `state_snapshots` 权威状态快照表和 `004_p1_state_snapshots.sql` 已加入；journal 写入服务端 `MatchState`，recovery 优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致。
   - `IMatchPlayerStore` 和 `PostgresMatchPlayerStore` 已接入；Join/Reconnect 只持久化 `sha256:` reconnect token hash，恢复后的 session 可用旧 token hash 重连，并在成功重连后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect。
   - P2 preflight 第一刀已完成：fixture schema v2 可读取 `initialState`、`expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为回合开始、召出符文、抽牌、清空符文池的规则审查样例。
-  - `MatchState` 已加入 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`、`winnerPlayerId`，snapshot timing 已投影这些 P2 权威 timing 字段、公开结算链、焦点和赢家字段；当前已覆盖最小回合开始、`END_TURN` 自动推进、燃尽/连续燃尽胜利、伤害/本回合内效果清理、清理重复、FEPR 最小让过/结算、法术对决焦点让过，以及官方法术《惩戒》的打出/入栈/结算伤害，后续扩展战场控制和卡牌对象状态时必须继续维护 `state_snapshots.payload`。
+  - `MatchState` 已加入 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`、`winnerPlayerId`，snapshot timing 已投影这些 P2 权威 timing 字段、公开结算链、焦点和赢家字段；当前已覆盖最小回合开始、`END_TURN` 自动推进、燃尽/连续燃尽胜利、伤害/本回合内效果清理、清理重复、FEPR 最小让过/结算、法术对决焦点让过，以及官方法术《惩戒》《渊海狩咒》的打出/入栈/结算伤害，后续扩展战场控制和卡牌对象状态时必须继续维护 `state_snapshots.payload`。
   - conformance runner 已能把 P2 `initialState` 应用为权威初始状态，包含 turn/phase/timing、符文池和玩家区域。
   - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文；燃尽 fixture 已验证主牌堆为空、废牌堆可回收时对手得 1 分并完成抽牌；`END_TURN` fixture 已验证 P1 主阶段结束后执行最小回合结束清理、推进到 P2 并自动结算 P2 回合开始；特殊清理 fixture 已验证单位伤害移除和本回合内效果失效；清理重复 fixture 已验证特殊清理造成状态变化后追加一次常规清理检查。
 
-下一步继续 P2 preflight：迁移第二张低复杂度官方卡，并逐步补 richer expected canonical diff。普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝；FEPR、法术对决、连续燃尽胜利和首个官方法术打出结算通道已通过 fixture，且《惩戒》已进入最小 card behavior registry。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
+下一步继续 P2 preflight：先抽通用费用/目标/结算 validator，并补《渊海狩咒》的正面朝下卡牌条件效果；随后逐步补 richer expected canonical diff。普通主阶段误提交 `PASS_PRIORITY` / `PASS_FOCUS` 已能以 `PHASE_NOT_ALLOWED` 拒绝；FEPR、法术对决、连续燃尽胜利和两张官方法术打出结算通道已通过 fixture，且《惩戒》《渊海狩咒》已进入最小 card behavior registry。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 

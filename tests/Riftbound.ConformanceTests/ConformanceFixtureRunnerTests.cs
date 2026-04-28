@@ -330,6 +330,30 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysAbyssalHuntThroughStack()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-abyssal-hunt-damage-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(new[] { "P1-SPELL-ABYSSAL-HUNT" }, result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsPunishmentWhenManaIsInsufficient()
     {
         var state = PunishmentState(mana: 1);

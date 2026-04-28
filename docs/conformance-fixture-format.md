@@ -76,6 +76,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spell-duel-pass-focus-closes-window.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-punishment-damage-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`

@@ -18,6 +18,13 @@ public static class CardBehaviorRegistry
             2,
             "PUNISHMENT_DAMAGE_3",
             3,
+            1),
+        new(
+            "UNL-014/219",
+            "渊海狩咒",
+            1,
+            "ABYSSAL_HUNT_DAMAGE_2",
+            2,
             1)
     ];
 
