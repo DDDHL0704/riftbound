@@ -163,7 +163,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         return new CleanupResult(
             cardObjects,
             damagedObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
-            expiredEffectIds.Distinct(StringComparer.Ordinal).OrderBy(effectId => effectId, StringComparer.Ordinal).ToArray());
+            expiredEffectIds.Distinct(StringComparer.Ordinal).OrderBy(effectId => effectId, StringComparer.Ordinal).ToArray(),
+            damagedObjectIds.Count > 0 || expiredEffectIds.Count > 0);
     }
 
     private static int RuneCallCount(MatchState state)
@@ -289,17 +290,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
         }
 
-        events.AddRange(
-        [
-            new GameEvent(
-                "RUNE_POOL_CLEARED",
-                "回合结束时所有玩家的符文池已清空",
+        events.Add(new GameEvent(
+            "RUNE_POOL_CLEARED",
+            "回合结束时所有玩家的符文池已清空",
+            new Dictionary<string, object?>
+            {
+                ["playerIds"] = state.Seats.Keys.ToArray(),
+                ["timing"] = MatchPhases.TurnEnd
+            }));
+
+        if (cleanupResult.RequiresFollowUpCleanup)
+        {
+            events.Add(new GameEvent(
+                "CLEANUP_REPEATED",
+                "特殊清理造成状态变化后进行一次常规清理检查",
                 new Dictionary<string, object?>
                 {
-                    ["playerIds"] = state.Seats.Keys.ToArray(),
-                    ["timing"] = MatchPhases.TurnEnd
-                }),
-            new GameEvent(
+                    ["cleanupKind"] = "NORMAL",
+                    ["previousCleanupKind"] = "TURN_END_SPECIAL"
+                }));
+        }
+
+        events.Add(new GameEvent(
                 "TURN_PLAYER_ADVANCED",
                 $"回合推进至 {nextTurnPlayerId}",
                 new Dictionary<string, object?>
@@ -307,8 +319,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["previousTurnPlayerId"] = state.TurnPlayerId,
                     ["turnPlayerId"] = nextTurnPlayerId,
                     ["turnNumber"] = state.TurnNumber + 1
-                })
-        ]);
+                }));
 
         return events;
     }
@@ -386,5 +397,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyList<string> DamagedObjectIds,
-        IReadOnlyList<string> ExpiredEffectIds);
+        IReadOnlyList<string> ExpiredEffectIds,
+        bool RequiresFollowUpCleanup);
 }

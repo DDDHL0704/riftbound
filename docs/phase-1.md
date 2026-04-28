@@ -44,9 +44,9 @@
   - P2 preflight 第一刀已完成：fixture schema v2 可读取 `initialState`、`expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为回合开始、召出符文、抽牌、清空符文池的规则审查样例。
   - `MatchState` 已加入 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`，snapshot timing 已投影这些 P2 权威 timing 字段；当前已覆盖最小回合开始、`END_TURN` 自动推进、伤害和本回合内效果清理，后续扩展清理重复、FEPR 和卡牌对象状态时必须继续维护 `state_snapshots.payload`。
   - conformance runner 已能把 P2 `initialState` 应用为权威初始状态，包含 turn/phase/timing、符文池和玩家区域。
-  - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文；燃尽 fixture 已验证主牌堆为空、废牌堆可回收时对手得 1 分并完成抽牌；`END_TURN` fixture 已验证 P1 主阶段结束后执行最小回合结束清理、推进到 P2 并自动结算 P2 回合开始；特殊清理 fixture 已验证单位伤害移除和本回合内效果失效。
+  - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文；燃尽 fixture 已验证主牌堆为空、废牌堆可回收时对手得 1 分并完成抽牌；`END_TURN` fixture 已验证 P1 主阶段结束后执行最小回合结束清理、推进到 P2 并自动结算 P2 回合开始；特殊清理 fixture 已验证单位伤害移除和本回合内效果失效；清理重复 fixture 已验证特殊清理造成状态变化后追加一次常规清理检查。
 
-下一步继续 P2 preflight：补清理重复/常规清理最小闭环，覆盖特殊清理期间状态变化后不重复特殊步骤、而是进入常规清理的 FAQ 个案；然后做 `PASS_PRIORITY` / FEPR、`PASS_FOCUS` / 法术对决最小流程。废牌堆也为空导致连续燃尽/胜利判定另建后续 fixture。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
+下一步继续 P2 preflight：实现 `PASS_PRIORITY` / FEPR 最小流程，先覆盖普通主阶段误提交 `PASS_PRIORITY` 不会结束回合，再做有结算链项目时的让过和结算；然后做 `PASS_FOCUS` / 法术对决最小流程。废牌堆也为空导致连续燃尽/胜利判定另建后续 fixture。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 

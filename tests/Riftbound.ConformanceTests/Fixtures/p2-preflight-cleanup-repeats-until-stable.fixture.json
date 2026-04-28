@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-end-turn-special-cleanup",
-  "description": "END_TURN from main phase removes marked unit damage and expires until-end-of-turn effects before advancing to the next turn.",
+  "fixtureId": "p2-preflight-cleanup-repeats-until-stable",
+  "description": "When turn-end special cleanup changes object state, a normal cleanup pass runs once and stabilizes before the next turn starts.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
-  "seed": 2603302006,
+  "seed": 2603302007,
   "rulesEvidence": [
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p30-p31 rules 317.2.a-317.2.f; p31-p33 rules 318-324",
-      "note": "回合结束失效步骤启动一次特殊清理，插入为所有单位移除伤害、令期限为本回合内的效果同时失效、清空符文池等步骤；若清理期间产生新的清理需求，后续应进入常规清理。"
+      "locator": "p31-p33 rules 318-324; p30-p31 rules 317.2.a-317.2.f",
+      "note": "若清理期间发生满足清理条件的状态变化，前一次清理完成后立即执行另一次清理，重复至状态稳定。回合结束特殊清理引发的后续清理应为常规清理。"
     },
     {
       "source": "JFAQ_251023.pdf",
       "locator": "p6-p7 questions 5.1-5.2",
-      "note": "FAQ 澄清清理期间不结算合法项目、不授予或传递优先行动权/焦点；特殊清理若引发再次清理，应调用常规清理而非重复特殊清理。本样例先覆盖插入的伤害移除和本回合内效果失效。"
+      "note": "FAQ 明确特殊清理若引发再次清理，应调用常规清理而非重复执行特殊清理；清理期间不授予或传递优先行动权/焦点。"
     }
   ],
-  "roomId": "p2-preflight-special-cleanup-room",
+  "roomId": "p2-preflight-cleanup-repeat-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302006,
-    "turnNumber": 3,
+    "seed": 2603302007,
+    "turnNumber": 5,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -33,8 +33,8 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 1 },
-      "P2": { "mana": 1, "power": 1 }
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
@@ -42,7 +42,7 @@
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": ["P1-UNIT-DAMAGED", "P1-UNIT-BUFFED"],
+        "battlefields": ["P1-UNIT-DAMAGED"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
@@ -62,19 +62,15 @@
     },
     "cardObjects": {
       "P1-UNIT-DAMAGED": {
-        "damage": 3,
+        "damage": 2,
         "untilEndOfTurnEffects": []
-      },
-      "P1-UNIT-BUFFED": {
-        "damage": 1,
-        "untilEndOfTurnEffects": ["effect-temp-keyword", "effect-temp-power"]
       }
     }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-special-cleanup",
+      "clientIntentId": "intent-p2-preflight-cleanup-repeat",
       "cmd": {
         "cmdType": "END_TURN"
       }
@@ -86,7 +82,6 @@
       "TURN_END_DECLARED",
       "TURN_END_CLEANUP_STARTED",
       "DAMAGE_REMOVED",
-      "UNTIL_END_OF_TURN_EXPIRED",
       "RUNE_POOL_CLEARED",
       "CLEANUP_REPEATED",
       "TURN_PLAYER_ADVANCED",
@@ -100,7 +95,6 @@
       { "kind": "TURN_END_DECLARED" },
       { "kind": "TURN_END_CLEANUP_STARTED" },
       { "kind": "DAMAGE_REMOVED" },
-      { "kind": "UNTIL_END_OF_TURN_EXPIRED" },
       { "kind": "RUNE_POOL_CLEARED" },
       { "kind": "CLEANUP_REPEATED" },
       { "kind": "TURN_PLAYER_ADVANCED" },
@@ -115,7 +109,7 @@
       "P2": ["END_TURN"]
     },
     "finalState": {
-      "turnNumber": 4,
+      "turnNumber": 6,
       "activePlayerId": "P2",
       "turnPlayerId": "P2",
       "phase": "MAIN",
@@ -130,10 +124,6 @@
       },
       "cardObjects": {
         "P1-UNIT-DAMAGED": {
-          "damage": 0,
-          "untilEndOfTurnEffects": []
-        },
-        "P1-UNIT-BUFFED": {
           "damage": 0,
           "untilEndOfTurnEffects": []
         }

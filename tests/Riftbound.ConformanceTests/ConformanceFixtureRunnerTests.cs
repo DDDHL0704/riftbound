@@ -239,6 +239,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
         Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Single(result.EventKinds, eventKind => string.Equals(eventKind, "CLEANUP_REPEATED", StringComparison.Ordinal));
+        Assert.Single(result.EventKinds, eventKind => string.Equals(eventKind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        Assert.Single(result.EventKinds, eventKind => string.Equals(eventKind, "UNTIL_END_OF_TURN_EXPIRED", StringComparison.Ordinal));
         Assert.Equal(4, result.FinalState.TurnNumber);
         Assert.Equal("P2", result.FinalState.TurnPlayerId);
         Assert.Equal("MAIN", result.FinalState.Phase);
@@ -250,6 +253,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.CardObjects["P1-UNIT-BUFFED"].UntilEndOfTurnEffects);
         Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, result.FinalState.PlayerZones["P2"].Base);
         Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRepeatsCleanupUntilStable()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-cleanup-repeats-until-stable.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Single(result.EventKinds, eventKind => string.Equals(eventKind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.EventKinds, eventKind => string.Equals(eventKind, "UNTIL_END_OF_TURN_EXPIRED", StringComparison.Ordinal));
+        Assert.Single(result.EventKinds, eventKind => string.Equals(eventKind, "CLEANUP_REPEATED", StringComparison.Ordinal));
+        Assert.Equal(6, result.FinalState.TurnNumber);
+        Assert.Equal("P2", result.FinalState.TurnPlayerId);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-UNIT-DAMAGED"].Damage);
+        Assert.Empty(result.FinalState.CardObjects["P1-UNIT-DAMAGED"].UntilEndOfTurnEffects);
+        Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, result.FinalState.PlayerZones["P2"].Base);
     }
 
     [Theory]
