@@ -47,7 +47,9 @@ public sealed record ResolutionResult(
                 entry => entry.Key,
                 entry => (object?)new Dictionary<string, object?>
                 {
-                    ["name"] = entry.Value,
+                    ["id"] = entry.Key,
+                    ["name"] = entry.Key,
+                    ["seat"] = entry.Value,
                     ["handSize"] = 0,
                     ["score"] = 0
                 }),
@@ -129,7 +131,10 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
 
     private static string NextPlayerId(MatchState state)
     {
-        var players = state.Seats.Keys.ToArray();
+        var players = state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .ToArray();
         if (players.Length == 0)
         {
             return state.ActivePlayerId;
@@ -251,6 +256,7 @@ public sealed class MatchSession : IMatchSession
 {
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
+    private readonly object seatGate = new();
     private readonly SemaphoreSlim serialGate = new(1, 1);
     private readonly Dictionary<string, string> seats = new();
     private readonly Dictionary<string, CachedResolution> intentCache = new();
@@ -273,34 +279,40 @@ public sealed class MatchSession : IMatchSession
 
     public void EnsurePlayer(string playerId)
     {
-        if (string.IsNullOrWhiteSpace(playerId))
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        lock (seatGate)
         {
-            throw new ArgumentException("playerId is required", nameof(playerId));
-        }
+            if (seats.ContainsKey(normalizedPlayerId))
+            {
+                return;
+            }
 
-        if (seats.ContainsKey(playerId))
-        {
-            return;
-        }
+            if (seats.Count >= 2)
+            {
+                throw new InvalidOperationException("room already has two players");
+            }
 
-        seats[playerId] = playerId;
-        state = state with
-        {
-            ActivePlayerId = seats.ContainsKey(state.ActivePlayerId) ? state.ActivePlayerId : playerId,
-            Seats = new Dictionary<string, string>(seats)
-        };
+            seats[normalizedPlayerId] = NextOpenSeat();
+            state = state with
+            {
+                ActivePlayerId = seats.ContainsKey(state.ActivePlayerId) ? state.ActivePlayerId : normalizedPlayerId,
+                Seats = new Dictionary<string, string>(seats)
+            };
+        }
     }
 
     public SnapshotDto SnapshotFor(string playerId)
     {
-        EnsurePlayer(playerId);
-        return ResolutionResult.BuildSnapshots(state)[playerId];
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        EnsurePlayer(normalizedPlayerId);
+        return ResolutionResult.BuildSnapshots(state)[normalizedPlayerId];
     }
 
     public ActionPromptDto PromptFor(string playerId)
     {
-        EnsurePlayer(playerId);
-        return ResolutionResult.BuildPrompts(state)[playerId];
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        EnsurePlayer(normalizedPlayerId);
+        return ResolutionResult.BuildPrompts(state)[normalizedPlayerId];
     }
 
     public async ValueTask<ResolutionResult> SubmitAsync(
@@ -309,11 +321,12 @@ public sealed class MatchSession : IMatchSession
         GameCommand command,
         CancellationToken cancellationToken)
     {
-        EnsurePlayer(playerId);
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        EnsurePlayer(normalizedPlayerId);
         var normalizedIntentId = string.IsNullOrWhiteSpace(clientIntentId)
             ? Guid.NewGuid().ToString("N")
             : clientIntentId.Trim();
-        var cacheKey = $"{playerId}:{normalizedIntentId}";
+        var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
 
         await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -329,12 +342,12 @@ public sealed class MatchSession : IMatchSession
             }
 
             var startedTick = state.Tick;
-            var intent = new PlayerIntent(normalizedIntentId, playerId, command.CmdType);
+            var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
             var result = await ruleEngine.ResolveAsync(state, intent, command, cancellationToken)
                 .ConfigureAwait(false);
             await journal.RecordAsync(new MatchJournalEntry(
                     RoomId,
-                    playerId,
+                    normalizedPlayerId,
                     normalizedIntentId,
                     command.CmdType,
                     startedTick,
@@ -362,4 +375,19 @@ public sealed class MatchSession : IMatchSession
     }
 
     private sealed record CachedResolution(string CommandType, ResolutionResult Result);
+
+    private string NextOpenSeat()
+    {
+        return seats.ContainsValue("P1") ? "P2" : "P1";
+    }
+
+    private static string NormalizePlayerId(string playerId)
+    {
+        if (string.IsNullOrWhiteSpace(playerId))
+        {
+            throw new ArgumentException("playerId is required", nameof(playerId));
+        }
+
+        return playerId.Trim();
+    }
 }

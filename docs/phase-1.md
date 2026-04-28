@@ -25,8 +25,9 @@
   - P1 SQL 已补 ruleset/FAQ/audit 字段和 `oracle_fixtures` 索引表；启动时按 `Sql/*.sql` 顺序初始化/迁移。
   - 当前 3 条 Java legacy fixture 的 evidence 已细化；FAQ 未发现推翻通用 `PASS` / `END_TURN` 的条目，但 `PASS -> TURN_ENDED` 被标记为 legacy mismatch candidate。
   - 协议层已新增 `PASS_PRIORITY`、`PASS_FOCUS`，并记录 `END_TURN` 与 legacy `PASS` 的语义边界。
+  - `MatchSession` 已能分配稳定 `P1` / `P2` 座位，snapshot 暴露 seat，第三名玩家加入会被拒绝。
 
-下一步扩展 P1/P2 加入、座位状态和玩家视角 snapshot；新增 fixture 不再使用裸 `PASS`。
+下一步给 `GameHub.JoinRoom` 补双连接/满员拒绝的 SignalR 级测试或最小集成测试；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -39,6 +40,7 @@
 ## 验收清单
 
 - `GameHub` 可让 P1/P2 加入同一房间。
+- `MatchSession` 为前两名加入者分配稳定 `P1`/`P2` 座位，并拒绝第三名玩家。
 - `MatchSession` 对同一房间命令严格串行。
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
 - 协议层明确区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，裸 `PASS` 仅用于 legacy 兼容。

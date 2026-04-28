@@ -21,24 +21,41 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
         var session = sessions.GetOrCreate(roomId);
-        session.EnsurePlayer(playerId);
+        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        try
+        {
+            session.EnsurePlayer(normalizedPlayerId);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            await Clients.Caller.Error(new WsServerMessage(
+                MessageType.ERROR,
+                roomId,
+                normalizedPlayerId,
+                0,
+                ex.Message));
+            return;
+        }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, RoomGroup(roomId));
-        await Groups.AddToGroupAsync(Context.ConnectionId, PlayerGroup(roomId, playerId));
+        await Groups.AddToGroupAsync(Context.ConnectionId, PlayerGroup(roomId, normalizedPlayerId));
+
+        var snapshot = session.SnapshotFor(normalizedPlayerId);
+        var prompt = session.PromptFor(normalizedPlayerId);
 
         await Clients.Caller.Snapshot(new WsServerMessage(
             MessageType.SNAPSHOT,
             roomId,
-            playerId,
-            session.SnapshotFor(playerId).Tick,
-            session.SnapshotFor(playerId)));
+            normalizedPlayerId,
+            snapshot.Tick,
+            snapshot));
 
         await Clients.Caller.Prompt(new WsServerMessage(
             MessageType.PROMPT,
             roomId,
-            playerId,
-            session.SnapshotFor(playerId).Tick,
-            session.PromptFor(playerId)));
+            normalizedPlayerId,
+            snapshot.Tick,
+            prompt));
     }
 
     public Task Pass(string roomId, string playerId, string clientIntentId)
@@ -59,18 +76,33 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
     private async Task SubmitCommand(string roomId, string playerId, string clientIntentId, GameCommand command)
     {
         var session = sessions.GetOrCreate(roomId);
-        var result = await session.SubmitAsync(
-            playerId,
-            clientIntentId,
-            command,
-            Context.ConnectionAborted);
+        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        ResolutionResult result;
+        try
+        {
+            result = await session.SubmitAsync(
+                normalizedPlayerId,
+                clientIntentId,
+                command,
+                Context.ConnectionAborted);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            await Clients.Caller.Error(new WsServerMessage(
+                MessageType.ERROR,
+                roomId,
+                normalizedPlayerId,
+                0,
+                ex.Message));
+            return;
+        }
 
         if (!result.Accepted)
         {
             await Clients.Caller.Error(new WsServerMessage(
                 MessageType.ERROR,
                 roomId,
-                playerId,
+                normalizedPlayerId,
                 result.State.Tick,
                 result.ErrorMessage));
             return;
@@ -79,7 +111,7 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
         await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
             MessageType.EVENTS,
             roomId,
-            playerId,
+            normalizedPlayerId,
             result.State.Tick,
             result.Events));
 

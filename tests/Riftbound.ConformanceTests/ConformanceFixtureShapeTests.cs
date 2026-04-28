@@ -25,6 +25,38 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void JoinAssignsStableP1P2SeatsAndSnapshotsExposeSeatStatus()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+
+        session.EnsurePlayer("alice");
+        session.EnsurePlayer("bob");
+        session.EnsurePlayer("alice");
+
+        var aliceSnapshot = session.SnapshotFor("alice");
+        var bobSnapshot = session.SnapshotFor("bob");
+
+        Assert.Equal("alice", aliceSnapshot.ActivePlayerId);
+        Assert.Equal("alice", bobSnapshot.ActivePlayerId);
+        Assert.Equal("P1", PlayerSeat(aliceSnapshot, "alice"));
+        Assert.Equal("P2", PlayerSeat(aliceSnapshot, "bob"));
+        Assert.Equal("P1", PlayerSeat(bobSnapshot, "alice"));
+        Assert.Equal("P2", PlayerSeat(bobSnapshot, "bob"));
+    }
+
+    [Fact]
+    public void JoinRejectsThirdPlayer()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+
+        session.EnsurePlayer("alice");
+        session.EnsurePlayer("bob");
+
+        var error = Assert.Throws<InvalidOperationException>(() => session.EnsurePlayer("charlie"));
+        Assert.Equal("room already has two players", error.Message);
+    }
+
+    [Fact]
     public void ProtocolEnvelopeKeepsCurrentContractFields()
     {
         var message = new WsServerMessage(
@@ -62,5 +94,11 @@ public sealed class ConformanceFixtureShapeTests
             Entries.Add(entry);
             return ValueTask.CompletedTask;
         }
+    }
+
+    private static string PlayerSeat(SnapshotDto snapshot, string playerId)
+    {
+        var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+        return Assert.IsType<string>(player["seat"]);
     }
 }
