@@ -2,7 +2,7 @@
 
 ## 阶段目标
 
-建立 .NET 服务端的最小生产化骨架：协议、SignalR 入口、房间串行、幂等、事件日志、玩家视角快照和 Java oracle conformance tests。
+建立 .NET 服务端的最小生产化骨架：协议、SignalR 入口、房间串行、幂等、事件日志、玩家视角快照和基于五份 PDF/FAQ 的 conformance tests。旧 Java 输出只作为 legacy oracle 对照。
 
 ## 当前进展
 
@@ -16,11 +16,11 @@
   - 官网快照 1009 条加载。
   - 功能逻辑单元 811 个基线一致。
   - fixture runner 可读取 command log 格式并回放到 `MatchSession`。
-  - 已从 Java oracle 导出首批 3 条 fixture：`java-oracle-p1-pass`、`java-oracle-p1-end-turn`、`java-oracle-p1-duplicate-pass`。
+  - 已从旧 Java 导出首批 3 条 legacy fixture：`java-oracle-p1-pass`、`java-oracle-p1-end-turn`、`java-oracle-p1-duplicate-pass`。
   - C# 测试可读取 Java fixture 元数据。
-  - `PASS`、`END_TURN`、重复 `PASS` 的事件日志 fixture 已与 C# 当前规则骨架对齐。
+  - `PASS`、`END_TURN`、重复 `PASS` 的事件日志 fixture 已与 C# 当前规则骨架对齐，但尚未完成四份 FAQ 重审。
 
-下一步继续扩展 Java oracle fixture exporter 的 10 条高价值路径，并把 P1/P2 加入、座位状态和玩家视角 snapshot 纳入 conformance。
+下一步先抽取五份 PDF/FAQ 的索引，并给现有 3 条 fixture 补齐规则依据；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
 
 ## 不做范围
 
@@ -39,6 +39,7 @@
 - PostgreSQL EventStore schema 草案完成，并能由开发环境启动时初始化。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。
 - solution 级 `restore/build/test` 可作为新窗口默认验证入口。
-- Java oracle fixture 至少覆盖 10 条高价值路径。
+- PDF/FAQ 规则依据覆盖首批高价值路径。
+- Java legacy oracle fixture 至少覆盖 10 条高价值路径，或已记录与 PDF/FAQ 的差异。
 - C# conformance tests 能读取 fixture 并输出稳定 diff。
 - 一旦开发期测试 UI 接入，阶段验收必须用 Codex 内置浏览器执行真实 P1/P2 smoke，并记录 roomId、操作路径、事件和最终 snapshot 摘要。

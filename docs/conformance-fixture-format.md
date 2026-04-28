@@ -4,13 +4,14 @@
 
 ## 1. 目的
 
-Fixture 是 Java golden oracle 与 C# 新引擎之间的行为契约。迁移期间每个高价值场景都应导出同一份输入，并分别记录 Java 与 C# 的事件、快照和提示结果。
+Fixture 是规则依据、旧 Java 行为样本与 C# 新引擎之间的行为契约。迁移期间每个高价值场景都应导出同一份输入，并分别记录 PDF/FAQ 裁决、Java legacy oracle 输出与 C# 的事件、快照和提示结果。
 
 核心链路：
 
 ```text
 seed + initial setup + command log
-  -> Java oracle events/snapshots/prompts
+  -> rules evidence from 5 PDF/FAQ docs + official card text
+  -> Java legacy oracle events/snapshots/prompts
   -> C# replay events/snapshots/prompts
   -> canonical JSON diff
 ```
@@ -25,6 +26,13 @@ seed + initial setup + command log
   "fixtureId": "p1-placeholder-pass",
   "description": "human readable reason",
   "source": "java-oracle | manual-csharp-skeleton",
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "page/chapter TBD",
+      "note": "short non-verbatim summary"
+    }
+  ],
   "roomId": "fixture-room",
   "players": ["P1", "P2"],
   "commands": [
@@ -56,21 +64,24 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
 
-## 3. Java Exporter 后续必须补齐
+## 3. Fixture 后续必须补齐
 
-Java oracle exporter 需要输出更完整字段：
+Fixture 需要输出更完整字段：
 
 | 字段 | 说明 |
 |---|---|
 | `rulesVersion` | 例如 `rules-260330`。 |
+| `faqVersion` | 涉及 FAQ 时记录文件名或日期。 |
 | `catalogVersion` | 例如 `official-2026-04-27`。 |
 | `javaCommit` | oracle 基线 commit，例如 `75bf7cf`。 |
+| `rulesEvidence` | PDF/FAQ 文件名、页码或章节、非原文摘要。 |
 | `seed` | 洗牌、随机选择、随机分配的确定性 seed。 |
 | `initialState` | 起手、牌库、战场、资源、特殊场面。 |
 | `commands` | 玩家意图日志，必须保留原始 `cmd` JSON。 |
-| `oracle.events` | Java 输出的权威事件。 |
-| `oracle.snapshots.P1/P2` | Java 输出的玩家视角快照。 |
-| `oracle.prompts.P1/P2` | Java 输出的行动提示。 |
+| `legacyOracle.events` | 旧 Java 输出的事件，仅作历史对照。 |
+| `legacyOracle.snapshots.P1/P2` | 旧 Java 输出的玩家视角快照，仅作历史对照。 |
+| `legacyOracle.prompts.P1/P2` | 旧 Java 输出的行动提示，仅作历史对照。 |
+| `expected` | 按五份 PDF/FAQ 与官网卡面裁决后的 C# 期望结果。 |
 
 ## 4. Canonical JSON 规则
 
@@ -106,7 +117,7 @@ P1 先导出 10 条：
 9. 装备装配。
 10. owner/controller 边界。
 
-只有当 C# runner 能消费 Java exporter 输出后，后续规则迁移才进入正式 conformance 节奏。
+只有当 C# runner 能消费 Java exporter 输出，并且 fixture 已补齐 PDF/FAQ 规则依据后，后续规则迁移才进入正式 conformance 节奏。
 
 ## 6. 当前导出命令
 
@@ -126,4 +137,4 @@ mvn -pl server -am \
 - `java-oracle-p1-end-turn.fixture.json`
 - `java-oracle-p1-duplicate-pass.fixture.json`
 
-C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到 Java oracle。后续 fixture 只有在对应规则迁移完成后，才要求占位规则骨架或真实 `RuleEngine` 与 Java oracle 行为一致。
+C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。由于旧 Java 未纳入四份 FAQ，这三条 fixture 现在需要补齐 `rulesEvidence` 并重新审查；若 FAQ 裁决与 Java 行为冲突，后续 expected 应以 PDF/FAQ 为准。

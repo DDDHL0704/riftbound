@@ -6,11 +6,16 @@
 
 新项目的底层标准按以下优先级裁决：
 
-1. `/Users/dinghaolin/MyProjects/riftbound-server/《符文战场》核心规则_260330.pdf`
-2. `/Users/dinghaolin/MyProjects/riftbound-server/core/src/main/resources/official/card-catalog.zh-CN.json`
+1. 五份官方 PDF/FAQ 规则资料：
+   - `/Users/dinghaolin/MyProjects/riftbound-dotnet/《符文战场》核心规则_260330.pdf`
+   - `/Users/dinghaolin/MyProjects/riftbound-dotnet/裁判FAQ_251023.pdf`
+   - `/Users/dinghaolin/MyProjects/riftbound-dotnet/铸魂淬炼系列_裁判FAQ.pdf`
+   - `/Users/dinghaolin/MyProjects/riftbound-dotnet/铸魂淬炼系列_官方FAQ_260114.pdf`
+   - `/Users/dinghaolin/MyProjects/riftbound-dotnet/《符文战场》破限系列_裁判FAQ_260416.pdf`
+2. `/Users/dinghaolin/MyProjects/riftbound-dotnet/data/official/card-catalog.zh-CN.json`
 3. 旧 Java 项目的实现、测试、生成矩阵和迭代日志
 
-旧 Java 项目不是新项目架构的模板，但它是迁移期的行为参考与 golden oracle。新项目以规则 PDF 和官网卡牌快照为核心，从领域模型、规则引擎、协议、事件、快照和联机房间重新设计。
+旧 Java 项目不是新项目架构的模板，也不是最终规则权威。它只作为迁移期的历史行为参考、fixture 导出工具和回归对照。新项目以五份 PDF/FAQ 和官网卡牌快照为核心，从领域模型、规则引擎、协议、事件、快照和联机房间重新设计。
 
 ## 2. 规则 PDF 结构
 
@@ -20,6 +25,15 @@ PDF 文件信息：
 - 最后更新时间：2026-03-30
 - 页数：105
 - 抽取文本：6540 行
+
+FAQ 文件信息：
+
+| 文件 | 页数 | 开发含义 |
+|---|---:|---|
+| `裁判FAQ_251023.pdf` | 10 | 通用裁判问题和核心规则补充。 |
+| `铸魂淬炼系列_裁判FAQ.pdf` | 25 | `铸魂淬炼` 系列特定裁判场景。 |
+| `铸魂淬炼系列_官方FAQ_260114.pdf` | 21 | `铸魂淬炼` 官方解释。 |
+| `《符文战场》破限系列_裁判FAQ_260416.pdf` | 11 | `破限` 系列特定裁判场景。 |
 
 规则主干：
 
@@ -39,6 +53,7 @@ PDF 文件信息：
 新项目必须先把这些不变量建成测试，再实现复杂卡牌：
 
 - 卡面文字优先于规则；PDF 不覆盖或冲突时按官网卡面。
+- FAQ 用于澄清核心规则中不准确、不完整或未覆盖的具体场景；同一问题以更具体、更新的官方 FAQ 为准。
 - “无法”优先级高于“可以”。
 - 结算时尽可能执行所有指示，无法实现的指示忽略；所有指示无法实现时仍可打出并结算为空效果。
 - 卡牌不会进入其他玩家所属的非场地区域；进入时改为进入所属者对应区域。
@@ -165,7 +180,7 @@ PDF 文件信息：
 | CardDefinition | 游戏内可实例化定义、基础数值、标签、关键词 | 新项目结构化数据 |
 | BehaviorSpec | 解析后的行为模板、触发条件、费用、目标、效果 | 新项目规则数据 |
 | RuleImplementation | C# 规则执行器、触发器、替换器、动作实现 | 新项目代码 |
-| Evidence | PDF 规则点、官网文本、oracle fixture、conformance 测试 | 测试与文档 |
+| Evidence | PDF/FAQ 规则点、官网文本、legacy oracle fixture、conformance 测试 | 测试与文档 |
 
 ## 6. 当前旧实现参考价值
 
@@ -174,6 +189,8 @@ PDF 文件信息：
 - 已验证规则行为：房间串行、幂等、事件广播、玩家视角、基础战斗、支付、装备、控制权。
 - oracle fixture 来源：当前 JUnit 和 Room 测试能导出 command log、events、snapshots。
 - 覆盖矩阵参考：`docs/card-effect-buckets.generated.md`、`docs/card-functional-equivalence.generated.md`、`docs/card-effect-test-matrix.generated.md`。
+
+但它没有纳入本项目新增的四份官方 FAQ。任何与 FAQ 相关的能力必须重新审查；如果 Java 行为与 FAQ 冲突，新项目以 FAQ 裁决为准。
 
 但新项目不照搬这些边界：
 
@@ -198,9 +215,10 @@ PDF 文件信息：
 
 ## 8. 基线更新规则
 
-以后每次官网快照、规则 PDF 或生成矩阵更新，必须同步：
+以后每次官网快照、规则 PDF/FAQ 或生成矩阵更新，必须同步：
 
 - 重新生成卡牌统计与功能等价分组。
 - 标注规则或卡面冲突。
 - 更新主开发计划中的阶段范围和验收清单。
 - 对已实现功能运行 conformance tests，确认没有被数据更新破坏。
+- 对受影响的已实现功能标记 `NEEDS_RULE_AUDIT`，补齐 FAQ 依据后才能重新标记完成。

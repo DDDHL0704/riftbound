@@ -6,7 +6,7 @@
 
 构建一款精美、稳定、可双人联机对战、服务端权威结算、可长期生产化维护的 Web 卡牌游戏。
 
-新项目的根基是规则 PDF 与官网卡牌快照。旧 Java 代码只作为行为参考与 oracle，不作为架构模板。所有后续开发必须围绕以下产品形态推进：
+新项目的根基是五份官方 PDF、FAQ 与官网卡牌快照。旧 Java 代码只作为历史行为参考、fixture 导出工具和回归对照，不作为架构模板，也不作为最终规则裁判。所有后续开发必须围绕以下产品形态推进：
 
 - 玩家只提交行为意图。
 - 服务端自动完成规则裁决和结算。
@@ -39,21 +39,29 @@ flowchart LR
   MatchSession --> SnapshotProjector["PlayerSnapshot Projector"]
   MatchSession --> Redis["Redis"]
   SnapshotProjector --> GameHub
-  JavaOracle["Java Golden Oracle"] --> Conformance["Conformance Tests"]
+  RulesPdf["5 Official PDF/FAQ Docs"] --> Conformance["Conformance Tests"]
+  JavaOracle["Java Legacy Oracle"] --> Conformance
   RuleEngine --> Conformance
 ```
 
 ## 3. 资料优先级与冲突裁决
 
-1. 规则 PDF：`《符文战场》核心规则_260330.pdf`
+1. 五份官方 PDF/FAQ：
+   - `《符文战场》核心规则_260330.pdf`
+   - `裁判FAQ_251023.pdf`
+   - `铸魂淬炼系列_裁判FAQ.pdf`
+   - `铸魂淬炼系列_官方FAQ_260114.pdf`
+   - `《符文战场》破限系列_裁判FAQ_260416.pdf`
 2. 官网卡牌快照：`card-catalog.zh-CN.json`
 3. 旧 Java 测试、矩阵和实现
 
 裁决规则：
 
-- PDF 与卡面冲突：遵循 PDF 黄金法则，以卡面为准。
+- 核心规则 PDF 描述不准确、不完善或未覆盖的具体场景，以对应官方 FAQ 澄清为准。
+- PDF/FAQ 与卡面冲突：遵循核心规则黄金法则，以卡面为准。
 - 官网快照与旧本地卡牌冲突：以官网快照为准。
-- 新项目设计与旧 Java 架构冲突：以新项目设计为准，但必须用 oracle 验证行为不偏离。
+- 新项目设计与旧 Java 架构冲突：以新项目设计为准。
+- 旧 Java 行为与五份 PDF/FAQ 冲突：以五份 PDF/FAQ 为准，Java 差异记录为 legacy oracle mismatch。
 
 ## 4. 开发阶段总览
 
@@ -225,7 +233,7 @@ flowchart LR
 - 不接入复杂卡牌时，基础 1v1 对局能从开局走到得分。
 - 所有动作都通过 events 改变状态。
 - Snapshot 可从 state 投影，隐藏信息不泄漏。
-- Java oracle 中基础房间/战斗 fixture 可对齐。
+- PDF/FAQ 规则依据齐全，且旧 Java 基础房间/战斗 fixture 可作为回归对照。
 
 ## 8. P2.5：开发期测试 UI
 
@@ -357,11 +365,11 @@ flowchart LR
 
 - 按风险分层确定批次大小，低风险模板不要被 6 个硬限制拖慢。
 - 每批必须有：
-  - PDF 规则点
+  - PDF/FAQ 规则点
   - 官网卡面文本
   - engine unit test
   - SignalR/Room test
-  - Java oracle conformance fixture
+  - Java legacy oracle conformance fixture 或差异记录
   - 前端 smoke 或等价 E2E
 
 ## 11. P5：装备、控制权、触发和替换
@@ -493,7 +501,7 @@ flowchart LR
 | Rule Unit | 单个规则动作、费用、目标、关键词 | 每个规则域必须覆盖 |
 | Card Behavior | 单个功能逻辑单元 | 每个可玩功能单元必须覆盖 |
 | MatchSession | 房间串行、幂等、P1/P2 快照 | 每个协议能力必须覆盖 |
-| Conformance | Java oracle 与 C# 回放对比 | 每个迁移能力必须覆盖 |
+| Conformance | PDF/FAQ expected、Java legacy oracle 与 C# 回放对比 | 每个迁移能力必须覆盖 |
 | API/SignalR | 真实 Hub 调用 | 每批能力必须覆盖 |
 | Browser Use Smoke | 内置浏览器真实前端双人流程 | 每批或高风险能力必须覆盖 |
 | Regression Matrix | 1009 条官方卡状态门禁 | 每次卡牌数据更新必须跑 |
@@ -501,7 +509,8 @@ flowchart LR
 Conformance 标准：
 
 - 输入：seed、初始卡组、command log。
-- Java 输出：events、P1 snapshot、P2 snapshot、prompt。
+- 规则依据：五份 PDF/FAQ 和官网卡面，记录到 fixture 或状态矩阵。
+- Java legacy 输出：events、P1 snapshot、P2 snapshot、prompt。
 - C# 输出：events、P1 snapshot、P2 snapshot、prompt。
 - 对比：忽略时间戳、连接 id、非语义排序；保留 tick、zone、owner/controller、event kind、关键 payload。
 
@@ -529,7 +538,7 @@ Browser Use 阶段性测试：
 | `official_cards` | 官网卡牌条目 |
 | `functional_units` | 后端功能逻辑单元 |
 | `card_behavior_status` | 卡牌实现和验收状态 |
-| `oracle_fixtures` | Java oracle fixture 索引 |
+| `oracle_fixtures` | Java legacy oracle fixture 索引 |
 
 强约束：
 
@@ -544,12 +553,12 @@ Browser Use 阶段性测试：
 
 - 规则底座先行；开发期测试 UI 在 P2 初步成型后介入；产品级 UI 等规则和卡池稳定后再做。
 - 先通用动作，后特殊卡。
-- 先 oracle fixture，后 C# 实现，最后前端开放。
+- 先 PDF/FAQ evidence 和 fixture，后 C# 实现，最后前端开放。
 - 批次大小按风险分层；低风险同构卡可以大批推进，高风险规则小批验收。
 - 可交互能力必须定期用 Browser Use 跑真实本地前端，不能只看单元测试和接口结果。
 - 未通过 conformance 的卡牌不能进入正式可玩池。
 - 任何规则冲突都记录到文档，按资料优先级裁决。
-- 不提交规则 PDF。
+- 不提交规则 PDF/FAQ。
 - 不把旧 Java 架构照搬到新项目。
 
 ## 18. 下一步执行顺序
@@ -582,13 +591,13 @@ Browser Use 阶段性测试：
 
 一个功能只有同时满足以下条件，才算完成：
 
-- PDF 规则点已记录。
+- PDF/FAQ 规则点已记录。
 - 官网卡面文本已记录。
 - 行为规格已结构化。
 - C# 实现已完成。
 - 单元测试通过。
 - MatchSession/SignalR 测试通过。
-- Java oracle conformance 通过。
+- Java legacy oracle conformance 通过，或已记录旧 Java 与 PDF/FAQ 的差异。
 - 前端 smoke 或等价 E2E 通过。
 - 文档和状态矩阵已更新。
 
@@ -601,8 +610,9 @@ Browser Use 阶段性测试：
 | P0 | 开发环境与 CI 基线 | P1 前 | 安装/锁定 .NET 10 SDK、Node 版本、Docker Compose、PostgreSQL、Redis；建立 `dotnet build/test`、前端 build、lint、schema 校验的 CI。 |
 | P0 | 本地一键启动 | P1 | 提供 `docker-compose.yml`、环境变量模板、数据库迁移命令、前后端启动脚本，保证 Browser Use smoke 可稳定复现。 |
 | P0 | 协议版本治理 | P1 | `protocolVersion`、`schemaVersion`、客户端兼容策略、TypeScript DTO 生成、SignalR 方法版本、事件 upcaster。 |
-| P0 | 确定性随机与回放 | P2 | 洗牌、抽牌、随机选择必须由 seed 和事件记录驱动，保证 Java oracle 与 C# 回放可复现。 |
+| P0 | 确定性随机与回放 | P2 | 洗牌、抽牌、随机选择必须由 seed 和事件记录驱动，保证 legacy Java 与 C# 回放可复现。 |
 | P0 | 对局恢复策略 | P1-P2 | 明确 actor 崩溃后从 snapshot + events 或 command log 恢复；定义恢复校验、重复事件防护和未完成命令处理。 |
+| P0 | 五份 PDF 规则索引与重审 | P1 前 | 抽取核心规则和四份 FAQ 的目录、关键词、问题索引；已开发的 PASS、END_TURN、幂等等能力先标记 `NEEDS_RULE_AUDIT`，重审后再视为完成。 |
 | P0 | 卡牌素材与授权策略 | P3/P7 | 官网图片、卡面数据、图鉴展示、缓存、CDN、素材使用范围需要单独确认；开发可用不等于产品可上线。 |
 | P1 | 牌组构筑与校验 | P2-P3 | 传奇、选定英雄、主牌堆 40 张、同名上限、专属牌上限、符文牌堆 12 张、战场限制需要独立模块和测试。 |
 | P1 | 对局生命周期状态机 | P1-P2 | 房间创建、入座、准备、开局、调度、进行中、暂停、认输、结束、归档，不应只靠 `MatchSession` 隐式状态。 |
@@ -619,6 +629,6 @@ Browser Use 阶段性测试：
 | P2 | 安全边界前置 | P1-P8 | 即使账号后置，也要从早期限制输入大小、命令频率、房间枚举、reconnect token 泄漏和跨房间访问。 |
 | P3 | 规则 DSL/模板与手写规则边界 | P3-P6 | 明确哪些效果走数据模板，哪些必须手写 C# RuleHandler，避免出现半数据化、半硬编码的混乱状态。 |
 
-这些补充项不改变主路线：规则底座仍然优先。但从 P1 开始就要把工程基线、版本治理、确定性、恢复和测试入口打好，否则后续卡牌迁移越快，返工成本越高。
+这些补充项不改变主路线：规则底座仍然优先。但现在规则底座必须先纳入五份 PDF 和 FAQ；从 P1 开始就要把工程基线、版本治理、确定性、恢复和测试入口打好，否则后续卡牌迁移越快，返工成本越高。
 
-这份计划是后续开发主线。除非规则 PDF、官网快照或产品目标发生变化，后续开发默认按此顺序推进。
+这份计划是后续开发主线。除非五份 PDF、官网快照或产品目标发生变化，后续开发默认按此顺序推进。

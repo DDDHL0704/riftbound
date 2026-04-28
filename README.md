@@ -7,9 +7,10 @@
 ## 当前状态
 
 - 这是第一阶段骨架，不是可替代 Java 服务端的完整实现。
-- 当前机器尚未安装 `dotnet` CLI，需先安装 .NET 10 SDK 后才能编译。
-- Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 仍是规则 golden oracle。
-- 迁移验收以 command log -> events -> player snapshots 的 conformance tests 为准。
+- 当前机器已安装 .NET 10 SDK、PostgreSQL 16、Redis 和 Node 24。
+- 五份官方 PDF 规则文档与官网卡牌快照是最终规则权威。
+- Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
+- 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 
 ## 新窗口接手
 
@@ -18,7 +19,8 @@
 1. `docs/START_HERE.md`
 2. `docs/master-development-plan.md`
 3. `docs/phase-1.md`
-4. `docs/rules-card-baseline.md`
+4. `docs/rules-authority-and-audit.md`
+5. `docs/rules-card-baseline.md`
 
 `docs/START_HERE.md` 是防偏离入口：它记录当前目标、资料优先级、立即开发顺序、P1 禁止范围和验收门禁。
 
@@ -51,7 +53,7 @@ curl http://127.0.0.1:5088/catalog/summary
 | `src/Riftbound.Persistence` | PostgreSQL P1 event store schema 与 `IMatchJournal` 实现。 |
 | `src/Riftbound.CardCatalog` | 官网卡牌快照加载、功能逻辑单元分组。 |
 | `src/Riftbound.Api` | ASP.NET Core + SignalR `GameHub`。 |
-| `tests/Riftbound.ConformanceTests` | Java oracle fixture 与 C# 回放结果对比。 |
+| `tests/Riftbound.ConformanceTests` | PDF/FAQ 规则依据、Java legacy oracle fixture 与 C# 回放结果对比。 |
 | `data/official` | 官网卡牌快照，当前 1009 条官方图鉴条目。 |
 | `scripts/dev-env.sh` | 本机开发 shell 环境入口。 |
 | `docs/` | 阶段计划、架构和验收记录。 |
@@ -59,15 +61,16 @@ curl http://127.0.0.1:5088/catalog/summary
 核心计划文档：
 
 - `docs/START_HERE.md`：新窗口接手指南，先读它以恢复目标和当前阶段。
-- `docs/rules-card-baseline.md`：规则 PDF 与官网卡牌快照基线。
+- `docs/rules-authority-and-audit.md`：五份 PDF 的规则权威、冲突裁决和已开发部分重审协议。
+- `docs/rules-card-baseline.md`：规则 PDF/FAQ 与官网卡牌快照基线。
 - `docs/master-development-plan.md`：后续开发主线和阶段验收标准。
 - `docs/phase-1.md`：第一阶段联机底座任务清单。
-- `docs/conformance-fixture-format.md`：Java oracle 与 C# runner 共用的 fixture JSON 契约。
+- `docs/conformance-fixture-format.md`：规则依据、Java legacy oracle 与 C# runner 共用的 fixture JSON 契约。
 
 ## 第一阶段原则
 
 1. 不迁移全部卡牌。
 2. 不重做完整 UI。
-3. 不绕过 Java golden oracle。
-4. 不提交规则 PDF。
-5. 每个已迁移能力必须能从 command log 回放并与 Java 输出对齐。
+3. 不绕过五份 PDF 和官网卡面依据。
+4. 不提交规则 PDF/FAQ。
+5. 每个已迁移能力必须能从 command log 回放；Java 输出只能作为旧实现对照，不能覆盖 PDF/FAQ 裁决。

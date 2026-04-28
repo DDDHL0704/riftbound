@@ -11,22 +11,26 @@
 关键原则：
 
 - 玩家只提交行为意图。
-- 服务端根据规则 PDF、官网卡面和当前状态自动裁决并结算。
+- 服务端根据五份官方 PDF、官网卡面和当前状态自动裁决并结算。
 - 前端只渲染服务端下发的 `Prompt`、`Events`、`PlayerSnapshot` 和错误信息。
-- 每个规则能力都必须能通过 command log 回放，并与 Java golden oracle 做 conformance 对比。
+- 每个规则能力都必须能通过 command log 回放，并以 PDF/FAQ 规则依据作为最终裁决；Java 输出只作为旧实现对照。
 
 ## 2. 当前项目边界
 
 主要工作区：
 
 - 新项目：`/Users/dinghaolin/MyProjects/riftbound-dotnet`
-- 旧 Java oracle：`/Users/dinghaolin/MyProjects/riftbound-server`
+- 旧 Java 参考项目：`/Users/dinghaolin/MyProjects/riftbound-server`
 
 最高优先级资料：
 
-1. `/Users/dinghaolin/MyProjects/riftbound-server/《符文战场》核心规则_260330.pdf`
-2. `/Users/dinghaolin/MyProjects/riftbound-server/core/src/main/resources/official/card-catalog.zh-CN.json`
-3. 旧 Java 项目的实现、测试、生成矩阵和迭代日志
+1. `/Users/dinghaolin/MyProjects/riftbound-dotnet/《符文战场》核心规则_260330.pdf`
+2. `/Users/dinghaolin/MyProjects/riftbound-dotnet/裁判FAQ_251023.pdf`
+3. `/Users/dinghaolin/MyProjects/riftbound-dotnet/铸魂淬炼系列_裁判FAQ.pdf`
+4. `/Users/dinghaolin/MyProjects/riftbound-dotnet/铸魂淬炼系列_官方FAQ_260114.pdf`
+5. `/Users/dinghaolin/MyProjects/riftbound-dotnet/《符文战场》破限系列_裁判FAQ_260416.pdf`
+6. `/Users/dinghaolin/MyProjects/riftbound-dotnet/data/official/card-catalog.zh-CN.json`
+7. 旧 Java 项目的实现、测试、生成矩阵和迭代日志
 
 当前固定 Java 参考点：
 
@@ -34,9 +38,9 @@
 
 注意：
 
-- 规则 PDF 可能是未跟踪文件，不要提交。
+- 规则 PDF/FAQ 是未跟踪文件，不要提交。
 - 不回退现有改动。
-- 旧 Java 代码是行为 oracle，不是新项目架构模板。
+- 旧 Java 代码是历史行为参考，不是新项目架构模板；如果它与 FAQ 或官网卡面冲突，以 PDF/FAQ/官网卡面为准。
 
 ## 3. 新窗口先读顺序
 
@@ -46,9 +50,10 @@
 2. `docs/START_HERE.md`
 3. `docs/master-development-plan.md`
 4. `docs/phase-1.md`
-5. `docs/rules-card-baseline.md`
-6. `docs/conformance-fixture-format.md`
-7. 如需迁移背景，再读旧项目的 `docs/dotnet-migration-plan.md`
+5. `docs/rules-authority-and-audit.md`
+6. `docs/rules-card-baseline.md`
+7. `docs/conformance-fixture-format.md`
+8. 如需迁移背景，再读旧项目的 `docs/dotnet-migration-plan.md`
 
 如果上下文不够，再回到旧 Java 项目阅读：
 
@@ -101,10 +106,11 @@
 
 第一批任务：
 
-1. 扩展 Java oracle fixture exporter，补足第一批 10 条 high-value fixture。
-2. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot 的 Java fixture。
-3. 将符文横置/回收、基础出牌、基础移动纳入 Java fixture 和 C# conformance。
-4. 再扩展 P1 的重连 token 和 command log 原始 payload。
+1. 抽取五份 PDF 的目录、关键词和 FAQ 问题索引。
+2. 给现有 `PASS`、`END_TURN`、重复 `PASS` 三条 fixture 增加规则依据记录。
+3. 扩展 fixture 格式：`rulesEvidence + legacyOracle + expected`，让 Java 输出降级为旧实现对照。
+4. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
+5. 再扩展 P1 的重连 token 和 command log 原始 payload。
 
 P1 验收前不要开始：
 
@@ -118,13 +124,13 @@ P1 验收前不要开始：
 
 任何功能要进入“完成”状态，必须满足：
 
-- PDF 规则点已记录。
+- PDF/FAQ 规则点已记录。
 - 官网卡面文本已记录。
 - 行为规格已结构化。
 - C# 实现已完成。
 - 单元测试通过。
 - MatchSession/SignalR 测试通过。
-- Java oracle conformance 通过。
+- PDF/FAQ 裁决通过；Java legacy oracle conformance 通过或差异已记录。
 - 前端 smoke 或等价 E2E 通过。
 - 文档和状态矩阵已更新。
 
@@ -150,8 +156,8 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 每次开始新任务前，先确认：
 
 - 这是否服务于“服务端权威双人 Web 卡牌游戏”？
-- 是否符合 PDF 和官网卡牌优先级？
-- 是否仍以 Java 作为 oracle，而不是直接抛弃旧测试？
+- 是否符合五份 PDF、FAQ 和官网卡牌优先级？
+- 是否把 Java 当作旧实现对照，而不是最终规则裁判？
 - 是否能产出 command log、events、snapshots？
 - 是否有明确 conformance 或 Browser Use smoke 验收？
 - 是否避免提前做最终 UI、全卡牌、复杂 AI 或移动端？
@@ -164,8 +170,8 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 
 ```text
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
-先读取 README.md、docs/START_HERE.md、docs/master-development-plan.md、docs/phase-1.md、docs/rules-card-baseline.md。
-目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。规则 PDF 与官网卡牌快照优先，旧 Java 项目只作为 golden oracle。
-当前阶段只推进 P1：验证 .NET 10 SDK、跑通 build/test、补 Persistence/CardCatalog、设计 Java oracle fixture exporter 和 C# conformance runner。
-不要重做最终 UI，不要全量迁移卡牌，不要提交规则 PDF，不要回退现有改动。
+先读取 README.md、docs/START_HERE.md、docs/master-development-plan.md、docs/phase-1.md、docs/rules-authority-and-audit.md、docs/rules-card-baseline.md。
+目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
+当前阶段只推进 P1：先完成五份 PDF 的规则索引和现有 fixture 重审，再继续扩展联机底座、Persistence/CardCatalog、conformance runner。
+不要重做最终 UI，不要全量迁移卡牌，不要提交规则 PDF/FAQ，不要回退现有改动。
 ```
