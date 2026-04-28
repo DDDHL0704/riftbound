@@ -90,10 +90,16 @@ public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? LegendZone = null,
     IReadOnlyList<string>? ChampionZone = null);
 
-public sealed record ConformanceCardObjectState(
-    int? Damage = null,
-    IReadOnlyList<string>? UntilEndOfTurnEffects = null,
-    bool? IsFaceDown = null);
+public sealed record ConformanceCardObjectState
+{
+    public int? Damage { get; init; }
+
+    public IReadOnlyList<string>? UntilEndOfTurnEffects { get; init; }
+
+    public bool? IsFaceDown { get; init; }
+
+    public int? Power { get; init; }
+}
 
 public sealed record ConformanceStackItemState(
     string? StackItemId = null,
@@ -347,7 +353,8 @@ public static class ConformanceFixtureRunner
                     entry.Key.Trim(),
                     entry.Value.Damage ?? 0,
                     entry.Value.UntilEndOfTurnEffects,
-                    entry.Value.IsFaceDown ?? false),
+                    entry.Value.IsFaceDown ?? false,
+                    entry.Value.Power ?? 0),
                 StringComparer.Ordinal);
     }
 
@@ -615,6 +622,7 @@ public static class ConformanceFixtureRunner
             }
 
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.damage", expectedObject.Damage, actualObject.Damage);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.power", expectedObject.Power, actualObject.Power);
             CompareSequence(
                 mismatches,
                 $"finalState.cardObjects.{objectId}.untilEndOfTurnEffects",

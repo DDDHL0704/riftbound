@@ -682,6 +682,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        events.AddRange(ApplyLethalDamageCleanup(playerZones, cardObjects, stackItem));
+
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
@@ -753,6 +755,53 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static IReadOnlyList<GameEvent> ApplyLethalDamageCleanup(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem)
+    {
+        var events = new List<GameEvent>();
+        var lethalObjectIds = cardObjects
+            .Where(entry => entry.Value.Power > 0
+                && entry.Value.Damage > 0
+                && entry.Value.Damage >= entry.Value.Power
+                && IsObjectOnField(playerZones, entry.Key))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var objectId in lethalObjectIds)
+        {
+            if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var ownerPlayerId))
+            {
+                continue;
+            }
+
+            events.Add(new GameEvent(
+                "UNIT_DESTROYED",
+                "致命伤害摧毁单位",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = objectId,
+                    ["ownerPlayerId"] = ownerPlayerId,
+                    ["destroyedByPlayerId"] = stackItem.ControllerId,
+                    ["reason"] = "LETHAL_DAMAGE"
+                }));
+        }
+
+        return events;
+    }
+
+    private static bool IsObjectOnField(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId)
+    {
+        return playerZones.Values.Any(zones =>
+            zones.Base.Contains(objectId, StringComparer.Ordinal)
+            || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static IReadOnlyList<string> RemoveFromZone(IReadOnlyList<string> zone, string objectId)

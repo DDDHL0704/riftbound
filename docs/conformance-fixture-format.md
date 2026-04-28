@@ -1,6 +1,6 @@
 # Conformance Fixture 格式
 
-更新时间：2026-04-28
+更新时间：2026-04-29
 
 ## 1. 目的
 
@@ -89,6 +89,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-prophets-omen-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-evolution-day-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vengeance-destroy-unit-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-lethal-damage-destroys-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-base-unit-mode-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-seeker-damage-draw-stack.fixture.json`
@@ -127,6 +128,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
     "cardObjects": {
       "P2-UNIT-001": {
         "damage": 2,
+        "power": 3,
         "untilEndOfTurnEffects": ["effect-temp-power"],
         "isFaceDown": false
       }
@@ -149,6 +151,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
       "cardObjects": {
         "P2-UNIT-001": {
           "damage": 0,
+          "power": 3,
           "untilEndOfTurnEffects": [],
           "isFaceDown": false
         }
@@ -169,7 +172,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、玩家区域、对象状态、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
+schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、玩家区域、对象状态（含 `damage`、`power`、`untilEndOfTurnEffects`、`isFaceDown`）、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
 
 ## 3. Fixture 后续必须补齐
 
