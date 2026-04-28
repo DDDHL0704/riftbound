@@ -134,6 +134,60 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentForUnknownPlayerReturnsStableErrorCode()
+    {
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1")
+            .SubmitIntent("room-a", "alice", "intent-pass", cmd);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, payload.Code);
+        Assert.Equal("player is not in room", payload.Message);
+    }
+
+    [Fact]
+    public async Task SubmitIntentUnsupportedCommandReturnsStableErrorCode()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse("""{"cmdType":"FLIP_TABLE"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-unsupported", cmd);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
+        Assert.Equal("Unsupported command: FLIP_TABLE", payload.Message);
+    }
+
+    [Fact]
+    public async Task SubmitIntentDuplicateConflictReturnsStableErrorCode()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-same", pass);
+        var clients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", "intent-same", endTurn);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
+        Assert.Equal("clientIntentId already belongs to another command", payload.Message);
+    }
+
+    [Fact]
     public async Task SubmitIntentPreservesOriginalCommandPayloadInJournal()
     {
         var journal = new RecordingMatchJournal();

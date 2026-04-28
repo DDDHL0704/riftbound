@@ -590,6 +590,7 @@ Browser Use 阶段性测试：
 - command log 已保留客户端原始 payload；`SubmitIntent` 的 JSON 原文会进入 journal，并由 PostgreSQL payload 保存为 `rawCommand`。
 - recovery 读取/校验路径已建立：可从 PostgreSQL 读取 match、command、events、最新 snapshot/prompt，并校验 event sequence、command 边界和 player view sequence。
 - `001_p1_event_store.sql` 已避免在旧库缺少 003 新列时提前创建 sequence 索引。
+- P1 提交路径错误码已覆盖未知玩家、unsupported command 和重复 intent 冲突；未 Join 的玩家提交命令不会隐式入座。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

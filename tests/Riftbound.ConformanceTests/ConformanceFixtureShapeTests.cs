@@ -59,6 +59,18 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task SubmitRequiresPlayerToJoinRoomFirst()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, error.Code);
+        Assert.Equal("player is not in room", error.Message);
+    }
+
+    [Fact]
     public void JoinAssignsStableP1P2SeatsAndSnapshotsExposeSeatStatus()
     {
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());

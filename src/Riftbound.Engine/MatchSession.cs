@@ -352,7 +352,7 @@ public sealed class MatchSession : IMatchSession
         CancellationToken cancellationToken)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
-        EnsurePlayer(normalizedPlayerId);
+        RequirePlayer(normalizedPlayerId);
         var normalizedIntentId = string.IsNullOrWhiteSpace(clientIntentId)
             ? Guid.NewGuid().ToString("N")
             : clientIntentId.Trim();

@@ -32,8 +32,9 @@
   - `MatchJournalEntry` 已携带客户端原始命令 JSON；`GameHub.SubmitIntent` 到 journal 的 raw payload 已有测试覆盖，PostgreSQL `command_log.payload.rawCommand` 可用于回放和审计。
   - `IMatchRecoveryStore` 和 `PostgresMatchRecoveryStore` 已能读取 match、command、events、最新 snapshot/prompt，`MatchRecoveryValidator` 已覆盖 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
   - `001_p1_event_store.sql` 不再创建依赖后续迁移新列的 sequence 索引，旧库升级顺序已恢复为 `001 -> 002 -> 003`。
+  - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom；Hub 级错误码测试覆盖未知玩家提交、unsupported command 和重复 intent 冲突。
 
-下一步接入 RoomRegistry/MatchSession 恢复入口，并继续扩大稳定错误码覆盖面；新增 fixture 不再使用裸 `PASS`。
+下一步接入 RoomRegistry/MatchSession 恢复入口，并继续做协议错误码治理；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 
@@ -48,7 +49,9 @@
 - `GameHub` 可让 P1/P2 加入同一房间。
 - `MatchSession` 为前两名加入者分配稳定 `P1`/`P2` 座位，并拒绝第三名玩家。
 - `MatchSession` 对同一房间命令严格串行。
+- 未 Join 的玩家提交命令会被拒绝为 `PLAYER_NOT_IN_ROOM`，不再隐式入座。
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
+- `UNSUPPORTED_COMMAND` 和 `CLIENT_INTENT_CONFLICT` 在 Hub 层有稳定错误码测试。
 - 协议层明确区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，裸 `PASS` 仅用于 legacy 兼容。
 - `IRuleEngine` 的输出能被事件和快照投影消费。
 - PostgreSQL EventStore schema 草案完成，包含规则版本/FAQ/audit 元数据，并能由开发环境启动时初始化。
