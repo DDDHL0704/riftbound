@@ -717,6 +717,46 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsEchoWhenManaIsInsufficient()
+    {
+        var state = CenterStageState(mana: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-center-stage-echo-no-mana", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-CENTER-STAGE", "UNL-061/219", [], OptionalCosts: ["ECHO"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new[] { "P1-SPELL-CENTER-STAGE" }, result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsEchoOnNonEchoSpell()
+    {
+        var state = PunishmentState(mana: 4);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-punishment-illegal-echo", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-PUNISHMENT", "UNL-007/219", ["P2-UNIT-001"], OptionalCosts: ["ECHO"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new[] { "P1-SPELL-PUNISHMENT" }, result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsPassPriorityOutsidePriorityWindow()
     {
         var state = new MatchState(
@@ -1108,6 +1148,45 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             });
+    }
+
+    private static MatchState CenterStageState(int mana)
+    {
+        return new MatchState(
+            "p2-center-stage-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(mana, 0),
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-DRAW-001", "P1-DRAW-002"],
+                    Hand = ["P1-SPELL-CENTER-STAGE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
     }
 
     private sealed class CapturingRuleEngine : IRuleEngine

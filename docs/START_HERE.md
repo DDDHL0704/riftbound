@@ -96,7 +96,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 94 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 96 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
