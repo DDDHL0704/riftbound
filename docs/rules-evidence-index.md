@@ -89,6 +89,7 @@
 | `p2-preflight-play-abyssal-hunt-face-down-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在控制者控制正面朝下战场牌时改为造成 4 点伤害。 |
 | `p2-preflight-play-incinerate-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·003/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《焚烧》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
 | `p2-preflight-play-hextech-ray-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·009/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《海克斯射线》支付 1 点费用、选择战场单位目标、加入结算链、双方让过后造成 3 点伤害并进入废牌堆。 |
+| `p2-preflight-hextech-ray-damage-clears-end-turn` | `RULE_AUDITED` | `CATALOG` OGN·009/298；`CORE-260330` p30-p33 rules 317-324, p39-p42 rules 355-356；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证官方法术《海克斯射线》造成的真实伤害会在随后 `END_TURN` 特殊清理中移除，并自动推进到下一回合开始。 |
 | `p2-preflight-play-rune-prison-stun-stack` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《符文禁锢》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后施加 `STUNNED` 本回合内效果并进入废牌堆。 |
 | `p2-preflight-rune-prison-stun-expires-end-turn` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p30-p33 rules 317-324, p39-p42 rules 355-356；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证官方法术《符文禁锢》施加的 `STUNNED` 会在随后 `END_TURN` 特殊清理中失效，并自动推进到下一回合开始。 |
 

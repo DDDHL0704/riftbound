@@ -80,6 +80,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-face-down-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-incinerate-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-stun-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-rune-prison-stun-expires-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
