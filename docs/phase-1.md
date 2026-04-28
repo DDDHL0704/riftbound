@@ -27,8 +27,9 @@
   - 协议层已新增 `PASS_PRIORITY`、`PASS_FOCUS`，并记录 `END_TURN` 与 legacy `PASS` 的语义边界。
   - `MatchSession` 已能分配稳定 `P1` / `P2` 座位，snapshot 暴露 seat，第三名玩家加入会被拒绝。
   - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和满员错误。
+  - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
 
-下一步扩展重连 token、稳定错误码、command log 原始 payload、event sequence 和 recovery；新增 fixture 不再使用裸 `PASS`。
+下一步补 event sequence、recovery、command log 原始 payload，并继续扩大稳定错误码覆盖面；新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 

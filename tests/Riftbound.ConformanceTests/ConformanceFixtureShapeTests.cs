@@ -52,8 +52,23 @@ public sealed class ConformanceFixtureShapeTests
         session.EnsurePlayer("alice");
         session.EnsurePlayer("bob");
 
-        var error = Assert.Throws<InvalidOperationException>(() => session.EnsurePlayer("charlie"));
+        var error = Assert.Throws<MatchSessionException>(() => session.EnsurePlayer("charlie"));
+        Assert.Equal(ErrorCodes.RoomFull, error.Code);
         Assert.Equal("room already has two players", error.Message);
+    }
+
+    [Fact]
+    public void ReconnectTokenIsStableAndRequired()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+
+        var join = session.EnsurePlayer("alice");
+        var duplicateJoin = session.EnsurePlayer(" alice ");
+        var reconnect = session.ReconnectPlayer("alice", join.ReconnectToken);
+
+        Assert.Equal(join, duplicateJoin);
+        Assert.Equal(join, reconnect);
+        Assert.Throws<MatchSessionException>(() => session.ReconnectPlayer("alice", "bad-token"));
     }
 
     [Fact]

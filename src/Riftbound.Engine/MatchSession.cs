@@ -30,11 +30,15 @@ public sealed record ResolutionResult(
     MatchState State,
     IReadOnlyList<GameEvent> Events,
     IReadOnlyDictionary<string, SnapshotDto> Snapshots,
-    IReadOnlyDictionary<string, ActionPromptDto> Prompts)
+    IReadOnlyDictionary<string, ActionPromptDto> Prompts,
+    string? ErrorCode = null)
 {
-    public static ResolutionResult Rejected(MatchState state, string error)
+    public static ResolutionResult Rejected(
+        MatchState state,
+        string error,
+        string errorCode = ErrorCodes.UnsupportedCommand)
     {
-        return new ResolutionResult(false, error, state, [], BuildSnapshots(state), BuildPrompts(state));
+        return new ResolutionResult(false, error, state, [], BuildSnapshots(state), BuildPrompts(state), errorCode);
     }
 
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
@@ -96,7 +100,8 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
         {
             return ValueTask.FromResult(ResolutionResult.Rejected(
                 state,
-                $"Unsupported command: {unsupported.RawCmdType}"));
+                $"Unsupported command: {unsupported.RawCmdType}",
+                ErrorCodes.UnsupportedCommand));
         }
 
         var nextState = BuildNextState(state, command);
@@ -214,7 +219,9 @@ public interface IMatchSession
 {
     string RoomId { get; }
 
-    void EnsurePlayer(string playerId);
+    PlayerSessionDto EnsurePlayer(string playerId);
+
+    PlayerSessionDto ReconnectPlayer(string playerId, string reconnectToken);
 
     SnapshotDto SnapshotFor(string playerId);
 
@@ -259,6 +266,7 @@ public sealed class MatchSession : IMatchSession
     private readonly object seatGate = new();
     private readonly SemaphoreSlim serialGate = new(1, 1);
     private readonly Dictionary<string, string> seats = new();
+    private readonly Dictionary<string, string> reconnectTokens = new();
     private readonly Dictionary<string, CachedResolution> intentCache = new();
     private MatchState state;
 
@@ -277,41 +285,59 @@ public sealed class MatchSession : IMatchSession
 
     public string RoomId { get; }
 
-    public void EnsurePlayer(string playerId)
+    public PlayerSessionDto EnsurePlayer(string playerId)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
         lock (seatGate)
         {
             if (seats.ContainsKey(normalizedPlayerId))
             {
-                return;
+                return PlayerSessionFor(normalizedPlayerId);
             }
 
             if (seats.Count >= 2)
             {
-                throw new InvalidOperationException("room already has two players");
+                throw new MatchSessionException(ErrorCodes.RoomFull, "room already has two players");
             }
 
             seats[normalizedPlayerId] = NextOpenSeat();
+            reconnectTokens[normalizedPlayerId] = NewReconnectToken();
             state = state with
             {
                 ActivePlayerId = seats.ContainsKey(state.ActivePlayerId) ? state.ActivePlayerId : normalizedPlayerId,
                 Seats = new Dictionary<string, string>(seats)
             };
+            return PlayerSessionFor(normalizedPlayerId);
+        }
+    }
+
+    public PlayerSessionDto ReconnectPlayer(string playerId, string reconnectToken)
+    {
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        lock (seatGate)
+        {
+            if (!reconnectTokens.TryGetValue(normalizedPlayerId, out var expectedToken)
+                || string.IsNullOrWhiteSpace(reconnectToken)
+                || !string.Equals(expectedToken, reconnectToken.Trim(), StringComparison.Ordinal))
+            {
+                throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "invalid reconnect token");
+            }
+
+            return PlayerSessionFor(normalizedPlayerId);
         }
     }
 
     public SnapshotDto SnapshotFor(string playerId)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
-        EnsurePlayer(normalizedPlayerId);
+        RequirePlayer(normalizedPlayerId);
         return ResolutionResult.BuildSnapshots(state)[normalizedPlayerId];
     }
 
     public ActionPromptDto PromptFor(string playerId)
     {
         var normalizedPlayerId = NormalizePlayerId(playerId);
-        EnsurePlayer(normalizedPlayerId);
+        RequirePlayer(normalizedPlayerId);
         return ResolutionResult.BuildPrompts(state)[normalizedPlayerId];
     }
 
@@ -335,7 +361,10 @@ public sealed class MatchSession : IMatchSession
             {
                 if (!string.Equals(cached.CommandType, command.CmdType, StringComparison.Ordinal))
                 {
-                    return ResolutionResult.Rejected(state, "clientIntentId already belongs to another command");
+                    return ResolutionResult.Rejected(
+                        state,
+                        "clientIntentId already belongs to another command",
+                        ErrorCodes.ClientIntentConflict);
                 }
 
                 return cached.Result;
@@ -381,13 +410,39 @@ public sealed class MatchSession : IMatchSession
         return seats.ContainsValue("P1") ? "P2" : "P1";
     }
 
+    private PlayerSessionDto PlayerSessionFor(string playerId)
+    {
+        return new PlayerSessionDto(playerId, seats[playerId], reconnectTokens[playerId]);
+    }
+
+    private void RequirePlayer(string playerId)
+    {
+        lock (seatGate)
+        {
+            if (!seats.ContainsKey(playerId))
+            {
+                throw new MatchSessionException(ErrorCodes.PlayerNotInRoom, "player is not in room");
+            }
+        }
+    }
+
+    private static string NewReconnectToken()
+    {
+        return $"rt_{Guid.NewGuid():N}";
+    }
+
     private static string NormalizePlayerId(string playerId)
     {
         if (string.IsNullOrWhiteSpace(playerId))
         {
-            throw new ArgumentException("playerId is required", nameof(playerId));
+            throw new MatchSessionException(ErrorCodes.PlayerIdRequired, "playerId is required");
         }
 
         return playerId.Trim();
     }
+}
+
+public sealed class MatchSessionException(string code, string message) : InvalidOperationException(message)
+{
+    public string Code { get; } = code;
 }

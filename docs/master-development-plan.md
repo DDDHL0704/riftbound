@@ -572,8 +572,8 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 完成第一批高价值 fixture 和测试：
-   - RequestSnapshot / Reconnect
    - event sequence / recovery
+   - command log 原始 payload
    - 幂等重复提交
    - 符文横置/回收
    - EndTurn/Pass

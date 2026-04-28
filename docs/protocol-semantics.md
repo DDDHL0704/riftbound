@@ -22,4 +22,6 @@
 - 客户端只提交意图，不直接修改状态。
 - `ActionPrompt` 后续应按当前回合状态暴露 `PASS_PRIORITY`、`PASS_FOCUS` 或 `END_TURN`，避免同时暴露语义冲突的动作。
 - `PASS` 在 P1 期间只能用于 legacy fixture；若新测试需要让过，必须使用更具体的 command。
+- Hub 错误统一返回 `ErrorDto(code, message)`；当前已覆盖 `ROOM_FULL`、`PLAYER_NOT_IN_ROOM`、`INVALID_RECONNECT_TOKEN` 和 command 层拒绝。
+- `JoinRoom` 返回 `PlayerSessionDto`，其中包含当前内存 reconnect token；P1 后续需要把 token hash 写入 `match_players`。
 - 如果 PDF/FAQ 与旧 Java fixture 冲突，以五份官方 PDF/FAQ 和官网卡面为准，fixture 的 `expected` 应更新，旧输出保留在 `legacyOracle`。

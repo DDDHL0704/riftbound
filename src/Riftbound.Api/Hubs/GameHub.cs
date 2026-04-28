@@ -7,6 +7,8 @@ namespace Riftbound.Api.Hubs;
 
 public interface IGameClient
 {
+    Task Joined(WsServerMessage message);
+
     Task Snapshot(WsServerMessage message);
 
     Task Prompt(WsServerMessage message);
@@ -22,38 +24,88 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
     {
         var session = sessions.GetOrCreate(roomId);
         var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        PlayerSessionDto playerSession;
         try
         {
-            session.EnsurePlayer(normalizedPlayerId);
+            playerSession = session.EnsurePlayer(normalizedPlayerId);
         }
-        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
-            await Clients.Caller.Error(new WsServerMessage(
-                MessageType.ERROR,
-                roomId,
-                normalizedPlayerId,
-                0,
-                ex.Message));
+            await SendError(roomId, normalizedPlayerId, 0, ex);
             return;
         }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, RoomGroup(roomId));
         await Groups.AddToGroupAsync(Context.ConnectionId, PlayerGroup(roomId, normalizedPlayerId));
 
-        var snapshot = session.SnapshotFor(normalizedPlayerId);
-        var prompt = session.PromptFor(normalizedPlayerId);
+        await Clients.Caller.Joined(new WsServerMessage(
+            MessageType.JOIN,
+            roomId,
+            normalizedPlayerId,
+            0,
+            playerSession));
+
+        await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
+    }
+
+    public async Task Reconnect(string roomId, string playerId, string reconnectToken)
+    {
+        var session = sessions.GetOrCreate(roomId);
+        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        PlayerSessionDto playerSession;
+        try
+        {
+            playerSession = session.ReconnectPlayer(normalizedPlayerId, reconnectToken);
+        }
+        catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
+        {
+            await SendError(roomId, normalizedPlayerId, 0, ex);
+            return;
+        }
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, RoomGroup(roomId));
+        await Groups.AddToGroupAsync(Context.ConnectionId, PlayerGroup(roomId, normalizedPlayerId));
+
+        await Clients.Caller.Joined(new WsServerMessage(
+            MessageType.RECONNECT,
+            roomId,
+            normalizedPlayerId,
+            0,
+            playerSession));
+
+        await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
+    }
+
+    public async Task RequestSnapshot(string roomId, string playerId)
+    {
+        var session = sessions.GetOrCreate(roomId);
+        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        try
+        {
+            await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
+        }
+        catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
+        {
+            await SendError(roomId, normalizedPlayerId, 0, ex);
+        }
+    }
+
+    private async Task SendSnapshotAndPrompt(IMatchSession session, string roomId, string playerId)
+    {
+        var snapshot = session.SnapshotFor(playerId);
+        var prompt = session.PromptFor(playerId);
 
         await Clients.Caller.Snapshot(new WsServerMessage(
             MessageType.SNAPSHOT,
             roomId,
-            normalizedPlayerId,
+            playerId,
             snapshot.Tick,
             snapshot));
 
         await Clients.Caller.Prompt(new WsServerMessage(
             MessageType.PROMPT,
             roomId,
-            normalizedPlayerId,
+            playerId,
             snapshot.Tick,
             prompt));
     }
@@ -86,14 +138,9 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
                 command,
                 Context.ConnectionAborted);
         }
-        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
         {
-            await Clients.Caller.Error(new WsServerMessage(
-                MessageType.ERROR,
-                roomId,
-                normalizedPlayerId,
-                0,
-                ex.Message));
+            await SendError(roomId, normalizedPlayerId, 0, ex);
             return;
         }
 
@@ -104,7 +151,9 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
                 roomId,
                 normalizedPlayerId,
                 result.State.Tick,
-                result.ErrorMessage));
+                new ErrorDto(
+                    result.ErrorCode ?? ErrorCodes.UnsupportedCommand,
+                    result.ErrorMessage ?? "command rejected")));
             return;
         }
 
@@ -144,5 +193,18 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
     private static string PlayerGroup(string roomId, string playerId)
     {
         return $"room:{roomId}:player:{playerId}";
+    }
+
+    private Task SendError(string roomId, string playerId, long serverTick, Exception ex)
+    {
+        var code = ex is MatchSessionException matchSessionException
+            ? matchSessionException.Code
+            : ErrorCodes.UnsupportedCommand;
+        return Clients.Caller.Error(new WsServerMessage(
+            MessageType.ERROR,
+            roomId,
+            playerId,
+            serverTick,
+            new ErrorDto(code, ex.Message)));
     }
 }

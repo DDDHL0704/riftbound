@@ -18,9 +18,9 @@
 | 范围 | 当前状态 | 是否需要修改 | 处理决定 |
 |---|---|---|---|
 | `.NET 10` solution、项目分层、`scripts/dev-env.sh` | 工程骨架已可 build/test | 暂不需要 | 保留。 |
-| `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN` | 需要后续扩展 | P1 加 `protocolVersion`、错误码、reconnect 字段和 TypeScript DTO 生成。 |
-| `GameHub` | 支持 Join、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；JoinRoom 满员会返回错误且有最小 SignalR 级测试 | 需要后续扩展 | 保留；补 Ready、Reconnect、RequestSnapshot 和稳定错误码。 |
-| `MatchSession` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配和 snapshot seat | 需要规则审查 | 串行、幂等、座位可保留；规则状态和 prompt 只是占位。 |
+| `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，并有 `ErrorDto` / `PlayerSessionDto` | 需要后续扩展 | P1 加 `protocolVersion`、TypeScript DTO 生成，并扩大稳定错误码覆盖面。 |
+| `GameHub` | 支持 Join、Reconnect、RequestSnapshot、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；加入/重连/快照错误有最小 SignalR 级测试 | 需要后续扩展 | 保留；补 Ready、生产级 reconnect token 持久化和更多错误码。 |
+| `MatchSession` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat、内存 reconnect token | 需要规则审查 | 串行、幂等、座位、内存重连可保留；规则状态和 prompt 只是占位。 |
 | `PlaceholderRuleEngine` | 对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状 | 需要重审 | 标记 `NEEDS_RULE_AUDIT`；补 PDF/FAQ evidence 后决定是否改行为。 |
 | `PostgresMatchJournal` 和 P1 SQL | 能记录命令、事件、snapshot、prompt，并写入 ruleset/FAQ/audit 元数据 | 需要后续扩展 | 保留；后续补 event sequence、recovery 字段和恢复校验。 |
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
@@ -49,8 +49,8 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 补重连 token、稳定错误码、RequestSnapshot 和 Reconnect Hub 测试。
-2. 补 event sequence、recovery 字段和断线重连恢复校验。
+1. 补 event sequence、recovery 字段和断线重连恢复校验。
+2. 扩展 command log 原始 payload 和稳定错误码覆盖面。
 3. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
 
 ## 5. 重审验收

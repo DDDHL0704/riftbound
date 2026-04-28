@@ -5,6 +5,7 @@ namespace Riftbound.Contracts;
 public enum MessageType
 {
     JOIN,
+    RECONNECT,
     START,
     READY,
     ACT,
@@ -33,6 +34,25 @@ public sealed record WsServerMessage(
     string PlayerId,
     long ServerTick,
     object? Payload);
+
+public static class ErrorCodes
+{
+    public const string PlayerIdRequired = "PLAYER_ID_REQUIRED";
+    public const string PlayerNotInRoom = "PLAYER_NOT_IN_ROOM";
+    public const string RoomFull = "ROOM_FULL";
+    public const string InvalidReconnectToken = "INVALID_RECONNECT_TOKEN";
+    public const string ClientIntentConflict = "CLIENT_INTENT_CONFLICT";
+    public const string UnsupportedCommand = "UNSUPPORTED_COMMAND";
+}
+
+public sealed record ErrorDto(
+    string Code,
+    string Message);
+
+public sealed record PlayerSessionDto(
+    string PlayerId,
+    string Seat,
+    string ReconnectToken);
 
 public abstract record GameCommand(string CmdType);
 

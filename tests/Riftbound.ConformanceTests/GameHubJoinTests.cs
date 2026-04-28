@@ -21,10 +21,17 @@ public sealed class GameHubJoinTests
 
         Assert.Contains(("connection-1", "room:room-a"), groups.Added);
         Assert.Contains(("connection-1", "room:room-a:player:alice"), groups.Added);
+        var joinMessage = Assert.Single(clients.CallerClient.JoinedMessages);
         var snapshotMessage = Assert.Single(clients.CallerClient.Snapshots);
         var promptMessage = Assert.Single(clients.CallerClient.Prompts);
+        Assert.Equal(MessageType.JOIN, joinMessage.Type);
         Assert.Equal("alice", snapshotMessage.PlayerId);
         Assert.Equal("alice", promptMessage.PlayerId);
+
+        var join = Assert.IsType<PlayerSessionDto>(joinMessage.Payload);
+        Assert.Equal("alice", join.PlayerId);
+        Assert.Equal("P1", join.Seat);
+        Assert.StartsWith("rt_", join.ReconnectToken, StringComparison.Ordinal);
 
         var snapshot = Assert.IsType<SnapshotDto>(snapshotMessage.Payload);
         var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["alice"]);
@@ -46,7 +53,83 @@ public sealed class GameHubJoinTests
 
         var error = Assert.Single(clients.CallerClient.Errors);
         Assert.Equal(MessageType.ERROR, error.Type);
-        Assert.Equal("room already has two players", error.Payload);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.RoomFull, payload.Code);
+        Assert.Equal("room already has two players", payload.Message);
+    }
+
+    [Fact]
+    public async Task ReconnectWithValidTokenRejoinsGroupsAndSendsSnapshotPrompt()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        var joinClients = new RecordingHubClients();
+        await CreateHub(joinClients, new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        var join = Assert.IsType<PlayerSessionDto>(Assert.Single(joinClients.CallerClient.JoinedMessages).Payload);
+
+        var reconnectClients = new RecordingHubClients();
+        var reconnectGroups = new RecordingGroupManager();
+        await CreateHub(reconnectClients, reconnectGroups, "connection-2", registry)
+            .Reconnect("room-a", "alice", join.ReconnectToken);
+
+        Assert.Contains(("connection-2", "room:room-a"), reconnectGroups.Added);
+        Assert.Contains(("connection-2", "room:room-a:player:alice"), reconnectGroups.Added);
+        var reconnectMessage = Assert.Single(reconnectClients.CallerClient.JoinedMessages);
+        Assert.Equal(MessageType.RECONNECT, reconnectMessage.Type);
+        Assert.Equal(join, reconnectMessage.Payload);
+        Assert.Single(reconnectClients.CallerClient.Snapshots);
+        Assert.Single(reconnectClients.CallerClient.Prompts);
+    }
+
+    [Fact]
+    public async Task ReconnectWithInvalidTokenReturnsStableErrorCode()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+
+        var clients = new RecordingHubClients();
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+            .Reconnect("room-a", "alice", "wrong-token");
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.InvalidReconnectToken, payload.Code);
+        Assert.Equal("invalid reconnect token", payload.Message);
+    }
+
+    [Fact]
+    public async Task RequestSnapshotSendsCurrentSnapshotAndPrompt()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+
+        var clients = new RecordingHubClients();
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+            .RequestSnapshot("room-a", "alice");
+
+        var snapshot = Assert.Single(clients.CallerClient.Snapshots);
+        var prompt = Assert.Single(clients.CallerClient.Prompts);
+        Assert.Equal("alice", snapshot.PlayerId);
+        Assert.Equal("alice", prompt.PlayerId);
+    }
+
+    [Fact]
+    public async Task RequestSnapshotForUnknownPlayerReturnsStableErrorCode()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+
+        var clients = new RecordingHubClients();
+        await CreateHub(clients, new RecordingGroupManager(), "connection-2", registry)
+            .RequestSnapshot("room-a", "charlie");
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, payload.Code);
+        Assert.Equal("player is not in room", payload.Message);
     }
 
     private static GameHub CreateHub(
@@ -67,6 +150,8 @@ public sealed class GameHubJoinTests
 
     private sealed class RecordingGameClient : IGameClient
     {
+        public List<WsServerMessage> JoinedMessages { get; } = [];
+
         public List<WsServerMessage> Snapshots { get; } = [];
 
         public List<WsServerMessage> Prompts { get; } = [];
@@ -74,6 +159,12 @@ public sealed class GameHubJoinTests
         public List<WsServerMessage> EventMessages { get; } = [];
 
         public List<WsServerMessage> Errors { get; } = [];
+
+        public Task Joined(WsServerMessage message)
+        {
+            JoinedMessages.Add(message);
+            return Task.CompletedTask;
+        }
 
         public Task Snapshot(WsServerMessage message)
         {
