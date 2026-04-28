@@ -133,7 +133,8 @@ public sealed record ConformanceExpectedState(
 public sealed record ConformanceExpectedEvent(
     string Kind,
     long? Tick = null,
-    long? Sequence = null);
+    long? Sequence = null,
+    IReadOnlyDictionary<string, JsonElement>? Payload = null);
 
 public sealed record ConformanceExpectedPrompt(
     bool? Actionable = null,
@@ -142,11 +143,23 @@ public sealed record ConformanceExpectedPrompt(
 public sealed record ConformanceRunResult(
     long FinalTick,
     IReadOnlyList<string> EventKinds,
+    IReadOnlyList<ConformanceActualEvent> Events,
     IReadOnlyDictionary<string, ActionPromptDto> Prompts,
     MatchState FinalState);
 
+public sealed record ConformanceActualEvent(
+    string Kind,
+    long Tick,
+    long Sequence,
+    IReadOnlyDictionary<string, object?> Payload);
+
 public static class ConformanceFixtureRunner
 {
+    private static readonly JsonSerializerOptions PayloadJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public static async Task<ConformanceRunResult> RunAsync(
         ConformanceFixture fixture,
         IRuleEngine ruleEngine,
@@ -174,13 +187,17 @@ public static class ConformanceFixtureRunner
             throw new InvalidOperationException($"Fixture {fixture.FixtureId} does not contain commands.");
         }
 
-        var eventKinds = journal.Entries
+        var events = journal.Entries
             .Where(entry => !string.Equals(entry.CommandType, "READY", StringComparison.Ordinal))
-            .SelectMany(entry => entry.Events)
-            .Select(gameEvent => gameEvent.Kind)
+            .SelectMany(entry => entry.Events.Select((gameEvent, index) => new ConformanceActualEvent(
+                gameEvent.Kind,
+                entry.CompletedTick,
+                entry.StartedEventSequence + index + 1,
+                gameEvent.Payload)))
             .ToArray();
+        var eventKinds = events.Select(gameEvent => gameEvent.Kind).ToArray();
 
-        return new ConformanceRunResult(last.State.Tick, eventKinds, last.Prompts, last.State);
+        return new ConformanceRunResult(last.State.Tick, eventKinds, events, last.Prompts, last.State);
     }
 
     public static IReadOnlyList<string> CompareExpected(
@@ -190,6 +207,7 @@ public static class ConformanceFixtureRunner
         var mismatches = new List<string>();
         AddMismatch(mismatches, "finalTick", fixture.Expected.FinalTick, result.FinalTick);
         CompareSequence(mismatches, "eventKinds", fixture.Expected.EventKinds, result.EventKinds);
+        CompareExpectedEvents(mismatches, fixture.Expected.Events, result.Events);
         ComparePromptActions(mismatches, fixture.Expected.PromptActions, result.Prompts);
         CompareExpectedPrompts(mismatches, fixture.Expected.Prompts, result.Prompts);
         CompareExpectedState(mismatches, fixture.Expected.FinalState, result.FinalState);
@@ -444,6 +462,64 @@ public static class ConformanceFixtureRunner
             AddMismatch(mismatches, $"prompts.{playerId}.actionable", expectedPrompt.Actionable, actualPrompt.Actionable);
             CompareSequence(mismatches, $"prompts.{playerId}.actions", expectedPrompt.Actions, actualPrompt.Actions);
         }
+    }
+
+    private static void CompareExpectedEvents(
+        List<string> mismatches,
+        IReadOnlyList<ConformanceExpectedEvent>? expected,
+        IReadOnlyList<ConformanceActualEvent> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        AddMismatch(mismatches, "events.count", expected.Count, actual.Count);
+        for (var i = 0; i < Math.Min(expected.Count, actual.Count); i++)
+        {
+            var expectedEvent = expected[i];
+            var actualEvent = actual[i];
+            AddMismatch(mismatches, $"events[{i}].kind", expectedEvent.Kind, actualEvent.Kind);
+            AddMismatch(mismatches, $"events[{i}].tick", expectedEvent.Tick, actualEvent.Tick);
+            AddMismatch(mismatches, $"events[{i}].sequence", expectedEvent.Sequence, actualEvent.Sequence);
+            CompareExpectedEventPayload(mismatches, $"events[{i}].payload", expectedEvent.Payload, actualEvent.Payload);
+        }
+    }
+
+    private static void CompareExpectedEventPayload(
+        List<string> mismatches,
+        string path,
+        IReadOnlyDictionary<string, JsonElement>? expected,
+        IReadOnlyDictionary<string, object?> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (key, expectedValue) in expected)
+        {
+            if (!actual.TryGetValue(key, out var actualValue))
+            {
+                mismatches.Add($"{path}.{key}: missing payload value");
+                continue;
+            }
+
+            var actualElement = JsonSerializer.SerializeToElement(actualValue, PayloadJsonOptions);
+            if (!JsonElementEquals(expectedValue, actualElement))
+            {
+                mismatches.Add(
+                    $"{path}.{key}: expected {expectedValue.GetRawText()}, actual {actualElement.GetRawText()}");
+            }
+        }
+    }
+
+    private static bool JsonElementEquals(JsonElement expected, JsonElement actual)
+    {
+        return string.Equals(
+            CanonicalJson.Serialize(expected),
+            CanonicalJson.Serialize(actual),
+            StringComparison.Ordinal);
     }
 
     private static void CompareRunePools(

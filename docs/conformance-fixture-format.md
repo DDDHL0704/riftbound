@@ -58,7 +58,7 @@ seed + initial setup + command log
 }
 ```
 
-`expected.eventKinds` 表示写入事件日志的规则事件类型，而不是每次客户端重试返回的响应事件。P1 runner 会先为 fixture 中的玩家自动执行 `READY`，但比较时过滤 `PLAYER_READY` / `MATCH_STARTED` 等房间生命周期事件；重复 `clientIntentId` 必须不重复推进 tick，也不重复写入规则事件日志。
+`expected.eventKinds` 表示写入事件日志的规则事件类型，而不是每次客户端重试返回的响应事件。P1 runner 会先为 fixture 中的玩家自动执行 `READY`，但比较时过滤 `PLAYER_READY` / `MATCH_STARTED` 等房间生命周期事件；重复 `clientIntentId` 必须不重复推进 tick，也不重复写入规则事件日志。`expected.events[]` 可以继续只写 `kind`，也可以按需补 `tick`、`sequence` 和 `payload`；`payload` 是局部匹配，只需要写本 fixture 关心的字段。
 
 现有样例：
 
@@ -101,7 +101,7 @@ seed + initial setup + command log
 
 ## 2.1 P2 schema v2 草案
 
-P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为，`p2-preflight-end-turn-advances-to-next-start.fixture.json` 已验证 `END_TURN` 后自动推进并结算下一回合开始，`p2-preflight-end-turn-special-cleanup.fixture.json` 已验证 `cardObjects` 中的伤害与本回合内效果会被特殊清理处理，`p2-preflight-cleanup-repeats-until-stable.fixture.json` 已验证特殊清理后的常规清理重复事件，`p2-preflight-pass-priority-does-not-end-turn.fixture.json` 已验证拒绝态不推进 tick 或事件。`ConformanceFixtureRunner.CompareExpected` 已开始通用比较 final tick、event kinds、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；后续继续扩展 snapshots/events payload canonical diff：
+P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为，`p2-preflight-end-turn-advances-to-next-start.fixture.json` 已验证 `END_TURN` 后自动推进并结算下一回合开始，`p2-preflight-end-turn-special-cleanup.fixture.json` 已验证 `cardObjects` 中的伤害与本回合内效果会被特殊清理处理，`p2-preflight-cleanup-repeats-until-stable.fixture.json` 已验证特殊清理后的常规清理重复事件，`p2-preflight-pass-priority-does-not-end-turn.fixture.json` 已验证拒绝态不推进 tick 或事件。`ConformanceFixtureRunner.CompareExpected` 已开始通用比较 final tick、event kinds、event tick/sequence/payload 局部字段、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；后续继续扩展 snapshots canonical diff：
 
 ```json
 {
@@ -168,7 +168,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-schema v2 目前已支持 P2 初始状态和 expected 中的 turn/phase/timing、符文池、玩家区域、对象状态、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
+schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、玩家区域、对象状态、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
 
 ## 3. Fixture 后续必须补齐
 

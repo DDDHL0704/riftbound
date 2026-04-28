@@ -106,13 +106,52 @@
       "DAMAGE_APPLIED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
+      {
+        "kind": "CARD_PLAYED",
+        "tick": 1,
+        "sequence": 1,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-FINAL-SPARK",
+          "cardNo": "OGS·022/024"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 8,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-FINAL-SPARK",
+          "cardNo": "OGS·022/024",
+          "targetObjectIds": ["P2-UNIT-001"],
+          "effectKind": "FINAL_SPARK_DAMAGE_8",
+          "effectRepeatCount": 1
+        }
+      },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "DAMAGE_APPLIED" }
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-FINAL-SPARK",
+          "targetObjectId": "P2-UNIT-001",
+          "damage": 8
+        }
+      }
     ],
     "promptActions": {
       "P1": ["END_TURN"],
