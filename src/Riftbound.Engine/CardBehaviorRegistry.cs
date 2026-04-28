@@ -83,6 +83,14 @@ public static class CardBehaviorRegistry
             6,
             1),
         new(
+            "OGS·022/024",
+            "终极闪光",
+            8,
+            "FINAL_SPARK_DAMAGE_8",
+            8,
+            1,
+            TargetScope: CardTargetScopes.AnyUnit),
+        new(
             "UNL-061/219",
             "台前作秀",
             2,
@@ -119,7 +127,23 @@ public static class CardBehaviorRegistry
             CardDamageConditionKinds.None,
             0,
             "",
-            1)
+            1),
+        new(
+            "SFD·087/221",
+            "先知之兆",
+            2,
+            "PROPHETS_OMEN_DRAW_3",
+            0,
+            0,
+            DrawCount: 3),
+        new(
+            "OGN·114/298",
+            "进化日",
+            6,
+            "EVOLUTION_DAY_DRAW_4",
+            0,
+            0,
+            DrawCount: 4)
     ];
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
