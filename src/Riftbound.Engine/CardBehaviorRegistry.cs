@@ -9,7 +9,8 @@ public sealed record CardBehaviorDefinition(
     int RequiredTargetCount,
     string DamageConditionKind = CardDamageConditionKinds.None,
     int ConditionalDamageAmount = 0,
-    string StatusEffectId = "");
+    string StatusEffectId = "",
+    int DrawCount = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -60,6 +61,17 @@ public static class CardBehaviorRegistry
             1,
             "HEXTECH_RAY_DAMAGE_3",
             3,
+            1),
+        new(
+            "OGN·024/298",
+            "虚空索敌",
+            3,
+            "VOID_SEEKER_DAMAGE_4_DRAW_1",
+            4,
+            1,
+            CardDamageConditionKinds.None,
+            0,
+            "",
             1)
     ];
 

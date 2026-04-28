@@ -258,7 +258,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PassedPriorityPlayerIds = [],
                 StackItems = remainingStack,
                 PlayerZones = stackResolution.PlayerZones,
-                CardObjects = stackResolution.CardObjects
+                PlayerScores = stackResolution.PlayerScores,
+                CardObjects = stackResolution.CardObjects,
+                Status = stackResolution.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+                WinnerPlayerId = stackResolution.WinnerPlayerId ?? state.WinnerPlayerId
             };
             events.Add(new GameEvent(
                 "STACK_ITEM_RESOLVED",
@@ -505,7 +508,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || stackItem.TargetObjectIds.Count != 1)
         {
-            return new StackResolutionResult(state.PlayerZones, state.CardObjects, []);
+            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, []);
         }
 
         var targetObjectId = stackItem.TargetObjectIds[0];
@@ -557,19 +560,120 @@ public sealed class CoreRuleEngine : IRuleEngine
         cardObjects[targetObjectId] = targetState;
 
         var playerZones = NormalizeZonesForSeats(state);
-        if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones)
-            && !controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
+        var playerScores = state.PlayerScores;
+        string? winnerPlayerId = null;
+        if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
-            playerZones[stackItem.ControllerId] = controllerZones with
+            if (behavior.DrawCount > 0)
             {
-                Graveyard = controllerZones.Graveyard.Concat([stackItem.SourceObjectId]).ToArray()
-            };
+                var drawResult = DrawCards(state, stackItem.ControllerId, controllerZones, behavior.DrawCount);
+                controllerZones = controllerZones with
+                {
+                    MainDeck = drawResult.MainDeck,
+                    Hand = controllerZones.Hand.Concat(drawResult.DrawnCards).ToArray(),
+                    Graveyard = drawResult.Graveyard
+                };
+                playerScores = drawResult.PlayerScores;
+                winnerPlayerId = drawResult.WinnerPlayerId;
+                events.AddRange(BuildCardDrawEvents(stackItem.ControllerId, drawResult));
+            }
+
+            if (!controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
+            {
+                controllerZones = controllerZones with
+                {
+                    Graveyard = controllerZones.Graveyard.Concat([stackItem.SourceObjectId]).ToArray()
+                };
+            }
+
+            playerZones[stackItem.ControllerId] = controllerZones;
         }
 
         return new StackResolutionResult(
             playerZones,
             cardObjects,
+            playerScores,
+            winnerPlayerId,
             events);
+    }
+
+    private static DrawResult DrawCards(MatchState state, string playerId, PlayerZones zones, int drawCount)
+    {
+        DrawResult result = new(
+            zones.MainDeck,
+            zones.Graveyard,
+            [],
+            [],
+            null,
+            NormalizeScoresForSeats(state));
+        var currentZones = zones;
+        var drawnCards = new List<string>();
+        var burnouts = new List<BurnoutResult>();
+
+        for (var i = 0; i < drawCount && result.WinnerPlayerId is null; i++)
+        {
+            result = DrawOne(
+                state with
+                {
+                    PlayerScores = result.PlayerScores
+                },
+                playerId,
+                currentZones);
+            drawnCards.AddRange(result.DrawnCards);
+            burnouts.AddRange(result.Burnouts);
+            currentZones = currentZones with
+            {
+                MainDeck = result.MainDeck,
+                Graveyard = result.Graveyard
+            };
+        }
+
+        return result with
+        {
+            DrawnCards = drawnCards.ToArray(),
+            Burnouts = burnouts.ToArray()
+        };
+    }
+
+    private static IReadOnlyList<GameEvent> BuildCardDrawEvents(string playerId, DrawResult drawResult)
+    {
+        var events = new List<GameEvent>();
+        foreach (var (burnout, index) in drawResult.Burnouts.Select((burnout, index) => (burnout, index)))
+        {
+            events.Add(new GameEvent(
+                "BURNOUT_APPLIED",
+                $"{playerId} 执行燃尽",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["scoredPlayerId"] = burnout.ScoredPlayerId,
+                    ["scoredPlayerScore"] = burnout.ScoredPlayerScore,
+                    ["burnoutIndex"] = index + 1
+                }));
+        }
+
+        if (drawResult.WinnerPlayerId is not null)
+        {
+            events.Add(new GameEvent(
+                "MATCH_WON",
+                $"{drawResult.WinnerPlayerId} 达到获胜分数并获胜",
+                new Dictionary<string, object?>
+                {
+                    ["winnerPlayerId"] = drawResult.WinnerPlayerId,
+                    ["winningScore"] = WinningScore
+                }));
+            return events;
+        }
+
+        events.Add(new GameEvent(
+            "CARD_DRAWN",
+            $"{playerId} 抽 {drawResult.DrawnCards.Count} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["count"] = drawResult.DrawnCards.Count
+            }));
+        return events;
     }
 
     private static int ResolveDamageAmount(
@@ -1006,6 +1110,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
+        IReadOnlyDictionary<string, int> PlayerScores,
+        string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events);
 
     private sealed record CleanupResult(
