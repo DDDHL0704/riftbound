@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "fixtureId": "p1-placeholder-pass",
+  "description": "C# fixture runner shape check until Java oracle exporter emits the same format.",
+  "source": "manual-csharp-skeleton",
+  "roomId": "fixture-room",
+  "players": ["P1", "P2"],
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-pass-1",
+      "cmd": {
+        "cmdType": "PASS"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": ["PASS"],
+    "promptActions": {
+      "P1": ["PASS", "END_TURN"],
+      "P2": []
+    }
+  }
+}

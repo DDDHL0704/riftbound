@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+.DS_Store
+TestResults/
+coverage/
+*.log
+*.user
+*.suo
+.env
+.env.*
+!.env.example
+appsettings.Local.json

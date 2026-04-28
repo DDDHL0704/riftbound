@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Riftbound.Api/Riftbound.Api.csproj" />
+    <Project Path="src/Riftbound.CardCatalog/Riftbound.CardCatalog.csproj" />
+    <Project Path="src/Riftbound.Contracts/Riftbound.Contracts.csproj" />
+    <Project Path="src/Riftbound.Engine/Riftbound.Engine.csproj" />
+    <Project Path="src/Riftbound.Persistence/Riftbound.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj" />
+  </Folder>
+</Solution>
