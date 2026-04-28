@@ -16,10 +16,20 @@
   ],
   "expected": {
     "finalTick": 1,
-    "eventKinds": ["PASS"],
+    "eventKinds": ["TURN_ENDED"],
     "promptActions": {
-      "P1": ["PASS", "END_TURN"],
-      "P2": []
+      "P1": [
+        "PLAY_CARD",
+        "ACTIVATE_ABILITY",
+        "ASSEMBLE_EQUIPMENT",
+        "MOVE_UNIT",
+        "HIDE_CARD",
+        "TAP_RUNE",
+        "LEGEND_ACT",
+        "PASS",
+        "END_TURN"
+      ],
+      "P2": ["WAIT"]
     }
   }
 }

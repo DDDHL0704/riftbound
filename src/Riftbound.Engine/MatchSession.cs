@@ -65,8 +65,20 @@ public sealed record ResolutionResult(
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
             playerId,
             playerId == state.ActivePlayerId,
-            playerId == state.ActivePlayerId ? "等待当前玩家行动" : "等待对手行动",
-            playerId == state.ActivePlayerId ? ["PASS", "END_TURN"] : []));
+            playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
+            playerId == state.ActivePlayerId
+                ? [
+                    "PLAY_CARD",
+                    "ACTIVATE_ABILITY",
+                    "ASSEMBLE_EQUIPMENT",
+                    "MOVE_UNIT",
+                    "HIDE_CARD",
+                    "TAP_RUNE",
+                    "LEGEND_ACT",
+                    "PASS",
+                    "END_TURN"
+                ]
+                : ["WAIT"]));
     }
 }
 
@@ -91,15 +103,7 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
         };
         var events = new[]
         {
-            new GameEvent(
-                command.CmdType,
-                "占位规则引擎接受了命令",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["intentId"] = intent.IntentId,
-                    ["cmdType"] = command.CmdType
-                })
+            BuildAcceptedEvent(intent, command)
         };
 
         return ValueTask.FromResult(new ResolutionResult(
@@ -109,6 +113,35 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             ResolutionResult.BuildPrompts(nextState)));
+    }
+
+    private static GameEvent BuildAcceptedEvent(PlayerIntent intent, GameCommand command)
+    {
+        if (command is PassCommand)
+        {
+            return new GameEvent(
+                "TURN_ENDED",
+                $"{intent.PlayerId} 选择暂不行动",
+                new Dictionary<string, object?>());
+        }
+
+        if (command is EndTurnCommand)
+        {
+            return new GameEvent(
+                "TURN_ENDED",
+                $"{intent.PlayerId} 结束回合",
+                new Dictionary<string, object?>());
+        }
+
+        return new GameEvent(
+            command.CmdType,
+            "占位规则引擎接受了命令",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = intent.PlayerId,
+                ["intentId"] = intent.IntentId,
+                ["cmdType"] = command.CmdType
+            });
     }
 }
 

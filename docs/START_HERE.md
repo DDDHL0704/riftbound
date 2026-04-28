@@ -89,7 +89,7 @@
 - `dotnet build Riftbound.slnx --no-restore` 通过。
 - `dotnet test Riftbound.slnx --no-build` 通过，当前 7 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`。
-- C# 测试已能读取 Java fixture 元数据。
+- C# 测试已能读取 Java fixture 元数据，并对齐第一条 `PASS` fixture。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -102,9 +102,9 @@
 第一批任务：
 
 1. 扩展 Java oracle fixture exporter，补足第一批 10 条 high-value fixture。
-2. 先迁移 `PASS` / `END_TURN` 的真实事件和 prompt 行为，让 C# 可与 `java-oracle-p1-pass` 做首个 conformance 对齐。
-3. 将 Java fixture 回放接入 `MatchSession` 和 `RuleEngine` 骨架。
-4. 再扩展 P1 的重连 token、座位状态和 command log 原始 payload。
+2. 迁移 `END_TURN`、幂等重复提交和座位状态的 Java fixture。
+3. 将更多 Java fixture 回放接入 `MatchSession` 和 `RuleEngine` 骨架。
+4. 再扩展 P1 的重连 token 和 command log 原始 payload。
 
 P1 验收前不要开始：
 
