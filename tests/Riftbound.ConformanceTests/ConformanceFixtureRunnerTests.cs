@@ -368,6 +368,22 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineDoesNotDrawWhenShatteredFireTargetSurvives()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-shattered-fire-does-not-draw-without-destroy.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("CARD_DRAWN", result.EventKinds);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysAbyssalHuntThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(

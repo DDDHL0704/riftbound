@@ -88,6 +88,7 @@
 | `p2-preflight-play-punishment-base-unit-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《惩戒》的“对一名单位”目标范围允许指定基地单位，而非仅限战场单位。 |
 | `p2-preflight-punishment-lethal-damage-destroys-unit` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 323-324；p62-p63 rule 428 | 已验证官方法术《惩戒》对 3 战力单位造成 3 点伤害后，目标因伤害达到战力被摧毁，并移入拥有者废牌堆。 |
 | `p2-preflight-shattered-fire-draws-after-lethal-damage` | `RULE_AUDITED` | `CATALOG` OGN·005/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《碎裂之火》对战场单位造成 3 点伤害，若该单位被此法术摧毁，则控制者抽 1 张牌。 |
+| `p2-preflight-shattered-fire-does-not-draw-without-destroy` | `RULE_AUDITED` | `CATALOG` OGN·005/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《碎裂之火》未摧毁目标时不满足卡面抽牌条件。 |
 | `p2-preflight-play-abyssal-hunt-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在未控制正面朝下卡牌时支付 1 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
 | `p2-preflight-play-abyssal-hunt-face-down-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在控制者控制正面朝下战场牌时改为造成 4 点伤害。 |
 | `p2-preflight-play-incinerate-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·003/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《焚烧》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
