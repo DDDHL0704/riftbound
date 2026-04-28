@@ -51,6 +51,7 @@ public static class ErrorCodes
     public const string PlayerNotInRoom = "PLAYER_NOT_IN_ROOM";
     public const string RoomFull = "ROOM_FULL";
     public const string InvalidReconnectToken = "INVALID_RECONNECT_TOKEN";
+    public const string ClientIntentIdRequired = "CLIENT_INTENT_ID_REQUIRED";
     public const string ClientIntentConflict = "CLIENT_INTENT_CONFLICT";
     public const string MatchNotStarted = "MATCH_NOT_STARTED";
     public const string MatchFinished = "MATCH_FINISHED";

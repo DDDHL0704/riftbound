@@ -97,6 +97,34 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task SubmitRequiresClientIntentId()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+        await ReadyBothAsync(session);
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.SubmitAsync("P1", " ", new PassCommand(), RawCommand("PASS"), CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.ClientIntentIdRequired, error.Code);
+        Assert.Equal("clientIntentId is required", error.Message);
+    }
+
+    [Fact]
+    public async Task ReadyRequiresClientIntentId()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+        session.EnsurePlayer("P1");
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.ReadyAsync("P1", "", RawCommand("READY"), CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.ClientIntentIdRequired, error.Code);
+        Assert.Equal("clientIntentId is required", error.Message);
+    }
+
+    [Fact]
     public void JoinAssignsStableP1P2SeatsAndSnapshotsExposeSeatStatus()
     {
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());

@@ -19,8 +19,8 @@
 |---|---|---|---|
 | `.NET 10` solution、项目分层、`scripts/dev-env.sh` | 工程骨架已可 build/test | 暂不需要 | 保留。 |
 | `Riftbound.Contracts` 协议 DTO | 可表达基础 message、command、event、snapshot，已区分 `READY`、`PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`，并有 `ErrorDto` / `PlayerSessionDto`；client/server envelope 已带默认 `protocolVersion = 1`、`schemaVersion = 1` | 需要后续扩展 | P1 后续补 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本、事件 upcaster，并扩大稳定错误码覆盖面。 |
-| `GameHub` | 支持 Join、Reconnect、RequestSnapshot、Ready、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；加入/重连/Ready/快照/提交错误有最小 SignalR 级测试；Join/Reconnect 走异步 token hash 持久化路径 | 需要后续扩展 | 保留；后续补 P2 规则错误码。 |
-| `MatchSession` / `InMemoryMatchSessionRegistry` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat/ready、最小房间生命周期、reconnect token hash 持久化、重连 token 轮换；提交命令要求玩家已 JoinRoom 且房间已开始；registry 可从 recovery frame 恢复 P1 底座状态和已见过 intent，并优先使用权威 `MatchState`；恢复后已有座位必须用 Reconnect 验证旧 token | 需要规则审查 | 串行、幂等、座位、Ready/lifecycle、恢复入口、持久化重连可保留；规则状态和 prompt 只是占位，后续扩展 MatchState 时必须同步扩展权威状态快照。 |
+| `GameHub` | 支持 Join、Reconnect、RequestSnapshot、Ready、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送；加入/重连/Ready/快照/提交错误有最小 SignalR 级测试，空 `clientIntentId` 会稳定返回 `CLIENT_INTENT_ID_REQUIRED`；Join/Reconnect 走异步 token hash 持久化路径 | 需要后续扩展 | 保留；后续补 P2 规则错误码。 |
+| `MatchSession` / `InMemoryMatchSessionRegistry` | 支持串行、幂等、journal、占位状态、P1/P2 座位分配、snapshot seat/ready、最小房间生命周期、reconnect token hash 持久化、重连 token 轮换；提交命令要求玩家已 JoinRoom、携带非空 `clientIntentId` 且房间已开始；registry 可从 recovery frame 恢复 P1 底座状态和已见过 intent，并优先使用权威 `MatchState`；恢复后已有座位必须用 Reconnect 验证旧 token | 需要规则审查 | 串行、幂等、座位、Ready/lifecycle、恢复入口、持久化重连可保留；规则状态和 prompt 只是占位，后续扩展 MatchState 时必须同步扩展权威状态快照。 |
 | `PlaceholderRuleEngine` | 对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状 | 需要重审 | 标记 `NEEDS_RULE_AUDIT`；补 PDF/FAQ evidence 后决定是否改行为。 |
 | `PostgresMatchJournal`、`PostgresMatchRecoveryStore`、`PostgresMatchPlayerStore` 和 P1 SQL | 能记录命令、lifecycle/game events、权威 state snapshot、玩家 snapshot、prompt、match_players token hash，并写入 ruleset/FAQ/audit 元数据、event sequence 边界和客户端原始 command payload；`matches.status` 使用权威 `MatchState.Status` 更新；已能读取恢复帧并校验 sequence 连续性和权威状态一致性 | 需要后续扩展 | 保留；后续随核心规则状态扩展 `state_snapshots.payload`。 |
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
@@ -49,7 +49,7 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 继续协议错误码治理；P1 提交路径已覆盖未知玩家、未开局、unsupported command、重复 intent 冲突，P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。
+1. 继续协议错误码治理；P1 提交路径已覆盖未知玩家、空 intent、未开局、unsupported command、重复 intent 冲突，P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。
 2. 进入 P2 核心规则前，先把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ。
 3. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
 4. 后续扩展核心规则时，同步扩展 `MatchState` 和 `state_snapshots.payload`，玩家视角 snapshot 只作为重连视图和一致性校验依据。

@@ -196,6 +196,28 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SubmitIntentWithoutClientIntentIdReturnsStableErrorCode()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "alice");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "bob");
+        await ReadyBothAsync(registry);
+        var clients = new RecordingHubClients();
+        var cmd = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+
+        await CreateHub(clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent("room-a", "alice", " ", cmd);
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.ClientIntentIdRequired, payload.Code);
+        Assert.Equal("clientIntentId is required", payload.Message);
+        Assert.Empty(clients.GroupClient.EventMessages);
+    }
+
+    [Fact]
     public async Task ReadyStartsMatchAfterBothPlayersAreReady()
     {
         var registry = new InMemoryMatchSessionRegistry(new PlaceholderRuleEngine(), NoopMatchJournal.Instance);

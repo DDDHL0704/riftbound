@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 49 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 52 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -114,7 +114,7 @@
 - `IMatchRecoveryStore`、`PostgresMatchRecoveryStore` 和 `MatchRecoveryValidator` 已建立最小恢复读取/校验路径：可读取 match、command、events、最新 snapshot/prompt，并校验 event sequence 连续性、command 边界和 player view sequence；本机 PostgreSQL smoke 通过。
 - `001_p1_event_store.sql` 已移除依赖 003 新列的 sequence 索引创建，旧库可按 `001 -> 002 -> 003` 顺序升级。
 - `MatchSession` 已接入 `EMPTY -> SEATING -> IN_PROGRESS` 的最小房间生命周期；`Ready` 会记录 `PLAYER_READY` / `MATCH_STARTED` lifecycle events，snapshot/prompt 暴露 ready 状态，未 Ready 开局前提交命令会被 `MATCH_NOT_STARTED` 拒绝。
-- `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom 且房间已开始；Hub 级测试覆盖 `PLAYER_NOT_IN_ROOM`、`MATCH_NOT_STARTED`、`UNSUPPORTED_COMMAND`、`CLIENT_INTENT_CONFLICT` 四条命令提交错误路径。
+- `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom、携带非空 `clientIntentId` 且房间已开始；Hub 级测试覆盖 `PLAYER_NOT_IN_ROOM`、`CLIENT_INTENT_ID_REQUIRED`、`MATCH_NOT_STARTED`、`UNSUPPORTED_COMMAND`、`CLIENT_INTENT_CONFLICT` 五条命令提交错误路径。
 - `InMemoryMatchSessionRegistry` 已接入 `IMatchRecoveryStore` 异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、P1/P2 seat、lastEventSequence 和已见过的 intent，用于防止重启后重复提交污染事件流，不把玩家视角 snapshot 当完整权威规则状态；跨 room recovery frame 会被 `RECOVERY_INCONSISTENT` 拒绝。
 - `state_snapshots` 权威状态快照表已加入 P1 schema 和 `004_p1_state_snapshots.sql` 迁移；`PostgresMatchJournal` 会写入服务端 `MatchState`，`PostgresMatchRecoveryStore` 会优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致；本机 PostgreSQL state snapshot smoke 通过。
 - `IMatchPlayerStore`、`PostgresMatchPlayerStore` 和 `ReconnectTokenHasher` 已接入；Join/Reconnect 会把 reconnect token 以 `sha256:` hash 写入 `match_players.reconnect_token_hash`，恢复后的 session 可用旧 token hash 重连，并在重连成功后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect，不能用 Join 直接领取新 token；本机 PostgreSQL token smoke 通过，库中不保存 token 明文。

@@ -35,7 +35,7 @@
   - `001_p1_event_store.sql` 不再创建依赖后续迁移新列的 sequence 索引，旧库升级顺序已恢复为 `001 -> 002 -> 003`。
   - `MatchSession` 已接入最小房间生命周期：新房 `EMPTY`，入座后 `SEATING`，双方 `Ready` 后进入 `IN_PROGRESS`；`FINISHED` 已保留为后续结算状态。
   - `Ready` 会记录 `PLAYER_READY` / `MATCH_STARTED` lifecycle events，Hub 会以 `READY` / `START` 消息广播；snapshot/prompt 暴露 ready 状态，conformance runner 会先 Ready 再回放规则命令，但比较时过滤 lifecycle events。
-  - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom 且房间已开始；Hub 级错误码测试覆盖未知玩家提交、未开局提交、unsupported command 和重复 intent 冲突。
+  - `MatchSession.SubmitAsync` 已要求玩家先 JoinRoom、携带非空 `clientIntentId` 且房间已开始；Hub 级错误码测试覆盖未知玩家提交、空 intent、未开局提交、unsupported command 和重复 intent 冲突。
   - 手写 C# placeholder fixture 已迁移为 `PASS_PRIORITY`；裸 `PASS` 只保留在 Java legacy fixture 和兼容测试中。
   - `InMemoryMatchSessionRegistry` 已接入异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、seat、lastEventSequence 和已见过 intent，避免把玩家视角 snapshot 误当完整规则状态。
   - `state_snapshots` 权威状态快照表和 `004_p1_state_snapshots.sql` 已加入；journal 写入服务端 `MatchState`，recovery 优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致。
@@ -58,6 +58,7 @@
 - `GameHub.Ready` 可让双方准备；第一名 Ready 广播 `READY`，第二名 Ready 广播 `START` 并进入 `IN_PROGRESS`。
 - `MatchSession` 对同一房间命令严格串行。
 - 未 Join 的玩家提交命令会被拒绝为 `PLAYER_NOT_IN_ROOM`，不再隐式入座。
+- 空 `clientIntentId` 会被拒绝为 `CLIENT_INTENT_ID_REQUIRED`，服务端不再随机生成 intentId。
 - 未 Ready 开局前提交命令会被拒绝为 `MATCH_NOT_STARTED`。
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
 - `UNSUPPORTED_COMMAND` 和 `CLIENT_INTENT_CONFLICT` 在 Hub 层有稳定错误码测试。

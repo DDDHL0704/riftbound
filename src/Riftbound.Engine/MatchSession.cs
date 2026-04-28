@@ -945,9 +945,14 @@ public sealed class MatchSession : IMatchSession
 
     private static string NormalizeClientIntentId(string clientIntentId)
     {
-        return string.IsNullOrWhiteSpace(clientIntentId)
-            ? Guid.NewGuid().ToString("N")
-            : clientIntentId.Trim();
+        if (string.IsNullOrWhiteSpace(clientIntentId))
+        {
+            throw new MatchSessionException(
+                ErrorCodes.ClientIntentIdRequired,
+                "clientIntentId is required");
+        }
+
+        return clientIntentId.Trim();
     }
 
     private static string NormalizePlayerId(string playerId)
