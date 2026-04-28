@@ -36,15 +36,26 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         CancellationToken cancellationToken)
     {
         const string sql = """
-            insert into matches (match_id, status, current_tick, updated_at)
-            values (@match_id, 'IN_PROGRESS', @current_tick, now())
+            insert into matches (
+                match_id, status, current_tick, ruleset_version, faq_version,
+                rules_audit_status, rules_evidence, updated_at
+            )
+            values (
+                @match_id, 'IN_PROGRESS', @current_tick, @ruleset_version, @faq_version,
+                @rules_audit_status, @rules_evidence, now()
+            )
             on conflict (match_id) do update
             set current_tick = greatest(matches.current_tick, excluded.current_tick),
+                ruleset_version = excluded.ruleset_version,
+                faq_version = excluded.faq_version,
+                rules_audit_status = excluded.rules_audit_status,
+                rules_evidence = excluded.rules_evidence,
                 updated_at = now();
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", entry.RoomId);
         command.Parameters.AddWithValue("current_tick", entry.CompletedTick);
+        AddRulesetParameters(command, entry);
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -57,11 +68,13 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         const string sql = """
             insert into command_log (
                 match_id, player_id, client_intent_id, command_type,
-                started_tick, completed_tick, accepted, error_message, payload
+                started_tick, completed_tick, accepted, error_message,
+                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
             )
             values (
                 @match_id, @player_id, @client_intent_id, @command_type,
-                @started_tick, @completed_tick, @accepted, @error_message, @payload
+                @started_tick, @completed_tick, @accepted, @error_message,
+                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
             )
             on conflict (match_id, player_id, client_intent_id) do nothing;
             """;
@@ -74,6 +87,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         command.Parameters.AddWithValue("completed_tick", entry.CompletedTick);
         command.Parameters.AddWithValue("accepted", entry.Accepted);
         command.Parameters.AddWithValue("error_message", (object?)entry.ErrorMessage ?? DBNull.Value);
+        AddRulesetParameters(command, entry);
         AddJson(command, "payload", new
         {
             entry.RoomId,
@@ -81,7 +95,10 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             entry.ClientIntentId,
             entry.CommandType,
             entry.Accepted,
-            entry.ErrorMessage
+            entry.ErrorMessage,
+            entry.RulesetVersion,
+            entry.FaqVersion,
+            entry.RulesAuditStatus
         });
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -93,8 +110,14 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         CancellationToken cancellationToken)
     {
         const string sql = """
-            insert into game_events (match_id, event_tick, event_order, event_type, payload)
-            values (@match_id, @event_tick, @event_order, @event_type, @payload)
+            insert into game_events (
+                match_id, event_tick, event_order, event_type,
+                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+            )
+            values (
+                @match_id, @event_tick, @event_order, @event_type,
+                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+            )
             on conflict (match_id, event_tick, event_order) do nothing;
             """;
 
@@ -106,6 +129,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             command.Parameters.AddWithValue("event_tick", entry.CompletedTick);
             command.Parameters.AddWithValue("event_order", i);
             command.Parameters.AddWithValue("event_type", gameEvent.Kind);
+            AddRulesetParameters(command, entry);
             AddJson(command, "payload", gameEvent);
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -118,10 +142,20 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         CancellationToken cancellationToken)
     {
         const string sql = """
-            insert into snapshots (match_id, player_id, snapshot_tick, payload)
-            values (@match_id, @player_id, @snapshot_tick, @payload)
+            insert into snapshots (
+                match_id, player_id, snapshot_tick,
+                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+            )
+            values (
+                @match_id, @player_id, @snapshot_tick,
+                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+            )
             on conflict (match_id, player_id, snapshot_tick) do update
-            set payload = excluded.payload,
+            set ruleset_version = excluded.ruleset_version,
+                faq_version = excluded.faq_version,
+                rules_audit_status = excluded.rules_audit_status,
+                rules_evidence = excluded.rules_evidence,
+                payload = excluded.payload,
                 created_at = now();
             """;
 
@@ -131,6 +165,7 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             command.Parameters.AddWithValue("match_id", entry.RoomId);
             command.Parameters.AddWithValue("player_id", playerId);
             command.Parameters.AddWithValue("snapshot_tick", snapshot.Tick);
+            AddRulesetParameters(command, entry);
             AddJson(command, "payload", snapshot);
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -143,10 +178,20 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         CancellationToken cancellationToken)
     {
         const string sql = """
-            insert into action_prompts (match_id, player_id, prompt_tick, payload)
-            values (@match_id, @player_id, @prompt_tick, @payload)
+            insert into action_prompts (
+                match_id, player_id, prompt_tick,
+                ruleset_version, faq_version, rules_audit_status, rules_evidence, payload
+            )
+            values (
+                @match_id, @player_id, @prompt_tick,
+                @ruleset_version, @faq_version, @rules_audit_status, @rules_evidence, @payload
+            )
             on conflict (match_id, player_id, prompt_tick) do update
-            set payload = excluded.payload,
+            set ruleset_version = excluded.ruleset_version,
+                faq_version = excluded.faq_version,
+                rules_audit_status = excluded.rules_audit_status,
+                rules_evidence = excluded.rules_evidence,
+                payload = excluded.payload,
                 created_at = now();
             """;
 
@@ -156,9 +201,18 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
             command.Parameters.AddWithValue("match_id", entry.RoomId);
             command.Parameters.AddWithValue("player_id", playerId);
             command.Parameters.AddWithValue("prompt_tick", entry.CompletedTick);
+            AddRulesetParameters(command, entry);
             AddJson(command, "payload", prompt);
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
+    }
+
+    private static void AddRulesetParameters(NpgsqlCommand command, MatchJournalEntry entry)
+    {
+        command.Parameters.AddWithValue("ruleset_version", entry.RulesetVersion);
+        command.Parameters.AddWithValue("faq_version", entry.FaqVersion);
+        command.Parameters.AddWithValue("rules_audit_status", entry.RulesAuditStatus);
+        AddJson(command, "rules_evidence", entry.RulesEvidence ?? []);
     }
 
     private static void AddJson<T>(NpgsqlCommand command, string name, T value)

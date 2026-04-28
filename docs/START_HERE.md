@@ -100,10 +100,11 @@
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus` 字段。
 - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 的规则域索引和当前 fixture 审查映射。
 - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
+- P1 PostgreSQL schema 和 `PostgresMatchJournal` 已补 `ruleset_version`、`faq_version`、`rules_audit_status`、`rules_evidence`；schema initializer 会按文件名顺序执行 `Sql/*.sql`。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
-- PostgreSQL 已创建 P1 表：`matches`、`command_log`、`game_events`、`snapshots`、`action_prompts`、`official_cards`、`functional_units`。
+- PostgreSQL 已创建 P1 表：`matches`、`command_log`、`game_events`、`snapshots`、`action_prompts`、`official_cards`、`functional_units`、`oracle_fixtures`。
 
 ## 5. 立即开发顺序
 
@@ -112,9 +113,9 @@
 第一批任务：
 
 1. 细化 `docs/rules-evidence-index.md` 中当前 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
-2. 修改 P1 SQL 草案，补 `ruleset_version` / `faq_version` / fixture audit 相关字段。
-3. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
-4. 再扩展 P1 的重连 token 和 command log 原始 payload。
+2. 迁移 P1/P2 加入、座位状态、玩家视角 snapshot，并按五份 PDF 审核。
+3. 再扩展 P1 的重连 token、错误码和 command log 原始 payload。
+4. 完善 event sequence / recovery 字段，支撑后续断线重连与事件重放。
 
 P1 验收前不要开始：
 

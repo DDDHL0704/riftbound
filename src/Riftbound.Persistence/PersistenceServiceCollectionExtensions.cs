@@ -30,16 +30,25 @@ internal sealed class PostgresSchemaInitializer(NpgsqlDataSource dataSource) : I
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var schemaPath = Path.Combine(AppContext.BaseDirectory, "Sql", "001_p1_event_store.sql");
-        if (!File.Exists(schemaPath))
+        var schemaDirectory = Path.Combine(AppContext.BaseDirectory, "Sql");
+        if (!Directory.Exists(schemaDirectory))
         {
-            throw new FileNotFoundException("P1 event store schema is missing.", schemaPath);
+            throw new DirectoryNotFoundException($"Persistence SQL directory is missing: {schemaDirectory}");
         }
 
-        var sql = await File.ReadAllTextAsync(schemaPath, cancellationToken).ConfigureAwait(false);
+        var schemaPaths = Directory.GetFiles(schemaDirectory, "*.sql").Order(StringComparer.Ordinal).ToArray();
+        if (schemaPaths.Length == 0)
+        {
+            throw new FileNotFoundException("Persistence SQL migrations are missing.", schemaDirectory);
+        }
+
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        await using var command = new NpgsqlCommand(sql, connection);
-        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        foreach (var schemaPath in schemaPaths)
+        {
+            var sql = await File.ReadAllTextAsync(schemaPath, cancellationToken).ConfigureAwait(false);
+            await using var command = new NpgsqlCommand(sql, connection);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

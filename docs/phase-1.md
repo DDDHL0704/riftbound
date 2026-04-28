@@ -8,7 +8,7 @@
 
 - 本机已安装 .NET 10.0.203、PostgreSQL 16、Redis、Node 24。
 - `Riftbound.slnx` 已建立，solution 级 build/test 可用。
-- `Riftbound.Persistence` 已接入 `IMatchJournal` 和 PostgreSQL P1 schema。
+- `Riftbound.Persistence` 已接入 `IMatchJournal` 和 PostgreSQL P1 schema；journal 行已写入 `ruleset_version`、`faq_version`、`rules_audit_status`、`rules_evidence`。
 - `Riftbound.CardCatalog` 已能加载官网快照，并生成功能逻辑单元。
 - 当前测试覆盖：
   - 重复 `clientIntentId` 不推进 tick。
@@ -22,8 +22,9 @@
   - `ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`；旧 Java fixture 因缺少规则依据会被视为 `RequiresRuleAudit`。
   - `docs/rules-evidence-index.md` 已建立五份 PDF/FAQ 到规则域和当前 fixture 的初始索引。
   - Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。
+  - P1 SQL 已补 ruleset/FAQ/audit 字段和 `oracle_fixtures` 索引表；启动时按 `Sql/*.sql` 顺序初始化/迁移。
 
-下一步先细化现有 3 条 fixture 的规则依据和 FAQ 冲突检查，并补 P1 SQL 中的规则/FAQ/audit 字段；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
+下一步先细化现有 3 条 fixture 的规则依据和 FAQ 冲突检查；然后再扩展 P1/P2 加入、座位状态和玩家视角 snapshot。
 
 ## 不做范围
 
@@ -39,7 +40,7 @@
 - `MatchSession` 对同一房间命令严格串行。
 - `clientIntentId` 重复提交不推进 tick，不重复写事件。
 - `IRuleEngine` 的输出能被事件和快照投影消费。
-- PostgreSQL EventStore schema 草案完成，并能由开发环境启动时初始化。
+- PostgreSQL EventStore schema 草案完成，包含规则版本/FAQ/audit 元数据，并能由开发环境启动时初始化。
 - 官网卡牌快照可在新项目中加载，1009 官方条目和 811 功能逻辑单元基线测试通过。
 - solution 级 `restore/build/test` 可作为新窗口默认验证入口。
 - PDF/FAQ 规则依据覆盖首批高价值路径。

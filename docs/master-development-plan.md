@@ -533,21 +533,22 @@ Browser Use 阶段性测试：
 
 | 表 | 说明 |
 |---|---|
-| `matches` | 对局元数据、状态、seed、规则版本、卡牌版本 |
+| `matches` | 对局元数据、状态、seed、规则版本、FAQ 版本、audit 状态、卡牌版本 |
 | `match_players` | 玩家座位、连接状态、重连 token hash |
-| `command_log` | 客户端意图、命令原文、幂等键、结果 |
-| `game_events` | 权威事件流，按 sequence 排序 |
-| `snapshots` | 周期性全量快照和玩家视角快照 |
+| `command_log` | 客户端意图、命令原文、幂等键、结果、规则依据 |
+| `game_events` | 权威事件流，当前按 tick/order 排序，后续补全局 sequence |
+| `snapshots` | 周期性全量快照和玩家视角快照，记录规则依据 |
 | `official_cards` | 官网卡牌条目 |
 | `functional_units` | 后端功能逻辑单元 |
 | `card_behavior_status` | 卡牌实现和验收状态 |
-| `oracle_fixtures` | Java legacy oracle fixture 索引 |
+| `oracle_fixtures` | Java legacy oracle fixture 索引，保存 expected、legacy oracle、rules evidence |
 
 强约束：
 
 - `command_log(match_id, player_id, client_intent_id)` 唯一。
-- `game_events(match_id, sequence)` 唯一递增。
+- `game_events(match_id, event_tick, event_order)` 当前唯一；P1 后续补 `sequence` 后改为按 sequence 唯一递增。
 - 所有 JSON payload 带 `schemaVersion`。
+- journal 和 fixture 行必须带 `ruleset_version`、`faq_version`、audit 状态和 `rules_evidence`。
 - 卡牌快照版本进入 `matches`，保证旧对局可回放。
 
 ## 17. 开发纪律
@@ -571,8 +572,7 @@ Browser Use 阶段性测试：
 立即执行：
 
 1. 继续细化 `docs/rules-evidence-index.md`，把当前 3 条 fixture 的页码/问题编号确认到可验收状态。
-2. 修改 P1 SQL 草案，补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
-3. 再完成第一批 10 条 fixture：
+2. 完成第一批高价值 fixture：
    - P1/P2 加入和视角快照
    - 幂等重复提交
    - 符文横置/回收
@@ -583,7 +583,7 @@ Browser Use 阶段性测试：
    - 基础法术伤害
    - 装备装配
    - owner/controller 边界
-4. 在 C# 侧继续完善 fixture runner 和 canonical JSON diff。
+3. 在 C# 侧继续完善 fixture runner、canonical JSON diff、event sequence 和 recovery 校验。
 
 第一阶段完成后，再开始迁移 P2 核心规则引擎。
 

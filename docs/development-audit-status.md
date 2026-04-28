@@ -22,7 +22,7 @@
 | `GameHub` | 支持 Join、Pass、EndTurn、SubmitIntent、snapshot/prompt/events 推送 | 需要后续扩展 | 保留；补 Ready、Reconnect、RequestSnapshot、错误码和玩家座位限制。 |
 | `MatchSession` | 支持串行、幂等、journal、占位状态 | 需要规则审查 | 串行和幂等可保留；规则状态和 prompt 只是占位。 |
 | `PlaceholderRuleEngine` | 对齐旧 Java 的 `PASS`、`END_TURN`、重复 `PASS` 事件形状 | 需要重审 | 标记 `NEEDS_RULE_AUDIT`；补 PDF/FAQ evidence 后决定是否改行为。 |
-| `PostgresMatchJournal` 和 P1 SQL | 能记录命令、事件、snapshot、prompt | 需要后续扩展 | 保留；后续补 `ruleset_version`、`faq_version`、event sequence、recovery 字段。 |
+| `PostgresMatchJournal` 和 P1 SQL | 能记录命令、事件、snapshot、prompt，并写入 ruleset/FAQ/audit 元数据 | 需要后续扩展 | 保留；后续补 event sequence、recovery 字段和恢复校验。 |
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
 | `ConformanceFixture` | 能回放 command log 并比较 event/prompt | 已补规则审查字段 | 新增 `rulesEvidence`、`faqVersion`、`auditStatus` 读取能力；旧 fixture 默认需要重审。 |
 | 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐 | 必须重审 | 保留为 legacy oracle；补 evidence 后再决定 expected。 |
@@ -35,7 +35,7 @@
 1. P0 不只是“规则 PDF 索引”，而是“五份 PDF/FAQ 索引 + FAQ 问题索引 + 规则冲突裁决表”。
 2. P1 不应继续优先扩展 10 条玩法 fixture；应先补现有 3 条 fixture 的 `rulesEvidence`。
 3. 完成状态必须新增 `NEEDS_RULE_AUDIT`，防止旧 Java conformance 被误当成规则完成。
-4. 数据库和 fixture schema 需要记录 `rulesetVersion` / `faqVersion`，否则未来事件回放无法证明使用了哪套规则依据。
+4. 数据库和 fixture schema 已开始记录 `rulesetVersion` / `faqVersion` / audit 状态；后续事件回放必须持续带上这些字段。
 5. Java exporter 的输出应逐步从 `oracle` 改成 `legacyOracle`；最终 `expected` 由 PDF/FAQ 裁决产生。
 
 暂不需要调整：
@@ -50,8 +50,8 @@
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
 1. 细化 `docs/rules-evidence-index.md` 中现有 3 条 fixture 的页码/问题编号，并确认是否存在 FAQ 冲突。
-2. 修改 P1 SQL 草案：补 `ruleset_version`、`faq_version`、fixture/audit 相关字段。
-3. 再做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
+2. 再做 P1/P2 加入、座位状态、玩家视角 snapshot 的 fixture 和 SignalR 测试。
+3. 补 event sequence、recovery 字段和断线重连恢复校验。
 
 ## 5. 重审验收
 
