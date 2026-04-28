@@ -23,6 +23,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveTurnStart(state));
         }
 
+        if (command is PassPriorityCommand && CanPassPriority(state, intent.PlayerId))
+        {
+            return ValueTask.FromResult(ResolvePassPriority(state, intent));
+        }
+
         if (command is PassPriorityCommand
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal))
@@ -34,6 +39,85 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return fallback.ResolveAsync(state, intent, command, cancellationToken);
+    }
+
+    private static bool CanPassPriority(MatchState state, string playerId)
+    {
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && state.StackItems.Count > 0
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent)
+    {
+        var passedPlayerIds = state.PassedPriorityPlayerIds
+            .Concat([intent.PlayerId])
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToHashSet(StringComparer.Ordinal);
+        var seatPlayerIds = SeatPlayerIds(state);
+        var events = new List<GameEvent>
+        {
+            new(
+                "PRIORITY_PASSED",
+                $"{intent.PlayerId} 让过优先行动权",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["priorityPlayerId"] = state.PriorityPlayerId
+                })
+        };
+
+        MatchState nextState;
+        if (seatPlayerIds.All(passedPlayerIds.Contains))
+        {
+            var resolvedItem = state.StackItems[^1];
+            var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
+            var nextPriorityPlayerId = remainingStack.Length == 0
+                ? null
+                : remainingStack[^1].ControllerId;
+            nextState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = nextPriorityPlayerId ?? state.TurnPlayerId,
+                TimingState = remainingStack.Length == 0 ? TimingStates.NeutralOpen : state.TimingState,
+                PriorityPlayerId = nextPriorityPlayerId,
+                PassedPriorityPlayerIds = [],
+                StackItems = remainingStack
+            };
+            events.Add(new GameEvent(
+                "STACK_ITEM_RESOLVED",
+                $"{resolvedItem.StackItemId} 结算",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = resolvedItem.StackItemId,
+                    ["controllerId"] = resolvedItem.ControllerId,
+                    ["sourceObjectId"] = resolvedItem.SourceObjectId,
+                    ["effectKind"] = resolvedItem.EffectKind
+                }));
+        }
+        else
+        {
+            var nextPriorityPlayerId = NextPriorityPlayerId(state, intent.PlayerId, passedPlayerIds);
+            nextState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = nextPriorityPlayerId,
+                PriorityPlayerId = nextPriorityPlayerId,
+                PassedPriorityPlayerIds = passedPlayerIds
+                    .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                    .ToArray()
+            };
+        }
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)
@@ -136,10 +220,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string NextPlayerId(MatchState state)
     {
-        var players = state.Seats
-            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
-            .Select(entry => entry.Key)
-            .ToArray();
+        var players = SeatPlayerIds(state);
         if (players.Length == 0)
         {
             return state.TurnPlayerId;
@@ -152,6 +233,43 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return players[(turnPlayerIndex + 1) % players.Length];
+    }
+
+    private static string[] SeatPlayerIds(MatchState state)
+    {
+        return state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .ToArray();
+    }
+
+    private static string NextPriorityPlayerId(
+        MatchState state,
+        string currentPlayerId,
+        IReadOnlySet<string> passedPlayerIds)
+    {
+        var players = SeatPlayerIds(state);
+        if (players.Length == 0)
+        {
+            return currentPlayerId;
+        }
+
+        var currentIndex = Array.IndexOf(players, currentPlayerId);
+        if (currentIndex < 0)
+        {
+            return players.First(playerId => !passedPlayerIds.Contains(playerId));
+        }
+
+        for (var offset = 1; offset <= players.Length; offset++)
+        {
+            var candidate = players[(currentIndex + offset) % players.Length];
+            if (!passedPlayerIds.Contains(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return currentPlayerId;
     }
 
     private static CleanupResult ApplyTurnEndCleanup(MatchState state)
@@ -256,6 +374,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (state.Status != MatchStatuses.InProgress)
         {
             return ResolutionResult.BuildPrompts(state);
+        }
+
+        if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+                playerId,
+                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
+                    ? "当前玩家可让过优先行动权"
+                    : "等待对手优先行动",
+                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
+                    ? ["PASS_PRIORITY"]
+                    : ["WAIT"]));
         }
 
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(

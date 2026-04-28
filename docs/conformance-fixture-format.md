@@ -129,7 +129,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-下一步是把 schema v2 的 richer `expected` 接入通用 canonical diff，而不是只在单个测试中手写断言。
+schema v2 目前已支持 P2 初始状态中的 turn/phase/timing、符文池、玩家区域、对象状态，以及 FEPR 所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`。下一步是把 richer `expected` 接入通用 canonical diff，而不是只在单个测试中手写断言。
 
 ## 3. Fixture 后续必须补齐
 
@@ -186,7 +186,7 @@ P1 先导出 10 条：
 
 只有当 C# runner 能消费 Java exporter 输出，并且 fixture 已补齐 PDF/FAQ 规则依据后，后续规则迁移才进入正式 conformance 节奏。
 
-P2 第一批 fixture 的规则审查顺序见 `docs/p2-rules-preflight.md`。其中 `p2-turn-start-runes-and-draw`、`p2-end-turn-special-cleanup`、`p2-pass-priority-does-not-end-turn`、`p2-fepr-priority-pass-resolves-stack`、`p2-spell-duel-pass-focus-closes-window` 是进入核心规则实现前的优先门禁。
+P2 第一批 fixture 的规则审查顺序见 `docs/p2-rules-preflight.md`。其中 `p2-turn-start-runes-and-draw`、`p2-end-turn-special-cleanup`、`p2-pass-priority-does-not-end-turn`、`p2-fepr-priority-pass-resolves-stack`、`p2-fepr-resolves-latest-keeps-remaining-stack`、`p2-spell-duel-pass-focus-closes-window` 是进入核心规则实现前的优先门禁。
 
 ## 6. 当前导出命令
 

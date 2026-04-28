@@ -87,6 +87,35 @@ public sealed record CardObjectState
     }
 }
 
+public sealed record StackItemState
+{
+    [JsonConstructor]
+    public StackItemState(
+        string? stackItemId = null,
+        string? controllerId = null,
+        string? sourceObjectId = null,
+        string? effectKind = null)
+    {
+        StackItemId = Normalize(stackItemId);
+        ControllerId = Normalize(controllerId);
+        SourceObjectId = Normalize(sourceObjectId);
+        EffectKind = Normalize(effectKind);
+    }
+
+    public string StackItemId { get; init; }
+
+    public string ControllerId { get; init; }
+
+    public string SourceObjectId { get; init; }
+
+    public string EffectKind { get; init; }
+
+    private static string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+}
+
 public sealed record MatchState
 {
     public MatchState(
@@ -95,7 +124,7 @@ public sealed record MatchState
         int turnNumber,
         string activePlayerId,
         IReadOnlyDictionary<string, string> seats)
-        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null, null)
+        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null, null, null, null, null)
     {
     }
 
@@ -114,7 +143,10 @@ public sealed record MatchState
         IReadOnlyDictionary<string, RunePool>? runePools = null,
         IReadOnlyDictionary<string, PlayerZones>? playerZones = null,
         IReadOnlyDictionary<string, int>? playerScores = null,
-        IReadOnlyDictionary<string, CardObjectState>? cardObjects = null)
+        IReadOnlyDictionary<string, CardObjectState>? cardObjects = null,
+        string? priorityPlayerId = null,
+        IReadOnlyList<string>? passedPriorityPlayerIds = null,
+        IReadOnlyList<StackItemState>? stackItems = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -140,6 +172,9 @@ public sealed record MatchState
         PlayerZones = NormalizePlayerZones(playerZones);
         PlayerScores = NormalizePlayerScores(playerScores);
         CardObjects = NormalizeCardObjects(cardObjects);
+        PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
+        PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
+        StackItems = NormalizeStackItems(stackItems);
     }
 
     public string RoomId { get; init; }
@@ -170,6 +205,12 @@ public sealed record MatchState
 
     public IReadOnlyDictionary<string, CardObjectState> CardObjects { get; init; }
 
+    public string? PriorityPlayerId { get; init; }
+
+    public IReadOnlyList<string> PassedPriorityPlayerIds { get; init; }
+
+    public IReadOnlyList<StackItemState> StackItems { get; init; }
+
     public static MatchState Create(string roomId)
     {
         return new MatchState(
@@ -186,7 +227,10 @@ public sealed record MatchState
             new Dictionary<string, RunePool>(StringComparer.Ordinal),
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal),
             new Dictionary<string, int>(StringComparer.Ordinal),
-            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            null,
+            [],
+            []);
     }
 
     private static string InferStatus(IReadOnlyDictionary<string, string> seats)
@@ -273,6 +317,33 @@ public sealed record MatchState
             state.UntilEndOfTurnEffects);
     }
 
+    private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
+    {
+        return (stackItems ?? [])
+            .Where(item => !string.IsNullOrWhiteSpace(item.StackItemId))
+            .Select(item => new StackItemState(
+                item.StackItemId,
+                item.ControllerId,
+                item.SourceObjectId,
+                item.EffectKind))
+            .ToArray();
+    }
+
+    private static string? NormalizeOptionalText(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    private static IReadOnlyList<string> NormalizeTextList(IReadOnlyList<string>? values)
+    {
+        return (values ?? [])
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private static PlayerZones NormalizeZones(PlayerZones zones)
     {
         return new PlayerZones(
@@ -332,12 +403,20 @@ public sealed record ResolutionResult(
                     ["score"] = state.PlayerScores.TryGetValue(entry.Key, out var score) ? score : 0
                 }),
             new Dictionary<string, object?>(),
-            [],
+            state.StackItems.Select(item => (object?)new Dictionary<string, object?>
+            {
+                ["stackItemId"] = item.StackItemId,
+                ["controllerId"] = item.ControllerId,
+                ["sourceObjectId"] = item.SourceObjectId,
+                ["effectKind"] = item.EffectKind
+            }).ToArray(),
             new Dictionary<string, object?>
             {
                 ["phase"] = state.Phase,
                 ["timingState"] = state.TimingState,
                 ["turnPlayerId"] = state.TurnPlayerId,
+                ["priorityPlayerId"] = state.PriorityPlayerId,
+                ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },
@@ -358,6 +437,19 @@ public sealed record ResolutionResult(
                     ready ? "已准备，等待对手" : "等待玩家准备",
                     ready ? ["WAIT"] : ["READY"]);
             });
+        }
+
+        if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+                playerId,
+                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
+                    ? "当前玩家可让过优先行动权"
+                    : "等待对手优先行动",
+                string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
+                    ? ["PASS_PRIORITY"]
+                    : ["WAIT"]));
         }
 
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(

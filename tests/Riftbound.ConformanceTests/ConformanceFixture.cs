@@ -71,7 +71,10 @@ public sealed record ConformanceInitialState(
     IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
     IReadOnlyDictionary<string, int>? Scores = null,
-    IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null);
+    IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null,
+    string? PriorityPlayerId = null,
+    IReadOnlyList<string>? PassedPriorityPlayerIds = null,
+    IReadOnlyList<ConformanceStackItemState>? StackItems = null);
 
 public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? MainDeck = null,
@@ -87,6 +90,12 @@ public sealed record ConformancePlayerInitialState(
 public sealed record ConformanceCardObjectState(
     int? Damage = null,
     IReadOnlyList<string>? UntilEndOfTurnEffects = null);
+
+public sealed record ConformanceStackItemState(
+    string? StackItemId = null,
+    string? ControllerId = null,
+    string? SourceObjectId = null,
+    string? EffectKind = null);
 
 public sealed record ConformanceExpected(
     long FinalTick,
@@ -105,7 +114,10 @@ public sealed record ConformanceExpectedState(
     string? TimingState = null,
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
     IReadOnlyDictionary<string, int>? Scores = null,
-    IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null);
+    IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null,
+    string? PriorityPlayerId = null,
+    IReadOnlyList<string>? PassedPriorityPlayerIds = null,
+    IReadOnlyList<ConformanceStackItemState>? StackItems = null);
 
 public sealed record ConformanceExpectedEvent(
     string Kind,
@@ -225,7 +237,10 @@ public static class ConformanceFixtureRunner
             BuildRunePools(initial, fixture.Players),
             BuildPlayerZones(initial, fixture.Players),
             BuildPlayerScores(initial, fixture.Players),
-            BuildCardObjects(initial));
+            BuildCardObjects(initial),
+            initial.PriorityPlayerId,
+            initial.PassedPriorityPlayerIds,
+            BuildStackItems(initial));
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)
@@ -288,6 +303,17 @@ public static class ConformanceFixtureRunner
                     entry.Value.Damage ?? 0,
                     entry.Value.UntilEndOfTurnEffects),
                 StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<StackItemState> BuildStackItems(ConformanceInitialState initial)
+    {
+        return (initial.StackItems ?? [])
+            .Select(item => new StackItemState(
+                item.StackItemId,
+                item.ControllerId,
+                item.SourceObjectId,
+                item.EffectKind))
+            .ToArray();
     }
 
     private static PlayerZones ToPlayerZones(ConformancePlayerInitialState zones)

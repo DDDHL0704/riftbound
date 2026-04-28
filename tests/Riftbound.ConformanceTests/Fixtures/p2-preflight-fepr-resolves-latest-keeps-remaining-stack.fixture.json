@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-fepr-resolves-latest-keeps-remaining-stack",
+  "description": "When the latest stack item resolves and older confirmed items remain, the controller of the new latest item receives priority.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302010,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p35 rule 340.4",
+      "note": "结算链不为空且不存在待处理项目时，结算链上最新效果的控制者获得优先行动权并返回执行步骤。"
+    }
+  ],
+  "roomId": "p2-preflight-fepr-remaining-stack-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302010,
+    "turnNumber": 7,
+    "activePlayerId": "P2",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P2",
+    "passedPriorityPlayerIds": [],
+    "stackItems": [
+      {
+        "stackItemId": "STACK-OLDER",
+        "controllerId": "P1",
+        "sourceObjectId": "P1-ABILITY-001",
+        "effectKind": "TEST_OLDER"
+      },
+      {
+        "stackItemId": "STACK-LATEST",
+        "controllerId": "P2",
+        "sourceObjectId": "P2-ABILITY-001",
+        "effectKind": "TEST_LATEST"
+      }
+    ],
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-ABILITY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-ABILITY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-fepr-p2-pass-latest",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-fepr-p1-pass-latest",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 2,
+    "eventKinds": [
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED"
+    ],
+    "events": [
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" }
+    ],
+    "promptActions": {
+      "P1": ["PASS_PRIORITY"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 7,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P1",
+      "passedPriorityPlayerIds": [],
+      "stackItems": [
+        {
+          "stackItemId": "STACK-OLDER",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-ABILITY-001",
+          "effectKind": "TEST_OLDER"
+        }
+      ],
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["PASS_PRIORITY"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

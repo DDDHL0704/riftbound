@@ -329,6 +329,61 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineTransfersPriorityWhenStackItemIsPending()
+    {
+        var state = new MatchState(
+            "p2-fepr-priority-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralClosed,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            "P1",
+            [],
+            [new StackItemState("STACK-001", "P1", "P1-ABILITY-001", "TEST_RESOLVE")]);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-pass-priority", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new[] { "PRIORITY_PASSED" }, result.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Equal("P2", result.State.PriorityPlayerId);
+        Assert.Equal(new[] { "P1" }, result.State.PassedPriorityPlayerIds);
+        Assert.Single(result.State.StackItems);
+        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "PASS_PRIORITY" }, result.Prompts["P2"].Actions);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePassPriorityDoesNotEndTurnInOrdinaryMainPhase()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -347,6 +402,59 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("MAIN", result.FinalState.Phase);
         Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
         Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.False(result.Prompts["P2"].Actionable);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineResolvesStackWhenAllPlayersPassPriority()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-fepr-priority-pass-resolves-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal(7, result.FinalState.TurnNumber);
+        Assert.Equal("P1", result.FinalState.ActivePlayerId);
+        Assert.Equal("P1", result.FinalState.TurnPlayerId);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
+        Assert.Null(result.FinalState.PriorityPlayerId);
+        Assert.Empty(result.FinalState.PassedPriorityPlayerIds);
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.False(result.Prompts["P2"].Actionable);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineReturnsPriorityToLatestRemainingStackController()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-fepr-resolves-latest-keeps-remaining-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("P1", result.FinalState.ActivePlayerId);
+        Assert.Equal("P1", result.FinalState.TurnPlayerId);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal("NEUTRAL_CLOSED", result.FinalState.TimingState);
+        Assert.Equal("P1", result.FinalState.PriorityPlayerId);
+        Assert.Empty(result.FinalState.PassedPriorityPlayerIds);
+        var remaining = Assert.Single(result.FinalState.StackItems);
+        Assert.Equal("STACK-OLDER", remaining.StackItemId);
+        Assert.Equal("P1", remaining.ControllerId);
+        Assert.Equal(new[] { "PASS_PRIORITY" }, result.Prompts["P1"].Actions);
         Assert.False(result.Prompts["P2"].Actionable);
     }
 

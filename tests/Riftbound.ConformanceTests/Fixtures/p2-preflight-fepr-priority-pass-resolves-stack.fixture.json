@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-fepr-priority-pass-resolves-stack",
+  "description": "When a confirmed stack item exists in FEPR, both players passing priority resolves the latest stack item and returns to the ordinary main phase.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302009,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p33-p35 rules 333-340",
+      "note": "FEPR 中已确认结算链项目等待执行；玩家依次让过优先行动权后，最新项目结算。"
+    },
+    {
+      "source": "JFAQ_251023.pdf",
+      "locator": "p4-p5 questions 3.1-3.3",
+      "note": "FAQ 澄清焦点、活跃玩家和初始结算链语境；本样例只覆盖优先行动权让过，不进入法术对决焦点传递。"
+    }
+  ],
+  "roomId": "p2-preflight-fepr-priority-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302009,
+    "turnNumber": 7,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P1",
+    "passedPriorityPlayerIds": [],
+    "stackItems": [
+      {
+        "stackItemId": "STACK-001",
+        "controllerId": "P1",
+        "sourceObjectId": "P1-ABILITY-001",
+        "effectKind": "TEST_RESOLVE"
+      }
+    ],
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-ABILITY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-fepr-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-fepr-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 2,
+    "eventKinds": [
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED"
+    ],
+    "events": [
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 7,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "priorityPlayerId": null,
+      "passedPriorityPlayerIds": [],
+      "stackItems": [],
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

@@ -80,6 +80,8 @@
 | `p2-preflight-end-turn-special-cleanup` | `RULE_AUDITED` | `CORE-260330` p30-p31 rules 317.2.a-317.2.f, p31-p33 rules 318-324；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证回合结束特殊清理会移除单位伤害、令期限为本回合内的效果失效、清空符文池，并自动结算下一回合开始。 |
 | `p2-preflight-cleanup-repeats-until-stable` | `RULE_AUDITED` | `CORE-260330` p31-p33 rules 318-324；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证特殊清理导致对象状态变化后追加一次常规清理检查，并且不重复执行回合结束特殊清理步骤。 |
 | `p2-preflight-pass-priority-does-not-end-turn` | `RULE_AUDITED` | `CORE-260330` p27-p28 rules 312-313, p33-p35 rules 333-340；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证普通主阶段没有优先行动权窗口时 `PASS_PRIORITY` 返回 `PHASE_NOT_ALLOWED`，不产生日志事件、不推进 tick、不结束回合。 |
+| `p2-preflight-fepr-priority-pass-resolves-stack` | `RULE_AUDITED` | `CORE-260330` p33-p35 rules 333-340；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证有已确认结算链项目时，当前优先权玩家让过后优先权转移，所有玩家让过后结算最新项目并回到普通主阶段。 |
+| `p2-preflight-fepr-resolves-latest-keeps-remaining-stack` | `RULE_AUDITED` | `CORE-260330` p35 rule 340.4 | 已验证最新项目结算后若结算链仍不为空且无待处理项目，则新的最新项目控制者获得优先行动权。 |
 
 ## 6.1 当前三条 Fixture 冲突检查结论
 
