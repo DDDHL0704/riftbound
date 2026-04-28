@@ -16,8 +16,10 @@
   - 官网快照 1009 条加载。
   - 功能逻辑单元 811 个基线一致。
   - fixture runner 可读取 command log 格式并回放到 `MatchSession`。
+  - 已从 Java oracle 导出第一条 fixture：`java-oracle-p1-pass`。
+  - C# 测试可读取 Java fixture 元数据；规则尚未迁移前不强行比对占位引擎。
 
-下一步从 Java oracle fixture exporter 开始，并把 exporter 输出接入当前 C# fixture runner。
+下一步继续扩展 Java oracle fixture exporter 的 10 条高价值路径，并开始把 `PASS` / `END_TURN` 的真实 Java event kind 对齐到 C# 规则骨架。
 
 ## 不做范围
 

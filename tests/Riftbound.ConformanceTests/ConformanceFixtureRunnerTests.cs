@@ -26,6 +26,21 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task LoadsJavaOracleFixtureMetadataBeforeRulesAreMigrated()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "java-oracle", "java-oracle-p1-pass.fixture.json"),
+            CancellationToken.None);
+
+        Assert.Equal("java-oracle-p1-pass", fixture.FixtureId);
+        Assert.Equal("java-oracle", fixture.Source);
+        Assert.Equal("rules-260330", fixture.RulesVersion);
+        Assert.Equal("official-2026-04-27", fixture.CatalogVersion);
+        Assert.Equal("75bf7cf", fixture.JavaCommit);
+        Assert.Equal(new[] { "TURN_ENDED" }, fixture.Expected.EventKinds);
+    }
+
+    [Fact]
     public void CanonicalJsonKeepsStableCamelCaseEnvelope()
     {
         var json = CanonicalJson.Serialize(new

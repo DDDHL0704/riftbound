@@ -13,3 +13,4 @@ coverage/
 .env.*
 !.env.example
 appsettings.Local.json
+/《符文战场》核心规则_260330.pdf

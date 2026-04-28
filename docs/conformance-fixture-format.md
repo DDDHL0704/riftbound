@@ -50,6 +50,7 @@ seed + initial setup + command log
 现有样例：
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 
 ## 3. Java Exporter 后续必须补齐
 
@@ -102,3 +103,21 @@ P1 先导出 10 条：
 10. owner/controller 边界。
 
 只有当 C# runner 能消费 Java exporter 输出后，后续规则迁移才进入正式 conformance 节奏。
+
+## 6. 当前导出命令
+
+Java oracle exporter 当前位于旧项目 server 测试层：
+
+```bash
+mvn -pl server -am \
+  -Dtest=OracleFixtureExportTest \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Doracle.fixture.outputDir=/Users/dinghaolin/MyProjects/riftbound-dotnet/tests/Riftbound.ConformanceTests/Fixtures/java-oracle \
+  test
+```
+
+当前已导出：
+
+- `java-oracle-p1-pass.fixture.json`
+
+C# 侧当前只读取 Java fixture 元数据与 expected shape；在对应规则迁移完成前，不要求占位 `PlaceholderRuleEngine` 与 Java oracle 行为一致。

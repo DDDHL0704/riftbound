@@ -12,7 +12,10 @@ public sealed record ConformanceFixture(
     string RoomId,
     IReadOnlyList<string> Players,
     IReadOnlyList<ConformanceCommand> Commands,
-    ConformanceExpected Expected)
+    ConformanceExpected Expected,
+    string? RulesVersion = null,
+    string? CatalogVersion = null,
+    string? JavaCommit = null)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
