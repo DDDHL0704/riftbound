@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-void-seeker-draw-burnout-stack",
+  "description": "Void Seeker resolves damage, then its draw effect burns out when the controller's main deck is empty, recycles graveyard, and draws one card.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302022,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·024/298 虚空索敌",
+      "note": "官方卡面：对战场上的一名单位造成 4 点伤害，然后抽一张牌。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p57 rule 413.4; p67 rule 431.2; p39-p42 rules 355-356",
+      "note": "抽牌时主牌堆为空会执行燃尽，对手得分并回收废牌堆后继续抽牌。"
+    }
+  ],
+  "roomId": "p2-preflight-void-seeker-burnout-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302022,
+    "turnNumber": 10,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": [],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-VOID-SEEKER"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": ["P1-RECYCLE-001"],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-001": {
+        "damage": 0,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-void-seeker-burnout-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-VOID-SEEKER",
+        "cardNo": "OGN·024/298",
+        "targetObjectIds": ["P2-UNIT-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-void-seeker-burnout-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-void-seeker-burnout-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED",
+      "BURNOUT_APPLIED",
+      "CARD_DRAWN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      { "kind": "DAMAGE_APPLIED" },
+      { "kind": "BURNOUT_APPLIED" },
+      { "kind": "CARD_DRAWN" }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 10,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 1
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": [],
+          "hand": ["P1-RECYCLE-001"],
+          "graveyard": ["P1-SPELL-VOID-SEEKER"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-UNIT-001": {
+          "damage": 4,
+          "untilEndOfTurnEffects": []
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
