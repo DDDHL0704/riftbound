@@ -93,6 +93,14 @@ public static class CardBehaviorRegistry
             DrawCount: 1,
             DrawConditionKind: CardDrawConditionKinds.TargetDestroyedByThisEffect),
         new(
+            "OGN·029/298",
+            "星落",
+            2,
+            "STARFALL_DAMAGE_3_TWICE",
+            3,
+            2,
+            TargetScope: CardTargetScopes.AnyUnit),
+        new(
             "OGN·085/298",
             "彗星坠击",
             5,
