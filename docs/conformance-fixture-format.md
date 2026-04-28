@@ -122,6 +122,8 @@ P1 先导出 10 条：
 
 只有当 C# runner 能消费 Java exporter 输出，并且 fixture 已补齐 PDF/FAQ 规则依据后，后续规则迁移才进入正式 conformance 节奏。
 
+P2 第一批 fixture 的规则审查顺序见 `docs/p2-rules-preflight.md`。其中 `p2-turn-start-runes-and-draw`、`p2-end-turn-special-cleanup`、`p2-pass-priority-does-not-end-turn`、`p2-fepr-priority-pass-resolves-stack`、`p2-spell-duel-pass-focus-closes-window` 是进入核心规则实现前的优先门禁。
+
 ## 6. 当前导出命令
 
 Java oracle exporter 当前位于旧项目 server 测试层：

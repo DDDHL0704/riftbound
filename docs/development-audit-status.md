@@ -26,6 +26,7 @@
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
 | `ConformanceFixture` | 能回放 command log 并比较 event/prompt | 已补规则审查字段 | 新增 `rulesEvidence`、`faqVersion`、`auditStatus` 读取能力；旧 fixture 默认需要重审。 |
 | 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐，evidence 已细化 | 必须重审 | 保留为 legacy oracle；`PASS -> TURN_ENDED` 标记为 legacy mismatch candidate。 |
+| P2 前置规则审查 | 已建立 `docs/p2-rules-preflight.md`，覆盖符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture | 后续执行 | 进入 P2 规则实现前，先按该文档扩展 fixture schema、权威 `MatchState` 和 conformance expected。 |
 | 前端 UI | 尚未开始 | 暂不开始最终 UI | P2/P2.5 后做开发期测试 UI。 |
 
 ## 3. 计划需要调整的点
@@ -50,7 +51,7 @@
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
 1. 继续协议错误码治理；P1 提交路径已覆盖未知玩家、空 intent、未开局、unsupported command、重复 intent 冲突，P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。
-2. 进入 P2 核心规则前，先把符文资源、EndTurn/Pass 语义和 fixture evidence 对齐到五份 PDF/FAQ。
+2. 进入 P2 核心规则前，按 `docs/p2-rules-preflight.md` 先扩展 fixture schema、权威 `MatchState`、符文池和回合开始/结束流程。
 3. 新增 fixture 使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 仅保留在 legacy oracle。
 4. 后续扩展核心规则时，同步扩展 `MatchState` 和 `state_snapshots.payload`，玩家视角 snapshot 只作为重连视图和一致性校验依据。
 

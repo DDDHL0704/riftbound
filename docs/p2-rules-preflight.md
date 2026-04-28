@@ -1,0 +1,100 @@
+# P2 核心规则前置审查
+
+更新时间：2026-04-28
+
+## 1. 目的
+
+本文件是进入 P2 核心规则实现前的执行清单。它把符文资源、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS` 和清理流程先从五份 PDF/FAQ 中拆成可实现的状态、事件和 fixture，避免继续继承旧 Java 的 `PASS -> TURN_ENDED` 混淆。
+
+本文件不是规则全文摘录。实现时仍必须回到本地五份 PDF/FAQ 和官网卡牌快照核对。
+
+## 2. 当前裁决
+
+| 能力 | 裁决 | 证据 | 对旧 Java 的态度 |
+|---|---|---|---|
+| 符文池 | 法力/符能先进入玩家符文池，再用于支付费用；抽牌阶段结束和回合结束都会清空所有玩家符文池。 | `CORE-260330` p20 rules 164-167, p28-p31 rules 315.4, 317.2 | Java snapshot 可作对照，但 P2 必须建服务端权威资源状态。 |
+| `END_TURN` | 表示主阶段没有要执行的自决行动，随后进入回合结束阶段。 | `CORE-260330` p29-p31 rules 316.1-317.3; `JFAQ-251023` p6-p7 questions 5.1-5.2 | Java 粗粒度事件可临时对照，最终事件要拆细。 |
+| `PASS_PRIORITY` | 只表示 FEPR 流程中让过优先行动权；不能等同结束回合。 | `CORE-260330` p27-p28 rules 312-313, p33-p35 rules 333-340 | `java-oracle-p1-pass` 的 `TURN_ENDED` 是 legacy mismatch candidate。 |
+| `PASS_FOCUS` | 只表示法术对决中让过焦点；所有玩家依次让过才关闭法术对决。 | `CORE-260330` p35-p36 rules 341-348; `JFAQ-251023` p4-p5 questions 3.1-3.3 | 需要新 fixture，不能从裸 `PASS` 推断。 |
+| 清理/特殊清理 | 清理期间不结算合法项目，不授予/传递优先行动权或焦点；若清理改变状态导致再次满足清理条件，继续清理至稳定。回合结束和战斗清理是特殊清理。 | `CORE-260330` p31-p33 rules 318-324; `JFAQ-251023` p6-p7 questions 5.1-5.4 | P2 事件和状态机必须显式支持重复清理。 |
+
+## 3. P2 最小状态模型
+
+在扩展 `MatchState` 时，优先加入以下服务端权威字段。玩家视角 snapshot 只投影允许看到的部分。
+
+| 状态域 | 最小字段 | 用途 |
+|---|---|---|
+| 回合 | `turnNumber`, `turnPlayerId`, `phase`, `timingState` | 区分回合开始、主阶段、回合结束、普通/法术对决、开环/闭环。 |
+| 行动权 | `priorityPlayerId`, `focusPlayerId`, `passedPriorityPlayerIds`, `passedFocusPlayerIds` | 表达谁能自决行动，以及连续让过何时推进。 |
+| 符文资源 | `runePools[playerId].mana`, `runePools[playerId].power` | 费用支付、抽牌阶段结束清空、回合结束清空。 |
+| 区域 | `mainDeck`, `runeDeck`, `hand`, `base`, `battlefields`, `graveyard`, `banished`, `legendZone`, `championZone` | 后续打出、召出、抽牌、公开/私密/隐秘信息边界。 |
+| 结算链 | `pendingTasks`, `stackItems`, `resolvingItemId` | HOT FEPR、确认、执行、让过、结算。 |
+| 清理 | `cleanupKind`, `cleanupIteration`, `pendingCleanupReasons` | 普通清理、回合结束特殊清理、战斗特殊清理和重复清理。 |
+| 随机 | `seed`, `rngCursor` | 洗牌、抽牌和随机选择可重放。 |
+
+## 4. P2 事件词表先行
+
+进入实现前先稳定事件名，后续 fixture 和 UI 都依赖这些名称。
+
+| 事件 | 触发时机 |
+|---|---|
+| `TURN_START_BEGAN` | 新回合玩家成为回合玩家后，开始回合开始流程。 |
+| `OBJECTS_READIED` | 唤醒阶段使可活跃对象变为活跃。 |
+| `BATTLEFIELDS_SECURED` | 得分计算步骤据守战场。 |
+| `RUNES_CALLED` | 召出阶段从符文牌堆召出符文。 |
+| `CARD_DRAWN` / `BURNOUT_APPLIED` | 抽牌阶段抽牌或牌堆不足时燃尽。 |
+| `RUNE_POOL_CLEARED` | 抽牌阶段结束或回合结束清空符文池。 |
+| `MAIN_PHASE_BEGAN` | 主阶段开始，回合玩家获得普通开环行动窗口。 |
+| `TURN_END_DECLARED` | 回合玩家提交 `END_TURN`。 |
+| `TURN_END_CLEANUP_STARTED` | 回合结束特殊清理开始。 |
+| `DAMAGE_REMOVED` | 回合结束特殊清理移除单位伤害。 |
+| `UNTIL_END_OF_TURN_EXPIRED` | 本回合内期限效果失效。 |
+| `TURN_PLAYER_ADVANCED` | 回合队列推进到下一位玩家。 |
+| `PRIORITY_PASSED` | `PASS_PRIORITY` 成功让过优先行动权。 |
+| `FOCUS_PASSED` | `PASS_FOCUS` 成功让过焦点。 |
+| `STACK_ITEM_RESOLVED` | 结算链最新项目完成结算。 |
+| `CLEANUP_REPEATED` | 清理造成状态变化后再次启动清理。 |
+
+P1 的 `TURN_ENDED`、`TURN_BEGAN`、`RUNE_CHANNELLED`、`CARD_DRAWN` 仍保留为 legacy placeholder，不应作为 P2 正式事件设计。
+
+## 5. 第一批 P2 Fixture
+
+这些 fixture 必须先成为 `RULE_AUDITED`，再实现对应规则。
+
+| Fixture ID | 输入 | 期望重点 | 依据 |
+|---|---|---|---|
+| `p2-turn-start-runes-and-draw` | P2 成为回合玩家，符文牌堆至少 2 张，主牌堆至少 1 张 | 召出 2 张符文，抽 1 张牌，抽牌阶段结束清空符文池，进入主阶段。 | `CORE-260330` p28-p29 rule 315; p20 rules 164-167 |
+| `p2-turn-start-short-rune-deck` | 符文牌堆不足 2 张 | 有多少召出多少，不越界，不报错。 | `CORE-260330` p28-p29 rule 315.3 |
+| `p2-end-turn-special-cleanup` | 主阶段有未消耗资源、单位伤害和本回合内效果 | 记录回合结束声明，移除伤害，本回合内效果失效，清空符文池，推进回合玩家。 | `CORE-260330` p30-p31 rules 316.6-317.3; `JFAQ-251023` p6-p7 questions 5.1-5.2 |
+| `p2-pass-priority-does-not-end-turn` | 普通主阶段没有结算链时误提交 `PASS_PRIORITY` | 不产生 `TURN_END_DECLARED`；若当前时机不允许，应返回稳定规则错误码。 | `CORE-260330` p33-p35 rules 333-340 |
+| `p2-fepr-priority-pass-resolves-stack` | 有已确认结算链项目，双方依次让过优先行动权 | 让过转移优先行动权，所有玩家让过后结算最新项目。 | `CORE-260330` p33-p35 rules 333-340 |
+| `p2-spell-duel-pass-focus-closes-window` | 非战斗法术对决开环，双方没有新增法术 | 焦点传递；所有玩家让过焦点后关闭法术对决并进行清理。 | `CORE-260330` p35-p36 rules 341-348; `JFAQ-251023` p4-p5 questions 3.1-3.3 |
+| `p2-cleanup-repeats-until-stable` | 清理期间产生新的待处理项目或离场条件 | 不在清理中结算合法项目；清理重复至状态稳定。 | `CORE-260330` p31-p33 rules 318-324; `JFAQ-251023` p6-p7 questions 5.1-5.4 |
+
+## 6. 实现顺序
+
+1. 扩展 fixture schema，加入 `initialState`、`expectedSnapshots`、`expectedEvents`、`expectedPrompts` 的 P2 必要字段。
+2. 扩展 `MatchState`，先建权威状态，不急着暴露给前端。
+3. 调整 snapshot 投影，确保对手手牌、牌堆顺序、隐秘信息不可见。
+4. 实现符文池和回合开始流程。
+5. 实现 `END_TURN` 的回合结束特殊清理与回合推进。
+6. 实现 `PASS_PRIORITY` 和 FEPR 最小流程。
+7. 实现 `PASS_FOCUS` 和法术对决最小流程。
+8. 更新 `PlaceholderRuleEngine` 或替换为 P2 rule engine，保留 legacy fixture 作为对照。
+
+## 7. 暂缓项
+
+- 不实现完整打出卡牌流程。
+- 不实现全部战斗、得分、移动。
+- 不实现复杂 AI。
+- 不做产品级 UI。
+- 不迁移全部卡牌。
+
+## 8. 完成门禁
+
+- 每个 P2 fixture 都有 `rulesEvidence`，且 `auditStatus = RULE_AUDITED`。
+- `expected` 以 PDF/FAQ 和官网卡面裁决为准，不以 Java 输出为准。
+- C# conformance runner 能输出稳定 diff。
+- `state_snapshots.payload` 能保存完整权威状态。
+- 玩家 snapshot 通过公开/私密/隐秘信息检查。
+- solution 级 build/test 通过。

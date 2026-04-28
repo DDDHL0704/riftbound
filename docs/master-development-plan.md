@@ -102,6 +102,7 @@ flowchart LR
 - `docs/development-audit-status.md`
 - `docs/master-development-plan.md`
 - `docs/rules-evidence-index.md`
+- `docs/p2-rules-preflight.md`
 - 后续生成 `data/official-card-catalog.json`
 - 后续生成 `data/functional-units.json`
 
@@ -597,8 +598,9 @@ Browser Use 阶段性测试：
 - `match_players.reconnect_token_hash` 持久化重连已接入；服务端只保存 `sha256:` hash，重连成功会轮换 token/hash，恢复后的 session 可用旧 token hash 重连，不能通过 Join 直接领取新 token。
 - `Ready` / 房间生命周期最小状态机已接入：房间从 `EMPTY` 入座到 `SEATING`，双方 Ready 后进入 `IN_PROGRESS`，`FINISHED` 作为后续结算状态保留；Ready/Start lifecycle events 会进入 journal，未开局提交会稳定返回 `MATCH_NOT_STARTED`。
 - `WsClientMessage` / `WsServerMessage` 已接入默认 `protocolVersion = 1`、`schemaVersion = 1`，canonical JSON 测试已固定 camelCase envelope 字段；TypeScript DTO、客户端兼容策略和事件 upcaster 仍待后续补齐。
+- `docs/p2-rules-preflight.md` 已建立 P2 前置审查：符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture。
 
-第一阶段完成后，再开始迁移 P2 核心规则引擎。
+第一阶段完成后，再按 `docs/p2-rules-preflight.md` 开始迁移 P2 核心规则引擎。
 
 ## 19. 完成定义
 
