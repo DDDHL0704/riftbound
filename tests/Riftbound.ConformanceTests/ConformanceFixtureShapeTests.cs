@@ -145,6 +145,23 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task MatchStateCarriesP2AuthorityFields()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+        session.EnsurePlayer("alice");
+        session.EnsurePlayer("bob");
+        await ReadyBothAsync(session, "alice", "bob");
+
+        var snapshot = session.SnapshotFor("alice");
+        var timing = snapshot.Timing;
+
+        Assert.Equal("MAIN", timing["phase"]);
+        Assert.Equal("NEUTRAL_OPEN", timing["timingState"]);
+        Assert.Equal("alice", timing["turnPlayerId"]);
+        Assert.Equal("IN_PROGRESS", timing["roomStatus"]);
+    }
+
+    [Fact]
     public void JoinRejectsThirdPlayer()
     {
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
@@ -231,8 +248,13 @@ public sealed class ConformanceFixtureShapeTests
 
     private static async Task ReadyBothAsync(MatchSession session)
     {
-        await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
-        await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
+        await ReadyBothAsync(session, "P1", "P2");
+    }
+
+    private static async Task ReadyBothAsync(MatchSession session, string firstPlayerId, string secondPlayerId)
+    {
+        await session.ReadyAsync(firstPlayerId, $"ready-{firstPlayerId}", RawCommand("READY"), CancellationToken.None);
+        await session.ReadyAsync(secondPlayerId, $"ready-{secondPlayerId}", RawCommand("READY"), CancellationToken.None);
     }
 
     private static string PlayerSeat(SnapshotDto snapshot, string playerId)

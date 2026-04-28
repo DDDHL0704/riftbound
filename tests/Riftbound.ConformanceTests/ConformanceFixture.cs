@@ -13,6 +13,7 @@ public sealed record ConformanceFixture(
     IReadOnlyList<string> Players,
     IReadOnlyList<ConformanceCommand> Commands,
     ConformanceExpected Expected,
+    ConformanceInitialState? InitialState = null,
     long? Seed = null,
     IReadOnlyList<RuleEvidence>? RulesEvidence = null,
     string? AuditStatus = null,
@@ -60,10 +61,52 @@ public sealed record RuleEvidence(
     string Locator,
     string Note);
 
+public sealed record ConformanceInitialState(
+    long? Seed = null,
+    int? TurnNumber = null,
+    string? ActivePlayerId = null,
+    string? TurnPlayerId = null,
+    string? Phase = null,
+    string? TimingState = null,
+    IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
+    IReadOnlyDictionary<string, RunePool>? RunePools = null);
+
+public sealed record ConformancePlayerInitialState(
+    IReadOnlyList<string>? MainDeck = null,
+    IReadOnlyList<string>? RuneDeck = null,
+    IReadOnlyList<string>? Hand = null,
+    IReadOnlyList<string>? Base = null,
+    IReadOnlyList<string>? Battlefields = null,
+    IReadOnlyList<string>? Graveyard = null,
+    IReadOnlyList<string>? Banished = null,
+    IReadOnlyList<string>? LegendZone = null,
+    IReadOnlyList<string>? ChampionZone = null);
+
 public sealed record ConformanceExpected(
     long FinalTick,
     IReadOnlyList<string> EventKinds,
-    IReadOnlyDictionary<string, IReadOnlyList<string>> PromptActions);
+    IReadOnlyDictionary<string, IReadOnlyList<string>> PromptActions,
+    ConformanceExpectedState? FinalState = null,
+    IReadOnlyList<ConformanceExpectedEvent>? Events = null,
+    IReadOnlyDictionary<string, JsonElement>? Snapshots = null,
+    IReadOnlyDictionary<string, ConformanceExpectedPrompt>? Prompts = null);
+
+public sealed record ConformanceExpectedState(
+    int? TurnNumber = null,
+    string? ActivePlayerId = null,
+    string? TurnPlayerId = null,
+    string? Phase = null,
+    string? TimingState = null,
+    IReadOnlyDictionary<string, RunePool>? RunePools = null);
+
+public sealed record ConformanceExpectedEvent(
+    string Kind,
+    long? Tick = null,
+    long? Sequence = null);
+
+public sealed record ConformanceExpectedPrompt(
+    bool? Actionable = null,
+    IReadOnlyList<string>? Actions = null);
 
 public sealed record ConformanceRunResult(
     long FinalTick,

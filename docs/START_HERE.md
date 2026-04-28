@@ -96,7 +96,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 52 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 54 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -120,6 +120,8 @@
 - `InMemoryMatchSessionRegistry` 已接入 `IMatchRecoveryStore` 异步恢复入口；恢复时只恢复 P1 底座所需的 tick、turn、active player、P1/P2 seat、lastEventSequence 和已见过的 intent，用于防止重启后重复提交污染事件流，不把玩家视角 snapshot 当完整权威规则状态；跨 room recovery frame 会被 `RECOVERY_INCONSISTENT` 拒绝。
 - `state_snapshots` 权威状态快照表已加入 P1 schema 和 `004_p1_state_snapshots.sql` 迁移；`PostgresMatchJournal` 会写入服务端 `MatchState`，`PostgresMatchRecoveryStore` 会优先读取与当前 `last_event_sequence` 对齐的权威状态，并校验玩家视角 snapshot 与权威状态一致；本机 PostgreSQL state snapshot smoke 通过。
 - `IMatchPlayerStore`、`PostgresMatchPlayerStore` 和 `ReconnectTokenHasher` 已接入；Join/Reconnect 会把 reconnect token 以 `sha256:` hash 写入 `match_players.reconnect_token_hash`，恢复后的 session 可用旧 token hash 重连，并在重连成功后轮换新 token/hash；恢复后已有座位但没有 live token 的玩家必须走 Reconnect，不能用 Join 直接领取新 token；本机 PostgreSQL token smoke 通过，库中不保存 token 明文。
+- P2 preflight 已开始落代码：`ConformanceFixture` 已能读取 schema v2 的 `initialState`、P2 `expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为规则审查后的回合开始样例，但暂不由 runner 执行规则断言。
+- `MatchState` 已增加 P2 权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`；snapshot timing 已投影这些字段，后续实现符文池与回合开始/结束流程时必须继续维护 `state_snapshots.payload`。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -127,15 +129,16 @@
 
 ## 5. 立即开发顺序
 
-当前阶段只推进 P1，不进入大规模规则重构和最终 UI。
+当前阶段是从 P1 联机底座过渡到 P2 核心规则 preflight。可以继续做 fixture schema、权威 `MatchState`、符文池和回合开始/结束流程；仍不要进入大规模全卡牌迁移、最终 UI 或复杂 AI。
 
 第一批任务：
 
-1. 继续协议错误码治理：P1 保持 room/join/ready/submit/reconnect 错误稳定，P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
-2. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
-3. 进入 P2 核心规则时，先按 `docs/p2-rules-preflight.md` 建 fixture schema、权威 `MatchState`、符文池和回合开始/结束流程。
-4. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
-5. 后续扩展 `MatchState` 时，同步扩展 `state_snapshots` 的权威 payload，不把隐藏信息或完整规则状态塞进玩家视角 snapshot。
+1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：先让 runner 能把 `initialState` 应用到 `MatchState`，再实现符文池和回合开始流程。
+2. 接着实现 `END_TURN` 的回合结束特殊清理与回合推进，再做 `PASS_PRIORITY` / FEPR，最后做 `PASS_FOCUS` / 法术对决最小流程。
+3. P1 协议错误码保持稳定；P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
+4. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
+5. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。
+6. 后续扩展 `MatchState` 时，同步扩展 `state_snapshots` 的权威 payload，不把隐藏信息或完整规则状态塞进玩家视角 snapshot。
 
 P1 验收前不要开始：
 
@@ -197,6 +200,6 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
 先读取 README.md、docs/START_HERE.md、docs/master-development-plan.md、docs/phase-1.md、docs/rules-authority-and-audit.md、docs/development-audit-status.md、docs/rules-evidence-index.md、docs/rules-card-baseline.md、docs/p2-rules-preflight.md。
 目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
-当前阶段只推进 P1：先完成五份 PDF 的规则索引和现有 fixture 重审，再继续扩展联机底座、Persistence/CardCatalog、conformance runner。
+当前阶段从 P1 联机底座过渡到 P2 preflight：按 docs/p2-rules-preflight.md 继续 fixture schema、权威 MatchState、符文池和回合开始/结束流程；不要跳到全卡牌迁移。
 不要重做最终 UI，不要全量迁移卡牌，不要提交规则 PDF/FAQ，不要回退现有改动。
 ```

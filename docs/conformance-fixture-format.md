@@ -63,9 +63,60 @@ seed + initial setup + command log
 现有样例：
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass-priority.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
+
+## 2.1 P2 schema v2 草案
+
+P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，但 runner 尚未把 `initialState` 应用成真实局面，也尚未执行 P2 规则断言：
+
+```json
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-turn-start-runes-and-draw",
+  "initialState": {
+    "turnNumber": 1,
+    "activePlayerId": "P2",
+    "turnPlayerId": "P2",
+    "phase": "TURN_START",
+    "timingState": "NEUTRAL_CLOSED",
+    "players": {
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": []
+      }
+    },
+    "runePools": {
+      "P2": { "mana": 0, "power": 0 }
+    }
+  },
+  "expected": {
+    "finalState": {
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "events": [
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}
+```
+
+下一步是把 schema v2 接入 runner 的初始状态构造和 canonical diff，再让上述样例从“只验证形状”升级为“验证规则行为”。
 
 ## 3. Fixture 后续必须补齐
 
@@ -142,4 +193,4 @@ mvn -pl server -am \
 - `java-oracle-p1-end-turn.fixture.json`
 - `java-oracle-p1-duplicate-pass.fixture.json`
 
-C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。`ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`、`legacyOracle`；Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。现有 3 条 legacy fixture 已补细化 evidence，但仍标记为 `NEEDS_RULE_AUDIT`。当前已确认 `PASS -> TURN_ENDED` 是 legacy mismatch candidate；若后续 PDF/FAQ 裁决与 Java 行为冲突，expected 应以 PDF/FAQ 为准。
+C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到旧 Java 行为。`ConformanceFixture` 已能读取可选 `rulesEvidence`、`faqVersion`、`auditStatus`、`legacyOracle`、P2 `initialState` 和 richer `expected`；Java exporter 已输出 `legacyOracle`，并暂时保留旧 `oracle` 兼容字段。现有 3 条 legacy fixture 已补细化 evidence，但仍标记为 `NEEDS_RULE_AUDIT`。当前已确认 `PASS -> TURN_ENDED` 是 legacy mismatch candidate；若后续 PDF/FAQ 裁决与 Java 行为冲突，expected 应以 PDF/FAQ 为准。

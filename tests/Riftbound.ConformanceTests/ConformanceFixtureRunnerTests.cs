@@ -46,6 +46,32 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(fixture.HasCompatibilityOracle);
     }
 
+    [Fact]
+    public async Task LoadsP2PreflightFixtureSchema()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start.fixture.json"),
+            CancellationToken.None);
+
+        Assert.Equal(2, fixture.SchemaVersion);
+        Assert.Equal("p2-preflight-turn-start-runes-and-draw", fixture.FixtureId);
+        Assert.False(fixture.RequiresRuleAudit);
+        Assert.NotNull(fixture.InitialState);
+        Assert.Equal("P2", fixture.InitialState.TurnPlayerId);
+        Assert.Equal("TURN_START", fixture.InitialState.Phase);
+        Assert.Equal(new RunePool(1, 1), fixture.InitialState.RunePools?["P2"]);
+        Assert.NotNull(fixture.InitialState.Players);
+        Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, fixture.InitialState.Players["P2"].RuneDeck);
+        Assert.NotNull(fixture.Expected.FinalState);
+        Assert.Equal("MAIN", fixture.Expected.FinalState.Phase);
+        Assert.Equal(new RunePool(0, 0), fixture.Expected.FinalState.RunePools?["P2"]);
+        Assert.Equal(
+            new[] { "TURN_START_BEGAN", "RUNES_CALLED", "CARD_DRAWN", "RUNE_POOL_CLEARED", "MAIN_PHASE_BEGAN" },
+            fixture.Expected.Events?.Select(gameEvent => gameEvent.Kind));
+        Assert.False(fixture.Expected.Prompts?["P1"].Actionable);
+        Assert.Equal(new[] { "END_TURN" }, fixture.Expected.Prompts?["P2"].Actions);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]

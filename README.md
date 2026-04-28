@@ -23,8 +23,10 @@
 5. `docs/development-audit-status.md`
 6. `docs/rules-evidence-index.md`
 7. `docs/rules-card-baseline.md`
+8. `docs/p2-rules-preflight.md`
+9. `docs/conformance-fixture-format.md`
 
-`docs/START_HERE.md` 是防偏离入口：它记录当前目标、资料优先级、立即开发顺序、P1 禁止范围和验收门禁。
+`docs/START_HERE.md` 是防偏离入口：它记录当前目标、资料优先级、立即开发顺序、P1/P2 禁止范围和验收门禁。
 
 ## 推荐本地准备
 
@@ -67,6 +69,7 @@ curl http://127.0.0.1:5088/catalog/summary
 - `docs/development-audit-status.md`：当前已开发内容的保留、修改和重审状态。
 - `docs/rules-evidence-index.md`：五份 PDF/FAQ 到规则域、fixture 和实现状态的证据索引。
 - `docs/rules-card-baseline.md`：规则 PDF/FAQ 与官网卡牌快照基线。
+- `docs/p2-rules-preflight.md`：进入 P2 核心规则前的符文池、回合、优先权、焦点和清理预检清单。
 - `docs/master-development-plan.md`：后续开发主线和阶段验收标准。
 - `docs/phase-1.md`：第一阶段联机底座任务清单。
 - `docs/conformance-fixture-format.md`：规则依据、Java legacy oracle 与 C# runner 共用的 fixture JSON 契约。
