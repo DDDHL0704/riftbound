@@ -97,6 +97,7 @@
 | `p2-preflight-play-center-stage-echo-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-061/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p92-p105 keyword rules 800+ | 已验证官方法术《台前作秀》支付回响 2 额外费用时重复基础抽牌效果一次，共抽 2 张牌。 |
 | `p2-preflight-play-prophets-omen-draw-stack` | `RULE_AUDITED` | `CATALOG` SFD·087/221；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p57 rule 413.4 | 已验证官方法术《先知之兆》支付 2 点费用、0 目标入栈、双方让过后抽 3 张牌并进入废牌堆。 |
 | `p2-preflight-play-evolution-day-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·114/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p57 rule 413.4 | 已验证官方法术《进化日》支付 6 点费用、0 目标入栈、双方让过后抽 4 张牌并进入废牌堆。 |
+| `p2-preflight-play-vengeance-destroy-unit-stack` | `RULE_AUDITED` | `CATALOG` OGN·229/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p62-p63 rule 428 | 已验证官方法术《复仇》支付 4 点费用、指定一名单位、加入结算链、双方让过后将目标从场上移入拥有者废牌堆。 |
 | `p2-preflight-play-stellar-convergence-two-target-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·105/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《星芒凝汇》支付 6 点费用、选择最多两名单位、加入结算链、双方让过后对每名目标各造成 6 点伤害并进入废牌堆。 |
 | `p2-preflight-play-rocket-barrage-base-unit-mode-stack` | `RULE_AUDITED` | `CATALOG` SFD·077/221；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《火箭轰击》选择基地单位伤害模式时，支付 4 点费用、指定基地中的一名单位、加入结算链、双方让过后造成 4 点伤害并进入废牌堆。 |
 | `p2-preflight-play-void-seeker-damage-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·024/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《虚空索敌》支付 3 点费用、选择战场单位目标、加入结算链、双方让过后造成 4 点伤害并让控制者抽 1 张牌。 |

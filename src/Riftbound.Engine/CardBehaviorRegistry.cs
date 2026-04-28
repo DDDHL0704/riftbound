@@ -11,6 +11,7 @@ public sealed record CardBehaviorDefinition(
     int ConditionalDamageAmount = 0,
     string StatusEffectId = "",
     int DrawCount = 0,
+    bool DestroysTarget = false,
     string TargetScope = CardTargetScopes.BattlefieldUnit,
     int MinTargetCount = -1,
     string Mode = "",
@@ -128,6 +129,15 @@ public static class CardBehaviorRegistry
             0,
             "",
             1),
+        new(
+            "OGN·229/298",
+            "复仇",
+            4,
+            "VENGEANCE_DESTROY_UNIT",
+            0,
+            1,
+            DestroysTarget: true,
+            TargetScope: CardTargetScopes.AnyUnit),
         new(
             "SFD·087/221",
             "先知之兆",

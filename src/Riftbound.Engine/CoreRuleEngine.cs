@@ -609,6 +609,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, []);
         }
 
+        var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
         if (behavior.RequiredTargetCount > 0)
@@ -657,7 +658,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 ["sourceObjectId"] = stackItem.SourceObjectId,
                                 ["targetObjectId"] = targetObjectId,
                                 ["effectId"] = behavior.StatusEffectId
+                        }));
+                    }
+
+                    if (behavior.DestroysTarget
+                        && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
+                    {
+                        events.Add(new GameEvent(
+                            "UNIT_DESTROYED",
+                            $"{behavior.DisplayName}摧毁单位",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["ownerPlayerId"] = ownerPlayerId,
+                                ["destroyedByPlayerId"] = stackItem.ControllerId
                             }));
+                        continue;
                     }
 
                     cardObjects[targetObjectId] = targetState;
@@ -665,7 +682,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        var playerZones = NormalizeZonesForSeats(state);
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
@@ -705,6 +721,45 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerScores,
             winnerPlayerId,
             events);
+    }
+
+    private static bool TryDestroyTarget(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
+            var isInBattlefield = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal);
+            if (!isInBase && !isInBattlefield)
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+                Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Graveyard
+                    : zones.Graveyard.Concat([targetObjectId]).ToArray()
+            };
+            cardObjects.Remove(targetObjectId);
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static IReadOnlyList<string> RemoveFromZone(IReadOnlyList<string> zone, string objectId)
+    {
+        return zone
+            .Where(existingObjectId => !string.Equals(existingObjectId, objectId, StringComparison.Ordinal))
+            .ToArray();
     }
 
     private static DrawResult DrawCards(MatchState state, string playerId, PlayerZones zones, int drawCount)
