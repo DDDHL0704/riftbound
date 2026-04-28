@@ -21,6 +21,8 @@ public sealed record MatchJournalEntry(
     string CommandType,
     long StartedTick,
     long CompletedTick,
+    long StartedEventSequence,
+    long CompletedEventSequence,
     bool Accepted,
     string? ErrorMessage,
     IReadOnlyList<GameEvent> Events,

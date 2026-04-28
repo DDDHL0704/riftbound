@@ -25,6 +25,25 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task JournalEntriesCarryMonotonicEventSequenceBounds()
+    {
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine(), journal);
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), CancellationToken.None);
+        await session.SubmitAsync("P1", "intent-end-turn", new EndTurnCommand(), CancellationToken.None);
+        await session.SubmitAsync("P1", "intent-pass", new PassCommand(), CancellationToken.None);
+
+        Assert.Equal(2, journal.Entries.Count);
+        Assert.Equal(0, journal.Entries[0].StartedEventSequence);
+        Assert.Equal(1, journal.Entries[0].CompletedEventSequence);
+        Assert.Equal(1, journal.Entries[1].StartedEventSequence);
+        Assert.Equal(6, journal.Entries[1].CompletedEventSequence);
+    }
+
+    [Fact]
     public void JoinAssignsStableP1P2SeatsAndSnapshotsExposeSeatStatus()
     {
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());

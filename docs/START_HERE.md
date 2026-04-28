@@ -95,7 +95,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 23 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 24 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -107,6 +107,7 @@
 - `MatchSession` 已能为前两名加入者分配稳定 `P1` / `P2` 座位，并在 snapshot 的 `players` 视图中暴露 seat；第三名玩家会被拒绝。
 - `GameHub.JoinRoom` 已有最小 SignalR 级测试，覆盖双人加入、room/player group、snapshot/prompt 推送和第三人满员错误。
 - `GameHub.Reconnect`、`GameHub.RequestSnapshot`、稳定 `ErrorDto` 错误码和内存重连 token 已有最小 Hub 级测试。
+- P1 SQL 和 `PostgresMatchJournal` 已补 `event_sequence`、command 起止 event sequence、snapshot/prompt `last_event_sequence`，并通过新库/旧库迁移 smoke。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -118,8 +119,8 @@
 
 第一批任务：
 
-1. 完善 event sequence / recovery 字段，支撑后续断线重连与事件重放。
-2. 扩展 command log 原始 payload 和稳定错误码覆盖面。
+1. 扩展 command log 原始 payload 和稳定错误码覆盖面。
+2. 补 recovery 读取/校验路径，基于 snapshot + event sequence 恢复房间。
 3. 开始把新 fixture 从裸 `PASS` 迁移到 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`。
 4. 后续把内存 reconnect token 接入 `match_players.reconnect_token_hash`。
 

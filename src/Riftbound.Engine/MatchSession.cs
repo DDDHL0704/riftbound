@@ -269,6 +269,7 @@ public sealed class MatchSession : IMatchSession
     private readonly Dictionary<string, string> reconnectTokens = new();
     private readonly Dictionary<string, CachedResolution> intentCache = new();
     private MatchState state;
+    private long lastEventSequence;
 
     public MatchSession(string roomId, IRuleEngine ruleEngine)
         : this(roomId, ruleEngine, NoopMatchJournal.Instance)
@@ -371,9 +372,11 @@ public sealed class MatchSession : IMatchSession
             }
 
             var startedTick = state.Tick;
+            var startedEventSequence = lastEventSequence;
             var intent = new PlayerIntent(normalizedIntentId, normalizedPlayerId, command.CmdType);
             var result = await ruleEngine.ResolveAsync(state, intent, command, cancellationToken)
                 .ConfigureAwait(false);
+            var completedEventSequence = startedEventSequence + result.Events.Count;
             await journal.RecordAsync(new MatchJournalEntry(
                     RoomId,
                     normalizedPlayerId,
@@ -381,6 +384,8 @@ public sealed class MatchSession : IMatchSession
                     command.CmdType,
                     startedTick,
                     result.State.Tick,
+                    startedEventSequence,
+                    completedEventSequence,
                     result.Accepted,
                     result.ErrorMessage,
                     result.Events,
@@ -393,6 +398,7 @@ public sealed class MatchSession : IMatchSession
             {
                 state = result.State;
             }
+            lastEventSequence = completedEventSequence;
 
             intentCache[cacheKey] = new CachedResolution(command.CmdType, result);
             return result;
