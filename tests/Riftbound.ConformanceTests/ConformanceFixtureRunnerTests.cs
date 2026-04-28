@@ -40,11 +40,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "TURN_ENDED" }, fixture.Expected.EventKinds);
     }
 
-    [Fact]
-    public async Task P1PassMatchesFirstJavaOracleFixture()
+    [Theory]
+    [InlineData("java-oracle-p1-pass.fixture.json")]
+    [InlineData("java-oracle-p1-end-turn.fixture.json")]
+    [InlineData("java-oracle-p1-duplicate-pass.fixture.json")]
+    public async Task JavaOracleFixtureMatchesCurrentRuleSkeleton(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "java-oracle", "java-oracle-p1-pass.fixture.json"),
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "java-oracle", fixtureFileName),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(

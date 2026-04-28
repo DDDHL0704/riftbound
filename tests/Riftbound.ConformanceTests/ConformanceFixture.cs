@@ -55,14 +55,14 @@ public static class ConformanceFixtureRunner
         IRuleEngine ruleEngine,
         CancellationToken cancellationToken)
     {
-        var session = new MatchSession(fixture.RoomId, ruleEngine);
+        var journal = new RecordingMatchJournal();
+        var session = new MatchSession(fixture.RoomId, ruleEngine, journal);
         foreach (var playerId in fixture.Players)
         {
             session.EnsurePlayer(playerId);
         }
 
         ResolutionResult? last = null;
-        var eventKinds = new List<string>();
         foreach (var command in fixture.Commands)
         {
             var mapped = GameCommandJsonMapper.Map(command.Cmd);
@@ -72,8 +72,6 @@ public static class ConformanceFixtureRunner
                     mapped,
                     cancellationToken)
                 .ConfigureAwait(false);
-
-            eventKinds.AddRange(last.Events.Select(gameEvent => gameEvent.Kind));
         }
 
         if (last is null)
@@ -81,6 +79,22 @@ public static class ConformanceFixtureRunner
             throw new InvalidOperationException($"Fixture {fixture.FixtureId} does not contain commands.");
         }
 
+        var eventKinds = journal.Entries
+            .SelectMany(entry => entry.Events)
+            .Select(gameEvent => gameEvent.Kind)
+            .ToArray();
+
         return new ConformanceRunResult(last.State.Tick, eventKinds, last.Prompts);
+    }
+
+    private sealed class RecordingMatchJournal : IMatchJournal
+    {
+        public List<MatchJournalEntry> Entries { get; } = [];
+
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        {
+            Entries.Add(entry);
+            return ValueTask.CompletedTask;
+        }
     }
 }

@@ -38,19 +38,23 @@ seed + initial setup + command log
   ],
   "expected": {
     "finalTick": 1,
-    "eventKinds": ["PASS"],
+    "eventKinds": ["TURN_ENDED"],
     "promptActions": {
-      "P1": ["PASS", "END_TURN"],
-      "P2": []
+      "P1": ["PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN"],
+      "P2": ["WAIT"]
     }
   }
 }
 ```
 
+`expected.eventKinds` 表示写入事件日志的事件类型，而不是每次客户端重试返回的响应事件。重复 `clientIntentId` 必须不重复推进 tick，也不重复写入事件日志。
+
 现有样例：
 
 - `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
 
 ## 3. Java Exporter 后续必须补齐
 
@@ -119,5 +123,7 @@ mvn -pl server -am \
 当前已导出：
 
 - `java-oracle-p1-pass.fixture.json`
+- `java-oracle-p1-end-turn.fixture.json`
+- `java-oracle-p1-duplicate-pass.fixture.json`
 
-C# 侧当前只读取 Java fixture 元数据与 expected shape；在对应规则迁移完成前，不要求占位 `PlaceholderRuleEngine` 与 Java oracle 行为一致。
+C# 侧当前已把 `PASS`、`END_TURN`、重复 `PASS` 的事件日志和 prompt actions 对齐到 Java oracle。后续 fixture 只有在对应规则迁移完成后，才要求占位规则骨架或真实 `RuleEngine` 与 Java oracle 行为一致。
