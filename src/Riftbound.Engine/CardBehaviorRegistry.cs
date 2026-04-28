@@ -11,7 +11,8 @@ public sealed record CardBehaviorDefinition(
     int ConditionalDamageAmount = 0,
     string StatusEffectId = "",
     int DrawCount = 0,
-    string TargetScope = CardTargetScopes.BattlefieldUnit);
+    string TargetScope = CardTargetScopes.BattlefieldUnit,
+    int MinTargetCount = -1);
 
 public static class CardDamageConditionKinds
 {
@@ -86,6 +87,15 @@ public static class CardBehaviorRegistry
             0,
             0,
             DrawCount: 1),
+        new(
+            "OGN·105/298",
+            "星芒凝汇",
+            6,
+            "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+            6,
+            2,
+            TargetScope: CardTargetScopes.AnyUnit,
+            MinTargetCount: 1),
         new(
             "OGN·024/298",
             "虚空索敌",

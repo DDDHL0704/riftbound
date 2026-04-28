@@ -441,6 +441,21 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysStellarConvergenceAgainstTwoTargetsThroughStack()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysVoidSeekerThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -590,6 +605,45 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineAllowsUpToTwoTargetSpellWithOneTarget()
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(6, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-STELLAR-CONVERGENCE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-001"] = new("P2-UNIT-001")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-stellar-convergence-one-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-STELLAR-CONVERGENCE", "OGN·105/298", ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Single(result.State.StackItems);
+        Assert.Equal(new[] { "P2-UNIT-001" }, result.State.StackItems[0].TargetObjectIds);
     }
 
     [Fact]

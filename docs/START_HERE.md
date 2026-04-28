@@ -96,7 +96,7 @@
 
 - `source scripts/dev-env.sh` 通过。
 - `dotnet build Riftbound.slnx --no-restore` 通过。
-- `dotnet test Riftbound.slnx --no-build` 通过，当前 89 个测试。
+- `dotnet test Riftbound.slnx --no-build` 通过，当前 91 个测试。
 - Java oracle exporter 已导出 `java-oracle-p1-pass.fixture.json`、`java-oracle-p1-end-turn.fixture.json`、`java-oracle-p1-duplicate-pass.fixture.json`。
 - C# 测试已能读取 Java fixture 元数据，并对齐 `PASS`、`END_TURN`、重复 `PASS` 的首批事件日志 fixture；这些 fixture 现在默认 `RequiresRuleAudit`。
 - `ConformanceFixture` 已能读取可选的 `rulesEvidence`、`faqVersion`、`auditStatus`、`seed` 字段。
@@ -123,7 +123,7 @@
 - P2 preflight 已开始落代码：`ConformanceFixture` 已能读取 schema v2 的 `initialState`、P2 `expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为规则审查后的回合开始样例。
 - conformance runner 已能把 P2 `initialState` 应用为真实权威初始局面，不再走 Join/Ready 覆盖 `TURN_START`；P2 expected 仍未升级为完整规则断言。
 - `MatchState` 已增加 P2 权威字段：`turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`、`playerScores`、`cardObjects`、`priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`、`winnerPlayerId`；snapshot 已投影 timing、公开结算链、焦点和赢家字段，玩家 `handSize` 和 `score` 来自权威状态，后续扩展对象状态、战场控制和卡牌效果时必须继续维护 `state_snapshots.payload`。
-- `CoreRuleEngine` 已接入 API DI，并保留 `PlaceholderRuleEngine` 作为 legacy fallback；当前已能通过 P2 fixture 验证普通回合开始、短符文牌堆、1v1 第二个行动玩家首个召出阶段额外符文、抽牌燃尽并回收废牌堆、连续燃尽导致对手立即获胜、`END_TURN` 回合推进和特殊/重复清理、`PASS_PRIORITY` / FEPR 让过与结算、`PASS_FOCUS` / 法术对决焦点让过与关闭窗口，以及官方法术 `UNL-007/219 惩戒`、`UNL-014/219 渊海狩咒`、`OGS·003/024 焚烧`、`OGN·009/298 海克斯射线`、`OGN·085/298 彗星坠击` 的最小 `PLAY_CARD -> 入栈 -> 双方让过 -> 结算伤害 -> END_TURN 清理伤害` 通道；`UNL-007/219 惩戒` 和 `OGN·050/298 符文禁锢` 已覆盖“对一名单位”可指定基地单位；`OGN·009/298 海克斯射线` 已覆盖“战场上的一名单位”不能指定基地单位；`UNL-061/219 台前作秀` 已覆盖不支付回响的 0 目标 `结算 -> 抽 1 张` 基础路径；`OGN·024/298 虚空索敌` 已覆盖 `结算伤害 -> 抽 1 张` 以及结算抽牌触发燃尽/回收/抽牌通道；`OGN·050/298 符文禁锢` 已覆盖 `PLAY_CARD -> 入栈 -> 双方让过 -> 施加 STUNNED -> END_TURN 清理失效` 通道。
+- `CoreRuleEngine` 已接入 API DI，并保留 `PlaceholderRuleEngine` 作为 legacy fallback；当前已能通过 P2 fixture 验证普通回合开始、短符文牌堆、1v1 第二个行动玩家首个召出阶段额外符文、抽牌燃尽并回收废牌堆、连续燃尽导致对手立即获胜、`END_TURN` 回合推进和特殊/重复清理、`PASS_PRIORITY` / FEPR 让过与结算、`PASS_FOCUS` / 法术对决焦点让过与关闭窗口，以及官方法术 `UNL-007/219 惩戒`、`UNL-014/219 渊海狩咒`、`OGS·003/024 焚烧`、`OGN·009/298 海克斯射线`、`OGN·085/298 彗星坠击` 的最小 `PLAY_CARD -> 入栈 -> 双方让过 -> 结算伤害 -> END_TURN 清理伤害` 通道；`UNL-007/219 惩戒` 和 `OGN·050/298 符文禁锢` 已覆盖“对一名单位”可指定基地单位；`OGN·009/298 海克斯射线` 已覆盖“战场上的一名单位”不能指定基地单位；`OGN·105/298 星芒凝汇` 已覆盖 `1-2` 个目标分别造成伤害；`UNL-061/219 台前作秀` 已覆盖不支付回响的 0 目标 `结算 -> 抽 1 张` 基础路径；`OGN·024/298 虚空索敌` 已覆盖 `结算伤害 -> 抽 1 张` 以及结算抽牌触发燃尽/回收/抽牌通道；`OGN·050/298 符文禁锢` 已覆盖 `PLAY_CARD -> 入栈 -> 双方让过 -> 施加 STUNNED -> END_TURN 清理失效` 通道。
 - API 在 `http://127.0.0.1:5088` 启动成功。
 - `/health` 返回 ok。
 - `/catalog/summary` 返回 1009 官方条目、811 功能逻辑单元。
@@ -135,8 +135,8 @@
 
 第一批任务：
 
-1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：`PLAY_CARD` 已有最小 card behavior registry，并覆盖六张低复杂度官方伤害法术、一张眩晕法术、0 目标抽牌和结算后抽牌/抽牌燃尽路径；《渊海狩咒》已覆盖基础 2 点伤害和“控制正面朝下卡牌则改为 4 点伤害”的条件路径。
-2. richer expected diff 已开始接入，当前可比较 final tick、event kinds、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；目标校验已能区分 `ANY_UNIT` 与 `BATTLEFIELD_UNIT`；下一步逐批迁移更多低复杂度官方卡牌，并继续扩大通用 diff 覆盖面。
+1. 继续按 `docs/p2-rules-preflight.md` 扩展 P2 preflight：`PLAY_CARD` 已有最小 card behavior registry，并覆盖七张低复杂度官方伤害法术、一张眩晕法术、0 目标抽牌和结算后抽牌/抽牌燃尽路径；《渊海狩咒》已覆盖基础 2 点伤害和“控制正面朝下卡牌则改为 4 点伤害”的条件路径。
+2. richer expected diff 已开始接入，当前可比较 final tick、event kinds、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；目标校验已能区分 `ANY_UNIT` 与 `BATTLEFIELD_UNIT`，并支持 `1-2` 这种目标数量范围；下一步逐批迁移更多低复杂度官方卡牌，并继续扩大通用 diff 覆盖面。
 3. P1 协议错误码保持稳定；P2 再加入费用不足、目标非法、阶段不允许等规则错误码。
 4. 协议版本治理剩余项：TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。
 5. 后续新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留在 Java legacy oracle 和兼容测试中。

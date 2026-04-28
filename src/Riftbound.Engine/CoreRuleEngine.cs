@@ -179,12 +179,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
-        if (targetObjectIds.Count != behavior.RequiredTargetCount
+        if (!HasValidTargetCount(behavior, targetObjectIds)
             || targetObjectIds.Any(targetObjectId => !IsTargetObjectInScope(state, targetObjectId, behavior.TargetScope)))
         {
             rejection = RejectWithCorePrompts(
                 state,
-                $"{behavior.DisplayName} requires {behavior.RequiredTargetCount} {DescribeTargetScope(behavior.TargetScope)} target(s).",
+                $"{behavior.DisplayName} requires {DescribeTargetCount(behavior)} {DescribeTargetScope(behavior.TargetScope)} target(s).",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -515,6 +515,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
     }
 
+    private static bool HasValidTargetCount(CardBehaviorDefinition behavior, IReadOnlyList<string> targetObjectIds)
+    {
+        var minTargetCount = MinTargetCount(behavior);
+        return targetObjectIds.Count >= minTargetCount
+            && targetObjectIds.Count <= behavior.RequiredTargetCount
+            && targetObjectIds.Distinct(StringComparer.Ordinal).Count() == targetObjectIds.Count;
+    }
+
+    private static int MinTargetCount(CardBehaviorDefinition behavior)
+    {
+        return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
+    }
+
+    private static string DescribeTargetCount(CardBehaviorDefinition behavior)
+    {
+        var minTargetCount = MinTargetCount(behavior);
+        return minTargetCount == behavior.RequiredTargetCount
+            ? behavior.RequiredTargetCount.ToString()
+            : $"{minTargetCount}-{behavior.RequiredTargetCount}";
+    }
+
     private static string DescribeTargetScope(string targetScope)
     {
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
@@ -525,7 +546,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            || stackItem.TargetObjectIds.Count != behavior.RequiredTargetCount)
+            || !HasValidTargetCount(behavior, stackItem.TargetObjectIds))
         {
             return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, []);
         }
@@ -534,51 +555,53 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         if (behavior.RequiredTargetCount > 0)
         {
-            var targetObjectId = stackItem.TargetObjectIds[0];
-            var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
-                ? existingTarget
-                : new CardObjectState(targetObjectId);
-
-            var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
-            if (damageAmount > 0)
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                targetState = targetState with
-                {
-                    Damage = targetState.Damage + damageAmount
-                };
-                events.Add(new GameEvent(
-                    "DAMAGE_APPLIED",
-                    $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["damage"] = damageAmount
-                    }));
-            }
+                var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                    ? existingTarget
+                    : new CardObjectState(targetObjectId);
 
-            if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
-            {
-                targetState = targetState with
+                var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
+                if (damageAmount > 0)
                 {
-                    UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                        .Concat([behavior.StatusEffectId])
-                        .Distinct(StringComparer.Ordinal)
-                        .OrderBy(effectId => effectId, StringComparer.Ordinal)
-                        .ToArray()
-                };
-                events.Add(new GameEvent(
-                    "STATUS_EFFECT_APPLIED",
-                    $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
-                    new Dictionary<string, object?>
+                    targetState = targetState with
                     {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = targetObjectId,
-                        ["effectId"] = behavior.StatusEffectId
-                    }));
-            }
+                        Damage = targetState.Damage + damageAmount
+                    };
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["targetObjectId"] = targetObjectId,
+                            ["damage"] = damageAmount
+                        }));
+                }
 
-            cardObjects[targetObjectId] = targetState;
+                if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
+                {
+                    targetState = targetState with
+                    {
+                        UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                            .Concat([behavior.StatusEffectId])
+                            .Distinct(StringComparer.Ordinal)
+                            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                            .ToArray()
+                    };
+                    events.Add(new GameEvent(
+                        "STATUS_EFFECT_APPLIED",
+                        $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["targetObjectId"] = targetObjectId,
+                            ["effectId"] = behavior.StatusEffectId
+                        }));
+                }
+
+                cardObjects[targetObjectId] = targetState;
+            }
         }
 
         var playerZones = NormalizeZonesForSeats(state);
