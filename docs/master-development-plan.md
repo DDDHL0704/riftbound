@@ -177,7 +177,7 @@ flowchart LR
 
 - 先执行 `docs/p2-rules-preflight.md`，不要直接扩展全卡牌行为。
 - 已完成 schema v2 形状读取、runner 初始状态应用、`MatchState` 基础权威字段，以及普通回合开始最小规则行为。
-- 下一步补燃尽、1v1 首回合额外符文 fixture，并把回合开始接入 `END_TURN` 后的回合推进。
+- 下一步补燃尽 fixture，并把回合开始接入 `END_TURN` 后的回合推进。
 
 规则域：
 

@@ -28,7 +28,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? zones
             : PlayerZones.Empty;
 
-        var calledRunes = currentZones.RuneDeck.Take(2).ToArray();
+        var calledRuneTarget = RuneCallCount(state);
+        var calledRunes = currentZones.RuneDeck.Take(calledRuneTarget).ToArray();
         var remainingRuneDeck = currentZones.RuneDeck.Skip(calledRunes.Length).ToArray();
         var mainDeck = currentZones.MainDeck.ToArray();
         var drawnCard = mainDeck.Take(1).ToArray();
@@ -75,6 +76,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId => playerId,
             _ => RunePool.Empty,
             StringComparer.Ordinal);
+    }
+
+    private static int RuneCallCount(MatchState state)
+    {
+        return IsSecondActionPlayersFirstTurn(state) ? 3 : 2;
+    }
+
+    private static bool IsSecondActionPlayersFirstTurn(MatchState state)
+    {
+        return state.TurnNumber == 2
+            && state.Seats.TryGetValue(state.TurnPlayerId, out var seat)
+            && string.Equals(seat, "P2", StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<GameEvent> BuildTurnStartEvents(

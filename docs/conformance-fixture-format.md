@@ -65,6 +65,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p1-placeholder-pass-priority.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-short-rune-deck.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-first-p2-extra-rune.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`

@@ -44,9 +44,9 @@
   - P2 preflight 第一刀已完成：fixture schema v2 可读取 `initialState`、`expected.finalState/events/prompts`；新增 `p2-preflight-turn-start.fixture.json` 作为回合开始、召出符文、抽牌、清空符文池的规则审查样例。
   - `MatchState` 已加入 `turnPlayerId`、`phase`、`timingState`、`runePools`、`playerZones`，snapshot timing 已投影这些 P2 权威 timing 字段；当前只是状态地基，尚未实现真实符文池/回合开始自动结算。
   - conformance runner 已能把 P2 `initialState` 应用为权威初始状态，包含 turn/phase/timing、符文池和玩家区域。
-  - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少。这两个 fixture 使用 P2 非首个回合，避开 `CORE-260330` rule 481.7 的首回合额外符文。
+  - `CoreRuleEngine` 已接入 API DI，并通过 P2 turn-start fixture 验证普通回合开始：召出 2 张符文、抽 1 张牌、清空所有玩家符文池、进入主阶段；短符文牌堆 fixture 已验证不足 2 张时有多少召出多少；1v1 首回合 fixture 已验证第二个行动玩家首个召出阶段额外召出 1 张符文。
 
-下一步继续 P2 preflight：补主牌堆为空/燃尽、1v1 首回合额外符文 fixture；随后实现 `END_TURN` 特殊清理并把回合开始自动结算接到回合推进后，再做 `PASS_PRIORITY` / FEPR、`PASS_FOCUS` / 法术对决最小流程。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
+下一步继续 P2 preflight：补主牌堆为空/燃尽 fixture；随后实现 `END_TURN` 特殊清理并把回合开始自动结算接到回合推进后，再做 `PASS_PRIORITY` / FEPR、`PASS_FOCUS` / 法术对决最小流程。协议版本治理剩余 TypeScript DTO 生成、客户端兼容策略、SignalR 方法版本和事件 upcaster；不要在没有前端接入点前过度设计。新增 fixture 不再使用裸 `PASS`。
 
 ## 不做范围
 

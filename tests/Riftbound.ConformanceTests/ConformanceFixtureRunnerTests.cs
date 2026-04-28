@@ -149,6 +149,27 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineCallsExtraRuneForSecondActionPlayersFirstTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-turn-start-first-p2-extra-rune.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal(new[] { "P2-RUNE-004" }, result.FinalState.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(
+            new[] { "P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003" },
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(new[] { "P2-MAIN-001" }, result.FinalState.PlayerZones["P2"].Hand);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]

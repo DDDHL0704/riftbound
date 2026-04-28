@@ -26,7 +26,7 @@
 | `Riftbound.CardCatalog` | 能加载 1009 官方条目并生成 811 功能单元 | 需要 FAQ 标注 | 保留；后续增加 FAQ 涉及卡牌/关键词标记。 |
 | `ConformanceFixture` | 能回放 command log 并比较 event/prompt；已能读取 P2 schema v2 的 `initialState` 和 richer `expected`，并能把 `initialState` 应用为权威初始状态 | 已补规则审查字段 | 新增 `rulesEvidence`、`faqVersion`、`auditStatus` 读取能力；旧 fixture 默认需要重审；P2 fixture 当前验证形状和初始状态，后续接入 richer expected canonical diff。 |
 | 3 条 Java fixture | `PASS`、`END_TURN`、重复 `PASS` 已与 C# 占位规则对齐，evidence 已细化 | 必须重审 | 保留为 legacy oracle；`PASS -> TURN_ENDED` 标记为 legacy mismatch candidate。 |
-| P2 前置规则审查 | 已建立 `docs/p2-rules-preflight.md`，覆盖符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture；fixture schema、`MatchState` 基础权威字段、runner 初始状态应用、普通回合开始和短符文牌堆行为 fixture 已落地 | 继续执行 | 下一步补燃尽、1v1 首回合额外符文 fixture，再把回合开始接入 `END_TURN`。 |
+| P2 前置规则审查 | 已建立 `docs/p2-rules-preflight.md`，覆盖符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture；fixture schema、`MatchState` 基础权威字段、runner 初始状态应用、普通回合开始、短符文牌堆和 1v1 首回合额外符文行为 fixture 已落地 | 继续执行 | 下一步补燃尽 fixture，再把回合开始接入 `END_TURN`。 |
 | 前端 UI | 尚未开始 | 暂不开始最终 UI | P2/P2.5 后做开发期测试 UI。 |
 
 ## 3. 计划需要调整的点
@@ -50,7 +50,7 @@
 
 下一步不要直接继续扩展玩法实现。推荐顺序：
 
-1. 继续 P2 preflight：补主牌堆为空/燃尽、1v1 首回合额外符文 fixture。
+1. 继续 P2 preflight：补主牌堆为空/燃尽 fixture。
 2. 随后实现 `END_TURN` 特殊清理与回合推进，并把回合开始自动结算接到回合推进后。
 3. 再做 `PASS_PRIORITY` / FEPR 和 `PASS_FOCUS` / 法术对决。
 4. P1 提交路径已覆盖未知玩家、空 intent、未开局、unsupported command、重复 intent 冲突；P2 需要加入费用不足、目标非法、阶段不允许等规则错误码。

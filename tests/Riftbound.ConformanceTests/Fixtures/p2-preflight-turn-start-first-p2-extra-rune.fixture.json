@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-turn-start-first-p2-extra-rune",
+  "description": "In 1v1 match play, the second action player's first rune call step calls one extra rune.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302003,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p28-p29 rule 315.3; rule 430; 1v1 rule 481.7",
+      "note": "在 1v1 比赛中，第二个行动的玩家在自己游戏中首个召出阶段从符文牌堆额外召出一张符文。"
+    }
+  ],
+  "roomId": "p2-preflight-first-p2-rune-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302003,
+    "turnNumber": 2,
+    "activePlayerId": "P2",
+    "turnPlayerId": "P2",
+    "phase": "TURN_START",
+    "timingState": "NEUTRAL_CLOSED",
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-first-extra-rune",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_START_BEGAN",
+      "RUNES_CALLED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 2,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}
