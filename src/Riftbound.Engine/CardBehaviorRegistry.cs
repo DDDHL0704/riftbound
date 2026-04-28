@@ -53,7 +53,14 @@ public static class CardBehaviorRegistry
             1,
             CardDamageConditionKinds.None,
             0,
-            "STUNNED")
+            "STUNNED"),
+        new(
+            "OGN·009/298",
+            "海克斯射线",
+            1,
+            "HEXTECH_RAY_DAMAGE_3",
+            3,
+            1)
     ];
 
     public static bool TryGetByCardNo(string cardNo, out CardBehaviorDefinition definition)
