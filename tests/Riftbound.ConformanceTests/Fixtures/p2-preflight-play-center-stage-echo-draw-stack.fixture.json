@@ -102,12 +102,41 @@
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "optionalCosts": ["ECHO"]
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-CENTER-STAGE",
+          "cardNo": "UNL-061/219",
+          "targetObjectIds": [],
+          "effectKind": "CENTER_STAGE_DRAW_1",
+          "effectRepeatCount": 2
+        }
+      },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "CARD_DRAWN" }
+      {
+        "kind": "CARD_DRAWN",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "playerId": "P1",
+          "count": 2
+        }
+      }
     ],
     "promptActions": {
       "P1": ["END_TURN"],
