@@ -82,6 +82,7 @@
 | `p2-preflight-pass-priority-does-not-end-turn` | `RULE_AUDITED` | `CORE-260330` p27-p28 rules 312-313, p33-p35 rules 333-340；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证普通主阶段没有优先行动权窗口时 `PASS_PRIORITY` 返回 `PHASE_NOT_ALLOWED`，不产生日志事件、不推进 tick、不结束回合。 |
 | `p2-preflight-fepr-priority-pass-resolves-stack` | `RULE_AUDITED` | `CORE-260330` p33-p35 rules 333-340；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证有已确认结算链项目时，当前优先权玩家让过后优先权转移，所有玩家让过后结算最新项目并回到普通主阶段。 |
 | `p2-preflight-fepr-resolves-latest-keeps-remaining-stack` | `RULE_AUDITED` | `CORE-260330` p35 rule 340.4 | 已验证最新项目结算后若结算链仍不为空且无待处理项目，则新的最新项目控制者获得优先行动权。 |
+| `p2-preflight-spell-duel-pass-focus-closes-window` | `RULE_AUDITED` | `CORE-260330` p35-p36 rules 341-348；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证法术对决中当前焦点玩家让过后焦点传递，所有玩家让过焦点后关闭法术对决并回到普通主阶段。 |
 
 ## 6.1 当前三条 Fixture 冲突检查结论
 

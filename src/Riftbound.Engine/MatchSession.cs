@@ -124,7 +124,7 @@ public sealed record MatchState
         int turnNumber,
         string activePlayerId,
         IReadOnlyDictionary<string, string> seats)
-        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null, null, null, null, null)
+        : this(roomId, tick, turnNumber, activePlayerId, seats, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
     {
     }
 
@@ -146,7 +146,9 @@ public sealed record MatchState
         IReadOnlyDictionary<string, CardObjectState>? cardObjects = null,
         string? priorityPlayerId = null,
         IReadOnlyList<string>? passedPriorityPlayerIds = null,
-        IReadOnlyList<StackItemState>? stackItems = null)
+        IReadOnlyList<StackItemState>? stackItems = null,
+        string? focusPlayerId = null,
+        IReadOnlyList<string>? passedFocusPlayerIds = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -175,6 +177,8 @@ public sealed record MatchState
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
         StackItems = NormalizeStackItems(stackItems);
+        FocusPlayerId = NormalizeOptionalText(focusPlayerId);
+        PassedFocusPlayerIds = NormalizeTextList(passedFocusPlayerIds);
     }
 
     public string RoomId { get; init; }
@@ -211,6 +215,10 @@ public sealed record MatchState
 
     public IReadOnlyList<StackItemState> StackItems { get; init; }
 
+    public string? FocusPlayerId { get; init; }
+
+    public IReadOnlyList<string> PassedFocusPlayerIds { get; init; }
+
     public static MatchState Create(string roomId)
     {
         return new MatchState(
@@ -230,6 +238,8 @@ public sealed record MatchState
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
             null,
             [],
+            [],
+            null,
             []);
     }
 
@@ -417,6 +427,8 @@ public sealed record ResolutionResult(
                 ["turnPlayerId"] = state.TurnPlayerId,
                 ["priorityPlayerId"] = state.PriorityPlayerId,
                 ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
+                ["focusPlayerId"] = state.FocusPlayerId,
+                ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },
@@ -449,6 +461,20 @@ public sealed record ResolutionResult(
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
                     ? ["PASS_PRIORITY"]
+                    : ["WAIT"]));
+        }
+
+        if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+                playerId,
+                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
+                    ? "当前玩家可让过焦点"
+                    : "等待对手焦点行动",
+                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
+                    ? ["PASS_FOCUS"]
                     : ["WAIT"]));
         }
 

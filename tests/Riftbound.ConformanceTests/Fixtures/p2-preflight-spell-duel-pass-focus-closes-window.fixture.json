@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-spell-duel-pass-focus-closes-window",
+  "description": "In a non-combat spell duel with no stack item, both players passing focus closes the spell duel and returns to the ordinary open main phase.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302011,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p35-p36 rules 341-348",
+      "note": "法术对决是开环机会窗口；拥有焦点的玩家可让过，所有玩家未打出法术或激活技能并依次让过焦点时关闭法术对决。"
+    },
+    {
+      "source": "JFAQ_251023.pdf",
+      "locator": "p4-p5 questions 3.1-3.3",
+      "note": "FAQ 澄清焦点、活跃玩家和初始结算链语境；本样例只覆盖无新增法术/技能时的焦点让过闭环。"
+    }
+  ],
+  "roomId": "p2-preflight-spell-duel-focus-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302011,
+    "turnNumber": 7,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "SPELL_DUEL_OPEN",
+    "focusPlayerId": "P1",
+    "passedFocusPlayerIds": [],
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-focus-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_FOCUS"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-focus-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_FOCUS"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 2,
+    "eventKinds": [
+      "FOCUS_PASSED",
+      "FOCUS_PASSED",
+      "SPELL_DUEL_CLOSED"
+    ],
+    "events": [
+      { "kind": "FOCUS_PASSED" },
+      { "kind": "FOCUS_PASSED" },
+      { "kind": "SPELL_DUEL_CLOSED" }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 7,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "focusPlayerId": null,
+      "passedFocusPlayerIds": [],
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

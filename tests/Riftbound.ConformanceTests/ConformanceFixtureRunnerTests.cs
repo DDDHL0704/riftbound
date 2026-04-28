@@ -458,6 +458,133 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineRejectsPassFocusOutsideSpellDuel()
+    {
+        var state = new MatchState(
+            "p2-pass-focus-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pass-focus", "P1", "PASS_FOCUS"),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineTransfersFocusInSpellDuel()
+    {
+        var state = new MatchState(
+            "p2-spell-duel-focus-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.SpellDuelOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            null,
+            [],
+            [],
+            "P1",
+            []);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-pass-focus", "P1", "PASS_FOCUS"),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new[] { "FOCUS_PASSED" }, result.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Equal("P2", result.State.FocusPlayerId);
+        Assert.Equal(new[] { "P1" }, result.State.PassedFocusPlayerIds);
+        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "PASS_FOCUS" }, result.Prompts["P2"].Actions);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineClosesSpellDuelWhenAllPlayersPassFocus()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-spell-duel-pass-focus-closes-window.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal("P1", result.FinalState.ActivePlayerId);
+        Assert.Equal("P1", result.FinalState.TurnPlayerId);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
+        Assert.Null(result.FinalState.FocusPlayerId);
+        Assert.Empty(result.FinalState.PassedFocusPlayerIds);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.False(result.Prompts["P2"].Actionable);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]

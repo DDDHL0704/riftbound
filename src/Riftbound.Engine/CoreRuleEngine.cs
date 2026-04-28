@@ -28,6 +28,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolvePassPriority(state, intent));
         }
 
+        if (command is PassFocusCommand && CanPassFocus(state, intent.PlayerId))
+        {
+            return ValueTask.FromResult(ResolvePassFocus(state, intent));
+        }
+
         if (command is PassPriorityCommand
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal))
@@ -35,6 +40,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(RejectWithCorePrompts(
                 state,
                 "PASS_PRIORITY is not allowed without an open priority window.",
+                ErrorCodes.PhaseNotAllowed));
+        }
+
+        if (command is PassFocusCommand)
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "PASS_FOCUS is not allowed without an open spell duel focus window.",
                 ErrorCodes.PhaseNotAllowed));
         }
 
@@ -47,6 +60,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.StackItems.Count > 0
             && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool CanPassFocus(MatchState state, string playerId)
+    {
+        return string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            && state.StackItems.Count == 0
+            && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent)
@@ -99,13 +121,75 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else
         {
-            var nextPriorityPlayerId = NextPriorityPlayerId(state, intent.PlayerId, passedPlayerIds);
+            var nextPriorityPlayerId = NextUnpassedPlayerId(state, intent.PlayerId, passedPlayerIds);
             nextState = state with
             {
                 Tick = state.Tick + 1,
                 ActivePlayerId = nextPriorityPlayerId,
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = passedPlayerIds
+                    .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                    .ToArray()
+            };
+        }
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolvePassFocus(MatchState state, PlayerIntent intent)
+    {
+        var passedPlayerIds = state.PassedFocusPlayerIds
+            .Concat([intent.PlayerId])
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToHashSet(StringComparer.Ordinal);
+        var seatPlayerIds = SeatPlayerIds(state);
+        var events = new List<GameEvent>
+        {
+            new(
+                "FOCUS_PASSED",
+                $"{intent.PlayerId} 让过焦点",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["focusPlayerId"] = state.FocusPlayerId
+                })
+        };
+
+        MatchState nextState;
+        if (seatPlayerIds.All(passedPlayerIds.Contains))
+        {
+            nextState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = state.TurnPlayerId,
+                TimingState = TimingStates.NeutralOpen,
+                FocusPlayerId = null,
+                PassedFocusPlayerIds = []
+            };
+            events.Add(new GameEvent(
+                "SPELL_DUEL_CLOSED",
+                "所有玩家让过焦点，法术对决关闭",
+                new Dictionary<string, object?>
+                {
+                    ["turnPlayerId"] = state.TurnPlayerId
+                }));
+        }
+        else
+        {
+            var nextFocusPlayerId = NextUnpassedPlayerId(state, intent.PlayerId, passedPlayerIds);
+            nextState = state with
+            {
+                Tick = state.Tick + 1,
+                ActivePlayerId = nextFocusPlayerId,
+                FocusPlayerId = nextFocusPlayerId,
+                PassedFocusPlayerIds = passedPlayerIds
                     .OrderBy(playerId => playerId, StringComparer.Ordinal)
                     .ToArray()
             };
@@ -243,7 +327,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static string NextPriorityPlayerId(
+    private static string NextUnpassedPlayerId(
         MatchState state,
         string currentPlayerId,
         IReadOnlySet<string> passedPlayerIds)
@@ -386,6 +470,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
                     ? ["PASS_PRIORITY"]
+                    : ["WAIT"]));
+        }
+
+        if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+                playerId,
+                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
+                    ? "当前玩家可让过焦点"
+                    : "等待对手焦点行动",
+                string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
+                    ? ["PASS_FOCUS"]
                     : ["WAIT"]));
         }
 
