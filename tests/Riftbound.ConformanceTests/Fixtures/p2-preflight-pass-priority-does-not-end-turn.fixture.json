@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-pass-priority-does-not-end-turn",
+  "description": "PASS_PRIORITY in an ordinary main phase without an open priority window is rejected and must not end the turn.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "seed": 2603302008,
+  "rulesEvidence": [
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p27-p28 rules 312-313; p33-p35 rules 333-340",
+      "note": "让过优先行动权属于 FEPR/结算链流程，普通主阶段开环没有优先行动权窗口时不能等同结束回合。"
+    },
+    {
+      "source": "JFAQ_251023.pdf",
+      "locator": "p4-p5 questions 3.1-3.3",
+      "note": "FAQ 澄清焦点、活跃玩家和开环机会窗口；本样例用于防止旧实现把让过误解释为结束回合。"
+    }
+  ],
+  "roomId": "p2-preflight-pass-priority-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302008,
+    "turnNumber": 7,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-pass-priority",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "events": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 7,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

@@ -56,6 +56,7 @@ public static class ErrorCodes
     public const string MatchNotStarted = "MATCH_NOT_STARTED";
     public const string MatchFinished = "MATCH_FINISHED";
     public const string UnsupportedCommand = "UNSUPPORTED_COMMAND";
+    public const string PhaseNotAllowed = "PHASE_NOT_ALLOWED";
     public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
 }
 

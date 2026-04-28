@@ -70,13 +70,14 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-end-turn-advances-to-next-start.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-end-turn-special-cleanup.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-cleanup-repeats-until-stable.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-pass-priority-does-not-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
 
 ## 2.1 P2 schema v2 草案
 
-P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为，`p2-preflight-end-turn-advances-to-next-start.fixture.json` 已验证 `END_TURN` 后自动推进并结算下一回合开始，`p2-preflight-end-turn-special-cleanup.fixture.json` 已验证 `cardObjects` 中的伤害与本回合内效果会被特殊清理处理，`p2-preflight-cleanup-repeats-until-stable.fixture.json` 已验证特殊清理后的常规清理重复事件。P2 richer expected 的通用 canonical diff 仍需继续补齐：
+P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下字段，并能把 `initialState` 构造成真实权威 `MatchState`；`p2-preflight-turn-start.fixture.json` 已通过 `CoreRuleEngine` 验证普通回合开始行为，`p2-preflight-end-turn-advances-to-next-start.fixture.json` 已验证 `END_TURN` 后自动推进并结算下一回合开始，`p2-preflight-end-turn-special-cleanup.fixture.json` 已验证 `cardObjects` 中的伤害与本回合内效果会被特殊清理处理，`p2-preflight-cleanup-repeats-until-stable.fixture.json` 已验证特殊清理后的常规清理重复事件，`p2-preflight-pass-priority-does-not-end-turn.fixture.json` 已验证拒绝态不推进 tick 或事件。P2 richer expected 的通用 canonical diff 仍需继续补齐：
 
 ```json
 {

@@ -279,6 +279,77 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new[] { "P2-RUNE-001", "P2-RUNE-002" }, result.FinalState.PlayerZones["P2"].Base);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineRejectsPassPriorityOutsidePriorityWindow()
+    {
+        var state = new MatchState(
+            "p2-pass-priority-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-pass-priority", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal("P1", result.State.TurnPlayerId);
+        Assert.Equal("MAIN", result.State.Phase);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePassPriorityDoesNotEndTurnInOrdinaryMainPhase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-pass-priority-does-not-end-turn.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
+        Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
+        Assert.Equal(7, result.FinalState.TurnNumber);
+        Assert.Equal("P1", result.FinalState.TurnPlayerId);
+        Assert.Equal("MAIN", result.FinalState.Phase);
+        Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
+        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.False(result.Prompts["P2"].Actionable);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]

@@ -177,7 +177,7 @@ flowchart LR
 
 - 先执行 `docs/p2-rules-preflight.md`，不要直接扩展全卡牌行为。
 - 已完成 schema v2 形状读取、runner 初始状态应用、`MatchState` 基础权威字段、普通回合开始最小规则行为、`END_TURN` 自动推进到下一回合开始的最小闭环、回合结束特殊清理中的伤害移除/本回合内效果失效，以及清理重复/常规清理最小闭环。
-- 下一步实现 `PASS_PRIORITY` / FEPR 最小流程；连续燃尽/胜利判定后续单独建 fixture。
+- 普通主阶段误提交 `PASS_PRIORITY` 已能以 `PHASE_NOT_ALLOWED` 拒绝且不会结束回合；下一步实现有结算链项目时的 FEPR 让过和结算；连续燃尽/胜利判定后续单独建 fixture。
 
 规则域：
 

@@ -23,6 +23,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveTurnStart(state));
         }
 
+        if (command is PassPriorityCommand
+            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal))
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "PASS_PRIORITY is not allowed without an open priority window.",
+                ErrorCodes.PhaseNotAllowed));
+        }
+
         return fallback.ResolveAsync(state, intent, command, cancellationToken);
     }
 
@@ -91,6 +101,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             BuildTurnStartEvents(state, calledRunes.Length, drawResult),
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult RejectWithCorePrompts(
+        MatchState state,
+        string error,
+        string errorCode)
+    {
+        return new ResolutionResult(
+            false,
+            error,
+            state,
+            [],
+            ResolutionResult.BuildSnapshots(state),
+            BuildCorePrompts(state),
+            errorCode);
     }
 
     private static Dictionary<string, PlayerZones> NormalizeZonesForSeats(MatchState state)

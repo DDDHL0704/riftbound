@@ -79,6 +79,7 @@
 | `p2-preflight-end-turn-advances-to-next-start` | `RULE_AUDITED` | `CORE-260330` p29-p31 rules 316.1-317.3, p20 rules 164-167, p28-p29 rule 315, rule 481.7；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证 P1 主阶段 `END_TURN` 会记录回合结束声明、执行无伤害/无持续效果的最小特殊清理、清空符文池、推进到 P2，并自动结算 P2 回合开始。 |
 | `p2-preflight-end-turn-special-cleanup` | `RULE_AUDITED` | `CORE-260330` p30-p31 rules 317.2.a-317.2.f, p31-p33 rules 318-324；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证回合结束特殊清理会移除单位伤害、令期限为本回合内的效果失效、清空符文池，并自动结算下一回合开始。 |
 | `p2-preflight-cleanup-repeats-until-stable` | `RULE_AUDITED` | `CORE-260330` p31-p33 rules 318-324；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证特殊清理导致对象状态变化后追加一次常规清理检查，并且不重复执行回合结束特殊清理步骤。 |
+| `p2-preflight-pass-priority-does-not-end-turn` | `RULE_AUDITED` | `CORE-260330` p27-p28 rules 312-313, p33-p35 rules 333-340；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证普通主阶段没有优先行动权窗口时 `PASS_PRIORITY` 返回 `PHASE_NOT_ALLOWED`，不产生日志事件、不推进 tick、不结束回合。 |
 
 ## 6.1 当前三条 Fixture 冲突检查结论
 
