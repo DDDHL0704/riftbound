@@ -325,6 +325,16 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: 2),
         new(
+            "SFD·034/221",
+            "蛮荒之力",
+            2,
+            "SAVAGE_STRENGTH_POWER_PLUS_2",
+            0,
+            1,
+            TargetScope: CardTargetScopes.AnyUnit,
+            EchoManaCost: 2,
+            PowerModifierAmount: 2),
+        new(
             "OGN·144/298",
             "以战养战",
             4,

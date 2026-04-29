@@ -126,6 +126,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kerplunk-stun-attacking-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-well-trained-power-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-well-trained-power-expires-end-turn.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-savage-strength-echo-power-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
