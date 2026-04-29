@@ -139,6 +139,14 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.AnyUnit),
         new(
+            "OGN·252/298",
+            "超究极死神飞弹！",
+            4,
+            "SUPER_MEGA_DEATH_ROCKET_DAMAGE_5",
+            5,
+            1,
+            TargetScope: CardTargetScopes.AnyUnit),
+        new(
             "OGS·012/024",
             "爆能术",
             6,

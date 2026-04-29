@@ -103,6 +103,7 @@
 | `p2-preflight-hextech-ray-damage-clears-end-turn` | `RULE_AUDITED` | `CATALOG` OGN·009/298；`CORE-260330` p30-p33 rules 317-324, p39-p42 rules 355-356；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证官方法术《海克斯射线》造成的真实伤害会在随后 `END_TURN` 特殊清理中移除，并自动推进到下一回合开始。 |
 | `p2-preflight-play-comet-strike-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·085/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《彗星坠击》支付 5 点费用、选择战场单位目标、加入结算链、双方让过后造成 6 点伤害并进入废牌堆。 |
 | `p2-preflight-play-final-spark-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·022/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《终极闪光》支付 8 点费用、选择一名单位、加入结算链、双方让过后造成 8 点伤害并进入废牌堆。 |
+| `p2-preflight-play-super-mega-death-rocket-damage-stack` | `RULE_AUDITED` | `CATALOG` OGN·252/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方专属法术《超究极死神飞弹！》支付 4 点费用、选择一名单位、加入结算链、双方让过后造成 5 点伤害；征服后从废牌堆返回手牌的触发能力暂缓。 |
 | `p2-preflight-play-center-stage-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-061/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p57 rule 413.4 | 已验证官方法术《台前作秀》不支付回响时的 0 目标基础路径：支付 2 点费用、加入结算链、双方让过后抽 1 张牌并进入废牌堆。 |
 | `p2-preflight-play-center-stage-echo-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-061/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p92-p105 keyword rules 800+ | 已验证官方法术《台前作秀》支付回响 2 额外费用时重复基础抽牌效果一次，共抽 2 张牌。 |
 | `p2-preflight-play-prophets-omen-draw-stack` | `RULE_AUDITED` | `CATALOG` SFD·087/221；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340；p57 rule 413.4 | 已验证官方法术《先知之兆》支付 2 点费用、0 目标入栈、双方让过后抽 3 张牌并进入废牌堆。 |
