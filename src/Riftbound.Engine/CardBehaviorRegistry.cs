@@ -173,6 +173,14 @@ public static class CardBehaviorRegistry
             0,
             DrawCount: 1),
         new(
+            "OGN·144/298",
+            "以战养战",
+            4,
+            "SPOILS_OF_WAR_DRAW_2",
+            0,
+            0,
+            DrawCount: 2),
+        new(
             "OGN·105/298",
             "星芒凝汇",
             6,
