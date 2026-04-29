@@ -157,6 +157,14 @@ public static class CardBehaviorRegistry
             DrawCount: 1,
             Mode: "DRAW_1"),
         new(
+            "OGN·048/298",
+            "冥想",
+            2,
+            "MEDITATION_DRAW_1",
+            0,
+            0,
+            DrawCount: 1),
+        new(
             "OGN·105/298",
             "星芒凝汇",
             6,
