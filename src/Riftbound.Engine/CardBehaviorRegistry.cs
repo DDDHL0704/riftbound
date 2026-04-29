@@ -23,7 +23,8 @@ public sealed record CardBehaviorDefinition(
     bool RecyclesTargets = false,
     bool DamagesAllBattlefieldUnits = false,
     int MaxTargetPower = 0,
-    string DrawRecipientKind = CardDrawRecipientKinds.Controller);
+    string DrawRecipientKind = CardDrawRecipientKinds.Controller,
+    bool DestroysAllUnits = false);
 
 public static class CardDamageConditionKinds
 {
@@ -250,6 +251,14 @@ public static class CardBehaviorRegistry
             DrawCount: 2,
             DestroysTarget: true,
             DrawRecipientKind: CardDrawRecipientKinds.TargetController),
+        new(
+            "UNL-180/219",
+            "破败之咒",
+            9,
+            "RUINATION_DESTROY_ALL_UNITS",
+            0,
+            0,
+            DestroysAllUnits: true),
         new(
             "UNL-061/219",
             "台前作秀",

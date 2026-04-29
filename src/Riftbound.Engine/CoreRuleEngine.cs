@@ -729,6 +729,29 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.AddRange(recycleResult.Events);
             rngCursor = recycleResult.RngCursor;
         }
+        else if (behavior.DestroysAllUnits)
+        {
+            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
+            {
+                if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "UNIT_DESTROYED",
+                    $"{behavior.DisplayName}摧毁单位",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["ownerPlayerId"] = ownerPlayerId,
+                        ["destroyedByPlayerId"] = stackItem.ControllerId
+                    }));
+                destroyedObjectIds.Add(targetObjectId);
+                destroyedUnitOwnerIds.Add(ownerPlayerId);
+            }
+        }
         else if (behavior.DamagesAllBattlefieldUnits)
         {
             var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
@@ -922,6 +945,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerZones
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> GetFieldUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones)
+    {
+        return playerZones
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
