@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-piercing-light-two-target-damage-stack",
+  "description": "Playing Piercing Light without echo can damage one battlefield unit and up to one other battlefield unit for 2 each.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302055,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·023/221 透体圣光",
+      "note": "官方卡面：费用 2；回响2红色；对战场上的一名单位造成 2 点伤害，然后对最多另一名单位造成 2 点伤害。当前 fixture 覆盖不支付回响的基础路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；回响为可选额外费用。当前引擎暂未建模有色回响费用，因此仅验证不支付回响路径。"
+    }
+  ],
+  "roomId": "p2-preflight-piercing-light-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302055,
+    "turnNumber": 42,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-PIERCING-LIGHT"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-UNIT-001", "P2-UNIT-002"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-UNIT-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-UNIT-002": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-piercing-light-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-PIERCING-LIGHT",
+        "cardNo": "SFD·023/221",
+        "targetObjectIds": ["P2-UNIT-001", "P2-UNIT-002"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-piercing-light-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-piercing-light-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-PIERCING-LIGHT",
+          "targetObjectId": "P2-UNIT-001",
+          "damage": 2
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-PIERCING-LIGHT",
+          "targetObjectId": "P2-UNIT-002",
+          "damage": 2
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 42,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-PIERCING-LIGHT"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": ["P2-UNIT-001", "P2-UNIT-002"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnEffects": []
+        },
+        "P2-UNIT-001": {
+          "damage": 2,
+          "power": 5,
+          "untilEndOfTurnEffects": []
+        },
+        "P2-UNIT-002": {
+          "damage": 2,
+          "power": 5,
+          "untilEndOfTurnEffects": []
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

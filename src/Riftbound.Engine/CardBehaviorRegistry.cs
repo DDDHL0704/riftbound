@@ -133,6 +133,15 @@ public static class CardBehaviorRegistry
             CardDamageConditionKinds.TargetIsAttacking,
             4),
         new(
+            "SFD·023/221",
+            "透体圣光",
+            2,
+            "PIERCING_LIGHT_DAMAGE_2_UP_TO_2_BATTLEFIELD_UNITS",
+            2,
+            2,
+            TargetScope: CardTargetScopes.BattlefieldUnit,
+            MinTargetCount: 1),
+        new(
             "OGN·009/298",
             "海克斯射线",
             1,
