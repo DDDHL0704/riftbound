@@ -103,6 +103,15 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.AnyUnit,
             AllowsRepeatedTargets: true),
         new(
+            "OGN·248/298",
+            "艾卡西亚暴雨",
+            7,
+            "ICATHIAN_RAIN_DAMAGE_2_SIX_TIMES",
+            2,
+            6,
+            TargetScope: CardTargetScopes.AnyUnit,
+            AllowsRepeatedTargets: true),
+        new(
             "OGN·085/298",
             "彗星坠击",
             5,
