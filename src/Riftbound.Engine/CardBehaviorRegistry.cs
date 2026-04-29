@@ -148,6 +148,15 @@ public static class CardBehaviorRegistry
             DrawCount: 1,
             EchoManaCost: 2),
         new(
+            "UNL-103/219",
+            "处置命令",
+            2,
+            "DISPOSAL_ORDER_DRAW_1",
+            0,
+            0,
+            DrawCount: 1,
+            Mode: "DRAW_1"),
+        new(
             "OGN·105/298",
             "星芒凝汇",
             6,
