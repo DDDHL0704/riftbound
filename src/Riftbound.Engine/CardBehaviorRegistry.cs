@@ -155,6 +155,14 @@ public static class CardBehaviorRegistry
             1,
             DestroysTarget: true),
         new(
+            "SFD·164/221",
+            "流沙陷坑",
+            5,
+            "QUICKSAND_PIT_DESTROY_BATTLEFIELD_UNIT",
+            0,
+            1,
+            DestroysTarget: true),
+        new(
             "UNL-061/219",
             "台前作秀",
             2,
