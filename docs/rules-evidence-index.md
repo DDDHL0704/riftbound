@@ -93,6 +93,7 @@
 | `p2-preflight-starfall-can-damage-same-unit-twice` | `RULE_AUDITED` | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《星落》的两次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
 | `p2-preflight-icathian-rain-can-hit-same-unit-six-times` | `RULE_AUDITED` | `CATALOG` OGN·248/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《艾卡西亚暴雨》的六次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
 | `p2-preflight-play-blade-whirlwind-damage-all-battlefield-units` | `RULE_AUDITED` | `CATALOG` OGN·133/298；`CORE-260330` p39-p42 rules 355-356；p31-p33 rules 323-324 | 已验证官方法术《剑刃飓风》0 目标入栈后对所有战场上的单位各造成 1 点伤害；当前样例锁定未致命伤害路径。 |
+| `p2-preflight-blade-whirlwind-lethal-damage-destroys-units` | `RULE_AUDITED` | `CATALOG` OGN·133/298；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 323-324；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《剑刃飓风》造成的全战场伤害达到多个单位战力后，会逐一摧毁这些单位并移入各自拥有者废牌堆。 |
 | `p2-preflight-play-stay-away-stun-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-042/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p92-p105 keyword rules 800+ | 已验证官方法术《走开》从手牌打出时眩晕一名单位，然后抽 1 张牌；待命路径暂缓。 |
 | `p2-preflight-play-disposal-order-draw-mode` | `RULE_AUDITED` | `CATALOG` UNL-103/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《处置命令》的抽牌模式。 |
 | `p2-preflight-play-disposal-order-recycle-opponent-graveyard` | `RULE_AUDITED` | `CATALOG` UNL-103/219；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《处置命令》选择对手废牌堆中最多三张牌，并让其拥有者回收；多张回收到主牌堆底部时使用可回放随机顺序。 |
