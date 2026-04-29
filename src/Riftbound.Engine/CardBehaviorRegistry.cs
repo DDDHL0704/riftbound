@@ -210,6 +210,14 @@ public static class CardBehaviorRegistry
             0,
             DrawCount: 1),
         new(
+            "OGN·083/298",
+            "借鉴历史",
+            4,
+            "BORROWED_HISTORY_DRAW_2",
+            0,
+            0,
+            DrawCount: 2),
+        new(
             "OGN·144/298",
             "以战养战",
             4,

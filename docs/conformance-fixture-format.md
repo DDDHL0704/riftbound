@@ -102,6 +102,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-disposal-order-draw-mode.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-disposal-order-recycle-opponent-graveyard.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-meditation-draw-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-borrowed-history-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spoils-of-war-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json`
