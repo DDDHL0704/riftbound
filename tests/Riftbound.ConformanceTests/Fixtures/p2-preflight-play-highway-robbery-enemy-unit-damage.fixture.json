@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-highway-robbery-enemy-unit-damage",
+  "description": "Highway Robbery deals 6 damage to an enemy unit when its controller does not choose the draw-two branch.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302077,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·033/298 巧取豪夺",
+      "note": "官方卡面：费用 2；反应；选择一名敌方单位。除非其控制者选择让你抽两张牌，否则对该单位造成 6 点伤害。本 fixture 覆盖目标控制者不选择让你抽牌时的伤害分支；目标控制者选择抽牌以避免伤害的分支由独立 fixture 覆盖。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356",
+      "note": "单位可位于基地或战场；伤害会记录在对象状态上；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。"
+    }
+  ],
+  "roomId": "p2-preflight-highway-robbery-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302077,
+    "turnNumber": 102,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-HIGHWAY-ROBBERY"],
+        "base": ["P1-FRIENDLY-UNIT-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-HIGHWAY-ROBBERY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-FRIENDLY-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BASE-UNIT-HIGHWAY-ROBBERY-001": {
+        "damage": 0,
+        "power": 7,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-HIGHWAY-ROBBERY-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-highway-robbery-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-HIGHWAY-ROBBERY",
+        "cardNo": "OGN·033/298",
+        "targetObjectIds": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-highway-robbery-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-highway-robbery-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-HIGHWAY-ROBBERY",
+          "cardNo": "OGN·033/298",
+          "targetObjectIds": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"],
+          "effectKind": "HIGHWAY_ROBBERY_DAMAGE_6_NO_DRAW_CHOICE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-HIGHWAY-ROBBERY",
+          "targetObjectId": "P2-BASE-UNIT-HIGHWAY-ROBBERY-001",
+          "damage": 6
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 102,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-FRIENDLY-UNIT-001"],
+          "graveyard": ["P1-SPELL-HIGHWAY-ROBBERY"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"],
+          "battlefields": ["P2-BATTLEFIELD-UNIT-HIGHWAY-ROBBERY-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-FRIENDLY-UNIT-001": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BASE-UNIT-HIGHWAY-ROBBERY-001": {
+          "damage": 6,
+          "power": 7,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BATTLEFIELD-UNIT-HIGHWAY-ROBBERY-001": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

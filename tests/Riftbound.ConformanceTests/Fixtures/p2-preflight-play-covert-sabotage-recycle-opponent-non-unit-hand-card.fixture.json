@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-covert-sabotage-recycle-opponent-non-unit-hand-card",
+  "description": "Covert Sabotage chooses a non-unit card from the opponent's revealed hand and recycles it.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302147,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·156/298 暗中破坏",
+      "note": "官方卡面：费用 1；指定一名对手，展示其手牌，并从中选择一张非单位卡牌让对手回收。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p39-p42 rules 355-356; p58-p59 rule 416",
+      "note": "手牌属于玩家区域；打出法术时选择目标、支付费用并确认结算链；回收使所选卡牌回到拥有者对应主牌堆底部。"
+    }
+  ],
+  "roomId": "p2-preflight-covert-sabotage-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302147,
+    "turnNumber": 46,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-COVERT-SABOTAGE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-KEEPER"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": ["P2-COVERT-SABOTAGE-UNIT-CARD", "P2-COVERT-SABOTAGE-SPELL-CARD"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-COVERT-SABOTAGE-UNIT-CARD": {
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-COVERT-SABOTAGE-SPELL-CARD": {
+        "tags": ["CARD_TYPE:SPELL"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-covert-sabotage-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-COVERT-SABOTAGE",
+        "cardNo": "OGN·156/298",
+        "targetObjectIds": ["P2-COVERT-SABOTAGE-SPELL-CARD"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-covert-sabotage-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-covert-sabotage-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "CARDS_RECYCLED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "CARDS_RECYCLED",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "playerId": "P2",
+          "sourceObjectId": "P1-SPELL-COVERT-SABOTAGE",
+          "cardIds": ["P2-COVERT-SABOTAGE-SPELL-CARD"],
+          "count": 1
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 46,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-COVERT-SABOTAGE"]
+        },
+        "P2": {
+          "mainDeck": ["P2-MAIN-KEEPER", "P2-COVERT-SABOTAGE-SPELL-CARD"],
+          "hand": ["P2-COVERT-SABOTAGE-UNIT-CARD"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-COVERT-SABOTAGE-UNIT-CARD": {
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P2-COVERT-SABOTAGE-SPELL-CARD": {
+          "tags": ["CARD_TYPE:SPELL"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

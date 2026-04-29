@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-kings-edict-destroy-enemy-unit",
+  "description": "King's Edict destroys the one non-controller unit chosen by the other player in a 2P preflight game.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302157,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·237/298 国王诏令",
+      "note": "官方卡面：费用 6；从下一名玩家开始，每名其他玩家选择一个不受你控制且未被此法术选中过的单位，然后摧毁选中的所有单位。当前 2P preflight 用一个敌方单位目标记录另一名玩家的选择。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356; p62-p63 rule 428",
+      "note": "法术需要合法目标并作为结算链项目结算；摧毁会将场上单位移入拥有者废牌堆。当前 fixture 锁定 2P 单一其他玩家选择一名非控制者单位的基础路径。"
+    }
+  ],
+  "roomId": "p2-preflight-kings-edict-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302157,
+    "turnNumber": 157,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-KINGS-EDICT"],
+        "base": ["P1-KINGS-EDICT-FRIENDLY-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": ["P2-KINGS-EDICT-KEEPER-001"],
+        "battlefields": ["P2-KINGS-EDICT-CHOSEN-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-KINGS-EDICT-FRIENDLY-001": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-KINGS-EDICT-KEEPER-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-KINGS-EDICT-CHOSEN-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-kings-edict-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-KINGS-EDICT",
+        "cardNo": "OGN·237/298",
+        "targetObjectIds": ["P2-KINGS-EDICT-CHOSEN-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-kings-edict-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-kings-edict-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_DESTROYED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 6,
+          "baseMana": 6
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-KINGS-EDICT",
+          "cardNo": "OGN·237/298",
+          "targetObjectIds": ["P2-KINGS-EDICT-CHOSEN-001"],
+          "effectKind": "KINGS_EDICT_DESTROY_OTHER_PLAYER_CHOSEN_ENEMY_UNIT"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-KINGS-EDICT",
+          "targetObjectId": "P2-KINGS-EDICT-CHOSEN-001",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 157,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-KINGS-EDICT-FRIENDLY-001"],
+          "graveyard": ["P1-SPELL-KINGS-EDICT"]
+        },
+        "P2": {
+          "base": ["P2-KINGS-EDICT-KEEPER-001"],
+          "battlefields": [],
+          "graveyard": ["P2-KINGS-EDICT-CHOSEN-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-KINGS-EDICT-FRIENDLY-001": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": []
+        },
+        "P2-KINGS-EDICT-KEEPER-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnEffects": []
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

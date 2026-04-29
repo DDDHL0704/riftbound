@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-switcheroo-swap-battlefield-unit-powers",
+  "description": "Switcheroo swaps two battlefield units' power until end of turn in the current single-battlefield model.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302146,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·145/221 换换乐",
+      "note": "官方卡面：费用 2；待命；迅捷；让同一处战场上的两名单位在本回合内战力互换。当前 fixture 锁定单战场区域模型下的两名战场单位战力互换路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "note": "从手牌支付费用打出法术、选择合法且不同的目标、加入结算链、双方让过后结算；本回合内战力修正由回合结束特殊清理移除。"
+    }
+  ],
+  "roomId": "p2-preflight-switcheroo-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302146,
+    "turnNumber": 78,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-SWITCHEROO"],
+        "base": [],
+        "battlefields": ["P1-SWITCHEROO-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-SWITCHEROO-BASE-UNIT"],
+        "battlefields": ["P2-SWITCHEROO-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-SWITCHEROO-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-SWITCHEROO-BASE-UNIT": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-SWITCHEROO-UNIT-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-switcheroo-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-SWITCHEROO",
+        "cardNo": "SFD·145/221",
+        "targetObjectIds": ["P1-SWITCHEROO-UNIT-001", "P2-SWITCHEROO-UNIT-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-switcheroo-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-switcheroo-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-SWITCHEROO",
+          "cardNo": "SFD·145/221",
+          "targetObjectIds": ["P1-SWITCHEROO-UNIT-001", "P2-SWITCHEROO-UNIT-001"],
+          "effectKind": "SWITCHEROO_SWAP_TWO_BATTLEFIELD_UNIT_POWERS"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-SWITCHEROO",
+          "targetObjectId": "P1-SWITCHEROO-UNIT-001",
+          "powerDelta": 3,
+          "appliedPowerDelta": 3,
+          "resultingPower": 5
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-SWITCHEROO",
+          "targetObjectId": "P2-SWITCHEROO-UNIT-001",
+          "powerDelta": -3,
+          "appliedPowerDelta": -3,
+          "resultingPower": 2
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 78,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "battlefields": ["P1-SWITCHEROO-UNIT-001"],
+          "graveyard": ["P1-SPELL-SWITCHEROO"]
+        },
+        "P2": {
+          "base": ["P2-SWITCHEROO-BASE-UNIT"],
+          "battlefields": ["P2-SWITCHEROO-UNIT-001"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-SWITCHEROO-UNIT-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 3
+        },
+        "P2-SWITCHEROO-BASE-UNIT": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-SWITCHEROO-UNIT-001": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": -3
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

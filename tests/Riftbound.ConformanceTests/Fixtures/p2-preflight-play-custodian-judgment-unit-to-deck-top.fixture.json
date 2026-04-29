@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-custodian-judgment-unit-to-deck-top",
+  "description": "Custodian Judgment puts the chosen enemy battlefield unit on top of its owner's main deck.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302158,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-204/219 持卫的裁决",
+      "note": "官方卡面：费用 2；选择战场上的一名敌方单位，其拥有者将该单位放到其主牌堆的顶部或底部。当前 fixture 用 mode 记录拥有者选择顶部。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356",
+      "note": "单位可从战场移动到拥有者主牌堆；从手牌支付费用打出法术、加入结算链，双方让过后按卡面将目标放到拥有者主牌堆顶部，并将法术置入废牌堆。"
+    }
+  ],
+  "roomId": "p2-preflight-custodian-judgment-top-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302158,
+    "turnNumber": 158,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-CUSTODIAN-JUDGMENT"],
+        "base": ["P1-CUSTODIAN-FRIENDLY-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001", "P2-MAIN-002"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": ["P2-CUSTODIAN-BASE-001"],
+        "battlefields": ["P2-CUSTODIAN-TARGET-001", "P2-CUSTODIAN-KEEPER-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-CUSTODIAN-FRIENDLY-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-CUSTODIAN-BASE-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-CUSTODIAN-TARGET-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-CUSTODIAN-KEEPER-001": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-custodian-judgment-top-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-CUSTODIAN-JUDGMENT",
+        "cardNo": "UNL-204/219",
+        "mode": "OWNER_MAIN_DECK_TOP",
+        "targetObjectIds": ["P2-CUSTODIAN-TARGET-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-custodian-judgment-top-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-custodian-judgment-top-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_RETURNED_TO_DECK"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-CUSTODIAN-JUDGMENT",
+          "cardNo": "UNL-204/219",
+          "mode": "OWNER_MAIN_DECK_TOP",
+          "targetObjectIds": ["P2-CUSTODIAN-TARGET-001"],
+          "effectKind": "CUSTODIAN_JUDGMENT_ENEMY_BATTLEFIELD_UNIT_TO_TOP"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_RETURNED_TO_DECK",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-CUSTODIAN-JUDGMENT",
+          "targetObjectId": "P2-CUSTODIAN-TARGET-001",
+          "ownerPlayerId": "P2",
+          "destinationZone": "MAIN_DECK",
+          "deckPosition": "TOP"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 158,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-CUSTODIAN-FRIENDLY-001"],
+          "graveyard": ["P1-SPELL-CUSTODIAN-JUDGMENT"]
+        },
+        "P2": {
+          "mainDeck": ["P2-CUSTODIAN-TARGET-001", "P2-MAIN-001", "P2-MAIN-002"],
+          "base": ["P2-CUSTODIAN-BASE-001"],
+          "battlefields": ["P2-CUSTODIAN-KEEPER-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-CUSTODIAN-FRIENDLY-001": {
+          "power": 2
+        },
+        "P2-CUSTODIAN-BASE-001": {
+          "power": 5
+        },
+        "P2-CUSTODIAN-KEEPER-001": {
+          "power": 4
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

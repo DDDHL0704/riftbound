@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-eclipse-power-minus-4",
-  "description": "Eclipse gives one unit -4 power until end of turn and chooses not to recycle the insight card.",
+  "fixtureId": "p2-preflight-play-eclipse-power-minus-4-insight-recycle",
+  "description": "Eclipse gives one unit -4 power until end of turn and recycles the top card seen by insight.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302072,
+  "seed": 2603302073,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-063/219 月蚀",
-      "note": "官方卡面：费用 3；反应；让一名单位在本回合内战力 -4，然后进行洞察。本 fixture 覆盖战力修正后不选择回收顶部牌的路径。"
+      "note": "官方卡面：费用 3；反应；让一名单位在本回合内战力 -4，然后进行洞察。洞察为查看主牌堆顶部的一张牌，并可选择将其回收。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
-      "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p58-p59 rule 416",
+      "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链并结算；本回合内战力修正由回合结束特殊清理移除；回收使所选卡牌回到拥有者对应牌堆底部。"
     }
   ],
-  "roomId": "p2-preflight-eclipse-room",
+  "roomId": "p2-preflight-eclipse-insight-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302072,
-    "turnNumber": 98,
+    "seed": 2603302073,
+    "turnNumber": 99,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -39,7 +39,7 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+        "mainDeck": ["P1-ECLIPSE-INSIGHT-RECYCLE-001", "P1-MAIN-KEEPER"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-SPELL-ECLIPSE"],
         "base": [],
@@ -54,7 +54,7 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-UNIT-ECLIPSE-001"],
+        "battlefields": ["P2-UNIT-ECLIPSE-INSIGHT-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
@@ -62,7 +62,7 @@
       }
     },
     "cardObjects": {
-      "P2-UNIT-ECLIPSE-001": {
+      "P2-UNIT-ECLIPSE-INSIGHT-001": {
         "damage": 0,
         "power": 5,
         "untilEndOfTurnEffects": [],
@@ -73,24 +73,24 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-play",
+      "clientIntentId": "intent-p2-preflight-eclipse-insight-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-ECLIPSE",
         "cardNo": "UNL-063/219",
-        "targetObjectIds": ["P2-UNIT-ECLIPSE-001"]
+        "targetObjectIds": ["P2-UNIT-ECLIPSE-INSIGHT-001", "P1-ECLIPSE-INSIGHT-RECYCLE-001"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-p1-pass",
+      "clientIntentId": "intent-p2-preflight-eclipse-insight-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-eclipse-p2-pass",
+      "clientIntentId": "intent-p2-preflight-eclipse-insight-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -105,7 +105,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "CARDS_RECYCLED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -123,7 +124,7 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-ECLIPSE",
           "cardNo": "UNL-063/219",
-          "targetObjectIds": ["P2-UNIT-ECLIPSE-001"],
+          "targetObjectIds": ["P2-UNIT-ECLIPSE-INSIGHT-001", "P1-ECLIPSE-INSIGHT-RECYCLE-001"],
           "effectKind": "ECLIPSE_POWER_MINUS_4_OPTIONAL_INSIGHT"
         }
       },
@@ -134,10 +135,18 @@
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {
           "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "targetObjectId": "P2-UNIT-ECLIPSE-001",
+          "targetObjectId": "P2-UNIT-ECLIPSE-INSIGHT-001",
           "powerDelta": -4,
           "appliedPowerDelta": -4,
           "resultingPower": 1
+        }
+      },
+      {
+        "kind": "CARDS_RECYCLED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-ECLIPSE",
+          "count": 1
         }
       }
     ],
@@ -146,7 +155,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 98,
+      "turnNumber": 99,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -161,16 +170,16 @@
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+          "mainDeck": ["P1-MAIN-KEEPER", "P1-ECLIPSE-INSIGHT-RECYCLE-001"],
           "hand": [],
           "graveyard": ["P1-SPELL-ECLIPSE"]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-ECLIPSE-001"]
+          "battlefields": ["P2-UNIT-ECLIPSE-INSIGHT-001"]
         }
       },
       "cardObjects": {
-        "P2-UNIT-ECLIPSE-001": {
+        "P2-UNIT-ECLIPSE-INSIGHT-001": {
           "damage": 0,
           "power": 1,
           "untilEndOfTurnEffects": [],

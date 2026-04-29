@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-firestorm-damage-enemy-battlefield-units",
+  "description": "Firestorm deals 3 damage to every enemy battlefield unit in the current single-battlefield model.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302145,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGS·002/024 烈火风暴",
+      "note": "官方卡面：费用 6；对一处战场的所有敌方单位各造成 3 点伤害。当前 fixture 锁定单战场区域模型下的敌方战场单位范围。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 323-324; p39-p42 rules 355-356",
+      "note": "从手牌支付费用打出法术、加入结算链、双方让过后结算；伤害保留到清理。当前 fixture 锁定未致命的敌方战场单位范围伤害路径。"
+    }
+  ],
+  "roomId": "p2-preflight-firestorm-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302145,
+    "turnNumber": 77,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-FIRESTORM"],
+        "base": [],
+        "battlefields": ["P1-FRIENDLY-BATTLEFIELD-UNIT"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-ENEMY-BASE-UNIT"],
+        "battlefields": ["P2-ENEMY-BATTLEFIELD-UNIT-001", "P2-ENEMY-BATTLEFIELD-UNIT-002"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-FRIENDLY-BATTLEFIELD-UNIT": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-ENEMY-BASE-UNIT": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-ENEMY-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": []
+      },
+      "P2-ENEMY-BATTLEFIELD-UNIT-002": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-firestorm-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-FIRESTORM",
+        "cardNo": "OGS·002/024",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-firestorm-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-firestorm-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 6,
+          "baseMana": 6
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-FIRESTORM",
+          "cardNo": "OGS·002/024",
+          "targetObjectIds": [],
+          "effectKind": "FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-FIRESTORM",
+          "targetObjectId": "P2-ENEMY-BATTLEFIELD-UNIT-001",
+          "damage": 3
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-FIRESTORM",
+          "targetObjectId": "P2-ENEMY-BATTLEFIELD-UNIT-002",
+          "damage": 3
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 77,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "battlefields": ["P1-FRIENDLY-BATTLEFIELD-UNIT"],
+          "graveyard": ["P1-SPELL-FIRESTORM"]
+        },
+        "P2": {
+          "base": ["P2-ENEMY-BASE-UNIT"],
+          "battlefields": ["P2-ENEMY-BATTLEFIELD-UNIT-001", "P2-ENEMY-BATTLEFIELD-UNIT-002"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-FRIENDLY-BATTLEFIELD-UNIT": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": []
+        },
+        "P2-ENEMY-BASE-UNIT": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": []
+        },
+        "P2-ENEMY-BATTLEFIELD-UNIT-001": {
+          "damage": 3,
+          "power": 4,
+          "untilEndOfTurnEffects": []
+        },
+        "P2-ENEMY-BATTLEFIELD-UNIT-002": {
+          "damage": 3,
+          "power": 5,
+          "untilEndOfTurnEffects": []
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

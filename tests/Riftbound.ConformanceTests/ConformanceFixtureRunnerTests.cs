@@ -715,6 +715,313 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysCovertSabotageRecycleOpponentNonUnitHandCard()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-covert-sabotage-recycle-opponent-non-unit-hand-card.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2-COVERT-SABOTAGE-UNIT-CARD"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(
+            ["P2-MAIN-KEEPER", "P2-COVERT-SABOTAGE-SPELL-CARD"],
+            result.FinalState.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCovertSabotageUnitHandCardTarget()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-COVERT-SABOTAGE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-UNIT-CARD", "P2-SPELL-CARD"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-CARD"] = new("P2-UNIT-CARD", tags: [CardObjectTags.UnitCard]),
+                ["P2-SPELL-CARD"] = new("P2-SPELL-CARD", tags: ["CARD_TYPE:SPELL"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-covert-sabotage-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-COVERT-SABOTAGE", "OGN·156/298", ["P2-UNIT-CARD"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-COVERT-SABOTAGE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-UNIT-CARD", "P2-SPELL-CARD"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysPredictiveOffensiveDrawOneRecycleOther()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-predictive-offensive-draw-one-recycle-other.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-PREDICTIVE-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-MAIN-KEEPER", "P1-PREDICTIVE-RECYCLE-001"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsPredictiveOffensiveTargetOutsideTopTwo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-TOP-001", "P1-TOP-002", "P1-NOT-VIEWED-001"],
+                    Hand = ["P1-SPELL-PREDICTIVE-OFFENSIVE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-predictive-offensive-outside-top-two", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-PREDICTIVE-OFFENSIVE", "SFD·122/221", ["P1-NOT-VIEWED-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-PREDICTIVE-OFFENSIVE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-TOP-001", "P1-TOP-002", "P1-NOT-VIEWED-001"],
+            result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCardTrickDrawOneRecycleRest()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-card-trick-draw-one-recycle-rest.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-CARD-TRICK-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-MAIN-KEEPER", "P1-CARD-TRICK-RECYCLE-A", "P1-CARD-TRICK-RECYCLE-B"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCardTrickTargetOutsideTopThree()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-TOP-001", "P1-TOP-002", "P1-TOP-003", "P1-NOT-VIEWED-001"],
+                    Hand = ["P1-SPELL-CARD-TRICK"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-card-trick-outside-top-three", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-CARD-TRICK", "OGN·183/298", ["P1-NOT-VIEWED-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-CARD-TRICK"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-TOP-001", "P1-TOP-002", "P1-TOP-003", "P1-NOT-VIEWED-001"],
+            result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysDragonTigerDrawUnitRecycleRest()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-dragon-tiger-draw-unit-recycle-rest.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-DRAGON-TIGER-UNIT-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-MAIN-KEEPER", "P1-DRAGON-TIGER-RECYCLE-B", "P1-DRAGON-TIGER-RECYCLE-A"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-DRAGON-TIGER-UNIT-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysDragonTigerNoSelectionRecycleAll()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-dragon-tiger-no-unit-selection-recycle-all.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-MAIN-KEEPER", "P1-DRAGON-TIGER-RECYCLE-B", "P1-DRAGON-TIGER-RECYCLE-C", "P1-DRAGON-TIGER-RECYCLE-A"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysReinforcementsNoSelectionRecycleTopFive()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-reinforcements-no-selection-recycle-top-five.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            [
+                "P1-MAIN-KEEPER",
+                "P1-REINFORCEMENTS-RECYCLE-E",
+                "P1-REINFORCEMENTS-RECYCLE-D",
+                "P1-REINFORCEMENTS-RECYCLE-A",
+                "P1-REINFORCEMENTS-RECYCLE-C",
+                "P1-REINFORCEMENTS-RECYCLE-B"
+            ],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDragonTigerNonUnitTopDeckTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-TOP-SPELL-001", "P1-TOP-UNIT-001", "P1-TOP-UNIT-002"],
+                    Hand = ["P1-SPELL-DRAGON-TIGER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TOP-SPELL-001"] = new("P1-TOP-SPELL-001", tags: ["CARD_TYPE:SPELL"]),
+                ["P1-TOP-UNIT-001"] = new("P1-TOP-UNIT-001", tags: [CardObjectTags.UnitCard]),
+                ["P1-TOP-UNIT-002"] = new("P1-TOP-UNIT-002", tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-dragon-tiger-non-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-DRAGON-TIGER", "UNL-032/219", ["P1-TOP-SPELL-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-DRAGON-TIGER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-TOP-SPELL-001", "P1-TOP-UNIT-001", "P1-TOP-UNIT-002"],
+            result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDragonTigerTargetOutsideTopThree()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-TOP-UNIT-001", "P1-TOP-UNIT-002", "P1-TOP-UNIT-003", "P1-NOT-VIEWED-UNIT-001"],
+                    Hand = ["P1-SPELL-DRAGON-TIGER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TOP-UNIT-001"] = new("P1-TOP-UNIT-001", tags: [CardObjectTags.UnitCard]),
+                ["P1-TOP-UNIT-002"] = new("P1-TOP-UNIT-002", tags: [CardObjectTags.UnitCard]),
+                ["P1-TOP-UNIT-003"] = new("P1-TOP-UNIT-003", tags: [CardObjectTags.UnitCard]),
+                ["P1-NOT-VIEWED-UNIT-001"] = new("P1-NOT-VIEWED-UNIT-001", tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-dragon-tiger-outside-top-three", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-DRAGON-TIGER", "UNL-032/219", ["P1-NOT-VIEWED-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-DRAGON-TIGER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-TOP-UNIT-001", "P1-TOP-UNIT-002", "P1-TOP-UNIT-003", "P1-NOT-VIEWED-UNIT-001"],
+            result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysMeditationBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -1543,6 +1850,62 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysLotusTrapAndDoublesNextDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-lotus-trap-doubles-next-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(4, result.FinalState.CardObjects["P2-UNIT-LOTUS-001"].Damage);
+        Assert.Contains(
+            "DAMAGE_RECEIVED_DOUBLED_THIS_TURN",
+            result.FinalState.CardObjects["P2-UNIT-LOTUS-001"].UntilEndOfTurnEffects);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysNoxianGuillotineAndNextDamageDestroysUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-noxian-guillotine-next-damage-destroys.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-UNIT-NOXIAN-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P2-UNIT-NOXIAN-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCounterstormAndPreventsNextDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-counterstorm-prevent-next-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-COUNTERSTORM-001"].Damage);
+        Assert.DoesNotContain(
+            "PREVENT_NEXT_DAMAGE_THIS_TURN",
+            result.FinalState.CardObjects["P2-UNIT-COUNTERSTORM-001"].UntilEndOfTurnEffects);
+        Assert.Equal(["P1-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysHextechRayThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -1588,6 +1951,83 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
         Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-002"].Damage);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysBellowsBreathAgainstUpToThreeUnits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-bellows-breath-up-to-three-units-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-002"].Damage);
+        Assert.Equal(
+            3,
+            result.EventKinds.Count(kind => string.Equals(kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysFirestormAgainstEnemyBattlefieldUnits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-firestorm-damage-enemy-battlefield-units.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.CardObjects["P1-FRIENDLY-BATTLEFIELD-UNIT"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-ENEMY-BASE-UNIT"].Damage);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-ENEMY-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-ENEMY-BATTLEFIELD-UNIT-002"].Damage);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-crescent-strike-target-plus-splash.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.CardObjects["P1-CRESCENT-FRIENDLY-001"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-CRESCENT-BASE-001"].Damage);
+        Assert.Equal(4, result.FinalState.CardObjects["P2-CRESCENT-PRIMARY-001"].Damage);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-CRESCENT-SPLASH-001"].Damage);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSwitcherooSwappingBattlefieldUnitPowers()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-switcheroo-swap-battlefield-unit-powers.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(5, result.FinalState.CardObjects["P1-SWITCHEROO-UNIT-001"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-SWITCHEROO-UNIT-001"].Power);
+        Assert.Equal(4, result.FinalState.CardObjects["P2-SWITCHEROO-BASE-UNIT"].Power);
     }
 
     [Fact]
@@ -1937,6 +2377,63 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysHousecleaningDestroyEachPlayerUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-housecleaning-destroy-each-player-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P1-HOUSECLEANING-FRIENDLY-001", result.FinalState.CardObjects.Keys);
+        Assert.DoesNotContain("P2-HOUSECLEANING-ENEMY-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P1-HOUSECLEANING-KEEPER-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-HOUSECLEANING-KEEPER-001"], result.FinalState.PlayerZones["P2"].Base);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysKingsEdictDestroyingEnemyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-kings-edict-destroy-enemy-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Contains("P1-KINGS-EDICT-FRIENDLY-001", result.FinalState.CardObjects.Keys);
+        Assert.Contains("P2-KINGS-EDICT-KEEPER-001", result.FinalState.CardObjects.Keys);
+        Assert.DoesNotContain("P2-KINGS-EDICT-CHOSEN-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P2-KINGS-EDICT-CHOSEN-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSpiritFireDestroyingBattlefieldUnitsTotalPowerFour()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-spirit-fire-destroy-total-power-four.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-SPIRIT-FIRE-UNIT-001", result.FinalState.CardObjects.Keys);
+        Assert.DoesNotContain("P2-SPIRIT-FIRE-UNIT-002", result.FinalState.CardObjects.Keys);
+        Assert.Contains("P2-SPIRIT-FIRE-KEEPER-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysQuicksandPitThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -2006,6 +2503,63 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysHurricaneSweepEachPlayerReturnUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-hurricane-sweep-each-player-return-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P1-HURRICANE-FRIENDLY-001", result.FinalState.CardObjects.Keys);
+        Assert.DoesNotContain("P2-HURRICANE-ENEMY-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P1-HURRICANE-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-HURRICANE-ENEMY-001"], result.FinalState.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCustodianJudgmentUnitToDeckTop()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-custodian-judgment-unit-to-deck-top.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-CUSTODIAN-TARGET-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(
+            ["P2-CUSTODIAN-TARGET-001", "P2-MAIN-001", "P2-MAIN-002"],
+            result.FinalState.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCustodianJudgmentUnitToDeckBottom()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-custodian-judgment-unit-to-deck-bottom.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-CUSTODIAN-TARGET-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(
+            ["P2-MAIN-001", "P2-MAIN-002", "P2-CUSTODIAN-TARGET-001"],
+            result.FinalState.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysReconsiderAndCallsRuneForReturnedOwner()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -2066,6 +2620,101 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysRideTheWindAndMovesFriendlyBattlefieldUnitToBaseReady()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ride-the-wind-move-friendly-battlefield-unit-to-base-ready.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].IsExhausted);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_READIED", StringComparison.Ordinal)));
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysIsolateAndMovesEnemyBattlefieldUnitToBaseWithoutDrawing()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-isolate-move-enemy-battlefield-unit-to-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P2-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.DoesNotContain("CARD_DRAWN", result.EventKinds);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCharmAndMovesEnemyBattlefieldUnitToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-charm-move-enemy-battlefield-unit-to-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P2-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysRisingDragonKickAndMovesEnemyBattlefieldUnitToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-rising-dragon-kick-move-enemy-battlefield-unit-to-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P2-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.DoesNotContain("STATUS_EFFECT_APPLIED", result.EventKinds);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysFlashAndMovesTwoFriendlyBattlefieldUnitsToBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -2089,6 +2738,34 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-002"].UntilEndOfTurnEffects);
         Assert.Equal(
             2,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysShieldWallAndMovesSelectedFriendlyBattlefieldUnitsToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-shield-wall-move-any-friendly-battlefield-units-to-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [
+                "P1-BASE-UNIT-001",
+                "P1-SHIELD-WALL-UNIT-001",
+                "P1-SHIELD-WALL-UNIT-002",
+                "P1-SHIELD-WALL-UNIT-003"
+            ],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(
+            3,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
     }
 
@@ -2340,6 +3017,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysStandDefiantPowerPerEnemyBattlefieldUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-stand-defiant-power-per-enemy-battlefield-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(6, result.FinalState.CardObjects["P1-BATTLEFIELD-STAND-001"].Power);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-STAND-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSandcraftWithEchoCreatesTwoSandSoldiersInBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -2366,6 +3063,65 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysProtectTheEmperorCreatesSandSoldierInBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-protect-the-emperor-create-sand-soldier.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-SPELL-PROTECT-EMPEROR-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-SPELL-PROTECT-EMPEROR-TOKEN-001"].Power);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSkullcrackStunsFriendlyAndEnemyBattlefieldUnits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-skullcrack-stun-friendly-and-enemy-battlefield-units.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Contains("STUNNED", result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].UntilEndOfTurnEffects);
+        Assert.Contains("STUNNED", result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].UntilEndOfTurnEffects);
+        Assert.Equal(
+            2,
+            result.EventKinds.Count(kind => string.Equals(kind, "STATUS_EFFECT_APPLIED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysHeroicChargePowerPlusAndStunsEnemy()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-heroic-charge-power-plus-stun.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(4, result.FinalState.CardObjects["P1-HEROIC-FRIENDLY-001"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-HEROIC-FRIENDLY-001"].UntilEndOfTurnPowerModifier);
+        Assert.Contains("STUNNED", result.FinalState.CardObjects["P2-HEROIC-ENEMY-001"].UntilEndOfTurnEffects);
+        Assert.DoesNotContain("STUNNED", result.FinalState.CardObjects["P1-HEROIC-FRIENDLY-001"].UntilEndOfTurnEffects);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDangerTemperatureBuffsOnlyFriendlyMechanicalUnits()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -2385,6 +3141,47 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             2,
             result.EventKinds.Count(kind => string.Equals(kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSiphonEnergyBattlefieldPowerSplit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-siphon-energy-battlefield-power-split.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].Power);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-002"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-002"].Power);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BASE-UNIT-001"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-BASE-UNIT-001"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysMoonRiseEnemyBattlefieldPowerMinus2()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-moonrise-enemy-battlefield-power-minus-2.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-002"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].Power);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BASE-UNIT-001"].Power);
+        Assert.Equal(5, result.FinalState.CardObjects["P2-BASE-UNIT-001"].Power);
     }
 
     [Fact]
@@ -2742,6 +3539,64 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysEclipsePowerPenaltyAndInsightRecycle()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-eclipse-power-minus-4-insight-recycle.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.CardObjects["P2-UNIT-ECLIPSE-INSIGHT-001"].Power);
+        Assert.Equal(-4, result.FinalState.CardObjects["P2-UNIT-ECLIPSE-INSIGHT-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(
+            ["P1-MAIN-KEEPER", "P1-ECLIPSE-INSIGHT-RECYCLE-001"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsEclipseInsightTargetOutsideTopCard()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-TOP-001", "P1-NOT-VIEWED-001"],
+                    Hand = ["P1-SPELL-ECLIPSE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-ECLIPSE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-ECLIPSE-001"] = new("P2-UNIT-ECLIPSE-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-eclipse-insight-outside-top-card", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-ECLIPSE", "UNL-063/219", ["P2-UNIT-ECLIPSE-001", "P1-NOT-VIEWED-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-ECLIPSE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-TOP-001", "P1-NOT-VIEWED-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineDestroysBaseUnitWithVengeance()
     {
         var engine = new CoreRuleEngine();
@@ -2992,6 +3847,93 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysZenithBladeAgainstEnemyBattlefieldUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Contains("STUNNED", result.FinalState.CardObjects["P2-UNIT-ZENITH-001"].UntilEndOfTurnEffects);
+        Assert.Equal(["P1-UNIT-ZENITH-ALLY-001"], result.FinalState.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysHighwayRobberyEnemyUnitDamageBranch()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-highway-robbery-enemy-unit-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(6, result.FinalState.CardObjects["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"].Damage);
+        Assert.Equal(["P2-BASE-UNIT-HIGHWAY-ROBBERY-001"], result.FinalState.PlayerZones["P2"].Base);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysHighwayRobberyTargetControllerDrawChoice()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-highway-robbery-target-controller-draw-choice.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-HIGHWAY-ROBBERY-DRAW-001", "P1-HIGHWAY-ROBBERY-DRAW-002"],
+            result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BASE-UNIT-HIGHWAY-ROBBERY-DRAW-CHOICE-001"].Damage);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysLastBreathReadyThenPowerDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-last-breath-ready-damage-enemy-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.False(result.FinalState.CardObjects["P1-LAST-BREATH-FRIENDLY-001"].IsExhausted);
+        Assert.Equal(4, result.FinalState.CardObjects["P2-LAST-BREATH-ENEMY-001"].Damage);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysConvergentMutationMatchFriendlyPower()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-convergent-mutation-match-friendly-power.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(5, result.FinalState.CardObjects["P1-CONVERGENT-LOW-001"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-CONVERGENT-LOW-001"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysRunePrisonAgainstBaseUnitThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -3139,6 +4081,194 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsZenithBladeAgainstFriendlyOrBaseUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ZENITH-BLADE"],
+                    Battlefields = ["P1-FRIENDLY-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"],
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FRIENDLY-UNIT-001"] = new("P1-FRIENDLY-UNIT-001"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        foreach (var invalidTargetObjectId in new[] { "P1-FRIENDLY-UNIT-001", "P2-BASE-UNIT-001" })
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-zenith-blade-invalid-{invalidTargetObjectId}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-ZENITH-BLADE",
+                    "OGN·262/298",
+                    [invalidTargetObjectId]),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHighwayRobberyAgainstFriendlyOrOffFieldUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HIGHWAY-ROBBERY"],
+                    Base = ["P1-FRIENDLY-BASE-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"],
+                    Graveyard = ["P2-GRAVEYARD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FRIENDLY-BASE-UNIT-001"] = new("P1-FRIENDLY-BASE-UNIT-001"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
+                ["P2-GRAVEYARD-UNIT-001"] = new("P2-GRAVEYARD-UNIT-001")
+            }
+        };
+
+        foreach (var invalidTargetObjectId in new[] { "P1-FRIENDLY-BASE-UNIT-001", "P2-GRAVEYARD-UNIT-001" })
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-highway-robbery-invalid-{invalidTargetObjectId}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-HIGHWAY-ROBBERY",
+                    "OGN·033/298",
+                    [invalidTargetObjectId]),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsLastBreathAgainstWrongTargetOrderOrEnemyBaseUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-LAST-BREATH"],
+                    Base = ["P1-FRIENDLY-LAST-BREATH-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-LAST-BREATH-001"],
+                    Battlefields = ["P2-BATTLEFIELD-LAST-BREATH-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FRIENDLY-LAST-BREATH-001"] = new("P1-FRIENDLY-LAST-BREATH-001", power: 4, isExhausted: true),
+                ["P2-BASE-LAST-BREATH-001"] = new("P2-BASE-LAST-BREATH-001", power: 5),
+                ["P2-BATTLEFIELD-LAST-BREATH-001"] = new("P2-BATTLEFIELD-LAST-BREATH-001", power: 5)
+            }
+        };
+
+        foreach (var invalidTargetObjectIds in new[]
+        {
+            new[] { "P2-BATTLEFIELD-LAST-BREATH-001", "P1-FRIENDLY-LAST-BREATH-001" },
+            new[] { "P1-FRIENDLY-LAST-BREATH-001", "P2-BASE-LAST-BREATH-001" }
+        })
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-last-breath-invalid-{string.Join("-", invalidTargetObjectIds)}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-LAST-BREATH",
+                    "OGN·260/298",
+                    invalidTargetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsConvergentMutationAgainstEnemyOrDuplicateTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CONVERGENT-MUTATION"],
+                    Base = ["P1-CONVERGENT-FRIENDLY-001"],
+                    Battlefields = ["P1-CONVERGENT-HIGH-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-CONVERGENT-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CONVERGENT-FRIENDLY-001"] = new("P1-CONVERGENT-FRIENDLY-001", power: 2),
+                ["P1-CONVERGENT-HIGH-001"] = new("P1-CONVERGENT-HIGH-001", power: 5),
+                ["P2-CONVERGENT-ENEMY-001"] = new("P2-CONVERGENT-ENEMY-001", power: 5)
+            }
+        };
+
+        foreach (var invalidTargetObjectIds in new[]
+        {
+            new[] { "P1-CONVERGENT-FRIENDLY-001", "P2-CONVERGENT-ENEMY-001" },
+            new[] { "P1-CONVERGENT-FRIENDLY-001", "P1-CONVERGENT-FRIENDLY-001" }
+        })
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-convergent-mutation-invalid-{string.Join("-", invalidTargetObjectIds)}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-CONVERGENT-MUTATION",
+                    "OGN·108/298",
+                    invalidTargetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsExistentialDreadWhenTargetIsFriendlyAttackingUnit()
     {
         var state = PunishmentState(mana: 1) with
@@ -3279,6 +4409,248 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSpiritFireWhenTotalTargetPowerIsTooHigh()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SPIRIT-FIRE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPIRIT-FIRE-UNIT-001"] = new("P2-SPIRIT-FIRE-UNIT-001", power: 2),
+                ["P2-SPIRIT-FIRE-UNIT-002"] = new("P2-SPIRIT-FIRE-UNIT-002", power: 3)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-spirit-fire-total-power-too-high", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-SPIRIT-FIRE", "OGN·256/298", ["P2-SPIRIT-FIRE-UNIT-001", "P2-SPIRIT-FIRE-UNIT-002"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHousecleaningAgainstWrongTargetOrder()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HOUSECLEANING"],
+                    Base = ["P1-HOUSECLEANING-FRIENDLY-001"],
+                    Battlefields = ["P1-HOUSECLEANING-FRIENDLY-002"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-HOUSECLEANING-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HOUSECLEANING-FRIENDLY-001"] = new("P1-HOUSECLEANING-FRIENDLY-001", power: 2),
+                ["P1-HOUSECLEANING-FRIENDLY-002"] = new("P1-HOUSECLEANING-FRIENDLY-002", power: 3),
+                ["P2-HOUSECLEANING-ENEMY-001"] = new("P2-HOUSECLEANING-ENEMY-001", power: 4)
+            }
+        };
+
+        foreach (var invalidTargetObjectIds in new[]
+        {
+            new[] { "P2-HOUSECLEANING-ENEMY-001", "P1-HOUSECLEANING-FRIENDLY-001" },
+            new[] { "P1-HOUSECLEANING-FRIENDLY-001", "P1-HOUSECLEANING-FRIENDLY-002" }
+        })
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-housecleaning-invalid-{string.Join("-", invalidTargetObjectIds)}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-HOUSECLEANING",
+                    "OGN·209/298",
+                    invalidTargetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsKingsEdictAgainstFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-KINGS-EDICT"],
+                    Base = ["P1-FRIENDLY-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-ENEMY-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FRIENDLY-UNIT-001"] = new("P1-FRIENDLY-UNIT-001"),
+                ["P2-ENEMY-UNIT-001"] = new("P2-ENEMY-UNIT-001")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-kings-edict-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-KINGS-EDICT", "OGN·237/298", ["P1-FRIENDLY-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHurricaneSweepDuplicateChosenUnit()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HURRICANE-SWEEP"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-HURRICANE-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-HURRICANE-ENEMY-001"] = new("P2-HURRICANE-ENEMY-001", power: 4)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hurricane-sweep-duplicate-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-HURRICANE-SWEEP",
+                "OGN·187/298",
+                ["P2-HURRICANE-ENEMY-001", "P2-HURRICANE-ENEMY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCustodianJudgmentWithoutOwnerDeckChoiceMode()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CUSTODIAN-JUDGMENT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-CUSTODIAN-TARGET-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-CUSTODIAN-TARGET-001"] = new("P2-CUSTODIAN-TARGET-001", power: 3)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-custodian-judgment-missing-mode", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-CUSTODIAN-JUDGMENT", "UNL-204/219", ["P2-CUSTODIAN-TARGET-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCustodianJudgmentAgainstFriendlyOrBaseUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CUSTODIAN-JUDGMENT"],
+                    Battlefields = ["P1-CUSTODIAN-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-CUSTODIAN-BASE-001"],
+                    Battlefields = ["P2-CUSTODIAN-TARGET-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CUSTODIAN-FRIENDLY-001"] = new("P1-CUSTODIAN-FRIENDLY-001"),
+                ["P2-CUSTODIAN-BASE-001"] = new("P2-CUSTODIAN-BASE-001"),
+                ["P2-CUSTODIAN-TARGET-001"] = new("P2-CUSTODIAN-TARGET-001")
+            }
+        };
+
+        foreach (var invalidTargetObjectId in new[] { "P1-CUSTODIAN-FRIENDLY-001", "P2-CUSTODIAN-BASE-001" })
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-custodian-judgment-invalid-{invalidTargetObjectId}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-CUSTODIAN-JUDGMENT",
+                    "UNL-204/219",
+                    [invalidTargetObjectId],
+                    "OWNER_MAIN_DECK_TOP"),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
     }
 
     [Fact]
@@ -3552,6 +4924,276 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsShieldWallAgainstEnemyBaseOrRepeatedTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SHIELD-WALL"],
+                    Base = ["P1-BASE-UNIT-001"],
+                    Battlefields = ["P1-BATTLEFIELD-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-UNIT-001"] = new("P1-BASE-UNIT-001"),
+                ["P1-BATTLEFIELD-UNIT-001"] = new("P1-BATTLEFIELD-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-BATTLEFIELD-UNIT-001"],
+            ["P1-BASE-UNIT-001"],
+            ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-shield-wall-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-SHIELD-WALL",
+                    "SFD·043/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSkullcrackAgainstWrongOrderOrBaseUnits()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SKULLCRACK"],
+                    Base = ["P1-BASE-UNIT-001"],
+                    Battlefields = ["P1-BATTLEFIELD-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"],
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-UNIT-001"] = new("P1-BASE-UNIT-001"),
+                ["P1-BATTLEFIELD-UNIT-001"] = new("P1-BATTLEFIELD-UNIT-001"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-001"],
+            ["P1-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
+            ["P1-BATTLEFIELD-UNIT-001", "P2-BASE-UNIT-001"],
+            ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-skullcrack-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-SKULLCRACK",
+                    "OGN·220/298",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHeroicChargeAgainstWrongOrderOrBaseUnits()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HEROIC-CHARGE"],
+                    Base = ["P1-BASE-UNIT-001"],
+                    Battlefields = ["P1-BATTLEFIELD-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"],
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-UNIT-001"] = new("P1-BASE-UNIT-001"),
+                ["P1-BATTLEFIELD-UNIT-001"] = new("P1-BATTLEFIELD-UNIT-001"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-001"],
+            ["P1-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
+            ["P1-BATTLEFIELD-UNIT-001", "P2-BASE-UNIT-001"],
+            ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-heroic-charge-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-HEROIC-CHARGE",
+                    "UNL-155/219",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsStandDefiantAgainstNonFriendlyBattlefieldTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-STAND-DEFIANT"],
+                    Base = ["P1-BASE-STAND-001"],
+                    Battlefields = ["P1-BATTLEFIELD-STAND-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-STAND-001"],
+                    Battlefields = ["P2-BATTLEFIELD-STAND-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-STAND-001"] = new("P1-BASE-STAND-001"),
+                ["P1-BATTLEFIELD-STAND-001"] = new("P1-BATTLEFIELD-STAND-001"),
+                ["P2-BASE-STAND-001"] = new("P2-BASE-STAND-001"),
+                ["P2-BATTLEFIELD-STAND-001"] = new("P2-BATTLEFIELD-STAND-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-BASE-STAND-001"],
+            ["P2-BATTLEFIELD-STAND-001"],
+            ["P2-BASE-STAND-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-stand-defiant-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-STAND-DEFIANT",
+                    "SFD·001/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsIsolateAgainstNonEnemyBattlefieldTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ISOLATE"],
+                    Base = ["P1-BASE-UNIT-001"],
+                    Battlefields = ["P1-BATTLEFIELD-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"],
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-UNIT-001"] = new("P1-BASE-UNIT-001"),
+                ["P1-BATTLEFIELD-UNIT-001"] = new("P1-BATTLEFIELD-UNIT-001"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-BATTLEFIELD-UNIT-001"],
+            ["P1-BASE-UNIT-001"],
+            ["P2-BASE-UNIT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-isolate-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-ISOLATE",
+                    "UNL-124/219",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
     public async Task CoreRuleEngineAllowsUpToTwoTargetSpellWithOneTarget()
     {
         var state = PunishmentState(mana: 6) with
@@ -3655,6 +5297,191 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBellowsBreathRepeatedOrFourthTarget()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BELLOWS-BREATH"],
+                    Battlefields = ["P1-UNIT-001", "P1-UNIT-002"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001", "P2-UNIT-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-001"] = new("P1-UNIT-001"),
+                ["P1-UNIT-002"] = new("P1-UNIT-002"),
+                ["P2-UNIT-001"] = new("P2-UNIT-001"),
+                ["P2-UNIT-002"] = new("P2-UNIT-002")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-UNIT-001", "P1-UNIT-001"],
+            ["P1-UNIT-001", "P1-UNIT-002", "P2-UNIT-001", "P2-UNIT-002"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-bellows-breath-invalid-targets", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-BELLOWS-BREATH",
+                    "SFD·080/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsFirestormUnitTarget()
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-FIRESTORM"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-001"] = new("P2-UNIT-001")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-firestorm-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-FIRESTORM", "OGS·002/024", ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCrescentStrikeAgainstFriendlyOrBaseUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CRESCENT-STRIKE"],
+                    Battlefields = ["P1-FRIENDLY-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-UNIT-001"],
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FRIENDLY-UNIT-001"] = new("P1-FRIENDLY-UNIT-001"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-FRIENDLY-UNIT-001"],
+            ["P2-BASE-UNIT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-crescent-strike-invalid-targets", "P1", "PLAY_CARD"),
+                new PlayCardCommand("P1-SPELL-CRESCENT-STRIKE", "UNL-072/219", targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSwitcherooAgainstDuplicateOrBaseTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SWITCHEROO"],
+                    Base = ["P1-BASE-UNIT-001"],
+                    Battlefields = ["P1-BATTLEFIELD-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-UNIT-001"] = new("P1-BASE-UNIT-001"),
+                ["P1-BATTLEFIELD-UNIT-001"] = new("P1-BATTLEFIELD-UNIT-001"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLEFIELD-UNIT-001"],
+            ["P1-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-switcheroo-invalid-targets", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-SWITCHEROO",
+                    "SFD·145/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+        }
     }
 
     [Fact]

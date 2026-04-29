@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-eclipse-power-minus-4",
-  "description": "Eclipse gives one unit -4 power until end of turn and chooses not to recycle the insight card.",
+  "fixtureId": "p2-preflight-play-zenith-blade-stun-enemy-battlefield-unit",
+  "description": "Zenith Blade stuns an enemy battlefield unit when its optional friendly move is not chosen.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302072,
+  "seed": 2603302076,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-063/219 月蚀",
-      "note": "官方卡面：费用 3；反应；让一名单位在本回合内战力 -4，然后进行洞察。本 fixture 覆盖战力修正后不选择回收顶部牌的路径。"
+      "locator": "OGN·262/298 天顶之刃",
+      "note": "官方卡面：费用 3；迅捷；眩晕任意战场上的一名敌方单位。可选移动一名友方单位到该敌方单位所在战场。本 fixture 覆盖不选择移动的基础眩晕路径；可选移动待更细战场位置和移动选择模型后补。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
-      "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
+      "locator": "p39-p42 rules 355-356; p33-p35 rules 327-340; p31-p33 rules 318-324",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；期限为本回合内的眩晕效果由回合结束特殊清理移除。"
     }
   ],
-  "roomId": "p2-preflight-eclipse-room",
+  "roomId": "p2-preflight-zenith-blade-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302072,
-    "turnNumber": 98,
+    "seed": 2603302076,
+    "turnNumber": 101,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -39,10 +39,10 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+        "mainDeck": ["P1-MAIN-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-ECLIPSE"],
-        "base": [],
+        "hand": ["P1-SPELL-ZENITH-BLADE"],
+        "base": ["P1-UNIT-ZENITH-ALLY-001"],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
@@ -53,8 +53,8 @@
         "mainDeck": ["P2-MAIN-001"],
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
-        "base": [],
-        "battlefields": ["P2-UNIT-ECLIPSE-001"],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-UNIT-ZENITH-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
@@ -62,9 +62,21 @@
       }
     },
     "cardObjects": {
-      "P2-UNIT-ECLIPSE-001": {
+      "P1-UNIT-ZENITH-ALLY-001": {
         "damage": 0,
-        "power": 5,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-UNIT-ZENITH-001": {
+        "damage": 0,
+        "power": 3,
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
       }
@@ -73,24 +85,24 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-play",
+      "clientIntentId": "intent-p2-preflight-zenith-blade-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-ECLIPSE",
-        "cardNo": "UNL-063/219",
-        "targetObjectIds": ["P2-UNIT-ECLIPSE-001"]
+        "sourceObjectId": "P1-SPELL-ZENITH-BLADE",
+        "cardNo": "OGN·262/298",
+        "targetObjectIds": ["P2-UNIT-ZENITH-001"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-p1-pass",
+      "clientIntentId": "intent-p2-preflight-zenith-blade-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-eclipse-p2-pass",
+      "clientIntentId": "intent-p2-preflight-zenith-blade-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -105,7 +117,7 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "STATUS_EFFECT_APPLIED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -121,23 +133,21 @@
         "kind": "STACK_ITEM_ADDED",
         "payload": {
           "controllerId": "P1",
-          "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "cardNo": "UNL-063/219",
-          "targetObjectIds": ["P2-UNIT-ECLIPSE-001"],
-          "effectKind": "ECLIPSE_POWER_MINUS_4_OPTIONAL_INSIGHT"
+          "sourceObjectId": "P1-SPELL-ZENITH-BLADE",
+          "cardNo": "OGN·262/298",
+          "targetObjectIds": ["P2-UNIT-ZENITH-001"],
+          "effectKind": "ZENITH_BLADE_STUN_ENEMY_BATTLEFIELD_UNIT_NO_MOVE"
         }
       },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "kind": "STATUS_EFFECT_APPLIED",
         "payload": {
-          "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "targetObjectId": "P2-UNIT-ECLIPSE-001",
-          "powerDelta": -4,
-          "appliedPowerDelta": -4,
-          "resultingPower": 1
+          "sourceObjectId": "P1-SPELL-ZENITH-BLADE",
+          "targetObjectId": "P2-UNIT-ZENITH-001",
+          "effectId": "STUNNED"
         }
       }
     ],
@@ -146,7 +156,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 98,
+      "turnNumber": 101,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -161,23 +171,36 @@
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
           "hand": [],
-          "graveyard": ["P1-SPELL-ECLIPSE"]
+          "base": ["P1-UNIT-ZENITH-ALLY-001"],
+          "graveyard": ["P1-SPELL-ZENITH-BLADE"]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-ECLIPSE-001"]
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": ["P2-UNIT-ZENITH-001"]
         }
       },
+      "stackItems": [],
       "cardObjects": {
-        "P2-UNIT-ECLIPSE-001": {
+        "P1-UNIT-ZENITH-ALLY-001": {
           "damage": 0,
-          "power": 1,
+          "power": 2,
           "untilEndOfTurnEffects": [],
-          "untilEndOfTurnPowerModifier": -4
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-UNIT-ZENITH-001": {
+          "damage": 0,
+          "power": 3,
+          "untilEndOfTurnEffects": ["STUNNED"],
+          "untilEndOfTurnPowerModifier": 0
         }
-      },
-      "stackItems": []
+      }
     },
     "prompts": {
       "P1": { "actionable": true, "actions": ["END_TURN"] },

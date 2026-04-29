@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-eclipse-power-minus-4",
-  "description": "Eclipse gives one unit -4 power until end of turn and chooses not to recycle the insight card.",
+  "fixtureId": "p2-preflight-play-dragon-tiger-no-unit-selection-recycle-all",
+  "description": "Dragon-Tiger may choose no unit card from the top three cards and recycles all viewed cards without paying echo.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302072,
+  "seed": 2603302055,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-063/219 月蚀",
-      "note": "官方卡面：费用 3；反应；让一名单位在本回合内战力 -4，然后进行洞察。本 fixture 覆盖战力修正后不选择回收顶部牌的路径。"
+      "locator": "UNL-032/219 龙虎双雄",
+      "note": "官方卡面：费用 2；回响 2；查看主牌堆顶部三张牌，可以展示其中一名单位并抽取该卡牌，回收其余的卡牌。本 fixture 锁定不支付回响且不选择单位牌的合法分支。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
-      "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
+      "locator": "p39-p42 rules 355-356; p58-p59 rule 416",
+      "note": "打出法术时支付费用并确认结算链；回收使所选卡牌回到拥有者对应牌堆底部。"
     }
   ],
-  "roomId": "p2-preflight-eclipse-room",
+  "roomId": "p2-preflight-dragon-tiger-no-selection-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302072,
-    "turnNumber": 98,
+    "seed": 2603302055,
+    "turnNumber": 50,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,14 +34,14 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
+      "P1": { "mana": 2, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+        "mainDeck": ["P1-DRAGON-TIGER-RECYCLE-A", "P1-DRAGON-TIGER-RECYCLE-B", "P1-DRAGON-TIGER-RECYCLE-C", "P1-MAIN-KEEPER"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-ECLIPSE"],
+        "hand": ["P1-SPELL-DRAGON-TIGER-NO-SELECT"],
         "base": [],
         "battlefields": [],
         "graveyard": [],
@@ -54,43 +54,35 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-UNIT-ECLIPSE-001"],
+        "battlefields": [],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
-      }
-    },
-    "cardObjects": {
-      "P2-UNIT-ECLIPSE-001": {
-        "damage": 0,
-        "power": 5,
-        "untilEndOfTurnEffects": [],
-        "untilEndOfTurnPowerModifier": 0
       }
     }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-play",
+      "clientIntentId": "intent-p2-preflight-dragon-tiger-no-selection-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-ECLIPSE",
-        "cardNo": "UNL-063/219",
-        "targetObjectIds": ["P2-UNIT-ECLIPSE-001"]
+        "sourceObjectId": "P1-SPELL-DRAGON-TIGER-NO-SELECT",
+        "cardNo": "UNL-032/219",
+        "targetObjectIds": []
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-p1-pass",
+      "clientIntentId": "intent-p2-preflight-dragon-tiger-no-selection-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-eclipse-p2-pass",
+      "clientIntentId": "intent-p2-preflight-dragon-tiger-no-selection-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -105,39 +97,23 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "CARDS_RECYCLED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      {
-        "kind": "COST_PAID",
-        "payload": {
-          "playerId": "P1",
-          "mana": 3,
-          "baseMana": 3
-        }
-      },
-      {
-        "kind": "STACK_ITEM_ADDED",
-        "payload": {
-          "controllerId": "P1",
-          "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "cardNo": "UNL-063/219",
-          "targetObjectIds": ["P2-UNIT-ECLIPSE-001"],
-          "effectKind": "ECLIPSE_POWER_MINUS_4_OPTIONAL_INSIGHT"
-        }
-      },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "kind": "CARDS_RECYCLED",
+        "tick": 3,
+        "sequence": 7,
         "payload": {
-          "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "targetObjectId": "P2-UNIT-ECLIPSE-001",
-          "powerDelta": -4,
-          "appliedPowerDelta": -4,
-          "resultingPower": 1
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-DRAGON-TIGER-NO-SELECT",
+          "count": 3
         }
       }
     ],
@@ -146,7 +122,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 98,
+      "turnNumber": 50,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -161,20 +137,12 @@
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+          "mainDeck": ["P1-MAIN-KEEPER", "P1-DRAGON-TIGER-RECYCLE-B", "P1-DRAGON-TIGER-RECYCLE-C", "P1-DRAGON-TIGER-RECYCLE-A"],
           "hand": [],
-          "graveyard": ["P1-SPELL-ECLIPSE"]
+          "graveyard": ["P1-SPELL-DRAGON-TIGER-NO-SELECT"]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-ECLIPSE-001"]
-        }
-      },
-      "cardObjects": {
-        "P2-UNIT-ECLIPSE-001": {
-          "damage": 0,
-          "power": 1,
-          "untilEndOfTurnEffects": [],
-          "untilEndOfTurnPowerModifier": -4
+          "mainDeck": ["P2-MAIN-001"]
         }
       },
       "stackItems": []

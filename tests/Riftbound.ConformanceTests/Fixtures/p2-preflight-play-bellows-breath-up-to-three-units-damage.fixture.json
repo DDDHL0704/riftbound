@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-bellows-breath-up-to-three-units-damage",
+  "description": "Bellows Breath damages up to three units at the current battlefield-zone location without paying colored echo.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302113,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·080/221 风箱炎息",
+      "note": "官方卡面：费用 1；迅捷；回响 1 蓝色；对同一位置的最多三名单位各造成 1 点伤害。当前 fixture 锁定不支付有色回响，并在 P2 preflight 单战场区域模型中覆盖三名单位的基础伤害路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；回响为可选额外费用。当前引擎暂未建模有色回响费用和精确同一位置筛选，因此仅验证不支付回响且目标在当前单战场区域的路径。"
+    }
+  ],
+  "roomId": "p2-preflight-bellows-breath-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302113,
+    "turnNumber": 113,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-BELLOWS-BREATH"],
+        "base": ["P1-BASE-UNIT-001"],
+        "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P1-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-002": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-bellows-breath-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-BELLOWS-BREATH",
+        "cardNo": "SFD·080/221",
+        "targetObjectIds": [
+          "P1-BATTLEFIELD-UNIT-001",
+          "P2-BATTLEFIELD-UNIT-001",
+          "P2-BATTLEFIELD-UNIT-002"
+        ]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-bellows-breath-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-bellows-breath-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "baseMana": 1
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-BELLOWS-BREATH",
+          "cardNo": "SFD·080/221",
+          "targetObjectIds": [
+            "P1-BATTLEFIELD-UNIT-001",
+            "P2-BATTLEFIELD-UNIT-001",
+            "P2-BATTLEFIELD-UNIT-002"
+          ],
+          "effectKind": "BELLOWS_BREATH_DAMAGE_1_UP_TO_3_SAME_LOCATION_NO_ECHO"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BELLOWS-BREATH",
+          "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
+          "damage": 1
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BELLOWS-BREATH",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "damage": 1
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BELLOWS-BREATH",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-002",
+          "damage": 1
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 113,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-BELLOWS-BREATH"],
+          "base": ["P1-BASE-UNIT-001"],
+          "battlefields": ["P1-BATTLEFIELD-UNIT-001"]
+        },
+        "P2": {
+          "battlefields": ["P2-BATTLEFIELD-UNIT-001", "P2-BATTLEFIELD-UNIT-002"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-BATTLEFIELD-UNIT-001": {
+          "damage": 1,
+          "power": 3,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BATTLEFIELD-UNIT-001": {
+          "damage": 1,
+          "power": 3,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BATTLEFIELD-UNIT-002": {
+          "damage": 1,
+          "power": 3,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

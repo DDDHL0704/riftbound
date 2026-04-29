@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-heroic-charge-power-plus-stun",
+  "description": "Heroic Charge gives a friendly battlefield unit +1 power and stuns an enemy battlefield unit.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302113,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-155/219 英勇冲锋",
+      "note": "官方卡面：费用 3；迅捷；让一名友方单位本回合内战力 +1，并眩晕其所在位置的一名敌方单位。当前 P2 preflight 单战场区域模型锁定一名友方战场单位再一名敌方战场单位的基础路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "法术需要合法目标并作为结算链项目结算；期限为本回合内的战力修正和眩晕效果由回合结束特殊清理移除。"
+    }
+  ],
+  "roomId": "p2-preflight-heroic-charge-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302113,
+    "turnNumber": 113,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-HEROIC-CHARGE"],
+        "base": ["P1-BASE-UNIT-001"],
+        "battlefields": ["P1-HEROIC-FRIENDLY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-HEROIC-ENEMY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P1-HEROIC-FRIENDLY-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-HEROIC-ENEMY-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-heroic-charge-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-HEROIC-CHARGE",
+        "cardNo": "UNL-155/219",
+        "targetObjectIds": ["P1-HEROIC-FRIENDLY-001", "P2-HEROIC-ENEMY-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-heroic-charge-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-heroic-charge-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "STATUS_EFFECT_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-HEROIC-CHARGE",
+          "cardNo": "UNL-155/219",
+          "targetObjectIds": ["P1-HEROIC-FRIENDLY-001", "P2-HEROIC-ENEMY-001"],
+          "effectKind": "HEROIC_CHARGE_FRIENDLY_POWER_PLUS_1_STUN_ENEMY"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-HEROIC-CHARGE",
+          "targetObjectId": "P1-HEROIC-FRIENDLY-001",
+          "powerDelta": 1,
+          "appliedPowerDelta": 1,
+          "resultingPower": 4
+        }
+      },
+      {
+        "kind": "STATUS_EFFECT_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-HEROIC-CHARGE",
+          "targetObjectId": "P2-HEROIC-ENEMY-001",
+          "effectId": "STUNNED"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 113,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-BASE-UNIT-001"],
+          "battlefields": ["P1-HEROIC-FRIENDLY-001"],
+          "graveyard": ["P1-SPELL-HEROIC-CHARGE"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": ["P2-HEROIC-ENEMY-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P1-HEROIC-FRIENDLY-001": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 1
+        },
+        "P2-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-HEROIC-ENEMY-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnEffects": ["STUNNED"],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-eclipse-power-minus-4",
-  "description": "Eclipse gives one unit -4 power until end of turn and chooses not to recycle the insight card.",
+  "fixtureId": "p2-preflight-play-charm-move-enemy-battlefield-unit-to-base",
+  "description": "Charm moves an enemy battlefield unit to its owner's base in the current destination-limited preflight model.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302072,
+  "seed": 2603302113,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-063/219 月蚀",
-      "note": "官方卡面：费用 3；反应；让一名单位在本回合内战力 -4，然后进行洞察。本 fixture 覆盖战力修正后不选择回收顶部牌的路径。"
+      "locator": "OGN·043/298 魅惑妖术",
+      "note": "官方卡面：费用 1；移动一名敌方单位。当前 fixture 覆盖敌方战场单位移动到所属者基地的代表路径；完整目的地选择暂缓到多位置移动模型。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
-      "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "基地和战场均为公开区域；对象可位于战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。"
     }
   ],
-  "roomId": "p2-preflight-eclipse-room",
+  "roomId": "p2-preflight-charm-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302072,
-    "turnNumber": 98,
+    "seed": 2603302113,
+    "turnNumber": 113,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,15 +34,15 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
+      "P1": { "mana": 1, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
+        "mainDeck": ["P1-MAIN-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-ECLIPSE"],
-        "base": [],
+        "hand": ["P1-SPELL-CHARM"],
+        "base": ["P1-BASE-UNIT-001"],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
@@ -53,8 +53,8 @@
         "mainDeck": ["P2-MAIN-001"],
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
-        "base": [],
-        "battlefields": ["P2-UNIT-ECLIPSE-001"],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
@@ -62,8 +62,20 @@
       }
     },
     "cardObjects": {
-      "P2-UNIT-ECLIPSE-001": {
+      "P1-BASE-UNIT-001": {
         "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "damage": 1,
         "power": 5,
         "untilEndOfTurnEffects": [],
         "untilEndOfTurnPowerModifier": 0
@@ -73,24 +85,24 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-play",
+      "clientIntentId": "intent-p2-preflight-charm-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-ECLIPSE",
-        "cardNo": "UNL-063/219",
-        "targetObjectIds": ["P2-UNIT-ECLIPSE-001"]
+        "sourceObjectId": "P1-SPELL-CHARM",
+        "cardNo": "OGN·043/298",
+        "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-eclipse-p1-pass",
+      "clientIntentId": "intent-p2-preflight-charm-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-eclipse-p2-pass",
+      "clientIntentId": "intent-p2-preflight-charm-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -105,7 +117,7 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+      "UNIT_MOVED_TO_BASE"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -113,31 +125,29 @@
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
-          "mana": 3,
-          "baseMana": 3
+          "mana": 1,
+          "baseMana": 1
         }
       },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
           "controllerId": "P1",
-          "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "cardNo": "UNL-063/219",
-          "targetObjectIds": ["P2-UNIT-ECLIPSE-001"],
-          "effectKind": "ECLIPSE_POWER_MINUS_4_OPTIONAL_INSIGHT"
+          "sourceObjectId": "P1-SPELL-CHARM",
+          "cardNo": "OGN·043/298",
+          "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
+          "effectKind": "CHARM_MOVE_ENEMY_BATTLEFIELD_UNIT_TO_BASE"
         }
       },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "kind": "UNIT_MOVED_TO_BASE",
         "payload": {
-          "sourceObjectId": "P1-SPELL-ECLIPSE",
-          "targetObjectId": "P2-UNIT-ECLIPSE-001",
-          "powerDelta": -4,
-          "appliedPowerDelta": -4,
-          "resultingPower": 1
+          "sourceObjectId": "P1-SPELL-CHARM",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "ownerPlayerId": "P2"
         }
       }
     ],
@@ -146,7 +156,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 98,
+      "turnNumber": 113,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -161,20 +171,20 @@
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
           "hand": [],
-          "graveyard": ["P1-SPELL-ECLIPSE"]
+          "graveyard": ["P1-SPELL-CHARM"]
         },
         "P2": {
-          "battlefields": ["P2-UNIT-ECLIPSE-001"]
+          "base": ["P2-BASE-UNIT-001", "P2-BATTLEFIELD-UNIT-001"],
+          "battlefields": []
         }
       },
       "cardObjects": {
-        "P2-UNIT-ECLIPSE-001": {
-          "damage": 0,
-          "power": 1,
+        "P2-BATTLEFIELD-UNIT-001": {
+          "damage": 1,
+          "power": 5,
           "untilEndOfTurnEffects": [],
-          "untilEndOfTurnPowerModifier": -4
+          "untilEndOfTurnPowerModifier": 0
         }
       },
       "stackItems": []
