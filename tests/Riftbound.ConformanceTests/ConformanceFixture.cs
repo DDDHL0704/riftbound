@@ -101,6 +101,8 @@ public sealed record ConformanceCardObjectState
     public bool? IsAttacking { get; init; }
 
     public int? Power { get; init; }
+
+    public int? UntilEndOfTurnPowerModifier { get; init; }
 }
 
 public sealed record ConformanceStackItemState(
@@ -358,7 +360,8 @@ public static class ConformanceFixtureRunner
                     entry.Value.UntilEndOfTurnEffects,
                     entry.Value.IsFaceDown ?? false,
                     entry.Value.IsAttacking ?? false,
-                    entry.Value.Power ?? 0),
+                    entry.Value.Power ?? 0,
+                    entry.Value.UntilEndOfTurnPowerModifier ?? 0),
                 StringComparer.Ordinal);
     }
 
@@ -627,6 +630,11 @@ public static class ConformanceFixtureRunner
 
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.damage", expectedObject.Damage, actualObject.Damage);
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.power", expectedObject.Power, actualObject.Power);
+            AddMismatch(
+                mismatches,
+                $"finalState.cardObjects.{objectId}.untilEndOfTurnPowerModifier",
+                expectedObject.UntilEndOfTurnPowerModifier,
+                actualObject.UntilEndOfTurnPowerModifier);
             CompareSequence(
                 mismatches,
                 $"finalState.cardObjects.{objectId}.untilEndOfTurnEffects",

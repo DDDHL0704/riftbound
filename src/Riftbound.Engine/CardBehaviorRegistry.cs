@@ -25,7 +25,8 @@ public sealed record CardBehaviorDefinition(
     int MaxTargetPower = 0,
     string DrawRecipientKind = CardDrawRecipientKinds.Controller,
     bool DestroysAllUnits = false,
-    bool ReturnsTargetToHand = false);
+    bool ReturnsTargetToHand = false,
+    int PowerModifierAmount = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -313,6 +314,16 @@ public static class CardBehaviorRegistry
             0,
             0,
             DrawCount: 2),
+        new(
+            "OGN·058/298",
+            "训练有素",
+            2,
+            "WELL_TRAINED_POWER_PLUS_2_DRAW_1",
+            0,
+            1,
+            DrawCount: 1,
+            TargetScope: CardTargetScopes.AnyUnit,
+            PowerModifierAmount: 2),
         new(
             "OGN·144/298",
             "以战养战",

@@ -829,6 +829,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                         }));
                     }
 
+                    if (behavior.PowerModifierAmount != 0)
+                    {
+                        targetState = targetState with
+                        {
+                            Power = Math.Max(0, targetState.Power + behavior.PowerModifierAmount),
+                            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
+                                + behavior.PowerModifierAmount
+                        };
+                        events.Add(new GameEvent(
+                            "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                            $"{behavior.DisplayName}临时修正战力",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["powerDelta"] = behavior.PowerModifierAmount,
+                                ["resultingPower"] = targetState.Power
+                            }));
+                    }
+
                     if (behavior.DestroysTarget
                         && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
                     {
@@ -1390,6 +1410,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var damagedObjectIds = new List<string>();
         var expiredEffectIds = new List<string>();
+        var expiredPowerModifierObjectIds = new List<string>();
         var cardObjects = state.CardObjects.ToDictionary(
             entry => entry.Key,
             entry =>
@@ -1398,7 +1419,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 var untilEndEffects = objectState.UntilEndOfTurnEffects
                     .Where(effectId => !string.IsNullOrWhiteSpace(effectId))
                     .ToArray();
-                if (objectState.Damage <= 0 && untilEndEffects.Length == 0)
+                if (objectState.Damage <= 0
+                    && untilEndEffects.Length == 0
+                    && objectState.UntilEndOfTurnPowerModifier == 0)
                 {
                     return objectState;
                 }
@@ -1408,11 +1431,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                     damagedObjectIds.Add(entry.Key);
                 }
                 expiredEffectIds.AddRange(untilEndEffects);
+                if (objectState.UntilEndOfTurnPowerModifier != 0)
+                {
+                    expiredPowerModifierObjectIds.Add(entry.Key);
+                }
 
                 return objectState with
                 {
                     Damage = 0,
-                    UntilEndOfTurnEffects = []
+                    UntilEndOfTurnEffects = [],
+                    Power = Math.Max(0, objectState.Power - objectState.UntilEndOfTurnPowerModifier),
+                    UntilEndOfTurnPowerModifier = 0
                 };
             },
             StringComparer.Ordinal);
@@ -1421,7 +1450,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             damagedObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
             expiredEffectIds.Distinct(StringComparer.Ordinal).OrderBy(effectId => effectId, StringComparer.Ordinal).ToArray(),
-            damagedObjectIds.Count > 0 || expiredEffectIds.Count > 0);
+            expiredPowerModifierObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
+            damagedObjectIds.Count > 0 || expiredEffectIds.Count > 0 || expiredPowerModifierObjectIds.Count > 0);
     }
 
     private static int RuneCallCount(MatchState state)
@@ -1612,6 +1642,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
         }
 
+        if (cleanupResult.ExpiredPowerModifierObjectIds.Count > 0)
+        {
+            events.Add(new GameEvent(
+                "POWER_MODIFIER_EXPIRED",
+                "期限为本回合内的战力修正失效",
+                new Dictionary<string, object?>
+                {
+                    ["objectIds"] = cleanupResult.ExpiredPowerModifierObjectIds.ToArray(),
+                    ["count"] = cleanupResult.ExpiredPowerModifierObjectIds.Count
+                }));
+        }
+
         events.Add(new GameEvent(
             "RUNE_POOL_CLEARED",
             "回合结束时所有玩家的符文池已清空",
@@ -1767,5 +1809,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyList<string> DamagedObjectIds,
         IReadOnlyList<string> ExpiredEffectIds,
+        IReadOnlyList<string> ExpiredPowerModifierObjectIds,
         bool RequiresFollowUpCleanup);
 }
