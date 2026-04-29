@@ -1329,6 +1329,16 @@ public static class CardBehaviorRegistry
             CreatedBaseUnitTokenPower: 3,
             CreatedBaseUnitTokenName: "精灵"),
         new(
+            "UNL-069/219",
+            "精灵迸发",
+            5,
+            "SPRITE_BURST_CREATE_TWO_SPRITES_BASE",
+            0,
+            0,
+            CreatedBaseUnitTokenCount: 2,
+            CreatedBaseUnitTokenPower: 3,
+            CreatedBaseUnitTokenName: "精灵"),
+        new(
             "OGS·020/024",
             "高原血统",
             4,

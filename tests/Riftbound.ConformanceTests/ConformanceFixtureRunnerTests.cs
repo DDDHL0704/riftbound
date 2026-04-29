@@ -3123,6 +3123,32 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysSpriteBurstCreatesTwoSpritesInBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sprite-burst-create-two-sprites-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [
+                "P1-SPELL-SPRITE-BURST-TOKEN-001",
+                "P1-SPELL-SPRITE-BURST-TOKEN-002"
+            ],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            2,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
+        Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
+            Assert.Equal(3, result.FinalState.CardObjects[objectId].Power));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSkullcrackStunsFriendlyAndEnemyBattlefieldUnits()
     {
         var fixture = await ConformanceFixture.LoadAsync(
