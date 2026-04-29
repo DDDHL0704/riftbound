@@ -1354,6 +1354,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }));
             }
         }
+        else if (behavior.AppliesStatusEffectToAllUnits)
+        {
+            ApplyStatusEffectsToFieldUnits(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
         else if (behavior.ExhaustsAllFriendlyUnits)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
@@ -2088,6 +2097,50 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
             rngCursor);
+    }
+
+    private static void ApplyStatusEffectsToFieldUnits(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IDictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        ICollection<GameEvent> events)
+    {
+        var statusEffectIds = ResolveStatusEffectIds(behavior);
+        if (statusEffectIds.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
+        {
+            var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                ? existingTarget
+                : new CardObjectState(targetObjectId);
+
+            foreach (var statusEffectId in statusEffectIds)
+            {
+                targetState = targetState with
+                {
+                    UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                        .Concat([statusEffectId])
+                        .Distinct(StringComparer.Ordinal)
+                        .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                        .ToArray()
+                };
+                events.Add(new GameEvent(
+                    "STATUS_EFFECT_APPLIED",
+                    $"{behavior.DisplayName}施加{statusEffectId}",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["effectId"] = statusEffectId
+                    }));
+            }
+
+            cardObjects[targetObjectId] = targetState;
+        }
     }
 
     private static IReadOnlyList<string> DrawRecipientPlayerIds(

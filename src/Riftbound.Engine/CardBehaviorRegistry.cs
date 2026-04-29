@@ -78,7 +78,8 @@ public sealed record CardBehaviorDefinition(
     string TargetForbiddenTag = "",
     bool ModifiesAllFriendlyBattlefieldUnits = false,
     bool ModifiesAllEnemyBattlefieldUnits = false,
-    int MaxTotalTargetPower = 0);
+    int MaxTotalTargetPower = 0,
+    bool AppliesStatusEffectToAllUnits = false);
 
 public static class CardDamageConditionKinds
 {
@@ -532,6 +533,15 @@ public static class CardBehaviorRegistry
             1,
             StatusEffectId: "DESTROY_ON_NEXT_DAMAGE_THIS_TURN",
             TargetScope: CardTargetScopes.AnyUnit),
+        new(
+            "OGN·221/298",
+            "帝国谕令",
+            5,
+            "IMPERIAL_DECREE_ALL_UNITS_DESTROY_ON_DAMAGE_THIS_TURN",
+            0,
+            0,
+            StatusEffectId: "DESTROY_ON_NEXT_DAMAGE_THIS_TURN",
+            AppliesStatusEffectToAllUnits: true),
         new(
             "OGS·012/024",
             "爆能术",

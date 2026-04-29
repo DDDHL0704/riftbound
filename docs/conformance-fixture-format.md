@@ -82,6 +82,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-lotus-trap-doubles-next-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-counterstorm-prevent-next-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-noxian-guillotine-next-damage-destroys.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-imperial-decree-damage-destroys-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-thundering-drop-attacking-damage-stack.fixture.json`
