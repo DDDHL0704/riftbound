@@ -78,6 +78,18 @@ public static class CardBehaviorRegistry
             "STUNNED",
             TargetScope: CardTargetScopes.AnyUnit),
         new(
+            "UNL-042/219",
+            "走开",
+            3,
+            "STAY_AWAY_STUN_DRAW_1",
+            0,
+            1,
+            CardDamageConditionKinds.None,
+            0,
+            "STUNNED",
+            1,
+            TargetScope: CardTargetScopes.AnyUnit),
+        new(
             "OGN·009/298",
             "海克斯射线",
             1,

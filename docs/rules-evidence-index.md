@@ -92,6 +92,7 @@
 | `p2-preflight-starfall-damages-two-units` | `RULE_AUDITED` | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《星落》按两次选择分别对单位造成 3 点伤害，并在同一结算后摧毁多个达到战力伤害的目标。 |
 | `p2-preflight-starfall-can-damage-same-unit-twice` | `RULE_AUDITED` | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《星落》的两次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
 | `p2-preflight-icathian-rain-can-hit-same-unit-six-times` | `RULE_AUDITED` | `CATALOG` OGN·248/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《艾卡西亚暴雨》的六次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
+| `p2-preflight-play-stay-away-stun-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-042/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p92-p105 keyword rules 800+ | 已验证官方法术《走开》从手牌打出时眩晕一名单位，然后抽 1 张牌；待命路径暂缓。 |
 | `p2-preflight-play-abyssal-hunt-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在未控制正面朝下卡牌时支付 1 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
 | `p2-preflight-play-abyssal-hunt-face-down-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在控制者控制正面朝下战场牌时改为造成 4 点伤害。 |
 | `p2-preflight-play-incinerate-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·003/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《焚烧》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
