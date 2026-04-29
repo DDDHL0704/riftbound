@@ -564,6 +564,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
+            CardTargetScopes.AttackingUnit => IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
@@ -582,6 +583,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(objectId)
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsAttackingBattlefieldObject(MatchState state, string objectId)
+    {
+        return IsBattlefieldObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsAttacking;
     }
 
     private static bool IsTargetPowerAllowed(MatchState state, string objectId, CardBehaviorDefinition behavior)
@@ -689,9 +697,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? "unit"
             : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
                 ? "base unit"
-                : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
-                    ? "opponent graveyard card"
-                    : "battlefield unit";
+                : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
+                    ? "attacking unit"
+                    : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
+                        ? "opponent graveyard card"
+                        : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)

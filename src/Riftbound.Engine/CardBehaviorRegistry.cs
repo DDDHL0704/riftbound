@@ -36,6 +36,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string AttackingUnit = "ATTACKING_UNIT";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
 }
 
@@ -109,6 +110,18 @@ public static class CardBehaviorRegistry
             "STUNNED",
             1,
             TargetScope: CardTargetScopes.AnyUnit),
+        new(
+            "SFD·040/221",
+            "扑咚！",
+            2,
+            "KERPLUNK_STUN_ATTACKING_UNIT",
+            0,
+            1,
+            CardDamageConditionKinds.None,
+            0,
+            "STUNNED",
+            TargetScope: CardTargetScopes.AttackingUnit,
+            EchoManaCost: 2),
         new(
             "OGN·009/298",
             "海克斯射线",

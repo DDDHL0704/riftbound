@@ -127,6 +127,7 @@
 | `p2-preflight-play-rune-prison-stun-stack` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《符文禁锢》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后施加 `STUNNED` 本回合内效果并进入废牌堆。 |
 | `p2-preflight-play-rune-prison-base-unit-stun-stack` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《符文禁锢》的“眩晕一名单位”目标范围允许指定基地单位。 |
 | `p2-preflight-rune-prison-stun-expires-end-turn` | `RULE_AUDITED` | `CATALOG` OGN·050/298；`CORE-260330` p30-p33 rules 317-324, p39-p42 rules 355-356；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证官方法术《符文禁锢》施加的 `STUNNED` 会在随后 `END_TURN` 特殊清理中失效，并自动推进到下一回合开始。 |
+| `p2-preflight-play-kerplunk-stun-attacking-unit` | `RULE_AUDITED` | `CATALOG` SFD·040/221；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《扑咚！》不支付回响时支付 2 点费用、目标限制为进攻方单位、加入结算链、双方让过后施加 `STUNNED`；非进攻单位拒绝由直接测试覆盖。 |
 
 ## 6.1 当前三条 Fixture 冲突检查结论
 

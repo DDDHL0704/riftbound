@@ -118,6 +118,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-stun-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-base-unit-stun-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-rune-prison-stun-expires-end-turn.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kerplunk-stun-attacking-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`

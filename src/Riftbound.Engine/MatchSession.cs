@@ -65,12 +65,14 @@ public sealed record CardObjectState
         int damage = 0,
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
         bool isFaceDown = false,
+        bool isAttacking = false,
         int power = 0)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
         UntilEndOfTurnEffects = NormalizeEffects(untilEndOfTurnEffects);
         IsFaceDown = isFaceDown;
+        IsAttacking = isAttacking;
         Power = Math.Max(0, power);
     }
 
@@ -81,6 +83,8 @@ public sealed record CardObjectState
     public IReadOnlyList<string> UntilEndOfTurnEffects { get; init; }
 
     public bool IsFaceDown { get; init; }
+
+    public bool IsAttacking { get; init; }
 
     public int Power { get; init; }
 
@@ -375,6 +379,7 @@ public sealed record MatchState
             state.Damage,
             state.UntilEndOfTurnEffects,
             state.IsFaceDown,
+            state.IsAttacking,
             state.Power);
     }
 

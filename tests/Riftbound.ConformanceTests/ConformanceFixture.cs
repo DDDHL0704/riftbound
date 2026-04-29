@@ -98,6 +98,8 @@ public sealed record ConformanceCardObjectState
 
     public bool? IsFaceDown { get; init; }
 
+    public bool? IsAttacking { get; init; }
+
     public int? Power { get; init; }
 }
 
@@ -355,6 +357,7 @@ public static class ConformanceFixtureRunner
                     entry.Value.Damage ?? 0,
                     entry.Value.UntilEndOfTurnEffects,
                     entry.Value.IsFaceDown ?? false,
+                    entry.Value.IsAttacking ?? false,
                     entry.Value.Power ?? 0),
                 StringComparer.Ordinal);
     }
@@ -630,6 +633,7 @@ public static class ConformanceFixtureRunner
                 expectedObject.UntilEndOfTurnEffects,
                 actualObject.UntilEndOfTurnEffects);
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isFaceDown", expectedObject.IsFaceDown, actualObject.IsFaceDown);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isAttacking", expectedObject.IsAttacking, actualObject.IsAttacking);
         }
     }
 
