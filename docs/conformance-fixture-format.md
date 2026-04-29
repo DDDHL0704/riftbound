@@ -93,6 +93,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-draws-after-lethal-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-does-not-draw-without-destroy.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-damages-two-units.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-can-damage-same-unit-twice.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-base-unit-mode-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-seeker-damage-draw-stack.fixture.json`

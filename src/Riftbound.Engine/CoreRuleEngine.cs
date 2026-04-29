@@ -548,7 +548,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var minTargetCount = MinTargetCount(behavior);
         return targetObjectIds.Count >= minTargetCount
             && targetObjectIds.Count <= behavior.RequiredTargetCount
-            && targetObjectIds.Distinct(StringComparer.Ordinal).Count() == targetObjectIds.Count;
+            && (behavior.AllowsRepeatedTargets
+                || targetObjectIds.Distinct(StringComparer.Ordinal).Count() == targetObjectIds.Count);
     }
 
     private static bool TryBuildOptionalCostPlan(

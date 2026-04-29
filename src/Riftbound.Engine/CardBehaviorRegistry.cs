@@ -16,7 +16,8 @@ public sealed record CardBehaviorDefinition(
     int MinTargetCount = -1,
     string Mode = "",
     int EchoManaCost = 0,
-    string DrawConditionKind = CardDrawConditionKinds.None);
+    string DrawConditionKind = CardDrawConditionKinds.None,
+    bool AllowsRepeatedTargets = false);
 
 public static class CardDamageConditionKinds
 {
@@ -99,7 +100,8 @@ public static class CardBehaviorRegistry
             "STARFALL_DAMAGE_3_TWICE",
             3,
             2,
-            TargetScope: CardTargetScopes.AnyUnit),
+            TargetScope: CardTargetScopes.AnyUnit,
+            AllowsRepeatedTargets: true),
         new(
             "OGN·085/298",
             "彗星坠击",
