@@ -17,7 +17,9 @@ public sealed record CardBehaviorDefinition(
     string Mode = "",
     int EchoManaCost = 0,
     string DrawConditionKind = CardDrawConditionKinds.None,
-    bool AllowsRepeatedTargets = false);
+    bool AllowsRepeatedTargets = false,
+    string CostReductionConditionKind = CardCostReductionConditionKinds.None,
+    int CostReductionMana = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -36,6 +38,12 @@ public static class CardDrawConditionKinds
 {
     public const string None = "NONE";
     public const string TargetDestroyedByThisEffect = "TARGET_DESTROYED_BY_THIS_EFFECT";
+}
+
+public static class CardCostReductionConditionKinds
+{
+    public const string None = "NONE";
+    public const string EnemyUnitDestroyedThisTurn = "ENEMY_UNIT_DESTROYED_THIS_TURN";
 }
 
 public static class CardBehaviorRegistry
@@ -195,7 +203,9 @@ public static class CardBehaviorRegistry
             "SPOILS_OF_WAR_DRAW_2",
             0,
             0,
-            DrawCount: 2),
+            DrawCount: 2,
+            CostReductionConditionKind: CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn,
+            CostReductionMana: 2),
         new(
             "OGN·105/298",
             "星芒凝汇",

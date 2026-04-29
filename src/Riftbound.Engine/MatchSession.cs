@@ -181,7 +181,8 @@ public sealed record MatchState
         IReadOnlyList<StackItemState>? stackItems = null,
         string? focusPlayerId = null,
         IReadOnlyList<string>? passedFocusPlayerIds = null,
-        string? winnerPlayerId = null)
+        string? winnerPlayerId = null,
+        IReadOnlyList<string>? destroyedUnitOwnerIdsThisTurn = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -213,6 +214,7 @@ public sealed record MatchState
         FocusPlayerId = NormalizeOptionalText(focusPlayerId);
         PassedFocusPlayerIds = NormalizeTextList(passedFocusPlayerIds);
         WinnerPlayerId = NormalizeOptionalText(winnerPlayerId);
+        DestroyedUnitOwnerIdsThisTurn = NormalizeTextList(destroyedUnitOwnerIdsThisTurn);
     }
 
     public string RoomId { get; init; }
@@ -254,6 +256,8 @@ public sealed record MatchState
     public IReadOnlyList<string> PassedFocusPlayerIds { get; init; }
 
     public string? WinnerPlayerId { get; init; }
+
+    public IReadOnlyList<string> DestroyedUnitOwnerIdsThisTurn { get; init; }
 
     public static MatchState Create(string roomId)
     {
@@ -475,6 +479,7 @@ public sealed record ResolutionResult(
                 ["focusPlayerId"] = state.FocusPlayerId,
                 ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
                 ["winnerPlayerId"] = state.WinnerPlayerId,
+                ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },

@@ -116,6 +116,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = plan.TotalManaCost,
+                    ["baseMana"] = behavior.ManaCost,
+                    ["costReductionMana"] = plan.CostReductionMana,
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
                 }),
             new GameEvent(
@@ -203,7 +205,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var totalManaCost = behavior.ManaCost + extraManaCost;
+        var costReductionMana = ResolveCostReductionMana(state, intent.PlayerId, behavior);
+        var totalManaCost = Math.Max(0, behavior.ManaCost - costReductionMana) + extraManaCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < totalManaCost)
         {
@@ -214,7 +217,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        plan = new PlayCardPlan(behavior, zones, targetObjectIds, totalManaCost, effectRepeatCount, optionalCosts);
+        plan = new PlayCardPlan(
+            behavior,
+            zones,
+            targetObjectIds,
+            totalManaCost,
+            effectRepeatCount,
+            optionalCosts,
+            costReductionMana);
         return true;
     }
 
@@ -275,6 +285,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerZones = stackResolution.PlayerZones,
                 PlayerScores = stackResolution.PlayerScores,
                 CardObjects = stackResolution.CardObjects,
+                DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
+                    state.DestroyedUnitOwnerIdsThisTurn,
+                    stackResolution.DestroyedUnitOwnerIds),
                 Status = stackResolution.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                 WinnerPlayerId = stackResolution.WinnerPlayerId ?? state.WinnerPlayerId
             };
@@ -387,7 +400,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
             RunePools = ClearRunePools(state),
-            CardObjects = cleanupResult.CardObjects
+            CardObjects = cleanupResult.CardObjects,
+            DestroyedUnitOwnerIdsThisTurn = []
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
         var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult)
@@ -432,7 +446,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = drawResult.WinnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
             PlayerZones = playerZones,
             PlayerScores = drawResult.PlayerScores,
-            WinnerPlayerId = drawResult.WinnerPlayerId
+            WinnerPlayerId = drawResult.WinnerPlayerId,
+            DestroyedUnitOwnerIdsThisTurn = []
         };
 
         return new ResolutionResult(
@@ -480,6 +495,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return (optionalCosts ?? [])
             .Where(optionalCost => !string.IsNullOrWhiteSpace(optionalCost))
             .Select(optionalCost => optionalCost.Trim())
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> MergeDestroyedUnitOwnerIds(
+        IReadOnlyList<string> existingOwnerIds,
+        IReadOnlyList<string> newOwnerIds)
+    {
+        return existingOwnerIds
+            .Concat(newOwnerIds)
+            .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
+            .Select(ownerId => ownerId.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -580,6 +608,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static int ResolveCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.CostReductionMana <= 0)
+        {
+            return 0;
+        }
+
+        return behavior.CostReductionConditionKind switch
+        {
+            CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn
+                => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            _ => 0
+        };
+    }
+
+    private static bool EnemyUnitDestroyedThisTurn(MatchState state, string playerId)
+    {
+        return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
+            !string.Equals(ownerPlayerId, playerId, StringComparison.Ordinal));
+    }
+
     private static int MinTargetCount(CardBehaviorDefinition behavior)
     {
         return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
@@ -607,13 +659,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidTargetCount(behavior, stackItem.TargetObjectIds))
         {
-            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, []);
+            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, [], []);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
+        var destroyedUnitOwnerIds = new List<string>();
         if (behavior.RequiredTargetCount > 0)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
@@ -675,8 +728,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 ["targetObjectId"] = targetObjectId,
                                 ["ownerPlayerId"] = ownerPlayerId,
                                 ["destroyedByPlayerId"] = stackItem.ControllerId
-                            }));
+                        }));
                         destroyedObjectIds.Add(targetObjectId);
+                        destroyedUnitOwnerIds.Add(ownerPlayerId);
                         continue;
                     }
 
@@ -689,6 +743,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         events.AddRange(lethalCleanup.Events);
         destroyedObjectIds.AddRange(lethalCleanup.DestroyedObjectIds
             .Where(objectId => stackItem.TargetObjectIds.Contains(objectId, StringComparer.Ordinal)));
+        destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
 
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
@@ -728,7 +783,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             playerScores,
             winnerPlayerId,
-            events);
+            events,
+            destroyedUnitOwnerIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                .ToArray());
     }
 
     private static bool TryDestroyTarget(
@@ -787,6 +846,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
+        var destroyedUnitOwnerIds = new List<string>();
         var lethalObjectIds = cardObjects
             .Where(entry => entry.Value.Power > 0
                 && entry.Value.Damage > 0
@@ -804,6 +864,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             destroyedObjectIds.Add(objectId);
+            destroyedUnitOwnerIds.Add(ownerPlayerId);
             events.Add(new GameEvent(
                 "UNIT_DESTROYED",
                 "致命伤害摧毁单位",
@@ -817,7 +878,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
         }
 
-        return new LethalDamageCleanupResult(events, destroyedObjectIds);
+        return new LethalDamageCleanupResult(events, destroyedObjectIds, destroyedUnitOwnerIds);
     }
 
     private static bool IsObjectOnField(
@@ -1347,18 +1408,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> TargetObjectIds,
         int TotalManaCost,
         int EffectRepeatCount,
-        IReadOnlyList<string> OptionalCosts);
+        IReadOnlyList<string> OptionalCosts,
+        int CostReductionMana);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyDictionary<string, int> PlayerScores,
         string? WinnerPlayerId,
-        IReadOnlyList<GameEvent> Events);
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> DestroyedUnitOwnerIds);
 
     private sealed record LethalDamageCleanupResult(
         IReadOnlyList<GameEvent> Events,
-        IReadOnlyList<string> DestroyedObjectIds);
+        IReadOnlyList<string> DestroyedObjectIds,
+        IReadOnlyList<string> DestroyedUnitOwnerIds);
 
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,

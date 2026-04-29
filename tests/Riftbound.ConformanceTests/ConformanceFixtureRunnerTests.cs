@@ -497,6 +497,23 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineReducesSpoilsOfWarAfterEnemyUnitDestroyed()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-DRAW-001", "P1-DRAW-002"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2"], result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysAbyssalHuntThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
