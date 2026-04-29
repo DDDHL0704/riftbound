@@ -182,6 +182,14 @@ public static class CardBehaviorRegistry
             DrawCount: 1,
             EchoManaCost: 2),
         new(
+            "UNL-091/219",
+            "聚心凝神",
+            5,
+            "CENTER_YOUR_MIND_DRAW_2",
+            0,
+            0,
+            DrawCount: 2),
+        new(
             "UNL-103/219",
             "处置命令",
             2,
