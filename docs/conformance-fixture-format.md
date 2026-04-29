@@ -99,6 +99,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ruination-destroy-all-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reprimand-return-battlefield-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gust-return-small-battlefield-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-lethal-damage-destroys-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-draws-after-lethal-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-does-not-draw-without-destroy.fixture.json`

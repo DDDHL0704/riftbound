@@ -332,6 +332,15 @@ public static class CardBehaviorRegistry
             1,
             ReturnsTargetToHand: true),
         new(
+            "OGN·169/298",
+            "罡风",
+            1,
+            "GUST_RETURN_BATTLEFIELD_UNIT_POWER_3_OR_LESS_TO_HAND",
+            0,
+            1,
+            MaxTargetPower: 3,
+            ReturnsTargetToHand: true),
+        new(
             "OGN·105/298",
             "星芒凝汇",
             6,
