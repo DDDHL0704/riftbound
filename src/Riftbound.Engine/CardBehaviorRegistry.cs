@@ -22,7 +22,8 @@ public sealed record CardBehaviorDefinition(
     int CostReductionMana = 0,
     bool RecyclesTargets = false,
     bool DamagesAllBattlefieldUnits = false,
-    int MaxTargetPower = 0);
+    int MaxTargetPower = 0,
+    string DrawRecipientKind = CardDrawRecipientKinds.Controller);
 
 public static class CardDamageConditionKinds
 {
@@ -42,6 +43,12 @@ public static class CardDrawConditionKinds
 {
     public const string None = "NONE";
     public const string TargetDestroyedByThisEffect = "TARGET_DESTROYED_BY_THIS_EFFECT";
+}
+
+public static class CardDrawRecipientKinds
+{
+    public const string Controller = "CONTROLLER";
+    public const string TargetController = "TARGET_CONTROLLER";
 }
 
 public static class CardCostReductionConditionKinds
@@ -201,6 +208,16 @@ public static class CardBehaviorRegistry
             0,
             1,
             DestroysTarget: true),
+        new(
+            "OGN·213/298",
+            "暗刃",
+            2,
+            "DARKIN_BLADE_DESTROY_BATTLEFIELD_UNIT_TARGET_CONTROLLER_DRAW_2",
+            0,
+            1,
+            DrawCount: 2,
+            DestroysTarget: true,
+            DrawRecipientKind: CardDrawRecipientKinds.TargetController),
         new(
             "UNL-061/219",
             "台前作秀",

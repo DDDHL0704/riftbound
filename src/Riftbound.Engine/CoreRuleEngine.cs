@@ -827,31 +827,46 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
-        if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
+        if (ShouldDrawForBehavior(behavior, destroyedObjectIds))
         {
-            if (ShouldDrawForBehavior(behavior, destroyedObjectIds))
+            foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, destroyedUnitOwnerIds))
             {
+                if (!playerZones.TryGetValue(drawPlayerId, out var drawPlayerZones))
+                {
+                    continue;
+                }
+
                 var drawState = state with
                 {
+                    PlayerScores = playerScores,
                     RngCursor = rngCursor
                 };
                 var drawResult = DrawCards(
                     drawState,
-                    stackItem.ControllerId,
-                    controllerZones,
+                    drawPlayerId,
+                    drawPlayerZones,
                     behavior.DrawCount * stackItem.EffectRepeatCount);
-                controllerZones = controllerZones with
+                drawPlayerZones = drawPlayerZones with
                 {
                     MainDeck = drawResult.MainDeck,
-                    Hand = controllerZones.Hand.Concat(drawResult.DrawnCards).ToArray(),
+                    Hand = drawPlayerZones.Hand.Concat(drawResult.DrawnCards).ToArray(),
                     Graveyard = drawResult.Graveyard
                 };
+                playerZones[drawPlayerId] = drawPlayerZones;
                 playerScores = drawResult.PlayerScores;
                 winnerPlayerId = drawResult.WinnerPlayerId;
                 rngCursor = drawResult.RngCursor;
-                events.AddRange(BuildCardDrawEvents(stackItem.ControllerId, drawResult));
-            }
+                events.AddRange(BuildCardDrawEvents(drawPlayerId, drawResult));
 
+                if (winnerPlayerId is not null)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
+        {
             if (!controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
             {
                 controllerZones = controllerZones with
@@ -874,6 +889,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
             rngCursor);
+    }
+
+    private static IReadOnlyList<string> DrawRecipientPlayerIds(
+        CardBehaviorDefinition behavior,
+        string controllerId,
+        IReadOnlyList<string> destroyedUnitOwnerIds)
+    {
+        return behavior.DrawRecipientKind switch
+        {
+            CardDrawRecipientKinds.TargetController => destroyedUnitOwnerIds
+                .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray(),
+            _ => [controllerId]
+        };
     }
 
     private static IReadOnlyList<string> GetBattlefieldObjectIds(MatchState state)
