@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-mind-and-balance-reduced-draw-then-call-rune",
+  "description": "Mind and Balance costs 2 less when the opponent is within 3 points of the winning score, then draws before calling one rested rune.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302075,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·047/298 御衡守念",
+      "note": "官方卡面：费用 3；若对手得分距离胜利得分不超过 3 分，则费用减少 2；抽一张牌，然后召出一枚休眠的符文。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356; p57 rule 413.4",
+      "note": "打出法术需要支付修正后的费用并加入结算链；结算时按卡面顺序执行抽牌，再从符文牌堆召出休眠符文到基地。"
+    }
+  ],
+  "roomId": "p2-preflight-mind-and-balance-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302075,
+    "turnNumber": 68,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 5
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-DRAW-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-MIND-AND-BALANCE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-mind-and-balance-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-MIND-AND-BALANCE",
+        "cardNo": "OGN·047/298",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-mind-and-balance-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-mind-and-balance-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "CARD_DRAWN",
+      "RUNES_CALLED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "baseMana": 3,
+          "costReductionMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-MIND-AND-BALANCE",
+          "cardNo": "OGN·047/298",
+          "targetObjectIds": [],
+          "effectKind": "MIND_AND_BALANCE_DRAW_1_CALL_RUNE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "CARD_DRAWN",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "playerId": "P1",
+          "count": 1
+        }
+      },
+      {
+        "kind": "RUNES_CALLED",
+        "tick": 3,
+        "sequence": 8,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-MIND-AND-BALANCE",
+          "count": 1,
+          "runeObjectIds": ["P1-RUNE-001"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 68,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 5
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": [],
+          "runeDeck": ["P1-RUNE-002"],
+          "hand": ["P1-DRAW-001"],
+          "base": ["P1-RUNE-001"],
+          "graveyard": ["P1-SPELL-MIND-AND-BALANCE"]
+        }
+      },
+      "cardObjects": {
+        "P1-RUNE-001": {
+          "damage": 0,
+          "power": 0,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

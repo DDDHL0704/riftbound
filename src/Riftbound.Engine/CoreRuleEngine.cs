@@ -5,6 +5,11 @@ namespace Riftbound.Engine;
 public sealed class CoreRuleEngine : IRuleEngine
 {
     private const int WinningScore = 8;
+    private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
+    private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
+    private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
+    private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
+    private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -75,6 +80,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var targetObjectIds = plan.TargetObjectIds;
         var runePools = PayMana(state, intent.PlayerId, plan.TotalManaCost);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
 
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
@@ -92,12 +98,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
             PlayerZones = playerZones,
+            CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
+        var destroyedAdditionalCostOwnerIds = new List<string>();
 
-        var events = new[]
+        var events = new List<GameEvent>
         {
             new GameEvent(
                 "CARD_PLAYED",
@@ -119,7 +127,63 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["baseMana"] = behavior.ManaCost,
                     ["costReductionMana"] = plan.CostReductionMana,
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
-                }),
+                })
+        };
+        foreach (var optionalCostTargetObjectId in plan.ExhaustedOptionalCostTargetObjectIds)
+        {
+            var targetState = cardObjects.TryGetValue(optionalCostTargetObjectId, out var existingTarget)
+                ? existingTarget
+                : new CardObjectState(optionalCostTargetObjectId);
+            targetState = ApplyExhaustState(
+                targetState,
+                behavior,
+                stackItem,
+                optionalCostTargetObjectId,
+                out var exhaustedEvent);
+            cardObjects[optionalCostTargetObjectId] = targetState;
+            events.Add(exhaustedEvent);
+        }
+
+        foreach (var additionalCostTargetObjectId in plan.DestroyedAdditionalCostTargetObjectIds)
+        {
+            if (!TryDestroyTarget(playerZones, cardObjects, additionalCostTargetObjectId, out var removalResult))
+            {
+                continue;
+            }
+
+            events.Add(BuildFieldRemovalEvent(
+                behavior.DisplayName,
+                stackItem,
+                additionalCostTargetObjectId,
+                removalResult,
+                "ADDITIONAL_COST"));
+            if (removalResult.WasDestroyed)
+            {
+                destroyedAdditionalCostOwnerIds.Add(removalResult.OwnerPlayerId);
+            }
+        }
+
+        foreach (var discardedOptionalCostTargetObjectId in plan.DiscardedOptionalCostTargetObjectIds)
+        {
+            if (!TryDiscardCardFromHand(playerZones, intent.PlayerId, discardedOptionalCostTargetObjectId))
+            {
+                continue;
+            }
+
+            events.Add(new GameEvent(
+                "CARD_DISCARDED",
+                $"{behavior.DisplayName}弃置手牌作为额外费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = discardedOptionalCostTargetObjectId,
+                    ["reason"] = "OPTIONAL_COST",
+                    ["destinationZone"] = "GRAVEYARD"
+                }));
+        }
+
+        events.Add(
             new GameEvent(
                 "STACK_ITEM_ADDED",
                 $"{behavior.DisplayName}加入结算链",
@@ -133,7 +197,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["mode"] = command.Mode,
                     ["effectRepeatCount"] = stackItem.EffectRepeatCount
-                })
+                }));
+
+        nextState = nextState with
+        {
+            CardObjects = cardObjects,
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
+                state.DestroyedUnitOwnerIdsThisTurn,
+                destroyedAdditionalCostOwnerIds)
         };
 
         return new ResolutionResult(
@@ -187,9 +258,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (!HasValidTargetCount(behavior, targetObjectIds)
-            || targetObjectIds.Any(targetObjectId =>
-                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope)
-                || !IsTargetPowerAllowed(state, targetObjectId, behavior)))
+            || targetObjectIds.Where((targetObjectId, targetIndex) =>
+                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
+                || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -198,12 +269,70 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!TryBuildOptionalCostPlan(command.OptionalCosts, behavior, out var optionalCosts, out var extraManaCost, out var effectRepeatCount))
+        if (behavior.DiscardsTargetFromHand
+            && targetObjectIds.Contains(command.SourceObjectId, StringComparer.Ordinal))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a different hand card to discard.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (!TryBuildOptionalCostPlan(
+                command.OptionalCosts,
+                behavior,
+                out var optionalCosts,
+                out var extraManaCost,
+                out var effectRepeatCount,
+                out var exhaustedOptionalCostTargetObjectIds,
+                out var destroyedAdditionalCostTargetObjectIds,
+                out var discardedOptionalCostTargetObjectIds))
         {
             rejection = RejectWithCorePrompts(
                 state,
                 $"Unsupported optional cost for {behavior.DisplayName}.",
                 ErrorCodes.UnsupportedCardBehavior);
+            return false;
+        }
+
+        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires an active friendly unit for its optional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanDestroyFriendlyPowerfulUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (discardedOptionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanDiscardHandCardAsOptionalCost(state, intent.PlayerId, command.SourceObjectId, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a different hand card for its optional cost.",
+                ErrorCodes.InvalidTarget);
             return false;
         }
 
@@ -226,7 +355,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             totalManaCost,
             effectRepeatCount,
             optionalCosts,
-            costReductionMana);
+            costReductionMana,
+            exhaustedOptionalCostTargetObjectIds,
+            destroyedAdditionalCostTargetObjectIds,
+            discardedOptionalCostTargetObjectIds);
         return true;
     }
 
@@ -558,16 +690,83 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
-    private static bool IsTargetObjectInScope(MatchState state, string playerId, string objectId, string targetScope)
+    private static bool IsTargetObjectInScope(
+        MatchState state,
+        string playerId,
+        string objectId,
+        string targetScope,
+        int targetIndex = 0)
     {
         return targetScope switch
         {
             CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
+            CardTargetScopes.FriendlyUnit => IsControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
+                ? IsControlledFieldObject(state, playerId, objectId)
+                : IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
+                ? IsControlledFieldObject(state, playerId, objectId)
+                : IsEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldUnit => IsControlledBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyHandCard => IsFriendlyHandCard(state, playerId, objectId),
+            CardTargetScopes.FriendlyGraveyardCard => IsFriendlyGraveyardCard(state, playerId, objectId),
             CardTargetScopes.AttackingUnit => IsAttackingBattlefieldObject(state, objectId),
+            CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
+                && IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
+    }
+
+    private static bool IsControlledFieldObject(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && (zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsControlledBattlefieldObject(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Contains(objectId, StringComparer.Ordinal);
+    }
+
+    private static bool IsFriendlyHandCard(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Hand.Contains(objectId, StringComparer.Ordinal);
+    }
+
+    private static bool IsFriendlyGraveyardCard(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Graveyard.Contains(objectId, StringComparer.Ordinal);
+    }
+
+    private static bool IsEnemyFieldObject(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.Any(entry =>
+                !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
+                && (entry.Value.Base.Contains(objectId, StringComparer.Ordinal)
+                    || entry.Value.Battlefields.Contains(objectId, StringComparer.Ordinal)));
+    }
+
+    private static bool IsEnemyBattlefieldObject(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.Any(entry =>
+                !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
+                && entry.Value.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static bool IsOpponentGraveyardCard(MatchState state, string playerId, string objectId)
@@ -614,11 +813,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         out IReadOnlyList<string> normalizedOptionalCosts,
         out int extraManaCost,
-        out int effectRepeatCount)
+        out int effectRepeatCount,
+        out IReadOnlyList<string> exhaustedOptionalCostTargetObjectIds,
+        out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds,
+        out IReadOnlyList<string> discardedOptionalCostTargetObjectIds)
     {
         normalizedOptionalCosts = NormalizeOptionalCosts(optionalCosts);
         extraManaCost = 0;
         effectRepeatCount = 1;
+        exhaustedOptionalCostTargetObjectIds = [];
+        destroyedAdditionalCostTargetObjectIds = [];
+        discardedOptionalCostTargetObjectIds = [];
 
         if (normalizedOptionalCosts.Count == 0)
         {
@@ -634,7 +839,108 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0
+            && TryParseExhaustFriendlyUnitOptionalCost(normalizedOptionalCosts[0], out var exhaustedTargetObjectId))
+        {
+            effectRepeatCount = behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost;
+            exhaustedOptionalCostTargetObjectIds = [exhaustedTargetObjectId];
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && TryParseDestroyFriendlyPowerfulUnitAdditionalCost(
+                normalizedOptionalCosts[0],
+                out var destroyedTargetObjectId))
+        {
+            destroyedAdditionalCostTargetObjectIds = [destroyedTargetObjectId];
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
+            && TryParseDiscardHandCardOptionalCost(
+                normalizedOptionalCosts[0],
+                out var discardedTargetObjectId))
+        {
+            effectRepeatCount = behavior.EffectRepeatCountIfDiscardHandCardOptionalCost;
+            discardedOptionalCostTargetObjectIds = [discardedTargetObjectId];
+            return true;
+        }
+
         return false;
+    }
+
+    private static bool TryParseExhaustFriendlyUnitOptionalCost(string optionalCost, out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(ExhaustFriendlyUnitOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[ExhaustFriendlyUnitOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
+    private static bool TryParseDestroyFriendlyPowerfulUnitAdditionalCost(
+        string optionalCost,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(DestroyFriendlyPowerfulUnitAdditionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[DestroyFriendlyPowerfulUnitAdditionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
+    private static bool TryParseDiscardHandCardOptionalCost(
+        string optionalCost,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(DiscardHandCardOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[DiscardHandCardOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
+    private static bool CanExhaustFriendlyUnitAsOptionalCost(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return IsControlledFieldObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !targetState.IsExhausted;
+    }
+
+    private static bool CanDestroyFriendlyPowerfulUnitAsAdditionalCost(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return IsControlledFieldObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && targetState.Power >= 5;
+    }
+
+    private static bool CanDiscardHandCardAsOptionalCost(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        return !string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Hand.Contains(targetObjectId, StringComparer.Ordinal);
     }
 
     private static int ResolveCostReductionMana(
@@ -654,6 +960,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             CardCostReductionConditionKinds.ControllerHighestUnitPower
                 => Math.Min(behavior.CostReductionMana, HighestControlledUnitPower(state, playerId)),
+            CardCostReductionConditionKinds.OpponentWithinThreeOfWinningScore
+                => OpponentWithinWinningScoreDistance(state, playerId, 3) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.ControllerControlsTaggedUnit
+                => ControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)
+                    ? behavior.CostReductionMana
+                    : 0,
             _ => 0
         };
     }
@@ -678,6 +990,37 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Max();
     }
 
+    private static bool ControllerControlsTaggedUnit(MatchState state, string playerId, string requiredTag)
+    {
+        if (string.IsNullOrWhiteSpace(requiredTag)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Any(objectId => CardObjectHasTag(state.CardObjects, objectId, requiredTag));
+    }
+
+    private static bool CardObjectHasTag(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId,
+        string requiredTag)
+    {
+        return string.IsNullOrWhiteSpace(requiredTag)
+            || (cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(requiredTag, StringComparer.Ordinal));
+    }
+
+    private static bool OpponentWithinWinningScoreDistance(MatchState state, string playerId, int distance)
+    {
+        var opponentId = OpponentOf(state, playerId);
+        return opponentId is not null
+            && state.PlayerScores.TryGetValue(opponentId, out var opponentScore)
+            && opponentScore >= WinningScore - distance;
+    }
+
     private static int MinTargetCount(CardBehaviorDefinition behavior)
     {
         return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
@@ -697,11 +1040,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? "unit"
             : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
                 ? "base unit"
-                : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
-                    ? "attacking unit"
-                    : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
-                        ? "opponent graveyard card"
-                        : "battlefield unit";
+                : string.Equals(targetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
+                        ? "friendly unit"
+                        : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
+                            ? "friendly unit then enemy unit"
+                            : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyBattlefieldUnits, StringComparison.Ordinal)
+                                ? "friendly unit then enemy battlefield unit"
+                                : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnit, StringComparison.Ordinal)
+                                    ? "friendly battlefield unit"
+                                    : string.Equals(targetScope, CardTargetScopes.FriendlyHandCard, StringComparison.Ordinal)
+                                        ? "friendly hand card"
+                                        : string.Equals(targetScope, CardTargetScopes.FriendlyGraveyardCard, StringComparison.Ordinal)
+                                            ? "friendly graveyard card"
+                                            : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
+                                                ? "attacking unit"
+                                                : string.Equals(targetScope, CardTargetScopes.EnemyAttackingUnit, StringComparison.Ordinal)
+                                                    ? "enemy attacking unit"
+                                                    : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
+                                                        ? "opponent graveyard card"
+                                                        : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -718,6 +1075,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var rngCursor = state.RngCursor;
+        var playerScores = state.PlayerScores;
+        string? winnerPlayerId = null;
+        int? drawCountOverride = null;
         if (behavior.RecyclesTargets)
         {
             var recycleResult = RecycleTargetCards(
@@ -729,68 +1089,446 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.AddRange(recycleResult.Events);
             rngCursor = recycleResult.RngCursor;
         }
+        else if (behavior.RuneCallCount > 0)
+        {
+            if (behavior.DrawsBeforeRuneCall)
+            {
+                var preRuneDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
+                if (ShouldDrawForBehavior(behavior, destroyedObjectIds, preRuneDrawCount))
+                {
+                    foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, destroyedUnitOwnerIds))
+                    {
+                        var drawApplication = ApplyDrawToPlayer(
+                            state,
+                            playerZones,
+                            playerScores,
+                            drawPlayerId,
+                            preRuneDrawCount * stackItem.EffectRepeatCount,
+                            rngCursor,
+                            events);
+                        playerScores = drawApplication.PlayerScores;
+                        winnerPlayerId = drawApplication.WinnerPlayerId;
+                        rngCursor = drawApplication.RngCursor;
+
+                        if (winnerPlayerId is not null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                drawCountOverride = 0;
+            }
+
+            if (winnerPlayerId is null)
+            {
+                var runeCallResult = CallRunes(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    behavior.RuneCallCount);
+                events.Add(new GameEvent(
+                    "RUNES_CALLED",
+                    $"{stackItem.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+                    }));
+                if (runeCallResult.CalledRuneObjectIds.Count < behavior.RuneCallCount
+                    && behavior.DrawCountIfRuneCallFails > 0)
+                {
+                    drawCountOverride = behavior.DrawCountIfRuneCallFails;
+                }
+            }
+        }
         else if (behavior.DestroysAllUnits)
         {
             foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
             {
-                if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
+                if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
+                {
+                    continue;
+                }
+
+                events.Add(BuildFieldRemovalEvent(
+                    behavior.DisplayName,
+                    stackItem,
+                    targetObjectId,
+                    removalResult));
+                if (!removalResult.WasDestroyed)
+                {
+                    continue;
+                }
+
+                destroyedObjectIds.Add(targetObjectId);
+                destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+            }
+        }
+        else if (behavior.ReturnsAllUnitsToHand)
+        {
+            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
+            {
+                if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId))
                 {
                     continue;
                 }
 
                 events.Add(new GameEvent(
-                    "UNIT_DESTROYED",
-                    $"{behavior.DisplayName}摧毁单位",
+                    "UNIT_RETURNED_TO_HAND",
+                    $"{behavior.DisplayName}让单位返回手牌",
                     new Dictionary<string, object?>
                     {
                         ["sourceObjectId"] = stackItem.SourceObjectId,
                         ["targetObjectId"] = targetObjectId,
-                        ["ownerPlayerId"] = ownerPlayerId,
-                        ["destroyedByPlayerId"] = stackItem.ControllerId
+                        ["ownerPlayerId"] = returnedOwnerPlayerId
                     }));
-                destroyedObjectIds.Add(targetObjectId);
-                destroyedUnitOwnerIds.Add(ownerPlayerId);
             }
         }
-        else if (behavior.DamagesAllBattlefieldUnits)
+        else if (behavior.ExhaustsAllFriendlyUnits)
         {
-            var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
-            if (damageAmount > 0)
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in GetBattlefieldObjectIds(state))
+                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
                 {
                     var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                         ? existingTarget
                         : new CardObjectState(targetObjectId);
 
-                    targetState = targetState with
-                    {
-                        Damage = targetState.Damage + damageAmount
-                    };
+                    targetState = ApplyExhaustState(
+                        targetState,
+                        behavior,
+                        stackItem,
+                        targetObjectId,
+                        out var exhaustedEvent);
                     cardObjects[targetObjectId] = targetState;
+                    events.Add(exhaustedEvent);
+                }
+            }
+
+            if (behavior.DamagesAllBattlefieldUnits)
+            {
+                ApplyDamageToBattlefieldUnits(
+                    playerZones,
+                    cardObjects,
+                    behavior,
+                    stackItem,
+                    ResolveDamageAmount(state, stackItem, behavior),
+                    events);
+            }
+        }
+        else if (behavior.DamagesAllBattlefieldUnits)
+        {
+            ApplyDamageToBattlefieldUnits(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                ResolveDamageAmount(state, stackItem, behavior),
+                events);
+        }
+        else if (behavior.DamagesAllEnemyCombatUnits)
+        {
+            ApplyDamageToEnemyCombatUnits(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                ResolveDamageAmount(state, stackItem, behavior),
+                events);
+        }
+        else if (behavior.ModifiesAllFriendlyUnits
+            && behavior.PowerModifierAmount != 0)
+        {
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+            {
+                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+                {
+                    if (!CardObjectHasTag(cardObjects, targetObjectId, behavior.PowerModifierUnitTag))
+                    {
+                        continue;
+                    }
+
+                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                        ? existingTarget
+                        : new CardObjectState(targetObjectId);
+
+                    targetState = ApplyPowerModifier(
+                        targetState,
+                        behavior,
+                        stackItem,
+                        targetObjectId,
+                        behavior.PowerModifierAmount,
+                        out var powerEvent);
+                    cardObjects[targetObjectId] = targetState;
+                    events.Add(powerEvent);
+                }
+            }
+        }
+        else if (behavior.ReadiesAllFriendlyUnits)
+        {
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+            {
+                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+                {
+                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                        ? existingTarget
+                        : new CardObjectState(targetObjectId);
+
+                    targetState = ApplyReadyState(
+                        targetState,
+                        behavior,
+                        stackItem,
+                        targetObjectId,
+                        out var readyEvent);
+                    cardObjects[targetObjectId] = targetState;
+                    events.Add(readyEvent);
+                }
+            }
+        }
+        else if (behavior.CreatedBaseUnitTokenCount > 0)
+        {
+            CreateBaseUnitTokens(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+        else if (behavior.DiscardsAllPlayersHandsThenDraws)
+        {
+            foreach (var discardPlayerId in SeatPlayerIds(state))
+            {
+                if (!TryDiscardPlayerHand(playerZones, discardPlayerId, out var discardedObjectIds)
+                    || discardedObjectIds.Count == 0)
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "CARDS_DISCARDED",
+                    $"{behavior.DisplayName}弃置玩家手牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = discardPlayerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["count"] = discardedObjectIds.Count,
+                        ["objectIds"] = discardedObjectIds.ToArray(),
+                        ["destinationZone"] = "GRAVEYARD"
+                    }));
+            }
+
+            var perPlayerDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
+            foreach (var drawPlayerId in SeatPlayerIds(state))
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    drawPlayerId,
+                    perPlayerDrawCount * stackItem.EffectRepeatCount,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+
+                if (winnerPlayerId is not null)
+                {
+                    break;
+                }
+            }
+
+            drawCountOverride = 0;
+        }
+        else if (behavior.DiscardsTargetFromHand)
+        {
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            {
+                if (!TryDiscardCardFromHand(playerZones, stackItem.ControllerId, targetObjectId))
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "CARD_DISCARDED",
+                    $"{behavior.DisplayName}弃置手牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["destinationZone"] = "GRAVEYARD"
+                }));
+            }
+        }
+        else if (behavior.ReturnsGraveyardTargetToHand)
+        {
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            {
+                if (!TryReturnGraveyardCardToHand(playerZones, stackItem.ControllerId, targetObjectId))
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "CARD_RETURNED_TO_HAND",
+                    $"{behavior.DisplayName}让废牌堆里的牌返回手牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["sourceZone"] = "GRAVEYARD",
+                        ["destinationZone"] = "HAND"
+                }));
+            }
+        }
+        else if (behavior.DealsMutualTargetPowerDamage
+            && stackItem.TargetObjectIds.Count >= 2)
+        {
+            var firstTargetObjectId = stackItem.TargetObjectIds[0];
+            var secondTargetObjectId = stackItem.TargetObjectIds[1];
+
+            if (behavior.PowerModifierAmount != 0
+                && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
+            {
+                var modifiedFirstTargetState = ApplyPowerModifier(
+                    currentFirstTargetStateForModifier,
+                    behavior,
+                    stackItem,
+                    firstTargetObjectId,
+                    behavior.PowerModifierAmount,
+                    out var powerEvent);
+                cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
+                events.Add(powerEvent);
+            }
+
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+            {
+                var firstTargetPower = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                    ? Math.Max(0, firstTargetState.Power)
+                    : 0;
+                var secondTargetPower = cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState)
+                    ? Math.Max(0, secondTargetState.Power)
+                    : 0;
+
+                if (firstTargetPower > 0
+                    && cardObjects.TryGetValue(secondTargetObjectId, out var currentSecondTargetState))
+                {
+                    cardObjects[secondTargetObjectId] = currentSecondTargetState with
+                    {
+                        Damage = currentSecondTargetState.Damage + firstTargetPower
+                    };
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
-                        $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                        $"{behavior.DisplayName}造成单位互斗伤害",
                         new Dictionary<string, object?>
                         {
                             ["sourceObjectId"] = stackItem.SourceObjectId,
-                            ["targetObjectId"] = targetObjectId,
-                            ["damage"] = damageAmount
+                            ["damageSourceObjectId"] = firstTargetObjectId,
+                            ["targetObjectId"] = secondTargetObjectId,
+                            ["damage"] = firstTargetPower
                         }));
                 }
+
+                if (secondTargetPower > 0
+                    && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetState))
+                {
+                    cardObjects[firstTargetObjectId] = currentFirstTargetState with
+                    {
+                        Damage = currentFirstTargetState.Damage + secondTargetPower
+                    };
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成单位互斗伤害",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["damageSourceObjectId"] = secondTargetObjectId,
+                            ["targetObjectId"] = firstTargetObjectId,
+                            ["damage"] = secondTargetPower
+                        }));
+                }
+            }
+        }
+        else if (behavior.DestroysFirstTargetAndBuffsSecondByDestroyedPower
+            && stackItem.TargetObjectIds.Count >= 2)
+        {
+            var destroyedTargetObjectId = stackItem.TargetObjectIds[0];
+            var buffedTargetObjectId = stackItem.TargetObjectIds[1];
+            var destroyedPower = cardObjects.TryGetValue(destroyedTargetObjectId, out var destroyedTargetState)
+                ? Math.Max(0, destroyedTargetState.Power)
+                : 0;
+
+            if (TryDestroyTarget(playerZones, cardObjects, destroyedTargetObjectId, out var removalResult))
+            {
+                events.Add(BuildFieldRemovalEvent(
+                    behavior.DisplayName,
+                    stackItem,
+                    destroyedTargetObjectId,
+                    removalResult));
+                if (removalResult.WasDestroyed)
+                {
+                    destroyedObjectIds.Add(destroyedTargetObjectId);
+                    destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                }
+            }
+
+            if (destroyedPower > 0
+                && cardObjects.TryGetValue(buffedTargetObjectId, out var buffedTargetState))
+            {
+                var modifiedTargetState = ApplyPowerModifier(
+                    buffedTargetState,
+                    behavior,
+                    stackItem,
+                    buffedTargetObjectId,
+                    destroyedPower,
+                    out var powerEvent);
+                cardObjects[buffedTargetObjectId] = modifiedTargetState;
+                events.Add(powerEvent);
             }
         }
         else if (behavior.RequiredTargetCount > 0)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in stackItem.TargetObjectIds)
+                for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
+                    var targetObjectId = stackItem.TargetObjectIds[targetIndex];
+                    if (!IsFieldObject(playerZones, targetObjectId))
+                    {
+                        continue;
+                    }
+
                     var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                         ? existingTarget
                         : new CardObjectState(targetObjectId);
 
                     var damageAmount = ResolveDamageAmount(state, stackItem, behavior, targetObjectId);
+                    if (behavior.BanishesIfDestroyedThisTurn)
+                    {
+                        targetState = targetState with
+                        {
+                            UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                                .Concat([BanishIfDestroyedThisTurnEffectId])
+                                .Distinct(StringComparer.Ordinal)
+                                .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                                .ToArray()
+                        };
+                        events.Add(new GameEvent(
+                            "DESTROY_REPLACEMENT_EFFECT_APPLIED",
+                            $"{behavior.DisplayName}设置本回合摧毁改为放逐",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["effectId"] = BanishIfDestroyedThisTurnEffectId
+                            }));
+                    }
+
                     if (damageAmount > 0)
                     {
                         targetState = targetState with
@@ -808,62 +1546,93 @@ public sealed class CoreRuleEngine : IRuleEngine
                             }));
                     }
 
-                    if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
+                    var statusEffectIds = ResolveStatusEffectIds(behavior);
+                    if (statusEffectIds.Length > 0)
                     {
-                        targetState = targetState with
+                        var primaryStatusEffectId = statusEffectIds[0];
+                        if (behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
+                            && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
+                            && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var statusReturnOwnerPlayerId))
                         {
-                            UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
-                                .Concat([behavior.StatusEffectId])
-                                .Distinct(StringComparer.Ordinal)
-                                .OrderBy(effectId => effectId, StringComparer.Ordinal)
-                                .ToArray()
-                        };
-                        events.Add(new GameEvent(
-                            "STATUS_EFFECT_APPLIED",
-                            $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
-                            new Dictionary<string, object?>
+                            events.Add(new GameEvent(
+                                "UNIT_RETURNED_TO_HAND",
+                                $"{behavior.DisplayName}让已受状态影响的单位返回手牌",
+                                new Dictionary<string, object?>
+                                {
+                                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                                    ["targetObjectId"] = targetObjectId,
+                                    ["ownerPlayerId"] = statusReturnOwnerPlayerId,
+                                    ["statusEffectId"] = primaryStatusEffectId
+                                }));
+                            continue;
+                        }
+
+                        foreach (var statusEffectId in statusEffectIds)
+                        {
+                            targetState = targetState with
                             {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["effectId"] = behavior.StatusEffectId
-                        }));
+                                UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                                    .Concat([statusEffectId])
+                                    .Distinct(StringComparer.Ordinal)
+                                    .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                                    .ToArray()
+                            };
+                            events.Add(new GameEvent(
+                                "STATUS_EFFECT_APPLIED",
+                                $"{behavior.DisplayName}施加{statusEffectId}",
+                                new Dictionary<string, object?>
+                                {
+                                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                                    ["targetObjectId"] = targetObjectId,
+                                    ["effectId"] = statusEffectId
+                                }));
+                        }
                     }
 
-                    if (behavior.PowerModifierAmount != 0)
+                    var powerModifierAmount = ResolvePowerModifierAmount(
+                        behavior,
+                        targetIndex,
+                        playerZones,
+                        cardObjects,
+                        stackItem.ControllerId);
+                    if (powerModifierAmount != 0
+                        && PowerModifierConditionApplies(targetState, behavior))
                     {
-                        targetState = targetState with
-                        {
-                            Power = Math.Max(0, targetState.Power + behavior.PowerModifierAmount),
-                            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
-                                + behavior.PowerModifierAmount
-                        };
-                        events.Add(new GameEvent(
-                            "POWER_MODIFIED_UNTIL_END_OF_TURN",
-                            $"{behavior.DisplayName}临时修正战力",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["powerDelta"] = behavior.PowerModifierAmount,
-                                ["resultingPower"] = targetState.Power
-                            }));
+                        targetState = ApplyPowerModifier(
+                            targetState,
+                            behavior,
+                            stackItem,
+                            targetObjectId,
+                            powerModifierAmount,
+                            out var powerEvent);
+                        events.Add(powerEvent);
+                    }
+
+                    if (behavior.ReadiesTarget)
+                    {
+                        targetState = ApplyReadyState(
+                            targetState,
+                            behavior,
+                            stackItem,
+                            targetObjectId,
+                            out var readyEvent);
+                        events.Add(readyEvent);
                     }
 
                     if (behavior.DestroysTarget
-                        && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
+                        && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                     {
-                        events.Add(new GameEvent(
-                            "UNIT_DESTROYED",
-                            $"{behavior.DisplayName}摧毁单位",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["ownerPlayerId"] = ownerPlayerId,
-                                ["destroyedByPlayerId"] = stackItem.ControllerId
-                        }));
-                        destroyedObjectIds.Add(targetObjectId);
-                        destroyedUnitOwnerIds.Add(ownerPlayerId);
+                        events.Add(BuildFieldRemovalEvent(
+                            behavior.DisplayName,
+                            stackItem,
+                            targetObjectId,
+                            removalResult));
+                        if (removalResult.WasDestroyed)
+                        {
+                            destroyedObjectIds.Add(targetObjectId);
+                            destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                        }
+
                         continue;
                     }
 
@@ -879,6 +1648,40 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 ["targetObjectId"] = targetObjectId,
                                 ["ownerPlayerId"] = returnedOwnerPlayerId
                             }));
+                        if (behavior.RuneCallCountAfterTargetReturn > 0)
+                        {
+                            var runeCallResult = CallRunes(
+                                playerZones,
+                                cardObjects,
+                                returnedOwnerPlayerId,
+                                behavior.RuneCallCountAfterTargetReturn);
+                            events.Add(new GameEvent(
+                                "RUNES_CALLED",
+                                $"{returnedOwnerPlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                                new Dictionary<string, object?>
+                                {
+                                    ["playerId"] = returnedOwnerPlayerId,
+                                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                                    ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                                    ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+                                }));
+                        }
+
+                        continue;
+                    }
+
+                    if (behavior.MovesTargetToBase
+                        && TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var movedOwnerPlayerId))
+                    {
+                        events.Add(new GameEvent(
+                            "UNIT_MOVED_TO_BASE",
+                            $"{behavior.DisplayName}让单位移动到所属基地",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["ownerPlayerId"] = movedOwnerPlayerId
+                            }));
                         continue;
                     }
 
@@ -893,38 +1696,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => stackItem.TargetObjectIds.Contains(objectId, StringComparer.Ordinal)));
         destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
 
-        var playerScores = state.PlayerScores;
-        string? winnerPlayerId = null;
-        if (ShouldDrawForBehavior(behavior, destroyedObjectIds))
+        var drawCount = drawCountOverride ?? ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
+        if (ShouldDrawForBehavior(behavior, destroyedObjectIds, drawCount))
         {
             foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, destroyedUnitOwnerIds))
             {
-                if (!playerZones.TryGetValue(drawPlayerId, out var drawPlayerZones))
-                {
-                    continue;
-                }
-
-                var drawState = state with
-                {
-                    PlayerScores = playerScores,
-                    RngCursor = rngCursor
-                };
-                var drawResult = DrawCards(
-                    drawState,
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
                     drawPlayerId,
-                    drawPlayerZones,
-                    behavior.DrawCount * stackItem.EffectRepeatCount);
-                drawPlayerZones = drawPlayerZones with
-                {
-                    MainDeck = drawResult.MainDeck,
-                    Hand = drawPlayerZones.Hand.Concat(drawResult.DrawnCards).ToArray(),
-                    Graveyard = drawResult.Graveyard
-                };
-                playerZones[drawPlayerId] = drawPlayerZones;
-                playerScores = drawResult.PlayerScores;
-                winnerPlayerId = drawResult.WinnerPlayerId;
-                rngCursor = drawResult.RngCursor;
-                events.AddRange(BuildCardDrawEvents(drawPlayerId, drawResult));
+                    drawCount * stackItem.EffectRepeatCount,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
 
                 if (winnerPlayerId is not null)
                 {
@@ -975,12 +1762,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
-    private static IReadOnlyList<string> GetBattlefieldObjectIds(MatchState state)
+    private static IReadOnlyList<string> GetBattlefieldObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones)
     {
-        return state.PlayerZones
+        return playerZones
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> GetEnemyCombatObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId)
+    {
+        return playerZones
+            .Where(entry => !string.Equals(entry.Key, controllerId, StringComparison.Ordinal))
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
+                && (objectState.IsAttacking || objectState.IsDefending))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -994,6 +1797,343 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static IReadOnlyList<string> GetControlledFieldUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string playerId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsFieldObject(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && playerZones.Values.Any(zones =>
+                zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static void ApplyDamageToBattlefieldUnits(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        int damageAmount,
+        List<GameEvent> events)
+    {
+        if (damageAmount <= 0)
+        {
+            return;
+        }
+
+        foreach (var targetObjectId in GetBattlefieldObjectIds(playerZones))
+        {
+            var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                ? existingTarget
+                : new CardObjectState(targetObjectId);
+
+            targetState = targetState with
+            {
+                Damage = targetState.Damage + damageAmount
+            };
+            cardObjects[targetObjectId] = targetState;
+            events.Add(new GameEvent(
+                "DAMAGE_APPLIED",
+                $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["damage"] = damageAmount
+                }));
+        }
+    }
+
+    private static void ApplyDamageToEnemyCombatUnits(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        int damageAmount,
+        List<GameEvent> events)
+    {
+        if (damageAmount <= 0)
+        {
+            return;
+        }
+
+        foreach (var targetObjectId in GetEnemyCombatObjectIds(playerZones, cardObjects, stackItem.ControllerId))
+        {
+            var targetState = cardObjects[targetObjectId] with
+            {
+                Damage = cardObjects[targetObjectId].Damage + damageAmount
+            };
+            cardObjects[targetObjectId] = targetState;
+            events.Add(new GameEvent(
+                "DAMAGE_APPLIED",
+                $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["damage"] = damageAmount
+                }));
+        }
+    }
+
+    private static void CreateBaseUnitTokens(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (behavior.CreatedBaseUnitTokenPower <= 0
+            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
+        var createdTokenObjectIds = new List<string>();
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                tokenIndex + 1);
+            createdTokenObjectIds.Add(tokenObjectId);
+            cardObjects[tokenObjectId] = new CardObjectState(
+                tokenObjectId,
+                power: behavior.CreatedBaseUnitTokenPower);
+            events.Add(new GameEvent(
+                "UNIT_TOKEN_CREATED",
+                $"{behavior.DisplayName}打出单位指示物到基地",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenName"] = behavior.CreatedBaseUnitTokenName,
+                    ["power"] = behavior.CreatedBaseUnitTokenPower,
+                    ["destinationZone"] = "BASE"
+                }));
+        }
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
+        };
+    }
+
+    private static string NextTokenObjectId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId,
+        int initialTokenNumber)
+    {
+        var tokenNumber = Math.Max(1, initialTokenNumber);
+        while (true)
+        {
+            var candidate = $"{sourceObjectId}-TOKEN-{tokenNumber:000}";
+            if (!cardObjects.ContainsKey(candidate)
+                && !IsObjectIdInAnyZone(playerZones, candidate))
+            {
+                return candidate;
+            }
+
+            tokenNumber++;
+        }
+    }
+
+    private static bool IsObjectIdInAnyZone(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId)
+    {
+        return playerZones.Values.Any(zones =>
+            zones.MainDeck.Contains(objectId, StringComparer.Ordinal)
+            || zones.RuneDeck.Contains(objectId, StringComparer.Ordinal)
+            || zones.Hand.Contains(objectId, StringComparer.Ordinal)
+            || zones.Base.Contains(objectId, StringComparer.Ordinal)
+            || zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
+            || zones.Graveyard.Contains(objectId, StringComparer.Ordinal)
+            || zones.Banished.Contains(objectId, StringComparer.Ordinal)
+            || zones.LegendZone.Contains(objectId, StringComparer.Ordinal)
+            || zones.ChampionZone.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static CardObjectState ApplyPowerModifier(
+        CardObjectState targetState,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        string targetObjectId,
+        int powerModifierAmount,
+        out GameEvent powerEvent)
+    {
+        var previousPower = targetState.Power;
+        var resultingPower = Math.Max(
+            behavior.MinimumPowerAfterModifier,
+            previousPower + powerModifierAmount);
+        var appliedPowerDelta = resultingPower - previousPower;
+        var nextTargetState = targetState with
+        {
+            Power = resultingPower,
+            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
+                + appliedPowerDelta
+        };
+        powerEvent = new GameEvent(
+            "POWER_MODIFIED_UNTIL_END_OF_TURN",
+            $"{behavior.DisplayName}临时修正战力",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["powerDelta"] = powerModifierAmount,
+                ["appliedPowerDelta"] = appliedPowerDelta,
+                ["minimumPower"] = behavior.MinimumPowerAfterModifier,
+                ["resultingPower"] = nextTargetState.Power
+            });
+
+        return nextTargetState;
+    }
+
+    private static CardObjectState ApplyReadyState(
+        CardObjectState targetState,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        string targetObjectId,
+        out GameEvent readyEvent)
+    {
+        var wasExhausted = targetState.IsExhausted;
+        var nextTargetState = targetState with
+        {
+            IsExhausted = false
+        };
+        readyEvent = new GameEvent(
+            "UNIT_READIED",
+            $"{behavior.DisplayName}让单位变为活跃状态",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["wasExhausted"] = wasExhausted,
+                ["isExhausted"] = nextTargetState.IsExhausted
+            });
+
+        return nextTargetState;
+    }
+
+    private static CardObjectState ApplyExhaustState(
+        CardObjectState targetState,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        string targetObjectId,
+        out GameEvent exhaustedEvent)
+    {
+        var wasExhausted = targetState.IsExhausted;
+        var nextTargetState = targetState with
+        {
+            IsExhausted = true
+        };
+        exhaustedEvent = new GameEvent(
+            "UNIT_EXHAUSTED",
+            $"{behavior.DisplayName}让单位变为休眠状态",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["wasExhausted"] = wasExhausted,
+                ["isExhausted"] = nextTargetState.IsExhausted
+            });
+
+        return nextTargetState;
+    }
+
+    private static int ResolvePowerModifierAmount(
+        CardBehaviorDefinition behavior,
+        int targetIndex,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId)
+    {
+        if (!string.IsNullOrWhiteSpace(behavior.PowerModifierControlledUnitTags))
+        {
+            return CountControlledUnitTagKinds(
+                playerZones,
+                cardObjects,
+                controllerId,
+                behavior.PowerModifierControlledUnitTags);
+        }
+
+        return targetIndex == 1 && behavior.SecondaryPowerModifierAmount != 0
+            ? behavior.SecondaryPowerModifierAmount
+            : behavior.PowerModifierAmount;
+    }
+
+    private static int CountControlledUnitTagKinds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string delimitedTags)
+    {
+        var trackedTags = delimitedTags
+            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToHashSet(StringComparer.Ordinal);
+        if (trackedTags.Count == 0)
+        {
+            return 0;
+        }
+
+        var presentTags = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var objectId in GetControlledFieldUnitObjectIds(playerZones, playerId))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject))
+            {
+                continue;
+            }
+
+            foreach (var tag in cardObject.Tags)
+            {
+                if (trackedTags.Contains(tag))
+                {
+                    presentTags.Add(tag);
+                }
+            }
+        }
+
+        return presentTags.Count;
+    }
+
+    private static string[] ResolveStatusEffectIds(CardBehaviorDefinition behavior)
+    {
+        return new[] { behavior.StatusEffectId, behavior.SecondaryStatusEffectId }
+            .Where(statusEffectId => !string.IsNullOrWhiteSpace(statusEffectId))
+            .ToArray();
+    }
+
+    private static bool PowerModifierConditionApplies(
+        CardObjectState targetState,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.PowerModifierConditionKind switch
+        {
+            CardPowerModifierConditionKinds.TargetIsAttacking => targetState.IsAttacking,
+            CardPowerModifierConditionKinds.TargetIsDefending => targetState.IsDefending,
+            _ => true
+        };
     }
 
     private static RecycleResult RecycleTargetCards(
@@ -1049,6 +2189,44 @@ public sealed class CoreRuleEngine : IRuleEngine
         return new RecycleResult(events, rngCursor);
     }
 
+    private static RuneCallResult CallRunes(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        int runeCallCount)
+    {
+        if (runeCallCount <= 0
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return new RuneCallResult([]);
+        }
+
+        var calledRunes = zones.RuneDeck.Take(runeCallCount).ToArray();
+        if (calledRunes.Length == 0)
+        {
+            return new RuneCallResult([]);
+        }
+
+        playerZones[playerId] = zones with
+        {
+            RuneDeck = zones.RuneDeck.Skip(calledRunes.Length).ToArray(),
+            Base = zones.Base.Concat(calledRunes).ToArray()
+        };
+
+        foreach (var runeObjectId in calledRunes)
+        {
+            var runeState = cardObjects.TryGetValue(runeObjectId, out var existingRuneState)
+                ? existingRuneState
+                : new CardObjectState(runeObjectId);
+            cardObjects[runeObjectId] = runeState with
+            {
+                IsExhausted = true
+            };
+        }
+
+        return new RuneCallResult(calledRunes);
+    }
+
     private static IReadOnlyList<string> RandomizeForMainDeckBottom(
         IReadOnlyList<string> cardIds,
         long seed,
@@ -1092,9 +2270,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
-        out string ownerPlayerId)
+        out FieldRemovalResult removalResult)
     {
-        ownerPlayerId = string.Empty;
+        removalResult = FieldRemovalResult.Empty;
         foreach (var (playerId, zones) in playerZones)
         {
             var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
@@ -1104,20 +2282,101 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+                ? existingTargetState
+                : new CardObjectState(targetObjectId);
+            var shouldRecallToBase = targetState.UntilEndOfTurnEffects.Contains(
+                RecallToBaseExhaustedIfDestroyedThisTurnEffectId,
+                StringComparer.Ordinal);
+            var shouldBanish = !shouldRecallToBase
+                && targetState.UntilEndOfTurnEffects.Contains(
+                    BanishIfDestroyedThisTurnEffectId,
+                    StringComparer.Ordinal);
+            if (shouldRecallToBase)
+            {
+                playerZones[playerId] = zones with
+                {
+                    Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                        ? zones.Base
+                        : zones.Base.Concat([targetObjectId]).ToArray(),
+                    Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+                };
+                cardObjects[targetObjectId] = targetState with
+                {
+                    Damage = 0,
+                    IsExhausted = true,
+                    UntilEndOfTurnEffects = targetState.UntilEndOfTurnEffects
+                        .Where(effectId => !string.Equals(
+                            effectId,
+                            RecallToBaseExhaustedIfDestroyedThisTurnEffectId,
+                            StringComparison.Ordinal))
+                        .ToArray()
+                };
+                removalResult = new FieldRemovalResult(
+                    playerId,
+                    "BASE",
+                    false,
+                    true);
+                return true;
+            }
+
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
                 Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
-                Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                Graveyard = shouldBanish || zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
                     ? zones.Graveyard
-                    : zones.Graveyard.Concat([targetObjectId]).ToArray()
+                    : zones.Graveyard.Concat([targetObjectId]).ToArray(),
+                Banished = shouldBanish && !zones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Banished.Concat([targetObjectId]).ToArray()
+                    : zones.Banished
             };
             cardObjects.Remove(targetObjectId);
-            ownerPlayerId = playerId;
+            removalResult = new FieldRemovalResult(
+                playerId,
+                shouldBanish ? "BANISHED" : "GRAVEYARD",
+                shouldBanish,
+                false);
             return true;
         }
 
         return false;
+    }
+
+    private static GameEvent BuildFieldRemovalEvent(
+        string displayName,
+        StackItemState stackItem,
+        string targetObjectId,
+        FieldRemovalResult removalResult,
+        string? reason = null)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = stackItem.SourceObjectId,
+            ["targetObjectId"] = targetObjectId,
+            ["ownerPlayerId"] = removalResult.OwnerPlayerId,
+            ["destroyedByPlayerId"] = stackItem.ControllerId,
+            ["destinationZone"] = removalResult.DestinationZone
+        };
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            payload["reason"] = reason;
+        }
+
+        if (removalResult.WasBanished)
+        {
+            payload["replacementEffectId"] = BanishIfDestroyedThisTurnEffectId;
+        }
+
+        if (removalResult.WasRecalledToBase)
+        {
+            payload["replacementEffectId"] = RecallToBaseExhaustedIfDestroyedThisTurnEffectId;
+            return new GameEvent("UNIT_RECALLED_TO_BASE", $"{displayName}改为休眠召回单位", payload);
+        }
+
+        return removalResult.WasBanished
+            ? new GameEvent("UNIT_BANISHED", $"{displayName}改为放逐单位", payload)
+            : new GameEvent("UNIT_DESTROYED", $"{displayName}摧毁单位", payload);
     }
 
     private static bool TryReturnTargetToHand(
@@ -1152,11 +2411,106 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool TryDiscardCardFromHand(
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string targetObjectId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Hand.Contains(targetObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Hand = RemoveFromZone(zones.Hand, targetObjectId),
+            Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Graveyard
+                : zones.Graveyard.Concat([targetObjectId]).ToArray()
+        };
+        return true;
+    }
+
+    private static bool TryDiscardPlayerHand(
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        out IReadOnlyList<string> discardedObjectIds)
+    {
+        discardedObjectIds = [];
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        discardedObjectIds = zones.Hand
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .ToArray();
+        playerZones[playerId] = zones with
+        {
+            Hand = [],
+            Graveyard = zones.Graveyard
+                .Concat(discardedObjectIds.Where(objectId =>
+                    !zones.Graveyard.Contains(objectId, StringComparer.Ordinal)))
+                .ToArray()
+        };
+        return true;
+    }
+
+    private static bool TryReturnGraveyardCardToHand(
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string targetObjectId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Graveyard = RemoveFromZone(zones.Graveyard, targetObjectId),
+            Hand = zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Hand
+                : zones.Hand.Concat([targetObjectId]).ToArray()
+        };
+        return true;
+    }
+
+    private static bool TryMoveTargetToOwnerBase(
+        Dictionary<string, PlayerZones> playerZones,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+                Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Base
+                    : zones.Base.Concat([targetObjectId]).ToArray()
+            };
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool ShouldDrawForBehavior(
         CardBehaviorDefinition behavior,
-        IReadOnlyList<string> destroyedObjectIds)
+        IReadOnlyList<string> destroyedObjectIds,
+        int drawCount)
     {
-        if (behavior.DrawCount <= 0)
+        if (drawCount <= 0)
         {
             return false;
         }
@@ -1167,6 +2521,40 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardDrawConditionKinds.TargetDestroyedByThisEffect => destroyedObjectIds.Count > 0,
             _ => false
         };
+    }
+
+    private static int ResolveDrawCount(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.DynamicDrawCountKind switch
+        {
+            CardDynamicDrawCountKinds.ControllerPowerfulUnits => CountControlledUnitsWithPowerAtLeast(
+                playerZones,
+                cardObjects,
+                controllerId,
+                5),
+            _ => behavior.DrawCount
+        };
+    }
+
+    private static int CountControlledUnitsWithPowerAtLeast(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        int minimumPower)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Count(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Power >= minimumPower);
     }
 
     private static LethalDamageCleanupResult ApplyLethalDamageCleanup(
@@ -1188,24 +2576,24 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var objectId in lethalObjectIds)
         {
-            if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var ownerPlayerId))
+            if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var removalResult))
+            {
+                continue;
+            }
+
+            events.Add(BuildFieldRemovalEvent(
+                removalResult.WasBanished ? "致命伤害" : "致命伤害",
+                stackItem,
+                objectId,
+                removalResult,
+                "LETHAL_DAMAGE"));
+            if (!removalResult.WasDestroyed)
             {
                 continue;
             }
 
             destroyedObjectIds.Add(objectId);
-            destroyedUnitOwnerIds.Add(ownerPlayerId);
-            events.Add(new GameEvent(
-                "UNIT_DESTROYED",
-                "致命伤害摧毁单位",
-                new Dictionary<string, object?>
-                {
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["targetObjectId"] = objectId,
-                    ["ownerPlayerId"] = ownerPlayerId,
-                    ["destroyedByPlayerId"] = stackItem.ControllerId,
-                    ["reason"] = "LETHAL_DAMAGE"
-                }));
+            destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
         }
 
         return new LethalDamageCleanupResult(events, destroyedObjectIds, destroyedUnitOwnerIds);
@@ -1265,6 +2653,46 @@ public sealed class CoreRuleEngine : IRuleEngine
             DrawnCards = drawnCards.ToArray(),
             Burnouts = burnouts.ToArray()
         };
+    }
+
+    private static DrawApplicationResult ApplyDrawToPlayer(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        int drawCount,
+        long rngCursor,
+        List<GameEvent> events)
+    {
+        if (drawCount <= 0
+            || !playerZones.TryGetValue(playerId, out var drawPlayerZones))
+        {
+            return new DrawApplicationResult(playerScores, null, rngCursor);
+        }
+
+        var drawState = state with
+        {
+            PlayerScores = playerScores,
+            RngCursor = rngCursor
+        };
+        var drawResult = DrawCards(
+            drawState,
+            playerId,
+            drawPlayerZones,
+            drawCount);
+        drawPlayerZones = drawPlayerZones with
+        {
+            MainDeck = drawResult.MainDeck,
+            Hand = drawPlayerZones.Hand.Concat(drawResult.DrawnCards).ToArray(),
+            Graveyard = drawResult.Graveyard
+        };
+        playerZones[playerId] = drawPlayerZones;
+        events.AddRange(BuildCardDrawEvents(playerId, drawResult));
+
+        return new DrawApplicationResult(
+            drawResult.PlayerScores,
+            drawResult.WinnerPlayerId,
+            drawResult.RngCursor);
     }
 
     private static IReadOnlyList<GameEvent> BuildCardDrawEvents(string playerId, DrawResult drawResult)
@@ -1774,6 +3202,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> PlayerScores,
         long RngCursor);
 
+    private sealed record DrawApplicationResult(
+        IReadOnlyDictionary<string, int> PlayerScores,
+        string? WinnerPlayerId,
+        long RngCursor);
+
     private sealed record BurnoutResult(
         string ScoredPlayerId,
         int ScoredPlayerScore);
@@ -1785,7 +3218,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         int TotalManaCost,
         int EffectRepeatCount,
         IReadOnlyList<string> OptionalCosts,
-        int CostReductionMana);
+        int CostReductionMana,
+        IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,
+        IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
+        IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
@@ -1799,6 +3235,20 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record RecycleResult(
         IReadOnlyList<GameEvent> Events,
         long RngCursor);
+
+    private sealed record RuneCallResult(
+        IReadOnlyList<string> CalledRuneObjectIds);
+
+    private sealed record FieldRemovalResult(
+        string OwnerPlayerId,
+        string DestinationZone,
+        bool WasBanished,
+        bool WasRecalledToBase)
+    {
+        public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
+
+        public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false);
+    }
 
     private sealed record LethalDamageCleanupResult(
         IReadOnlyList<GameEvent> Events,

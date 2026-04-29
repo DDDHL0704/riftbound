@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-punishment-base-unit-damage-stack",
-  "description": "Playing Punishment can target a unit in a base because the official text says one unit, not only a battlefield unit.",
+  "fixtureId": "p2-preflight-play-king-of-the-hill-draw-no-controlled-battlefields",
+  "description": "King of the Hill draws its base one card when the controller has no controlled battlefields in the current minimal model.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302024,
+  "seed": 2603302150,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-007/219 惩戒",
-      "note": "官方卡面：费用 2；对一名单位造成 3 点伤害；目标文本未限定为战场上的单位。"
+      "locator": "UNL-015/219 占山为王",
+      "note": "官方卡面：费用 3；先抽一张牌，然后你和盟友每控制一处战场，你便抽一张牌。当前 fixture 锁定没有已控制战场时只抽基础 1 张的路径；按战场控制数量额外抽牌待战场控制模型落地后补。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p39-p42 rules 355-356; p33-p35 rules 327-340",
-      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。"
+      "locator": "p39-p42 rules 355-356; p57 rule 413.4",
+      "note": "从手牌支付费用打出法术、加入结算链、双方让过后按卡面顺序结算；抽牌按标准抽一张牌路径处理。"
     }
   ],
-  "roomId": "p2-preflight-punishment-base-unit-room",
+  "roomId": "p2-preflight-king-of-the-hill-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302024,
-    "turnNumber": 12,
+    "seed": 2603302150,
+    "turnNumber": 80,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,14 +34,14 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 3, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
+        "mainDeck": ["P1-DRAW-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-PUNISHMENT"],
+        "hand": ["P1-SPELL-KING-OF-THE-HILL"],
         "base": [],
         "battlefields": [],
         "graveyard": [],
@@ -53,42 +53,36 @@
         "mainDeck": ["P2-MAIN-001"],
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
-        "base": ["P2-BASE-UNIT-001"],
+        "base": [],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
       }
-    },
-    "cardObjects": {
-      "P2-BASE-UNIT-001": {
-        "damage": 0,
-        "untilEndOfTurnEffects": []
-      }
     }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-punishment-base-play",
+      "clientIntentId": "intent-p2-preflight-king-of-the-hill-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-PUNISHMENT",
-        "cardNo": "UNL-007/219",
-        "targetObjectIds": ["P2-BASE-UNIT-001"]
+        "sourceObjectId": "P1-SPELL-KING-OF-THE-HILL",
+        "cardNo": "UNL-015/219",
+        "targetObjectIds": []
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-punishment-base-p1-pass",
+      "clientIntentId": "intent-p2-preflight-king-of-the-hill-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-punishment-base-p2-pass",
+      "clientIntentId": "intent-p2-preflight-king-of-the-hill-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -103,23 +97,44 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "DAMAGE_APPLIED"
+      "CARD_DRAWN"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-KING-OF-THE-HILL",
+          "cardNo": "UNL-015/219",
+          "targetObjectIds": [],
+          "effectKind": "KING_OF_THE_HILL_DRAW_1_NO_CONTROLLED_BATTLEFIELDS"
+        }
+      },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
-      { "kind": "DAMAGE_APPLIED" }
+      {
+        "kind": "CARD_DRAWN",
+        "payload": {
+          "playerId": "P1",
+          "count": 1
+        }
+      }
     ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 12,
+      "turnNumber": 80,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -134,21 +149,16 @@
       },
       "players": {
         "P1": {
-          "hand": [],
-          "graveyard": ["P1-SPELL-PUNISHMENT"]
+          "mainDeck": [],
+          "hand": ["P1-DRAW-001"],
+          "graveyard": ["P1-SPELL-KING-OF-THE-HILL"]
         },
         "P2": {
-          "base": ["P2-BASE-UNIT-001"],
-          "battlefields": []
+          "mainDeck": ["P2-MAIN-001"],
+          "graveyard": []
         }
       },
-      "stackItems": [],
-      "cardObjects": {
-        "P2-BASE-UNIT-001": {
-          "damage": 3,
-          "untilEndOfTurnEffects": []
-        }
-      }
+      "stackItems": []
     },
     "prompts": {
       "P1": { "actionable": true, "actions": ["END_TURN"] },

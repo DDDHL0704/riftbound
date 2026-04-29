@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-danger-temperature-mechanical-power-plus-1",
+  "description": "Danger Temperature gives only the controller's Mechanical units +1 power until end of turn.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302147,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·182/221 危险温度",
+      "note": "官方卡面：费用 1；你的“机械”属性单位本回合内战力 +1。回响费用包含混合资源，当前 fixture 锁定未支付回响的基础路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "note": "从手牌支付费用打出法术、加入结算链，双方让过后按卡面给符合条件的单位施加本回合内战力修正。"
+    }
+  ],
+  "roomId": "p2-preflight-danger-temperature-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302147,
+    "turnNumber": 78,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": [],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-DANGER-TEMPERATURE"],
+        "base": ["P1-MECHANICAL-BASE", "P1-NON-MECHANICAL-BASE"],
+        "battlefields": ["P1-MECHANICAL-BATTLEFIELD"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-MECHANICAL-BASE"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-MECHANICAL-BASE": {
+        "power": 2,
+        "tags": ["机械"]
+      },
+      "P1-NON-MECHANICAL-BASE": {
+        "power": 3,
+        "tags": ["人类"]
+      },
+      "P1-MECHANICAL-BATTLEFIELD": {
+        "power": 4,
+        "tags": ["机械"]
+      },
+      "P2-MECHANICAL-BASE": {
+        "power": 4,
+        "tags": ["机械"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-danger-temperature-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-DANGER-TEMPERATURE",
+        "cardNo": "SFD·182/221",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-danger-temperature-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-danger-temperature-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "baseMana": 1,
+          "costReductionMana": 0
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-DANGER-TEMPERATURE",
+          "cardNo": "SFD·182/221",
+          "targetObjectIds": [],
+          "effectKind": "DANGER_TEMPERATURE_MECHANICAL_POWER_PLUS_1"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-DANGER-TEMPERATURE",
+          "targetObjectId": "P1-MECHANICAL-BASE",
+          "powerDelta": 1,
+          "appliedPowerDelta": 1,
+          "resultingPower": 3
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-DANGER-TEMPERATURE",
+          "targetObjectId": "P1-MECHANICAL-BATTLEFIELD",
+          "powerDelta": 1,
+          "appliedPowerDelta": 1,
+          "resultingPower": 5
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 78,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-MECHANICAL-BASE", "P1-NON-MECHANICAL-BASE"],
+          "battlefields": ["P1-MECHANICAL-BATTLEFIELD"],
+          "graveyard": ["P1-SPELL-DANGER-TEMPERATURE"]
+        },
+        "P2": {
+          "base": ["P2-MECHANICAL-BASE"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-MECHANICAL-BASE": {
+          "power": 3,
+          "untilEndOfTurnPowerModifier": 1,
+          "tags": ["机械"]
+        },
+        "P1-NON-MECHANICAL-BASE": {
+          "power": 3,
+          "untilEndOfTurnPowerModifier": 0,
+          "tags": ["人类"]
+        },
+        "P1-MECHANICAL-BATTLEFIELD": {
+          "power": 5,
+          "untilEndOfTurnPowerModifier": 1,
+          "tags": ["机械"]
+        },
+        "P2-MECHANICAL-BASE": {
+          "power": 4,
+          "untilEndOfTurnPowerModifier": 0,
+          "tags": ["机械"]
+        }
+      }
+    }
+  }
+}

@@ -66,16 +66,22 @@ public sealed record CardObjectState
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
         bool isFaceDown = false,
         bool isAttacking = false,
+        bool isDefending = false,
         int power = 0,
-        int untilEndOfTurnPowerModifier = 0)
+        int untilEndOfTurnPowerModifier = 0,
+        bool isExhausted = false,
+        IReadOnlyList<string>? tags = null)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
         UntilEndOfTurnEffects = NormalizeEffects(untilEndOfTurnEffects);
         IsFaceDown = isFaceDown;
         IsAttacking = isAttacking;
+        IsDefending = isDefending;
         Power = Math.Max(0, power);
         UntilEndOfTurnPowerModifier = untilEndOfTurnPowerModifier;
+        IsExhausted = isExhausted;
+        Tags = NormalizeTags(tags);
     }
 
     public string ObjectId { get; init; }
@@ -88,9 +94,15 @@ public sealed record CardObjectState
 
     public bool IsAttacking { get; init; }
 
+    public bool IsDefending { get; init; }
+
     public int Power { get; init; }
 
     public int UntilEndOfTurnPowerModifier { get; init; }
+
+    public bool IsExhausted { get; init; }
+
+    public IReadOnlyList<string> Tags { get; init; }
 
     private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
     {
@@ -99,6 +111,16 @@ public sealed record CardObjectState
             .Select(effectId => effectId.Trim())
             .Distinct(StringComparer.Ordinal)
             .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> NormalizeTags(IReadOnlyList<string>? tags)
+    {
+        return (tags ?? [])
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .Select(tag => tag.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
     }
 }
@@ -384,8 +406,11 @@ public sealed record MatchState
             state.UntilEndOfTurnEffects,
             state.IsFaceDown,
             state.IsAttacking,
+            state.IsDefending,
             state.Power,
-            state.UntilEndOfTurnPowerModifier);
+            state.UntilEndOfTurnPowerModifier,
+            state.IsExhausted,
+            state.Tags);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)

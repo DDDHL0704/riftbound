@@ -1,35 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-punishment-damage-stack",
-  "description": "Playing the official spell Punishment pays cost, adds a stack item, passes FEPR priority, resolves 3 damage to a battlefield unit, and marks it to be banished if destroyed this turn.",
+  "fixtureId": "p2-preflight-play-eclipse-power-minus-4",
+  "description": "Eclipse gives one unit -4 power until end of turn; the insight action is deferred.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302013,
+  "seed": 2603302072,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-007/219 惩戒",
-      "note": "官方卡面：费用 2；迅捷；对战场上的一名单位造成 3 点伤害。如果该单位在本回合内被摧毁，则改为将其放逐。"
+      "locator": "UNL-063/219 月蚀",
+      "note": "官方卡面：费用 3；反应；让一名单位在本回合内战力 -4，然后进行洞察。本 fixture 覆盖战力修正基础分支；洞察的查看牌堆顶部并可选择回收路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p39-p42 rules 355-356",
-      "note": "将法术或技能放置到结算链时，必须为所有目标做出有效选择，并确定总费用。"
-    },
-    {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p33-p35 rules 327-340",
-      "note": "打出卡牌会创造结算链；双方让过优先行动权后结算最新项目。"
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
+      "note": "单位可位于基地或战场；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的战力修正由回合结束特殊清理移除。"
     }
   ],
-  "roomId": "p2-preflight-punishment-room",
+  "roomId": "p2-preflight-eclipse-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302013,
-    "turnNumber": 7,
+    "seed": 2603302072,
+    "turnNumber": 98,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -39,14 +34,14 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 3, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
+        "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-PUNISHMENT"],
+        "hand": ["P1-SPELL-ECLIPSE"],
         "base": [],
         "battlefields": [],
         "graveyard": [],
@@ -59,7 +54,7 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": ["P2-UNIT-001"],
+        "battlefields": ["P2-UNIT-ECLIPSE-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
@@ -67,33 +62,35 @@
       }
     },
     "cardObjects": {
-      "P2-UNIT-001": {
+      "P2-UNIT-ECLIPSE-001": {
         "damage": 0,
-        "untilEndOfTurnEffects": []
+        "power": 5,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
       }
     }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-punishment-play",
+      "clientIntentId": "intent-p2-preflight-eclipse-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-PUNISHMENT",
-        "cardNo": "UNL-007/219",
-        "targetObjectIds": ["P2-UNIT-001"]
+        "sourceObjectId": "P1-SPELL-ECLIPSE",
+        "cardNo": "UNL-063/219",
+        "targetObjectIds": ["P2-UNIT-ECLIPSE-001"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-punishment-p1-pass",
+      "clientIntentId": "intent-p2-preflight-eclipse-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-punishment-p2-pass",
+      "clientIntentId": "intent-p2-preflight-eclipse-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -108,32 +105,48 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "DESTROY_REPLACEMENT_EFFECT_APPLIED",
-      "DAMAGE_APPLIED"
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-ECLIPSE",
+          "cardNo": "UNL-063/219",
+          "targetObjectIds": ["P2-UNIT-ECLIPSE-001"],
+          "effectKind": "ECLIPSE_POWER_MINUS_4_NO_INSIGHT"
+        }
+      },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "DESTROY_REPLACEMENT_EFFECT_APPLIED",
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
         "payload": {
-          "sourceObjectId": "P1-SPELL-PUNISHMENT",
-          "targetObjectId": "P2-UNIT-001",
-          "effectId": "BANISH_IF_DESTROYED_THIS_TURN"
+          "sourceObjectId": "P1-SPELL-ECLIPSE",
+          "targetObjectId": "P2-UNIT-ECLIPSE-001",
+          "powerDelta": -4,
+          "appliedPowerDelta": -4,
+          "resultingPower": 1
         }
-      },
-      { "kind": "DAMAGE_APPLIED" }
+      }
     ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 7,
+      "turnNumber": 98,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -148,17 +161,23 @@
       },
       "players": {
         "P1": {
+          "mainDeck": ["P1-MAIN-001", "P1-MAIN-002"],
           "hand": [],
-          "graveyard": ["P1-SPELL-PUNISHMENT"]
+          "graveyard": ["P1-SPELL-ECLIPSE"]
+        },
+        "P2": {
+          "battlefields": ["P2-UNIT-ECLIPSE-001"]
         }
       },
-      "stackItems": [],
       "cardObjects": {
-        "P2-UNIT-001": {
-          "damage": 3,
-          "untilEndOfTurnEffects": ["BANISH_IF_DESTROYED_THIS_TURN"]
+        "P2-UNIT-ECLIPSE-001": {
+          "damage": 0,
+          "power": 1,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": -4
         }
-      }
+      },
+      "stackItems": []
     },
     "prompts": {
       "P1": { "actionable": true, "actions": ["END_TURN"] },

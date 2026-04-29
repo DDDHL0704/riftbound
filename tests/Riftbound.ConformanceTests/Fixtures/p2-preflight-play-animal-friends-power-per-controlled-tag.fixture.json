@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-animal-friends-power-per-controlled-tag",
+  "description": "Animal Friends gives the chosen unit +1 power for each tracked animal tag kind among the controller's units.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302085,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-046/219 动物之友",
+      "note": "官方卡面：费用 1；反应；选择一名单位。你的单位中每有一种“鸟类”“猫科”“犬形”“魄罗”属性标签，目标本回合内战力 +1。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p31-p33 rules 318-324",
+      "note": "对象可带属性标签；从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；本回合内战力修正由清理移除。"
+    }
+  ],
+  "roomId": "p2-preflight-animal-friends-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302085,
+    "turnNumber": 69,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-ANIMAL-FRIENDS"],
+        "base": ["P1-BASE-BIRD-001"],
+        "battlefields": ["P1-BATTLEFIELD-CATDOG-001", "P1-BATTLEFIELD-MECHANICAL-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-BIRD-001": {
+        "damage": 0,
+        "power": 1,
+        "tags": ["鸟类"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P1-BATTLEFIELD-CATDOG-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": ["犬形", "猫科"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P1-BATTLEFIELD-MECHANICAL-001": {
+        "damage": 0,
+        "power": 3,
+        "tags": ["机械"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-animal-friends-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-ANIMAL-FRIENDS",
+        "cardNo": "UNL-046/219",
+        "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-animal-friends-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-animal-friends-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "baseMana": 1
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-ANIMAL-FRIENDS",
+          "cardNo": "UNL-046/219",
+          "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
+          "effectKind": "ANIMAL_FRIENDS_POWER_PER_CONTROLLED_TAG"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-ANIMAL-FRIENDS",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "powerDelta": 3,
+          "appliedPowerDelta": 3,
+          "resultingPower": 5
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 69,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-BASE-BIRD-001"],
+          "battlefields": ["P1-BATTLEFIELD-CATDOG-001", "P1-BATTLEFIELD-MECHANICAL-001"],
+          "graveyard": ["P1-SPELL-ANIMAL-FRIENDS"]
+        },
+        "P2": {
+          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-BASE-BIRD-001": {
+          "damage": 0,
+          "power": 1,
+          "tags": ["鸟类"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P1-BATTLEFIELD-CATDOG-001": {
+          "damage": 0,
+          "power": 2,
+          "tags": ["犬形", "猫科"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P1-BATTLEFIELD-MECHANICAL-001": {
+          "damage": 0,
+          "power": 3,
+          "tags": ["机械"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BATTLEFIELD-UNIT-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 3
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

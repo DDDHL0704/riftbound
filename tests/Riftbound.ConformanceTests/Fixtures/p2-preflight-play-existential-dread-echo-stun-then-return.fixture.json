@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-existential-dread-echo-stun-then-return",
+  "description": "Existential Dread paid with Echo first stuns an attacking enemy unit, then returns it because the repeated effect sees it already stunned.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302079,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-134/219 存在焦虑",
+      "note": "官方卡面：费用 1；迅捷；回响 2；眩晕一名正在进攻的敌方单位。如果它已经被眩晕，则改为让该单位返回其所属的手牌。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；回响作为额外费用重复此法术效果；眩晕属于本回合内效果。"
+    }
+  ],
+  "roomId": "p2-preflight-existential-dread-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302079,
+    "turnNumber": 72,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-EXISTENTIAL-DREAD"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "isAttacking": true,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-existential-dread-echo-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-EXISTENTIAL-DREAD",
+        "cardNo": "UNL-134/219",
+        "targetObjectIds": ["P2-UNIT-001"],
+        "optionalCosts": ["ECHO"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-existential-dread-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-existential-dread-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "STATUS_EFFECT_APPLIED",
+      "UNIT_RETURNED_TO_HAND"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 1,
+          "costReductionMana": 0,
+          "optionalCosts": ["ECHO"]
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-EXISTENTIAL-DREAD",
+          "cardNo": "UNL-134/219",
+          "targetObjectIds": ["P2-UNIT-001"],
+          "effectKind": "EXISTENTIAL_DREAD_STUN_ATTACKING_ENEMY_OR_RETURN_STUNNED",
+          "effectRepeatCount": 2
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "STATUS_EFFECT_APPLIED",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-EXISTENTIAL-DREAD",
+          "targetObjectId": "P2-UNIT-001",
+          "effectId": "STUNNED"
+        }
+      },
+      {
+        "kind": "UNIT_RETURNED_TO_HAND",
+        "tick": 3,
+        "sequence": 8,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-EXISTENTIAL-DREAD",
+          "targetObjectId": "P2-UNIT-001",
+          "ownerPlayerId": "P2",
+          "statusEffectId": "STUNNED"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 72,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-EXISTENTIAL-DREAD"]
+        },
+        "P2": {
+          "hand": ["P2-UNIT-001"],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {},
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

@@ -100,9 +100,15 @@ public sealed record ConformanceCardObjectState
 
     public bool? IsAttacking { get; init; }
 
+    public bool? IsDefending { get; init; }
+
+    public bool? IsExhausted { get; init; }
+
     public int? Power { get; init; }
 
     public int? UntilEndOfTurnPowerModifier { get; init; }
+
+    public IReadOnlyList<string>? Tags { get; init; }
 }
 
 public sealed record ConformanceStackItemState(
@@ -360,8 +366,11 @@ public static class ConformanceFixtureRunner
                     entry.Value.UntilEndOfTurnEffects,
                     entry.Value.IsFaceDown ?? false,
                     entry.Value.IsAttacking ?? false,
+                    entry.Value.IsDefending ?? false,
                     entry.Value.Power ?? 0,
-                    entry.Value.UntilEndOfTurnPowerModifier ?? 0),
+                    entry.Value.UntilEndOfTurnPowerModifier ?? 0,
+                    entry.Value.IsExhausted ?? false,
+                    entry.Value.Tags),
                 StringComparer.Ordinal);
     }
 
@@ -642,6 +651,9 @@ public static class ConformanceFixtureRunner
                 actualObject.UntilEndOfTurnEffects);
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isFaceDown", expectedObject.IsFaceDown, actualObject.IsFaceDown);
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isAttacking", expectedObject.IsAttacking, actualObject.IsAttacking);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isDefending", expectedObject.IsDefending, actualObject.IsDefending);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isExhausted", expectedObject.IsExhausted, actualObject.IsExhausted);
+            CompareSequence(mismatches, $"finalState.cardObjects.{objectId}.tags", expectedObject.Tags, actualObject.Tags);
         }
     }
 

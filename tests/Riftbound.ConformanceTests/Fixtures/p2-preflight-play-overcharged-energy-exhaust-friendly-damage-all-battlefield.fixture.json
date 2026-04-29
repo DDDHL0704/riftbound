@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-overcharged-energy-exhaust-friendly-damage-all-battlefield",
+  "description": "Overcharged Energy exhausts all friendly units, then deals 12 damage to every battlefield unit.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302080,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·123/298 过载能量",
+      "note": "官方卡面：费用 7；让所有友方单位变为休眠状态，然后对所有战场上的单位各造成 12 点伤害。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 323-324; p39-p42 rules 355-356; p62-p63 rule 428",
+      "note": "法术结算按卡面顺序执行效果；造成伤害后，单位伤害达到战力会被摧毁并移入拥有者废牌堆。"
+    }
+  ],
+  "roomId": "p2-preflight-overcharged-energy-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302080,
+    "turnNumber": 62,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 7, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-OVERCHARGED-ENERGY"],
+        "base": ["P1-BASE-UNIT-001"],
+        "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false
+      },
+      "P1-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 13,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false
+      },
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-overcharged-energy-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+        "cardNo": "OGN·123/298",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-overcharged-energy-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-overcharged-energy-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_EXHAUSTED",
+      "UNIT_EXHAUSTED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_DESTROYED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 7,
+          "baseMana": 7
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+          "cardNo": "OGN·123/298",
+          "targetObjectIds": [],
+          "effectKind": "OVERCHARGED_ENERGY_EXHAUST_ALL_FRIENDLY_DAMAGE_ALL_BATTLEFIELD_12"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_EXHAUSTED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+          "targetObjectId": "P1-BASE-UNIT-001",
+          "wasExhausted": false,
+          "isExhausted": true
+        }
+      },
+      {
+        "kind": "UNIT_EXHAUSTED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+          "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
+          "wasExhausted": false,
+          "isExhausted": true
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+          "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
+          "damage": 12
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "damage": 12
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-OVERCHARGED-ENERGY",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "reason": "LETHAL_DAMAGE"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 62,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-BASE-UNIT-001"],
+          "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+          "graveyard": ["P1-SPELL-OVERCHARGED-ENERGY"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": [],
+          "graveyard": ["P2-BATTLEFIELD-UNIT-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 2,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true
+        },
+        "P1-BATTLEFIELD-UNIT-001": {
+          "damage": 12,
+          "power": 13,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true
+        },
+        "P2-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 3,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

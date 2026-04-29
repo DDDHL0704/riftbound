@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-roaring-reckoning-discard-echo-overwhelm-attacking-power",
+  "description": "Roaring Reckoning discards a hand card as Echo optional cost, then repeats Overwhelm 4 and the attacking +4 power modifier.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302096,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-017/219 怒吼清算",
+      "note": "官方卡面：费用 4；回响额外费用为弃置一张手牌；让一名单位本回合内获得强攻 4；如果它是进攻方，则战力 +4。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出法术需要支付费用并加入结算链；回响支付额外费用后重复法术效果；本回合内效果会在回合结束特殊清理移除；强攻关键词在目标为进攻方时提供对应战力加成。"
+    }
+  ],
+  "roomId": "p2-preflight-roaring-reckoning-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302096,
+    "turnNumber": 80,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": [],
+        "runeDeck": [],
+        "hand": ["P1-SPELL-ROARING-RECKONING", "P1-DISCARD-001"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": [],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-ROARING-RECKONING-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-ROARING-RECKONING-001": {
+        "damage": 0,
+        "power": 2,
+        "isAttacking": true,
+        "isExhausted": false,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-roaring-reckoning-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+        "cardNo": "UNL-017/219",
+        "targetObjectIds": ["P2-UNIT-ROARING-RECKONING-001"],
+        "optionalCosts": ["DISCARD_HAND_CARD:P1-DISCARD-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-roaring-reckoning-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-roaring-reckoning-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "CARD_DISCARDED",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "STATUS_EFFECT_APPLIED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "STATUS_EFFECT_APPLIED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4,
+          "optionalCosts": ["DISCARD_HAND_CARD:P1-DISCARD-001"]
+        }
+      },
+      {
+        "kind": "CARD_DISCARDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+          "targetObjectId": "P1-DISCARD-001",
+          "reason": "OPTIONAL_COST",
+          "destinationZone": "GRAVEYARD"
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 4,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+          "cardNo": "UNL-017/219",
+          "targetObjectIds": ["P2-UNIT-ROARING-RECKONING-001"],
+          "effectKind": "ROARING_RECKONING_DISCARD_ECHO_OVERWHELM_4",
+          "effectRepeatCount": 2
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "STATUS_EFFECT_APPLIED",
+        "tick": 3,
+        "sequence": 8,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+          "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
+          "effectId": "OVERWHELM_4"
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "tick": 3,
+        "sequence": 9,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+          "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
+          "powerDelta": 4,
+          "appliedPowerDelta": 4,
+          "minimumPower": 0,
+          "resultingPower": 6
+        }
+      },
+      {
+        "kind": "STATUS_EFFECT_APPLIED",
+        "tick": 3,
+        "sequence": 10,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+          "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
+          "effectId": "OVERWHELM_4"
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "tick": 3,
+        "sequence": 11,
+        "payload": {
+          "sourceObjectId": "P1-SPELL-ROARING-RECKONING",
+          "targetObjectId": "P2-UNIT-ROARING-RECKONING-001",
+          "powerDelta": 4,
+          "appliedPowerDelta": 4,
+          "minimumPower": 0,
+          "resultingPower": 10
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 80,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-DISCARD-001", "P1-SPELL-ROARING-RECKONING"]
+        },
+        "P2": {
+          "battlefields": ["P2-UNIT-ROARING-RECKONING-001"]
+        }
+      },
+      "cardObjects": {
+        "P2-UNIT-ROARING-RECKONING-001": {
+          "damage": 0,
+          "power": 10,
+          "untilEndOfTurnEffects": ["OVERWHELM_4"],
+          "untilEndOfTurnPowerModifier": 8,
+          "isAttacking": true,
+          "isExhausted": false
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

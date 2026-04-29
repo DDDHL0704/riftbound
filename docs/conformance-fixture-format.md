@@ -76,7 +76,6 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spell-duel-pass-focus-closes-window.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-punishment-damage-stack.fixture.json`
-- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-punishment-base-unit-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-abyssal-hunt-face-down-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-incinerate-damage-stack.fixture.json`
@@ -91,42 +90,109 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-center-stage-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-center-stage-echo-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-prophets-omen-draw-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-might-makes-right-draw-powerful-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-evolution-day-draw-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mobilize-call-rune.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mobilize-draws-if-rune-call-fails.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-catalyst-of-aeons-call-two-runes.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-catalyst-of-aeons-draws-if-rune-call-short.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-mind-and-balance-reduced-draw-then-call-rune.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vengeance-destroy-unit-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-wellspring-of-hatred-destroy-battlefield-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-detonation-destroy-battlefield-unit-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunt-the-weak-destroy-small-battlefield-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-darkin-blade-destroy-target-controller-draw.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ruination-destroy-all-units.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-undertow-return-all-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reprimand-return-battlefield-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gust-return-small-battlefield-unit.fixture.json`
-- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-lethal-damage-destroys-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-reconsider-return-friendly-call-rune.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-happenstance-return-friendly-and-enemy.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-battle-or-flight-move-battlefield-unit-to-base.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flash-move-two-friendly-battlefield-units-to-base.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-the-curtain-rises-echo-ready-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-beatdown-ready-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunt-ready-all-friendly-units.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-overcharged-energy-exhaust-friendly-damage-all-battlefield.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-lethal-damage-banishes-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-banishes-if-destroyed-later.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-draws-after-lethal-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-does-not-draw-without-destroy.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-damages-two-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-can-damage-same-unit-twice.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-duel-mutual-power-damage.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gentleman-duel-power-then-mutual-damage.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-marching-orders-echo-mutual-power-damage.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-clash-of-giants-mutual-power-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-icathian-rain-can-hit-same-unit-six-times.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blade-whirlwind-damage-all-battlefield-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-blade-whirlwind-lethal-damage-destroys-units.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-cannon-barrage-damage-enemy-combat-units.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-production-surge-create-robot-draw.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-production-surge-reduced-by-mechanical.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-common-cause-create-four-minions-base.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sandcraft-echo-create-two-sand-soldiers-base.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stay-away-stun-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-disposal-order-draw-mode.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-disposal-order-recycle-opponent-graveyard.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-meditation-draw-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-salvage-draw-no-equipment.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-king-of-the-hill-draw-no-controlled-battlefields.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-meditation-exhaust-friendly-extra-draw.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-moonsilver-gift-discard-draw.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-revive-return-graveyard-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rewind-timeline-discard-hands-draw-four.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sacrifice-destroy-friendly-powerful-draw-call-rune.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-soul-strangle-destroy-friendly-power-buff-draw.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-center-your-mind-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-borrowed-history-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-spoils-of-war-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dancing-grenade-base-unit-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-base-unit-mode-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-perfect-finale-draw-mode.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-perfect-finale-battlefield-damage-mode.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-perfect-finale-base-damage-mode.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-perfect-finale-battlefield-power-mode.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-highlander-bloodline-recall-if-destroyed.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tactical-retreat-recall-if-destroyed.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-void-seeker-damage-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-void-seeker-draw-burnout-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-stun-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rune-prison-base-unit-stun-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-rune-prison-stun-expires-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kerplunk-stun-attacking-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-kerplunk-echo-stun-attacking-unit.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-existential-dread-echo-stun-then-return.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-practical-experience-power-plus-1.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dueling-stance-friendly-power-plus-1.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-animal-friends-power-per-controlled-tag.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-well-trained-power-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-well-trained-power-expires-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-savage-strength-echo-power-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-freeze-echo-power-minus-2.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-distance-break-dance-split-power-modifiers.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-cleave-overwhelm-attacking-power.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blood-rush-echo-overwhelm-attacking-power.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-roaring-reckoning-discard-echo-overwhelm-attacking-power.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-power-punch-overwhelm-roam-attacking-power.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-parry-steadfast-barrier-defending-power.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shoot-first-power-plus-5-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-tremendous-strength-power-plus-7.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-eclipse-power-minus-4.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-moonfall-power-minus-10.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-glory-call-power-plus-3.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-last-stand-friendly-power-plus-3.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-decisive-strike-all-friendly-power-plus-2.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-grand-strategy-all-friendly-power-plus-5.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-back-to-back-two-friendly-power-plus-2.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-power-bind-echo-two-friendly-power-plus-1.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-danger-temperature-mechanical-power-plus-1.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-smoke-bomb-power-floor-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-smoke-bomb-power-floor-expires-end-turn.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-extortion-power-floor-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-pass.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-end-turn.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/java-oracle/java-oracle-p1-duplicate-pass.fixture.json`
@@ -161,7 +227,8 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
         "power": 3,
         "untilEndOfTurnPowerModifier": 0,
         "untilEndOfTurnEffects": ["effect-temp-power"],
-        "isFaceDown": false
+        "isFaceDown": false,
+        "isExhausted": false
       }
     }
   },
@@ -185,7 +252,8 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
           "power": 3,
           "untilEndOfTurnPowerModifier": 0,
           "untilEndOfTurnEffects": [],
-          "isFaceDown": false
+          "isFaceDown": false,
+          "isExhausted": false
         }
       }
     },
@@ -204,7 +272,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、玩家区域、对象状态（含 `damage`、`power`、`untilEndOfTurnPowerModifier`、`untilEndOfTurnEffects`、`isFaceDown`）、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`initialState.seed` 已接入权威 `MatchState.seed`，先用于多张卡牌同时回收到主牌堆底部和燃尽回收洗匀时的可回放随机顺序。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
+schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、玩家区域、对象状态（含 `damage`、`power`、`untilEndOfTurnPowerModifier`、`untilEndOfTurnEffects`、`isFaceDown`、`isAttacking`、`isDefending`、`isExhausted`、`tags`）、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`initialState.seed` 已接入权威 `MatchState.seed`，先用于多张卡牌同时回收到主牌堆底部和燃尽回收洗匀时的可回放随机顺序。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
 
 ## 3. Fixture 后续必须补齐
 

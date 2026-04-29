@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-back-to-back-two-friendly-power-plus-2",
+  "description": "Back to Back gives two friendly units +2 power until end of turn.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302063,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·206/298 背靠背",
+      "note": "官方卡面：费用 3；反应；让两名友方单位本回合内战力 +2。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p31-p33 rules 318-324",
+      "note": "从手牌支付费用打出法术、选择合法目标、加入结算链、双方让过后结算；期限为本回合内的持续修正由回合结束特殊清理移除。"
+    }
+  ],
+  "roomId": "p2-preflight-back-to-back-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302063,
+    "turnNumber": 49,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-BACK-TO-BACK"],
+        "base": ["P1-BASE-UNIT-001"],
+        "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P1-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 4,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-back-to-back-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-BACK-TO-BACK",
+        "cardNo": "OGN·206/298",
+        "targetObjectIds": ["P1-BASE-UNIT-001", "P1-BATTLEFIELD-UNIT-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-back-to-back-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-back-to-back-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-BACK-TO-BACK",
+          "cardNo": "OGN·206/298",
+          "targetObjectIds": ["P1-BASE-UNIT-001", "P1-BATTLEFIELD-UNIT-001"],
+          "effectKind": "BACK_TO_BACK_TWO_FRIENDLY_POWER_PLUS_2"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BACK-TO-BACK",
+          "targetObjectId": "P1-BASE-UNIT-001",
+          "powerDelta": 2,
+          "appliedPowerDelta": 2,
+          "resultingPower": 4
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BACK-TO-BACK",
+          "targetObjectId": "P1-BATTLEFIELD-UNIT-001",
+          "powerDelta": 2,
+          "appliedPowerDelta": 2,
+          "resultingPower": 6
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 49,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-BASE-UNIT-001"],
+          "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+          "graveyard": ["P1-SPELL-BACK-TO-BACK"]
+        },
+        "P2": {
+          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 4,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 2
+        },
+        "P1-BATTLEFIELD-UNIT-001": {
+          "damage": 0,
+          "power": 6,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 2
+        },
+        "P2-BATTLEFIELD-UNIT-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

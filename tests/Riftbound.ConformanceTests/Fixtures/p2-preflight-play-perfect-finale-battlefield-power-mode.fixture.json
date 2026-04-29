@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-perfect-finale-battlefield-power-mode",
+  "description": "Perfect Finale resolves its battlefield-unit -4 power mode without paying Echo.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302081,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-182/219 完美谢幕",
+      "note": "官方卡面：费用 4；可选择效果之一为让战场上的一名单位本回合内战力 -4。本 fixture 只覆盖不支付回响时的战场单位负战力修正模式。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p31-p33 rules 318-324",
+      "note": "打出法术需要目标、模式和费用合法，并作为结算链项目在双方让过后结算；期限为本回合内的持续修正由回合结束特殊清理移除。"
+    }
+  ],
+  "roomId": "p2-preflight-perfect-finale-battlefield-power-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302081,
+    "turnNumber": 65,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-PERFECT-FINALE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 5,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-perfect-finale-battlefield-power-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-PERFECT-FINALE",
+        "cardNo": "UNL-182/219",
+        "mode": "BATTLEFIELD_UNIT_POWER_MINUS_4",
+        "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-perfect-finale-battlefield-power-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-perfect-finale-battlefield-power-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "cardNo": "UNL-182/219",
+          "mode": "BATTLEFIELD_UNIT_POWER_MINUS_4",
+          "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
+          "effectKind": "PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-PERFECT-FINALE",
+          "targetObjectId": "P2-BATTLEFIELD-UNIT-001",
+          "powerDelta": -4,
+          "appliedPowerDelta": -4,
+          "minimumPower": 0,
+          "resultingPower": 1
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 65,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-PERFECT-FINALE"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": ["P2-BATTLEFIELD-UNIT-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 5,
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BATTLEFIELD-UNIT-001": {
+          "damage": 0,
+          "power": 1,
+          "untilEndOfTurnPowerModifier": -4
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

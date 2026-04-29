@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-smoke-bomb-power-floor-expires-end-turn",
+  "description": "A Smoke Bomb clamped negative power modifier expires during end turn cleanup and restores the unit's prior power.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302060,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·093/298 烟幕弹",
+      "note": "官方卡面将 -4 战力修正限定为本回合内，且结果不得低于 1。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p31-p33 rules 318-324",
+      "note": "回合结束特殊清理会移除所有期限为本回合内的效果和状态修正。"
+    },
+    {
+      "source": "JFAQ_251023.pdf",
+      "locator": "p6-p7 questions 5.1-5.2",
+      "note": "FAQ 澄清清理期间不结算合法项目、不授予或传递优先行动权/焦点；特殊清理若引发再次清理，应调用常规清理而非重复特殊清理。"
+    }
+  ],
+  "roomId": "p2-preflight-smoke-bomb-expiry-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302060,
+    "turnNumber": 41,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": ["P1-SPELL-SMOKE-BOMB"],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-001": {
+        "damage": 0,
+        "power": 1,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": -2
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-smoke-bomb-expiry-end-turn",
+      "cmd": {
+        "cmdType": "END_TURN"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_END_DECLARED",
+      "TURN_END_CLEANUP_STARTED",
+      "POWER_MODIFIER_EXPIRED",
+      "RUNE_POOL_CLEARED",
+      "CLEANUP_REPEATED",
+      "TURN_PLAYER_ADVANCED",
+      "TURN_START_BEGAN",
+      "RUNES_CALLED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_END_DECLARED" },
+      { "kind": "TURN_END_CLEANUP_STARTED" },
+      {
+        "kind": "POWER_MODIFIER_EXPIRED",
+        "payload": {
+          "objectIds": ["P2-UNIT-001"],
+          "count": 1
+        }
+      },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "CLEANUP_REPEATED" },
+      { "kind": "TURN_PLAYER_ADVANCED" },
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 42,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "graveyard": ["P1-SPELL-SMOKE-BOMB"]
+        },
+        "P2": {
+          "mainDeck": [],
+          "runeDeck": [],
+          "hand": ["P2-MAIN-001"],
+          "base": ["P2-RUNE-001", "P2-RUNE-002"],
+          "battlefields": ["P2-UNIT-001"]
+        }
+      },
+      "cardObjects": {
+        "P2-UNIT-001": {
+          "damage": 0,
+          "power": 3,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}

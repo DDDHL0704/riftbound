@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-punishment-lethal-damage-destroys-unit",
-  "description": "Punishment applies lethal damage to a 3-power unit, then cleanup destroys that unit.",
+  "fixtureId": "p2-preflight-play-reconsider-return-friendly-call-rune",
+  "description": "Reconsider returns a friendly unit to its owner's hand, then that owner calls one rested rune.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302034,
+  "seed": 2603302076,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-007/219 惩戒",
-      "note": "官方卡面：费用 2；迅捷；对一名单位造成 3 点伤害。"
+      "locator": "OGN·104/298 择日再战",
+      "note": "官方卡面：费用 1；让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p14-p15 rules 142-143; p31-p33 rules 323-324; p62-p63 rule 428",
-      "note": "单位受到的非零伤害等于或超过其战力时会被摧毁；清理会将该单位置入拥有者废牌堆。"
+      "locator": "p4-p8 rules 107-129; p20 rules 164-167; p39-p42 rules 355-356",
+      "note": "单位可在区域间移动；符文召出会从符文牌堆移动到基地；打出法术需要费用足够，并作为结算链项目在双方让过后结算。"
     }
   ],
-  "roomId": "p2-preflight-punishment-lethal-room",
+  "roomId": "p2-preflight-reconsider-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302034,
-    "turnNumber": 22,
+    "seed": 2603302076,
+    "turnNumber": 69,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,16 +34,16 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 1, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-PUNISHMENT"],
+        "hand": ["P1-SPELL-RECONSIDER"],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["P1-UNIT-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
@@ -62,6 +62,11 @@
       }
     },
     "cardObjects": {
+      "P1-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": []
+      },
       "P2-UNIT-001": {
         "damage": 0,
         "power": 3,
@@ -72,24 +77,24 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-punishment-lethal-play",
+      "clientIntentId": "intent-p2-preflight-reconsider-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-PUNISHMENT",
-        "cardNo": "UNL-007/219",
-        "targetObjectIds": ["P2-UNIT-001"]
+        "sourceObjectId": "P1-SPELL-RECONSIDER",
+        "cardNo": "OGN·104/298",
+        "targetObjectIds": ["P1-UNIT-001"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-punishment-lethal-p1-pass",
+      "clientIntentId": "intent-p2-preflight-reconsider-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-punishment-lethal-p2-pass",
+      "clientIntentId": "intent-p2-preflight-reconsider-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -104,36 +109,55 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "DAMAGE_APPLIED",
-      "UNIT_DESTROYED"
+      "UNIT_RETURNED_TO_HAND",
+      "RUNES_CALLED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID" },
-      { "kind": "STACK_ITEM_ADDED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "baseMana": 1
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-RECONSIDER",
+          "cardNo": "OGN·104/298",
+          "targetObjectIds": ["P1-UNIT-001"],
+          "effectKind": "RECONSIDER_RETURN_FRIENDLY_CALL_RUNE"
+        }
+      },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
       {
-        "kind": "DAMAGE_APPLIED",
+        "kind": "UNIT_RETURNED_TO_HAND",
         "tick": 3,
         "sequence": 7,
         "payload": {
-          "sourceObjectId": "P1-SPELL-PUNISHMENT",
-          "targetObjectId": "P2-UNIT-001",
-          "damage": 3
+          "sourceObjectId": "P1-SPELL-RECONSIDER",
+          "targetObjectId": "P1-UNIT-001",
+          "ownerPlayerId": "P1"
         }
       },
       {
-        "kind": "UNIT_DESTROYED",
+        "kind": "RUNES_CALLED",
         "tick": 3,
         "sequence": 8,
         "payload": {
-          "sourceObjectId": "P1-SPELL-PUNISHMENT",
-          "targetObjectId": "P2-UNIT-001",
-          "ownerPlayerId": "P2",
-          "destroyedByPlayerId": "P1",
-          "reason": "LETHAL_DAMAGE"
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-RECONSIDER",
+          "count": 1,
+          "runeObjectIds": ["P1-RUNE-001"]
         }
       }
     ],
@@ -142,7 +166,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 22,
+      "turnNumber": 69,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -157,12 +181,23 @@
       },
       "players": {
         "P1": {
-          "hand": [],
-          "graveyard": ["P1-SPELL-PUNISHMENT"]
+          "runeDeck": ["P1-RUNE-002"],
+          "hand": ["P1-UNIT-001"],
+          "base": ["P1-RUNE-001"],
+          "battlefields": [],
+          "graveyard": ["P1-SPELL-RECONSIDER"]
         },
         "P2": {
-          "battlefields": [],
-          "graveyard": ["P2-UNIT-001"]
+          "battlefields": ["P2-UNIT-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-RUNE-001": {
+          "damage": 0,
+          "power": 0,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true
         }
       },
       "stackItems": []
