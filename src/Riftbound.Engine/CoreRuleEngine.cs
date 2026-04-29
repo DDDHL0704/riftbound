@@ -693,6 +693,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.AddRange(recycleResult.Events);
             rngCursor = recycleResult.RngCursor;
         }
+        else if (behavior.DamagesAllBattlefieldUnits)
+        {
+            var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
+            if (damageAmount > 0)
+            {
+                foreach (var targetObjectId in GetBattlefieldObjectIds(state))
+                {
+                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                        ? existingTarget
+                        : new CardObjectState(targetObjectId);
+
+                    targetState = targetState with
+                    {
+                        Damage = targetState.Damage + damageAmount
+                    };
+                    cardObjects[targetObjectId] = targetState;
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成 {damageAmount} 点伤害",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["targetObjectId"] = targetObjectId,
+                            ["damage"] = damageAmount
+                        }));
+                }
+            }
+        }
         else if (behavior.RequiredTargetCount > 0)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
@@ -820,6 +848,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
             rngCursor);
+    }
+
+    private static IReadOnlyList<string> GetBattlefieldObjectIds(MatchState state)
+    {
+        return state.PlayerZones
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static RecycleResult RecycleTargetCards(

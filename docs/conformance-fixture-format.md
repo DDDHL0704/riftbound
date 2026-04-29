@@ -98,6 +98,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-damages-two-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-starfall-can-damage-same-unit-twice.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-icathian-rain-can-hit-same-unit-six-times.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-blade-whirlwind-damage-all-battlefield-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stay-away-stun-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-disposal-order-draw-mode.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-disposal-order-recycle-opponent-graveyard.fixture.json`

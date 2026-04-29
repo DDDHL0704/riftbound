@@ -20,7 +20,8 @@ public sealed record CardBehaviorDefinition(
     bool AllowsRepeatedTargets = false,
     string CostReductionConditionKind = CardCostReductionConditionKinds.None,
     int CostReductionMana = 0,
-    bool RecyclesTargets = false);
+    bool RecyclesTargets = false,
+    bool DamagesAllBattlefieldUnits = false);
 
 public static class CardDamageConditionKinds
 {
@@ -133,6 +134,14 @@ public static class CardBehaviorRegistry
             6,
             TargetScope: CardTargetScopes.AnyUnit,
             AllowsRepeatedTargets: true),
+        new(
+            "OGN·133/298",
+            "剑刃飓风",
+            1,
+            "BLADE_WHIRLWIND_DAMAGE_ALL_BATTLEFIELD_UNITS_1",
+            1,
+            0,
+            DamagesAllBattlefieldUnits: true),
         new(
             "OGN·085/298",
             "彗星坠击",
