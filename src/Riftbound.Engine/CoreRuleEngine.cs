@@ -634,7 +634,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (behavior.CostReductionMana <= 0)
+        if (behavior.CostReductionMana <= 0
+            || string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal))
         {
             return 0;
         }
@@ -643,6 +644,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn
                 => EnemyUnitDestroyedThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.ControllerHighestUnitPower
+                => Math.Min(behavior.CostReductionMana, HighestControlledUnitPower(state, playerId)),
             _ => 0
         };
     }
@@ -651,6 +654,20 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
             !string.Equals(ownerPlayerId, playerId, StringComparison.Ordinal));
+    }
+
+    private static int HighestControlledUnitPower(MatchState state, string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.Power : 0)
+            .DefaultIfEmpty(0)
+            .Max();
     }
 
     private static int MinTargetCount(CardBehaviorDefinition behavior)

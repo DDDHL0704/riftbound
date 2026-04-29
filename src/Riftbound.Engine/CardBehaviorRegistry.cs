@@ -48,6 +48,7 @@ public static class CardCostReductionConditionKinds
 {
     public const string None = "NONE";
     public const string EnemyUnitDestroyedThisTurn = "ENEMY_UNIT_DESTROYED_THIS_TURN";
+    public const string ControllerHighestUnitPower = "CONTROLLER_HIGHEST_UNIT_POWER";
 }
 
 public static class CardBehaviorRegistry
@@ -108,6 +109,15 @@ public static class CardBehaviorRegistry
             "HEXTECH_RAY_DAMAGE_3",
             3,
             1),
+        new(
+            "OGN·014/298",
+            "霹天雳地",
+            8,
+            "THUNDERING_SKY_DAMAGE_5",
+            5,
+            1,
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerHighestUnitPower,
+            CostReductionMana: 8),
         new(
             "OGN·005/298",
             "碎裂之火",

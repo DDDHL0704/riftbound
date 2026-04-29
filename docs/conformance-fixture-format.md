@@ -82,6 +82,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-incinerate-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hextech-ray-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-hextech-ray-damage-clears-end-turn.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-thundering-sky-cost-reduced-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-comet-strike-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-final-spark-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-super-mega-death-rocket-damage-stack.fixture.json`
