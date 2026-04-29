@@ -767,7 +767,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ? existingTarget
                         : new CardObjectState(targetObjectId);
 
-                    var damageAmount = ResolveDamageAmount(state, stackItem, behavior);
+                    var damageAmount = ResolveDamageAmount(state, stackItem, behavior, targetObjectId);
                     if (damageAmount > 0)
                     {
                         targetState = targetState with
@@ -1210,10 +1210,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static int ResolveDamageAmount(
         MatchState state,
         StackItemState stackItem,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? targetObjectId = null)
     {
         if (behavior.ConditionalDamageAmount > 0
-            && DamageConditionApplies(state, stackItem.ControllerId, behavior.DamageConditionKind))
+            && DamageConditionApplies(state, stackItem.ControllerId, behavior.DamageConditionKind, targetObjectId))
         {
             return behavior.ConditionalDamageAmount;
         }
@@ -1221,11 +1222,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
     }
 
-    private static bool DamageConditionApplies(MatchState state, string controllerId, string conditionKind)
+    private static bool DamageConditionApplies(
+        MatchState state,
+        string controllerId,
+        string conditionKind,
+        string? targetObjectId)
     {
         return conditionKind switch
         {
             CardDamageConditionKinds.ControllerHasFaceDownCard => ControllerControlsFaceDownCard(state, controllerId),
+            CardDamageConditionKinds.TargetIsAttacking
+                => !string.IsNullOrWhiteSpace(targetObjectId)
+                    && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+                    && targetState.IsAttacking,
             _ => false
         };
     }

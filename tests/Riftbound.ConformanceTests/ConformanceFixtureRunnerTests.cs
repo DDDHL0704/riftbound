@@ -657,6 +657,22 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineBoostsThunderingDropAgainstAttackingUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-thundering-drop-attacking-damage-stack.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(4, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineReducesThunderingSkyByHighestControlledUnitPower()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -1082,6 +1098,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineUsesBaseThunderingDropDamageAgainstNonAttackingUnit()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-THUNDERING-DROP"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-001"] = new("P2-UNIT-001", power: 5)
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-thundering-drop-base-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-THUNDERING-DROP", "SFD·017/221", ["P2-UNIT-001"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-thundering-drop-base-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-thundering-drop-base-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(2, p2Pass.State.CardObjects["P2-UNIT-001"].Damage);
     }
 
     [Fact]

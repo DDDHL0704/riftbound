@@ -29,6 +29,7 @@ public static class CardDamageConditionKinds
 {
     public const string None = "NONE";
     public const string ControllerHasFaceDownCard = "CONTROLLER_HAS_FACE_DOWN_CARD";
+    public const string TargetIsAttacking = "TARGET_IS_ATTACKING";
 }
 
 public static class CardTargetScopes
@@ -122,6 +123,15 @@ public static class CardBehaviorRegistry
             "STUNNED",
             TargetScope: CardTargetScopes.AttackingUnit,
             EchoManaCost: 2),
+        new(
+            "SFD·017/221",
+            "雷霆突降",
+            3,
+            "THUNDERING_DROP_DAMAGE_2_OR_4_ATTACKING",
+            2,
+            1,
+            CardDamageConditionKinds.TargetIsAttacking,
+            4),
         new(
             "OGN·009/298",
             "海克斯射线",
