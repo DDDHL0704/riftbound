@@ -182,7 +182,9 @@ public sealed record MatchState
         string? focusPlayerId = null,
         IReadOnlyList<string>? passedFocusPlayerIds = null,
         string? winnerPlayerId = null,
-        IReadOnlyList<string>? destroyedUnitOwnerIdsThisTurn = null)
+        IReadOnlyList<string>? destroyedUnitOwnerIdsThisTurn = null,
+        long? seed = null,
+        long? rngCursor = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -215,6 +217,8 @@ public sealed record MatchState
         PassedFocusPlayerIds = NormalizeTextList(passedFocusPlayerIds);
         WinnerPlayerId = NormalizeOptionalText(winnerPlayerId);
         DestroyedUnitOwnerIdsThisTurn = NormalizeTextList(destroyedUnitOwnerIdsThisTurn);
+        Seed = seed ?? 0;
+        RngCursor = Math.Max(0, rngCursor ?? 0);
     }
 
     public string RoomId { get; init; }
@@ -258,6 +262,10 @@ public sealed record MatchState
     public string? WinnerPlayerId { get; init; }
 
     public IReadOnlyList<string> DestroyedUnitOwnerIdsThisTurn { get; init; }
+
+    public long Seed { get; init; }
+
+    public long RngCursor { get; init; }
 
     public static MatchState Create(string roomId)
     {
@@ -480,6 +488,8 @@ public sealed record ResolutionResult(
                 ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
                 ["winnerPlayerId"] = state.WinnerPlayerId,
                 ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
+                ["seed"] = state.Seed,
+                ["rngCursor"] = state.RngCursor,
                 ["roomStatus"] = state.Status,
                 ["readyPlayerIds"] = state.ReadyPlayerIds
             },

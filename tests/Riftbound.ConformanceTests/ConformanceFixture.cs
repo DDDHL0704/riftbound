@@ -291,7 +291,8 @@ public static class ConformanceFixtureRunner
             BuildStackItems(initial),
             initial.FocusPlayerId,
             initial.PassedFocusPlayerIds,
-            initial.WinnerPlayerId);
+            initial.WinnerPlayerId,
+            seed: initial.Seed);
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)

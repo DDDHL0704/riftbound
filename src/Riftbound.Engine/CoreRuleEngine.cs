@@ -187,7 +187,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (!HasValidTargetCount(behavior, targetObjectIds)
-            || targetObjectIds.Any(targetObjectId => !IsTargetObjectInScope(state, targetObjectId, behavior.TargetScope)))
+            || targetObjectIds.Any(targetObjectId =>
+                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope)))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -285,6 +286,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerZones = stackResolution.PlayerZones,
                 PlayerScores = stackResolution.PlayerScores,
                 CardObjects = stackResolution.CardObjects,
+                RngCursor = stackResolution.RngCursor,
                 DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                     state.DestroyedUnitOwnerIdsThisTurn,
                     stackResolution.DestroyedUnitOwnerIds),
@@ -447,7 +449,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             PlayerScores = drawResult.PlayerScores,
             WinnerPlayerId = drawResult.WinnerPlayerId,
-            DestroyedUnitOwnerIdsThisTurn = []
+            DestroyedUnitOwnerIdsThisTurn = [],
+            RngCursor = drawResult.RngCursor
         };
 
         return new ResolutionResult(
@@ -554,14 +557,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
-    private static bool IsTargetObjectInScope(MatchState state, string objectId, string targetScope)
+    private static bool IsTargetObjectInScope(MatchState state, string playerId, string objectId, string targetScope)
     {
         return targetScope switch
         {
             CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
+            CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
+    }
+
+    private static bool IsOpponentGraveyardCard(MatchState state, string playerId, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.PlayerZones.Any(entry =>
+                !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
+                && entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static bool IsBaseObject(MatchState state, string objectId)
@@ -651,7 +663,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? "unit"
             : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
                 ? "base unit"
-                : "battlefield unit";
+                : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
+                    ? "opponent graveyard card"
+                    : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -659,7 +673,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidTargetCount(behavior, stackItem.TargetObjectIds))
         {
-            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, [], []);
+            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, [], [], state.RngCursor);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -667,7 +681,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
-        if (behavior.RequiredTargetCount > 0)
+        var rngCursor = state.RngCursor;
+        if (behavior.RecyclesTargets)
+        {
+            var recycleResult = RecycleTargetCards(
+                state,
+                playerZones,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.TargetObjectIds);
+            events.AddRange(recycleResult.Events);
+            rngCursor = recycleResult.RngCursor;
+        }
+        else if (behavior.RequiredTargetCount > 0)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
@@ -751,8 +777,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (ShouldDrawForBehavior(behavior, destroyedObjectIds))
             {
+                var drawState = state with
+                {
+                    RngCursor = rngCursor
+                };
                 var drawResult = DrawCards(
-                    state,
+                    drawState,
                     stackItem.ControllerId,
                     controllerZones,
                     behavior.DrawCount * stackItem.EffectRepeatCount);
@@ -764,6 +794,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 };
                 playerScores = drawResult.PlayerScores;
                 winnerPlayerId = drawResult.WinnerPlayerId;
+                rngCursor = drawResult.RngCursor;
                 events.AddRange(BuildCardDrawEvents(stackItem.ControllerId, drawResult));
             }
 
@@ -787,7 +818,100 @@ public sealed class CoreRuleEngine : IRuleEngine
             destroyedUnitOwnerIds
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                .ToArray());
+                .ToArray(),
+            rngCursor);
+    }
+
+    private static RecycleResult RecycleTargetCards(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        string controllerId,
+        string sourceObjectId,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        var events = new List<GameEvent>();
+        var rngCursor = state.RngCursor;
+        foreach (var (ownerPlayerId, zones) in playerZones
+            .Where(entry => !string.Equals(entry.Key, controllerId, StringComparison.Ordinal)))
+        {
+            var recycledCardIds = targetObjectIds
+                .Where(cardId => zones.Graveyard.Contains(cardId, StringComparer.Ordinal))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (recycledCardIds.Length == 0)
+            {
+                continue;
+            }
+
+            var randomizedCardIds = RandomizeForMainDeckBottom(
+                recycledCardIds,
+                state.Seed,
+                rngCursor,
+                sourceObjectId);
+            if (recycledCardIds.Length > 1)
+            {
+                rngCursor++;
+            }
+
+            playerZones[ownerPlayerId] = zones with
+            {
+                MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray(),
+                Graveyard = zones.Graveyard
+                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
+                    .ToArray()
+            };
+            events.Add(new GameEvent(
+                "CARDS_RECYCLED",
+                $"{ownerPlayerId} 回收 {recycledCardIds.Length} 张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = ownerPlayerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["cardIds"] = randomizedCardIds,
+                    ["count"] = randomizedCardIds.Count
+                }));
+        }
+
+        return new RecycleResult(events, rngCursor);
+    }
+
+    private static IReadOnlyList<string> RandomizeForMainDeckBottom(
+        IReadOnlyList<string> cardIds,
+        long seed,
+        long rngCursor,
+        string sourceObjectId)
+    {
+        if (cardIds.Count <= 1)
+        {
+            return cardIds.ToArray();
+        }
+
+        return cardIds
+            .Select((cardId, index) => new
+            {
+                CardId = cardId,
+                Index = index,
+                Order = StableHash($"{seed}:{rngCursor}:{sourceObjectId}:{cardId}:{index}")
+            })
+            .OrderBy(entry => entry.Order)
+            .ThenBy(entry => entry.Index)
+            .Select(entry => entry.CardId)
+            .ToArray();
+    }
+
+    private static ulong StableHash(string value)
+    {
+        const ulong offsetBasis = 14695981039346656037UL;
+        const ulong prime = 1099511628211UL;
+
+        var hash = offsetBasis;
+        foreach (var character in value)
+        {
+            hash ^= character;
+            hash *= prime;
+        }
+
+        return hash;
     }
 
     private static bool TryDestroyTarget(
@@ -905,7 +1029,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             [],
             [],
             null,
-            NormalizeScoresForSeats(state));
+            NormalizeScoresForSeats(state),
+            state.RngCursor);
         var currentZones = zones;
         var drawnCards = new List<string>();
         var burnouts = new List<BurnoutResult>();
@@ -915,7 +1040,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             result = DrawOne(
                 state with
                 {
-                    PlayerScores = result.PlayerScores
+                    PlayerScores = result.PlayerScores,
+                    RngCursor = result.RngCursor
                 },
                 playerId,
                 currentZones);
@@ -1124,6 +1250,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var burnouts = new List<BurnoutResult>();
         string? winnerPlayerId = null;
         var remainingDrawCount = 1;
+        var rngCursor = state.RngCursor;
 
         while (remainingDrawCount > 0 && winnerPlayerId is null)
         {
@@ -1143,7 +1270,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             if (graveyard.Count > 0)
             {
-                mainDeck.AddRange(graveyard);
+                var recycledCards = RandomizeForMainDeckBottom(
+                    graveyard,
+                    state.Seed,
+                    rngCursor,
+                    $"BURNOUT:{playerId}");
+                if (graveyard.Count > 1)
+                {
+                    rngCursor++;
+                }
+
+                mainDeck.AddRange(recycledCards);
                 graveyard.Clear();
             }
 
@@ -1158,7 +1295,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             drawnCards.ToArray(),
             burnouts,
             winnerPlayerId,
-            playerScores);
+            playerScores,
+            rngCursor);
     }
 
     private static string? WinningPlayerId(IReadOnlyDictionary<string, int> playerScores)
@@ -1396,7 +1534,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DrawnCards,
         IReadOnlyList<BurnoutResult> Burnouts,
         string? WinnerPlayerId,
-        IReadOnlyDictionary<string, int> PlayerScores);
+        IReadOnlyDictionary<string, int> PlayerScores,
+        long RngCursor);
 
     private sealed record BurnoutResult(
         string ScoredPlayerId,
@@ -1417,7 +1556,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> PlayerScores,
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events,
-        IReadOnlyList<string> DestroyedUnitOwnerIds);
+        IReadOnlyList<string> DestroyedUnitOwnerIds,
+        long RngCursor);
+
+    private sealed record RecycleResult(
+        IReadOnlyList<GameEvent> Events,
+        long RngCursor);
 
     private sealed record LethalDamageCleanupResult(
         IReadOnlyList<GameEvent> Events,

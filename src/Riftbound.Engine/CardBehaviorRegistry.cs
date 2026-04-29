@@ -19,7 +19,8 @@ public sealed record CardBehaviorDefinition(
     string DrawConditionKind = CardDrawConditionKinds.None,
     bool AllowsRepeatedTargets = false,
     string CostReductionConditionKind = CardCostReductionConditionKinds.None,
-    int CostReductionMana = 0);
+    int CostReductionMana = 0,
+    bool RecyclesTargets = false);
 
 public static class CardDamageConditionKinds
 {
@@ -32,6 +33,7 @@ public static class CardTargetScopes
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
+    public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
 }
 
 public static class CardDrawConditionKinds
@@ -188,6 +190,17 @@ public static class CardBehaviorRegistry
             0,
             DrawCount: 1,
             Mode: "DRAW_1"),
+        new(
+            "UNL-103/219",
+            "处置命令",
+            2,
+            "DISPOSAL_ORDER_RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3",
+            0,
+            3,
+            TargetScope: CardTargetScopes.OpponentGraveyardCard,
+            MinTargetCount: 0,
+            Mode: "RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3",
+            RecyclesTargets: true),
         new(
             "OGN·048/298",
             "冥想",

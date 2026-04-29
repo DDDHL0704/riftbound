@@ -465,6 +465,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-disposal-order-recycle-opponent-graveyard.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P2-MAIN-001", "P2-GRAVE-003", "P2-GRAVE-001"],
+            result.FinalState.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysMeditationBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(

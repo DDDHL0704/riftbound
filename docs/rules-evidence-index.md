@@ -93,7 +93,8 @@
 | `p2-preflight-starfall-can-damage-same-unit-twice` | `RULE_AUDITED` | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《星落》的两次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
 | `p2-preflight-icathian-rain-can-hit-same-unit-six-times` | `RULE_AUDITED` | `CATALOG` OGN·248/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《艾卡西亚暴雨》的六次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
 | `p2-preflight-play-stay-away-stun-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-042/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4；p92-p105 keyword rules 800+ | 已验证官方法术《走开》从手牌打出时眩晕一名单位，然后抽 1 张牌；待命路径暂缓。 |
-| `p2-preflight-play-disposal-order-draw-mode` | `RULE_AUDITED` | `CATALOG` UNL-103/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《处置命令》的抽牌模式；对手废牌堆回收模式暂缓。 |
+| `p2-preflight-play-disposal-order-draw-mode` | `RULE_AUDITED` | `CATALOG` UNL-103/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《处置命令》的抽牌模式。 |
+| `p2-preflight-play-disposal-order-recycle-opponent-graveyard` | `RULE_AUDITED` | `CATALOG` UNL-103/219；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《处置命令》选择对手废牌堆中最多三张牌，并让其拥有者回收；多张回收到主牌堆底部时使用可回放随机顺序。 |
 | `p2-preflight-play-meditation-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·048/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《冥想》的基础抽牌路径；让友方单位休眠作为额外费用再抽 1 张的路径暂缓。 |
 | `p2-preflight-play-spoils-of-war-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·144/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《以战养战》在未满足减费条件时全额支付 4 点费用并抽 2 张牌。 |
 | `p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed` | `RULE_AUDITED` | `CATALOG` UNL-007/219、OGN·144/298；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 323-324；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证本回合先由《惩戒》摧毁敌方单位后，《以战养战》费用减少 2 并抽 2 张牌。 |
