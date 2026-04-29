@@ -139,6 +139,14 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.AnyUnit),
         new(
+            "OGS·012/024",
+            "爆能术",
+            6,
+            "DETONATION_DESTROY_BATTLEFIELD_UNIT",
+            0,
+            1,
+            DestroysTarget: true),
+        new(
             "UNL-061/219",
             "台前作秀",
             2,
