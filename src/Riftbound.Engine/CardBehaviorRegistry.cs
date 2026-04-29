@@ -24,7 +24,8 @@ public sealed record CardBehaviorDefinition(
     bool DamagesAllBattlefieldUnits = false,
     int MaxTargetPower = 0,
     string DrawRecipientKind = CardDrawRecipientKinds.Controller,
-    bool DestroysAllUnits = false);
+    bool DestroysAllUnits = false,
+    bool ReturnsTargetToHand = false);
 
 public static class CardDamageConditionKinds
 {
@@ -322,6 +323,14 @@ public static class CardBehaviorRegistry
             DrawCount: 2,
             CostReductionConditionKind: CardCostReductionConditionKinds.EnemyUnitDestroyedThisTurn,
             CostReductionMana: 2),
+        new(
+            "OGN·172/298",
+            "责退",
+            2,
+            "REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND",
+            0,
+            1,
+            ReturnsTargetToHand: true),
         new(
             "OGN·105/298",
             "星芒凝汇",

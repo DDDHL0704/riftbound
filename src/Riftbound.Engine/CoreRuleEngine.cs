@@ -847,6 +847,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
+                    if (behavior.ReturnsTargetToHand
+                        && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId))
+                    {
+                        events.Add(new GameEvent(
+                            "UNIT_RETURNED_TO_HAND",
+                            $"{behavior.DisplayName}让单位返回手牌",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["ownerPlayerId"] = returnedOwnerPlayerId
+                            }));
+                        continue;
+                    }
+
                     cardObjects[targetObjectId] = targetState;
                 }
             }
@@ -1076,6 +1091,38 @@ public sealed class CoreRuleEngine : IRuleEngine
                 Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
                     ? zones.Graveyard
                     : zones.Graveyard.Concat([targetObjectId]).ToArray()
+            };
+            cardObjects.Remove(targetObjectId);
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryReturnTargetToHand(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
+            var isInBattlefield = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal);
+            if (!isInBase && !isInBattlefield)
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+                Hand = zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Hand
+                    : zones.Hand.Concat([targetObjectId]).ToArray()
             };
             cardObjects.Remove(targetObjectId);
             ownerPlayerId = playerId;
