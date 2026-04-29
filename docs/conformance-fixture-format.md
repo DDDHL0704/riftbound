@@ -91,6 +91,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-evolution-day-draw-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-vengeance-destroy-unit-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-detonation-destroy-battlefield-unit-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunt-the-weak-destroy-small-battlefield-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-punishment-lethal-damage-destroys-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-shattered-fire-draws-after-lethal-damage.fixture.json`

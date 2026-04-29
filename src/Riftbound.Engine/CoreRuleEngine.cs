@@ -188,7 +188,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (!HasValidTargetCount(behavior, targetObjectIds)
             || targetObjectIds.Any(targetObjectId =>
-                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope)))
+                !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope)
+                || !IsTargetPowerAllowed(state, targetObjectId, behavior)))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -581,6 +582,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(objectId)
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsTargetPowerAllowed(MatchState state, string objectId, CardBehaviorDefinition behavior)
+    {
+        return behavior.MaxTargetPower <= 0
+            || (state.CardObjects.TryGetValue(objectId, out var targetState)
+                && targetState.Power > 0
+                && targetState.Power <= behavior.MaxTargetPower);
     }
 
     private static bool HasValidTargetCount(CardBehaviorDefinition behavior, IReadOnlyList<string> targetObjectIds)

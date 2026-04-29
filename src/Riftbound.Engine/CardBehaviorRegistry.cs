@@ -21,7 +21,8 @@ public sealed record CardBehaviorDefinition(
     string CostReductionConditionKind = CardCostReductionConditionKinds.None,
     int CostReductionMana = 0,
     bool RecyclesTargets = false,
-    bool DamagesAllBattlefieldUnits = false);
+    bool DamagesAllBattlefieldUnits = false,
+    int MaxTargetPower = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -173,6 +174,15 @@ public static class CardBehaviorRegistry
             0,
             1,
             DestroysTarget: true),
+        new(
+            "UNL-159/219",
+            "狩魂",
+            2,
+            "HUNT_THE_WEAK_DESTROY_BATTLEFIELD_UNIT_POWER_3_OR_LESS",
+            0,
+            1,
+            DestroysTarget: true,
+            MaxTargetPower: 3),
         new(
             "SFD·164/221",
             "流沙陷坑",
