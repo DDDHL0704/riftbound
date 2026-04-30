@@ -5233,6 +5233,98 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-BLASTCONE-SPROUT-EQUIPMENT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysProwlingHunterCreateWarhawk()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-prowling-hunter-create-warhawk.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-UNIT-PROWLING-HUNTER", "P1-UNIT-PROWLING-HUNTER-TOKEN-001"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-PROWLING-HUNTER"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-PROWLING-HUNTER-TOKEN-001"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+            result.FinalState.CardObjects["P1-UNIT-PROWLING-HUNTER-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsProwlingHunterWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            4,
+            "P1-UNIT-PROWLING-HUNTER",
+            "UNL-033/219",
+            "P1-PROWLING-HUNTER-BASE-UNIT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysApprenticeEngineerReturnGraveyardEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-apprentice-engineer-return-graveyard-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-APPRENTICE-ENGINEER"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-EQUIPMENT-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-APPRENTICE-ENGINEER"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-APPRENTICE-ENGINEER"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsApprenticeEngineerWhenGraveyardTargetIsNotEquipment()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-APPRENTICE-ENGINEER"],
+                    Graveyard = ["P1-GRAVE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GRAVE-UNIT-001"] = new(
+                    "P1-GRAVE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-apprentice-engineer-unit-graveyard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-APPRENTICE-ENGINEER",
+                "SFD·061/221",
+                ["P1-GRAVE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-APPRENTICE-ENGINEER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-UNIT-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
