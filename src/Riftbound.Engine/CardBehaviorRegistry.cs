@@ -94,7 +94,9 @@ public sealed record CardBehaviorDefinition(
     bool CreatedBaseEquipmentTokenIsExhausted = false,
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
-    bool DamageAmountFromFirstTargetManaCost = false);
+    bool DamageAmountFromFirstTargetManaCost = false,
+    bool DrawsControllerAndOtherPlayers = false,
+    bool CallsRuneForControllerAndOtherPlayers = false);
 
 public static class CardDamageConditionKinds
 {
@@ -833,6 +835,26 @@ public static class CardBehaviorRegistry
             MinTargetCount: 0,
             Mode: "RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3",
             RecyclesTargets: true),
+        new(
+            "OGN·071/298",
+            "次元门狂欢",
+            3,
+            "PORTALPALOOZA_OTHER_PLAYERS_CHOOSE_CARDS",
+            0,
+            0,
+            DrawCount: 1,
+            Mode: "OTHER_PLAYERS_CHOOSE_CARDS",
+            DrawsControllerAndOtherPlayers: true),
+        new(
+            "OGN·071/298",
+            "次元门狂欢",
+            3,
+            "PORTALPALOOZA_OTHER_PLAYERS_CHOOSE_RUNES",
+            0,
+            0,
+            RuneCallCount: 1,
+            Mode: "OTHER_PLAYERS_CHOOSE_RUNES",
+            CallsRuneForControllerAndOtherPlayers: true),
         new(
             "SFD·122/221",
             "预判攻势",

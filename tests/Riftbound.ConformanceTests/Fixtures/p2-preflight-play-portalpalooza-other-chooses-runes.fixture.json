@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-portalpalooza-other-chooses-runes",
+  "description": "Portalpalooza records the other player choosing runes in the current 2P preflight, then both source controller and chooser call one exhausted rune.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302190,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·071/298 次元门狂欢",
+      "note": "官方卡面：费用 3；让除你之外的其他玩家选择卡牌或符文；每有一名玩家选择符文，你和该玩家便召出一枚休眠的符文。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356",
+      "note": "打出法术需费用、目标和指示合法，并作为结算链项目在双方让过后结算；召出符文会从符文牌堆顶移动到基地并以休眠状态入场。当前 2P preflight 用 mode 记录 P2 的选择。"
+    }
+  ],
+  "roomId": "p2-preflight-portalpalooza-runes-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302190,
+    "turnNumber": 90,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-PORTAL-RUNE-001", "P1-PORTAL-RUNE-002"],
+        "hand": ["P1-SPELL-PORTALPALOOZA"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-PORTAL-RUNE-001", "P2-PORTAL-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-portalpalooza-runes-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-PORTALPALOOZA",
+        "cardNo": "OGN·071/298",
+        "targetObjectIds": [],
+        "mode": "OTHER_PLAYERS_CHOOSE_RUNES",
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-portalpalooza-runes-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-portalpalooza-runes-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "RUNES_CALLED",
+      "RUNES_CALLED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-PORTALPALOOZA",
+          "cardNo": "OGN·071/298",
+          "targetObjectIds": [],
+          "effectKind": "PORTALPALOOZA_OTHER_PLAYERS_CHOOSE_RUNES",
+          "mode": "OTHER_PLAYERS_CHOOSE_RUNES"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "RUNES_CALLED",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-PORTALPALOOZA",
+          "count": 1,
+          "runeObjectIds": ["P1-PORTAL-RUNE-001"]
+        }
+      },
+      {
+        "kind": "RUNES_CALLED",
+        "tick": 3,
+        "sequence": 8,
+        "payload": {
+          "playerId": "P2",
+          "sourceObjectId": "P1-SPELL-PORTALPALOOZA",
+          "count": 1,
+          "runeObjectIds": ["P2-PORTAL-RUNE-001"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 90,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "runeDeck": ["P1-PORTAL-RUNE-002"],
+          "hand": [],
+          "base": ["P1-PORTAL-RUNE-001"],
+          "graveyard": ["P1-SPELL-PORTALPALOOZA"]
+        },
+        "P2": {
+          "runeDeck": ["P2-PORTAL-RUNE-002"],
+          "hand": [],
+          "base": ["P2-PORTAL-RUNE-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-PORTAL-RUNE-001": {
+          "isExhausted": true
+        },
+        "P2-PORTAL-RUNE-001": {
+          "isExhausted": true
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

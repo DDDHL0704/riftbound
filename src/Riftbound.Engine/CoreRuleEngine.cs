@@ -1310,7 +1310,52 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        if (behavior.DrawsSelectedMainDeckTarget)
+        if (behavior.DrawsControllerAndOtherPlayers)
+        {
+            foreach (var drawPlayerId in ControllerAndOtherPlayerIds(state, stackItem.ControllerId))
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    drawPlayerId,
+                    behavior.DrawCount * stackItem.EffectRepeatCount,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+
+                if (winnerPlayerId is not null)
+                {
+                    break;
+                }
+            }
+
+            drawCountOverride = 0;
+        }
+        else if (behavior.CallsRuneForControllerAndOtherPlayers)
+        {
+            foreach (var runePlayerId in ControllerAndOtherPlayerIds(state, stackItem.ControllerId))
+            {
+                var runeCallResult = CallRunes(
+                    playerZones,
+                    cardObjects,
+                    runePlayerId,
+                    behavior.RuneCallCount);
+                events.Add(new GameEvent(
+                    "RUNES_CALLED",
+                    $"{runePlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = runePlayerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+                    }));
+            }
+        }
+        else if (behavior.DrawsSelectedMainDeckTarget)
         {
             var topDeckSelectionResult = DrawSelectedMainDeckTargetsAndRecycleRest(
                 state,
@@ -4133,6 +4178,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.Seats
             .OrderBy(entry => entry.Value, StringComparer.Ordinal)
             .Select(entry => entry.Key)
+            .ToArray();
+    }
+
+    private static string[] ControllerAndOtherPlayerIds(MatchState state, string controllerId)
+    {
+        return new[] { controllerId }
+            .Concat(SeatPlayerIds(state).Where(playerId => !string.Equals(playerId, controllerId, StringComparison.Ordinal)))
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
 
