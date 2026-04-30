@@ -7253,6 +7253,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-teemo-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO")]
     [InlineData("p2-preflight-play-teemo-alt-a-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO-A")]
     [InlineData("p2-preflight-play-teemo-alt-b-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO-B")]
+    [InlineData("p2-preflight-play-fnd-teemo-self-power-plus-three.fixture.json", "P1-UNIT-FND-TEEMO")]
     public async Task CoreRuleEnginePlaysTeemoSelfPowerPlusThree(string fixtureFileName, string sourceObjectId)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7276,6 +7277,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-TEEMO", "OGN·197/298", "P1-BASE-TEEMO-TARGET-001")]
     [InlineData(2, "P1-UNIT-TEEMO-A", "OGN·197a/298", "P1-BASE-TEEMO-A-TARGET-001")]
     [InlineData(2, "P1-UNIT-TEEMO-B", "OGN·197b/298", "P1-BASE-TEEMO-B-TARGET-001")]
+    [InlineData(2, "P1-UNIT-FND-TEEMO", "FND-196/298", "P1-BASE-FND-TEEMO-TARGET-001")]
     public Task CoreRuleEngineRejectsTeemoWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,

@@ -1,6 +1,6 @@
 # 规则证据索引
 
-更新时间：2026-04-30
+更新时间：2026-05-01
 
 ## 1. 目的
 
@@ -186,6 +186,7 @@
 | `p2-preflight-play-teemo-self-power-plus-three` | `RULE_AUDITED` | `CATALOG` OGN·197/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《提莫》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 1 战力、带 `待命` 和 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象，然后让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。 |
 | `p2-preflight-play-teemo-alt-a-self-power-plus-three` | `RULE_AUDITED` | `CATALOG` OGN·197a/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《提莫》A 版本从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 1 战力、带 `待命` 和 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象，然后让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。 |
 | `p2-preflight-play-teemo-alt-b-self-power-plus-three` | `RULE_AUDITED` | `CATALOG` OGN·197b/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方英雄单位《提莫》B 版本从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 1 战力、带 `待命` 和 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象，然后让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。 |
+| `p2-preflight-play-fnd-teemo-self-power-plus-three` | `RULE_AUDITED` | `CATALOG` FND-196/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证 FND 官方英雄单位《提莫》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 1 战力、带 `待命` 和 `约德尔人` 标签的 `CARD_TYPE:UNIT` 单位对象，然后让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。 |
 | `p2-preflight-play-sett-self-boon` | `RULE_AUDITED` | `CATALOG` SFD·232/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方英雄单位《瑟提》从手牌打出时支付 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象，然后给予自身 `增益` 标签和永久 +1 战力；带目标打出由直接测试拒绝，征服触发与消耗增益激活暂缓。 |
 | `p2-preflight-play-sett-promo-self-boon` | `RULE_AUDITED` | `CATALOG` SFD·232*/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方英雄单位《瑟提》promo 版本从手牌打出时支付 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象，然后给予自身 `增益` 标签和永久 +1 战力；带目标打出由直接测试拒绝，征服触发与消耗增益激活暂缓。 |
 | `p2-preflight-play-ogn-sett-self-boon` | `RULE_AUDITED` | `CATALOG` OGN·164/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证 OGN 官方英雄单位《瑟提》从手牌打出时支付 5 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 单位对象，然后给予自身 `增益` 标签和永久 +1 战力；带目标打出由直接测试拒绝，征服触发与消耗增益激活暂缓。 |

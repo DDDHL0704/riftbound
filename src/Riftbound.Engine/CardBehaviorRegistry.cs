@@ -2350,6 +2350,18 @@ public static class CardBehaviorRegistry
             SourceUnitTags: CardObjectTags.Standby + "|约德尔人",
             AppliesPowerModifierToSourceUnit: true),
         new(
+            "FND-196/298",
+            "提莫",
+            2,
+            "FND_TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+            0,
+            0,
+            PowerModifierAmount: 3,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 1,
+            SourceUnitTags: CardObjectTags.Standby + "|约德尔人",
+            AppliesPowerModifierToSourceUnit: true),
+        new(
             "SFD·232/221",
             "瑟提",
             5,
