@@ -7136,6 +7136,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-mech-maniac-no-optional-haste.fixture.json", "P1-UNIT-MECH-MANIAC", 3, "CARD_TYPE:UNIT|急速")]
     [InlineData("p2-preflight-play-xersai-fish-no-optional-haste.fixture.json", "P1-UNIT-XERSAI-FISH", 6, "CARD_TYPE:UNIT|急速")]
     [InlineData("p2-preflight-play-karina-veraze-no-optional-haste.fixture.json", "P1-UNIT-KARINA-VERAZE", 6, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-crimson-signet-treant-no-optional-haste.fixture.json", "P1-UNIT-CRIMSON-SIGNET-TREANT", 4, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-crimson-signet-treant-alt-a-no-optional-haste.fixture.json", "P1-UNIT-CRIMSON-SIGNET-TREANT-A", 4, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-tasty-faerie-no-optional-haste.fixture.json", "P1-UNIT-TASTY-FAERIE", 6, "CARD_TYPE:UNIT|仙灵|急速")]
+    [InlineData("p2-preflight-play-ekko-no-optional-haste.fixture.json", "P1-UNIT-EKKO", 5, "CARD_TYPE:UNIT|急速")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7187,6 +7191,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-MECH-MANIAC", "SFD·068/221", "P1-BASE-MECH-MANIAC-TARGET-001")]
     [InlineData(7, "P1-UNIT-XERSAI-FISH", "SFD·103/221", "P1-BASE-XERSAI-FISH-TARGET-001")]
     [InlineData(7, "P1-UNIT-KARINA-VERAZE", "SFD·179/221", "P1-BASE-KARINA-VERAZE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-CRIMSON-SIGNET-TREANT", "UNL-029/219", "P1-BASE-CRIMSON-SIGNET-TREANT-TARGET-001")]
+    [InlineData(4, "P1-UNIT-CRIMSON-SIGNET-TREANT-A", "UNL-029a/219", "P1-BASE-CRIMSON-SIGNET-TREANT-A-TARGET-001")]
+    [InlineData(7, "P1-UNIT-TASTY-FAERIE", "OGN·075/298", "P1-BASE-TASTY-FAERIE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-EKKO", "OGN·110/298", "P1-BASE-EKKO-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
