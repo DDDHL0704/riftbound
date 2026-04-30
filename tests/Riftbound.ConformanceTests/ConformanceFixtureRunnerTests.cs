@@ -5586,6 +5586,197 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-SPRITE-MOTHER-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysMegasharkCannonDamageEnemyBattlefield()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-megashark-cannon-damage-enemy-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-MEGASHARK-CANNON"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-MEGASHARK-TARGET-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-MEGASHARK-CANNON"].Power);
+        Assert.Equal(6, result.FinalState.CardObjects["P2-BATTLEFIELD-MEGASHARK-TARGET-001"].Damage);
+        Assert.Equal(7, result.FinalState.CardObjects["P2-BATTLEFIELD-MEGASHARK-TARGET-001"].Power);
+        Assert.Contains("DAMAGE_APPLIED", result.EventKinds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsMegasharkCannonWhenTargetIsFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-MEGASHARK-CANNON"],
+                    Battlefields = ["P1-BATTLEFIELD-MEGASHARK-FRIENDLY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MEGASHARK-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-MEGASHARK-FRIENDLY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-megashark-cannon-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-MEGASHARK-CANNON",
+                "OGN·092/298",
+                ["P1-BATTLEFIELD-MEGASHARK-FRIENDLY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(6, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-MEGASHARK-CANNON"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-MEGASHARK-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysQuicksandMageDestroySmallEnemy()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-quicksand-mage-destroy-small-enemy.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-QUICKSAND-MAGE"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BASE-QUICKSAND-TARGET-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-QUICKSAND-MAGE"].Power);
+        Assert.DoesNotContain("P2-BASE-QUICKSAND-TARGET-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsQuicksandMageWhenEnemyPowerIsTooHigh()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-QUICKSAND-MAGE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-QUICKSAND-LARGE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-QUICKSAND-LARGE-001"] = new(
+                    "P2-BASE-QUICKSAND-LARGE-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-quicksand-mage-large-enemy-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-QUICKSAND-MAGE",
+                "SFD·158/221",
+                ["P2-BASE-QUICKSAND-LARGE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-QUICKSAND-MAGE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-QUICKSAND-LARGE-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysZaunBodyguardReturnBattlefieldUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-zaun-bodyguard-return-battlefield-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-ZAUN-BODYGUARD"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P2-HAND-001", "P2-BATTLEFIELD-ZAUN-TARGET-001"],
+            result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ZAUN-BODYGUARD"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsZaunBodyguardWhenTargetIsInBase()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-ZAUN-BODYGUARD"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-ZAUN-TARGET-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-ZAUN-TARGET-001"] = new(
+                    "P2-BASE-ZAUN-TARGET-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-zaun-bodyguard-base-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-ZAUN-BODYGUARD",
+                "OGN·188/298",
+                ["P2-BASE-ZAUN-TARGET-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-ZAUN-BODYGUARD"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-ZAUN-TARGET-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
