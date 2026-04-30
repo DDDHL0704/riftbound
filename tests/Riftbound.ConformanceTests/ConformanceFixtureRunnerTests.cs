@@ -4283,6 +4283,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-REMEMBRANCE-ALTAR-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysRageSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-rage-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-RAGE-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsRageSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-RAGE-SIGIL",
+            "SFD·222/221",
+            "P1-RAGE-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysFocusSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-focus-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-FOCUS-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsFocusSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-FOCUS-SIGIL",
+            "SFD·226/221",
+            "P1-FOCUS-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysInsightSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-insight-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-INSIGHT-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsInsightSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-INSIGHT-SIGIL",
+            "SFD·229/221",
+            "P1-INSIGHT-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysPowerSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-power-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-POWER-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsPowerSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-POWER-SIGIL",
+            "SFD·231/221",
+            "P1-POWER-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysDiscordSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-discord-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-DISCORD-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsDiscordSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-DISCORD-SIGIL",
+            "SFD·234/221",
+            "P1-DISCORD-SIGIL-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
