@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-jungle-ambush-create-gold",
+  "description": "Jungle Ambush creates an exhausted Gold equipment token while the global ready-entry effect remains deferred.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302191,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·004/221 丛林伏击",
+      "note": "官方卡面：费用 2；待命；在本回合内友方单位以活跃状态进场；打出一个休眠的“金币”装备指示物。本 fixture 锁定当前 preflight 可复用的休眠金币装备指示物路径；全局入场活跃效果暂缓到单位打出模型。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p89 rules 718-719",
+      "note": "装备是游戏对象，可位于公开区域；打出法术需要费用足够并作为结算链项目在双方让过后结算；当前 preflight 以对象标签表达金币装备指示物。"
+    }
+  ],
+  "roomId": "p2-preflight-jungle-ambush-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302191,
+    "turnNumber": 91,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-JUNGLE-AMBUSH"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-jungle-ambush-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-JUNGLE-AMBUSH",
+        "cardNo": "SFD·004/221",
+        "targetObjectIds": [],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-jungle-ambush-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-jungle-ambush-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "EQUIPMENT_TOKEN_CREATED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-JUNGLE-AMBUSH",
+          "cardNo": "SFD·004/221",
+          "targetObjectIds": [],
+          "effectKind": "JUNGLE_AMBUSH_CREATE_GOLD_EQUIPMENT"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "EQUIPMENT_TOKEN_CREATED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-JUNGLE-AMBUSH",
+          "tokenObjectId": "P1-SPELL-JUNGLE-AMBUSH-TOKEN-001",
+          "tokenName": "金币",
+          "destinationZone": "BASE",
+          "isExhausted": true,
+          "tokenTags": ["CARD_TYPE:EQUIPMENT"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 91,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"],
+          "graveyard": ["P1-SPELL-JUNGLE-AMBUSH"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-SPELL-JUNGLE-AMBUSH-TOKEN-001": {
+          "damage": 0,
+          "power": 0,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true,
+          "tags": ["CARD_TYPE:EQUIPMENT"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

@@ -435,6 +435,17 @@ public static class CardBehaviorRegistry
             CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
             CreatedBaseEquipmentTokenIsExhausted: true),
         new(
+            "SFD·004/221",
+            "丛林伏击",
+            2,
+            "JUNGLE_AMBUSH_CREATE_GOLD_EQUIPMENT",
+            0,
+            0,
+            CreatedBaseEquipmentTokenCount: 1,
+            CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true),
+        new(
             "SFD·162/221",
             "血钱",
             2,

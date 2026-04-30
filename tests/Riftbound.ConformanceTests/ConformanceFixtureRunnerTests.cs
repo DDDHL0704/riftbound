@@ -4820,6 +4820,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysJungleAmbushCreatesGold()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-jungle-ambush-create-gold.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.True(result.FinalState.CardObjects["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"].IsExhausted);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-SPELL-JUNGLE-AMBUSH-TOKEN-001"].Tags);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsPainfulPayoffAgainstBaseUnit()
     {
         var state = PunishmentState(mana: 3) with
