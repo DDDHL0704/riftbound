@@ -5934,6 +5934,159 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysSwordVagrantDestroyEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sword-vagrant-destroy-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SWORD-VAGRANT"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BASE-SWORD-VAGRANT-EQUIPMENT-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-SWORD-VAGRANT"].Power);
+        Assert.DoesNotContain("P2-BASE-SWORD-VAGRANT-EQUIPMENT-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineAllowsSwordVagrantWithoutEquipmentTarget()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SWORD-VAGRANT"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-sword-vagrant-no-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SWORD-VAGRANT",
+                "SFD·032/221",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Empty(stackItem.TargetObjectIds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSwordVagrantWhenTargetIsUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SWORD-VAGRANT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-SWORD-VAGRANT-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-SWORD-VAGRANT-UNIT-001"] = new(
+                    "P2-BATTLEFIELD-SWORD-VAGRANT-UNIT-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-sword-vagrant-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SWORD-VAGRANT",
+                "SFD·032/221",
+                ["P2-BATTLEFIELD-SWORD-VAGRANT-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-SWORD-VAGRANT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-SWORD-VAGRANT-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSunShieldguardStunUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sun-shieldguard-stun-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SUN-SHIELDGUARD"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-SUN-SHIELDGUARD"].Power);
+        Assert.Contains("STUNNED", result.FinalState.CardObjects["P2-BASE-SUN-SHIELDGUARD-TARGET-001"].UntilEndOfTurnEffects);
+        Assert.Contains("STATUS_EFFECT_APPLIED", result.EventKinds);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSunShieldguardWhenTargetIsEquipment() =>
+        AssertSourceUnitNonUnitTargetRejectedAsync(
+            3,
+            "P1-UNIT-SUN-SHIELDGUARD",
+            "OGN·051/298",
+            "P1-SUN-SHIELDGUARD-EQUIPMENT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysThunderclawUrsineCallRune()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-thunderclaw-ursine-call-rune.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-RUNE-002"], result.FinalState.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(["P1-UNIT-THUNDERCLAW-URSINE", "P1-RUNE-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-THUNDERCLAW-URSINE"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Bulwark],
+            result.FinalState.CardObjects["P1-UNIT-THUNDERCLAW-URSINE"].Tags);
+        Assert.True(result.FinalState.CardObjects["P1-RUNE-001"].IsExhausted);
+        Assert.Contains("RUNES_CALLED", result.EventKinds);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsThunderclawUrsineWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            7,
+            "P1-UNIT-THUNDERCLAW-URSINE",
+            "OGN·137/298",
+            "P1-THUNDERCLAW-URSINE-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
