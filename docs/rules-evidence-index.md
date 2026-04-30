@@ -90,6 +90,7 @@
 | `p2-preflight-punishment-banishes-if-destroyed-later` | `RULE_AUDITED` | `CATALOG` UNL-007/219、OGN·229/298；`CORE-260330` p39-p42 rules 355-356；p31-p33 rules 323-324；p62-p63 rule 428 | 已验证《惩戒》建立的本回合替代效果可覆盖稍后由《复仇》造成的摧毁，将目标改为放逐且不计入本回合摧毁记忆。 |
 | `p2-preflight-shattered-fire-draws-after-lethal-damage` | `RULE_AUDITED` | `CATALOG` OGN·005/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《碎裂之火》对战场单位造成 3 点伤害，若该单位被此法术摧毁，则控制者抽 1 张牌。 |
 | `p2-preflight-shattered-fire-does-not-draw-without-destroy` | `RULE_AUDITED` | `CATALOG` OGN·005/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《碎裂之火》未摧毁目标时不满足卡面抽牌条件。 |
+| `p2-preflight-play-sinful-pleasure-discard-damage` | `RULE_AUDITED` | `CATALOG` OGN·008/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《罪恶快感》先弃置一张友方手牌，再按被弃牌法力费用对战场单位造成非致命伤害；对手手牌目标由直接测试拒绝。 |
 | `p2-preflight-starfall-damages-two-units` | `RULE_AUDITED` | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《星落》按两次选择分别对单位造成 3 点伤害，并在同一结算后摧毁多个达到战力伤害的目标。 |
 | `p2-preflight-starfall-can-damage-same-unit-twice` | `RULE_AUDITED` | `CATALOG` OGN·029/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《星落》的两次伤害选择可指向同一单位，并累计伤害后摧毁目标。 |
 | `p2-preflight-play-duel-mutual-power-damage` | `RULE_AUDITED` | `CATALOG` OGN·128/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《决斗》让一名友方单位和一名敌方单位以自身战力互相造成伤害，并在致命伤害清理中摧毁目标。 |

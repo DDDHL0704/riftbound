@@ -93,7 +93,8 @@ public sealed record CardBehaviorDefinition(
     string CreatedBaseEquipmentTokenTags = "",
     bool CreatedBaseEquipmentTokenIsExhausted = false,
     int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
-    int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0);
+    int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
+    bool DamageAmountFromFirstTargetManaCost = false);
 
 public static class CardDamageConditionKinds
 {
@@ -116,6 +117,7 @@ public static class CardTargetScopes
     public const string AnyUnitThenFriendlyMainDeckCard = "ANY_UNIT_THEN_FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyBattlefieldUnit = "FRIENDLY_BATTLEFIELD_UNIT";
     public const string FriendlyHandCard = "FRIENDLY_HAND_CARD";
+    public const string FriendlyHandCardThenBattlefieldUnit = "FRIENDLY_HAND_CARD_THEN_BATTLEFIELD_UNIT";
     public const string FriendlyMainDeckCard = "FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyGraveyardCard = "FRIENDLY_GRAVEYARD_CARD";
     public const string AttackingUnit = "ATTACKING_UNIT";
@@ -479,6 +481,16 @@ public static class CardBehaviorRegistry
             1,
             DrawCount: 1,
             DrawConditionKind: CardDrawConditionKinds.TargetDestroyedByThisEffect),
+        new(
+            "OGN·008/298",
+            "罪恶快感",
+            2,
+            "SINFUL_PLEASURE_DISCARD_HAND_CARD_DAMAGE_MANA_COST",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyHandCardThenBattlefieldUnit,
+            DiscardsTargetFromHand: true,
+            DamageAmountFromFirstTargetManaCost: true),
         new(
             "OGN·029/298",
             "星落",

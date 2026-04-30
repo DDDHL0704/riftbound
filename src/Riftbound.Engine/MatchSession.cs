@@ -70,7 +70,8 @@ public sealed record CardObjectState
         int power = 0,
         int untilEndOfTurnPowerModifier = 0,
         bool isExhausted = false,
-        IReadOnlyList<string>? tags = null)
+        IReadOnlyList<string>? tags = null,
+        int manaCost = 0)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
@@ -82,6 +83,7 @@ public sealed record CardObjectState
         UntilEndOfTurnPowerModifier = untilEndOfTurnPowerModifier;
         IsExhausted = isExhausted;
         Tags = NormalizeTags(tags);
+        ManaCost = Math.Max(0, manaCost);
     }
 
     public string ObjectId { get; init; }
@@ -103,6 +105,8 @@ public sealed record CardObjectState
     public bool IsExhausted { get; init; }
 
     public IReadOnlyList<string> Tags { get; init; }
+
+    public int ManaCost { get; init; }
 
     private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
     {
@@ -410,7 +414,8 @@ public sealed record MatchState
             state.Power,
             state.UntilEndOfTurnPowerModifier,
             state.IsExhausted,
-            state.Tags);
+            state.Tags,
+            state.ManaCost);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
