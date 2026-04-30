@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `SFD·149/221 伊泽瑞尔` 的单位源牌入场并弃置另一张手牌抽 2 路径、`OGN·225/298 烈阳首领` 的单位源牌入场并眩晕/摧毁已眩晕敌方单位路径，以及 `SFD·091/221 芭茹队长` 的单位源牌入场并选择抽 1 模式；最新提交以 `git log -1 --oneline` 为准
-- 上一个 P2 功能基线：`SFD·062/221 泡泡机` 的单位源牌入场并让友方机械单位活跃路径、`UNL-084/219 精灵女王` 的单位源牌入场并创建瞬息精灵路径，以及 `SFD·101/221 仙灵龙` 的单位源牌入场并给予最多四名友方单位增益路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `627/627`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `579/579`
-- 最小 card behavior registry：`305/811 = 37.6%`
-- P2 preflight 清单：已完成到 `340`，下一项是 `341. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖 `OGN·003/298 炼金太保` 的单位源牌入场并弃置另一张手牌路径、`OGN·030/298 金克丝` 的单位源牌入场并弃置另外两张手牌路径，以及 `OGN·175/298 船坞潜伏者` / `OGN·219/298 先锋中士` 的无卡面效果单位源牌入场路径；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`SFD·149/221 伊泽瑞尔` 的单位源牌入场并弃置另一张手牌抽 2 路径、`OGN·225/298 烈阳首领` 的单位源牌入场并眩晕/摧毁已眩晕敌方单位路径，以及 `SFD·091/221 芭茹队长` 的单位源牌入场并选择抽 1 模式
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `635/635`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `587/587`
+- 最小 card behavior registry：`309/811 = 38.1%`
+- P2 preflight 清单：已完成到 `344`，下一项是 `345. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,9 @@
 
 ## Latest Completed
 
+- `OGN·003/298 炼金太保`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 2 战力 `CARD_TYPE:UNIT` 对象，并弃置另一张手牌；以源牌自身作为弃置目标由直接测试拒绝，强攻战斗关键词暂缓。
+- `OGN·030/298 金克丝`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 对象，并弃置另外两张手牌；目标包含源牌自身由直接测试拒绝，急速和强攻战斗关键词暂缓。
+- `OGN·175/298 船坞潜伏者` / `OGN·219/298 先锋中士`：当前 2P preflight 覆盖无卡面效果的普通单位源牌入场，分别支付 3/4 点费用并进入控制者基地成为 3/4 战力 `CARD_TYPE:UNIT` 对象；带目标打出由直接测试拒绝。
 - `SFD·149/221 伊泽瑞尔`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 对象，弃置另一张手牌并抽 2 张牌；以源牌自身作为弃置目标由直接测试拒绝，其他卡牌的可选减费分支暂缓。
 - `OGN·225/298 烈阳首领`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 对象，未眩晕敌方单位获得本回合内 `STUNNED`，已眩晕敌方单位改为摧毁并进入拥有者废牌堆；友方单位目标由直接测试拒绝。
 - `SFD·091/221 芭茹队长`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 对象，并通过 `DRAW_1` 模式抽 1 张牌；缺失模式由直接测试拒绝，自身增益分支暂缓。

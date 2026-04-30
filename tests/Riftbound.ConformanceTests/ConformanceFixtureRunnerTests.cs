@@ -6944,6 +6944,144 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysChempunkToughDiscardHand()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-chempunk-tough-discard-hand.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-CHEMPUNK-TOUGH"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-CHEMPUNK-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-CHEMPUNK-TOUGH"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsChempunkToughWhenDiscardTargetIsSource()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CHEMPUNK-TOUGH"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-chempunk-tough-source-discard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CHEMPUNK-TOUGH",
+                "OGN·003/298",
+                ["P1-UNIT-CHEMPUNK-TOUGH"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-CHEMPUNK-TOUGH"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysJinxDiscardTwoHand()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-jinx-discard-two-hand.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-JINX"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-JINX"].Power);
+        Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsJinxWhenDiscardTargetIncludesSource()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-JINX", "P1-JINX-DISCARD-001"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-jinx-source-discard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-JINX",
+                "OGN·030/298",
+                ["P1-UNIT-JINX", "P1-JINX-DISCARD-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-JINX", "P1-JINX-DISCARD-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("p2-preflight-play-dockside-lurker-vanilla-unit.fixture.json", "P1-UNIT-DOCKSIDE-LURKER", 3)]
+    [InlineData("p2-preflight-play-vanguard-sergeant-vanilla-unit.fixture.json", "P1-UNIT-VANGUARD-SERGEANT", 4)]
+    public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects[sourceObjectId].Tags);
+    }
+
+    [Theory]
+    [InlineData(3, "P1-UNIT-DOCKSIDE-LURKER", "OGN·175/298", "P1-BASE-DOCKSIDE-LURKER-TARGET-001")]
+    [InlineData(4, "P1-UNIT-VANGUARD-SERGEANT", "OGN·219/298", "P1-BASE-VANGUARD-SERGEANT-TARGET-001")]
+    public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId) =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            mana,
+            sourceObjectId,
+            cardNo,
+            targetObjectId);
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
