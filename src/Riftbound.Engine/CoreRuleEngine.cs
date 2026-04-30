@@ -1424,6 +1424,29 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        if (behavior.DiscardsTargetFromOwnerHand)
+        {
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            {
+                if (!TryDiscardCardFromAnyHand(playerZones, targetObjectId, out var ownerPlayerId))
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "CARD_DISCARDED",
+                    $"{behavior.DisplayName}弃置目标手牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = ownerPlayerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["discardedByPlayerId"] = stackItem.ControllerId,
+                        ["destinationZone"] = "GRAVEYARD"
+                    }));
+            }
+        }
+
         if (behavior.DrawsControllerAndOtherPlayers)
         {
             foreach (var drawPlayerId in ControllerAndOtherPlayerIds(state, stackItem.ControllerId))
@@ -4346,6 +4369,33 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : zones.Graveyard.Concat([targetObjectId]).ToArray()
         };
         return true;
+    }
+
+    private static bool TryDiscardCardFromAnyHand(
+        Dictionary<string, PlayerZones> playerZones,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Hand = RemoveFromZone(zones.Hand, targetObjectId),
+                Graveyard = zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Graveyard
+                    : zones.Graveyard.Concat([targetObjectId]).ToArray()
+            };
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryDiscardPlayerHand(

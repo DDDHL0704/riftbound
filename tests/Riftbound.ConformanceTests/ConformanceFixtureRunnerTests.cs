@@ -7049,6 +7049,9 @@ public sealed class ConformanceFixtureRunnerTests
     [Theory]
     [InlineData("p2-preflight-play-dockside-lurker-vanilla-unit.fixture.json", "P1-UNIT-DOCKSIDE-LURKER", 3)]
     [InlineData("p2-preflight-play-vanguard-sergeant-vanilla-unit.fixture.json", "P1-UNIT-VANGUARD-SERGEANT", 4)]
+    [InlineData("p2-preflight-play-playful-imp-vanilla-unit.fixture.json", "P1-UNIT-PLAYFUL-IMP", 5)]
+    [InlineData("p2-preflight-play-super-mech-vanilla-unit.fixture.json", "P1-UNIT-SUPER-MECH", 8)]
+    [InlineData("p2-preflight-play-mountain-drake-vanilla-unit.fixture.json", "P1-UNIT-MOUNTAIN-DRAKE", 10)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7070,6 +7073,9 @@ public sealed class ConformanceFixtureRunnerTests
     [Theory]
     [InlineData(3, "P1-UNIT-DOCKSIDE-LURKER", "OGN·175/298", "P1-BASE-DOCKSIDE-LURKER-TARGET-001")]
     [InlineData(4, "P1-UNIT-VANGUARD-SERGEANT", "OGN·219/298", "P1-BASE-VANGUARD-SERGEANT-TARGET-001")]
+    [InlineData(5, "P1-UNIT-PLAYFUL-IMP", "OGN·049/298", "P1-BASE-PLAYFUL-IMP-TARGET-001")]
+    [InlineData(7, "P1-UNIT-SUPER-MECH", "OGN·088/298", "P1-BASE-SUPER-MECH-TARGET-001")]
+    [InlineData(9, "P1-UNIT-MOUNTAIN-DRAKE", "OGN·142/298", "P1-BASE-MOUNTAIN-DRAKE-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7080,6 +7086,64 @@ public sealed class ConformanceFixtureRunnerTests
             sourceObjectId,
             cardNo,
             targetObjectId);
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysHeartsplitDragonDiscardOpponentHand()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-heartsplit-dragon-discard-opponent-hand.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-HEARTSPLIT-DRAGON"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-HEARTSPLIT-HAND-KEEP-001"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-HEARTSPLIT-DISCARD-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(7, result.FinalState.CardObjects["P1-UNIT-HEARTSPLIT-DRAGON"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHeartsplitDragonWhenTargetIsFriendlyHand()
+    {
+        var state = PunishmentState(mana: 7) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-HEARTSPLIT-DRAGON", "P1-HEARTSPLIT-FRIENDLY-HAND-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-HEARTSPLIT-HAND-001"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-heartsplit-dragon-friendly-hand-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-HEARTSPLIT-DRAGON",
+                "OGN·192/298",
+                ["P1-HEARTSPLIT-FRIENDLY-HAND-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(7, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-UNIT-HEARTSPLIT-DRAGON", "P1-HEARTSPLIT-FRIENDLY-HAND-001"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-HEARTSPLIT-HAND-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
 
     [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
