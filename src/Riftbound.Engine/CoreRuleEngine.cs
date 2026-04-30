@@ -2259,6 +2259,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                             continue;
                         }
 
+                        if (behavior.DestroysTargetIfAlreadyHasStatusEffect
+                            && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
+                            && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var statusRemovalResult))
+                        {
+                            events.Add(BuildFieldRemovalEvent(
+                                behavior.DisplayName,
+                                stackItem,
+                                targetObjectId,
+                                statusRemovalResult,
+                                "ALREADY_HAS_STATUS_EFFECT"));
+                            if (statusRemovalResult.WasDestroyed)
+                            {
+                                destroyedObjectIds.Add(targetObjectId);
+                                targetControllerDrawRecipientIds.Add(statusRemovalResult.OwnerPlayerId);
+                                if (statusRemovalResult.WasUnit)
+                                {
+                                    destroyedUnitOwnerIds.Add(statusRemovalResult.OwnerPlayerId);
+                                }
+                            }
+
+                            continue;
+                        }
+
                         foreach (var statusEffectId in statusEffectIds)
                         {
                             targetState = targetState with

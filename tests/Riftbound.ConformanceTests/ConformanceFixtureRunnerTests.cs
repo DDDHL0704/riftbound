@@ -6760,6 +6760,190 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysEzrealDiscardDrawTwo()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ezreal-discard-draw-two.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-EZREAL"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-EZREAL-DRAW-001", "P1-EZREAL-DRAW-002"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-EZREAL-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-EZREAL"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsEzrealWhenDiscardTargetIsSource()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-EZREAL"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-ezreal-source-discard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-EZREAL",
+                "SFD·149/221",
+                ["P1-UNIT-EZREAL"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-EZREAL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSolariLeaderStunEnemyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-solari-leader-stun-enemy-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SOLARI-LEADER"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BASE-SOLARI-LEADER-TARGET-001"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-SOLARI-LEADER"].Power);
+        Assert.Contains(
+            "STUNNED",
+            result.FinalState.CardObjects["P2-BASE-SOLARI-LEADER-TARGET-001"].UntilEndOfTurnEffects);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSolariLeaderDestroyAlreadyStunnedEnemyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-solari-leader-destroy-stunned-enemy.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SOLARI-LEADER"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BASE-SOLARI-LEADER-STUNNED-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BASE-SOLARI-LEADER-STUNNED-001"));
+        Assert.Contains("UNIT_DESTROYED", result.EventKinds);
+        Assert.DoesNotContain("STATUS_EFFECT_APPLIED", result.EventKinds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSolariLeaderWhenTargetIsFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SOLARI-LEADER"],
+                    Base = ["P1-BASE-SOLARI-LEADER-FRIENDLY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-SOLARI-LEADER-FRIENDLY-001"] = new(
+                    "P1-BASE-SOLARI-LEADER-FRIENDLY-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-solari-leader-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SOLARI-LEADER",
+                "OGN·225/298",
+                ["P1-BASE-SOLARI-LEADER-FRIENDLY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-SOLARI-LEADER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BASE-SOLARI-LEADER-FRIENDLY-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysBuhruCaptainDrawMode()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-buhru-captain-draw-mode.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BUHRU-CAPTAIN-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBuhruCaptainWhenModeIsMissing()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-BUHRU-CAPTAIN"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-buhru-captain-missing-mode", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-BUHRU-CAPTAIN",
+                "SFD·091/221",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
