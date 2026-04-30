@@ -1,6 +1,6 @@
 # Conformance Fixture 格式
 
-更新时间：2026-04-29
+更新时间：2026-04-30
 
 ## 1. 目的
 
@@ -205,6 +205,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-heroic-charge-power-plus-stun.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-highway-robbery-enemy-unit-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-deadly-flourish-enemy-unit-damage.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-painful-payoff-damage-create-gold.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-highway-robbery-target-controller-draw-choice.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-last-breath-ready-damage-enemy-battlefield.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-convergent-mutation-match-friendly-power.fixture.json`

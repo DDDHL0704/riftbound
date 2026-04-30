@@ -1,6 +1,6 @@
 # 规则证据索引
 
-更新时间：2026-04-29
+更新时间：2026-04-30
 
 ## 1. 目的
 
@@ -126,6 +126,7 @@
 | `p2-preflight-play-deadly-flourish-enemy-unit-damage` | `RULE_AUDITED` | `CATALOG` UNL-073/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356；p62-p63 rule 428 | 已验证官方法术《致命华彩》选择一名敌方单位并造成 3 点非致命伤害；友方目标由直接测试拒绝，本回合摧毁后的休眠“金币”装备指示物触发暂缓。 |
 | `p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral` | `RULE_AUDITED` | `CATALOG` OGN·180/298；`CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《逝水如镜》选择一名战场单位并给予 `瞬息` 对象标签；基地目标由直接测试拒绝，装备目标和下个回合开始阶段摧毁瞬息对象暂缓。 |
 | `p2-preflight-play-back-against-wall-double-power-ephemeral` | `RULE_AUDITED` | `CATALOG` OGN·069/298；`CORE-260330` p31-p33 rules 318-324；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《背水一战》选择一名友方单位，按其当前战力翻倍并给予 `瞬息` 对象标签；敌方目标由直接测试拒绝，迅捷时机和下个回合开始阶段摧毁瞬息单位暂缓。 |
+| `p2-preflight-play-painful-payoff-damage-create-gold` | `RULE_AUDITED` | `CATALOG` SFD·070/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356；p62-p63 rule 428；p89 rules 718-719 | 已验证官方法术《痛苦之酬》选择一名战场单位造成 3 点伤害，并打出一枚休眠“金币”装备指示物到来源控制者基地，带 `CARD_TYPE:EQUIPMENT` 标签；基地目标由直接测试拒绝，待命时机和金币资源技能暂缓。 |
 | `p2-preflight-play-rewind-timeline-discard-hands-draw-four` | `RULE_AUDITED` | `CATALOG` OGN·201/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《反转时间线》让每名玩家弃置自己的所有手牌，然后各抽 4 张牌。 |
 | `p2-preflight-play-sacrifice-destroy-friendly-powerful-draw-call-rune` | `RULE_AUDITED` | `CATALOG` UNL-173/219；`CORE-260330` p14-p15 rules 142-143；p20 rules 164-167；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《牺牲》摧毁一名友方强力单位作为强制额外费用，然后先抽 2 张牌、再召出一枚休眠符文。 |
 | `p2-preflight-play-soul-strangle-destroy-friendly-power-buff-draw` | `RULE_AUDITED` | `CATALOG` SFD·163/221；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《断魂一扼》摧毁一名友方单位后，按其当前战力临时增益另一名友方单位并抽 1 张牌。 |

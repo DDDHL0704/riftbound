@@ -84,7 +84,11 @@ public sealed record CardBehaviorDefinition(
     bool MovesFirstTargetToSecondTargetLocation = false,
     string TargetRequiredTag = "",
     string TargetAddedTag = "",
-    bool UsesTargetCurrentPowerAsPowerModifier = false);
+    bool UsesTargetCurrentPowerAsPowerModifier = false,
+    int CreatedBaseEquipmentTokenCount = 0,
+    string CreatedBaseEquipmentTokenName = "",
+    string CreatedBaseEquipmentTokenTags = "",
+    bool CreatedBaseEquipmentTokenIsExhausted = false);
 
 public static class CardDamageConditionKinds
 {
@@ -119,6 +123,7 @@ public static class CardTargetScopes
 public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
+    public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
     public const string Spellshield = "法盾";
     public const string Standby = "待命";
     public const string Ephemeral = "瞬息";
@@ -394,6 +399,18 @@ public static class CardBehaviorRegistry
             1,
             CardDamageConditionKinds.TargetIsAttacking,
             4),
+        new(
+            "SFD·070/221",
+            "痛苦之酬",
+            3,
+            "PAINFUL_PAYOFF_DAMAGE_3_CREATE_GOLD_EQUIPMENT",
+            3,
+            1,
+            TargetScope: CardTargetScopes.BattlefieldUnit,
+            CreatedBaseEquipmentTokenCount: 1,
+            CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true),
         new(
             "SFD·023/221",
             "透体圣光",

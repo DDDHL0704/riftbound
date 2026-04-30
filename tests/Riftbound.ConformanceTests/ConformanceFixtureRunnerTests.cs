@@ -4280,6 +4280,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysPainfulPayoffDamageAndGold()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-painful-payoff-damage-create-gold.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.CardObjects["P2-BATTLEFIELD-PAINFUL-PAYOFF-001"].Damage);
+        Assert.Equal(["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.True(result.FinalState.CardObjects["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"].IsExhausted);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-SPELL-PAINFUL-PAYOFF-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsPainfulPayoffAgainstBaseUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PAINFUL-PAYOFF"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-PAINFUL-PAYOFF-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-PAINFUL-PAYOFF-001"] = new("P2-BASE-PAINFUL-PAYOFF-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-painful-payoff-base-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PAINFUL-PAYOFF",
+                "SFD·070/221",
+                ["P2-BASE-PAINFUL-PAYOFF-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-PAINFUL-PAYOFF"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-PAINFUL-PAYOFF-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysHighwayRobberyTargetControllerDrawChoice()
     {
         var fixture = await ConformanceFixture.LoadAsync(

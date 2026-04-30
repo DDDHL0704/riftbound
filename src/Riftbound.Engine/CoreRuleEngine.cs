@@ -2072,6 +2072,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        if (behavior.CreatedBaseEquipmentTokenCount > 0)
+        {
+            CreateBaseEquipmentTokens(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.RecyclesSelectedMainDeckTargets)
         {
             var recycleResult = RecycleSelectedMainDeckTargets(
@@ -2592,6 +2602,59 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.Add(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{behavior.DisplayName}打出单位指示物到基地",
+                payload));
+        }
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
+        };
+    }
+
+    private static void CreateBaseEquipmentTokens(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var tokenCount = behavior.CreatedBaseEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
+        var tokenTags = ParseDelimitedValues(behavior.CreatedBaseEquipmentTokenTags);
+        var createdTokenObjectIds = new List<string>();
+        for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
+        {
+            var tokenObjectId = NextTokenObjectId(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                tokenIndex + 1);
+            createdTokenObjectIds.Add(tokenObjectId);
+            cardObjects[tokenObjectId] = new CardObjectState(
+                tokenObjectId,
+                isExhausted: behavior.CreatedBaseEquipmentTokenIsExhausted,
+                tags: tokenTags);
+            var payload = new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = behavior.CreatedBaseEquipmentTokenName,
+                ["destinationZone"] = "BASE",
+                ["isExhausted"] = behavior.CreatedBaseEquipmentTokenIsExhausted
+            };
+            if (tokenTags.Count > 0)
+            {
+                payload["tokenTags"] = tokenTags;
+            }
+
+            events.Add(new GameEvent(
+                "EQUIPMENT_TOKEN_CREATED",
+                $"{behavior.DisplayName}打出装备指示物到基地",
                 payload));
         }
 
