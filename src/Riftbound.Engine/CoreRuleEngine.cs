@@ -1933,6 +1933,37 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
             }
         }
+        else if (behavior.DamagesAllEnemyBattlefieldUnitsByFirstTargetPower
+            && stackItem.TargetObjectIds.Count >= 1)
+        {
+            var firstTargetObjectId = stackItem.TargetObjectIds[0];
+            var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                ? Math.Max(0, firstTargetState.Power)
+                : 0;
+            ApplyDamageToEnemyBattlefieldUnits(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                damageAmount,
+                events,
+                damageTriggeredDestroyTargetObjectIds);
+
+            if (behavior.MovesTargetToBattlefield
+                && TryMoveTargetToControllerBattlefield(playerZones, stackItem.ControllerId, firstTargetObjectId))
+            {
+                events.Add(new GameEvent(
+                    "UNIT_MOVED_TO_BATTLEFIELD",
+                    $"{behavior.DisplayName}让单位移动到战场",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = firstTargetObjectId,
+                        ["controllerId"] = stackItem.ControllerId,
+                        ["destinationZone"] = "BATTLEFIELD"
+                    }));
+            }
+        }
         else if (behavior.DestroysFirstTargetAndBuffsSecondByDestroyedPower
             && stackItem.TargetObjectIds.Count >= 2)
         {

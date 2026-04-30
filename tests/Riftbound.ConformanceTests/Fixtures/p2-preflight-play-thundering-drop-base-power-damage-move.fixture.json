@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-thundering-drop-base-power-damage-move",
+  "description": "Thundering Drop deals damage equal to a friendly base unit's power to enemy battlefield units, then moves that unit to the battlefield.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302200,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·250/298 天声震落",
+      "note": "官方卡面：费用 6；选择你基地中的一名友方单位，对一处战场上的所有敌方单位造成等同于该友方单位战力的伤害，然后将该友方单位移动到此战场。当前 fixture 锁定单战场 preflight 代表路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "基地和战场均为公开区域；单位对象可位于基地或战场并拥有战力与伤害；打出法术需要目标、费用和指示合法，并作为结算链项目在双方让过后结算。"
+    }
+  ],
+  "roomId": "p2-preflight-thundering-drop-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302200,
+    "turnNumber": 100,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-THUNDERING-DROP"],
+        "base": ["P1-THUNDERING-DROP-BASE-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-001"],
+        "battlefields": ["P2-THUNDERING-DROP-UNIT-001", "P2-THUNDERING-DROP-UNIT-002"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-THUNDERING-DROP-BASE-001": {
+        "power": 3,
+        "damage": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-THUNDERING-DROP-UNIT-001": {
+        "power": 5,
+        "damage": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-THUNDERING-DROP-UNIT-002": {
+        "power": 6,
+        "damage": 1,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": true,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-BASE-UNIT-001": {
+        "power": 2,
+        "damage": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-thundering-drop-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
+        "cardNo": "OGN·250/298",
+        "targetObjectIds": ["P1-THUNDERING-DROP-BASE-001"],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-thundering-drop-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-thundering-drop-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_MOVED_TO_BATTLEFIELD"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 6,
+          "baseMana": 6,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
+          "cardNo": "OGN·250/298",
+          "targetObjectIds": ["P1-THUNDERING-DROP-BASE-001"],
+          "effectKind": "THUNDERING_DROP_BASE_UNIT_POWER_DAMAGE_ENEMY_BATTLEFIELD_MOVE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
+          "targetObjectId": "P2-THUNDERING-DROP-UNIT-001",
+          "damage": 3
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
+          "targetObjectId": "P2-THUNDERING-DROP-UNIT-002",
+          "damage": 3
+        }
+      },
+      {
+        "kind": "UNIT_MOVED_TO_BATTLEFIELD",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
+          "targetObjectId": "P1-THUNDERING-DROP-BASE-001",
+          "controllerId": "P1",
+          "destinationZone": "BATTLEFIELD"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 100,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-THUNDERING-DROP-BASE-001"],
+          "graveyard": ["P1-SPELL-THUNDERING-DROP"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-001"],
+          "battlefields": ["P2-THUNDERING-DROP-UNIT-001", "P2-THUNDERING-DROP-UNIT-002"]
+        }
+      },
+      "cardObjects": {
+        "P1-THUNDERING-DROP-BASE-001": {
+          "power": 3,
+          "damage": 0,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P2-THUNDERING-DROP-UNIT-001": {
+          "power": 5,
+          "damage": 3,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P2-THUNDERING-DROP-UNIT-002": {
+          "power": 6,
+          "damage": 4,
+          "isExhausted": true,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P2-BASE-UNIT-001": {
+          "power": 2,
+          "damage": 0,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

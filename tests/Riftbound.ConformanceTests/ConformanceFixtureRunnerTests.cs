@@ -807,6 +807,25 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysThunderingDropBasePowerDamageMove()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-thundering-drop-base-power-damage-move.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-THUNDERING-DROP-BASE-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-THUNDERING-DROP-UNIT-001"].Damage);
+        Assert.Equal(4, result.FinalState.CardObjects["P2-THUNDERING-DROP-UNIT-002"].Damage);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
     {
         var fixture = await ConformanceFixture.LoadAsync(

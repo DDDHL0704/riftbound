@@ -101,7 +101,8 @@ public sealed record CardBehaviorDefinition(
     bool GrantsBoon = false,
     bool MovesTargetToBattlefield = false,
     bool GrantsBoonToAllFriendlyUnits = false,
-    bool SwapsTargetLocations = false);
+    bool SwapsTargetLocations = false,
+    bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false);
 
 public static class CardDamageConditionKinds
 {
@@ -354,6 +355,16 @@ public static class CardBehaviorRegistry
             0,
             0,
             GrantsBoonToAllFriendlyUnits: true),
+        new(
+            "OGN·250/298",
+            "天声震落",
+            6,
+            "THUNDERING_DROP_BASE_UNIT_POWER_DAMAGE_ENEMY_BATTLEFIELD_MOVE",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyBaseUnit,
+            MovesTargetToBattlefield: true,
+            DamagesAllEnemyBattlefieldUnitsByFirstTargetPower: true),
         new(
             "OGN·220/298",
             "强手裂颅",
