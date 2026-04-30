@@ -1021,6 +1021,15 @@ public static class CardBehaviorRegistry
             DrawCount: 1,
             PlaysSourceToBaseAsEquipment: true),
         new(
+            "SFD·192/221",
+            "舒瑞娅的安魂曲",
+            4,
+            "SHURELYAS_REQUIEM_PLAY_EQUIPMENT_READY_ALL_FRIENDLY_UNITS",
+            0,
+            0,
+            ReadiesAllFriendlyUnits: true,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
             "UNL-015/219",
             "占山为王",
             3,

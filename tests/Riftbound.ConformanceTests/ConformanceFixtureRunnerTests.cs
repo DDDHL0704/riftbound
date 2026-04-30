@@ -2852,6 +2852,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysShurelyasRequiemEquipmentReadyAll()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-shurelyas-requiem-equipment-ready-all.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-SHURELYA-BASE-UNIT-001", "P1-EQUIPMENT-SHURELYAS-REQUIEM"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.False(result.FinalState.CardObjects["P1-SHURELYA-BASE-UNIT-001"].IsExhausted);
+        Assert.False(result.FinalState.CardObjects["P1-SHURELYA-BATTLEFIELD-UNIT-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P2-SHURELYA-BASE-UNIT-001"].IsExhausted);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SHURELYAS-REQUIEM"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsShurelyasRequiemWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SHURELYAS-REQUIEM"],
+                    Base = ["P1-SHURELYA-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SHURELYA-BASE-UNIT-001"] = new(
+                    "P1-SHURELYA-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-shurelyas-requiem-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SHURELYAS-REQUIEM",
+                "SFD·192/221",
+                ["P1-SHURELYA-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SHURELYAS-REQUIEM"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -1349,6 +1349,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? winnerPlayerId = null;
         int? drawCountOverride = null;
 
+        if (behavior.PlaysSourceToBaseAsEquipment)
+        {
+            PlaySourceEquipmentToBase(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.DiscardsTargetFromHand)
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
@@ -1596,7 +1606,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                         ? existingTarget
@@ -1673,7 +1683,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     if (!CardObjectHasTag(cardObjects, targetObjectId, behavior.PowerModifierUnitTag))
                     {
@@ -1698,7 +1708,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.GrantsBoonToAllFriendlyUnits)
         {
-            foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+            foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
             {
                 var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                     ? existingTarget
@@ -1718,7 +1728,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
             {
-                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+                foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                         ? existingTarget
@@ -2502,16 +2512,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
-        if (behavior.PlaysSourceToBaseAsEquipment)
-        {
-            PlaySourceEquipmentToBase(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                events);
-        }
-
         if (behavior.RecyclesSelectedMainDeckTargets)
         {
             var recycleResult = RecycleSelectedMainDeckTargets(
@@ -2737,6 +2737,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyList<string> GetControlledFieldUnitObjectIds(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
@@ -2747,6 +2748,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Base
             .Concat(zones.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -3487,7 +3489,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var presentTags = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var objectId in GetControlledFieldUnitObjectIds(playerZones, playerId))
+        foreach (var objectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId))
         {
             if (!cardObjects.TryGetValue(objectId, out var cardObject))
             {
