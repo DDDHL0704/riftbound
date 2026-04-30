@@ -5175,6 +5175,64 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-ROYAL-GUARD-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBlueflameGuardianPowerPlusEight()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-blueflame-guardian-power-plus-8.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-BLUEFLAME-TARGET-001", "P1-UNIT-BLUEFLAME-GUARDIAN"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(8, result.FinalState.CardObjects["P1-UNIT-BLUEFLAME-GUARDIAN"].Power);
+        Assert.Equal(10, result.FinalState.CardObjects["P1-BLUEFLAME-TARGET-001"].Power);
+        Assert.Equal(8, result.FinalState.CardObjects["P1-BLUEFLAME-TARGET-001"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBlueflameGuardianWhenTargetIsNotUnit() =>
+        AssertSourceUnitNonUnitTargetRejectedAsync(
+            8,
+            "P1-UNIT-BLUEFLAME-GUARDIAN",
+            "OGN·082/298",
+            "P1-BLUEFLAME-EQUIPMENT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysBlastconeSproutPowerMinusTwoFloor()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-blastcone-sprout-power-minus-2-floor.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-BLASTCONE-SPROUT"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-BLASTCONE-SPROUT"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BLASTCONE-TARGET-001"].Power);
+        Assert.Equal(-1, result.FinalState.CardObjects["P2-BLASTCONE-TARGET-001"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBlastconeSproutWhenTargetIsNotUnit() =>
+        AssertSourceUnitNonUnitTargetRejectedAsync(
+            2,
+            "P1-UNIT-BLASTCONE-SPROUT",
+            "OGN·097/298",
+            "P1-BLASTCONE-SPROUT-EQUIPMENT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -10553,6 +10611,48 @@ public sealed class ConformanceFixtureRunnerTests
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent($"intent-{sourceObjectId.ToLowerInvariant()}-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                sourceObjectId,
+                cardNo,
+                [targetObjectId]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal([sourceObjectId], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    private static async Task AssertSourceUnitNonUnitTargetRejectedAsync(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId)
+    {
+        var state = PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [sourceObjectId],
+                    Base = [targetObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [targetObjectId] = new(
+                    targetObjectId,
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-{sourceObjectId.ToLowerInvariant()}-non-unit-target", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 sourceObjectId,
                 cardNo,
