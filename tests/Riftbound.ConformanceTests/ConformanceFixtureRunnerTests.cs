@@ -6759,11 +6759,18 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
-    [Fact]
-    public async Task CoreRuleEnginePlaysEzrealDiscardDrawTwo()
+    [Theory]
+    [InlineData("p2-preflight-play-ezreal-discard-draw-two.fixture.json", "P1-UNIT-EZREAL", "P1-EZREAL-DISCARD-001", "P1-EZREAL-DRAW-001", "P1-EZREAL-DRAW-002")]
+    [InlineData("p2-preflight-play-ezreal-alt-a-discard-draw-two.fixture.json", "P1-UNIT-EZREAL-A", "P1-EZREAL-A-DISCARD-001", "P1-EZREAL-A-DRAW-001", "P1-EZREAL-A-DRAW-002")]
+    public async Task CoreRuleEnginePlaysEzrealDiscardDrawTwo(
+        string fixtureFileName,
+        string sourceObjectId,
+        string discardObjectId,
+        string firstDrawObjectId,
+        string secondDrawObjectId)
     {
         var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ezreal-discard-draw-two.fixture.json"),
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
@@ -6772,14 +6779,16 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["P1-UNIT-EZREAL"], result.FinalState.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-EZREAL-DRAW-001", "P1-EZREAL-DRAW-002"], result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-EZREAL-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-EZREAL"].Power);
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([firstDrawObjectId, secondDrawObjectId], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal([discardObjectId], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects[sourceObjectId].Power);
     }
 
-    [Fact]
-    public async Task CoreRuleEngineRejectsEzrealWhenDiscardTargetIsSource()
+    [Theory]
+    [InlineData("SFD·149/221", "P1-UNIT-EZREAL")]
+    [InlineData("SFD·149a/221", "P1-UNIT-EZREAL-A")]
+    public async Task CoreRuleEngineRejectsEzrealWhenDiscardTargetIsSource(string cardNo, string sourceObjectId)
     {
         var state = PunishmentState(mana: 3) with
         {
@@ -6787,7 +6796,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Hand = ["P1-UNIT-EZREAL"]
+                    Hand = [sourceObjectId]
                 }
             }
         };
@@ -6796,9 +6805,9 @@ public sealed class ConformanceFixtureRunnerTests
             state,
             new PlayerIntent("intent-ezreal-source-discard-target", "P1", "PLAY_CARD"),
             new PlayCardCommand(
-                "P1-UNIT-EZREAL",
-                "SFD·149/221",
-                ["P1-UNIT-EZREAL"]),
+                sourceObjectId,
+                cardNo,
+                [sourceObjectId]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -6806,7 +6815,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-UNIT-EZREAL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -6994,11 +7003,17 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
-    [Fact]
-    public async Task CoreRuleEnginePlaysJinxDiscardTwoHand()
+    [Theory]
+    [InlineData("p2-preflight-play-jinx-discard-two-hand.fixture.json", "P1-UNIT-JINX", "P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002")]
+    [InlineData("p2-preflight-play-jinx-alt-a-discard-two-hand.fixture.json", "P1-UNIT-JINX-A", "P1-JINX-A-DISCARD-001", "P1-JINX-A-DISCARD-002")]
+    public async Task CoreRuleEnginePlaysJinxDiscardTwoHand(
+        string fixtureFileName,
+        string sourceObjectId,
+        string firstDiscardObjectId,
+        string secondDiscardObjectId)
     {
         var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-jinx-discard-two-hand.fixture.json"),
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
@@ -7007,15 +7022,20 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(["P1-UNIT-JINX"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"], result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-JINX"].Power);
+        Assert.Equal([firstDiscardObjectId, secondDiscardObjectId], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(4, result.FinalState.CardObjects[sourceObjectId].Power);
         Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "CARD_DISCARDED", StringComparison.Ordinal)));
     }
 
-    [Fact]
-    public async Task CoreRuleEngineRejectsJinxWhenDiscardTargetIncludesSource()
+    [Theory]
+    [InlineData("OGN·030/298", "P1-UNIT-JINX", "P1-JINX-DISCARD-001")]
+    [InlineData("OGN·030a/298", "P1-UNIT-JINX-A", "P1-JINX-A-DISCARD-001")]
+    public async Task CoreRuleEngineRejectsJinxWhenDiscardTargetIncludesSource(
+        string cardNo,
+        string sourceObjectId,
+        string discardObjectId)
     {
         var state = PunishmentState(mana: 3) with
         {
@@ -7023,7 +7043,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Hand = ["P1-UNIT-JINX", "P1-JINX-DISCARD-001"]
+                    Hand = [sourceObjectId, discardObjectId]
                 }
             }
         };
@@ -7032,9 +7052,9 @@ public sealed class ConformanceFixtureRunnerTests
             state,
             new PlayerIntent("intent-jinx-source-discard-target", "P1", "PLAY_CARD"),
             new PlayCardCommand(
-                "P1-UNIT-JINX",
-                "OGN·030/298",
-                ["P1-UNIT-JINX", "P1-JINX-DISCARD-001"]),
+                sourceObjectId,
+                cardNo,
+                [sourceObjectId, discardObjectId]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -7042,7 +7062,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-UNIT-JINX", "P1-JINX-DISCARD-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId, discardObjectId], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
 

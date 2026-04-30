@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `FND-196/298` 《提莫》的单位源牌入场并自身本回合内战力 +3 路径；最新提交以 `git log -1 --oneline` 为准
-- 上一个 P2 功能基线：`SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 《瑟提》的单位源牌入场并自身获得增益路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `662/662`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `614/614`
-- 最小 card behavior registry：`322/811 = 39.7%`
-- P2 preflight 清单：已完成到 `357`，下一项是 `358. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖 `SFD·149a/221` 《伊泽瑞尔》和 `OGN·030a/298` 《金克丝》的单位源牌入场并弃置手牌路径；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`FND-196/298` 《提莫》的单位源牌入场并自身本回合内战力 +3 路径
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `666/666`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `618/618`
+- 最小 card behavior registry：`324/811 = 40.0%`
+- P2 preflight 清单：已完成到 `359`，下一项是 `360. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,8 @@
 
 ## Latest Completed
 
+- `SFD·149a/221` 《伊泽瑞尔》：当前 2P preflight 覆盖同文本官方英雄单位变体从手牌打出后进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 对象，弃置另一张手牌并抽 2 张牌；以源牌自身作为弃置目标由直接测试拒绝，其他卡牌可选额外费用减免暂缓。
+- `OGN·030a/298` 《金克丝》：当前 2P preflight 覆盖同文本官方英雄单位变体从手牌打出后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 对象，并弃置另外两张手牌；目标包含源牌自身由直接测试拒绝，急速和强攻战斗关键词暂缓。
 - `FND-196/298` 《提莫》：当前 2P preflight 覆盖 FND 官方英雄单位源牌从手牌打出后进入控制者基地成为 1 战力、带 `待命` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 对象，并让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。
 - `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 《瑟提》：当前 2P preflight 覆盖四张同文本官方英雄单位源牌从手牌打出后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 对象，并给予自身 `增益` 标签和永久 +1 战力；带目标打出由直接测试拒绝，征服触发与消耗增益激活暂缓。
 - `OGN·197/298` / `OGN·197a/298` / `OGN·197b/298` 《提莫》：当前 2P preflight 覆盖三张同文本官方英雄单位源牌从手牌打出后进入控制者基地成为 1 战力、带 `待命` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 对象，并让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。
