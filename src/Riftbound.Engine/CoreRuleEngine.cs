@@ -1936,7 +1936,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                             targetIndex,
                             playerZones,
                             cardObjects,
-                            stackItem.ControllerId)
+                            stackItem.ControllerId,
+                            targetObjectId)
                         : 0;
                     if (powerModifierAmount != 0
                         && PowerModifierConditionApplies(targetState, behavior))
@@ -2770,8 +2771,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         int targetIndex,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string controllerId)
+        string controllerId,
+        string targetObjectId)
     {
+        if (behavior.UsesTargetCurrentPowerAsPowerModifier
+            && cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return targetState.Power;
+        }
+
         if (behavior.UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier)
         {
             return behavior.PowerModifierAmount * CountEnemyBattlefieldUnits(playerZones, cardObjects, controllerId);

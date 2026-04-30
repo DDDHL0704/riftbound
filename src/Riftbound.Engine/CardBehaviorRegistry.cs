@@ -83,7 +83,8 @@ public sealed record CardBehaviorDefinition(
     bool AppliesStatusEffectToAllUnits = false,
     bool MovesFirstTargetToSecondTargetLocation = false,
     string TargetRequiredTag = "",
-    string TargetAddedTag = "");
+    string TargetAddedTag = "",
+    bool UsesTargetCurrentPowerAsPowerModifier = false);
 
 public static class CardDamageConditionKinds
 {
@@ -882,6 +883,16 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.BattlefieldUnit,
             TargetAddedTag: CardObjectTags.Ephemeral),
+        new(
+            "OGN·069/298",
+            "背水一战",
+            3,
+            "BACK_AGAINST_WALL_DOUBLE_POWER_EPHEMERAL",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            TargetAddedTag: CardObjectTags.Ephemeral,
+            UsesTargetCurrentPowerAsPowerModifier: true),
         new(
             "OGN·083/298",
             "借鉴历史",
