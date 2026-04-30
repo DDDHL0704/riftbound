@@ -729,6 +729,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysVoidRushDrawNoFreePlay()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-void-rush-draw-no-free-play.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-VOID-RUSH-DRAW-001", "P1-VOID-RUSH-DRAW-002"],
+            result.FinalState.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
     {
         var fixture = await ConformanceFixture.LoadAsync(

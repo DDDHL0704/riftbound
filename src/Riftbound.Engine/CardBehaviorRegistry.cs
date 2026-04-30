@@ -1059,6 +1059,14 @@ public static class CardBehaviorRegistry
             0,
             DrawCount: 2),
         new(
+            "SFD·188/221",
+            "虚空猛冲",
+            2,
+            "VOID_RUSH_DRAW_TWO_NO_FREE_PLAY",
+            0,
+            0,
+            DrawCount: 2),
+        new(
             "OGN·046/298",
             "决斗架势",
             1,
