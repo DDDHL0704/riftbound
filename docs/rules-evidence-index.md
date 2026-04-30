@@ -116,7 +116,8 @@
 | `p2-preflight-play-dragon-tiger-no-unit-selection-recycle-all` | `RULE_AUDITED` | `CATALOG` UNL-032/219；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《龙虎双雄》不支付回响且不选择单位牌时，不抽牌并回收已查看的主牌堆顶部三张牌。 |
 | `p2-preflight-play-reinforcements-no-selection-recycle-top-five` | `RULE_AUDITED` | `CATALOG` OGN·062/298；`CORE-260330` p39-p42 rules 355-356；p58-p59 rule 416 | 已验证官方法术《增援》不选择单位牌时，不抽牌并回收已查看的主牌堆顶部五张牌；从牌堆打出单位并减费 5 的分支暂缓。 |
 | `p2-preflight-play-meditation-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·048/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《冥想》的基础抽牌路径。 |
-| `p2-preflight-play-salvage-draw-no-equipment` | `RULE_AUDITED` | `CATALOG` OGN·224/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《废物利用》不选择装备目标的合法分支会跳过可选装备摧毁，并继续抽 1 张牌；装备目标与摧毁路径暂缓。 |
+| `p2-preflight-play-salvage-draw-no-equipment` | `RULE_AUDITED` | `CATALOG` OGN·224/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《废物利用》不选择装备目标的合法分支会跳过可选装备摧毁，并继续抽 1 张牌。 |
+| `p2-preflight-play-salvage-destroy-equipment-draw` | `RULE_AUDITED` | `CATALOG` OGN·224/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《废物利用》选择一件装备时，在双方让过后先摧毁该装备，再由来源控制者抽 1 张牌；单位目标由直接测试拒绝。 |
 | `p2-preflight-play-king-of-the-hill-draw-no-controlled-battlefields` | `RULE_AUDITED` | `CATALOG` UNL-015/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《占山为王》在没有已控制战场时只抽基础 1 张牌；按战场控制数量额外抽牌暂缓至战场控制模型落地。 |
 | `p2-preflight-play-meditation-exhaust-friendly-extra-draw` | `RULE_AUDITED` | `CATALOG` OGN·048/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《冥想》让活跃友方单位休眠作为额外费用，并额外抽 1 张牌。 |
 | `p2-preflight-play-moonsilver-gift-discard-draw` | `RULE_AUDITED` | `CATALOG` UNL-125/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《月神恩赐》弃置另一张友方手牌到废牌堆后抽 2 张牌。 |

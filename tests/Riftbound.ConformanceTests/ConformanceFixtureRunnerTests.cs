@@ -1055,6 +1055,68 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysSalvageDestroyEquipmentThenDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-salvage-destroy-equipment-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-BASE-EQUIPMENT-SALVAGE-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P1-SALVAGE-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-EQUIPMENT-SALVAGE-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Empty(result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSalvageAgainstUnitTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-SALVAGE-DRAW-001"],
+                    Hand = ["P1-SPELL-SALVAGE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-SALVAGE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-UNIT-SALVAGE-001"] = new(
+                    "P2-BATTLEFIELD-UNIT-SALVAGE-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-salvage-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-SALVAGE", "OGN·224/298", ["P2-BATTLEFIELD-UNIT-SALVAGE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-SALVAGE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-SALVAGE-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-SALVAGE-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysKingOfTheHillDrawsBaseCardOnly()
     {
         var fixture = await ConformanceFixture.LoadAsync(

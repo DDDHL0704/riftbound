@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-salvage-draw-no-equipment",
-  "description": "Salvage resolves the legal branch that chooses no equipment and then draws one card.",
+  "fixtureId": "p2-preflight-play-salvage-destroy-equipment-draw",
+  "description": "Salvage destroys one chosen equipment object and then draws one card.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302149,
+  "seed": 2603302081,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·224/298 废物利用",
-      "note": "官方卡面：费用 2；迅捷；可以选择摧毁一件装备，然后抽一张牌。本 fixture 锁定不选择装备目标的合法分支，只结算后续抽 1 张。"
+      "note": "官方卡面：费用 2；迅捷；可以选择摧毁一件装备，然后抽一张牌。本 fixture 覆盖选择一件装备后先摧毁再抽 1 张。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p39-p42 rules 355-356; p57 rule 413.4",
-      "note": "从手牌支付费用打出法术、加入结算链、双方让过后按卡面顺序结算；抽牌按标准抽一张牌路径处理。"
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4; p62-p63 rule 428",
+      "note": "装备是公开区域中的场上对象；打出法术需要目标合法、费用足够并进入结算链；被摧毁装备进入拥有者废牌堆，抽牌按标准抽一张牌路径处理。"
     }
   ],
-  "roomId": "p2-preflight-salvage-room",
+  "roomId": "p2-preflight-salvage-equipment-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302149,
-    "turnNumber": 79,
+    "seed": 2603302081,
+    "turnNumber": 119,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -39,7 +39,7 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-DRAW-001"],
+        "mainDeck": ["P1-SALVAGE-DRAW-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-SPELL-SALVAGE"],
         "base": [],
@@ -53,36 +53,49 @@
         "mainDeck": ["P2-MAIN-001"],
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
-        "base": [],
-        "battlefields": [],
+        "base": ["P2-BASE-EQUIPMENT-SALVAGE-001"],
+        "battlefields": ["P2-BATTLEFIELD-UNIT-SALVAGE-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BASE-EQUIPMENT-SALVAGE-001": {
+        "damage": 0,
+        "power": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:EQUIPMENT"]
+      },
+      "P2-BATTLEFIELD-UNIT-SALVAGE-001": {
+        "damage": 0,
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"]
       }
     }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-salvage-play",
+      "clientIntentId": "intent-p2-preflight-salvage-destroy-equipment-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-SALVAGE",
         "cardNo": "OGN·224/298",
-        "targetObjectIds": []
+        "targetObjectIds": ["P2-BASE-EQUIPMENT-SALVAGE-001"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-salvage-p1-pass",
+      "clientIntentId": "intent-p2-preflight-salvage-destroy-equipment-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-salvage-p2-pass",
+      "clientIntentId": "intent-p2-preflight-salvage-destroy-equipment-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -97,6 +110,7 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
+      "EQUIPMENT_DESTROYED",
       "CARD_DRAWN"
     ],
     "events": [
@@ -105,7 +119,8 @@
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
-          "mana": 2
+          "mana": 2,
+          "baseMana": 2
         }
       },
       {
@@ -114,13 +129,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-SALVAGE",
           "cardNo": "OGN·224/298",
-          "targetObjectIds": [],
+          "targetObjectIds": ["P2-BASE-EQUIPMENT-SALVAGE-001"],
           "effectKind": "SALVAGE_DESTROY_OPTIONAL_EQUIPMENT_DRAW_1"
         }
       },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "PRIORITY_PASSED" },
       { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "EQUIPMENT_DESTROYED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-SALVAGE",
+          "targetObjectId": "P2-BASE-EQUIPMENT-SALVAGE-001",
+          "ownerPlayerId": "P2",
+          "destinationZone": "GRAVEYARD"
+        }
+      },
       {
         "kind": "CARD_DRAWN",
         "payload": {
@@ -134,7 +158,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 79,
+      "turnNumber": 119,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -150,12 +174,20 @@
       "players": {
         "P1": {
           "mainDeck": [],
-          "hand": ["P1-DRAW-001"],
+          "hand": ["P1-SALVAGE-DRAW-001"],
           "graveyard": ["P1-SPELL-SALVAGE"]
         },
         "P2": {
-          "mainDeck": ["P2-MAIN-001"],
-          "graveyard": []
+          "base": [],
+          "battlefields": ["P2-BATTLEFIELD-UNIT-SALVAGE-001"],
+          "graveyard": ["P2-BASE-EQUIPMENT-SALVAGE-001"]
+        }
+      },
+      "cardObjects": {
+        "P2-BATTLEFIELD-UNIT-SALVAGE-001": {
+          "damage": 0,
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"]
         }
       },
       "stackItems": []
