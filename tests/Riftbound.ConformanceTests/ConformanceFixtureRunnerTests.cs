@@ -3208,6 +3208,231 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysMagicBeansEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-magic-beans-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-MAGIC-BEANS"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-MAGIC-BEANS"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsMagicBeansWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-MAGIC-BEANS"],
+                    Base = ["P1-MAGIC-BEANS-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MAGIC-BEANS-BASE-UNIT-001"] = new(
+                    "P1-MAGIC-BEANS-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-magic-beans-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-MAGIC-BEANS",
+                "UNL-011/219",
+                ["P1-MAGIC-BEANS-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-MAGIC-BEANS"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSteelBallistaEquipmentExhausted()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-steel-ballista-equipment-exhausted.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-STEEL-BALLISTA"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-STEEL-BALLISTA"].Tags);
+        Assert.True(result.FinalState.CardObjects["P1-EQUIPMENT-STEEL-BALLISTA"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSteelBallistaWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-STEEL-BALLISTA"],
+                    Base = ["P1-STEEL-BALLISTA-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-STEEL-BALLISTA-BASE-UNIT-001"] = new(
+                    "P1-STEEL-BALLISTA-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-steel-ballista-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-STEEL-BALLISTA",
+                "OGN·017/298",
+                ["P1-STEEL-BALLISTA-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-STEEL-BALLISTA"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysHeartOfIceEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-heart-of-ice-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-HEART-OF-ICE"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-HEART-OF-ICE"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHeartOfIceWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-HEART-OF-ICE"],
+                    Base = ["P1-HEART-OF-ICE-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEART-OF-ICE-BASE-UNIT-001"] = new(
+                    "P1-HEART-OF-ICE-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-heart-of-ice-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-HEART-OF-ICE",
+                "SFD·052/221",
+                ["P1-HEART-OF-ICE-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-HEART-OF-ICE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysRemorseOrbEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-remorse-orb-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-REMORSE-ORB"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-REMORSE-ORB"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRemorseOrbWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-REMORSE-ORB"],
+                    Base = ["P1-REMORSE-ORB-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-REMORSE-ORB-BASE-UNIT-001"] = new(
+                    "P1-REMORSE-ORB-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-remorse-orb-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-REMORSE-ORB",
+                "OGN·090/298",
+                ["P1-REMORSE-ORB-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-REMORSE-ORB"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
