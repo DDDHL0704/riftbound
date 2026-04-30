@@ -120,7 +120,8 @@ public sealed record CardBehaviorDefinition(
     bool PlaysSourceToBaseAsUnit = false,
     int SourceUnitPower = 0,
     string SourceUnitTags = "",
-    bool SourceUnitIsExhausted = false);
+    bool SourceUnitIsExhausted = false,
+    bool AppliesPowerModifierToSourceUnit = false);
 
 public static class CardDamageConditionKinds
 {
@@ -2311,6 +2312,42 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
             SourceUnitTags: "灵体"),
+        new(
+            "OGN·197/298",
+            "提莫",
+            2,
+            "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+            0,
+            0,
+            PowerModifierAmount: 3,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 1,
+            SourceUnitTags: CardObjectTags.Standby + "|约德尔人",
+            AppliesPowerModifierToSourceUnit: true),
+        new(
+            "OGN·197a/298",
+            "提莫",
+            2,
+            "TEEMO_ALT_A_PLAY_UNIT_SELF_POWER_PLUS_3",
+            0,
+            0,
+            PowerModifierAmount: 3,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 1,
+            SourceUnitTags: CardObjectTags.Standby + "|约德尔人",
+            AppliesPowerModifierToSourceUnit: true),
+        new(
+            "OGN·197b/298",
+            "提莫",
+            2,
+            "TEEMO_ALT_B_PLAY_UNIT_SELF_POWER_PLUS_3",
+            0,
+            0,
+            PowerModifierAmount: 3,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 1,
+            SourceUnitTags: CardObjectTags.Standby + "|约德尔人",
+            AppliesPowerModifierToSourceUnit: true),
         new(
             "UNL-015/219",
             "占山为王",

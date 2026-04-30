@@ -1392,6 +1392,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.AppliesPowerModifierToSourceUnit
+            && behavior.PowerModifierAmount != 0
+            && cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState))
+        {
+            var modifiedSourceUnitState = ApplyPowerModifier(
+                sourceUnitState,
+                behavior,
+                stackItem,
+                stackItem.SourceObjectId,
+                behavior.PowerModifierAmount,
+                out var powerEvent);
+            cardObjects[stackItem.SourceObjectId] = modifiedSourceUnitState;
+            events.Add(powerEvent);
+        }
+
         if (behavior.BanishesAllFriendlyGraveyardUnits)
         {
             BanishFriendlyGraveyardUnits(

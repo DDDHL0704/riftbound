@@ -7249,6 +7249,44 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Theory]
+    [InlineData("p2-preflight-play-teemo-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO")]
+    [InlineData("p2-preflight-play-teemo-alt-a-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO-A")]
+    [InlineData("p2-preflight-play-teemo-alt-b-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO-B")]
+    public async Task CoreRuleEnginePlaysTeemoSelfPowerPlusThree(string fixtureFileName, string sourceObjectId)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(4, result.FinalState.CardObjects[sourceObjectId].Power);
+        Assert.Equal(3, result.FinalState.CardObjects[sourceObjectId].UntilEndOfTurnPowerModifier);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], result.FinalState.CardObjects[sourceObjectId].Tags);
+    }
+
+    [Theory]
+    [InlineData(2, "P1-UNIT-TEEMO", "OGN·197/298", "P1-BASE-TEEMO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-TEEMO-A", "OGN·197a/298", "P1-BASE-TEEMO-A-TARGET-001")]
+    [InlineData(2, "P1-UNIT-TEEMO-B", "OGN·197b/298", "P1-BASE-TEEMO-B-TARGET-001")]
+    public Task CoreRuleEngineRejectsTeemoWhenTargetsAreProvided(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId) =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            mana,
+            sourceObjectId,
+            cardNo,
+            targetObjectId);
+
     [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
