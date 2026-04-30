@@ -1401,6 +1401,16 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.BaseUnit,
             Mode: "BASE_UNIT_DAMAGE_4"),
         new(
+            "SFD·077/221",
+            "火箭轰击",
+            4,
+            "ROCKET_BARRAGE_DESTROY_EQUIPMENT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.Equipment,
+            Mode: "DESTROY_EQUIPMENT",
+            DestroysTarget: true),
+        new(
             "SFD·080/221",
             "风箱炎息",
             1,

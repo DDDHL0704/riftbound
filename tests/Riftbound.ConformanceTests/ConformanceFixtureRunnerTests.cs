@@ -4182,6 +4182,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysRocketBarrageDestroyEquipmentModeThroughStack()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-rocket-barrage-destroy-equipment-mode.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-BASE-EQUIPMENT-ROCKET-BARRAGE-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P2-BASE-EQUIPMENT-ROCKET-BARRAGE-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Empty(result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPerfectFinaleDrawModeThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -6232,6 +6250,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRocketBarrageDestroyEquipmentModeAgainstUnit()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ROCKET-BARRAGE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-ROCKET-BARRAGE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-ROCKET-BARRAGE-UNIT-001"] = new(
+                    "P2-BASE-ROCKET-BARRAGE-UNIT-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-rocket-barrage-destroy-equipment-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-ROCKET-BARRAGE",
+                "SFD·077/221",
+                ["P2-BASE-ROCKET-BARRAGE-UNIT-001"],
+                Mode: "DESTROY_EQUIPMENT"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-ROCKET-BARRAGE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-ROCKET-BARRAGE-UNIT-001"], result.State.PlayerZones["P2"].Base);
         Assert.Empty(result.State.StackItems);
     }
 

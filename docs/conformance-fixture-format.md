@@ -182,6 +182,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-dancing-grenade-base-unit-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stellar-convergence-two-target-damage-stack.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-base-unit-mode-stack.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rocket-barrage-destroy-equipment-mode.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bellows-breath-up-to-three-units-damage.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-firestorm-damage-enemy-battlefield-units.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-crescent-strike-target-plus-splash.fixture.json`
