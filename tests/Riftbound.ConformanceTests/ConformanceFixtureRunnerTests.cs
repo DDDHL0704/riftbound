@@ -7108,6 +7108,51 @@ public sealed class ConformanceFixtureRunnerTests
             targetObjectId);
 
     [Theory]
+    [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json", "P1-UNIT-PLUCKY-PORO", 2, "CARD_TYPE:UNIT|法盾|魄罗")]
+    [InlineData("p2-preflight-play-mighty-poro-keyword-unit.fixture.json", "P1-UNIT-MIGHTY-PORO", 2, "CARD_TYPE:UNIT|坚守|魄罗")]
+    [InlineData("p2-preflight-play-assault-poro-keyword-unit.fixture.json", "P1-UNIT-ASSAULT-PORO", 2, "CARD_TYPE:UNIT|强攻|魄罗")]
+    [InlineData("p2-preflight-play-fierce-first-mate-keyword-unit.fixture.json", "P1-UNIT-FIERCE-FIRST-MATE", 5, "CARD_TYPE:UNIT|强攻|海盗")]
+    [InlineData("p2-preflight-play-zephyr-sage-keyword-unit.fixture.json", "P1-UNIT-ZEPHYR-SAGE", 6, "CARD_TYPE:UNIT|坚守|鸟类")]
+    public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
+        string fixtureFileName,
+        string sourceObjectId,
+        int expectedPower,
+        string expectedTags)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
+        Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
+    }
+
+    [Theory]
+    [InlineData(2, "P1-UNIT-PLUCKY-PORO", "OGN·013/298", "P1-BASE-PLUCKY-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-MIGHTY-PORO", "OGN·052/298", "P1-BASE-MIGHTY-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-ASSAULT-PORO", "OGN·210/298", "P1-BASE-ASSAULT-PORO-TARGET-001")]
+    [InlineData(5, "P1-UNIT-FIERCE-FIRST-MATE", "OGN·215/298", "P1-BASE-FIERCE-FIRST-MATE-TARGET-001")]
+    [InlineData(6, "P1-UNIT-ZEPHYR-SAGE", "OGS·005/024", "P1-BASE-ZEPHYR-SAGE-TARGET-001")]
+    public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId) =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            mana,
+            sourceObjectId,
+            cardNo,
+            targetObjectId);
+
+    [Theory]
     [InlineData("p2-preflight-play-blast-crew-apprentice-no-optional-damage.fixture.json", "P1-UNIT-BLAST-CREW-APPRENTICE", 2, "CARD_TYPE:UNIT")]
     [InlineData("p2-preflight-play-frostcoat-cub-no-optional-power-minus-two.fixture.json", "P1-UNIT-FROSTCOAT-CUB", 3, "CARD_TYPE:UNIT|犬形")]
     [InlineData("p2-preflight-play-ship-monkey-no-optional-boon.fixture.json", "P1-UNIT-SHIP-MONKEY", 2, "CARD_TYPE:UNIT|海盗")]
