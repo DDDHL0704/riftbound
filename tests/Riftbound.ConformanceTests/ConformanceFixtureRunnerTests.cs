@@ -891,6 +891,77 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysVoidAssaultMoveFriendlyAndEnemyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-void-assault-move-friendly-and-enemy-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-VOID-ASSAULT-FIELD-KEEPER", "P1-VOID-ASSAULT-FRIENDLY-001"],
+            result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-VOID-ASSAULT-ENEMY-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsVoidAssaultWhenTargetsAreReversed()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-VOID-ASSAULT"],
+                    Base = ["P1-VOID-ASSAULT-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-VOID-ASSAULT-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-VOID-ASSAULT-FRIENDLY-001"] = new(
+                    "P1-VOID-ASSAULT-FRIENDLY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-VOID-ASSAULT-ENEMY-001"] = new(
+                    "P2-VOID-ASSAULT-ENEMY-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-void-assault-reversed-targets", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-VOID-ASSAULT",
+                "UNL-202/219",
+                ["P2-VOID-ASSAULT-ENEMY-001", "P1-VOID-ASSAULT-FRIENDLY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-VOID-ASSAULT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-VOID-ASSAULT-FRIENDLY-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-VOID-ASSAULT-ENEMY-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield()
     {
         var fixture = await ConformanceFixture.LoadAsync(

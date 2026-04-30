@@ -1546,6 +1546,16 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
             MovesTargetsToOwnerBattlefields: true),
         new(
+            "UNL-202/219",
+            "虚空来袭",
+            2,
+            "VOID_ASSAULT_MOVE_FRIENDLY_AND_ENEMY_UNIT_TO_BATTLEFIELD",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            MovesTargetsToOwnerBattlefields: true),
+        new(
             "OGS·011/024",
             "闪现",
             2,
