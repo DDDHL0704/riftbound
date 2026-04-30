@@ -4563,6 +4563,77 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-VANGUARD-HELM-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysHoneyfruitEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-honeyfruit-equipment.fixture.json",
+            "P1-EQUIPMENT-HONEYFRUIT",
+            expectedIsExhausted: true);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsHoneyfruitWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-HONEYFRUIT",
+            "UNL-049/219",
+            "P1-HONEYFRUIT-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysLastRitesEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-last-rites-equipment.fixture.json",
+            "P1-EQUIPMENT-LAST-RITES");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsLastRitesWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-LAST-RITES",
+            "SFD·150/221",
+            "P1-LAST-RITES-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBladeOfRuinedKingEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-blade-of-ruined-king-equipment.fixture.json",
+            "P1-EQUIPMENT-BLADE-OF-RUINED-KING");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBladeOfRuinedKingWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-BLADE-OF-RUINED-KING",
+            "SFD·178/221",
+            "P1-BLADE-OF-RUINED-KING-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysMysteriousWeaponEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-mysterious-weapon-equipment.fixture.json",
+            "P1-EQUIPMENT-MYSTERIOUS-WEAPON");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsMysteriousWeaponWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-MYSTERIOUS-WEAPON",
+            "OGN·023/298",
+            "P1-MYSTERIOUS-WEAPON-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSeaMonsterHookEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-sea-monster-hook-equipment.fixture.json",
+            "P1-EQUIPMENT-SEA-MONSTER-HOOK");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSeaMonsterHookWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-SEA-MONSTER-HOOK",
+            "OGN·242/298",
+            "P1-SEA-MONSTER-HOOK-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -9751,7 +9822,8 @@ public sealed class ConformanceFixtureRunnerTests
 
     private static async Task AssertSimpleEquipmentFixtureAsync(
         string fixtureFileName,
-        string equipmentObjectId)
+        string equipmentObjectId,
+        bool expectedIsExhausted = false)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
@@ -9766,7 +9838,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([equipmentObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects[equipmentObjectId].Tags);
-        Assert.False(result.FinalState.CardObjects[equipmentObjectId].IsExhausted);
+        Assert.Equal(expectedIsExhausted, result.FinalState.CardObjects[equipmentObjectId].IsExhausted);
     }
 
     private static async Task AssertEquipmentWithTargetRejectedAsync(
