@@ -104,6 +104,7 @@ public static class CardDamageConditionKinds
 public static class CardTargetScopes
 {
     public const string BattlefieldUnit = "BATTLEFIELD_UNIT";
+    public const string BattlefieldUnitOrEquipment = "BATTLEFIELD_UNIT_OR_EQUIPMENT";
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
@@ -948,10 +949,10 @@ public static class CardBehaviorRegistry
             "OGN·180/298",
             "逝水如镜",
             4,
-            "FLOWING_TIME_MIRROR_BATTLEFIELD_UNIT_EPHEMERAL_NO_EQUIPMENT",
+            "FLOWING_TIME_MIRROR_UNIT_OR_EQUIPMENT_EPHEMERAL",
             0,
             1,
-            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetScope: CardTargetScopes.BattlefieldUnitOrEquipment,
             TargetAddedTag: CardObjectTags.Ephemeral),
         new(
             "OGN·069/298",

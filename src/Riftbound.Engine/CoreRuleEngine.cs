@@ -707,6 +707,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return targetScope switch
         {
+            CardTargetScopes.BattlefieldUnitOrEquipment => IsBattlefieldObject(state, objectId)
+                || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
             CardTargetScopes.FriendlyUnit => IsControlledFieldObject(state, playerId, objectId),
@@ -1213,7 +1215,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? "unit"
             : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
                 ? "base unit"
-                : string.Equals(targetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
+                : string.Equals(targetScope, CardTargetScopes.BattlefieldUnitOrEquipment, StringComparison.Ordinal)
+                    ? "battlefield unit or equipment"
+                    : string.Equals(targetScope, CardTargetScopes.FriendlyUnit, StringComparison.Ordinal)
                         ? "friendly unit"
                         : string.Equals(targetScope, CardTargetScopes.FriendlyThenEnemyUnits, StringComparison.Ordinal)
                             ? "friendly unit then enemy unit"

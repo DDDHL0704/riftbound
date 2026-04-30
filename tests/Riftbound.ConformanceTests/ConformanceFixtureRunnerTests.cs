@@ -1918,6 +1918,25 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysFlowingTimeMirrorEquipmentEphemeral()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-flowing-time-mirror-equipment-ephemeral.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral],
+            result.FinalState.CardObjects["P2-BASE-EQUIPMENT-FLOWING-TIME-MIRROR-001"].Tags);
+        Assert.Equal(["P1-SPELL-FLOWING-TIME-MIRROR"], result.FinalState.PlayerZones["P1"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsFlowingTimeMirrorAgainstBaseUnit()
     {
         var state = PunishmentState(mana: 4) with
