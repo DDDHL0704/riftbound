@@ -7128,6 +7128,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-miss-fortune-alt-a-no-optional-haste.fixture.json", "P1-UNIT-MISS-FORTUNE-A", 5, "CARD_TYPE:UNIT|急速|海盗|游走")]
     [InlineData("p2-preflight-play-sivir-no-optional-haste.fixture.json", "P1-UNIT-SIVIR", 4, "CARD_TYPE:UNIT|急速")]
     [InlineData("p2-preflight-play-sivir-alt-a-no-optional-haste.fixture.json", "P1-UNIT-SIVIR-A", 4, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-lillia-no-optional-haste.fixture.json", "P1-UNIT-LILLIA", 3, "CARD_TYPE:UNIT|仙灵|急速")]
+    [InlineData("p2-preflight-play-lillia-alt-a-no-optional-haste.fixture.json", "P1-UNIT-LILLIA-A", 3, "CARD_TYPE:UNIT|仙灵|急速")]
+    [InlineData("p2-preflight-play-azir-no-optional-haste.fixture.json", "P1-UNIT-AZIR", 4, "CARD_TYPE:UNIT|急速|鸟类")]
+    [InlineData("p2-preflight-play-azir-alt-a-no-optional-haste.fixture.json", "P1-UNIT-AZIR-A", 4, "CARD_TYPE:UNIT|急速|鸟类")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7171,6 +7175,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-MISS-FORTUNE-A", "OGN·162a/298", "P1-BASE-MISS-FORTUNE-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-SIVIR", "SFD·143/221", "P1-BASE-SIVIR-TARGET-001")]
     [InlineData(4, "P1-UNIT-SIVIR-A", "SFD·143a/221", "P1-BASE-SIVIR-A-TARGET-001")]
+    [InlineData(3, "P1-UNIT-LILLIA", "UNL-082/219", "P1-BASE-LILLIA-TARGET-001")]
+    [InlineData(3, "P1-UNIT-LILLIA-A", "UNL-082a/219", "P1-BASE-LILLIA-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-AZIR", "SFD·177/221", "P1-BASE-AZIR-TARGET-001")]
+    [InlineData(4, "P1-UNIT-AZIR-A", "SFD·177a/221", "P1-BASE-AZIR-A-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
