@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-sivir-no-optional-haste",
+  "description": "Sivir enters as a Haste unit object without paying its Haste optional purple additional cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302379,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·143/221 希维尔",
+      "note": "官方卡面：费用 4；英雄单位；战力 4；急速，可选择额外支付 1 和紫色让我以活跃状态进场；本回合内如果至少支付了两个万能符能，则获得战力 +2 和游走。当前 fixture 覆盖普通主阶段从手牌打出且不支付急速可选额外费用、也未支付万能符能条件时的源单位入场和急速标签记录；急速额外费用、活跃进场、万能符能条件战力 +2 和游走路径暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；按支付符能数触发的本回合战力/关键词修正留待后续支付模型覆盖。"
+    }
+  ],
+  "roomId": "p2-preflight-sivir-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302379,
+    "turnNumber": 378,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-SIVIR"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-sivir-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-SIVIR",
+        "cardNo": "SFD·143/221",
+        "targetObjectIds": []
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-sivir-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-sivir-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 4, "baseMana": 4 } },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-SIVIR",
+          "cardNo": "SFD·143/221",
+          "targetObjectIds": [],
+          "effectKind": "SIVIR_PLAY_UNIT_NO_OPTIONAL_HASTE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-SIVIR",
+          "unitObjectId": "P1-UNIT-SIVIR",
+          "unitName": "希维尔",
+          "destinationZone": "BASE",
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "急速"]
+        }
+      }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 378,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-UNIT-SIVIR"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-SIVIR": {
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "急速"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

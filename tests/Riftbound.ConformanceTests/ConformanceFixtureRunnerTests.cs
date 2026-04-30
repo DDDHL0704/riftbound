@@ -7124,6 +7124,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-rengar-no-optional-haste.fixture.json", "P1-UNIT-RENGAR", 4, "CARD_TYPE:UNIT|强攻2|急速|法盾|游走|猫科")]
     [InlineData("p2-preflight-play-rengar-alt-a-no-optional-haste.fixture.json", "P1-UNIT-RENGAR-A", 4, "CARD_TYPE:UNIT|强攻2|急速|法盾|游走|猫科")]
     [InlineData("p2-preflight-play-nilah-no-optional-haste.fixture.json", "P1-UNIT-NILAH", 4, "CARD_TYPE:UNIT|急速|恶魔|游走")]
+    [InlineData("p2-preflight-play-miss-fortune-no-optional-haste.fixture.json", "P1-UNIT-MISS-FORTUNE", 5, "CARD_TYPE:UNIT|急速|海盗|游走")]
+    [InlineData("p2-preflight-play-miss-fortune-alt-a-no-optional-haste.fixture.json", "P1-UNIT-MISS-FORTUNE-A", 5, "CARD_TYPE:UNIT|急速|海盗|游走")]
+    [InlineData("p2-preflight-play-sivir-no-optional-haste.fixture.json", "P1-UNIT-SIVIR", 4, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-sivir-alt-a-no-optional-haste.fixture.json", "P1-UNIT-SIVIR-A", 4, "CARD_TYPE:UNIT|急速")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7163,6 +7167,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-RENGAR", "UNL-024/219", "P1-BASE-RENGAR-TARGET-001")]
     [InlineData(4, "P1-UNIT-RENGAR-A", "UNL-024a/219", "P1-BASE-RENGAR-A-TARGET-001")]
     [InlineData(3, "P1-UNIT-NILAH", "UNL-115/219", "P1-BASE-NILAH-TARGET-001")]
+    [InlineData(5, "P1-UNIT-MISS-FORTUNE", "OGN·162/298", "P1-BASE-MISS-FORTUNE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-MISS-FORTUNE-A", "OGN·162a/298", "P1-BASE-MISS-FORTUNE-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SIVIR", "SFD·143/221", "P1-BASE-SIVIR-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SIVIR-A", "SFD·143a/221", "P1-BASE-SIVIR-A-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
