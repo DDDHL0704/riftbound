@@ -1248,9 +1248,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         string requiredTag)
     {
-        return string.IsNullOrWhiteSpace(requiredTag)
-            || (cardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Tags.Contains(requiredTag, StringComparer.Ordinal));
+        if (string.IsNullOrWhiteSpace(requiredTag))
+        {
+            return true;
+        }
+
+        return cardObjects.TryGetValue(objectId, out var cardObject)
+            && ParseDelimitedValues(requiredTag)
+                .All(tag => cardObject.Tags.Contains(tag, StringComparer.Ordinal));
     }
 
     private static bool OpponentWithinWinningScoreDistance(MatchState state, string playerId, int distance)
