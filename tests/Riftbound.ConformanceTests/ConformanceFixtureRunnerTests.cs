@@ -3863,6 +3863,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-CULL-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysSacredShearsEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-sacred-shears-equipment.fixture.json",
+            "P1-EQUIPMENT-SACRED-SHEARS");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSacredShearsWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SACRED-SHEARS",
+            "SFD·172/221",
+            "P1-SACRED-SHEARS-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBfSwordEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-bf-sword-equipment.fixture.json",
+            "P1-EQUIPMENT-BF-SWORD");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBfSwordWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-BF-SWORD",
+            "SFD·161/221",
+            "P1-BF-SWORD-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysWanderersGuidebookEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-wanderers-guidebook-equipment.fixture.json",
+            "P1-EQUIPMENT-WANDERERS-GUIDEBOOK");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsWanderersGuidebookWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-WANDERERS-GUIDEBOOK",
+            "SFD·086/221",
+            "P1-WANDERERS-GUIDEBOOK-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysArionsFallEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-arions-fall-equipment.fixture.json",
+            "P1-EQUIPMENT-ARIONS-FALL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsArionsFallWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-ARIONS-FALL",
+            "SFD·030/221",
+            "P1-ARIONS-FALL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysHuntersMacheteEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-hunters-machete-equipment.fixture.json",
+            "P1-EQUIPMENT-HUNTERS-MACHETE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsHuntersMacheteWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-HUNTERS-MACHETE",
+            "UNL-096/219",
+            "P1-HUNTERS-MACHETE-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
