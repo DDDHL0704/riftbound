@@ -1030,6 +1030,18 @@ public static class CardBehaviorRegistry
             ReadiesAllFriendlyUnits: true,
             PlaysSourceToBaseAsEquipment: true),
         new(
+            "OGN·212/298",
+            "未来熔炉",
+            2,
+            "FUTURE_FORGE_PLAY_EQUIPMENT_CREATE_MINION",
+            0,
+            0,
+            CreatedBaseUnitTokenCount: 1,
+            CreatedBaseUnitTokenPower: 1,
+            CreatedBaseUnitTokenName: "随从",
+            CreatedBaseUnitTokenTags: CardObjectTags.UnitCard,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
             "UNL-015/219",
             "占山为王",
             3,
