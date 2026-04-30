@@ -3702,6 +3702,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-SPELL-SPRITE-SUMMON-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(3, result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Power);
+        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-SPELL-SPRITE-SUMMON-TOKEN-001"].Tags);
         Assert.Equal(
             1,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
@@ -3730,7 +3731,10 @@ public sealed class ConformanceFixtureRunnerTests
             2,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
         Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
-            Assert.Equal(3, result.FinalState.CardObjects[objectId].Power));
+        {
+            Assert.Equal(3, result.FinalState.CardObjects[objectId].Power);
+            Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects[objectId].Tags);
+        });
     }
 
     [Fact]

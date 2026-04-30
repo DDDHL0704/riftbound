@@ -132,7 +132,8 @@
           "tokenObjectId": "P1-SPELL-SPRITE-BURST-TOKEN-001",
           "tokenName": "精灵",
           "power": 3,
-          "destinationZone": "BASE"
+          "destinationZone": "BASE",
+          "tokenTags": ["瞬息"]
         }
       },
       {
@@ -143,7 +144,8 @@
           "tokenObjectId": "P1-SPELL-SPRITE-BURST-TOKEN-002",
           "tokenName": "精灵",
           "power": 3,
-          "destinationZone": "BASE"
+          "destinationZone": "BASE",
+          "tokenTags": ["瞬息"]
         }
       }
     ],
@@ -176,8 +178,8 @@
         }
       },
       "cardObjects": {
-        "P1-SPELL-SPRITE-BURST-TOKEN-001": { "power": 3 },
-        "P1-SPELL-SPRITE-BURST-TOKEN-002": { "power": 3 }
+        "P1-SPELL-SPRITE-BURST-TOKEN-001": { "power": 3, "tags": ["瞬息"] },
+        "P1-SPELL-SPRITE-BURST-TOKEN-002": { "power": 3, "tags": ["瞬息"] }
       },
       "stackItems": []
     },

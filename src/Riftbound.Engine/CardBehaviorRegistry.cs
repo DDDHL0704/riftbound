@@ -1515,7 +1515,8 @@ public static class CardBehaviorRegistry
             0,
             CreatedBaseUnitTokenCount: 1,
             CreatedBaseUnitTokenPower: 3,
-            CreatedBaseUnitTokenName: "精灵"),
+            CreatedBaseUnitTokenName: "精灵",
+            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral),
         new(
             "UNL-069/219",
             "精灵迸发",
@@ -1525,7 +1526,8 @@ public static class CardBehaviorRegistry
             0,
             CreatedBaseUnitTokenCount: 2,
             CreatedBaseUnitTokenPower: 3,
-            CreatedBaseUnitTokenName: "精灵"),
+            CreatedBaseUnitTokenName: "精灵",
+            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral),
         new(
             "OGS·020/024",
             "高原血统",
