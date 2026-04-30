@@ -1597,6 +1597,17 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.EnemyUnitThenEnemyUnit,
             MovesFirstTargetToSecondTargetLocation: true),
         new(
+            "OGN·258/298",
+            "猛龙摆尾",
+            4,
+            "DRAGONS_RAGE_MOVE_ENEMY_UNIT_THEN_MUTUAL_POWER_DAMAGE",
+            0,
+            2,
+            TargetScope: CardTargetScopes.EnemyUnitThenEnemyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            MovesFirstTargetToSecondTargetLocation: true,
+            DealsMutualTargetPowerDamage: true),
+        new(
             "OGN·022/298",
             "热电光束",
             5,

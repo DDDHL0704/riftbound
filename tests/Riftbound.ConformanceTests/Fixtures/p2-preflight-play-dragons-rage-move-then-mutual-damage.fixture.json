@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-dragons-rage-move-then-mutual-damage",
+  "description": "Dragon's Rage moves an enemy unit to another enemy unit's location, then the two units deal damage to each other equal to their power.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302581,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·258/298 猛龙摆尾",
+      "note": "官方卡面：费用 4；移动一名敌方单位。随后，在其目的地处选择另一名敌方单位，让这两名单位相互以自身战力给对方造成伤害。当前 fixture 用第二目标代表移动后的目的地处另一名敌方单位。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p62-p63 rule 428",
+      "note": "基地和战场均为公开区域；单位可移动；单位伤害记录到对象状态，伤害达到战力后按致命伤害摧毁；法术需要合法目标并作为结算链项目结算。"
+    }
+  ],
+  "roomId": "p2-preflight-dragons-rage-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302581,
+    "turnNumber": 81,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-DRAGONS-RAGE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-DRAGONS-RAGE-MOVED-001"],
+        "battlefields": ["P2-DRAGONS-RAGE-DESTINATION-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-DRAGONS-RAGE-MOVED-001": {
+        "damage": 0,
+        "power": 5,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-DRAGONS-RAGE-DESTINATION-001": {
+        "damage": 0,
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-dragons-rage-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-DRAGONS-RAGE",
+        "cardNo": "OGN·258/298",
+        "targetObjectIds": ["P2-DRAGONS-RAGE-MOVED-001", "P2-DRAGONS-RAGE-DESTINATION-001"],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-dragons-rage-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-dragons-rage-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_MOVED_TO_UNIT_LOCATION",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_DESTROYED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-DRAGONS-RAGE",
+          "cardNo": "OGN·258/298",
+          "targetObjectIds": ["P2-DRAGONS-RAGE-MOVED-001", "P2-DRAGONS-RAGE-DESTINATION-001"],
+          "effectKind": "DRAGONS_RAGE_MOVE_ENEMY_UNIT_THEN_MUTUAL_POWER_DAMAGE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_MOVED_TO_UNIT_LOCATION",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-DRAGONS-RAGE",
+          "targetObjectId": "P2-DRAGONS-RAGE-MOVED-001",
+          "destinationTargetObjectId": "P2-DRAGONS-RAGE-DESTINATION-001",
+          "destinationPlayerId": "P2",
+          "destinationZone": "BATTLEFIELD"
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-DRAGONS-RAGE",
+          "damageSourceObjectId": "P2-DRAGONS-RAGE-MOVED-001",
+          "targetObjectId": "P2-DRAGONS-RAGE-DESTINATION-001",
+          "damage": 5
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-DRAGONS-RAGE",
+          "damageSourceObjectId": "P2-DRAGONS-RAGE-DESTINATION-001",
+          "targetObjectId": "P2-DRAGONS-RAGE-MOVED-001",
+          "damage": 3
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-DRAGONS-RAGE",
+          "targetObjectId": "P2-DRAGONS-RAGE-DESTINATION-001",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "reason": "LETHAL_DAMAGE"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 81,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-DRAGONS-RAGE"]
+        },
+        "P2": {
+          "base": [],
+          "battlefields": ["P2-DRAGONS-RAGE-MOVED-001"],
+          "graveyard": ["P2-DRAGONS-RAGE-DESTINATION-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-DRAGONS-RAGE-MOVED-001": {
+          "damage": 3,
+          "power": 5,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

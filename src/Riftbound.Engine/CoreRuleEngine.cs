@@ -1841,6 +1841,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
 
+            if (behavior.MovesFirstTargetToSecondTargetLocation
+                && TryMoveFirstTargetToSecondTargetLocation(
+                    playerZones,
+                    firstTargetObjectId,
+                    secondTargetObjectId,
+                    out var destinationPlayerId,
+                    out var destinationZone))
+            {
+                events.Add(new GameEvent(
+                    "UNIT_MOVED_TO_UNIT_LOCATION",
+                    $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = firstTargetObjectId,
+                        ["destinationTargetObjectId"] = secondTargetObjectId,
+                        ["destinationPlayerId"] = destinationPlayerId,
+                        ["destinationZone"] = destinationZone
+                    }));
+            }
+
             if (behavior.PowerModifierAmount != 0
                 && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
             {

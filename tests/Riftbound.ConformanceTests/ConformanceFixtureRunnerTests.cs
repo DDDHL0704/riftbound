@@ -3962,6 +3962,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysDragonsRageMoveThenMutualDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-dragons-rage-move-then-mutual-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-DRAGONS-RAGE-MOVED-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-DRAGONS-RAGE-DESTINATION-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-DRAGONS-RAGE-MOVED-001"].Damage);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysTheCurtainRisesEchoAndReadiesUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -6252,6 +6274,68 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.Empty(result.Events);
             Assert.Equal(0, result.State.Tick);
             Assert.Equal(["P1-SPELL-BAIT"], result.State.PlayerZones["P1"].Hand);
+            Assert.Empty(result.State.StackItems);
+        }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDragonsRageAgainstFriendlyOrRepeatedTarget()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-DRAGONS-RAGE"],
+                    Base = ["P1-DRAGONS-RAGE-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-DRAGONS-RAGE-MOVED-001"],
+                    Battlefields = ["P2-DRAGONS-RAGE-DESTINATION-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DRAGONS-RAGE-FRIENDLY-001"] = new(
+                    "P1-DRAGONS-RAGE-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-DRAGONS-RAGE-MOVED-001"] = new(
+                    "P2-DRAGONS-RAGE-MOVED-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-DRAGONS-RAGE-DESTINATION-001"] = new(
+                    "P2-DRAGONS-RAGE-DESTINATION-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-DRAGONS-RAGE-MOVED-001", "P1-DRAGONS-RAGE-FRIENDLY-001"],
+            ["P1-DRAGONS-RAGE-FRIENDLY-001", "P2-DRAGONS-RAGE-DESTINATION-001"],
+            ["P2-DRAGONS-RAGE-MOVED-001", "P2-DRAGONS-RAGE-MOVED-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-dragons-rage-invalid-{string.Join("-", targetObjectIds)}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-DRAGONS-RAGE",
+                    "OGN·258/298",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Equal(["P1-SPELL-DRAGONS-RAGE"], result.State.PlayerZones["P1"].Hand);
             Assert.Empty(result.State.StackItems);
         }
     }
