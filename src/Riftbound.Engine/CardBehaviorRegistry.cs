@@ -86,6 +86,7 @@ public sealed record CardBehaviorDefinition(
     bool AppliesStatusEffectToAllUnits = false,
     bool MovesFirstTargetToSecondTargetLocation = false,
     string TargetRequiredTag = "",
+    string AnyTargetRequiredTag = "",
     string TargetAddedTag = "",
     bool UsesTargetCurrentPowerAsPowerModifier = false,
     int CreatedBaseEquipmentTokenCount = 0,
@@ -99,7 +100,8 @@ public sealed record CardBehaviorDefinition(
     bool CallsRuneForControllerAndOtherPlayers = false,
     bool GrantsBoon = false,
     bool MovesTargetToBattlefield = false,
-    bool GrantsBoonToAllFriendlyUnits = false);
+    bool GrantsBoonToAllFriendlyUnits = false,
+    bool SwapsTargetLocations = false);
 
 public static class CardDamageConditionKinds
 {
@@ -115,6 +117,7 @@ public static class CardTargetScopes
     public const string BaseUnit = "BASE_UNIT";
     public const string AnyUnit = "ANY_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
+    public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
@@ -1075,6 +1078,17 @@ public static class CardBehaviorRegistry
             0,
             0,
             DrawCount: 2),
+        new(
+            "UNL-083/219",
+            "镜中幻影",
+            2,
+            "REFLECTIONS_SWAP_FRIENDLY_UNITS_DRAW_1",
+            0,
+            2,
+            DrawCount: 1,
+            TargetScope: CardTargetScopes.FriendlyUnitThenFriendlyUnit,
+            AnyTargetRequiredTag: CardObjectTags.Ephemeral,
+            SwapsTargetLocations: true),
         new(
             "OGN·046/298",
             "决斗架势",
