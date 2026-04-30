@@ -118,6 +118,7 @@ public static class CardTargetScopes
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
+    public const string Equipment = "EQUIPMENT";
 }
 
 public static class CardObjectTags
@@ -880,6 +881,15 @@ public static class CardBehaviorRegistry
             MinTargetCount: 0,
             TargetRequiredTag: CardObjectTags.Standby,
             ReturnsGraveyardTargetToHand: true),
+        new(
+            "UNL-070/219",
+            "化为灰烬",
+            2,
+            "ASHES_TO_ASHES_EQUIPMENT_EPHEMERAL",
+            0,
+            1,
+            TargetScope: CardTargetScopes.Equipment,
+            TargetAddedTag: CardObjectTags.Ephemeral),
         new(
             "UNL-165/219",
             "暗影的召唤",

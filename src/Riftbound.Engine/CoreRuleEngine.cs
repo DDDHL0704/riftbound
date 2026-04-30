@@ -734,6 +734,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
     }
@@ -872,6 +873,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(objectId)
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsEquipmentObject(MatchState state, string objectId)
+    {
+        return IsFieldObject(state.PlayerZones, objectId)
+            && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
     private static bool IsAttackingBattlefieldObject(MatchState state, string objectId)
@@ -1219,11 +1226,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                         ? "enemy unit"
                                                                         : string.Equals(targetScope, CardTargetScopes.EnemyUnitThenEnemyUnit, StringComparison.Ordinal)
                                                                             ? "enemy unit then another enemy unit"
-                                                                        : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
-                                                                            ? "opponent hand card"
-                                                                            : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
-                                                                                ? "opponent graveyard card"
-                                                                                : "battlefield unit";
+                                                                            : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
+                                                                                ? "opponent hand card"
+                                                                                : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
+                                                                                    ? "opponent graveyard card"
+                                                                                    : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
+                                                                                        ? "equipment"
+                                                                                        : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)

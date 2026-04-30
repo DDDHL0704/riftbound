@@ -1897,6 +1897,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysAshesToAshesEquipmentEphemeral()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ashes-to-ashes-equipment-ephemeral.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral],
+            result.FinalState.CardObjects["P2-BASE-EQUIPMENT-ASHES-TO-ASHES-001"].Tags);
+        Assert.Equal(["P1-SPELL-ASHES-TO-ASHES"], result.FinalState.PlayerZones["P1"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsAshesToAshesAgainstUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ASHES-TO-ASHES"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-ASHES-TO-ASHES-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-ASHES-TO-ASHES-UNIT-001"] = new("P2-BASE-ASHES-TO-ASHES-UNIT-001", power: 2, tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-ashes-to-ashes-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-ASHES-TO-ASHES",
+                "UNL-070/219",
+                ["P2-BASE-ASHES-TO-ASHES-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-ASHES-TO-ASHES"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-ASHES-TO-ASHES-UNIT-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBackAgainstWallDoublesFriendlyPowerAndEphemeral()
     {
         var fixture = await ConformanceFixture.LoadAsync(
