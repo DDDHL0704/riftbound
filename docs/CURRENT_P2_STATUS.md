@@ -6,11 +6,11 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线提交：`226d204 feat: add rocket barrage equipment mode coverage`
-- 上一个 P2 功能提交：`136e9dd feat: add sigil burst preflight coverage`
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `312/312`
-- 最小 card behavior registry：`148/811 = 18.2%`
-- P2 preflight 清单：已完成到 `179`，下一项是 `180. 逐批迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖到 `SFD·135/221 紧急召回`；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`SFD·077/221 火箭轰击` 装备摧毁模式
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `314/314`
+- 最小 card behavior registry：`149/811 = 18.4%`
+- P2 preflight 清单：已完成到 `180`，下一项是 `181. 逐批迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -34,6 +34,7 @@
 ## Latest Completed
 
 - `SFD·077/221 火箭轰击`：新增 `DESTROY_EQUIPMENT` 模式，覆盖装备目标摧毁和单位目标拒绝。
+- `SFD·135/221 紧急召回`：装备返回拥有者手牌，补 `EQUIPMENT_RETURNED_TO_HAND` 事件和单位目标拒绝。
 - `SFD·005/221 印爆术`：摧毁装备后让目标控制者抽 2 张牌。
 - `UNL-070/219 化为灰烬`：装备获得 `瞬息` 标签。
 - `SFD·070/221 痛苦之酬`：战场单位 3 点伤害后打出休眠“金币”装备指示物。

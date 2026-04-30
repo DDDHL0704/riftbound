@@ -4200,6 +4200,65 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysEmergencyRecallReturnEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-emergency-recall-return-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-BASE-EQUIPMENT-EMERGENCY-RECALL-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P2-BASE-EQUIPMENT-EMERGENCY-RECALL-001"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P1-SPELL-EMERGENCY-RECALL"], result.FinalState.PlayerZones["P1"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsEmergencyRecallAgainstUnit()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-EMERGENCY-RECALL"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-EMERGENCY-RECALL-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-EMERGENCY-RECALL-UNIT-001"] = new("P2-BASE-EMERGENCY-RECALL-UNIT-001", power: 2, tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-emergency-recall-unit-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-EMERGENCY-RECALL",
+                "SFD·135/221",
+                ["P2-BASE-EMERGENCY-RECALL-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-EMERGENCY-RECALL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-EMERGENCY-RECALL-UNIT-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPerfectFinaleDrawModeThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(

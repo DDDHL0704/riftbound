@@ -1383,6 +1383,15 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.EnemyUnitThenEnemyUnit,
             MovesFirstTargetToSecondTargetLocation: true),
         new(
+            "SFD·135/221",
+            "紧急召回",
+            1,
+            "EMERGENCY_RECALL_RETURN_EQUIPMENT_TO_HAND",
+            0,
+            1,
+            TargetScope: CardTargetScopes.Equipment,
+            ReturnsTargetToHand: true),
+        new(
             "OGN·105/298",
             "星芒凝汇",
             6,

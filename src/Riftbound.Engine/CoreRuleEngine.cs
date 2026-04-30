@@ -1364,7 +1364,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
             {
-                if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId))
+                if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId, out _))
                 {
                     continue;
                 }
@@ -1898,7 +1898,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         var primaryStatusEffectId = statusEffectIds[0];
                         if (behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
                             && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
-                            && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var statusReturnOwnerPlayerId))
+                            && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var statusReturnOwnerPlayerId, out _))
                         {
                             events.Add(new GameEvent(
                                 "UNIT_RETURNED_TO_HAND",
@@ -2003,17 +2003,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.ReturnsTargetToHand
-                        && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId))
+                        && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId, out var returnedWasEquipment))
                     {
-                        events.Add(new GameEvent(
-                            "UNIT_RETURNED_TO_HAND",
-                            $"{behavior.DisplayName}让单位返回手牌",
-                            new Dictionary<string, object?>
-                            {
-                                ["sourceObjectId"] = stackItem.SourceObjectId,
-                                ["targetObjectId"] = targetObjectId,
-                                ["ownerPlayerId"] = returnedOwnerPlayerId
-                            }));
+                        events.Add(BuildReturnedToHandEvent(
+                            behavior.DisplayName,
+                            stackItem,
+                            targetObjectId,
+                            returnedOwnerPlayerId,
+                            returnedWasEquipment));
                         if (behavior.RuneCallCountAfterTargetReturn > 0)
                         {
                             var runeCallResult = CallRunes(
@@ -3369,13 +3366,33 @@ public sealed class CoreRuleEngine : IRuleEngine
             : new GameEvent("UNIT_DESTROYED", $"{displayName}摧毁单位", payload);
     }
 
+    private static GameEvent BuildReturnedToHandEvent(
+        string displayName,
+        StackItemState stackItem,
+        string targetObjectId,
+        string ownerPlayerId,
+        bool wasEquipment)
+    {
+        return new GameEvent(
+            wasEquipment ? "EQUIPMENT_RETURNED_TO_HAND" : "UNIT_RETURNED_TO_HAND",
+            wasEquipment ? $"{displayName}让装备返回手牌" : $"{displayName}让单位返回手牌",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["ownerPlayerId"] = ownerPlayerId
+            });
+    }
+
     private static bool TryReturnTargetToHand(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
-        out string ownerPlayerId)
+        out string ownerPlayerId,
+        out bool wasEquipment)
     {
         ownerPlayerId = string.Empty;
+        wasEquipment = false;
         foreach (var (playerId, zones) in playerZones)
         {
             var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
@@ -3393,6 +3410,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? zones.Hand
                     : zones.Hand.Concat([targetObjectId]).ToArray()
             };
+            wasEquipment = cardObjects.TryGetValue(targetObjectId, out var targetState)
+                && targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
             cardObjects.Remove(targetObjectId);
             ownerPlayerId = playerId;
             return true;
