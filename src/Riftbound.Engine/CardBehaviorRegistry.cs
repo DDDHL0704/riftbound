@@ -26,6 +26,7 @@ public sealed record CardBehaviorDefinition(
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
     bool DamagesAllEnemyBattlefieldUnits = false,
+    bool DestroysAllEquipment = false,
     int OtherEnemyBattlefieldUnitsDamageAmount = 0,
     bool ModifiesAllFriendlyUnits = false,
     int MaxTargetPower = 0,
@@ -88,7 +89,9 @@ public sealed record CardBehaviorDefinition(
     int CreatedBaseEquipmentTokenCount = 0,
     string CreatedBaseEquipmentTokenName = "",
     string CreatedBaseEquipmentTokenTags = "",
-    bool CreatedBaseEquipmentTokenIsExhausted = false);
+    bool CreatedBaseEquipmentTokenIsExhausted = false,
+    int CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit = 0,
+    int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -423,6 +426,21 @@ public static class CardBehaviorRegistry
             CreatedBaseEquipmentTokenName: "金币",
             CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
             CreatedBaseEquipmentTokenIsExhausted: true),
+        new(
+            "SFD·162/221",
+            "血钱",
+            2,
+            "BLOOD_MONEY_DESTROY_SMALL_BATTLEFIELD_UNIT_CREATE_GOLD",
+            0,
+            1,
+            DestroysTarget: true,
+            TargetScope: CardTargetScopes.BattlefieldUnit,
+            MaxTargetPower: 2,
+            CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true,
+            CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit: 2,
+            CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit: 1),
         new(
             "SFD·023/221",
             "透体圣光",
@@ -1382,6 +1400,14 @@ public static class CardBehaviorRegistry
             2,
             TargetScope: CardTargetScopes.EnemyUnitThenEnemyUnit,
             MovesFirstTargetToSecondTargetLocation: true),
+        new(
+            "OGN·022/298",
+            "热电光束",
+            5,
+            "THERMOGENIC_BEAM_DESTROY_ALL_EQUIPMENT",
+            0,
+            0,
+            DestroysAllEquipment: true),
         new(
             "SFD·135/221",
             "紧急召回",

@@ -1360,6 +1360,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
             }
         }
+        else if (behavior.DestroysAllEquipment)
+        {
+            foreach (var targetObjectId in GetFieldEquipmentObjectIds(playerZones, cardObjects))
+            {
+                if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
+                {
+                    continue;
+                }
+
+                events.Add(BuildFieldRemovalEvent(
+                    behavior.DisplayName,
+                    stackItem,
+                    targetObjectId,
+                    removalResult));
+                destroyedObjectIds.Add(targetObjectId);
+            }
+        }
         else if (behavior.ReturnsAllUnitsToHand)
         {
             foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
@@ -1997,6 +2014,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                             {
                                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
                             }
+
+                            var conditionalEquipmentTokenCount = ConditionalEquipmentTokenCountForDestroyedUnit(
+                                behavior,
+                                stackItem.ControllerId,
+                                removalResult);
+                            if (conditionalEquipmentTokenCount > 0)
+                            {
+                                CreateBaseEquipmentTokens(
+                                    playerZones,
+                                    cardObjects,
+                                    behavior,
+                                    stackItem,
+                                    events,
+                                    conditionalEquipmentTokenCount);
+                            }
                         }
 
                         continue;
@@ -2232,6 +2264,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static int ConditionalEquipmentTokenCountForDestroyedUnit(
+        CardBehaviorDefinition behavior,
+        string controllerId,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed || !removalResult.WasUnit)
+        {
+            return 0;
+        }
+
+        return string.Equals(removalResult.OwnerPlayerId, controllerId, StringComparison.Ordinal)
+            ? behavior.CreatedBaseEquipmentTokenCountIfDestroyedFriendlyUnit
+            : behavior.CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit;
+    }
+
     private static IReadOnlyList<string> GetBattlefieldObjectIds(
         IReadOnlyDictionary<string, PlayerZones> playerZones)
     {
@@ -2278,6 +2325,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> GetFieldEquipmentObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
+    {
+        return playerZones
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -2633,14 +2693,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        int tokenCountOverride = 0)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
         {
             return;
         }
 
-        var tokenCount = behavior.CreatedBaseEquipmentTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
+        var baseTokenCount = tokenCountOverride > 0
+            ? tokenCountOverride
+            : behavior.CreatedBaseEquipmentTokenCount;
+        var tokenCount = baseTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
         var tokenTags = ParseDelimitedValues(behavior.CreatedBaseEquipmentTokenTags);
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)

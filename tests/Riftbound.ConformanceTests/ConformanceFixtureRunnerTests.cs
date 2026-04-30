@@ -4259,6 +4259,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysThermogenicBeamDestroyAllEquipment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-thermogenic-beam-destroy-all-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P1-BASE-EQUIPMENT-THERMOGENIC-BEAM-001", result.FinalState.CardObjects.Keys);
+        Assert.DoesNotContain("P2-BASE-EQUIPMENT-THERMOGENIC-BEAM-001", result.FinalState.CardObjects.Keys);
+        Assert.Contains("P1-BATTLEFIELD-UNIT-THERMOGENIC-BEAM-001", result.FinalState.CardObjects.Keys);
+        Assert.Contains("P2-BATTLEFIELD-UNIT-THERMOGENIC-BEAM-001", result.FinalState.CardObjects.Keys);
+        Assert.Empty(result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPerfectFinaleDrawModeThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -4533,6 +4553,88 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-PAINFUL-PAYOFF"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P2-BASE-PAINFUL-PAYOFF-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysBloodMoneyDestroyEnemySmallUnitAndGold()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-blood-money-destroy-enemy-small-unit-create-gold.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-BATTLEFIELD-BLOOD-MONEY-ENEMY-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P1-SPELL-BLOOD-MONEY-ENEMY-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.True(result.FinalState.CardObjects["P1-SPELL-BLOOD-MONEY-ENEMY-TOKEN-001"].IsExhausted);
+        Assert.Equal(["P2"], result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysBloodMoneyDestroyFriendlySmallUnitAndTwoGold()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-blood-money-destroy-friendly-small-unit-create-two-gold.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P1-BATTLEFIELD-BLOOD-MONEY-FRIENDLY-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(
+            ["P1-SPELL-BLOOD-MONEY-FRIENDLY-TOKEN-001", "P1-SPELL-BLOOD-MONEY-FRIENDLY-TOKEN-002"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.True(result.FinalState.CardObjects["P1-SPELL-BLOOD-MONEY-FRIENDLY-TOKEN-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-SPELL-BLOOD-MONEY-FRIENDLY-TOKEN-002"].IsExhausted);
+        Assert.Equal(["P1"], result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBloodMoneyAgainstLargeBattlefieldUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BLOOD-MONEY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"] = new("P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001", power: 3, tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-blood-money-large-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BLOOD-MONEY",
+                "SFD·162/221",
+                ["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-BLOOD-MONEY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.StackItems);
     }
 
