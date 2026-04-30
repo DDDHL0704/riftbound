@@ -4493,6 +4493,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-OWNERLESS-TREASURE-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysScavengingWhizEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-scavenging-whiz-equipment.fixture.json",
+            "P1-EQUIPMENT-SCAVENGING-WHIZ");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsScavengingWhizWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SCAVENGING-WHIZ",
+            "OGN·099/298",
+            "P1-SCAVENGING-WHIZ-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysMistfallBladeyardEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-mistfall-bladeyard-equipment.fixture.json",
+            "P1-EQUIPMENT-MISTFALL-BLADEYARD");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsMistfallBladeyardWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-MISTFALL-BLADEYARD",
+            "OGN·152/298",
+            "P1-MISTFALL-BLADEYARD-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysShimmeringAuroraEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-shimmering-aurora-equipment.fixture.json",
+            "P1-EQUIPMENT-SHIMMERING-AURORA");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsShimmeringAuroraWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            9,
+            "P1-EQUIPMENT-SHIMMERING-AURORA",
+            "OGN·160/298",
+            "P1-SHIMMERING-AURORA-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSolariEmblemEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-solari-emblem-equipment.fixture.json",
+            "P1-EQUIPMENT-SOLARI-EMBLEM");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSolariEmblemWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-SOLARI-EMBLEM",
+            "OGN·227/298",
+            "P1-SOLARI-EMBLEM-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysVanguardHelmEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-vanguard-helm-equipment.fixture.json",
+            "P1-EQUIPMENT-VANGUARD-HELM");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsVanguardHelmWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-VANGUARD-HELM",
+            "OGN·228/298",
+            "P1-VANGUARD-HELM-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
