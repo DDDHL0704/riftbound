@@ -2820,6 +2820,29 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBaitAndMovesEnemyUnitToAnotherEnemyUnitLocation()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-bait-move-enemy-unit-to-another-location.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2-BAIT-DESTINATION-001", "P2-BAIT-MOVED-001"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BAIT-KEEPER-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Contains(
+            "STUNNED",
+            result.FinalState.CardObjects["P2-BAIT-MOVED-001"].UntilEndOfTurnEffects);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysTheCurtainRisesEchoAndReadiesUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -4582,6 +4605,59 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-SPELL-PLAYFUL-TENTACLES"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBaitAgainstFriendlyOrRepeatedTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BAIT"],
+                    Base = ["P1-BAIT-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BAIT-DESTINATION-001"],
+                    Battlefields = ["P2-BAIT-MOVED-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BAIT-FRIENDLY-001"] = new("P1-BAIT-FRIENDLY-001", power: 2),
+                ["P2-BAIT-DESTINATION-001"] = new("P2-BAIT-DESTINATION-001", power: 3),
+                ["P2-BAIT-MOVED-001"] = new("P2-BAIT-MOVED-001", power: 4)
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-BAIT-MOVED-001", "P1-BAIT-FRIENDLY-001"],
+            ["P1-BAIT-FRIENDLY-001", "P2-BAIT-DESTINATION-001"],
+            ["P2-BAIT-MOVED-001", "P2-BAIT-MOVED-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-bait-invalid-{string.Join("-", targetObjectIds)}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-BAIT",
+                    "SFD·129/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Equal(["P1-SPELL-BAIT"], result.State.PlayerZones["P1"].Hand);
+            Assert.Empty(result.State.StackItems);
+        }
     }
 
     [Fact]

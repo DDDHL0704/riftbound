@@ -79,7 +79,8 @@ public sealed record CardBehaviorDefinition(
     bool ModifiesAllFriendlyBattlefieldUnits = false,
     bool ModifiesAllEnemyBattlefieldUnits = false,
     int MaxTotalTargetPower = 0,
-    bool AppliesStatusEffectToAllUnits = false);
+    bool AppliesStatusEffectToAllUnits = false,
+    bool MovesFirstTargetToSecondTargetLocation = false);
 
 public static class CardDamageConditionKinds
 {
@@ -106,6 +107,7 @@ public static class CardTargetScopes
     public const string EnemyAttackingUnit = "ENEMY_ATTACKING_UNIT";
     public const string EnemyBattlefieldUnit = "ENEMY_BATTLEFIELD_UNIT";
     public const string EnemyUnit = "ENEMY_UNIT";
+    public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
 }
@@ -1277,6 +1279,15 @@ public static class CardBehaviorRegistry
             MinTargetCount: 0,
             MovesTargetToBase: true,
             MaxTotalTargetPower: 8),
+        new(
+            "SFD·129/221",
+            "诱饵",
+            2,
+            "BAIT_MOVE_ENEMY_UNIT_TO_ANOTHER_ENEMY_UNIT_LOCATION_NO_ECHO",
+            0,
+            2,
+            TargetScope: CardTargetScopes.EnemyUnitThenEnemyUnit,
+            MovesFirstTargetToSecondTargetLocation: true),
         new(
             "OGN·105/298",
             "星芒凝汇",

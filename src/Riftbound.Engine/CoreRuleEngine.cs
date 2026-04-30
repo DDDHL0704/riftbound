@@ -730,6 +730,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyBattlefieldUnit => IsEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             _ => IsBattlefieldObject(state, objectId)
@@ -1206,6 +1207,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                     ? "enemy battlefield unit"
                                                                     : string.Equals(targetScope, CardTargetScopes.EnemyUnit, StringComparison.Ordinal)
                                                                         ? "enemy unit"
+                                                                        : string.Equals(targetScope, CardTargetScopes.EnemyUnitThenEnemyUnit, StringComparison.Ordinal)
+                                                                            ? "enemy unit then another enemy unit"
                                                                         : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
                                                                             ? "opponent hand card"
                                                                             : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
@@ -1785,6 +1788,27 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects[buffedTargetObjectId] = modifiedTargetState;
                 events.Add(powerEvent);
             }
+        }
+        else if (behavior.MovesFirstTargetToSecondTargetLocation
+            && stackItem.TargetObjectIds.Count >= 2
+            && TryMoveFirstTargetToSecondTargetLocation(
+                playerZones,
+                stackItem.TargetObjectIds[0],
+                stackItem.TargetObjectIds[1],
+                out var destinationPlayerId,
+                out var destinationZone))
+        {
+            events.Add(new GameEvent(
+                "UNIT_MOVED_TO_UNIT_LOCATION",
+                $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = stackItem.TargetObjectIds[0],
+                    ["destinationTargetObjectId"] = stackItem.TargetObjectIds[1],
+                    ["destinationPlayerId"] = destinationPlayerId,
+                    ["destinationZone"] = destinationZone
+                }));
         }
         else if (behavior.RequiredTargetCount > 0
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
@@ -3343,6 +3367,95 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryMoveFirstTargetToSecondTargetLocation(
+        Dictionary<string, PlayerZones> playerZones,
+        string movedObjectId,
+        string destinationObjectId,
+        out string destinationPlayerId,
+        out string destinationZone)
+    {
+        destinationPlayerId = string.Empty;
+        destinationZone = string.Empty;
+
+        if (string.Equals(movedObjectId, destinationObjectId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var movedLocation = FindFieldObjectLocation(playerZones, movedObjectId);
+        var targetLocation = FindFieldObjectLocation(playerZones, destinationObjectId);
+        if (movedLocation is null || targetLocation is null)
+        {
+            return false;
+        }
+
+        if (string.Equals(movedLocation.Value.PlayerId, targetLocation.Value.PlayerId, StringComparison.Ordinal)
+            && string.Equals(movedLocation.Value.Zone, targetLocation.Value.Zone, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        RemoveFieldObjectFromLocation(playerZones, movedLocation.Value.PlayerId, movedLocation.Value.Zone, movedObjectId);
+        AddFieldObjectToLocation(playerZones, targetLocation.Value.PlayerId, targetLocation.Value.Zone, movedObjectId);
+        destinationPlayerId = targetLocation.Value.PlayerId;
+        destinationZone = targetLocation.Value.Zone;
+        return true;
+    }
+
+    private static (string PlayerId, string Zone)? FindFieldObjectLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                return (playerId, "BASE");
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                return (playerId, "BATTLEFIELD");
+            }
+        }
+
+        return null;
+    }
+
+    private static void RemoveFieldObjectFromLocation(
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string zone,
+        string objectId)
+    {
+        var zones = playerZones[playerId];
+        playerZones[playerId] = string.Equals(zone, "BASE", StringComparison.Ordinal)
+            ? zones with { Base = RemoveFromZone(zones.Base, objectId) }
+            : zones with { Battlefields = RemoveFromZone(zones.Battlefields, objectId) };
+    }
+
+    private static void AddFieldObjectToLocation(
+        Dictionary<string, PlayerZones> playerZones,
+        string playerId,
+        string zone,
+        string objectId)
+    {
+        var zones = playerZones[playerId];
+        playerZones[playerId] = string.Equals(zone, "BASE", StringComparison.Ordinal)
+            ? zones with
+            {
+                Base = zones.Base.Contains(objectId, StringComparer.Ordinal)
+                    ? zones.Base
+                    : zones.Base.Concat([objectId]).ToArray()
+            }
+            : zones with
+            {
+                Battlefields = zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
+                    ? zones.Battlefields
+                    : zones.Battlefields.Concat([objectId]).ToArray()
+            };
     }
 
     private static bool ShouldDrawForBehavior(

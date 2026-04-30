@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-bait-move-enemy-unit-to-another-location",
+  "description": "Bait moves one enemy unit to the location of another enemy unit without paying echo.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302211,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·129/221 诱饵",
+      "note": "官方卡面：费用 2；回响 2；将一名敌方单位移动到其控制者的其他单位所在的一处位置。当前 fixture 锁定不支付回响，并在 P2 preflight 粗粒度位置模型中让敌方战场单位移动到另一名敌方基地单位所在位置。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "基地和战场均为公开区域；单位对象可位于基地或战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。回响和多战场精确位置暂缓。"
+    }
+  ],
+  "roomId": "p2-preflight-bait-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302211,
+    "turnNumber": 211,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-BAIT"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BAIT-DESTINATION-001"],
+        "battlefields": ["P2-BAIT-MOVED-001", "P2-BAIT-KEEPER-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BAIT-DESTINATION-001": {
+        "damage": 0,
+        "power": 3,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BAIT-MOVED-001": {
+        "damage": 1,
+        "power": 4,
+        "untilEndOfTurnEffects": ["STUNNED"],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BAIT-KEEPER-001": {
+        "damage": 0,
+        "power": 2,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-bait-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-BAIT",
+        "cardNo": "SFD·129/221",
+        "targetObjectIds": ["P2-BAIT-MOVED-001", "P2-BAIT-DESTINATION-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-bait-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-bait-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_MOVED_TO_UNIT_LOCATION"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-BAIT",
+          "cardNo": "SFD·129/221",
+          "targetObjectIds": ["P2-BAIT-MOVED-001", "P2-BAIT-DESTINATION-001"],
+          "effectKind": "BAIT_MOVE_ENEMY_UNIT_TO_ANOTHER_ENEMY_UNIT_LOCATION_NO_ECHO"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_MOVED_TO_UNIT_LOCATION",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BAIT",
+          "targetObjectId": "P2-BAIT-MOVED-001",
+          "destinationTargetObjectId": "P2-BAIT-DESTINATION-001",
+          "destinationPlayerId": "P2",
+          "destinationZone": "BASE"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 211,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-BAIT"]
+        },
+        "P2": {
+          "base": ["P2-BAIT-DESTINATION-001", "P2-BAIT-MOVED-001"],
+          "battlefields": ["P2-BAIT-KEEPER-001"]
+        }
+      },
+      "cardObjects": {
+        "P2-BAIT-MOVED-001": {
+          "damage": 1,
+          "power": 4,
+          "untilEndOfTurnEffects": ["STUNNED"],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

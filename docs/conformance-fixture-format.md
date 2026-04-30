@@ -126,6 +126,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flash-move-two-friendly-battlefield-units-to-base.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-shield-wall-move-any-friendly-battlefield-units-to-base.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-playful-tentacles-move-total-power-eight.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-bait-move-enemy-unit-to-another-location.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-the-curtain-rises-echo-ready-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-beatdown-ready-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunt-ready-all-friendly-units.fixture.json`
