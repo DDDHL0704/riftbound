@@ -98,7 +98,8 @@ public sealed record CardBehaviorDefinition(
     bool DrawsControllerAndOtherPlayers = false,
     bool CallsRuneForControllerAndOtherPlayers = false,
     bool GrantsBoon = false,
-    bool MovesTargetToBattlefield = false);
+    bool MovesTargetToBattlefield = false,
+    bool GrantsBoonToAllFriendlyUnits = false);
 
 public static class CardDamageConditionKinds
 {
@@ -342,6 +343,14 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyBaseUnit,
             GrantsBoon: true,
             MovesTargetToBattlefield: true),
+        new(
+            "OGN·153/298",
+            "公开行动",
+            5,
+            "OPEN_ACTION_GRANT_BOON_ALL_FRIENDLY_UNITS_NO_CONSUME",
+            0,
+            0,
+            GrantsBoonToAllFriendlyUnits: true),
         new(
             "OGN·220/298",
             "强手裂颅",

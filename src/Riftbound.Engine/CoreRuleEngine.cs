@@ -1639,6 +1639,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
             }
         }
+        else if (behavior.GrantsBoonToAllFriendlyUnits)
+        {
+            foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, stackItem.ControllerId))
+            {
+                var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                    ? existingTarget
+                    : new CardObjectState(targetObjectId);
+
+                targetState = ApplyBoon(
+                    targetState,
+                    behavior,
+                    stackItem,
+                    targetObjectId,
+                    out var boonEvents);
+                cardObjects[targetObjectId] = targetState;
+                events.AddRange(boonEvents);
+            }
+        }
         else if (behavior.ReadiesAllFriendlyUnits)
         {
             for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)

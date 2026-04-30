@@ -4263,6 +4263,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysOpenActionGrantAllBoons()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-open-action-grant-all-boons.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.CardObjects["P1-OPEN-ACTION-BASE-001"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-OPEN-ACTION-BATTLEFIELD-001"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-OPEN-ACTION-BASE-001"].Tags);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-OPEN-ACTION-BATTLEFIELD-001"].Tags);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDecisiveStrikeAllFriendlyPowerBoost()
     {
         var fixture = await ConformanceFixture.LoadAsync(
