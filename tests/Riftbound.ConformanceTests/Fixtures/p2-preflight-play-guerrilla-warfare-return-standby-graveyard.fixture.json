@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-guerrilla-warfare-return-standby-graveyard",
+  "description": "Guerrilla Warfare returns up to two friendly standby cards from graveyard to hand.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302171,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·264/298 游击战",
+      "note": "官方卡面：费用 2；让最多两张待命卡牌从废牌堆里返回你的手牌；本回合内可无视费用正面朝下布置待命卡牌。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "玩家区域包含手牌和废牌堆；打出法术需要费用、目标和指示合法，并作为结算链项目在双方让过后结算；待命是卡牌关键词。"
+    },
+    {
+      "source": "manual-scope-note",
+      "locator": "P2 low-complexity preflight",
+      "note": "当前 fixture 覆盖从己方废牌堆选择 0-2 张带待命标签的牌返回手牌；无视费用正面朝下布置待命牌的本回合权限暂缓到待命布置模型。"
+    }
+  ],
+  "roomId": "p2-preflight-guerrilla-warfare-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302171,
+    "turnNumber": 76,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-GUERRILLA-WARFARE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [
+          "P1-GRAVE-STANDBY-001",
+          "P1-GRAVE-NON-STANDBY-001",
+          "P1-GRAVE-STANDBY-002"
+        ],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": ["P2-HAND-001"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": ["P2-GRAVE-STANDBY-001"],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-GRAVE-STANDBY-001": { "tags": ["待命"] },
+      "P1-GRAVE-STANDBY-002": { "tags": ["待命"] },
+      "P1-GRAVE-NON-STANDBY-001": { "tags": ["CARD_TYPE:UNIT"] },
+      "P2-GRAVE-STANDBY-001": { "tags": ["待命"] }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-guerrilla-warfare-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+        "cardNo": "OGN·264/298",
+        "targetObjectIds": ["P1-GRAVE-STANDBY-001", "P1-GRAVE-STANDBY-002"],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-guerrilla-warfare-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-guerrilla-warfare-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "CARD_RETURNED_TO_HAND",
+      "CARD_RETURNED_TO_HAND"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+          "cardNo": "OGN·264/298",
+          "targetObjectIds": ["P1-GRAVE-STANDBY-001", "P1-GRAVE-STANDBY-002"],
+          "effectKind": "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "CARD_RETURNED_TO_HAND",
+        "tick": 3,
+        "sequence": 7,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+          "targetObjectId": "P1-GRAVE-STANDBY-001",
+          "sourceZone": "GRAVEYARD",
+          "destinationZone": "HAND"
+        }
+      },
+      {
+        "kind": "CARD_RETURNED_TO_HAND",
+        "tick": 3,
+        "sequence": 8,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+          "targetObjectId": "P1-GRAVE-STANDBY-002",
+          "sourceZone": "GRAVEYARD",
+          "destinationZone": "HAND"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 76,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": ["P1-GRAVE-STANDBY-001", "P1-GRAVE-STANDBY-002"],
+          "graveyard": ["P1-GRAVE-NON-STANDBY-001", "P1-SPELL-GUERRILLA-WARFARE"]
+        },
+        "P2": {
+          "hand": ["P2-HAND-001"],
+          "graveyard": ["P2-GRAVE-STANDBY-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-GRAVE-STANDBY-001": { "tags": ["待命"] },
+        "P1-GRAVE-STANDBY-002": { "tags": ["待命"] },
+        "P1-GRAVE-NON-STANDBY-001": { "tags": ["CARD_TYPE:UNIT"] },
+        "P2-GRAVE-STANDBY-001": { "tags": ["待命"] }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

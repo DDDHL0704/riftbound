@@ -1724,6 +1724,64 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysGuerrillaWarfareReturnStandbyGraveyardCards()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-guerrilla-warfare-return-standby-graveyard.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-GRAVE-STANDBY-001", "P1-GRAVE-STANDBY-002"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-NON-STANDBY-001", "P1-SPELL-GUERRILLA-WARFARE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal([CardObjectTags.Standby], result.FinalState.CardObjects["P1-GRAVE-STANDBY-001"].Tags);
+        Assert.Equal([CardObjectTags.Standby], result.FinalState.CardObjects["P1-GRAVE-STANDBY-002"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsGuerrillaWarfareWhenTargetIsNotStandby()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-GUERRILLA-WARFARE"],
+                    Graveyard = ["P1-GRAVE-NON-STANDBY-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GRAVE-NON-STANDBY-001"] = new("P1-GRAVE-NON-STANDBY-001", tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-guerrilla-warfare-non-standby-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-GUERRILLA-WARFARE",
+                "OGN·264/298",
+                ["P1-GRAVE-NON-STANDBY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-GUERRILLA-WARFARE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-NON-STANDBY-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBorrowedHistoryDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -81,7 +81,8 @@ public sealed record CardBehaviorDefinition(
     bool ModifiesAllEnemyBattlefieldUnits = false,
     int MaxTotalTargetPower = 0,
     bool AppliesStatusEffectToAllUnits = false,
-    bool MovesFirstTargetToSecondTargetLocation = false);
+    bool MovesFirstTargetToSecondTargetLocation = false,
+    string TargetRequiredTag = "");
 
 public static class CardDamageConditionKinds
 {
@@ -117,6 +118,7 @@ public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
     public const string Spellshield = "法盾";
+    public const string Standby = "待命";
 }
 
 public static class CardDrawConditionKinds
@@ -838,6 +840,17 @@ public static class CardBehaviorRegistry
             0,
             1,
             TargetScope: CardTargetScopes.FriendlyGraveyardCard,
+            ReturnsGraveyardTargetToHand: true),
+        new(
+            "OGN·264/298",
+            "游击战",
+            2,
+            "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyGraveyardCard,
+            MinTargetCount: 0,
+            TargetRequiredTag: CardObjectTags.Standby,
             ReturnsGraveyardTargetToHand: true),
         new(
             "OGN·083/298",

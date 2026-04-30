@@ -266,6 +266,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
+                || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
         {
@@ -821,6 +822,15 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.IsNullOrWhiteSpace(behavior.TargetForbiddenTag)
             || !CardObjectHasTag(state.CardObjects, objectId, behavior.TargetForbiddenTag);
+    }
+
+    private static bool IsTargetRequiredTagAllowed(
+        MatchState state,
+        string objectId,
+        CardBehaviorDefinition behavior)
+    {
+        return string.IsNullOrWhiteSpace(behavior.TargetRequiredTag)
+            || CardObjectHasTag(state.CardObjects, objectId, behavior.TargetRequiredTag);
     }
 
     private static bool IsFriendlyGraveyardCard(MatchState state, string playerId, string objectId)
