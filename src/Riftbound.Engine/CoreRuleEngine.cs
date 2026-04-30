@@ -751,6 +751,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : IsFriendlyMainDeckCard(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldUnit => IsControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsFriendlyHandCard(state, playerId, objectId),
+            CardTargetScopes.AnyHandCard => IsAnyHandCard(state, objectId),
             CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => targetIndex == 0
                 ? IsFriendlyHandCard(state, playerId, objectId)
                 : IsBattlefieldObject(state, objectId),
@@ -808,6 +809,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.Any(entry =>
                 !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
                 && entry.Value.Hand.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsAnyHandCard(MatchState state, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.PlayerZones.Values.Any(zones => zones.Hand.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static bool IsFriendlyMainDeckCard(MatchState state, string playerId, string objectId)

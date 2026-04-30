@@ -144,6 +144,7 @@ public static class CardTargetScopes
     public const string AnyUnitThenFriendlyMainDeckCard = "ANY_UNIT_THEN_FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyBattlefieldUnit = "FRIENDLY_BATTLEFIELD_UNIT";
     public const string FriendlyHandCard = "FRIENDLY_HAND_CARD";
+    public const string AnyHandCard = "ANY_HAND_CARD";
     public const string FriendlyHandCardThenBattlefieldUnit = "FRIENDLY_HAND_CARD_THEN_BATTLEFIELD_UNIT";
     public const string FriendlyMainDeckCard = "FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyGraveyardCard = "FRIENDLY_GRAVEYARD_CARD";
@@ -2298,6 +2299,18 @@ public static class CardBehaviorRegistry
             DiscardsTargetFromOwnerHand: true,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7),
+        new(
+            "UNL-121/219",
+            "魅惑之灵",
+            3,
+            "CHARMING_SPIRIT_PLAY_UNIT_DISCARD_CHOSEN_PLAYER_HAND",
+            0,
+            1,
+            TargetScope: CardTargetScopes.AnyHandCard,
+            DiscardsTargetFromOwnerHand: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 2,
+            SourceUnitTags: "灵体"),
         new(
             "UNL-015/219",
             "占山为王",

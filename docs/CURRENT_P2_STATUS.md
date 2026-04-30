@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `OGN·049/298 贪玩的小鬼`、`OGN·088/298 超能机甲`、`OGN·142/298 山脉亚龙` 的无卡面效果单位源牌入场路径，以及 `OGN·192/298 辟心玄龙` 的单位源牌入场并弃置一张对手手牌路径；最新提交以 `git log -1 --oneline` 为准
-- 上一个 P2 功能基线：`OGN·003/298 炼金太保` 的单位源牌入场并弃置另一张手牌路径、`OGN·030/298 金克丝` 的单位源牌入场并弃置另外两张手牌路径，以及 `OGN·175/298 船坞潜伏者` / `OGN·219/298 先锋中士` 的无卡面效果单位源牌入场路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `643/643`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `595/595`
-- 最小 card behavior registry：`313/811 = 38.6%`
-- P2 preflight 清单：已完成到 `348`，下一项是 `349. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖 `UNL-121/219 魅惑之灵` 的单位源牌入场并让被选择玩家弃置一张手牌路径；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`OGN·049/298 贪玩的小鬼`、`OGN·088/298 超能机甲`、`OGN·142/298 山脉亚龙` 的无卡面效果单位源牌入场路径，以及 `OGN·192/298 辟心玄龙` 的单位源牌入场并弃置一张对手手牌路径
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `646/646`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `598/598`
+- 最小 card behavior registry：`314/811 = 38.7%`
+- P2 preflight 清单：已完成到 `349`，下一项是 `350. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,7 @@
 
 ## Latest Completed
 
+- `UNL-121/219 魅惑之灵`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 2 战力、带 `灵体` 标签的 `CARD_TYPE:UNIT` 对象，并让被选择玩家弃置一张手牌；fixture 用对手手牌代表被选择玩家弃置结果，直接测试另覆盖己方手牌也可作为弃置结果、非手牌目标拒绝。
 - `OGN·049/298 贪玩的小鬼` / `OGN·088/298 超能机甲` / `OGN·142/298 山脉亚龙`：当前 2P preflight 覆盖三张无卡面效果单位源牌入场，分别支付 5/7/9 点费用并进入控制者基地成为 5/8/10 战力 `CARD_TYPE:UNIT` 对象；带目标打出由直接测试拒绝。
 - `OGN·192/298 辟心玄龙`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 7 战力 `CARD_TYPE:UNIT` 对象，并弃置一张已展示后选择的对手手牌；友方手牌目标由直接测试拒绝。
 - `OGN·003/298 炼金太保`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 2 战力 `CARD_TYPE:UNIT` 对象，并弃置另一张手牌；以源牌自身作为弃置目标由直接测试拒绝，强攻战斗关键词暂缓。

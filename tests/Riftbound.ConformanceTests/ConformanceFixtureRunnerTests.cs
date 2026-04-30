@@ -7146,6 +7146,110 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysCharmingSpiritDiscardOpponentHand()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-charming-spirit-discard-chosen-player-hand.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-CHARMING-SPIRIT"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-CHARMING-SPIRIT-HAND-KEEP-001"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-CHARMING-SPIRIT-DISCARD-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-CHARMING-SPIRIT"].Power);
+        Assert.Equal([CardObjectTags.UnitCard, "灵体"], result.FinalState.CardObjects["P1-UNIT-CHARMING-SPIRIT"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCharmingSpiritDiscardFriendlyHand()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CHARMING-SPIRIT", "P1-CHARMING-SPIRIT-FRIENDLY-DISCARD-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-charming-spirit-friendly-hand-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CHARMING-SPIRIT",
+                "UNL-121/219",
+                ["P1-CHARMING-SPIRIT-FRIENDLY-DISCARD-001"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-charming-spirit-friendly-hand-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-charming-spirit-friendly-hand-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P1-UNIT-CHARMING-SPIRIT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-CHARMING-SPIRIT-FRIENDLY-DISCARD-001"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, p2Pass.State.CardObjects["P1-UNIT-CHARMING-SPIRIT"].Power);
+        Assert.Equal([CardObjectTags.UnitCard, "灵体"], p2Pass.State.CardObjects["P1-UNIT-CHARMING-SPIRIT"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCharmingSpiritWhenTargetIsNotInAnyHand()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CHARMING-SPIRIT"],
+                    Base = ["P1-CHARMING-SPIRIT-BASE-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CHARMING-SPIRIT-BASE-UNIT-001"] = new("P1-CHARMING-SPIRIT-BASE-UNIT-001", tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-charming-spirit-base-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CHARMING-SPIRIT",
+                "UNL-121/219",
+                ["P1-CHARMING-SPIRIT-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-CHARMING-SPIRIT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-CHARMING-SPIRIT-BASE-UNIT-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
