@@ -17,12 +17,12 @@
 如果在新的 Codex 窗口继续开发，先读：
 
 1. `docs/CURRENT_P2_STATUS.md`
-2. `docs/START_HERE.md`
+2. 本 `README.md`（如果不是从这里进入）
 3. `docs/p2-rules-preflight.md` 的最近进度和目标 fixture 段落
 4. `docs/rules-evidence-index.md` 中目标卡牌对应行
 5. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
-`docs/CURRENT_P2_STATUS.md` 是短交接入口；`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁。更完整的计划/审计文档按需读取，避免每次新窗口加载重复长清单。
+`docs/CURRENT_P2_STATUS.md` 是短交接入口；`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁，默认按需读取。更完整的计划/审计文档也按需读取，避免每次新窗口加载重复长清单。
 
 ## 推荐本地准备
 
