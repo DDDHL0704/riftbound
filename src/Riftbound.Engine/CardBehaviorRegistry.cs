@@ -34,6 +34,7 @@ public sealed record CardBehaviorDefinition(
     bool DestroysAllUnits = false,
     bool ReturnsTargetToHand = false,
     bool ReturnsAllUnitsToHand = false,
+    bool ReturnsAllFieldObjectsToHand = false,
     int PowerModifierAmount = 0,
     string PowerModifierConditionKind = CardPowerModifierConditionKinds.None,
     string PowerModifierUnitTag = "",
@@ -107,6 +108,7 @@ public static class CardTargetScopes
     public const string AnyUnit = "ANY_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
+    public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldThenEnemyBattlefieldUnits = "FRIENDLY_BATTLEFIELD_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string AnyUnitThenFriendlyMainDeckCard = "ANY_UNIT_THEN_FRIENDLY_MAIN_DECK_CARD";
@@ -707,10 +709,19 @@ public static class CardBehaviorRegistry
             "SFD·147/221",
             "坠渊之流",
             8,
-            "UNDERTOW_RETURN_ALL_UNITS_TO_HAND",
+            "UNDERTOW_RETURN_ALL_UNITS_AND_EQUIPMENT_TO_HAND",
             0,
             0,
-            ReturnsAllUnitsToHand: true),
+            ReturnsAllFieldObjectsToHand: true),
+        new(
+            "OGN·179/298",
+            "折戟再战",
+            1,
+            "BROKEN_BLADES_REMATCH_DESTROY_EACH_PLAYER_EQUIPMENT",
+            0,
+            2,
+            DestroysTarget: true,
+            TargetScope: CardTargetScopes.FriendlyEquipmentThenEnemyEquipment),
         new(
             "UNL-061/219",
             "台前作秀",
