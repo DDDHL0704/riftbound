@@ -31,6 +31,17 @@
 - 移动端适配
 - 提交规则 PDF/FAQ
 
+## Acceleration Mode
+
+后续 P2 preflight 默认采用“同能力族小批次”节奏，在不降低审计要求的前提下减少重复开销：
+
+- 每批优先选择 `3-5` 张可复用同一 engine 原语的低复杂度卡牌/模式；如果需要新增小原语，批次可缩小到 `1-2` 张。
+- 每张卡仍必须补齐 registry/card behavior、`rulesEvidence`、fixture、conformance 测试、`docs/rules-evidence-index.md` 和 `docs/p2-rules-preflight.md`。
+- 批内每张新增后先跑目标过滤测试；批末统一跑 `FullyQualifiedName~ConformanceFixtureRunnerTests`、全量 `dotnet test Riftbound.slnx --no-restore`、`git diff --check`，再提交。
+- 优先连续推进同一能力族：0 目标抽牌/召符文/创建指示物、单目标伤害、单目标回手/移动、本回合战力修正/标签添加、简单装备对象。
+- 优先补“解锁型小原语”，例如废牌堆回收 N 张、装备自毁激活、最多 N 个目标、按标签/类型计数、单位/装备 token 参数化。
+- 每次停下来仍要提交已完成改动，并汇报实时 `x/811` 整体和当前 Part 百分比；不要提交未跟踪的 `riftbound-dotnet.sln`。
+
 ## Latest Completed
 
 - `SFD·077/221 火箭轰击`：新增 `DESTROY_EQUIPMENT` 模式，覆盖装备目标摧毁和单位目标拒绝。
