@@ -170,6 +170,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-call-of-the-shadows-give-ephemeral-draw.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ashes-to-ashes-equipment-ephemeral.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sigil-burst-destroy-equipment-draw.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-back-against-wall-double-power-ephemeral.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rewind-timeline-discard-hands-draw-four.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sacrifice-destroy-friendly-powerful-draw-call-rune.fixture.json`

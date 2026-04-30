@@ -392,6 +392,17 @@ public static class CardBehaviorRegistry
             PowerModifierAmount: 2,
             UsesEnemyBattlefieldUnitCountAsPowerModifierMultiplier: true),
         new(
+            "SFD·005/221",
+            "印爆术",
+            1,
+            "SIGIL_BURST_DESTROY_EQUIPMENT_TARGET_CONTROLLER_DRAW_2",
+            0,
+            1,
+            DrawCount: 2,
+            DestroysTarget: true,
+            TargetScope: CardTargetScopes.Equipment,
+            DrawRecipientKind: CardDrawRecipientKinds.TargetController),
+        new(
             "SFD·017/221",
             "雷霆突降",
             3,

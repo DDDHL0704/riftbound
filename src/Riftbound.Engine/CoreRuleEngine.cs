@@ -1248,6 +1248,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
+        var targetControllerDrawRecipientIds = new List<string>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
         var playerScores = state.PlayerScores;
@@ -1285,7 +1286,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 var preRuneDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
                 if (ShouldDrawForBehavior(behavior, destroyedObjectIds, preRuneDrawCount))
                 {
-                    foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, destroyedUnitOwnerIds))
+                    foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, targetControllerDrawRecipientIds))
                     {
                         var drawApplication = ApplyDrawToPlayer(
                             state,
@@ -1353,7 +1354,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
 
                 destroyedObjectIds.Add(targetObjectId);
-                destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                if (removalResult.WasUnit)
+                {
+                    destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                }
             }
         }
         else if (behavior.ReturnsAllUnitsToHand)
@@ -1790,7 +1794,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 if (removalResult.WasDestroyed)
                 {
                     destroyedObjectIds.Add(destroyedTargetObjectId);
-                    destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                    if (removalResult.WasUnit)
+                    {
+                        destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                    }
                 }
             }
 
@@ -1985,7 +1992,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                         if (removalResult.WasDestroyed)
                         {
                             destroyedObjectIds.Add(targetObjectId);
-                            destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                            targetControllerDrawRecipientIds.Add(removalResult.OwnerPlayerId);
+                            if (removalResult.WasUnit)
+                            {
+                                destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                            }
                         }
 
                         continue;
@@ -2117,7 +2128,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var drawCount = drawCountOverride ?? ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
         if (ShouldDrawForBehavior(behavior, destroyedObjectIds, drawCount))
         {
-            foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, destroyedUnitOwnerIds))
+            foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, targetControllerDrawRecipientIds))
             {
                 var drawApplication = ApplyDrawToPlayer(
                     state,
@@ -2211,11 +2222,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<string> DrawRecipientPlayerIds(
         CardBehaviorDefinition behavior,
         string controllerId,
-        IReadOnlyList<string> destroyedUnitOwnerIds)
+        IReadOnlyList<string> targetControllerPlayerIds)
     {
         return behavior.DrawRecipientKind switch
         {
-            CardDrawRecipientKinds.TargetController => destroyedUnitOwnerIds
+            CardDrawRecipientKinds.TargetController => targetControllerPlayerIds
                 .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(playerId => playerId, StringComparer.Ordinal)
@@ -3252,6 +3263,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
                 ? existingTargetState
                 : new CardObjectState(targetObjectId);
+            var wasEquipment = targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
+            var wasUnit = !wasEquipment
+                || targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
             var shouldRecallToBase = targetState.UntilEndOfTurnEffects.Contains(
                 RecallToBaseExhaustedIfDestroyedThisTurnEffectId,
                 StringComparer.Ordinal);
@@ -3283,7 +3297,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     playerId,
                     "BASE",
                     false,
-                    true);
+                    true,
+                    wasEquipment,
+                    wasUnit);
                 return true;
             }
 
@@ -3303,7 +3319,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerId,
                 shouldBanish ? "BANISHED" : "GRAVEYARD",
                 shouldBanish,
-                false);
+                false,
+                wasEquipment,
+                wasUnit);
             return true;
         }
 
@@ -3341,8 +3359,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new GameEvent("UNIT_RECALLED_TO_BASE", $"{displayName}改为休眠召回单位", payload);
         }
 
-        return removalResult.WasBanished
-            ? new GameEvent("UNIT_BANISHED", $"{displayName}改为放逐单位", payload)
+        if (removalResult.WasBanished)
+        {
+            return new GameEvent("UNIT_BANISHED", $"{displayName}改为放逐单位", payload);
+        }
+
+        return removalResult.WasEquipment
+            ? new GameEvent("EQUIPMENT_DESTROYED", $"{displayName}摧毁装备", payload)
             : new GameEvent("UNIT_DESTROYED", $"{displayName}摧毁单位", payload);
     }
 
@@ -3702,7 +3725,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             destroyedObjectIds.Add(objectId);
-            destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+            if (removalResult.WasUnit)
+            {
+                destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+            }
         }
 
         return new LethalDamageCleanupResult(events, destroyedObjectIds, destroyedUnitOwnerIds);
@@ -4358,11 +4384,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         string OwnerPlayerId,
         string DestinationZone,
         bool WasBanished,
-        bool WasRecalledToBase)
+        bool WasRecalledToBase,
+        bool WasEquipment,
+        bool WasUnit)
     {
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
-        public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false);
+        public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false);
     }
 
     private sealed record LethalDamageCleanupResult(
