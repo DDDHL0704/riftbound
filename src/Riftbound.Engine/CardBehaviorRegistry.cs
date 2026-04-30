@@ -1756,6 +1756,18 @@ public static class CardBehaviorRegistry
             BanishesAllFriendlyGraveyardUnits: true,
             PlaysSourceToBaseAsEquipment: true),
         new(
+            "UNL-161/219",
+            "占卜贝壳",
+            2,
+            "SCRYING_SHELL_PLAY_EQUIPMENT_PREDICT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
+            MinTargetCount: 0,
+            MainDeckLookCount: 1,
+            RecyclesSelectedMainDeckTargets: true,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
             "SFD·118a/221·P",
             "碎骨棒",
             3,

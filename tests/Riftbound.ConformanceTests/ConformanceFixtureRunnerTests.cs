@@ -4864,6 +4864,64 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-CURSED-SARCOPHAGUS-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysScryingShellEquipmentPredictRecycleTopCard()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-scrying-shell-equipment-predict-recycle.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-SCRYING-SHELL"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-SCRYING-SHELL-KEEP-001", "P1-SCRYING-SHELL-RECYCLE-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SCRYING-SHELL"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEnginePlaysScryingShellEquipmentPredictNoRecycle() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-scrying-shell-equipment-predict-no-recycle.fixture.json",
+            "P1-EQUIPMENT-SCRYING-SHELL");
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsScryingShellWhenPredictTargetIsOutsideTopCard()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SCRYING-SHELL"],
+                    MainDeck = ["P1-SCRYING-SHELL-TOP-001", "P1-SCRYING-SHELL-SECOND-001"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-scrying-shell-second-card", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SCRYING-SHELL",
+                "UNL-161/219",
+                ["P1-SCRYING-SHELL-SECOND-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SCRYING-SHELL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-SCRYING-SHELL-TOP-001", "P1-SCRYING-SHELL-SECOND-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public Task CoreRuleEnginePlaysBoneclubPromoEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-boneclub-promo-equipment.fixture.json",
