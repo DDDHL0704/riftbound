@@ -4146,6 +4146,23 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysDeadlyFlourishEnemyUnitDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-deadly-flourish-enemy-unit-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-DEADLY-FLOURISH-001"].Damage);
+        Assert.Equal(["P1-SPELL-DEADLY-FLOURISH"], result.FinalState.PlayerZones["P1"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysHighwayRobberyTargetControllerDrawChoice()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -4433,6 +4450,45 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.Equal(0, result.State.Tick);
             Assert.Empty(result.State.StackItems);
         }
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDeadlyFlourishAgainstFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-DEADLY-FLOURISH"],
+                    Base = ["P1-FRIENDLY-DEADLY-FLOURISH-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FRIENDLY-DEADLY-FLOURISH-001"] = new("P1-FRIENDLY-DEADLY-FLOURISH-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-deadly-flourish-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-DEADLY-FLOURISH",
+                "UNL-073/219",
+                ["P1-FRIENDLY-DEADLY-FLOURISH-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-DEADLY-FLOURISH"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-FRIENDLY-DEADLY-FLOURISH-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
     }
 
     [Fact]

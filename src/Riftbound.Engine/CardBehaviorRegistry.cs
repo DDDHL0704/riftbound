@@ -330,6 +330,14 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.EnemyUnit),
         new(
+            "UNL-073/219",
+            "致命华彩",
+            4,
+            "DEADLY_FLOURISH_DAMAGE_3_NO_GOLD_TRIGGER",
+            3,
+            1,
+            TargetScope: CardTargetScopes.EnemyUnit),
+        new(
             "OGN·033/298",
             "巧取豪夺",
             2,
