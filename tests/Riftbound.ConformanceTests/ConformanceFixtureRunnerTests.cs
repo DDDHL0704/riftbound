@@ -7205,6 +7205,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-KRAKEN-HUNTER", "OGN·150/298", "P1-BASE-KRAKEN-HUNTER-TARGET-001")]
     [InlineData(6, "P1-UNIT-LEE-SIN", "OGN·151/298", "P1-BASE-LEE-SIN-TARGET-001")]
     [InlineData(6, "P1-UNIT-LEE-SIN-A", "OGN·151a/298", "P1-BASE-LEE-SIN-A-TARGET-001")]
+    [InlineData(7, "P1-UNIT-THOUSAND-TAILED-WATCHER", "OGN·116/298", "P1-BASE-THOUSAND-TAILED-WATCHER-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7215,6 +7216,38 @@ public sealed class ConformanceFixtureRunnerTests
             sourceObjectId,
             cardNo,
             targetObjectId);
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysThousandTailedWatcherAllEnemyUnitsMinus3()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-thousand-tailed-watcher-all-enemy-units-minus-3.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-BASE-THOUSAND-TAILED-WATCHER-FRIENDLY-001", "P1-UNIT-THOUSAND-TAILED-WATCHER"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(7, result.FinalState.CardObjects["P1-UNIT-THOUSAND-TAILED-WATCHER"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, "急速"],
+            result.FinalState.CardObjects["P1-UNIT-THOUSAND-TAILED-WATCHER"].Tags);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BASE-THOUSAND-TAILED-WATCHER-FRIENDLY-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-THOUSAND-TAILED-WATCHER-FRIENDLY-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-BASE-THOUSAND-TAILED-WATCHER-TARGET-001"].Power);
+        Assert.Equal(-3, result.FinalState.CardObjects["P2-BASE-THOUSAND-TAILED-WATCHER-TARGET-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-THOUSAND-TAILED-WATCHER-TARGET-001"].Power);
+        Assert.Equal(-1, result.FinalState.CardObjects["P2-BATTLEFIELD-THOUSAND-TAILED-WATCHER-TARGET-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-BATTLEFIELD-THOUSAND-TAILED-WATCHER-TARGET-002"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-THOUSAND-TAILED-WATCHER-TARGET-002"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(3, result.EventKinds.Count(kind => string.Equals(kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)));
+    }
 
     [Fact]
     public async Task CoreRuleEnginePlaysHeartsplitDragonDiscardOpponentHand()

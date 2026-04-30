@@ -1800,6 +1800,34 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
             }
         }
+        else if (behavior.ModifiesAllEnemyUnits
+            && behavior.PowerModifierAmount != 0)
+        {
+            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+            {
+                foreach (var targetObjectId in GetEnemyFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
+                {
+                    if (!CardObjectHasTag(cardObjects, targetObjectId, behavior.PowerModifierUnitTag))
+                    {
+                        continue;
+                    }
+
+                    var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
+                        ? existingTarget
+                        : new CardObjectState(targetObjectId);
+
+                    targetState = ApplyPowerModifier(
+                        targetState,
+                        behavior,
+                        stackItem,
+                        targetObjectId,
+                        behavior.PowerModifierAmount,
+                        out var powerEvent);
+                    cardObjects[targetObjectId] = targetState;
+                    events.Add(powerEvent);
+                }
+            }
+        }
         else if (behavior.GrantsBoonToAllFriendlyUnits)
         {
             foreach (var targetObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
@@ -2890,6 +2918,21 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Base
             .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> GetEnemyFieldUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        return playerZones
+            .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)

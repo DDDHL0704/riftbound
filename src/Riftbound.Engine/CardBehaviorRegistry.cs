@@ -122,7 +122,8 @@ public sealed record CardBehaviorDefinition(
     string SourceUnitTags = "",
     bool SourceUnitIsExhausted = false,
     bool AppliesPowerModifierToSourceUnit = false,
-    bool GrantsBoonToSourceUnit = false);
+    bool GrantsBoonToSourceUnit = false,
+    bool ModifiesAllEnemyUnits = false);
 
 public static class CardDamageConditionKinds
 {
@@ -2407,6 +2408,19 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
             SourceUnitTags: "急速"),
+        new(
+            "OGN·116/298",
+            "千尾监视者",
+            7,
+            "THOUSAND_TAILED_WATCHER_PLAY_UNIT_ALL_ENEMY_UNITS_MINUS_3",
+            0,
+            0,
+            PowerModifierAmount: -3,
+            MinimumPowerAfterModifier: 1,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 7,
+            SourceUnitTags: "急速",
+            ModifiesAllEnemyUnits: true),
         new(
             "OGN·051/298",
             "烈阳盾卫",
