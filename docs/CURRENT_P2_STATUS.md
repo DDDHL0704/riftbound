@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `SFD·149a/221` 《伊泽瑞尔》和 `OGN·030a/298` 《金克丝》的单位源牌入场并弃置手牌路径；最新提交以 `git log -1 --oneline` 为准
-- 上一个 P2 功能基线：`FND-196/298` 《提莫》的单位源牌入场并自身本回合内战力 +3 路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `666/666`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `618/618`
-- 最小 card behavior registry：`324/811 = 40.0%`
-- P2 preflight 清单：已完成到 `359`，下一项是 `360. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖 `SFD·013/221` 《爆破队学员》、`SFD·067/221` 《霜衣幼崽》和 `SFD·098/221` 《船猿》的单位源牌入场且不支付可选额外费用路径；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`SFD·149a/221` 《伊泽瑞尔》和 `OGN·030a/298` 《金克丝》的单位源牌入场并弃置手牌路径
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `672/672`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `624/624`
+- 最小 card behavior registry：`327/811 = 40.3%`
+- P2 preflight 清单：已完成到 `362`，下一项是 `363. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,7 @@
 
 ## Latest Completed
 
+- `SFD·013/221` 《爆破队学员》 / `SFD·067/221` 《霜衣幼崽》 / `SFD·098/221` 《船猿》：当前 2P preflight 覆盖三张带可选额外费用的官方单位源牌在普通主阶段不支付额外费用时的入场路径，分别成为 2/3/2 战力 `CARD_TYPE:UNIT` 对象，并记录 `犬形`、`海盗` 等属性标签；有色/额外费用和对应伤害、战力修正、自身增益分支暂缓，带目标打出由直接测试拒绝。
 - `SFD·149a/221` 《伊泽瑞尔》：当前 2P preflight 覆盖同文本官方英雄单位变体从手牌打出后进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 对象，弃置另一张手牌并抽 2 张牌；以源牌自身作为弃置目标由直接测试拒绝，其他卡牌可选额外费用减免暂缓。
 - `OGN·030a/298` 《金克丝》：当前 2P preflight 覆盖同文本官方英雄单位变体从手牌打出后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 对象，并弃置另外两张手牌；目标包含源牌自身由直接测试拒绝，急速和强攻战斗关键词暂缓。
 - `FND-196/298` 《提莫》：当前 2P preflight 覆盖 FND 官方英雄单位源牌从手牌打出后进入控制者基地成为 1 战力、带 `待命` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 对象，并让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。
