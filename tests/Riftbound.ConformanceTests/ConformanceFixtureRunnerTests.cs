@@ -5325,6 +5325,180 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysDarkenedLurkerDiscardDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-darkened-lurker-discard-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-DARKENED-LURKER"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-DARKENED-LURKER-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-DARKENED-LURKER-DISCARD-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-DARKENED-LURKER"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-DARKENED-LURKER"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDarkenedLurkerWhenDiscardTargetIsSource()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-DARKENED-LURKER"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-darkened-lurker-source-discard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-DARKENED-LURKER",
+                "UNL-123/219",
+                ["P1-UNIT-DARKENED-LURKER"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-DARKENED-LURKER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysShepherdDogReturnGraveyardUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-shepherd-dog-return-graveyard-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SHEPHERD-DOG"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-EQUIPMENT-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SHEPHERD-DOG"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-SHEPHERD-DOG"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsShepherdDogWhenGraveyardTargetIsNotUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SHEPHERD-DOG"],
+                    Graveyard = ["P1-GRAVE-EQUIPMENT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GRAVE-EQUIPMENT-001"] = new(
+                    "P1-GRAVE-EQUIPMENT-001",
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-shepherd-dog-equipment-graveyard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SHEPHERD-DOG",
+                "OGN·165/298",
+                ["P1-GRAVE-EQUIPMENT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-SHEPHERD-DOG"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-EQUIPMENT-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysAnnieReturnGraveyardSpell()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-annie-return-graveyard-spell.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-ANNIE"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-SPELL-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-ANNIE"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-ANNIE"].Tags);
+        Assert.Equal([CardObjectTags.SpellCard], result.FinalState.CardObjects["P1-GRAVE-SPELL-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsAnnieWhenGraveyardTargetIsNotSpell()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-ANNIE"],
+                    Graveyard = ["P1-GRAVE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GRAVE-UNIT-001"] = new(
+                    "P1-GRAVE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-annie-unit-graveyard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-ANNIE",
+                "OGS·010/024",
+                ["P1-GRAVE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-ANNIE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-UNIT-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(

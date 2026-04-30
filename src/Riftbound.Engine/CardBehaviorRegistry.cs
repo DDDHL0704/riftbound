@@ -160,6 +160,7 @@ public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
     public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
+    public const string SpellCard = "CARD_TYPE:SPELL";
     public const string Spellshield = "法盾";
     public const string Standby = "待命";
     public const string Ephemeral = "瞬息";
@@ -1875,6 +1876,42 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyGraveyardCard,
             TargetRequiredTag: CardObjectTags.EquipmentCard,
+            ReturnsGraveyardTargetToHand: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
+            "UNL-123/219",
+            "永黯潜伏者",
+            3,
+            "DARKENED_LURKER_PLAY_UNIT_DISCARD_DRAW",
+            0,
+            1,
+            DrawCount: 1,
+            TargetScope: CardTargetScopes.FriendlyHandCard,
+            DiscardsTargetFromHand: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
+            "OGN·165/298",
+            "牧灵犬",
+            3,
+            "SHEPHERD_DOG_PLAY_UNIT_RETURN_GRAVEYARD_UNIT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyGraveyardCard,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            ReturnsGraveyardTargetToHand: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
+            "OGS·010/024",
+            "安妮",
+            4,
+            "ANNIE_PLAY_UNIT_RETURN_GRAVEYARD_SPELL",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyGraveyardCard,
+            TargetRequiredTag: CardObjectTags.SpellCard,
             ReturnsGraveyardTargetToHand: true,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
