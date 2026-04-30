@@ -68,7 +68,7 @@
 
 新项目已建立第一阶段骨架：`Riftbound.Contracts`、`Riftbound.Engine`、`Riftbound.Api`、`Riftbound.Persistence`、`Riftbound.CardCatalog` 和 `Riftbound.ConformanceTests` 均已可用。本机环境为 .NET 10.0.203、PostgreSQL 16、Redis 6.2.4、Node 24，新的终端先执行 `source scripts/dev-env.sh`。
 
-当前 P2 core rules preflight 状态以 `docs/CURRENT_P2_STATUS.md` 为准。阶段性快照：当前 P2 功能基线提交 `226d204 feat: add rocket barrage equipment mode coverage`，`dotnet test Riftbound.slnx --no-restore` 通过 `312/312`，最小 card behavior registry 为 `148/811 = 18.2%`，P2 进度清单已完成到 `179`，下一项是继续迁移更多低复杂度官方卡牌。
+当前 P2 core rules preflight 状态以 `docs/CURRENT_P2_STATUS.md` 为准。本文件只记录阶段方向和工作约束；功能基线提交、最近测试计数、registry 百分比和 P2 清单位置都从短状态文件读取。
 
 完整卡牌/模式覆盖列表不再重复维护在本文件中：
 

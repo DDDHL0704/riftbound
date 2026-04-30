@@ -14,9 +14,7 @@ P1 联机底座和 P2 preflight 基础设施已完成到可持续迁移卡牌的
 - solution 级 build/test 可用。
 - `CoreRuleEngine` 已接入 API DI，并保留 `PlaceholderRuleEngine` 作为 legacy fallback。
 - P2 schema v2、`MatchState` 权威字段、richer expected diff、符文池、回合开始/结束、优先权/焦点让过、燃尽、清理、基础卡牌结算路径已落地。
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `312/312`。
-- 最小 card behavior registry：`148/811 = 18.2%`。
-- P2 preflight 清单已完成到 `179`，下一项继续迁移低复杂度官方卡牌。
+- 最近全量验证、最小 card behavior registry 百分比和 P2 preflight 清单位置见 `docs/CURRENT_P2_STATUS.md`。
 
 本文件不再维护完整已覆盖卡牌长清单，避免新窗口加载和每卡同步时反复消耗上下文。需要精确卡牌状态时读：
 

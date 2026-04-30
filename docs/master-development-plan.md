@@ -177,7 +177,7 @@ flowchart LR
 
 - 先执行 `docs/p2-rules-preflight.md`，不要直接扩展全卡牌行为。
 - 已完成 schema v2 形状读取、runner 初始状态应用、`MatchState` 基础权威字段、普通回合开始最小规则行为、`END_TURN` 自动推进到下一回合开始的最小闭环、回合结束特殊清理中的伤害移除/本回合内效果失效，清理重复/常规清理最小闭环，先服务《以战养战》的本回合摧毁记忆 `destroyedUnitOwnerIdsThisTurn`，以及先服务多张回收/燃尽洗匀随机顺序的 `seed/rngCursor`。
-- P2 核心流程与多类 `PLAY_CARD` preflight 路径已落地：普通回合、优先权、焦点、燃尽、清理、费用/目标/模式、伤害、抽牌、摧毁、回手、移动、战力修正、标签、装备对象和部分替代效果均已有代表路径。当前短状态见 `docs/CURRENT_P2_STATUS.md`；完整卡牌/模式覆盖不在本计划重复维护，详见 `docs/p2-rules-preflight.md` 与 `docs/rules-evidence-index.md`。当前最小 card behavior registry 为 `148/811 = 18.2%`，下一步继续迁移低复杂度官方卡牌。
+- P2 核心流程与多类 `PLAY_CARD` preflight 路径已落地：普通回合、优先权、焦点、燃尽、清理、费用/目标/模式、伤害、抽牌、摧毁、回手、移动、战力修正、标签、装备对象和部分替代效果均已有代表路径。当前短状态和 registry 百分比见 `docs/CURRENT_P2_STATUS.md`；完整卡牌/模式覆盖不在本计划重复维护，详见 `docs/p2-rules-preflight.md` 与 `docs/rules-evidence-index.md`。
 
 规则域：
 
