@@ -168,6 +168,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-revive-return-graveyard-unit.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-guerrilla-warfare-return-standby-graveyard.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-call-of-the-shadows-give-ephemeral-draw.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rewind-timeline-discard-hands-draw-four.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sacrifice-destroy-friendly-powerful-draw-call-rune.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-soul-strangle-destroy-friendly-power-buff-draw.fixture.json`

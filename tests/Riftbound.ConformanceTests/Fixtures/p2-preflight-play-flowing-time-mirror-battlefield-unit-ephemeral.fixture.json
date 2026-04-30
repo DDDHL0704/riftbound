@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-flowing-time-mirror-battlefield-unit-ephemeral",
+  "description": "Flowing Time Mirror gives a battlefield unit the Ephemeral tag without exercising the equipment target branch.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302174,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·180/298 逝水如镜",
+      "note": "官方卡面：费用 4；让一名战场上的单位或一件装备变为瞬息。本 fixture 覆盖战场单位目标路径；装备目标与下个回合开始阶段摧毁瞬息对象暂缓到装备对象和关键词清理模型。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位可位于战场；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；本 fixture 先用对象 tags 表达获得瞬息。"
+    }
+  ],
+  "roomId": "p2-preflight-flowing-time-mirror-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302174,
+    "turnNumber": 109,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-FLOWING-TIME-MIRROR"],
+        "base": ["P1-BASE-UNIT-FLOWING-TIME-MIRROR-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-UNIT-FLOWING-TIME-MIRROR-001"],
+        "battlefields": ["P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-UNIT-FLOWING-TIME-MIRROR-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": []
+      },
+      "P2-BASE-UNIT-FLOWING-TIME-MIRROR-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": []
+      },
+      "P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001": {
+        "damage": 0,
+        "power": 4,
+        "tags": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-flowing-time-mirror-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-FLOWING-TIME-MIRROR",
+        "cardNo": "OGN·180/298",
+        "targetObjectIds": ["P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-flowing-time-mirror-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-flowing-time-mirror-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "OBJECT_TAG_ADDED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-FLOWING-TIME-MIRROR",
+          "cardNo": "OGN·180/298",
+          "targetObjectIds": ["P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001"],
+          "effectKind": "FLOWING_TIME_MIRROR_BATTLEFIELD_UNIT_EPHEMERAL_NO_EQUIPMENT"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "OBJECT_TAG_ADDED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-FLOWING-TIME-MIRROR",
+          "targetObjectId": "P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001",
+          "tag": "瞬息"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 109,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-BASE-UNIT-FLOWING-TIME-MIRROR-001"],
+          "graveyard": ["P1-SPELL-FLOWING-TIME-MIRROR"]
+        },
+        "P2": {
+          "base": ["P2-BASE-UNIT-FLOWING-TIME-MIRROR-001"],
+          "battlefields": ["P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-BASE-UNIT-FLOWING-TIME-MIRROR-001": {
+          "damage": 0,
+          "power": 2,
+          "tags": []
+        },
+        "P2-BASE-UNIT-FLOWING-TIME-MIRROR-001": {
+          "damage": 0,
+          "power": 2,
+          "tags": []
+        },
+        "P2-BATTLEFIELD-FLOWING-TIME-MIRROR-001": {
+          "damage": 0,
+          "power": 4,
+          "tags": ["瞬息"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

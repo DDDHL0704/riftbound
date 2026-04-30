@@ -874,6 +874,15 @@ public static class CardBehaviorRegistry
             TargetForbiddenTag: CardObjectTags.Ephemeral,
             TargetAddedTag: CardObjectTags.Ephemeral),
         new(
+            "OGN·180/298",
+            "逝水如镜",
+            4,
+            "FLOWING_TIME_MIRROR_BATTLEFIELD_UNIT_EPHEMERAL_NO_EQUIPMENT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.BattlefieldUnit,
+            TargetAddedTag: CardObjectTags.Ephemeral),
+        new(
             "OGN·083/298",
             "借鉴历史",
             4,
