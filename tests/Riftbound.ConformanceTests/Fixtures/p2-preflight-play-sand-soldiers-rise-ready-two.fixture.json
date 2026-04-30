@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-sand-soldiers-rise-ready-two",
+  "description": "Sand Soldiers Rise controls no weapons, creates no new units, then readies two existing Sand Soldiers.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302192,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·198/221 沙兵现身",
+      "note": "官方卡面：费用 6；你每控制一件武装，便打出一名 2 战力“黄沙士兵”；然后让两名“黄沙士兵”变为活跃状态。本 fixture 锁定控制 0 件武装时不创建新单位，只让两名既有黄沙士兵变为活跃状态。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "打出法术需要费用、目标和指示合法，并作为结算链项目在双方让过后结算；对象的休眠/活跃状态由公开对象状态记录。按武装数量创建黄沙士兵的动态分支暂缓。"
+    }
+  ],
+  "roomId": "p2-preflight-sand-soldiers-rise-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302192,
+    "turnNumber": 92,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-SAND-SOLDIERS-RISE"],
+        "base": ["P1-SAND-SOLDIER-001", "P1-SAND-SOLDIER-002"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-SAND-SOLDIER-001": {
+        "damage": 0,
+        "power": 2,
+        "isExhausted": true,
+        "tags": ["黄沙士兵"]
+      },
+      "P1-SAND-SOLDIER-002": {
+        "damage": 0,
+        "power": 2,
+        "isExhausted": true,
+        "tags": ["黄沙士兵"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-sand-soldiers-rise-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-SAND-SOLDIERS-RISE",
+        "cardNo": "SFD·198/221",
+        "targetObjectIds": ["P1-SAND-SOLDIER-001", "P1-SAND-SOLDIER-002"],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-sand-soldiers-rise-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-sand-soldiers-rise-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_READIED",
+      "UNIT_READIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 6,
+          "baseMana": 6,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-SAND-SOLDIERS-RISE",
+          "cardNo": "SFD·198/221",
+          "targetObjectIds": ["P1-SAND-SOLDIER-001", "P1-SAND-SOLDIER-002"],
+          "effectKind": "SAND_SOLDIERS_RISE_READY_TWO_SAND_SOLDIERS_NO_WEAPONS"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_READIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-SAND-SOLDIERS-RISE",
+          "targetObjectId": "P1-SAND-SOLDIER-001",
+          "wasExhausted": true,
+          "isExhausted": false
+        }
+      },
+      {
+        "kind": "UNIT_READIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-SAND-SOLDIERS-RISE",
+          "targetObjectId": "P1-SAND-SOLDIER-002",
+          "wasExhausted": true,
+          "isExhausted": false
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 92,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-SAND-SOLDIER-001", "P1-SAND-SOLDIER-002"],
+          "graveyard": ["P1-SPELL-SAND-SOLDIERS-RISE"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-SAND-SOLDIER-001": {
+          "damage": 0,
+          "power": 2,
+          "isExhausted": false,
+          "tags": ["黄沙士兵"]
+        },
+        "P1-SAND-SOLDIER-002": {
+          "damage": 0,
+          "power": 2,
+          "isExhausted": false,
+          "tags": ["黄沙士兵"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

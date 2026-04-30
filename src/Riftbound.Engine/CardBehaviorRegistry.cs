@@ -139,6 +139,7 @@ public static class CardObjectTags
     public const string Spellshield = "法盾";
     public const string Standby = "待命";
     public const string Ephemeral = "瞬息";
+    public const string SandSoldier = "黄沙士兵";
 }
 
 public static class CardDrawConditionKinds
@@ -1625,6 +1626,16 @@ public static class CardBehaviorRegistry
             CreatedBaseUnitTokenCount: 1,
             CreatedBaseUnitTokenPower: 2,
             CreatedBaseUnitTokenName: "黄沙士兵"),
+        new(
+            "SFD·198/221",
+            "沙兵现身",
+            6,
+            "SAND_SOLDIERS_RISE_READY_TWO_SAND_SOLDIERS_NO_WEAPONS",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            TargetRequiredTag: CardObjectTags.SandSoldier,
+            ReadiesTarget: true),
         new(
             "OGN·024/298",
             "虚空索敌",

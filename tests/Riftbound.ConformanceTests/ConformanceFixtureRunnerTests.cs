@@ -3786,6 +3786,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysSandSoldiersRiseReadiesTwoSandSoldiers()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sand-soldiers-rise-ready-two.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            2,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_READIED", StringComparison.Ordinal)));
+        Assert.False(result.FinalState.CardObjects["P1-SAND-SOLDIER-001"].IsExhausted);
+        Assert.False(result.FinalState.CardObjects["P1-SAND-SOLDIER-002"].IsExhausted);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSpriteSummonCreatesSpriteInBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(
