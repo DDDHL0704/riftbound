@@ -697,6 +697,38 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysAssembleTheRanksDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-assemble-the-ranks-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-ASSEMBLE-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCallToActionDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-call-to-action-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-CALL-ACTION-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
     {
         var fixture = await ConformanceFixture.LoadAsync(

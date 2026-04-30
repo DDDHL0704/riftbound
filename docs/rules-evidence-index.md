@@ -145,6 +145,8 @@
 | `p2-preflight-play-center-your-mind-draw-stack` | `RULE_AUDITED` | `CATALOG` UNL-091/219；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《聚心凝神》未满足等级减费条件时全额支付 5 点费用并抽 2 张牌；等级 6/11 减费路径暂缓。 |
 | `p2-preflight-play-might-makes-right-draw-powerful-units` | `RULE_AUDITED` | `CATALOG` SFD·106/221；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《实力至上》按控制者当前强力单位数量抽牌，且强力单位按战力达到 5 或以上统计。 |
 | `p2-preflight-play-borrowed-history-draw-stack` | `RULE_AUDITED` | `CATALOG` OGN·083/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《借鉴历史》从手牌打出时支付 4 点费用并抽 2 张牌；待命/反应时机路径暂缓。 |
+| `p2-preflight-play-assemble-the-ranks-draw` | `RULE_AUDITED` | `CATALOG` SFD·166/221；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《集结部队》从手牌打出时支付 2 点费用、0 目标加入结算链，双方让过后抽 1 张牌；友方单位进场给予增益的全局触发暂缓。 |
+| `p2-preflight-play-call-to-action-draw` | `RULE_AUDITED` | `CATALOG` OGN·129/298；`CORE-260330` p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《迎敌号令》从手牌打出时支付 2 点费用、0 目标加入结算链，双方让过后抽 1 张牌；本回合单位活跃进场的全局效果暂缓。 |
 | `p2-preflight-play-mobilize-call-rune` | `RULE_AUDITED` | `CATALOG` OGN·134/298；`CORE-260330` p20 rules 164-167；p39-p42 rules 355-356 | 已验证官方法术《动员》支付 2 点费用、0 目标加入结算链、双方让过后从控制者符文牌堆顶召出一枚休眠符文到基地，并记录该符文对象 `isExhausted = true`。 |
 | `p2-preflight-play-mobilize-draws-if-rune-call-fails` | `RULE_AUDITED` | `CATALOG` OGN·134/298；`CORE-260330` p20 rules 164-167；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《动员》在控制者无法召出符文时改为抽 1 张牌。 |
 | `p2-preflight-play-catalyst-of-aeons-call-two-runes` | `RULE_AUDITED` | `CATALOG` OGN·138/298；`CORE-260330` p20 rules 164-167；p39-p42 rules 355-356 | 已验证官方法术《万世催化石》支付 4 点费用、0 目标加入结算链、双方让过后从控制者符文牌堆顶召出两枚休眠符文到基地，并记录符文对象 `isExhausted = true`。 |

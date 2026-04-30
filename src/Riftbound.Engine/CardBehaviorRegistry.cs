@@ -818,6 +818,22 @@ public static class CardBehaviorRegistry
             PowerModifierAmount: 1,
             PowerModifierUnitTag: "机械"),
         new(
+            "SFD·166/221",
+            "集结部队",
+            2,
+            "ASSEMBLE_THE_RANKS_DRAW_1_NO_UNIT_PLAYED",
+            0,
+            0,
+            DrawCount: 1),
+        new(
+            "OGN·129/298",
+            "迎敌号令",
+            2,
+            "CALL_TO_ACTION_DRAW_1_NO_UNIT_PLAYED",
+            0,
+            0,
+            DrawCount: 1),
+        new(
             "OGN·156/298",
             "暗中破坏",
             1,
