@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-forced-conscription-control-small-enemy-recall",
+  "description": "Forced Conscription controls an enemy battlefield unit with power three or less, exhausts it, and recalls it to the controller's base.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302305,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-140/219 强制征召",
+      "note": "官方卡面：费用 5；可以选择消耗 5 经验作为额外费用；选择战场上一名不高于 3 战力的敌方单位，若支付额外费用则改为任意敌方单位；获得其控制权、将其变为休眠状态并召回。当前 fixture 覆盖不支付经验额外费用时选择不高于 3 战力敌方战场单位、获得控制权并召回到控制者基地的路径，经验额外费用分支暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；单位可变为休眠状态并位于基地。当前 2P preflight 用区域归属表达控制权变更，完整 owner/controller 分离模型暂缓。"
+    }
+  ],
+  "roomId": "p2-preflight-forced-conscription-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302305,
+    "turnNumber": 305,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 5, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-FORCED-CONSCRIPTION"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-FORCED-CONSCRIPTION-UNIT-001", "P2-FORCED-CONSCRIPTION-OTHER-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-FORCED-CONSCRIPTION-UNIT-001": {
+        "damage": 1,
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false
+      },
+      "P2-FORCED-CONSCRIPTION-OTHER-001": {
+        "power": 4,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-forced-conscription-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-FORCED-CONSCRIPTION",
+        "cardNo": "UNL-140/219",
+        "targetObjectIds": ["P2-FORCED-CONSCRIPTION-UNIT-001"]
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-forced-conscription-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-forced-conscription-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_CONTROL_GAINED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 5,
+          "baseMana": 5
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-FORCED-CONSCRIPTION",
+          "cardNo": "UNL-140/219",
+          "targetObjectIds": ["P2-FORCED-CONSCRIPTION-UNIT-001"],
+          "effectKind": "FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_CONTROL_GAINED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-FORCED-CONSCRIPTION",
+          "targetObjectId": "P2-FORCED-CONSCRIPTION-UNIT-001",
+          "controllerId": "P1",
+          "previousControllerId": "P2",
+          "destinationZone": "BASE",
+          "isExhausted": true
+        }
+      }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 305,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P2-FORCED-CONSCRIPTION-UNIT-001"],
+          "graveyard": ["P1-SPELL-FORCED-CONSCRIPTION"]
+        },
+        "P2": {
+          "battlefields": ["P2-FORCED-CONSCRIPTION-OTHER-001"]
+        }
+      },
+      "cardObjects": {
+        "P2-FORCED-CONSCRIPTION-UNIT-001": {
+          "damage": 1,
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": true
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

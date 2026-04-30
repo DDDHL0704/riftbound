@@ -4922,6 +4922,129 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysForcedConscriptionControlSmallEnemyRecall()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-forced-conscription-control-small-enemy-recall.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2-FORCED-CONSCRIPTION-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-FORCED-CONSCRIPTION-OTHER-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.True(result.FinalState.CardObjects["P2-FORCED-CONSCRIPTION-UNIT-001"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsForcedConscriptionWhenTargetPowerAboveThree()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-FORCED-CONSCRIPTION"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-FORCED-CONSCRIPTION-LARGE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-FORCED-CONSCRIPTION-LARGE-001"] = new(
+                    "P2-FORCED-CONSCRIPTION-LARGE-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-forced-conscription-large-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-FORCED-CONSCRIPTION",
+                "UNL-140/219",
+                ["P2-FORCED-CONSCRIPTION-LARGE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-FORCED-CONSCRIPTION"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-FORCED-CONSCRIPTION-LARGE-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysTakenForARideControlEnemyRecall()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-taken-for-a-ride-control-enemy-recall.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2-TAKEN-FOR-A-RIDE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.False(result.FinalState.CardObjects["P2-TAKEN-FOR-A-RIDE-UNIT-001"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsTakenForARideWhenTargetIsNotUnit()
+    {
+        var state = PunishmentState(mana: 8) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-TAKEN-FOR-A-RIDE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-TAKEN-FOR-A-RIDE-EQUIPMENT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-TAKEN-FOR-A-RIDE-EQUIPMENT-001"] = new(
+                    "P2-TAKEN-FOR-A-RIDE-EQUIPMENT-001",
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-taken-for-a-ride-equipment-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-TAKEN-FOR-A-RIDE",
+                "OGN·203/298",
+                ["P2-TAKEN-FOR-A-RIDE-EQUIPMENT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(8, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-TAKEN-FOR-A-RIDE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-TAKEN-FOR-A-RIDE-EQUIPMENT-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public Task CoreRuleEnginePlaysBoneclubPromoEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-boneclub-promo-equipment.fixture.json",
