@@ -4003,6 +4003,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-ENERGY-CHANNEL-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysTimeGateEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-time-gate-equipment.fixture.json",
+            "P1-EQUIPMENT-TIME-GATE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsTimeGateWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-TIME-GATE",
+            "SFD·078/221",
+            "P1-TIME-GATE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysRavenTomeEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-raven-tome-equipment.fixture.json",
+            "P1-EQUIPMENT-RAVEN-TOME");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsRavenTomeWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-RAVEN-TOME",
+            "OGN·032/298",
+            "P1-RAVEN-TOME-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSunDiscEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-sun-disc-equipment.fixture.json",
+            "P1-EQUIPMENT-SUN-DISC");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSunDiscWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SUN-DISC",
+            "OGN·021/298",
+            "P1-SUN-DISC-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysForesightMaskEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-foresight-mask-equipment.fixture.json",
+            "P1-EQUIPMENT-FORESIGHT-MASK");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsForesightMaskWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-FORESIGHT-MASK",
+            "OGN·060/298",
+            "P1-FORESIGHT-MASK-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSolariAltarEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-solari-altar-equipment.fixture.json",
+            "P1-EQUIPMENT-SOLARI-ALTAR");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSolariAltarWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-SOLARI-ALTAR",
+            "OGN·072/298",
+            "P1-SOLARI-ALTAR-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
