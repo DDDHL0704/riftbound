@@ -1569,7 +1569,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
             }
         }
-        else if (behavior.CreatedBaseUnitTokenCount > 0)
+        else if (behavior.CreatedBaseUnitTokenCount > 0
+            && !behavior.CreatedBaseUnitTokenCopiesFirstTarget)
         {
             CreateBaseUnitTokens(
                 playerZones,
@@ -2159,6 +2160,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        if (behavior.CreatedBaseUnitTokenCount > 0
+            && behavior.CreatedBaseUnitTokenCopiesFirstTarget)
+        {
+            CreateBaseUnitTokens(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.CreatedBaseEquipmentTokenCount > 0)
         {
             CreateBaseEquipmentTokens(
@@ -2690,14 +2702,40 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         List<GameEvent> events)
     {
-        if (behavior.CreatedBaseUnitTokenPower <= 0
-            || !playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var copiedTargetObjectId = behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            ? stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty
+            : string.Empty;
+        CardObjectState? copiedTargetState = null;
+        var copiesTarget = !string.IsNullOrWhiteSpace(copiedTargetObjectId)
+            && cardObjects.TryGetValue(copiedTargetObjectId, out copiedTargetState);
+        if (behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && !copiesTarget)
+        {
+            return;
+        }
+
+        var tokenPower = copiedTargetState is not null
+            ? copiedTargetState.Power
+            : behavior.CreatedBaseUnitTokenPower;
+        if (!behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && tokenPower <= 0)
         {
             return;
         }
 
         var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
-        var tokenTags = ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
+        var tokenTags = copiedTargetState is not null
+            ? copiedTargetState.Tags
+                .Concat(ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+            : ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -2709,7 +2747,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             createdTokenObjectIds.Add(tokenObjectId);
             cardObjects[tokenObjectId] = new CardObjectState(
                 tokenObjectId,
-                power: behavior.CreatedBaseUnitTokenPower,
+                power: tokenPower,
                 tags: tokenTags);
             var payload = new Dictionary<string, object?>
             {
@@ -2717,9 +2755,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = stackItem.SourceObjectId,
                 ["tokenObjectId"] = tokenObjectId,
                 ["tokenName"] = behavior.CreatedBaseUnitTokenName,
-                ["power"] = behavior.CreatedBaseUnitTokenPower,
+                ["power"] = tokenPower,
                 ["destinationZone"] = "BASE"
             };
+            if (copiesTarget)
+            {
+                payload["copiedTargetObjectId"] = copiedTargetObjectId;
+            }
+
             if (tokenTags.Count > 0)
             {
                 payload["tokenTags"] = tokenTags;
