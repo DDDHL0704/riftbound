@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-frenzied-raider-move-battlefield-unit-to-base",
+  "description": "Frenzied Raider enters as a Bulwark unit object and moves a battlefield unit to its owner's base.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302333,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·191/298 疯狂海寇",
+      "note": "官方卡面：费用 5；单位；战力 4；壁垒；当你打出我时，将一名单位从战场上移动到其所属的基地。当前 fixture 覆盖单位源牌入场、壁垒标签和战场单位移回所属基地。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可拥有关键词标签；战场和基地均为公开区域；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+    }
+  ],
+  "roomId": "p2-preflight-frenzied-raider-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302333,
+    "turnNumber": 333,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 5, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-FRENZIED-RAIDER"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-BASE-FRENZIED-RAIDER-UNIT-001"],
+        "battlefields": ["P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BASE-FRENZIED-RAIDER-UNIT-001": {
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001": {
+        "damage": 1,
+        "power": 5,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-frenzied-raider-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-FRENZIED-RAIDER",
+        "cardNo": "OGN·191/298",
+        "targetObjectIds": ["P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-frenzied-raider-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-frenzied-raider-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "UNIT_MOVED_TO_BASE"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 5,
+          "baseMana": 5
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-FRENZIED-RAIDER",
+          "cardNo": "OGN·191/298",
+          "targetObjectIds": ["P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001"],
+          "effectKind": "FRENZIED_RAIDER_PLAY_UNIT_MOVE_BATTLEFIELD_UNIT_TO_BASE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-FRENZIED-RAIDER",
+          "unitObjectId": "P1-UNIT-FRENZIED-RAIDER",
+          "unitName": "疯狂海寇",
+          "destinationZone": "BASE",
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "壁垒"]
+        }
+      },
+      {
+        "kind": "UNIT_MOVED_TO_BASE",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-FRENZIED-RAIDER",
+          "targetObjectId": "P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001",
+          "ownerPlayerId": "P2"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 333,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-UNIT-FRENZIED-RAIDER"],
+          "graveyard": []
+        },
+        "P2": {
+          "base": ["P2-BASE-FRENZIED-RAIDER-UNIT-001", "P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001"],
+          "battlefields": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-FRENZIED-RAIDER": {
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "壁垒"],
+          "isExhausted": false
+        },
+        "P2-BATTLEFIELD-FRENZIED-RAIDER-TARGET-001": {
+          "damage": 1,
+          "power": 5,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
