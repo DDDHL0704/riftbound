@@ -891,6 +891,72 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-bullet-time-power-damage-enemy-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        Assert.Equal(4, result.FinalState.CardObjects["P2-BULLET-TIME-UNIT-002"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BULLET-TIME-BASE-001"].Damage);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBulletTimeWhenPowerCostIsInsufficient()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 2),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BULLET-TIME"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BULLET-TIME-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bullet-time-insufficient-power", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: ["SPEND_POWER:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 2), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-BULLET-TIME"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(0, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
     {
         var fixture = await ConformanceFixture.LoadAsync(

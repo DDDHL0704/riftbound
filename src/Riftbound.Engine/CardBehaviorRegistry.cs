@@ -103,7 +103,8 @@ public sealed record CardBehaviorDefinition(
     bool GrantsBoonToAllFriendlyUnits = false,
     bool SwapsTargetLocations = false,
     bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false,
-    bool MovesTargetsToOwnerBattlefields = false);
+    bool MovesTargetsToOwnerBattlefields = false,
+    bool DamageAmountFromOptionalPowerCost = false);
 
 public static class CardDamageConditionKinds
 {
@@ -240,6 +241,15 @@ public static class CardBehaviorRegistry
             3,
             0,
             DamagesAllEnemyBattlefieldUnits: true),
+        new(
+            "OGN·268/298",
+            "弹幕时间",
+            1,
+            "BULLET_TIME_DAMAGE_ENEMY_BATTLEFIELD_UNITS_BY_POWER_SPENT",
+            0,
+            0,
+            DamagesAllEnemyBattlefieldUnits: true,
+            DamageAmountFromOptionalPowerCost: true),
         new(
             "UNL-072/219",
             "新月打击",
