@@ -166,6 +166,7 @@ public static class CardObjectTags
     public const string Ephemeral = "瞬息";
     public const string SandSoldier = "黄沙士兵";
     public const string Boon = "增益";
+    public const string Bulwark = "壁垒";
 }
 
 public static class CardDrawConditionKinds
@@ -1913,6 +1914,39 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyGraveyardCard,
             TargetRequiredTag: CardObjectTags.SpellCard,
             ReturnsGraveyardTargetToHand: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3),
+        new(
+            "UNL-053/219",
+            "迅捷蟹",
+            2,
+            "SCUTTLE_CRAB_PLAY_UNIT_DRAW_1",
+            0,
+            0,
+            DrawCount: 1,
+            PlaysSourceToBaseAsUnit: true),
+        new(
+            "OGN·087/298",
+            "约德尔教官",
+            3,
+            "YORDLE_INSTRUCTOR_PLAY_UNIT_DRAW_1",
+            0,
+            0,
+            DrawCount: 1,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 2,
+            SourceUnitTags: CardObjectTags.Bulwark),
+        new(
+            "OGN·106/298",
+            "精灵之母",
+            4,
+            "SPRITE_MOTHER_PLAY_UNIT_CREATE_SPRITE",
+            0,
+            0,
+            CreatedBaseUnitTokenCount: 1,
+            CreatedBaseUnitTokenPower: 3,
+            CreatedBaseUnitTokenName: "精灵",
+            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(

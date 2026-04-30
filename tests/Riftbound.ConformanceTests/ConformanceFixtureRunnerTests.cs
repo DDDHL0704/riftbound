@@ -5499,6 +5499,93 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysScuttleCrabDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-scuttle-crab-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SCUTTLE-CRAB"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-SCUTTLE-CRAB-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-UNIT-SCUTTLE-CRAB"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-SCUTTLE-CRAB"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsScuttleCrabWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            2,
+            "P1-UNIT-SCUTTLE-CRAB",
+            "UNL-053/219",
+            "P1-SCUTTLE-CRAB-BASE-UNIT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysYordleInstructorDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-yordle-instructor-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-YORDLE-INSTRUCTOR"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-YORDLE-INSTRUCTOR-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-YORDLE-INSTRUCTOR"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Bulwark],
+            result.FinalState.CardObjects["P1-UNIT-YORDLE-INSTRUCTOR"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsYordleInstructorWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            3,
+            "P1-UNIT-YORDLE-INSTRUCTOR",
+            "OGN·087/298",
+            "P1-YORDLE-INSTRUCTOR-BASE-UNIT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSpriteMotherCreateSprite()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sprite-mother-create-sprite.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-UNIT-SPRITE-MOTHER", "P1-UNIT-SPRITE-MOTHER-TOKEN-001"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER"].Tags);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Power);
+        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-UNIT-SPRITE-MOTHER-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSpriteMotherWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            4,
+            "P1-UNIT-SPRITE-MOTHER",
+            "OGN·106/298",
+            "P1-SPRITE-MOTHER-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
