@@ -4073,6 +4073,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-SOLARI-ALTAR-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysChemtechBarrelEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-chemtech-barrel-equipment.fixture.json",
+            "P1-EQUIPMENT-CHEMTECH-BARREL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsChemtechBarrelWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-CHEMTECH-BARREL",
+            "SFD·063/221",
+            "P1-CHEMTECH-BARREL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSoulWheelEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-soul-wheel-equipment.fixture.json",
+            "P1-EQUIPMENT-SOUL-WHEEL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSoulWheelWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SOUL-WHEEL",
+            "SFD·144/221",
+            "P1-SOUL-WHEEL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysMushroomBagEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-mushroom-bag-equipment.fixture.json",
+            "P1-EQUIPMENT-MUSHROOM-BAG");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsMushroomBagWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-MUSHROOM-BAG",
+            "OGN·101/298",
+            "P1-MUSHROOM-BAG-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysArenaBarEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-arena-bar-equipment.fixture.json",
+            "P1-EQUIPMENT-ARENA-BAR");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsArenaBarWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-ARENA-BAR",
+            "OGN·124/298",
+            "P1-ARENA-BAR-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysPirateHideoutEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-pirate-hideout-equipment.fixture.json",
+            "P1-EQUIPMENT-PIRATE-HIDEOUT");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsPirateHideoutWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-PIRATE-HIDEOUT",
+            "OGN·143/298",
+            "P1-PIRATE-HIDEOUT-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
