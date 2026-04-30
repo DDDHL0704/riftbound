@@ -271,6 +271,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetTagAllowed(state, targetObjectId, behavior)
+                || !IsTargetManaCostAllowed(state, targetObjectId, behavior)
                 || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
         {
             rejection = RejectWithCorePrompts(
@@ -870,6 +871,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.IsNullOrWhiteSpace(behavior.TargetRequiredTag)
             || CardObjectHasTag(state.CardObjects, objectId, behavior.TargetRequiredTag);
+    }
+
+    private static bool IsTargetManaCostAllowed(
+        MatchState state,
+        string objectId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.MaxTargetManaCost <= 0
+            || state.CardObjects.TryGetValue(objectId, out var targetState)
+                && targetState.ManaCost <= behavior.MaxTargetManaCost;
     }
 
     private static bool HasRequiredAnyTargetTag(
