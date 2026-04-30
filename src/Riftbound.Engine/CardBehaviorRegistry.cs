@@ -1728,6 +1728,16 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsEquipment: true),
         new(
+            "OGN·063/298",
+            "奥义！魂佑",
+            2,
+            "SECRET_ART_SOULGUARD_PLAY_EQUIPMENT_GRANT_BOON",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            GrantsBoon: true,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
             "UNL-015/219",
             "占山为王",
             3,

@@ -4823,6 +4823,71 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-BLAST-CONE-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-soulguard-equipment-boon.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-SOULGUARD-BASE-UNIT-001", "P1-EQUIPMENT-SOULGUARD"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SOULGUARD"].Tags);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-SOULGUARD-BASE-UNIT-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-SOULGUARD-BASE-UNIT-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSoulguardWhenTargetIsEnemyUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SOULGUARD"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-SOULGUARD-ENEMY-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SOULGUARD-ENEMY-UNIT-001"] = new(
+                    "P2-SOULGUARD-ENEMY-UNIT-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-soulguard-enemy-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SOULGUARD",
+                "OGN·063/298",
+                ["P2-SOULGUARD-ENEMY-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SOULGUARD"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-SOULGUARD-ENEMY-UNIT-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
