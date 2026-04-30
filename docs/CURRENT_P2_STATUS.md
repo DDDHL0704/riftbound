@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `OGN·197/298` / `OGN·197a/298` / `OGN·197b/298` 《提莫》的单位源牌入场并自身本回合内战力 +3 路径；最新提交以 `git log -1 --oneline` 为准
-- 上一个 P2 功能基线：`UNL-121/219 魅惑之灵` 的单位源牌入场并让被选择玩家弃置一张手牌路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `652/652`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `604/604`
-- 最小 card behavior registry：`317/811 = 39.1%`
-- P2 preflight 清单：已完成到 `352`，下一项是 `353. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖 `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 《瑟提》的单位源牌入场并自身获得增益路径；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`OGN·197/298` / `OGN·197a/298` / `OGN·197b/298` 《提莫》的单位源牌入场并自身本回合内战力 +3 路径
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `660/660`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `612/612`
+- 最小 card behavior registry：`321/811 = 39.6%`
+- P2 preflight 清单：已完成到 `356`，下一项是 `357. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,7 @@
 
 ## Latest Completed
 
+- `SFD·232/221` / `SFD·232*/221` / `OGN·164/298` / `OGN·164a/298` 《瑟提》：当前 2P preflight 覆盖四张同文本官方英雄单位源牌从手牌打出后进入控制者基地成为 4 战力 `CARD_TYPE:UNIT` 对象，并给予自身 `增益` 标签和永久 +1 战力；带目标打出由直接测试拒绝，征服触发与消耗增益激活暂缓。
 - `OGN·197/298` / `OGN·197a/298` / `OGN·197b/298` 《提莫》：当前 2P preflight 覆盖三张同文本官方英雄单位源牌从手牌打出后进入控制者基地成为 1 战力、带 `待命` 与 `约德尔人` 标签的 `CARD_TYPE:UNIT` 对象，并让自身本回合内战力 +3；带目标打出由直接测试拒绝，待命/反应路径暂缓。
 - `UNL-121/219 魅惑之灵`：当前 2P preflight 覆盖单位源牌从手牌打出后进入控制者基地成为 2 战力、带 `灵体` 标签的 `CARD_TYPE:UNIT` 对象，并让被选择玩家弃置一张手牌；fixture 用对手手牌代表被选择玩家弃置结果，直接测试另覆盖己方手牌也可作为弃置结果、非手牌目标拒绝。
 - `OGN·049/298 贪玩的小鬼` / `OGN·088/298 超能机甲` / `OGN·142/298 山脉亚龙`：当前 2P preflight 覆盖三张无卡面效果单位源牌入场，分别支付 5/7/9 点费用并进入控制者基地成为 5/8/10 战力 `CARD_TYPE:UNIT` 对象；带目标打出由直接测试拒绝。

@@ -121,7 +121,8 @@ public sealed record CardBehaviorDefinition(
     int SourceUnitPower = 0,
     string SourceUnitTags = "",
     bool SourceUnitIsExhausted = false,
-    bool AppliesPowerModifierToSourceUnit = false);
+    bool AppliesPowerModifierToSourceUnit = false,
+    bool GrantsBoonToSourceUnit = false);
 
 public static class CardDamageConditionKinds
 {
@@ -2348,6 +2349,46 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 1,
             SourceUnitTags: CardObjectTags.Standby + "|约德尔人",
             AppliesPowerModifierToSourceUnit: true),
+        new(
+            "SFD·232/221",
+            "瑟提",
+            5,
+            "SETT_PLAY_UNIT_GRANT_SELF_BOON",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4,
+            GrantsBoonToSourceUnit: true),
+        new(
+            "SFD·232*/221",
+            "瑟提",
+            5,
+            "SETT_PROMO_PLAY_UNIT_GRANT_SELF_BOON",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4,
+            GrantsBoonToSourceUnit: true),
+        new(
+            "OGN·164/298",
+            "瑟提",
+            5,
+            "OGN_SETT_PLAY_UNIT_GRANT_SELF_BOON",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4,
+            GrantsBoonToSourceUnit: true),
+        new(
+            "OGN·164a/298",
+            "瑟提",
+            5,
+            "OGN_SETT_ALT_A_PLAY_UNIT_GRANT_SELF_BOON",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4,
+            GrantsBoonToSourceUnit: true),
         new(
             "UNL-015/219",
             "占山为王",

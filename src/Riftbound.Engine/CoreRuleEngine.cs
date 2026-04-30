@@ -1407,6 +1407,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.Add(powerEvent);
         }
 
+        if (behavior.GrantsBoonToSourceUnit
+            && cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitStateForBoon))
+        {
+            var nextSourceUnitState = ApplyBoon(
+                sourceUnitStateForBoon,
+                behavior,
+                stackItem,
+                stackItem.SourceObjectId,
+                out var boonEvents);
+            cardObjects[stackItem.SourceObjectId] = nextSourceUnitState;
+            events.AddRange(boonEvents);
+        }
+
         if (behavior.BanishesAllFriendlyGraveyardUnits)
         {
             BanishFriendlyGraveyardUnits(
