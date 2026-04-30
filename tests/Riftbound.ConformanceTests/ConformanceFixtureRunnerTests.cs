@@ -4143,6 +4143,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-PIRATE-HIDEOUT-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysForgottenSignpostEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-forgotten-signpost-equipment.fixture.json",
+            "P1-EQUIPMENT-FORGOTTEN-SIGNPOST");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsForgottenSignpostWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-FORGOTTEN-SIGNPOST",
+            "UNL-045/219",
+            "P1-FORGOTTEN-SIGNPOST-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysFrozenGemEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-frozen-gem-equipment.fixture.json",
+            "P1-EQUIPMENT-FROZEN-GEM");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsFrozenGemWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-FROZEN-GEM",
+            "UNL-074/219",
+            "P1-FROZEN-GEM-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysCrumblingPalaceEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-crumbling-palace-equipment.fixture.json",
+            "P1-EQUIPMENT-CRUMBLING-PALACE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsCrumblingPalaceWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-CRUMBLING-PALACE",
+            "UNL-088/219",
+            "P1-CRUMBLING-PALACE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysScarletRoseEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-scarlet-rose-equipment.fixture.json",
+            "P1-EQUIPMENT-SCARLET-ROSE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsScarletRoseWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-SCARLET-ROSE",
+            "UNL-109/219",
+            "P1-SCARLET-ROSE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysReversalShardEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-reversal-shard-equipment.fixture.json",
+            "P1-EQUIPMENT-REVERSAL-SHARD");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsReversalShardWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            6,
+            "P1-EQUIPMENT-REVERSAL-SHARD",
+            "UNL-174/219",
+            "P1-REVERSAL-SHARD-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
