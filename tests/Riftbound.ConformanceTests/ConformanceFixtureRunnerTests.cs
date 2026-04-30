@@ -4767,6 +4767,62 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-ZHONYAS-HOURGLASS-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysEdgeOfNightEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-edge-of-night-equipment.fixture.json",
+            "P1-EQUIPMENT-EDGE-OF-NIGHT");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsEdgeOfNightWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-EDGE-OF-NIGHT",
+            "SFD·139/221",
+            "P1-EDGE-OF-NIGHT-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysHearthfireCloakEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-hearthfire-cloak-equipment.fixture.json",
+            "P1-EQUIPMENT-HEARTHFIRE-CLOAK");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsHearthfireCloakWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-HEARTHFIRE-CLOAK",
+            "SFD·190/221",
+            "P1-HEARTHFIRE-CLOAK-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysRabadonsDeathcapEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-rabadons-deathcap-equipment.fixture.json",
+            "P1-EQUIPMENT-RABADONS-DEATHCAP");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsRabadonsDeathcapWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-RABADONS-DEATHCAP",
+            "SFD·191/221",
+            "P1-RABADONS-DEATHCAP-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBlastConeEquipmentNoMove() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-blast-cone-equipment-no-move.fixture.json",
+            "P1-EQUIPMENT-BLAST-CONE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBlastConeWhenTargetsAreProvidedInNoMovePath() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-BLAST-CONE",
+            "UNL-133/219",
+            "P1-BLAST-CONE-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
