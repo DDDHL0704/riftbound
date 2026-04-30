@@ -3793,6 +3793,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-GUARDIAN-ANGEL-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysHexdrinkerEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-hexdrinker-equipment.fixture.json",
+            "P1-EQUIPMENT-HEXDRINKER");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsHexdrinkerWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-HEXDRINKER",
+            "SFD·102/221",
+            "P1-HEXDRINKER-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysWarmogsArmorEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-warmogs-armor-equipment.fixture.json",
+            "P1-EQUIPMENT-WARMOGS-ARMOR");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsWarmogsArmorWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-WARMOGS-ARMOR",
+            "SFD·108/221",
+            "P1-WARMOGS-ARMOR-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysTrinityForceEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-trinity-force-equipment.fixture.json",
+            "P1-EQUIPMENT-TRINITY-FORCE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsTrinityForceWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-TRINITY-FORCE",
+            "SFD·115/221",
+            "P1-TRINITY-FORCE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBootsOfSwiftnessEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-boots-of-swiftness-equipment.fixture.json",
+            "P1-EQUIPMENT-BOOTS-OF-SWIFTNESS");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBootsOfSwiftnessWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-BOOTS-OF-SWIFTNESS",
+            "SFD·133/221",
+            "P1-BOOTS-OF-SWIFTNESS-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysCullEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-cull-equipment.fixture.json",
+            "P1-EQUIPMENT-CULL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsCullWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-CULL",
+            "SFD·134/221",
+            "P1-CULL-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
