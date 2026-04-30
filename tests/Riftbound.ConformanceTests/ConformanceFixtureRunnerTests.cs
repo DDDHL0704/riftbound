@@ -2272,6 +2272,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysHarrowingPlayGraveyardUnitToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-harrowing-play-graveyard-unit-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-HARROWING-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-OTHER-001", "P1-SPELL-HARROWING"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-HARROWING-GRAVE-UNIT-001"].Power);
+        Assert.False(result.FinalState.CardObjects["P1-HARROWING-GRAVE-UNIT-001"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHarrowingWhenTargetIsNonUnitGraveyardCard()
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HARROWING"],
+                    Graveyard = ["P1-GRAVE-EQUIPMENT-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GRAVE-EQUIPMENT-001"] = new(
+                    "P1-GRAVE-EQUIPMENT-001",
+                    power: 0,
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-harrowing-non-unit-graveyard-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-HARROWING",
+                "OGN·198/298",
+                ["P1-GRAVE-EQUIPMENT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(6, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-HARROWING"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-EQUIPMENT-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysGuerrillaWarfareReturnStandbyGraveyardCards()
     {
         var fixture = await ConformanceFixture.LoadAsync(

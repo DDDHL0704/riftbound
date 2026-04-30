@@ -1813,6 +1813,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
             }
         }
+        else if (behavior.PlaysGraveyardTargetToBase)
+        {
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            {
+                if (!TryPlayGraveyardCardToBase(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "UNIT_PLAYED_TO_BASE",
+                    $"{behavior.DisplayName}打出废牌堆里的单位到基地",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["ownerPlayerId"] = stackItem.ControllerId,
+                        ["sourceZone"] = "GRAVEYARD",
+                        ["destinationZone"] = "BASE"
+                    }));
+            }
+        }
         else if (behavior.DealsMutualTargetPowerDamage
             && stackItem.TargetObjectIds.Count >= 2)
         {
@@ -4069,6 +4091,40 @@ public sealed class CoreRuleEngine : IRuleEngine
             Hand = zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
                 ? zones.Hand
                 : zones.Hand.Concat([targetObjectId]).ToArray()
+        };
+        return true;
+    }
+
+    private static bool TryPlayGraveyardCardToBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string targetObjectId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Graveyard = RemoveFromZone(zones.Graveyard, targetObjectId),
+            Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Base
+                : zones.Base.Concat([targetObjectId]).ToArray()
+        };
+
+        var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+            ? existingTargetState
+            : new CardObjectState(targetObjectId);
+        cardObjects[targetObjectId] = targetState with
+        {
+            Damage = 0,
+            Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+            UntilEndOfTurnEffects = [],
+            UntilEndOfTurnPowerModifier = 0,
+            IsExhausted = false
         };
         return true;
     }
