@@ -107,7 +107,8 @@ public sealed record CardBehaviorDefinition(
     bool MovesTargetsToOwnerBattlefields = false,
     bool DamageAmountFromOptionalPowerCost = false,
     bool BanishesTargetThenPlaysToBase = false,
-    bool BanishesTargetThenPlaysToBattlefield = false);
+    bool BanishesTargetThenPlaysToBattlefield = false,
+    bool PlaysSourceToBaseAsEquipment = false);
 
 public static class CardDamageConditionKinds
 {
@@ -1010,6 +1011,15 @@ public static class CardBehaviorRegistry
             DestroysTarget: true,
             TargetScope: CardTargetScopes.Equipment,
             MinTargetCount: 0),
+        new(
+            "SFD·046/221",
+            "魄罗佳肴",
+            1,
+            "PORO_SNAX_PLAY_EQUIPMENT_DRAW_1",
+            0,
+            0,
+            DrawCount: 1,
+            PlaysSourceToBaseAsEquipment: true),
         new(
             "UNL-015/219",
             "占山为王",

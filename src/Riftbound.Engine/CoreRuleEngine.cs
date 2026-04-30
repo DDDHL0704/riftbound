@@ -2502,6 +2502,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.PlaysSourceToBaseAsEquipment)
+        {
+            PlaySourceEquipmentToBase(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.RecyclesSelectedMainDeckTargets)
         {
             var recycleResult = RecycleSelectedMainDeckTargets(
@@ -2549,7 +2559,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        if (playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
+        if (!behavior.PlaysSourceToBaseAsEquipment
+            && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
             if (!controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
             {
@@ -3156,6 +3167,52 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
         };
+    }
+
+    private static void PlaySourceEquipmentToBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            ? sourceState
+            : new CardObjectState(stackItem.SourceObjectId);
+        var equipmentState = existingState with
+        {
+            Tags = existingState.Tags
+                .Concat([CardObjectTags.EquipmentCard])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+        };
+        cardObjects[stackItem.SourceObjectId] = equipmentState;
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+                ? zones.Base
+                : zones.Base.Concat([stackItem.SourceObjectId]).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "EQUIPMENT_PLAYED_TO_BASE",
+            $"{behavior.DisplayName}打出装备到基地",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["equipmentObjectId"] = stackItem.SourceObjectId,
+                ["equipmentName"] = behavior.DisplayName,
+                ["destinationZone"] = "BASE",
+                ["tags"] = equipmentState.Tags.ToArray()
+            }));
     }
 
     private static IReadOnlyList<string> ParseDelimitedValues(string values)
