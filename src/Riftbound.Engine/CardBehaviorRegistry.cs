@@ -97,7 +97,8 @@ public sealed record CardBehaviorDefinition(
     bool DamageAmountFromFirstTargetManaCost = false,
     bool DrawsControllerAndOtherPlayers = false,
     bool CallsRuneForControllerAndOtherPlayers = false,
-    bool GrantsBoon = false);
+    bool GrantsBoon = false,
+    bool MovesTargetToBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -130,6 +131,7 @@ public static class CardTargetScopes
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
+    public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
 }
 
@@ -330,6 +332,16 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyUnit,
             GrantsBoon: true),
+        new(
+            "OGN·270/298",
+            "叹为观止",
+            1,
+            "STUNNING_DISPLAY_GRANT_BOON_MOVE_BASE_UNIT_TO_BATTLEFIELD",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyBaseUnit,
+            GrantsBoon: true,
+            MovesTargetToBattlefield: true),
         new(
             "OGN·220/298",
             "强手裂颅",
