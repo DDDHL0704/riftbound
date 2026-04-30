@@ -2316,13 +2316,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if (behavior.BanishesTargetThenPlaysToBase
-                        && TryBanishTargetThenPlayToOwnerBase(
+                    if ((behavior.BanishesTargetThenPlaysToBase || behavior.BanishesTargetThenPlaysToBattlefield)
+                        && TryBanishTargetThenPlayToOwnerField(
                             playerZones,
                             cardObjects,
                             targetObjectId,
+                            behavior.BanishesTargetThenPlaysToBattlefield ? "BATTLEFIELD" : "BASE",
                             out var rescuedOwnerPlayerId))
                     {
+                        var playedDestinationZone = behavior.BanishesTargetThenPlaysToBattlefield ? "BATTLEFIELD" : "BASE";
                         events.Add(new GameEvent(
                             "UNIT_BANISHED",
                             $"{behavior.DisplayName}放逐单位",
@@ -2334,14 +2336,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 ["destinationZone"] = "BANISHED"
                             }));
                         events.Add(new GameEvent(
-                            "UNIT_PLAYED_TO_BASE",
-                            $"{behavior.DisplayName}将单位打出到基地",
+                            behavior.BanishesTargetThenPlaysToBattlefield ? "UNIT_PLAYED_TO_BATTLEFIELD" : "UNIT_PLAYED_TO_BASE",
+                            behavior.BanishesTargetThenPlaysToBattlefield
+                                ? $"{behavior.DisplayName}将单位打出到战场"
+                                : $"{behavior.DisplayName}将单位打出到基地",
                             new Dictionary<string, object?>
                             {
                                 ["sourceObjectId"] = stackItem.SourceObjectId,
                                 ["targetObjectId"] = targetObjectId,
                                 ["ownerPlayerId"] = rescuedOwnerPlayerId,
-                                ["destinationZone"] = "BASE"
+                                ["destinationZone"] = playedDestinationZone
                             }));
                         continue;
                     }
@@ -3946,13 +3950,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         return normalizedDestination is "TOP" or "BOTTOM" ? normalizedDestination : string.Empty;
     }
 
-    private static bool TryBanishTargetThenPlayToOwnerBase(
+    private static bool TryBanishTargetThenPlayToOwnerField(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
+        string destinationZone,
         out string ownerPlayerId)
     {
         ownerPlayerId = string.Empty;
+        var playToBattlefield = string.Equals(destinationZone, "BATTLEFIELD", StringComparison.Ordinal);
         foreach (var (playerId, zones) in playerZones)
         {
             var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
@@ -3978,9 +3984,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones[playerId] = banishedZones with
             {
                 Banished = RemoveFromZone(banishedZones.Banished, targetObjectId),
-                Base = banishedZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                Base = playToBattlefield || banishedZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
                     ? banishedZones.Base
-                    : banishedZones.Base.Concat([targetObjectId]).ToArray()
+                    : banishedZones.Base.Concat([targetObjectId]).ToArray(),
+                Battlefields = !playToBattlefield || banishedZones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? banishedZones.Battlefields
+                    : banishedZones.Battlefields.Concat([targetObjectId]).ToArray()
             };
             cardObjects[targetObjectId] = targetState with
             {

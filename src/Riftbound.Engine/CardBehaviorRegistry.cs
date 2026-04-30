@@ -105,7 +105,8 @@ public sealed record CardBehaviorDefinition(
     bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false,
     bool MovesTargetsToOwnerBattlefields = false,
     bool DamageAmountFromOptionalPowerCost = false,
-    bool BanishesTargetThenPlaysToBase = false);
+    bool BanishesTargetThenPlaysToBase = false,
+    bool BanishesTargetThenPlaysToBattlefield = false);
 
 public static class CardDamageConditionKinds
 {
@@ -1708,6 +1709,16 @@ public static class CardBehaviorRegistry
             1,
             StatusEffectId: "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN",
             TargetScope: CardTargetScopes.FriendlyUnit),
+        new(
+            "UNL-184/219",
+            "狩猎律动",
+            2,
+            "HUNTING_RHYTHM_BANISH_FRIENDLY_UNIT_PLAY_TO_BATTLEFIELD",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            BanishesTargetThenPlaysToBattlefield: true),
         new(
             "UNL-175/219",
             "战术撤退",

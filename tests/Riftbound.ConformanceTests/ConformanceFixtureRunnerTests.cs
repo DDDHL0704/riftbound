@@ -1021,6 +1021,70 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysHuntingRhythmBanishPlayBattlefield()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-hunting-rhythm-banish-play-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-HUNTING-RHYTHM-FIELD-KEEPER", "P1-HUNTING-RHYTHM-TARGET-001"],
+            result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Banished);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-HUNTING-RHYTHM-TARGET-001"].Damage);
+        Assert.Equal(5, result.FinalState.CardObjects["P1-HUNTING-RHYTHM-TARGET-001"].Power);
+        Assert.Empty(result.FinalState.CardObjects["P1-HUNTING-RHYTHM-TARGET-001"].UntilEndOfTurnEffects);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHuntingRhythmAgainstEnemyUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HUNTING-RHYTHM"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-HUNTING-RHYTHM-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-HUNTING-RHYTHM-ENEMY-001"] = new(
+                    "P2-HUNTING-RHYTHM-ENEMY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hunting-rhythm-enemy-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-HUNTING-RHYTHM", "UNL-184/219", ["P2-HUNTING-RHYTHM-ENEMY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-HUNTING-RHYTHM"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-HUNTING-RHYTHM-ENEMY-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
     {
         var fixture = await ConformanceFixture.LoadAsync(
