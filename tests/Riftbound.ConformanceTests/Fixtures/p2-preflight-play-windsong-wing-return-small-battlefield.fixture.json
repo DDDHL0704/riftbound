@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-windsong-wing-return-small-battlefield",
+  "description": "Windsong Wing enters as a standby unit object and optionally returns a small battlefield unit to hand.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302330,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·138/221 吟风翼",
+      "note": "官方卡面：费用 2；单位；战力 1；待命；当你打出我时，你可以选择让战场上另一名不高于 3 战力的单位返回其所属的手牌。当前 fixture 覆盖普通打出、单位源牌入场和可选小战场单位回手路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可拥有关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；回手会把目标对象从公开区域移到其拥有者手牌。"
+    }
+  ],
+  "roomId": "p2-preflight-windsong-wing-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302330,
+    "turnNumber": 330,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-WINDSONG-WING"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": ["P2-HAND-001"],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-WINDSONG-WING-TARGET-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BATTLEFIELD-WINDSONG-WING-TARGET-001": {
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-windsong-wing-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-WINDSONG-WING",
+        "cardNo": "SFD·138/221",
+        "targetObjectIds": ["P2-BATTLEFIELD-WINDSONG-WING-TARGET-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-windsong-wing-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-windsong-wing-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "UNIT_RETURNED_TO_HAND"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-WINDSONG-WING",
+          "cardNo": "SFD·138/221",
+          "targetObjectIds": ["P2-BATTLEFIELD-WINDSONG-WING-TARGET-001"],
+          "effectKind": "WINDSONG_WING_PLAY_UNIT_OPTIONAL_RETURN_SMALL_BATTLEFIELD"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-WINDSONG-WING",
+          "unitObjectId": "P1-UNIT-WINDSONG-WING",
+          "unitName": "吟风翼",
+          "destinationZone": "BASE",
+          "power": 1,
+          "tags": ["CARD_TYPE:UNIT", "待命"]
+        }
+      },
+      {
+        "kind": "UNIT_RETURNED_TO_HAND",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-WINDSONG-WING",
+          "targetObjectId": "P2-BATTLEFIELD-WINDSONG-WING-TARGET-001",
+          "ownerPlayerId": "P2"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 330,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-UNIT-WINDSONG-WING"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": ["P2-HAND-001", "P2-BATTLEFIELD-WINDSONG-WING-TARGET-001"],
+          "battlefields": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-WINDSONG-WING": {
+          "power": 1,
+          "tags": ["CARD_TYPE:UNIT", "待命"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

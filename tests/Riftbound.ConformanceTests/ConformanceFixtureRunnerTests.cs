@@ -6087,6 +6087,277 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-THUNDERCLAW-URSINE-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysKinkouMonkGrantTwoBoons()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-kinkou-monk-grant-two-boons.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-BASE-KINKOU-MONK-TARGET-001", "P1-UNIT-KINKOU-MONK"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-KINKOU-MONK"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BASE-KINKOU-MONK-TARGET-001"].Power);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-KINKOU-MONK-TARGET-002"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            result.FinalState.CardObjects["P1-BASE-KINKOU-MONK-TARGET-001"].Tags);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            result.FinalState.CardObjects["P1-BATTLEFIELD-KINKOU-MONK-TARGET-002"].Tags);
+        Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "BOON_GRANTED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsKinkouMonkWhenSecondTargetIsEnemyUnit()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-KINKOU-MONK"],
+                    Base = ["P1-BASE-KINKOU-MONK-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-KINKOU-MONK-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-KINKOU-MONK-FRIENDLY-001"] = new(
+                    "P1-BASE-KINKOU-MONK-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-BASE-KINKOU-MONK-ENEMY-001"] = new(
+                    "P2-BASE-KINKOU-MONK-ENEMY-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-kinkou-monk-enemy-second-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-KINKOU-MONK",
+                "OGN·141/298",
+                ["P1-BASE-KINKOU-MONK-FRIENDLY-001", "P2-BASE-KINKOU-MONK-ENEMY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-KINKOU-MONK"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysGloomyApothecaryReturnFriendlyBattlefieldUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-GLOOMY-APOTHECARY"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BATTLEFIELD-GLOOMY-APOTHECARY-TARGET-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-GLOOMY-APOTHECARY"].Power);
+        Assert.DoesNotContain("P1-BATTLEFIELD-GLOOMY-APOTHECARY-TARGET-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineAllowsGloomyApothecaryWithoutReturnTarget()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-GLOOMY-APOTHECARY"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-gloomy-apothecary-no-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-GLOOMY-APOTHECARY",
+                "UNL-021/219",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Empty(stackItem.TargetObjectIds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsGloomyApothecaryWhenTargetIsEnemyBattlefieldUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-GLOOMY-APOTHECARY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-GLOOMY-APOTHECARY-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-GLOOMY-APOTHECARY-ENEMY-001"] = new(
+                    "P2-BATTLEFIELD-GLOOMY-APOTHECARY-ENEMY-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-gloomy-apothecary-enemy-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-GLOOMY-APOTHECARY",
+                "UNL-021/219",
+                ["P2-BATTLEFIELD-GLOOMY-APOTHECARY-ENEMY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-GLOOMY-APOTHECARY-ENEMY-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysWindsongWingReturnSmallBattlefieldUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-windsong-wing-return-small-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-WINDSONG-WING"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P2-HAND-001", "P2-BATTLEFIELD-WINDSONG-WING-TARGET-001"],
+            result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-WINDSONG-WING"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Standby],
+            result.FinalState.CardObjects["P1-UNIT-WINDSONG-WING"].Tags);
+        Assert.DoesNotContain("P2-BATTLEFIELD-WINDSONG-WING-TARGET-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineAllowsWindsongWingWithoutReturnTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-WINDSONG-WING"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-windsong-wing-no-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-WINDSONG-WING",
+                "SFD·138/221",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Empty(stackItem.TargetObjectIds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsWindsongWingWhenBattlefieldTargetPowerIsTooHigh()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-WINDSONG-WING"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-WINDSONG-WING-LARGE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-WINDSONG-WING-LARGE-001"] = new(
+                    "P2-BATTLEFIELD-WINDSONG-WING-LARGE-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-windsong-wing-large-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-WINDSONG-WING",
+                "SFD·138/221",
+                ["P2-BATTLEFIELD-WINDSONG-WING-LARGE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-WINDSONG-WING"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-WINDSONG-WING-LARGE-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
