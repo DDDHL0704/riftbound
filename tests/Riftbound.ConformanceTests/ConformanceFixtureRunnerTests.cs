@@ -2790,6 +2790,36 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysPlayfulTentaclesAndMovesEnemyBattlefieldUnitsTotalPowerEight()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-playful-tentacles-move-total-power-eight.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [
+                "P2-BASE-UNIT-001",
+                "P2-PLAYFUL-TENTACLES-UNIT-001",
+                "P2-PLAYFUL-TENTACLES-UNIT-002"
+            ],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-PLAYFUL-TENTACLES-KEEPER-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-PLAYFUL-TENTACLES-UNIT-001"].Damage);
+        Assert.Contains(
+            "STUNNED",
+            result.FinalState.CardObjects["P2-PLAYFUL-TENTACLES-UNIT-002"].UntilEndOfTurnEffects);
+        Assert.Equal(
+            2,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysTheCurtainRisesEchoAndReadiesUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -4511,6 +4541,46 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsPlayfulTentaclesWhenTotalTargetPowerIsTooHigh()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PLAYFUL-TENTACLES"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-PLAYFUL-TENTACLES-UNIT-001"] = new("P2-PLAYFUL-TENTACLES-UNIT-001", power: 4),
+                ["P2-PLAYFUL-TENTACLES-UNIT-002"] = new("P2-PLAYFUL-TENTACLES-UNIT-002", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-playful-tentacles-total-power-too-high", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PLAYFUL-TENTACLES",
+                "UNL-054/219",
+                ["P2-PLAYFUL-TENTACLES-UNIT-001", "P2-PLAYFUL-TENTACLES-UNIT-002"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-PLAYFUL-TENTACLES"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
 

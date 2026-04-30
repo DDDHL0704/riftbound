@@ -1267,6 +1267,17 @@ public static class CardBehaviorRegistry
             MovesTargetToBase: true,
             UsesFriendlyBattlefieldUnitCountAsMaxTargetCount: true),
         new(
+            "UNL-054/219",
+            "顽皮触手",
+            4,
+            "PLAYFUL_TENTACLES_MOVE_ENEMY_BATTLEFIELD_UNITS_TOTAL_POWER_8_TO_BASE",
+            0,
+            8,
+            TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
+            MinTargetCount: 0,
+            MovesTargetToBase: true,
+            MaxTotalTargetPower: 8),
+        new(
             "OGN·105/298",
             "星芒凝汇",
             6,
