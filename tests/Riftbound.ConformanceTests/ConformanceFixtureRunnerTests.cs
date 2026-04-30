@@ -5777,6 +5777,163 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysDragonCavalryDestroyEnemyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-dragon-cavalry-destroy-enemy-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-DRAGON-CAVALRY"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BASE-DRAGON-CAVALRY-TARGET-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-DRAGON-CAVALRY"].Power);
+        Assert.DoesNotContain("P2-BASE-DRAGON-CAVALRY-TARGET-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDragonCavalryWhenTargetIsFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 8) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-DRAGON-CAVALRY"],
+                    Base = ["P1-BASE-DRAGON-CAVALRY-FRIENDLY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-DRAGON-CAVALRY-FRIENDLY-001"] = new(
+                    "P1-BASE-DRAGON-CAVALRY-FRIENDLY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-dragon-cavalry-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-DRAGON-CAVALRY",
+                "OGN·234/298",
+                ["P1-BASE-DRAGON-CAVALRY-FRIENDLY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(8, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-DRAGON-CAVALRY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BASE-DRAGON-CAVALRY-FRIENDLY-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysFirstMateReadyAnotherUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-first-mate-ready-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-FIRST-MATE"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-FIRST-MATE-TARGET-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-FIRST-MATE"].Power);
+        Assert.False(result.FinalState.CardObjects["P2-BATTLEFIELD-FIRST-MATE-TARGET-001"].IsExhausted);
+        Assert.Contains("UNIT_READIED", result.EventKinds);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsFirstMateWhenTargetIsEquipment() =>
+        AssertSourceUnitNonUnitTargetRejectedAsync(
+            3,
+            "P1-UNIT-FIRST-MATE",
+            "OGN·132/298",
+            "P1-FIRST-MATE-EQUIPMENT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysArenaRookieGrantBoonFriendlyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-arena-rookie-grant-boon.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-BASE-ARENA-ROOKIE-TARGET-001", "P1-UNIT-ARENA-ROOKIE"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ARENA-ROOKIE"].Power);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BASE-ARENA-ROOKIE-TARGET-001"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            result.FinalState.CardObjects["P1-BASE-ARENA-ROOKIE-TARGET-001"].Tags);
+        Assert.Contains("BOON_GRANTED", result.EventKinds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsArenaRookieWhenTargetIsEnemyUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-ARENA-ROOKIE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BASE-ARENA-ROOKIE-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BASE-ARENA-ROOKIE-ENEMY-001"] = new(
+                    "P2-BASE-ARENA-ROOKIE-ENEMY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-arena-rookie-enemy-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-ARENA-ROOKIE",
+                "OGN·136/298",
+                ["P2-BASE-ARENA-ROOKIE-ENEMY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-ARENA-ROOKIE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BASE-ARENA-ROOKIE-ENEMY-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
