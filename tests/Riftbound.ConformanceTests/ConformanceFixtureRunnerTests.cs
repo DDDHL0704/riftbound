@@ -3933,6 +3933,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-HUNTERS-MACHETE-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysWitheredBattleaxeEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-withered-battleaxe-equipment.fixture.json",
+            "P1-EQUIPMENT-WITHERED-BATTLEAXE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsWitheredBattleaxeWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-WITHERED-BATTLEAXE",
+            "UNL-019/219",
+            "P1-WITHERED-BATTLEAXE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBoneClubEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-bone-club-equipment.fixture.json",
+            "P1-EQUIPMENT-BONE-CLUB");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBoneClubWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-BONE-CLUB",
+            "SFD·118/221",
+            "P1-BONE-CLUB-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysAncientSteleEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ancient-stele-equipment.fixture.json",
+            "P1-EQUIPMENT-ANCIENT-STELE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsAncientSteleWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-ANCIENT-STELE",
+            "SFD·117/221",
+            "P1-ANCIENT-STELE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysHextechAnomalyEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-hextech-anomaly-equipment.fixture.json",
+            "P1-EQUIPMENT-HEXTECH-ANOMALY");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsHextechAnomalyWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-HEXTECH-ANOMALY",
+            "SFD·083/221",
+            "P1-HEXTECH-ANOMALY-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysEnergyChannelEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-energy-channel-equipment.fixture.json",
+            "P1-EQUIPMENT-ENERGY-CHANNEL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsEnergyChannelWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-ENERGY-CHANNEL",
+            "OGN·098/298",
+            "P1-ENERGY-CHANNEL-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
