@@ -4423,6 +4423,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-OGN-POWER-SIGIL-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysOgnDiscordSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ogn-discord-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-OGN-DISCORD-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOgnDiscordSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-OGN-DISCORD-SIGIL",
+            "OGN·204/298",
+            "P1-OGN-DISCORD-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysOgnUnitySigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ogn-unity-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-OGN-UNITY-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOgnUnitySigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-OGN-UNITY-SIGIL",
+            "OGN·245/298",
+            "P1-OGN-UNITY-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysWondrousPackEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-wondrous-pack-equipment.fixture.json",
+            "P1-EQUIPMENT-WONDROUS-PACK");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsWondrousPackWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-WONDROUS-PACK",
+            "OGN·181/298",
+            "P1-WONDROUS-PACK-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSirenEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-siren-equipment.fixture.json",
+            "P1-EQUIPMENT-SIREN");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSirenWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SIREN",
+            "OGN·184/298",
+            "P1-SIREN-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysOwnerlessTreasureEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ownerless-treasure-equipment.fixture.json",
+            "P1-EQUIPMENT-OWNERLESS-TREASURE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOwnerlessTreasureWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-OWNERLESS-TREASURE",
+            "OGN·186/298",
+            "P1-OWNERLESS-TREASURE-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
