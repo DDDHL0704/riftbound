@@ -256,6 +256,17 @@
 - 暂不为加速引入全卡牌自动迁移、复杂 AI、最终产品 UI、移动端或未审计规则 PDF/FAQ 提交。
 - 每次停下来仍必须提交完成内容，并汇报实时 `x/811` 整体和当前 Part 百分比；未跟踪的 `riftbound-dotnet.sln` 不纳入提交。
 
+### 2.2 并行协作判断
+
+后续需要加速时，默认优先用子代理，而不是多个窗口同时改当前工作区：
+
+- 适合子代理的工作：筛选下一批 `10-20` 张低复杂度候选卡、整理官方文本和 `rulesEvidence`、起草 fixture、检查已有 engine 原语是否可复用、审阅某个小原语的影响范围。
+- 子代理默认不直接提交；主窗口负责最终接入 `CardBehaviorRegistry`、`CoreRuleEngine`、conformance 测试和文档，并执行批末验证与提交。
+- 适合多个窗口的工作：两个以上 agent 需要长期同时写代码，且任务能按能力族或文件边界隔离，例如抽牌/召符文、装备对象、单目标伤害分别推进。
+- 多窗口并行必须使用独立 `git worktree` 或分支，再由主窗口逐个 merge/cherry-pick；不要多个窗口同时在当前 `/Users/dinghaolin/MyProjects/riftbound-dotnet` 工作区写入热点文件。
+- 热点文件包括 `src/Riftbound.Engine/CardBehaviorRegistry.cs`、`tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`、`docs/CURRENT_P2_STATUS.md`、`docs/p2-rules-preflight.md` 和 `docs/rules-evidence-index.md`。
+- 默认安全形态是 `1` 个主窗口加 `1` 个只读/调研子代理；遇到明确、窄范围的小原语时可临时增加 `1` 个 worker。超过 `3` 个写代码 agent 前必须重新评估冲突成本。
+
 ## 3. P2 最小状态模型
 
 在扩展 `MatchState` 时，优先加入以下服务端权威字段。玩家视角 snapshot 只投影允许看到的部分。
