@@ -148,6 +148,7 @@ seed + initial setup + command log
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-production-surge-create-robot-draw.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-production-surge-reduced-by-mechanical.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-common-cause-create-four-minions-base.fixture.json`
+- `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-featherstorm-create-warhawks.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sandcraft-echo-create-two-sand-soldiers-base.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-protect-the-emperor-create-sand-soldier.fixture.json`
 - `tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-stay-away-stun-draw-stack.fixture.json`

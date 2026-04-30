@@ -56,6 +56,7 @@ public sealed record CardBehaviorDefinition(
     int CreatedBaseUnitTokenCount = 0,
     int CreatedBaseUnitTokenPower = 0,
     string CreatedBaseUnitTokenName = "",
+    string CreatedBaseUnitTokenTags = "",
     bool DiscardsAllPlayersHandsThenDraws = false,
     bool RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
     bool DestroysFirstTargetAndBuffsSecondByDestroyedPower = false,
@@ -115,6 +116,7 @@ public static class CardTargetScopes
 public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
+    public const string Spellshield = "法盾";
 }
 
 public static class CardDrawConditionKinds
@@ -1315,6 +1317,18 @@ public static class CardBehaviorRegistry
             3,
             TargetScope: CardTargetScopes.AnyUnit,
             MinTargetCount: 1),
+        new(
+            "UNL-044/219",
+            "羽毛旋风",
+            4,
+            "FEATHERSTORM_CREATE_FOUR_WARHAWKS",
+            0,
+            0,
+            Mode: "CREATE_WARHAWKS",
+            CreatedBaseUnitTokenCount: 4,
+            CreatedBaseUnitTokenPower: 1,
+            CreatedBaseUnitTokenName: "战鹰",
+            CreatedBaseUnitTokenTags: CardObjectTags.Spellshield),
         new(
             "SFD·076/221",
             "产量激增",

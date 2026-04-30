@@ -3011,6 +3011,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysFeatherstormCreatesFourWarhawksWithSpellshield()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-featherstorm-create-warhawks.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [
+                "P1-SPELL-FEATHERSTORM-TOKEN-001",
+                "P1-SPELL-FEATHERSTORM-TOKEN-002",
+                "P1-SPELL-FEATHERSTORM-TOKEN-003",
+                "P1-SPELL-FEATHERSTORM-TOKEN-004"
+            ],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            4,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
+        Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
+        {
+            Assert.Equal(1, result.FinalState.CardObjects[objectId].Power);
+            Assert.Equal([CardObjectTags.Spellshield], result.FinalState.CardObjects[objectId].Tags);
+        });
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRecallsHighlanderBloodlineTargetWhenDestroyed()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -2539,6 +2539,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var tokenCount = behavior.CreatedBaseUnitTokenCount * Math.Max(1, stackItem.EffectRepeatCount);
+        var tokenTags = ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -2550,25 +2551,46 @@ public sealed class CoreRuleEngine : IRuleEngine
             createdTokenObjectIds.Add(tokenObjectId);
             cardObjects[tokenObjectId] = new CardObjectState(
                 tokenObjectId,
-                power: behavior.CreatedBaseUnitTokenPower);
+                power: behavior.CreatedBaseUnitTokenPower,
+                tags: tokenTags);
+            var payload = new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = behavior.CreatedBaseUnitTokenName,
+                ["power"] = behavior.CreatedBaseUnitTokenPower,
+                ["destinationZone"] = "BASE"
+            };
+            if (tokenTags.Count > 0)
+            {
+                payload["tokenTags"] = tokenTags;
+            }
+
             events.Add(new GameEvent(
                 "UNIT_TOKEN_CREATED",
                 $"{behavior.DisplayName}打出单位指示物到基地",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = stackItem.ControllerId,
-                    ["sourceObjectId"] = stackItem.SourceObjectId,
-                    ["tokenObjectId"] = tokenObjectId,
-                    ["tokenName"] = behavior.CreatedBaseUnitTokenName,
-                    ["power"] = behavior.CreatedBaseUnitTokenPower,
-                    ["destinationZone"] = "BASE"
-                }));
+                payload));
         }
 
         playerZones[stackItem.ControllerId] = zones with
         {
             Base = zones.Base.Concat(createdTokenObjectIds).ToArray()
         };
+    }
+
+    private static IReadOnlyList<string> ParseDelimitedValues(string values)
+    {
+        if (string.IsNullOrWhiteSpace(values))
+        {
+            return [];
+        }
+
+        return values
+            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(value => value, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static string NextTokenObjectId(
