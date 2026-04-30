@@ -7111,6 +7111,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-blast-crew-apprentice-no-optional-damage.fixture.json", "P1-UNIT-BLAST-CREW-APPRENTICE", 2, "CARD_TYPE:UNIT")]
     [InlineData("p2-preflight-play-frostcoat-cub-no-optional-power-minus-two.fixture.json", "P1-UNIT-FROSTCOAT-CUB", 3, "CARD_TYPE:UNIT|犬形")]
     [InlineData("p2-preflight-play-ship-monkey-no-optional-boon.fixture.json", "P1-UNIT-SHIP-MONKEY", 2, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-pyke-no-optional-ready-power.fixture.json", "P1-UNIT-PYKE", 2, "CARD_TYPE:UNIT|待命|游走")]
+    [InlineData("p2-preflight-play-pyke-alt-a-no-optional-ready-power.fixture.json", "P1-UNIT-PYKE-A", 2, "CARD_TYPE:UNIT|待命|游走")]
+    [InlineData("p2-preflight-play-tiny-guardian-no-optional-draw.fixture.json", "P1-UNIT-TINY-GUARDIAN", 2, "CARD_TYPE:UNIT")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7137,6 +7140,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-BLAST-CREW-APPRENTICE", "SFD·013/221", "P1-BASE-BLAST-CREW-APPRENTICE-TARGET-001")]
     [InlineData(3, "P1-UNIT-FROSTCOAT-CUB", "SFD·067/221", "P1-BASE-FROSTCOAT-CUB-TARGET-001")]
     [InlineData(2, "P1-UNIT-SHIP-MONKEY", "SFD·098/221", "P1-BASE-SHIP-MONKEY-TARGET-001")]
+    [InlineData(3, "P1-UNIT-PYKE", "UNL-028/219", "P1-BASE-PYKE-TARGET-001")]
+    [InlineData(3, "P1-UNIT-PYKE-A", "UNL-028a/219", "P1-BASE-PYKE-A-TARGET-001")]
+    [InlineData(2, "P1-UNIT-TINY-GUARDIAN", "OGN·044/298", "P1-BASE-TINY-GUARDIAN-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
