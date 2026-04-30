@@ -16,17 +16,13 @@
 
 如果在新的 Codex 窗口继续开发，先读：
 
-1. `docs/START_HERE.md`
-2. `docs/master-development-plan.md`
-3. `docs/phase-1.md`
-4. `docs/rules-authority-and-audit.md`
-5. `docs/development-audit-status.md`
-6. `docs/rules-evidence-index.md`
-7. `docs/rules-card-baseline.md`
-8. `docs/p2-rules-preflight.md`
-9. `docs/conformance-fixture-format.md`
+1. `docs/CURRENT_P2_STATUS.md`
+2. `docs/START_HERE.md`
+3. `docs/p2-rules-preflight.md` 的最近进度和目标 fixture 段落
+4. `docs/rules-evidence-index.md` 中目标卡牌对应行
+5. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
-`docs/START_HERE.md` 是防偏离入口：它记录当前目标、资料优先级、立即开发顺序、P1/P2 禁止范围和验收门禁。
+`docs/CURRENT_P2_STATUS.md` 是短交接入口；`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁。更完整的计划/审计文档按需读取，避免每次新窗口加载重复长清单。
 
 ## 推荐本地准备
 
@@ -64,7 +60,8 @@ curl http://127.0.0.1:5088/catalog/summary
 
 核心计划文档：
 
-- `docs/START_HERE.md`：新窗口接手指南，先读它以恢复目标和当前阶段。
+- `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
+- `docs/START_HERE.md`：项目边界、资料优先级、开发顺序和验收门禁。
 - `docs/rules-authority-and-audit.md`：五份 PDF 的规则权威、冲突裁决和已开发部分重审协议。
 - `docs/development-audit-status.md`：当前已开发内容的保留、修改和重审状态。
 - `docs/rules-evidence-index.md`：五份 PDF/FAQ 到规则域、fixture 和实现状态的证据索引。
