@@ -7114,6 +7114,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-pyke-no-optional-ready-power.fixture.json", "P1-UNIT-PYKE", 2, "CARD_TYPE:UNIT|待命|游走")]
     [InlineData("p2-preflight-play-pyke-alt-a-no-optional-ready-power.fixture.json", "P1-UNIT-PYKE-A", 2, "CARD_TYPE:UNIT|待命|游走")]
     [InlineData("p2-preflight-play-tiny-guardian-no-optional-draw.fixture.json", "P1-UNIT-TINY-GUARDIAN", 2, "CARD_TYPE:UNIT")]
+    [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json", "P1-UNIT-BLAZING-DRAKE", 5, "CARD_TYPE:UNIT|急速|龙")]
+    [InlineData("p2-preflight-play-legion-rearguard-no-optional-haste.fixture.json", "P1-UNIT-LEGION-REARGUARD", 2, "CARD_TYPE:UNIT|崔法利|急速")]
+    [InlineData("p2-preflight-play-baby-shark-no-optional-haste.fixture.json", "P1-UNIT-BABY-SHARK", 1, "CARD_TYPE:UNIT|强攻4|急速")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7143,6 +7146,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-PYKE", "UNL-028/219", "P1-BASE-PYKE-TARGET-001")]
     [InlineData(3, "P1-UNIT-PYKE-A", "UNL-028a/219", "P1-BASE-PYKE-A-TARGET-001")]
     [InlineData(2, "P1-UNIT-TINY-GUARDIAN", "OGN·044/298", "P1-BASE-TINY-GUARDIAN-TARGET-001")]
+    [InlineData(5, "P1-UNIT-BLAZING-DRAKE", "OGN·001/298", "P1-BASE-BLAZING-DRAKE-TARGET-001")]
+    [InlineData(2, "P1-UNIT-LEGION-REARGUARD", "OGN·010/298", "P1-BASE-LEGION-REARGUARD-TARGET-001")]
+    [InlineData(3, "P1-UNIT-BABY-SHARK", "UNL-006/219", "P1-BASE-BABY-SHARK-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,

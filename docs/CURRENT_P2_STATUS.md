@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `UNL-028/219` / `UNL-028a/219` 《派克》和 `OGN·044/298` 《小小守护者》的单位源牌入场且不支付可选额外费用路径；最新提交以 `git log -1 --oneline` 为准
-- 上一个 P2 功能基线：`SFD·013/221` 《爆破队学员》、`SFD·067/221` 《霜衣幼崽》和 `SFD·098/221` 《船猿》的单位源牌入场且不支付可选额外费用路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `678/678`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `630/630`
-- 最小 card behavior registry：`330/811 = 40.7%`
-- P2 preflight 清单：已完成到 `365`，下一项是 `366. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 当前 P2 功能基线：已覆盖 `OGN·001/298` 《灼焰飞龙》、`OGN·010/298` 《军团后卫》和 `UNL-006/219` 《小鲨鱼》的单位源牌入场且不支付急速可选额外费用路径；最新提交以 `git log -1 --oneline` 为准
+- 上一个 P2 功能基线：`UNL-028/219` / `UNL-028a/219` 《派克》和 `OGN·044/298` 《小小守护者》的单位源牌入场且不支付可选额外费用路径
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `684/684`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `636/636`
+- 最小 card behavior registry：`333/811 = 41.1%`
+- P2 preflight 清单：已完成到 `368`，下一项是 `369. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,7 @@
 
 ## Latest Completed
 
+- `OGN·001/298` 《灼焰飞龙》 / `OGN·010/298` 《军团后卫》 / `UNL-006/219` 《小鲨鱼》：当前 2P preflight 覆盖三张带 `急速` 可选额外费用的官方单位源牌在普通主阶段不支付额外费用时的入场路径，分别成为 5/2/1 战力 `CARD_TYPE:UNIT` 对象，并记录 `龙`、`崔法利`、`急速`、`强攻4` 等属性/关键词标签；急速额外费用、活跃进场路径和强攻战斗修正暂缓，带目标打出由直接测试拒绝。
 - `UNL-028/219` / `UNL-028a/219` 《派克》 / `OGN·044/298` 《小小守护者》：当前 2P preflight 覆盖三张带可选额外费用的官方单位源牌在普通主阶段不支付额外费用时的入场路径；《派克》成为 2 战力、带 `待命` 与 `游走` 标签的 `CARD_TYPE:UNIT` 对象，《小小守护者》成为 2 战力 `CARD_TYPE:UNIT` 对象；红色/绿色额外费用和对应活跃/+2、抽牌分支暂缓，带目标打出由直接测试拒绝。
 - `SFD·013/221` 《爆破队学员》 / `SFD·067/221` 《霜衣幼崽》 / `SFD·098/221` 《船猿》：当前 2P preflight 覆盖三张带可选额外费用的官方单位源牌在普通主阶段不支付额外费用时的入场路径，分别成为 2/3/2 战力 `CARD_TYPE:UNIT` 对象，并记录 `犬形`、`海盗` 等属性标签；有色/额外费用和对应伤害、战力修正、自身增益分支暂缓，带目标打出由直接测试拒绝。
 - `SFD·149a/221` 《伊泽瑞尔》：当前 2P preflight 覆盖同文本官方英雄单位变体从手牌打出后进入控制者基地成为 3 战力 `CARD_TYPE:UNIT` 对象，弃置另一张手牌并抽 2 张牌；以源牌自身作为弃置目标由直接测试拒绝，其他卡牌可选额外费用减免暂缓。
