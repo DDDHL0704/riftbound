@@ -1370,6 +1370,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.BanishesAllFriendlyGraveyardUnits)
+        {
+            BanishFriendlyGraveyardUnits(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.DiscardsTargetFromHand)
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
@@ -3245,6 +3255,51 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return payload;
+    }
+
+    private static void BanishFriendlyGraveyardUnits(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var banishedCardIds = zones.Graveyard
+            .Where(cardId => CardObjectHasTag(cardObjects, cardId, CardObjectTags.UnitCard))
+            .ToArray();
+        if (banishedCardIds.Length == 0)
+        {
+            return;
+        }
+
+        var banishedCardIdSet = banishedCardIds.ToHashSet(StringComparer.Ordinal);
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Graveyard = zones.Graveyard
+                .Where(cardId => !banishedCardIdSet.Contains(cardId))
+                .ToArray(),
+            Banished = zones.Banished
+                .Concat(banishedCardIds.Where(cardId => !zones.Banished.Contains(cardId, StringComparer.Ordinal)))
+                .ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "CARDS_BANISHED",
+            $"{behavior.DisplayName}放逐废牌堆单位牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["cardIds"] = banishedCardIds,
+                ["count"] = banishedCardIds.Length,
+                ["fromZone"] = "GRAVEYARD",
+                ["destinationZone"] = "BANISHED"
+            }));
     }
 
     private static IReadOnlyList<string> ParseDelimitedValues(string values)

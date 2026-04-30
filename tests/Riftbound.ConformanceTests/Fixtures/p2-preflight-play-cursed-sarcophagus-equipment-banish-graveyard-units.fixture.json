@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-cursed-sarcophagus-equipment-banish-graveyard-units",
+  "description": "Cursed Sarcophagus enters the controller's base as equipment and banishes all unit cards from that player's graveyard.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302302,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-148/219 受诅咒的石棺",
+      "note": "官方卡面：费用 4；装备；当你打出此牌时，放逐你废牌堆中的所有单位牌；另有横置并摧毁自身来打出被其放逐单位牌的技能。当前 fixture 覆盖从手牌打出成为装备对象，并放逐控制者废牌堆中全部单位牌；横置摧毁打出放逐牌的激活技能暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；放逐区是玩家区域之一，当前 preflight 用对象标签 CARD_TYPE:UNIT 表达废牌堆单位牌筛选。"
+    }
+  ],
+  "roomId": "p2-preflight-cursed-sarcophagus-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302302,
+    "turnNumber": 302,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-EQUIPMENT-CURSED-SARCOPHAGUS"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": ["P1-GRAVE-UNIT-001", "P1-GRAVE-SPELL-001", "P1-GRAVE-UNIT-002"],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-GRAVE-UNIT-001": {
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P1-GRAVE-SPELL-001": {
+        "tags": ["CARD_TYPE:SPELL"]
+      },
+      "P1-GRAVE-UNIT-002": {
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-cursed-sarcophagus-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
+        "cardNo": "UNL-148/219",
+        "targetObjectIds": []
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-cursed-sarcophagus-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-cursed-sarcophagus-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "CARDS_BANISHED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
+          "cardNo": "UNL-148/219",
+          "targetObjectIds": [],
+          "effectKind": "CURSED_SARCOPHAGUS_PLAY_EQUIPMENT_BANISH_GRAVEYARD_UNITS"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "EQUIPMENT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
+          "equipmentObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
+          "equipmentName": "受诅咒的石棺",
+          "destinationZone": "BASE",
+          "tags": ["CARD_TYPE:EQUIPMENT"]
+        }
+      },
+      {
+        "kind": "CARDS_BANISHED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
+          "cardIds": ["P1-GRAVE-UNIT-001", "P1-GRAVE-UNIT-002"],
+          "count": 2,
+          "fromZone": "GRAVEYARD",
+          "destinationZone": "BANISHED"
+        }
+      }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 302,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-EQUIPMENT-CURSED-SARCOPHAGUS"],
+          "graveyard": ["P1-GRAVE-SPELL-001"],
+          "banished": ["P1-GRAVE-UNIT-001", "P1-GRAVE-UNIT-002"]
+        }
+      },
+      "cardObjects": {
+        "P1-EQUIPMENT-CURSED-SARCOPHAGUS": {
+          "damage": 0,
+          "power": 0,
+          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false
+        },
+        "P1-GRAVE-SPELL-001": {
+          "tags": ["CARD_TYPE:SPELL"]
+        },
+        "P1-GRAVE-UNIT-001": {
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P1-GRAVE-UNIT-002": {
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

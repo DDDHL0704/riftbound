@@ -4837,6 +4837,33 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-DEATH-LIST-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysCursedSarcophagusEquipmentBanishesGraveyardUnits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-cursed-sarcophagus-equipment-banish-graveyard-units.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-CURSED-SARCOPHAGUS"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-SPELL-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P1-GRAVE-UNIT-001", "P1-GRAVE-UNIT-002"], result.FinalState.PlayerZones["P1"].Banished);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-CURSED-SARCOPHAGUS"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsCursedSarcophagusWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-CURSED-SARCOPHAGUS",
+            "UNL-148/219",
+            "P1-CURSED-SARCOPHAGUS-BASE-UNIT-001");
+
+    [Fact]
     public Task CoreRuleEnginePlaysBoneclubPromoEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-boneclub-promo-equipment.fixture.json",

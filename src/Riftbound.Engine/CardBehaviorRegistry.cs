@@ -109,6 +109,7 @@ public sealed record CardBehaviorDefinition(
     bool DamageAmountFromOptionalPowerCost = false,
     bool BanishesTargetThenPlaysToBase = false,
     bool BanishesTargetThenPlaysToBattlefield = false,
+    bool BanishesAllFriendlyGraveyardUnits = false,
     bool PlaysSourceToBaseAsEquipment = false,
     string SourceEquipmentTags = "",
     bool SourceEquipmentIsExhausted = false);
@@ -1744,6 +1745,15 @@ public static class CardBehaviorRegistry
             "DEATH_LIST_PLAY_EQUIPMENT_DECLARE_TAG_DEFERRED",
             0,
             0,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
+            "UNL-148/219",
+            "受诅咒的石棺",
+            4,
+            "CURSED_SARCOPHAGUS_PLAY_EQUIPMENT_BANISH_GRAVEYARD_UNITS",
+            0,
+            0,
+            BanishesAllFriendlyGraveyardUnits: true,
             PlaysSourceToBaseAsEquipment: true),
         new(
             "SFD·118a/221·P",
