@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-lee-sin-no-optional-haste",
+  "description": "Lee Sin enters as a Haste unit object without paying its Haste optional orange additional cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302396,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·151/298 李青",
+      "note": "官方卡面：费用 6；英雄单位；战力 6；急速，可选择额外支付 1 和橙色让我以活跃状态进场；所在战场上其他拥有增益的友方单位获得战力 +2。当前 fixture 覆盖普通主阶段从手牌打出且不支付急速可选额外费用时的源单位入场和关键词标签记录；急速活跃进场、战场位置和友方增益单位静态战力修正暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；按战场位置持续影响其他友方单位留待后续静态能力模型覆盖。"
+    }
+  ],
+  "roomId": "p2-preflight-lee-sin-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302396,
+    "turnNumber": 395,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-LEE-SIN"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-lee-sin-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-LEE-SIN",
+        "cardNo": "OGN·151/298",
+        "targetObjectIds": []
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-lee-sin-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-lee-sin-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 6, "baseMana": 6 } },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-LEE-SIN",
+          "cardNo": "OGN·151/298",
+          "targetObjectIds": [],
+          "effectKind": "LEE_SIN_PLAY_UNIT_NO_OPTIONAL_HASTE"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-LEE-SIN",
+          "unitObjectId": "P1-UNIT-LEE-SIN",
+          "unitName": "李青",
+          "destinationZone": "BASE",
+          "power": 6,
+          "tags": ["CARD_TYPE:UNIT", "急速"]
+        }
+      }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 395,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-UNIT-LEE-SIN"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-LEE-SIN": {
+          "power": 6,
+          "tags": ["CARD_TYPE:UNIT", "急速"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

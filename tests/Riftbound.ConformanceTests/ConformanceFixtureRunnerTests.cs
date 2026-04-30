@@ -7140,6 +7140,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-crimson-signet-treant-alt-a-no-optional-haste.fixture.json", "P1-UNIT-CRIMSON-SIGNET-TREANT-A", 4, "CARD_TYPE:UNIT|急速")]
     [InlineData("p2-preflight-play-tasty-faerie-no-optional-haste.fixture.json", "P1-UNIT-TASTY-FAERIE", 6, "CARD_TYPE:UNIT|仙灵|急速")]
     [InlineData("p2-preflight-play-ekko-no-optional-haste.fixture.json", "P1-UNIT-EKKO", 5, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-armed-assaulter-no-optional-haste.fixture.json", "P1-UNIT-ARMED-ASSAULTER", 6, "CARD_TYPE:UNIT|急速|百炼")]
+    [InlineData("p2-preflight-play-ancient-berserker-no-optional-haste.fixture.json", "P1-UNIT-ANCIENT-BERSERKER", 4, "CARD_TYPE:UNIT|急速|灵体")]
+    [InlineData("p2-preflight-play-kraken-hunter-no-optional-haste.fixture.json", "P1-UNIT-KRAKEN-HUNTER", 5, "CARD_TYPE:UNIT|强攻|急速|海盗")]
+    [InlineData("p2-preflight-play-lee-sin-no-optional-haste.fixture.json", "P1-UNIT-LEE-SIN", 6, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-lee-sin-alt-a-no-optional-haste.fixture.json", "P1-UNIT-LEE-SIN-A", 6, "CARD_TYPE:UNIT|急速")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7195,6 +7200,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-CRIMSON-SIGNET-TREANT-A", "UNL-029a/219", "P1-BASE-CRIMSON-SIGNET-TREANT-A-TARGET-001")]
     [InlineData(7, "P1-UNIT-TASTY-FAERIE", "OGN·075/298", "P1-BASE-TASTY-FAERIE-TARGET-001")]
     [InlineData(5, "P1-UNIT-EKKO", "OGN·110/298", "P1-BASE-EKKO-TARGET-001")]
+    [InlineData(6, "P1-UNIT-ARMED-ASSAULTER", "SFD·002/221", "P1-BASE-ARMED-ASSAULTER-TARGET-001")]
+    [InlineData(5, "P1-UNIT-ANCIENT-BERSERKER", "SFD·131/221", "P1-BASE-ANCIENT-BERSERKER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-KRAKEN-HUNTER", "OGN·150/298", "P1-BASE-KRAKEN-HUNTER-TARGET-001")]
+    [InlineData(6, "P1-UNIT-LEE-SIN", "OGN·151/298", "P1-BASE-LEE-SIN-TARGET-001")]
+    [InlineData(6, "P1-UNIT-LEE-SIN-A", "OGN·151a/298", "P1-BASE-LEE-SIN-A-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
