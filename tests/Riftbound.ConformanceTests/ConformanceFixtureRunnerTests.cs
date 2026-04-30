@@ -4213,6 +4213,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-REVERSAL-SHARD-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysAssemblyRackEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-assembly-rack-equipment.fixture.json",
+            "P1-EQUIPMENT-ASSEMBLY-RACK");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsAssemblyRackWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            4,
+            "P1-EQUIPMENT-ASSEMBLY-RACK",
+            "SFD·019/221",
+            "P1-ASSEMBLY-RACK-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSfurSongEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-sfur-song-equipment.fixture.json",
+            "P1-EQUIPMENT-SFUR-SONG");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSfurSongWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-SFUR-SONG",
+            "SFD·059/221",
+            "P1-SFUR-SONG-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysZDriveEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-z-drive-equipment.fixture.json",
+            "P1-EQUIPMENT-Z-DRIVE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsZDriveWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-Z-DRIVE",
+            "SFD·090/221",
+            "P1-Z-DRIVE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysVanguardArmoryEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-vanguard-armory-equipment.fixture.json",
+            "P1-EQUIPMENT-VANGUARD-ARMORY");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsVanguardArmoryWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            7,
+            "P1-EQUIPMENT-VANGUARD-ARMORY",
+            "SFD·168/221",
+            "P1-VANGUARD-ARMORY-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysRemembranceAltarEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-remembrance-altar-equipment.fixture.json",
+            "P1-EQUIPMENT-REMEMBRANCE-ALTAR");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsRemembranceAltarWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-REMEMBRANCE-ALTAR",
+            "SFD·169/221",
+            "P1-REMEMBRANCE-ALTAR-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
