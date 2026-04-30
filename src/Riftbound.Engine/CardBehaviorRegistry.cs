@@ -1678,6 +1678,23 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsEquipment: true),
         new(
+            "SFD·104/221",
+            "禁魔石丰碑",
+            2,
+            "PETRICITE_MONUMENT_PLAY_EQUIPMENT_EPHEMERAL",
+            0,
+            0,
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardObjectTags.Ephemeral),
+        new(
+            "OGN·077/298",
+            "中娅沙漏",
+            2,
+            "ZHONYAS_HOURGLASS_PLAY_EQUIPMENT",
+            0,
+            0,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
             "UNL-015/219",
             "占山为王",
             3,

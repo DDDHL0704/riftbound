@@ -4634,6 +4634,35 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-SEA-MONSTER-HOOK-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysPetriciteMonumentEquipmentEphemeral() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-petricite-monument-equipment-ephemeral.fixture.json",
+            "P1-EQUIPMENT-PETRICITE-MONUMENT",
+            expectedTags: [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral]);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsPetriciteMonumentWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-PETRICITE-MONUMENT",
+            "SFD·104/221",
+            "P1-PETRICITE-MONUMENT-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysZhonyasHourglassEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-zhonyas-hourglass-equipment.fixture.json",
+            "P1-EQUIPMENT-ZHONYAS-HOURGLASS");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsZhonyasHourglassWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-ZHONYAS-HOURGLASS",
+            "OGN·077/298",
+            "P1-ZHONYAS-HOURGLASS-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -9823,7 +9852,8 @@ public sealed class ConformanceFixtureRunnerTests
     private static async Task AssertSimpleEquipmentFixtureAsync(
         string fixtureFileName,
         string equipmentObjectId,
-        bool expectedIsExhausted = false)
+        bool expectedIsExhausted = false,
+        string[]? expectedTags = null)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
@@ -9837,7 +9867,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal([equipmentObjectId], result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
-        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects[equipmentObjectId].Tags);
+        var expectedEquipmentTags = expectedTags ?? [CardObjectTags.EquipmentCard];
+        Assert.Equal(expectedEquipmentTags, result.FinalState.CardObjects[equipmentObjectId].Tags);
         Assert.Equal(expectedIsExhausted, result.FinalState.CardObjects[equipmentObjectId].IsExhausted);
     }
 
