@@ -4823,6 +4823,48 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-BLAST-CONE-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysDeathListEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-death-list-equipment.fixture.json",
+            "P1-EQUIPMENT-DEATH-LIST");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsDeathListWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-DEATH-LIST",
+            "UNL-138/219",
+            "P1-DEATH-LIST-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBoneclubPromoEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-boneclub-promo-equipment.fixture.json",
+            "P1-EQUIPMENT-BONECLUB-PROMO");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBoneclubPromoWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-BONECLUB-PROMO",
+            "SFD·118a/221·P",
+            "P1-BONECLUB-PROMO-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysHextechGauntletEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-hextech-gauntlet-equipment.fixture.json",
+            "P1-EQUIPMENT-HEXTECH-GAUNTLET");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsHextechGauntletWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-HEXTECH-GAUNTLET",
+            "UNL-188/219",
+            "P1-HEXTECH-GAUNTLET-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -6123,6 +6165,23 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysTheCurtainRisesBaseReadyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-the-curtain-rises-ready-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.False(result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].IsExhausted);
+        Assert.Single(result.EventKinds, kind => string.Equals(kind, "UNIT_READIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBeatdownAndReadiesUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -6425,6 +6484,24 @@ public sealed class ConformanceFixtureRunnerTests
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
         Assert.All(result.FinalState.PlayerZones["P1"].Base, objectId =>
             Assert.Equal(2, result.FinalState.CardObjects[objectId].Power));
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSandcraftWithoutEchoCreatesOneSandSoldierInBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sandcraft-create-one-sand-soldier-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-SPELL-SANDCRAFT-TOKEN-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-SPELL-SANDCRAFT-TOKEN-001"].Power);
+        Assert.Single(result.EventKinds, kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
     }
 
     [Fact]
