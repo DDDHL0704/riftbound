@@ -1370,6 +1370,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.PlaysSourceToBaseAsUnit)
+        {
+            PlaySourceUnitToBase(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.BanishesAllFriendlyGraveyardUnits)
         {
             BanishFriendlyGraveyardUnits(
@@ -2606,6 +2616,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (!behavior.PlaysSourceToBaseAsEquipment
+            && !behavior.PlaysSourceToBaseAsUnit
             && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
             if (!controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
@@ -3275,6 +3286,76 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["tags"] = equipmentState.Tags.ToArray()
             };
         if (equipmentState.IsExhausted)
+        {
+            payload["isExhausted"] = true;
+        }
+
+        return payload;
+    }
+
+    private static void PlaySourceUnitToBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            ? sourceState
+            : new CardObjectState(stackItem.SourceObjectId);
+        var unitPower = behavior.SourceUnitPower > 0
+            ? behavior.SourceUnitPower
+            : existingState.Power;
+        var unitState = existingState with
+        {
+            Power = unitPower,
+            IsExhausted = existingState.IsExhausted || behavior.SourceUnitIsExhausted,
+            Tags = existingState.Tags
+                .Concat([CardObjectTags.UnitCard])
+                .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+        };
+        cardObjects[stackItem.SourceObjectId] = unitState;
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Base = zones.Base.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+                ? zones.Base
+                : zones.Base.Concat([stackItem.SourceObjectId]).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "UNIT_PLAYED_TO_BASE",
+            $"{behavior.DisplayName}打出单位到基地",
+            CreateUnitPlayedPayload(
+                stackItem,
+                behavior,
+                unitState)));
+    }
+
+    private static Dictionary<string, object?> CreateUnitPlayedPayload(
+        StackItemState stackItem,
+        CardBehaviorDefinition behavior,
+        CardObjectState unitState)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["playerId"] = stackItem.ControllerId,
+            ["sourceObjectId"] = stackItem.SourceObjectId,
+            ["unitObjectId"] = stackItem.SourceObjectId,
+            ["unitName"] = behavior.DisplayName,
+            ["destinationZone"] = "BASE",
+            ["power"] = unitState.Power,
+            ["tags"] = unitState.Tags.ToArray()
+        };
+        if (unitState.IsExhausted)
         {
             payload["isExhausted"] = true;
         }

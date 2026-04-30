@@ -114,7 +114,11 @@ public sealed record CardBehaviorDefinition(
     bool BanishesAllFriendlyGraveyardUnits = false,
     bool PlaysSourceToBaseAsEquipment = false,
     string SourceEquipmentTags = "",
-    bool SourceEquipmentIsExhausted = false);
+    bool SourceEquipmentIsExhausted = false,
+    bool PlaysSourceToBaseAsUnit = false,
+    int SourceUnitPower = 0,
+    string SourceUnitTags = "",
+    bool SourceUnitIsExhausted = false);
 
 public static class CardDamageConditionKinds
 {
@@ -1785,6 +1789,45 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsEquipment: true),
+        new(
+            "SFD·174/221",
+            "宝藏魔像",
+            8,
+            "TREASURE_GOLEM_PLAY_UNIT_CREATE_FOUR_GOLD",
+            0,
+            0,
+            CreatedBaseEquipmentTokenCount: 4,
+            CreatedBaseEquipmentTokenName: "金币",
+            CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+            CreatedBaseEquipmentTokenIsExhausted: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 9),
+        new(
+            "OGN·211/298",
+            "忠实的工坊主",
+            3,
+            "FAITHFUL_CRAFTSMAN_PLAY_UNIT_CREATE_MINION",
+            0,
+            0,
+            CreatedBaseUnitTokenCount: 1,
+            CreatedBaseUnitTokenPower: 1,
+            CreatedBaseUnitTokenName: "随从",
+            CreatedBaseUnitTokenTags: CardObjectTags.UnitCard,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 2),
+        new(
+            "SFD·157/221",
+            "皇家守卫",
+            4,
+            "ROYAL_GUARD_PLAY_UNIT_CREATE_SAND_SOLDIER",
+            0,
+            0,
+            CreatedBaseUnitTokenCount: 1,
+            CreatedBaseUnitTokenPower: 2,
+            CreatedBaseUnitTokenName: "黄沙士兵",
+            CreatedBaseUnitTokenTags: CardObjectTags.UnitCard + "|" + CardObjectTags.SandSoldier,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 2),
         new(
             "UNL-015/219",
             "占山为王",

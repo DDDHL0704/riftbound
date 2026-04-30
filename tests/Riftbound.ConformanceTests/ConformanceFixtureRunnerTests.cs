@@ -5073,6 +5073,108 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-HEXTECH-GAUNTLET-BASE-UNIT-001");
 
     [Fact]
+    public async Task CoreRuleEnginePlaysTreasureGolemCreateFourGold()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-treasure-golem-create-four-gold.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            [
+                "P1-UNIT-TREASURE-GOLEM",
+                "P1-UNIT-TREASURE-GOLEM-TOKEN-001",
+                "P1-UNIT-TREASURE-GOLEM-TOKEN-002",
+                "P1-UNIT-TREASURE-GOLEM-TOKEN-003",
+                "P1-UNIT-TREASURE-GOLEM-TOKEN-004"
+            ],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(9, result.FinalState.CardObjects["P1-UNIT-TREASURE-GOLEM"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-TREASURE-GOLEM"].Tags);
+        foreach (var tokenObjectId in result.FinalState.PlayerZones["P1"].Base.Skip(1))
+        {
+            Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects[tokenObjectId].Tags);
+            Assert.True(result.FinalState.CardObjects[tokenObjectId].IsExhausted);
+        }
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsTreasureGolemWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            8,
+            "P1-UNIT-TREASURE-GOLEM",
+            "SFD·174/221",
+            "P1-TREASURE-GOLEM-BASE-UNIT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysFaithfulCraftsmanCreateMinion()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-faithful-craftsman-create-minion.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-UNIT-FAITHFUL-CRAFTSMAN", "P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsFaithfulCraftsmanWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            3,
+            "P1-UNIT-FAITHFUL-CRAFTSMAN",
+            "OGN·211/298",
+            "P1-FAITHFUL-CRAFTSMAN-BASE-UNIT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysRoyalGuardCreateSandSoldier()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-royal-guard-create-sand-soldier.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-UNIT-ROYAL-GUARD", "P1-UNIT-ROYAL-GUARD-TOKEN-001"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ROYAL-GUARD"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ROYAL-GUARD-TOKEN-001"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.SandSoldier],
+            result.FinalState.CardObjects["P1-UNIT-ROYAL-GUARD-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsRoyalGuardWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            4,
+            "P1-UNIT-ROYAL-GUARD",
+            "SFD·157/221",
+            "P1-ROYAL-GUARD-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSoulguardEquipmentGrantBoon()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -10383,6 +10485,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     private static async Task AssertEquipmentWithTargetRejectedAsync(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId)
+    {
+        var state = PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [sourceObjectId],
+                    Base = [targetObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [targetObjectId] = new(
+                    targetObjectId,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-{sourceObjectId.ToLowerInvariant()}-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                sourceObjectId,
+                cardNo,
+                [targetObjectId]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal([sourceObjectId], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    private static async Task AssertSourceUnitWithTargetRejectedAsync(
         int mana,
         string sourceObjectId,
         string cardNo,

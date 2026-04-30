@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-faithful-craftsman-create-minion",
+  "description": "Faithful Craftsman enters as a unit object and creates a 1-power Minion unit token.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302307,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·211/298 忠实的工坊主",
+      "note": "官方卡面：费用 3；单位；战力 2；当你打出我时，在此处额外打出一名 1 战力“随从”。当前 fixture 覆盖单位源牌入场与随从指示物创建路径，精确目的地选择暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；当前 preflight 用控制者基地代表未接入目的地选择的单位入场。"
+    }
+  ],
+  "roomId": "p2-preflight-faithful-craftsman-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302307,
+    "turnNumber": 307,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-FAITHFUL-CRAFTSMAN"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-faithful-craftsman-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-FAITHFUL-CRAFTSMAN",
+        "cardNo": "OGN·211/298",
+        "targetObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-faithful-craftsman-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-faithful-craftsman-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "UNIT_TOKEN_CREATED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-FAITHFUL-CRAFTSMAN",
+          "cardNo": "OGN·211/298",
+          "targetObjectIds": [],
+          "effectKind": "FAITHFUL_CRAFTSMAN_PLAY_UNIT_CREATE_MINION"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-FAITHFUL-CRAFTSMAN",
+          "unitObjectId": "P1-UNIT-FAITHFUL-CRAFTSMAN",
+          "unitName": "忠实的工坊主",
+          "destinationZone": "BASE",
+          "power": 2,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      {
+        "kind": "UNIT_TOKEN_CREATED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-FAITHFUL-CRAFTSMAN",
+          "tokenObjectId": "P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001",
+          "tokenName": "随从",
+          "power": 1,
+          "destinationZone": "BASE",
+          "tokenTags": ["CARD_TYPE:UNIT"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 307,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-UNIT-FAITHFUL-CRAFTSMAN", "P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-FAITHFUL-CRAFTSMAN": {
+          "power": 2,
+          "tags": ["CARD_TYPE:UNIT"],
+          "isExhausted": false
+        },
+        "P1-UNIT-FAITHFUL-CRAFTSMAN-TOKEN-001": {
+          "power": 1,
+          "tags": ["CARD_TYPE:UNIT"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
