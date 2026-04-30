@@ -4353,6 +4353,76 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-DISCORD-SIGIL-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysUnitySigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-unity-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-UNITY-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsUnitySigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-UNITY-SIGIL",
+            "SFD·238/221",
+            "P1-UNITY-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysOgnRageSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ogn-rage-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-OGN-RAGE-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOgnRageSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-OGN-RAGE-SIGIL",
+            "OGN·040/298",
+            "P1-OGN-RAGE-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysOgnFocusSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ogn-focus-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-OGN-FOCUS-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOgnFocusSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-OGN-FOCUS-SIGIL",
+            "OGN·081/298",
+            "P1-OGN-FOCUS-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysOgnInsightSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ogn-insight-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-OGN-INSIGHT-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOgnInsightSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-OGN-INSIGHT-SIGIL",
+            "OGN·120/298",
+            "P1-OGN-INSIGHT-SIGIL-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysOgnPowerSigilEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-ogn-power-sigil-equipment.fixture.json",
+            "P1-EQUIPMENT-OGN-POWER-SIGIL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsOgnPowerSigilWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            0,
+            "P1-EQUIPMENT-OGN-POWER-SIGIL",
+            "OGN·163/298",
+            "P1-OGN-POWER-SIGIL-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
