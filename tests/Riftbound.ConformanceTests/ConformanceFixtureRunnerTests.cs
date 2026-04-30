@@ -826,6 +826,71 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBattleCommandMoveFriendlyAndOpponentUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-battle-command-move-friendly-and-opponent-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-BATTLE-COMMAND-FIELD-KEEPER", "P1-BATTLE-COMMAND-BASE-001"],
+            result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BATTLE-COMMAND-BASE-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBattleCommandWhenTargetsAreReversed()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BATTLE-COMMAND"],
+                    Base = ["P1-BATTLE-COMMAND-BASE-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BATTLE-COMMAND-BASE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-COMMAND-BASE-001"] = new("P1-BATTLE-COMMAND-BASE-001", power: 4),
+                ["P2-BATTLE-COMMAND-BASE-001"] = new("P2-BATTLE-COMMAND-BASE-001", power: 3)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-battle-command-reversed-targets", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BATTLE-COMMAND",
+                "UNL-101/219",
+                ["P2-BATTLE-COMMAND-BASE-001", "P1-BATTLE-COMMAND-BASE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-BATTLE-COMMAND"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLE-COMMAND-BASE-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLE-COMMAND-BASE-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDisposalOrderRecycleMode()
     {
         var fixture = await ConformanceFixture.LoadAsync(

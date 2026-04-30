@@ -2311,6 +2311,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
+                    if (behavior.MovesTargetsToOwnerBattlefields
+                        && TryMoveTargetToOwnerBattlefield(playerZones, targetObjectId, out var ownerBattlefieldPlayerId))
+                    {
+                        events.Add(new GameEvent(
+                            "UNIT_MOVED_TO_BATTLEFIELD",
+                            $"{behavior.DisplayName}让单位移动到战场",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["ownerPlayerId"] = ownerBattlefieldPlayerId,
+                                ["destinationZone"] = "BATTLEFIELD"
+                            }));
+                        continue;
+                    }
+
                     if (behavior.MovesTargetToBattlefield
                         && TryMoveTargetToControllerBattlefield(playerZones, stackItem.ControllerId, targetObjectId))
                     {
@@ -3943,6 +3959,33 @@ public sealed class CoreRuleEngine : IRuleEngine
                 Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
                     ? zones.Base
                     : zones.Base.Concat([targetObjectId]).ToArray()
+            };
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryMoveTargetToOwnerBattlefield(
+        Dictionary<string, PlayerZones> playerZones,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (!zones.Base.Contains(targetObjectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Battlefields
+                    : zones.Battlefields.Concat([targetObjectId]).ToArray()
             };
             ownerPlayerId = playerId;
             return true;

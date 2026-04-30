@@ -102,7 +102,8 @@ public sealed record CardBehaviorDefinition(
     bool MovesTargetToBattlefield = false,
     bool GrantsBoonToAllFriendlyUnits = false,
     bool SwapsTargetLocations = false,
-    bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false);
+    bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false,
+    bool MovesTargetsToOwnerBattlefields = false);
 
 public static class CardDamageConditionKinds
 {
@@ -1502,6 +1503,15 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
             MovesTargetToBase: true),
+        new(
+            "UNL-101/219",
+            "战斗号令",
+            3,
+            "BATTLE_COMMAND_MOVE_FRIENDLY_AND_OPPONENT_UNIT_TO_BATTLEFIELD",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyUnits,
+            MovesTargetsToOwnerBattlefields: true),
         new(
             "OGS·011/024",
             "闪现",
