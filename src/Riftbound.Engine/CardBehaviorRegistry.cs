@@ -108,7 +108,9 @@ public sealed record CardBehaviorDefinition(
     bool DamageAmountFromOptionalPowerCost = false,
     bool BanishesTargetThenPlaysToBase = false,
     bool BanishesTargetThenPlaysToBattlefield = false,
-    bool PlaysSourceToBaseAsEquipment = false);
+    bool PlaysSourceToBaseAsEquipment = false,
+    string SourceEquipmentTags = "",
+    bool SourceEquipmentIsExhausted = false);
 
 public static class CardDamageConditionKinds
 {
@@ -1041,6 +1043,46 @@ public static class CardBehaviorRegistry
             CreatedBaseUnitTokenName: "随从",
             CreatedBaseUnitTokenTags: CardObjectTags.UnitCard,
             PlaysSourceToBaseAsEquipment: true),
+        new(
+            "OGN·182/298",
+            "废料堆",
+            2,
+            "SCRAP_HEAP_PLAY_EQUIPMENT_DRAW_1",
+            0,
+            0,
+            DrawCount: 1,
+            PlaysSourceToBaseAsEquipment: true),
+        new(
+            "UNL-078/219",
+            "精灵提灯",
+            2,
+            "SPRITE_LANTERN_PLAY_EQUIPMENT_CREATE_SPRITE",
+            0,
+            0,
+            CreatedBaseUnitTokenCount: 1,
+            CreatedBaseUnitTokenPower: 3,
+            CreatedBaseUnitTokenName: "精灵",
+            CreatedBaseUnitTokenTags: CardObjectTags.Ephemeral,
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardObjectTags.Ephemeral),
+        new(
+            "UNL-085/219",
+            "地沟区地图",
+            2,
+            "SUMPWORKS_MAP_PLAY_EQUIPMENT_EPHEMERAL",
+            0,
+            0,
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentTags: CardObjectTags.Ephemeral),
+        new(
+            "UNL-136/219",
+            "占卜花朵",
+            1,
+            "SCRYING_BLOSSOM_PLAY_EQUIPMENT_EXHAUSTED",
+            0,
+            0,
+            PlaysSourceToBaseAsEquipment: true,
+            SourceEquipmentIsExhausted: true),
         new(
             "UNL-015/219",
             "占山为王",

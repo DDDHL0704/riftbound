@@ -2973,6 +2973,241 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysScrapHeapEquipmentDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-scrap-heap-equipment-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-SCRAP-HEAP"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-DRAW-SCRAP-HEAP-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SCRAP-HEAP"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsScrapHeapWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SCRAP-HEAP"],
+                    Base = ["P1-SCRAP-HEAP-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SCRAP-HEAP-BASE-UNIT-001"] = new(
+                    "P1-SCRAP-HEAP-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-scrap-heap-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SCRAP-HEAP",
+                "OGN·182/298",
+                ["P1-SCRAP-HEAP-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SCRAP-HEAP"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSpriteLanternEquipmentCreateSprite()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sprite-lantern-equipment-create-sprite.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-EQUIPMENT-SPRITE-LANTERN", "P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral],
+            result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN"].Tags);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Power);
+        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-EQUIPMENT-SPRITE-LANTERN-TOKEN-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSpriteLanternWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SPRITE-LANTERN"],
+                    Base = ["P1-SPRITE-LANTERN-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPRITE-LANTERN-BASE-UNIT-001"] = new(
+                    "P1-SPRITE-LANTERN-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-sprite-lantern-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SPRITE-LANTERN",
+                "UNL-078/219",
+                ["P1-SPRITE-LANTERN-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SPRITE-LANTERN"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSumpworksMapEquipmentEphemeral()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-sumpworks-map-equipment-ephemeral.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-SUMPWORKS-MAP"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            [CardObjectTags.EquipmentCard, CardObjectTags.Ephemeral],
+            result.FinalState.CardObjects["P1-EQUIPMENT-SUMPWORKS-MAP"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSumpworksMapWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SUMPWORKS-MAP"],
+                    Base = ["P1-SUMPWORKS-MAP-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SUMPWORKS-MAP-BASE-UNIT-001"] = new(
+                    "P1-SUMPWORKS-MAP-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-sumpworks-map-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SUMPWORKS-MAP",
+                "UNL-085/219",
+                ["P1-SUMPWORKS-MAP-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SUMPWORKS-MAP"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysScryingBlossomEquipmentExhausted()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-scrying-blossom-equipment-exhausted.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-EQUIPMENT-SCRYING-BLOSSOM"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects["P1-EQUIPMENT-SCRYING-BLOSSOM"].Tags);
+        Assert.True(result.FinalState.CardObjects["P1-EQUIPMENT-SCRYING-BLOSSOM"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsScryingBlossomWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-EQUIPMENT-SCRYING-BLOSSOM"],
+                    Base = ["P1-SCRYING-BLOSSOM-BASE-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SCRYING-BLOSSOM-BASE-UNIT-001"] = new(
+                    "P1-SCRYING-BLOSSOM-BASE-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-scrying-blossom-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-SCRYING-BLOSSOM",
+                "UNL-136/219",
+                ["P1-SCRYING-BLOSSOM-BASE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SCRYING-BLOSSOM"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(

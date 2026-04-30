@@ -3188,8 +3188,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             : new CardObjectState(stackItem.SourceObjectId);
         var equipmentState = existingState with
         {
+            IsExhausted = existingState.IsExhausted || behavior.SourceEquipmentIsExhausted,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.EquipmentCard])
+                .Concat(ParseDelimitedValues(behavior.SourceEquipmentTags))
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
@@ -3206,7 +3208,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         events.Add(new GameEvent(
             "EQUIPMENT_PLAYED_TO_BASE",
             $"{behavior.DisplayName}打出装备到基地",
-            new Dictionary<string, object?>
+            CreateEquipmentPlayedPayload(
+                stackItem,
+                behavior,
+                equipmentState)));
+    }
+
+    private static Dictionary<string, object?> CreateEquipmentPlayedPayload(
+        StackItemState stackItem,
+        CardBehaviorDefinition behavior,
+        CardObjectState equipmentState)
+    {
+        var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = stackItem.ControllerId,
                 ["sourceObjectId"] = stackItem.SourceObjectId,
@@ -3214,7 +3227,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["equipmentName"] = behavior.DisplayName,
                 ["destinationZone"] = "BASE",
                 ["tags"] = equipmentState.Tags.ToArray()
-            }));
+            };
+        if (equipmentState.IsExhausted)
+        {
+            payload["isExhausted"] = true;
+        }
+
+        return payload;
     }
 
     private static IReadOnlyList<string> ParseDelimitedValues(string values)
