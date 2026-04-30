@@ -1919,6 +1919,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                         }
                     }
 
+                    if (!string.IsNullOrWhiteSpace(behavior.TargetAddedTag))
+                    {
+                        targetState = ApplyTargetTag(
+                            targetState,
+                            behavior,
+                            stackItem,
+                            targetObjectId,
+                            out var tagEvent);
+                        events.Add(tagEvent);
+                    }
+
                     var powerModifierAmount = ShouldApplyPowerModifierToTarget(behavior, targetIndex)
                         ? ResolvePowerModifierAmount(
                             behavior,
@@ -2669,6 +2680,34 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["appliedPowerDelta"] = appliedPowerDelta,
                 ["minimumPower"] = behavior.MinimumPowerAfterModifier,
                 ["resultingPower"] = nextTargetState.Power
+            });
+
+        return nextTargetState;
+    }
+
+    private static CardObjectState ApplyTargetTag(
+        CardObjectState targetState,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        string targetObjectId,
+        out GameEvent tagEvent)
+    {
+        var nextTargetState = targetState with
+        {
+            Tags = targetState.Tags
+                .Concat([behavior.TargetAddedTag])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+        };
+        tagEvent = new GameEvent(
+            "OBJECT_TAG_ADDED",
+            $"{behavior.DisplayName}给予对象标签",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["tag"] = behavior.TargetAddedTag
             });
 
         return nextTargetState;

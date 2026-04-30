@@ -82,7 +82,8 @@ public sealed record CardBehaviorDefinition(
     int MaxTotalTargetPower = 0,
     bool AppliesStatusEffectToAllUnits = false,
     bool MovesFirstTargetToSecondTargetLocation = false,
-    string TargetRequiredTag = "");
+    string TargetRequiredTag = "",
+    string TargetAddedTag = "");
 
 public static class CardDamageConditionKinds
 {
@@ -119,6 +120,7 @@ public static class CardObjectTags
     public const string UnitCard = "CARD_TYPE:UNIT";
     public const string Spellshield = "法盾";
     public const string Standby = "待命";
+    public const string Ephemeral = "瞬息";
 }
 
 public static class CardDrawConditionKinds
@@ -852,6 +854,17 @@ public static class CardBehaviorRegistry
             MinTargetCount: 0,
             TargetRequiredTag: CardObjectTags.Standby,
             ReturnsGraveyardTargetToHand: true),
+        new(
+            "UNL-165/219",
+            "暗影的召唤",
+            2,
+            "CALL_OF_THE_SHADOWS_GIVE_EPHEMERAL_DRAW_2",
+            0,
+            1,
+            DrawCount: 2,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            TargetForbiddenTag: CardObjectTags.Ephemeral,
+            TargetAddedTag: CardObjectTags.Ephemeral),
         new(
             "OGN·083/298",
             "借鉴历史",

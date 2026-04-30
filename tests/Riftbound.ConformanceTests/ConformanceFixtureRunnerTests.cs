@@ -1782,6 +1782,63 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysCallOfTheShadowsGiveEphemeralDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-call-of-the-shadows-give-ephemeral-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-DRAW-001", "P1-DRAW-002"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-SPELL-CALL-OF-THE-SHADOWS"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal([CardObjectTags.Ephemeral], result.FinalState.CardObjects["P1-UNIT-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCallOfTheShadowsWhenTargetAlreadyHasEphemeral()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CALL-OF-THE-SHADOWS"],
+                    Base = ["P1-UNIT-EPHEMERAL"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-EPHEMERAL"] = new("P1-UNIT-EPHEMERAL", tags: [CardObjectTags.Ephemeral])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-call-of-the-shadows-ephemeral-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-CALL-OF-THE-SHADOWS",
+                "UNL-165/219",
+                ["P1-UNIT-EPHEMERAL"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-CALL-OF-THE-SHADOWS"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-UNIT-EPHEMERAL"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBorrowedHistoryDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
