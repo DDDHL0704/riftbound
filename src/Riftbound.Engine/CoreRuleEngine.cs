@@ -2061,6 +2061,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                         events.Add(tagEvent);
                     }
 
+                    if (behavior.GrantsBoon)
+                    {
+                        targetState = ApplyBoon(
+                            targetState,
+                            behavior,
+                            stackItem,
+                            targetObjectId,
+                            out var boonEvents);
+                        events.AddRange(boonEvents);
+                    }
+
                     var powerModifierAmount = ShouldApplyPowerModifierToTarget(behavior, targetIndex)
                         ? ResolvePowerModifierAmount(
                             behavior,
@@ -2977,6 +2988,54 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["minimumPower"] = behavior.MinimumPowerAfterModifier,
                 ["resultingPower"] = nextTargetState.Power
             });
+
+        return nextTargetState;
+    }
+
+    private static CardObjectState ApplyBoon(
+        CardObjectState targetState,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        string targetObjectId,
+        out IReadOnlyList<GameEvent> boonEvents)
+    {
+        if (targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal))
+        {
+            boonEvents = [];
+            return targetState;
+        }
+
+        var nextTargetState = targetState with
+        {
+            Power = targetState.Power + 1,
+            Tags = targetState.Tags
+                .Concat([CardObjectTags.Boon])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+        };
+        boonEvents =
+        [
+            new GameEvent(
+                "OBJECT_TAG_ADDED",
+                $"{behavior.DisplayName}给予增益标签",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["tag"] = CardObjectTags.Boon
+                }),
+            new GameEvent(
+                "BOON_GRANTED",
+                $"{behavior.DisplayName}给予增益",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["powerDelta"] = 1,
+                    ["resultingPower"] = nextTargetState.Power
+                })
+        ];
 
         return nextTargetState;
     }

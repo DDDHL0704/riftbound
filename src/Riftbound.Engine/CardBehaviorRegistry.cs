@@ -96,7 +96,8 @@ public sealed record CardBehaviorDefinition(
     int CreatedBaseEquipmentTokenCountIfDestroyedEnemyUnit = 0,
     bool DamageAmountFromFirstTargetManaCost = false,
     bool DrawsControllerAndOtherPlayers = false,
-    bool CallsRuneForControllerAndOtherPlayers = false);
+    bool CallsRuneForControllerAndOtherPlayers = false,
+    bool GrantsBoon = false);
 
 public static class CardDamageConditionKinds
 {
@@ -140,6 +141,7 @@ public static class CardObjectTags
     public const string Standby = "待命";
     public const string Ephemeral = "瞬息";
     public const string SandSoldier = "黄沙士兵";
+    public const string Boon = "增益";
 }
 
 public static class CardDrawConditionKinds
@@ -319,6 +321,15 @@ public static class CardBehaviorRegistry
             0,
             "STUNNED",
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit),
+        new(
+            "OGN·053/298",
+            "秘奥义！慈悲度魂落",
+            3,
+            "SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            GrantsBoon: true),
         new(
             "OGN·220/298",
             "强手裂颅",

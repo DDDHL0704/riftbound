@@ -4209,6 +4209,23 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysSecretArtMercyGrantBoon()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-secret-art-mercy-grant-boon.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BOON-UNIT-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-BOON-UNIT-001"].Tags);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDecisiveStrikeAllFriendlyPowerBoost()
     {
         var fixture = await ConformanceFixture.LoadAsync(
