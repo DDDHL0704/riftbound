@@ -7117,6 +7117,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json", "P1-UNIT-BLAZING-DRAKE", 5, "CARD_TYPE:UNIT|急速|龙")]
     [InlineData("p2-preflight-play-legion-rearguard-no-optional-haste.fixture.json", "P1-UNIT-LEGION-REARGUARD", 2, "CARD_TYPE:UNIT|崔法利|急速")]
     [InlineData("p2-preflight-play-baby-shark-no-optional-haste.fixture.json", "P1-UNIT-BABY-SHARK", 1, "CARD_TYPE:UNIT|强攻4|急速")]
+    [InlineData("p2-preflight-play-reksai-no-optional-haste.fixture.json", "P1-UNIT-REKSAI", 3, "CARD_TYPE:UNIT|强攻|急速")]
+    [InlineData("p2-preflight-play-reksai-alt-a-no-optional-haste.fixture.json", "P1-UNIT-REKSAI-A", 3, "CARD_TYPE:UNIT|强攻|急速")]
+    [InlineData("p2-preflight-play-kaisa-no-optional-haste.fixture.json", "P1-UNIT-KAISA", 4, "CARD_TYPE:UNIT|急速")]
+    [InlineData("p2-preflight-play-kaisa-alt-a-no-optional-haste.fixture.json", "P1-UNIT-KAISA-A", 4, "CARD_TYPE:UNIT|急速")]
     public async Task CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost(
         string fixtureFileName,
         string sourceObjectId,
@@ -7149,6 +7153,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-BLAZING-DRAKE", "OGN·001/298", "P1-BASE-BLAZING-DRAKE-TARGET-001")]
     [InlineData(2, "P1-UNIT-LEGION-REARGUARD", "OGN·010/298", "P1-BASE-LEGION-REARGUARD-TARGET-001")]
     [InlineData(3, "P1-UNIT-BABY-SHARK", "UNL-006/219", "P1-BASE-BABY-SHARK-TARGET-001")]
+    [InlineData(3, "P1-UNIT-REKSAI", "SFD·029/221", "P1-BASE-REKSAI-TARGET-001")]
+    [InlineData(3, "P1-UNIT-REKSAI-A", "SFD·029a/221", "P1-BASE-REKSAI-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-KAISA", "OGN·039/298", "P1-BASE-KAISA-TARGET-001")]
+    [InlineData(4, "P1-UNIT-KAISA-A", "OGN·039a/298", "P1-BASE-KAISA-A-TARGET-001")]
     public Task CoreRuleEngineRejectsSourceUnitWithoutOptionalAdditionalCostWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
