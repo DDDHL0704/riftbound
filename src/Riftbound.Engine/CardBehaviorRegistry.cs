@@ -104,7 +104,8 @@ public sealed record CardBehaviorDefinition(
     bool SwapsTargetLocations = false,
     bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false,
     bool MovesTargetsToOwnerBattlefields = false,
-    bool DamageAmountFromOptionalPowerCost = false);
+    bool DamageAmountFromOptionalPowerCost = false,
+    bool BanishesTargetThenPlaysToBase = false);
 
 public static class CardDamageConditionKinds
 {
@@ -1392,6 +1393,16 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
             Mode: "OWNER_MAIN_DECK_BOTTOM",
             TargetOwnerMainDeckDestination: "BOTTOM"),
+        new(
+            "OGN·102/298",
+            "传送门大营救",
+            3,
+            "PORTALPAL_RESCUE_BANISH_FRIENDLY_UNIT_PLAY_TO_BASE",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            BanishesTargetThenPlaysToBase: true),
         new(
             "OGN·104/298",
             "择日再战",

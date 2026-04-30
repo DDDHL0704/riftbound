@@ -2316,6 +2316,36 @@ public sealed class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
+                    if (behavior.BanishesTargetThenPlaysToBase
+                        && TryBanishTargetThenPlayToOwnerBase(
+                            playerZones,
+                            cardObjects,
+                            targetObjectId,
+                            out var rescuedOwnerPlayerId))
+                    {
+                        events.Add(new GameEvent(
+                            "UNIT_BANISHED",
+                            $"{behavior.DisplayName}放逐单位",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["ownerPlayerId"] = rescuedOwnerPlayerId,
+                                ["destinationZone"] = "BANISHED"
+                            }));
+                        events.Add(new GameEvent(
+                            "UNIT_PLAYED_TO_BASE",
+                            $"{behavior.DisplayName}将单位打出到基地",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["ownerPlayerId"] = rescuedOwnerPlayerId,
+                                ["destinationZone"] = "BASE"
+                            }));
+                        continue;
+                    }
+
                     if (!string.IsNullOrWhiteSpace(behavior.TargetOwnerMainDeckDestination)
                         && TryMoveTargetToOwnerMainDeck(
                             playerZones,
@@ -3914,6 +3944,57 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var normalizedDestination = destination.Trim().ToUpperInvariant();
         return normalizedDestination is "TOP" or "BOTTOM" ? normalizedDestination : string.Empty;
+    }
+
+    private static bool TryBanishTargetThenPlayToOwnerBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
+            var isInBattlefield = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal);
+            if (!isInBase && !isInBattlefield)
+            {
+                continue;
+            }
+
+            var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+                ? existingTargetState
+                : new CardObjectState(targetObjectId);
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+                Banished = zones.Banished.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Banished
+                    : zones.Banished.Concat([targetObjectId]).ToArray()
+            };
+
+            var banishedZones = playerZones[playerId];
+            playerZones[playerId] = banishedZones with
+            {
+                Banished = RemoveFromZone(banishedZones.Banished, targetObjectId),
+                Base = banishedZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? banishedZones.Base
+                    : banishedZones.Base.Concat([targetObjectId]).ToArray()
+            };
+            cardObjects[targetObjectId] = targetState with
+            {
+                Damage = 0,
+                Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+                UntilEndOfTurnEffects = [],
+                UntilEndOfTurnPowerModifier = 0,
+                IsExhausted = false
+            };
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryDiscardCardFromHand(
