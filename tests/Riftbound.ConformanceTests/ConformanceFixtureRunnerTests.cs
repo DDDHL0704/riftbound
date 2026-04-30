@@ -3783,6 +3783,29 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysRuthlessPursuitMoveFriendlyUnitRecallMark()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ruthless-pursuit-move-friendly-unit-recall-mark.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-RUTHLESS-PURSUIT-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Contains(
+            "MAY_RETURN_TO_BASE_ON_CONQUER_THIS_TURN",
+            result.FinalState.CardObjects["P1-RUTHLESS-PURSUIT-UNIT-001"].UntilEndOfTurnEffects);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysIsolateAndMovesEnemyBattlefieldUnitToBaseWithoutDrawing()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -6657,6 +6680,65 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRuthlessPursuitAgainstEnemyOrNonUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-RUTHLESS-PURSUIT"],
+                    Base = ["P1-RUTHLESS-PURSUIT-EQUIPMENT-001"],
+                    Battlefields = ["P1-RUTHLESS-PURSUIT-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-RUTHLESS-PURSUIT-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUTHLESS-PURSUIT-UNIT-001"] = new(
+                    "P1-RUTHLESS-PURSUIT-UNIT-001",
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-RUTHLESS-PURSUIT-EQUIPMENT-001"] = new(
+                    "P1-RUTHLESS-PURSUIT-EQUIPMENT-001",
+                    tags: [CardObjectTags.EquipmentCard]),
+                ["P2-RUTHLESS-PURSUIT-ENEMY-001"] = new(
+                    "P2-RUTHLESS-PURSUIT-ENEMY-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-RUTHLESS-PURSUIT-ENEMY-001"],
+            ["P1-RUTHLESS-PURSUIT-EQUIPMENT-001"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent($"intent-ruthless-pursuit-invalid-{string.Join("-", targetObjectIds)}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-RUTHLESS-PURSUIT",
+                    "SFD·184/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+            Assert.Equal(["P1-SPELL-RUTHLESS-PURSUIT"], result.State.PlayerZones["P1"].Hand);
+            Assert.Empty(result.State.StackItems);
+        }
     }
 
     [Fact]

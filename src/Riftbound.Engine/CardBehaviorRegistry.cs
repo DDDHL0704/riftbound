@@ -1566,6 +1566,17 @@ public static class CardBehaviorRegistry
             MinTargetCount: 0,
             MovesTargetToBase: true),
         new(
+            "SFD·184/221",
+            "冷酷追击",
+            2,
+            "RUTHLESS_PURSUIT_MOVE_FRIENDLY_UNIT_TO_BASE_MARK_CONQUER_RECALL",
+            0,
+            1,
+            StatusEffectId: "MAY_RETURN_TO_BASE_ON_CONQUER_THIS_TURN",
+            TargetScope: CardTargetScopes.FriendlyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            MovesTargetToBase: true),
+        new(
             "SFD·043/221",
             "禁军之墙",
             2,
