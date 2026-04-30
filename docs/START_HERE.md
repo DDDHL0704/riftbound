@@ -136,7 +136,7 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 
 ```text
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
-先读取 README.md、docs/CURRENT_P2_STATUS.md、docs/START_HERE.md；需要迁移具体卡牌时，再读取 docs/p2-rules-preflight.md 的相关 fixture/进度段落、docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。
+先读取 docs/CURRENT_P2_STATUS.md 和 README.md；需要迁移具体卡牌时，再读取 docs/p2-rules-preflight.md 的相关 fixture/进度段落、docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。只有遇到项目边界、资料优先级或验收门禁问题时，再读取 docs/START_HERE.md。
 目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
 当前阶段从 P1 联机底座过渡到 P2 preflight：继续逐批迁移低复杂度官方卡牌；不要跳到全卡牌迁移。
 不要重做最终 UI，不要全量迁移卡牌，不要提交规则 PDF/FAQ，不要回退现有改动。
