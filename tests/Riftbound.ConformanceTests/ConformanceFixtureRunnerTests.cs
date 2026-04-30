@@ -3723,6 +3723,76 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public Task CoreRuleEnginePlaysDoransRingEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-dorans-ring-equipment.fixture.json",
+            "P1-EQUIPMENT-DORANS-RING");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsDoransRingWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-DORANS-RING",
+            "SFD·124/221",
+            "P1-DORANS-RING-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysVanguardsEyeEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-vanguards-eye-equipment.fixture.json",
+            "P1-EQUIPMENT-VANGUARDS-EYE");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsVanguardsEyeWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-VANGUARDS-EYE",
+            "SFD·153/221",
+            "P1-VANGUARDS-EYE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysRecurveBowEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-recurve-bow-equipment.fixture.json",
+            "P1-EQUIPMENT-RECURVE-BOW");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsRecurveBowWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-RECURVE-BOW",
+            "SFD·016/221",
+            "P1-RECURVE-BOW-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysBrutalizerEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-brutalizer-equipment.fixture.json",
+            "P1-EQUIPMENT-BRUTALIZER");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsBrutalizerWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-BRUTALIZER",
+            "SFD·042/221",
+            "P1-BRUTALIZER-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysGuardianAngelEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-guardian-angel-equipment.fixture.json",
+            "P1-EQUIPMENT-GUARDIAN-ANGEL");
+
+    [Fact]
+    public Task CoreRuleEngineRejectsGuardianAngelWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-GUARDIAN-ANGEL",
+            "SFD·051/221",
+            "P1-GUARDIAN-ANGEL-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCenterYourMindBaseDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -8907,6 +8977,68 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             });
+    }
+
+    private static async Task AssertSimpleEquipmentFixtureAsync(
+        string fixtureFileName,
+        string equipmentObjectId)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([equipmentObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal([CardObjectTags.EquipmentCard], result.FinalState.CardObjects[equipmentObjectId].Tags);
+        Assert.False(result.FinalState.CardObjects[equipmentObjectId].IsExhausted);
+    }
+
+    private static async Task AssertEquipmentWithTargetRejectedAsync(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId)
+    {
+        var state = PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [sourceObjectId],
+                    Base = [targetObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [targetObjectId] = new(
+                    targetObjectId,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-{sourceObjectId.ToLowerInvariant()}-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                sourceObjectId,
+                cardNo,
+                [targetObjectId]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal([sourceObjectId], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
     }
 
     private static MatchState CenterStageState(int mana)
