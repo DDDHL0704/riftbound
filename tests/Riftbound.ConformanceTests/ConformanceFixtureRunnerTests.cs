@@ -7171,6 +7171,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-renata-glasc-vanilla-unit.fixture.json", "P1-UNIT-SFD-RENATA", 4)]
     [InlineData("p2-preflight-play-sfd-renata-glasc-alt-a-vanilla-unit.fixture.json", "P1-UNIT-SFD-RENATA-A", 4)]
     [InlineData("p2-preflight-play-desert-plunderer-vanilla-unit.fixture.json", "P1-UNIT-DESERT-PLUNDERER", 5)]
+    [InlineData("p2-preflight-play-xerath-activated-skill-unit.fixture.json", "P1-UNIT-XERATH", 5)]
+    [InlineData("p2-preflight-play-dragon-soul-sage-activated-skill-unit.fixture.json", "P1-UNIT-DRAGON-SOUL-SAGE", 1)]
+    [InlineData("p2-preflight-play-sfd-088-renata-glasc-activated-skill-unit.fixture.json", "P1-UNIT-SFD-088-RENATA", 4)]
+    [InlineData("p2-preflight-play-sfd-088-renata-glasc-alt-a-activated-skill-unit.fixture.json", "P1-UNIT-SFD-088A-RENATA", 4)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7222,6 +7226,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-SFD-RENATA", "SFD·171/221", "P1-BASE-SFD-RENATA-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-RENATA-A", "SFD·171a/221", "P1-BASE-SFD-RENATA-A-TARGET-001")]
     [InlineData(6, "P1-UNIT-DESERT-PLUNDERER", "SFD·105/221", "P1-BASE-DESERT-PLUNDERER-TARGET-001")]
+    [InlineData(5, "P1-UNIT-XERATH", "UNL-026/219", "P1-BASE-XERATH-TARGET-001")]
+    [InlineData(2, "P1-UNIT-DRAGON-SOUL-SAGE", "UNL-093/219", "P1-BASE-DRAGON-SOUL-SAGE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-088-RENATA", "SFD·088/221", "P1-BASE-SFD-088-RENATA-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-088A-RENATA", "SFD·088a/221", "P1-BASE-SFD-088A-RENATA-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7377,6 +7385,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-prescient-mech-yordle-mechanical-unit.fixture.json", "P1-UNIT-PRESCIENT-MECH", 2, "CARD_TYPE:UNIT|机械|约德尔人")]
     [InlineData("p2-preflight-play-speeding-mech-yordle-mechanical-unit.fixture.json", "P1-UNIT-SPEEDING-MECH", 7, "CARD_TYPE:UNIT|机械|约德尔人")]
     [InlineData("p2-preflight-play-progress-glory-mechanical-unit.fixture.json", "P1-UNIT-PROGRESS-GLORY", 3, "CARD_TYPE:UNIT|机械")]
+    [InlineData("p2-preflight-play-fluft-poro-activated-skill-unit.fixture.json", "P1-UNIT-FLUFT-PORO", 5, "CARD_TYPE:UNIT|魄罗")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7543,6 +7552,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-PRESCIENT-MECH", "SFD·065/221", "P1-BASE-PRESCIENT-MECH-TARGET-001")]
     [InlineData(8, "P1-UNIT-SPEEDING-MECH", "SFD·071/221", "P1-BASE-SPEEDING-MECH-TARGET-001")]
     [InlineData(4, "P1-UNIT-PROGRESS-GLORY", "SFD·075/221", "P1-BASE-PROGRESS-GLORY-TARGET-001")]
+    [InlineData(5, "P1-UNIT-FLUFT-PORO", "UNL-160/219", "P1-BASE-FLUFT-PORO-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
