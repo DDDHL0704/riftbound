@@ -7144,6 +7144,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-playful-imp-vanilla-unit.fixture.json", "P1-UNIT-PLAYFUL-IMP", 5)]
     [InlineData("p2-preflight-play-super-mech-vanilla-unit.fixture.json", "P1-UNIT-SUPER-MECH", 8)]
     [InlineData("p2-preflight-play-mountain-drake-vanilla-unit.fixture.json", "P1-UNIT-MOUNTAIN-DRAKE", 10)]
+    [InlineData("p2-preflight-play-sfd-aphelios-vanilla-unit.fixture.json", "P1-UNIT-SFD-APHELIOS", 4)]
+    [InlineData("p2-preflight-play-sfd-aphelios-promo-vanilla-unit.fixture.json", "P1-UNIT-SFD-APHELIOS-PROMO", 4)]
+    [InlineData("p2-preflight-play-sfd-ahri-vanilla-unit.fixture.json", "P1-UNIT-SFD-AHRI", 3)]
+    [InlineData("p2-preflight-play-sfd-ahri-promo-vanilla-unit.fixture.json", "P1-UNIT-SFD-AHRI-PROMO", 3)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7168,6 +7172,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-PLAYFUL-IMP", "OGN·049/298", "P1-BASE-PLAYFUL-IMP-TARGET-001")]
     [InlineData(7, "P1-UNIT-SUPER-MECH", "OGN·088/298", "P1-BASE-SUPER-MECH-TARGET-001")]
     [InlineData(9, "P1-UNIT-MOUNTAIN-DRAKE", "OGN·142/298", "P1-BASE-MOUNTAIN-DRAKE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-APHELIOS", "SFD·224/221", "P1-BASE-SFD-APHELIOS-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-APHELIOS-PROMO", "SFD·224*/221", "P1-BASE-SFD-APHELIOS-PROMO-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-AHRI", "SFD·227/221", "P1-BASE-SFD-AHRI-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-AHRI-PROMO", "SFD·227*/221", "P1-BASE-SFD-AHRI-PROMO-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
