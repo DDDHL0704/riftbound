@@ -7187,6 +7187,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-arena-service-crew-equipment-trigger-static.fixture.json", "P1-UNIT-ARENA-SERVICE-CREW", 3)]
     [InlineData("p2-preflight-play-poro-herder-no-poro-static.fixture.json", "P1-UNIT-PORO-HERDER", 3)]
     [InlineData("p2-preflight-play-ravenbloom-student-spell-trigger-static.fixture.json", "P1-UNIT-RAVENBLOOM-STUDENT", 2)]
+    [InlineData("p2-preflight-play-bilgewater-bully-no-boon-roam-static.fixture.json", "P1-UNIT-BILGEWATER-BULLY", 6)]
+    [InlineData("p2-preflight-play-ember-monk-standby-trigger-static.fixture.json", "P1-UNIT-EMBER-MONK", 4)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7254,6 +7256,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-ARENA-SERVICE-CREW", "OGN·091/298", "P1-BASE-ARENA-SERVICE-CREW-TARGET-001")]
     [InlineData(3, "P1-UNIT-PORO-HERDER", "OGN·061/298", "P1-BASE-PORO-HERDER-TARGET-001")]
     [InlineData(2, "P1-UNIT-RAVENBLOOM-STUDENT", "OGN·103/298", "P1-BASE-RAVENBLOOM-STUDENT-TARGET-001")]
+    [InlineData(6, "P1-UNIT-BILGEWATER-BULLY", "OGN·125/298", "P1-BASE-BILGEWATER-BULLY-TARGET-001")]
+    [InlineData(4, "P1-UNIT-EMBER-MONK", "OGN·167/298", "P1-BASE-EMBER-MONK-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7423,6 +7427,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-speeding-mech-yordle-mechanical-unit.fixture.json", "P1-UNIT-SPEEDING-MECH", 7, "CARD_TYPE:UNIT|机械|约德尔人")]
     [InlineData("p2-preflight-play-progress-glory-mechanical-unit.fixture.json", "P1-UNIT-PROGRESS-GLORY", 3, "CARD_TYPE:UNIT|机械")]
     [InlineData("p2-preflight-play-fluft-poro-activated-skill-unit.fixture.json", "P1-UNIT-FLUFT-PORO", 5, "CARD_TYPE:UNIT|魄罗")]
+    [InlineData("p2-preflight-play-resonant-soul-destroy-trigger-static.fixture.json", "P1-UNIT-RESONANT-SOUL", 5, "CARD_TYPE:UNIT|灵体")]
+    [InlineData("p2-preflight-play-sharpshooter-pirate-attack-trigger-static.fixture.json", "P1-UNIT-SHARPSHOOTER-PIRATE", 3, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-dune-drake-attack-ready-enemy-static.fixture.json", "P1-UNIT-DUNE-DRAKE", 5, "CARD_TYPE:UNIT|龙")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7603,6 +7610,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(8, "P1-UNIT-SPEEDING-MECH", "SFD·071/221", "P1-BASE-SPEEDING-MECH-TARGET-001")]
     [InlineData(4, "P1-UNIT-PROGRESS-GLORY", "SFD·075/221", "P1-BASE-PROGRESS-GLORY-TARGET-001")]
     [InlineData(5, "P1-UNIT-FLUFT-PORO", "UNL-160/219", "P1-BASE-FLUFT-PORO-TARGET-001")]
+    [InlineData(6, "P1-UNIT-RESONANT-SOUL", "OGN·118/298", "P1-BASE-RESONANT-SOUL-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SHARPSHOOTER-PIRATE", "OGN·130/298", "P1-BASE-SHARPSHOOTER-PIRATE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-DUNE-DRAKE", "OGN·131/298", "P1-BASE-DUNE-DRAKE-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
