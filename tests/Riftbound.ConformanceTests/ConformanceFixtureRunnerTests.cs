@@ -7175,6 +7175,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-dragon-soul-sage-activated-skill-unit.fixture.json", "P1-UNIT-DRAGON-SOUL-SAGE", 1)]
     [InlineData("p2-preflight-play-sfd-088-renata-glasc-activated-skill-unit.fixture.json", "P1-UNIT-SFD-088-RENATA", 4)]
     [InlineData("p2-preflight-play-sfd-088-renata-glasc-alt-a-activated-skill-unit.fixture.json", "P1-UNIT-SFD-088A-RENATA", 4)]
+    [InlineData("p2-preflight-play-ogn-draven-score-static-zero.fixture.json", "P1-UNIT-OGN-028-DRAVEN", 3)]
+    [InlineData("p2-preflight-play-sfd-fiora-one-on-one-vanilla-unit.fixture.json", "P1-UNIT-SFD-110-FIORA", 3)]
+    [InlineData("p2-preflight-play-sfd-fiora-alt-a-one-on-one-vanilla-unit.fixture.json", "P1-UNIT-SFD-110A-FIORA", 3)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7230,6 +7233,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-DRAGON-SOUL-SAGE", "UNL-093/219", "P1-BASE-DRAGON-SOUL-SAGE-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-088-RENATA", "SFD·088/221", "P1-BASE-SFD-088-RENATA-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-088A-RENATA", "SFD·088a/221", "P1-BASE-SFD-088A-RENATA-TARGET-001")]
+    [InlineData(5, "P1-UNIT-OGN-028-DRAVEN", "OGN·028/298", "P1-BASE-OGN-028-DRAVEN-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-110-FIORA", "SFD·110/221", "P1-BASE-SFD-110-FIORA-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-110A-FIORA", "SFD·110a/221", "P1-BASE-SFD-110A-FIORA-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7344,6 +7350,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-akshan-no-optional-assemble-no-orange-extra.fixture.json", "P1-UNIT-AKSHAN", 4, "CARD_TYPE:UNIT|哨兵|百炼")]
     [InlineData("p2-preflight-play-sfd-119-jax-no-optional-assemble.fixture.json", "P1-UNIT-SFD-119-JAX", 3, "CARD_TYPE:UNIT|百炼")]
     [InlineData("p2-preflight-play-sfd-119-jax-alt-a-no-optional-assemble.fixture.json", "P1-UNIT-SFD-119A-JAX", 3, "CARD_TYPE:UNIT|百炼")]
+    [InlineData("p2-preflight-play-ogs-garen-elite-static-unit.fixture.json", "P1-UNIT-OGS-GAREN", 5, "CARD_TYPE:UNIT|精锐")]
+    [InlineData("p2-preflight-play-rhasa-full-cost-spirit-unit.fixture.json", "P1-UNIT-RHASA", 6, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-ogn-volibear-spellshield2-keyword-unit.fixture.json", "P1-UNIT-OGN-041-VOLIBEAR", 9, "CARD_TYPE:UNIT|法盾2")]
     [InlineData("p2-preflight-play-ogn-volibear-alt-a-spellshield2-keyword-unit.fixture.json", "P1-UNIT-OGN-041A-VOLIBEAR", 9, "CARD_TYPE:UNIT|法盾2")]
     [InlineData("p2-preflight-play-ogn-volibear-steadfast3-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-158-VOLIBEAR", 10, "CARD_TYPE:UNIT|坚守3|壁垒")]
@@ -7516,6 +7524,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-AKSHAN", "SFD·109/221", "P1-BASE-AKSHAN-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-119-JAX", "SFD·119/221", "P1-BASE-SFD-119-JAX-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-119A-JAX", "SFD·119a/221", "P1-BASE-SFD-119A-JAX-TARGET-001")]
+    [InlineData(6, "P1-UNIT-OGS-GAREN", "OGS·013/024", "P1-BASE-OGS-GAREN-TARGET-001")]
+    [InlineData(10, "P1-UNIT-RHASA", "OGN·195/298", "P1-BASE-RHASA-TARGET-001")]
     [InlineData(10, "P1-UNIT-OGN-041-VOLIBEAR", "OGN·041/298", "P1-BASE-OGN-041-VOLIBEAR-TARGET-001")]
     [InlineData(10, "P1-UNIT-OGN-041A-VOLIBEAR", "OGN·041a/298", "P1-BASE-OGN-041A-VOLIBEAR-TARGET-001")]
     [InlineData(12, "P1-UNIT-OGN-158-VOLIBEAR", "OGN·158/298", "P1-BASE-OGN-158-VOLIBEAR-TARGET-001")]
