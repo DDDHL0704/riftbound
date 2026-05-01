@@ -4927,6 +4927,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-gemstone-golem-predict-recycle.fixture.json", "P1-UNIT-GEMSTONE-GOLEM", "P1-GEMSTONE-GOLEM-KEEP-001", "P1-GEMSTONE-GOLEM-RECYCLE-001", 5, "CARD_TYPE:UNIT|坚守|预知")]
     [InlineData("p2-preflight-play-dase-scout-predict-recycle.fixture.json", "P1-UNIT-DASE-SCOUT", "P1-DASE-SCOUT-KEEP-001", "P1-DASE-SCOUT-RECYCLE-001", 5, "CARD_TYPE:UNIT|预知")]
     [InlineData("p2-preflight-play-jhin-predict-recycle.fixture.json", "P1-UNIT-JHIN", "P1-JHIN-KEEP-001", "P1-JHIN-RECYCLE-001", 4, "CARD_TYPE:UNIT|预知")]
+    [InlineData("p2-preflight-play-jhin-alt-a-predict-recycle.fixture.json", "P1-UNIT-JHIN-A", "P1-JHIN-A-KEEP-001", "P1-JHIN-A-RECYCLE-001", 4, "CARD_TYPE:UNIT|预知")]
     public async Task CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard(
         string fixtureFileName,
         string sourceObjectId,
@@ -4958,6 +4959,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-GEMSTONE-GOLEM", "OGN·086/298", "P1-GEMSTONE-GOLEM-TOP-001", "P1-GEMSTONE-GOLEM-SECOND-001")]
     [InlineData(6, "P1-UNIT-DASE-SCOUT", "OGN·174/298", "P1-DASE-SCOUT-TOP-001", "P1-DASE-SCOUT-SECOND-001")]
     [InlineData(4, "P1-UNIT-JHIN", "UNL-089/219", "P1-JHIN-TOP-001", "P1-JHIN-SECOND-001")]
+    [InlineData(4, "P1-UNIT-JHIN-A", "UNL-089a/219", "P1-JHIN-A-TOP-001", "P1-JHIN-A-SECOND-001")]
     public async Task CoreRuleEngineRejectsPredictSourceUnitWhenTargetIsOutsideTopCard(
         int mana,
         string sourceObjectId,
@@ -7253,6 +7255,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-082a-ezreal-combat-damage-static.fixture.json", "P1-UNIT-SFD-082A-EZREAL", 3)]
     [InlineData("p2-preflight-play-sfd-082b-ezreal-combat-damage-static.fixture.json", "P1-UNIT-SFD-082B-EZREAL", 3)]
     [InlineData("p2-preflight-play-ogs-014-lux-tap-resource-static.fixture.json", "P1-UNIT-OGS-014-LUX", 2)]
+    [InlineData("p2-preflight-play-demacia-envoy-experience-static.fixture.json", "P1-UNIT-DEMACIA-ENVOY", 2)]
+    [InlineData("p2-preflight-play-fate-weaver-look-spell-static.fixture.json", "P1-UNIT-FATE-WEAVER", 4)]
     [InlineData("p2-preflight-play-wildclaw-shaman-no-boon-consume-static.fixture.json", "P1-UNIT-WILDCLAW-SHAMAN", 3)]
     [InlineData("p2-preflight-play-ogn-jinx-alt-a-discard-trigger-static.fixture.json", "P1-UNIT-OGN-JINX-A", 5)]
     [InlineData("p2-preflight-play-albus-ferros-no-boon-call-rune-static.fixture.json", "P1-UNIT-ALBUS-FERROS", 3)]
@@ -7341,6 +7345,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-SFD-082A-EZREAL", "SFD·082a/221", "P1-BASE-SFD-082A-EZREAL-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-082B-EZREAL", "SFD·082b/221·P", "P1-BASE-SFD-082B-EZREAL-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGS-014-LUX", "OGS·014/024", "P1-BASE-OGS-014-LUX-TARGET-001")]
+    [InlineData(2, "P1-UNIT-DEMACIA-ENVOY", "UNL-092/219", "P1-BASE-DEMACIA-ENVOY-TARGET-001")]
+    [InlineData(5, "P1-UNIT-FATE-WEAVER", "UNL-064/219", "P1-BASE-FATE-WEAVER-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-RENATA", "SFD·171/221", "P1-BASE-SFD-RENATA-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-RENATA-A", "SFD·171a/221", "P1-BASE-SFD-RENATA-A-TARGET-001")]
     [InlineData(6, "P1-UNIT-DESERT-PLUNDERER", "SFD·105/221", "P1-BASE-DESERT-PLUNDERER-TARGET-001")]
@@ -7605,6 +7611,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-237-karma-predict-static.fixture.json", "P1-UNIT-SFD-237-KARMA", 6, "CARD_TYPE:UNIT|预知")]
     [InlineData("p2-preflight-play-sfd-237-promo-karma-predict-static.fixture.json", "P1-UNIT-SFD-237-PROMO-KARMA", 6, "CARD_TYPE:UNIT|预知")]
     [InlineData("p2-preflight-play-sfd-fizz-graveyard-spell-static.fixture.json", "P1-UNIT-SFD-FIZZ", 3, "CARD_TYPE:UNIT|约德尔人")]
+    [InlineData("p2-preflight-play-spring-messenger-experience-static.fixture.json", "P1-UNIT-SPRING-MESSENGER", 4, "CARD_TYPE:UNIT|狩猎")]
+    [InlineData("p2-preflight-play-stern-sergeant-experience-static.fixture.json", "P1-UNIT-STERN-SERGEANT", 6, "CARD_TYPE:UNIT|精锐")]
     [InlineData("p2-preflight-play-ghost-matron-spirit-revive-static.fixture.json", "P1-UNIT-GHOST-MATRON", 4, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-ogn-karthus-spirit-last-breath-static.fixture.json", "P1-UNIT-OGN-KARTHUS", 3, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-gloompath-guard-spirit-hold-static.fixture.json", "P1-UNIT-GLOOMPATH-GUARD", 6, "CARD_TYPE:UNIT|灵体")]
@@ -7828,6 +7836,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-SFD-237-KARMA", "SFD·237/221", "P1-BASE-SFD-237-KARMA-TARGET-001")]
     [InlineData(6, "P1-UNIT-SFD-237-PROMO-KARMA", "SFD·237*/221", "P1-BASE-SFD-237-PROMO-KARMA-TARGET-001")]
     [InlineData(3, "P1-UNIT-SFD-FIZZ", "SFD·140/221", "P1-BASE-SFD-FIZZ-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SPRING-MESSENGER", "UNL-034/219", "P1-BASE-SPRING-MESSENGER-TARGET-001")]
+    [InlineData(6, "P1-UNIT-STERN-SERGEANT", "UNL-157/219", "P1-BASE-STERN-SERGEANT-TARGET-001")]
     [InlineData(4, "P1-UNIT-GHOST-MATRON", "OGN·226/298", "P1-BASE-GHOST-MATRON-TARGET-001")]
     [InlineData(3, "P1-UNIT-OGN-KARTHUS", "OGN·236/298", "P1-BASE-OGN-KARTHUS-TARGET-001")]
     [InlineData(6, "P1-UNIT-GLOOMPATH-GUARD", "SFD·035/221", "P1-BASE-GLOOMPATH-GUARD-TARGET-001")]
