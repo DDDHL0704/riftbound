@@ -7221,6 +7221,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-arena-crowd-favorite-keyword-unit.fixture.json", "P1-UNIT-ARENA-CROWD-FAVORITE", 3, "CARD_TYPE:UNIT|狩猎")]
     [InlineData("p2-preflight-play-unl-yi-hunt-keyword-unit.fixture.json", "P1-UNIT-UNL-YI-HUNT", 4, "CARD_TYPE:UNIT|狩猎2")]
     [InlineData("p2-preflight-play-unl-yi-alt-a-hunt-keyword-unit.fixture.json", "P1-UNIT-UNL-YI-HUNT-A", 4, "CARD_TYPE:UNIT|狩猎2")]
+    [InlineData("p2-preflight-play-khazix-hunt-keyword-unit.fixture.json", "P1-UNIT-KHAZIX-HUNT", 5, "CARD_TYPE:UNIT|狩猎")]
+    [InlineData("p2-preflight-play-khazix-alt-a-hunt-keyword-unit.fixture.json", "P1-UNIT-KHAZIX-HUNT-A", 5, "CARD_TYPE:UNIT|狩猎")]
+    [InlineData("p2-preflight-play-black-rose-agent-keyword-unit.fixture.json", "P1-UNIT-BLACK-ROSE-AGENT", 2, "CARD_TYPE:UNIT|强攻")]
+    [InlineData("p2-preflight-play-stunning-guardian-keyword-unit.fixture.json", "P1-UNIT-STUNNING-GUARDIAN", 2, "CARD_TYPE:UNIT|仙灵|狩猎")]
+    [InlineData("p2-preflight-play-galio-keyword-unit.fixture.json", "P1-UNIT-GALIO", 6, "CARD_TYPE:UNIT|壁垒|法盾")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7285,6 +7290,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-ARENA-CROWD-FAVORITE", "UNL-102/219", "P1-BASE-ARENA-CROWD-FAVORITE-TARGET-001")]
     [InlineData(4, "P1-UNIT-UNL-YI-HUNT", "UNL-113/219", "P1-BASE-UNL-YI-HUNT-TARGET-001")]
     [InlineData(4, "P1-UNIT-UNL-YI-HUNT-A", "UNL-113a/219", "P1-BASE-UNL-YI-HUNT-A-TARGET-001")]
+    [InlineData(5, "P1-UNIT-KHAZIX-HUNT", "UNL-119/219", "P1-BASE-KHAZIX-HUNT-TARGET-001")]
+    [InlineData(5, "P1-UNIT-KHAZIX-HUNT-A", "UNL-119a/219", "P1-BASE-KHAZIX-HUNT-A-TARGET-001")]
+    [InlineData(3, "P1-UNIT-BLACK-ROSE-AGENT", "UNL-152/219", "P1-BASE-BLACK-ROSE-AGENT-TARGET-001")]
+    [InlineData(2, "P1-UNIT-STUNNING-GUARDIAN", "UNL-162/219", "P1-BASE-STUNNING-GUARDIAN-TARGET-001")]
+    [InlineData(3, "P1-UNIT-GALIO", "UNL-171/219", "P1-BASE-GALIO-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
