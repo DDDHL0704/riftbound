@@ -7195,6 +7195,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ogn-kogmaw-last-breath-static.fixture.json", "P1-UNIT-OGN-KOGMAW", 1)]
     [InlineData("p2-preflight-play-ogn-jinx-discard-trigger-static.fixture.json", "P1-UNIT-OGN-JINX", 5)]
     [InlineData("p2-preflight-play-albus-ferros-no-boon-call-rune-static.fixture.json", "P1-UNIT-ALBUS-FERROS", 3)]
+    [InlineData("p2-preflight-play-dunehorn-beast-low-hand-active-static.fixture.json", "P1-UNIT-DUNEHORN-BEAST", 7)]
+    [InlineData("p2-preflight-play-apprentice-blacksmith-move-reveal-static.fixture.json", "P1-UNIT-APPRENTICE-BLACKSMITH", 2)]
+    [InlineData("p2-preflight-play-mountain-ape-elder-boon-ready-static.fixture.json", "P1-UNIT-MOUNTAIN-APE-ELDER", 5)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7270,6 +7273,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-OGN-KOGMAW", "OGN·190/298", "P1-BASE-OGN-KOGMAW-TARGET-001")]
     [InlineData(5, "P1-UNIT-OGN-JINX", "OGN·202/298", "P1-BASE-OGN-JINX-TARGET-001")]
     [InlineData(4, "P1-UNIT-ALBUS-FERROS", "OGN·230/298", "P1-BASE-ALBUS-FERROS-TARGET-001")]
+    [InlineData(7, "P1-UNIT-DUNEHORN-BEAST", "SFD·027/221", "P1-BASE-DUNEHORN-BEAST-TARGET-001")]
+    [InlineData(2, "P1-UNIT-APPRENTICE-BLACKSMITH", "SFD·041/221", "P1-BASE-APPRENTICE-BLACKSMITH-TARGET-001")]
+    [InlineData(5, "P1-UNIT-MOUNTAIN-APE-ELDER", "SFD·047/221", "P1-BASE-MOUNTAIN-APE-ELDER-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7446,6 +7452,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-tidecaller-standby-swap-static.fixture.json", "P1-UNIT-TIDE-CALLER", 2, "CARD_TYPE:UNIT|待命")]
     [InlineData("p2-preflight-play-ghost-matron-spirit-revive-static.fixture.json", "P1-UNIT-GHOST-MATRON", 4, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-ogn-karthus-spirit-last-breath-static.fixture.json", "P1-UNIT-OGN-KARTHUS", 3, "CARD_TYPE:UNIT|灵体")]
+    [InlineData("p2-preflight-play-gloompath-guard-spirit-hold-static.fixture.json", "P1-UNIT-GLOOMPATH-GUARD", 6, "CARD_TYPE:UNIT|灵体")]
+    [InlineData("p2-preflight-play-sfd-089-rumble-mechanical-static.fixture.json", "P1-UNIT-SFD-089-RUMBLE", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7633,6 +7641,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-TIDE-CALLER", "OGN·199/298", "P1-BASE-TIDE-CALLER-TARGET-001")]
     [InlineData(4, "P1-UNIT-GHOST-MATRON", "OGN·226/298", "P1-BASE-GHOST-MATRON-TARGET-001")]
     [InlineData(3, "P1-UNIT-OGN-KARTHUS", "OGN·236/298", "P1-BASE-OGN-KARTHUS-TARGET-001")]
+    [InlineData(6, "P1-UNIT-GLOOMPATH-GUARD", "SFD·035/221", "P1-BASE-GLOOMPATH-GUARD-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-089-RUMBLE", "SFD·089/221", "P1-BASE-SFD-089-RUMBLE-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
