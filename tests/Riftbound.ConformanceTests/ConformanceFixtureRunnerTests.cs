@@ -7118,6 +7118,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-laurent-swordsman-keyword-unit.fixture.json", "P1-UNIT-LAURENT-SWORDSMAN", 3, "CARD_TYPE:UNIT|强攻2")]
     [InlineData("p2-preflight-play-gluttonous-toadfrog-keyword-unit.fixture.json", "P1-UNIT-GLUTTONOUS-TOADFROG", 5, "CARD_TYPE:UNIT|狩猎3")]
     [InlineData("p2-preflight-play-sentinel-adept-no-optional-assemble.fixture.json", "P1-UNIT-SENTINEL-ADEPT", 3, "CARD_TYPE:UNIT|哨兵|百炼")]
+    [InlineData("p2-preflight-play-battle-chef-no-optional-assemble.fixture.json", "P1-UNIT-BATTLE-CHEF", 5, "CARD_TYPE:UNIT|百炼")]
+    [InlineData("p2-preflight-play-stout-poro-no-optional-assemble.fixture.json", "P1-UNIT-STOUT-PORO", 2, "CARD_TYPE:UNIT|百炼|魄罗")]
+    [InlineData("p2-preflight-play-master-bingwen-no-optional-assemble.fixture.json", "P1-UNIT-MASTER-BINGWEN", 6, "CARD_TYPE:UNIT|百炼")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7151,6 +7154,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-LAURENT-SWORDSMAN", "SFD·156/221", "P1-BASE-LAURENT-SWORDSMAN-TARGET-001")]
     [InlineData(5, "P1-UNIT-GLUTTONOUS-TOADFROG", "UNL-100/219", "P1-BASE-GLUTTONOUS-TOADFROG-TARGET-001")]
     [InlineData(3, "P1-UNIT-SENTINEL-ADEPT", "SFD·008/221", "P1-BASE-SENTINEL-ADEPT-TARGET-001")]
+    [InlineData(5, "P1-UNIT-BATTLE-CHEF", "SFD·092/221", "P1-BASE-BATTLE-CHEF-TARGET-001")]
+    [InlineData(2, "P1-UNIT-STOUT-PORO", "SFD·099/221", "P1-BASE-STOUT-PORO-TARGET-001")]
+    [InlineData(6, "P1-UNIT-MASTER-BINGWEN", "SFD·127/221", "P1-BASE-MASTER-BINGWEN-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
