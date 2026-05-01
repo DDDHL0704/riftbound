@@ -7189,6 +7189,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ravenbloom-student-spell-trigger-static.fixture.json", "P1-UNIT-RAVENBLOOM-STUDENT", 2)]
     [InlineData("p2-preflight-play-bilgewater-bully-no-boon-roam-static.fixture.json", "P1-UNIT-BILGEWATER-BULLY", 6)]
     [InlineData("p2-preflight-play-ember-monk-standby-trigger-static.fixture.json", "P1-UNIT-EMBER-MONK", 4)]
+    [InlineData("p2-preflight-play-hidden-tracker-follow-move-static.fixture.json", "P1-UNIT-HIDDEN-TRACKER", 4)]
+    [InlineData("p2-preflight-play-undercover-agent-last-breath-static.fixture.json", "P1-UNIT-UNDERCOVER-AGENT", 5)]
+    [InlineData("p2-preflight-play-traveling-merchant-move-trigger-static.fixture.json", "P1-UNIT-TRAVELING-MERCHANT", 2)]
+    [InlineData("p2-preflight-play-ogn-kogmaw-last-breath-static.fixture.json", "P1-UNIT-OGN-KOGMAW", 1)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7258,6 +7262,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-RAVENBLOOM-STUDENT", "OGN·103/298", "P1-BASE-RAVENBLOOM-STUDENT-TARGET-001")]
     [InlineData(6, "P1-UNIT-BILGEWATER-BULLY", "OGN·125/298", "P1-BASE-BILGEWATER-BULLY-TARGET-001")]
     [InlineData(4, "P1-UNIT-EMBER-MONK", "OGN·167/298", "P1-BASE-EMBER-MONK-TARGET-001")]
+    [InlineData(4, "P1-UNIT-HIDDEN-TRACKER", "OGN·177/298", "P1-BASE-HIDDEN-TRACKER-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNDERCOVER-AGENT", "OGN·178/298", "P1-BASE-UNDERCOVER-AGENT-TARGET-001")]
+    [InlineData(2, "P1-UNIT-TRAVELING-MERCHANT", "OGN·185/298", "P1-BASE-TRAVELING-MERCHANT-TARGET-001")]
+    [InlineData(3, "P1-UNIT-OGN-KOGMAW", "OGN·190/298", "P1-BASE-OGN-KOGMAW-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7430,6 +7438,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-resonant-soul-destroy-trigger-static.fixture.json", "P1-UNIT-RESONANT-SOUL", 5, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-sharpshooter-pirate-attack-trigger-static.fixture.json", "P1-UNIT-SHARPSHOOTER-PIRATE", 3, "CARD_TYPE:UNIT|海盗")]
     [InlineData("p2-preflight-play-dune-drake-attack-ready-enemy-static.fixture.json", "P1-UNIT-DUNE-DRAKE", 5, "CARD_TYPE:UNIT|龙")]
+    [InlineData("p2-preflight-play-noxian-drummer-trifarian-move-trigger-static.fixture.json", "P1-UNIT-NOXIAN-DRUMMER", 3, "CARD_TYPE:UNIT|崔法利")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7613,6 +7622,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-RESONANT-SOUL", "OGN·118/298", "P1-BASE-RESONANT-SOUL-TARGET-001")]
     [InlineData(3, "P1-UNIT-SHARPSHOOTER-PIRATE", "OGN·130/298", "P1-BASE-SHARPSHOOTER-PIRATE-TARGET-001")]
     [InlineData(5, "P1-UNIT-DUNE-DRAKE", "OGN·131/298", "P1-BASE-DUNE-DRAKE-TARGET-001")]
+    [InlineData(3, "P1-UNIT-NOXIAN-DRUMMER", "OGN·222/298", "P1-BASE-NOXIAN-DRUMMER-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
