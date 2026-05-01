@@ -7326,6 +7326,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-noxian-recruit-no-encourage-trifarian-unit.fixture.json", "P1-UNIT-NOXIAN-RECRUIT", 4, "CARD_TYPE:UNIT|崔法利")]
     [InlineData("p2-preflight-play-dangerous-duo-no-encourage-mechanical-unit.fixture.json", "P1-UNIT-DANGEROUS-DUO", 3, "CARD_TYPE:UNIT|机械")]
     [InlineData("p2-preflight-play-trifarian-gloryseeker-no-encourage-unit.fixture.json", "P1-UNIT-TRIFARIAN-GLORYSEEKER", 2, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-undead-legion-hand-spirit-unit.fixture.json", "P1-UNIT-UNDEAD-LEGION", 3, "CARD_TYPE:UNIT|灵体")]
+    [InlineData("p2-preflight-play-junkyard-bully-no-encourage-mechanical-unit.fixture.json", "P1-UNIT-JUNKYARD-BULLY", 5, "CARD_TYPE:UNIT|机械")]
+    [InlineData("p2-preflight-play-vanguard-captain-no-encourage-elite-unit.fixture.json", "P1-UNIT-VANGUARD-CAPTAIN", 3, "CARD_TYPE:UNIT|精锐")]
+    [InlineData("p2-preflight-play-ogn-darius-no-encourage-trifarian-unit.fixture.json", "P1-UNIT-OGN-DARIUS", 6, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-ogn-darius-alt-a-no-encourage-trifarian-unit.fixture.json", "P1-UNIT-OGN-DARIUS-A", 6, "CARD_TYPE:UNIT|崔法利")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7463,6 +7468,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-NOXIAN-RECRUIT", "OGN·012/298", "P1-BASE-NOXIAN-RECRUIT-TARGET-001")]
     [InlineData(3, "P1-UNIT-DANGEROUS-DUO", "OGN·016/298", "P1-BASE-DANGEROUS-DUO-TARGET-001")]
     [InlineData(2, "P1-UNIT-TRIFARIAN-GLORYSEEKER", "OGN·217/298", "P1-BASE-TRIFARIAN-GLORYSEEKER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-UNDEAD-LEGION", "UNL-025/219", "P1-BASE-UNDEAD-LEGION-TARGET-001")]
+    [InlineData(5, "P1-UNIT-JUNKYARD-BULLY", "OGN·020/298", "P1-BASE-JUNKYARD-BULLY-TARGET-001")]
+    [InlineData(3, "P1-UNIT-VANGUARD-CAPTAIN", "OGN·218/298", "P1-BASE-VANGUARD-CAPTAIN-TARGET-001")]
+    [InlineData(6, "P1-UNIT-OGN-DARIUS", "OGN·243/298", "P1-BASE-OGN-DARIUS-TARGET-001")]
+    [InlineData(6, "P1-UNIT-OGN-DARIUS-A", "OGN·243a/298", "P1-BASE-OGN-DARIUS-A-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
