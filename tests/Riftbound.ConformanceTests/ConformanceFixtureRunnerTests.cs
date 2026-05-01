@@ -7257,6 +7257,52 @@ public sealed class ConformanceFixtureRunnerTests
             targetObjectId);
 
     [Theory]
+    [InlineData("p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json", "P1-UNIT-AGGRESSIVE-DRAGONHOUND", 3, "CARD_TYPE:UNIT|犬形|龙")]
+    [InlineData("p2-preflight-play-yi-active-unit.fixture.json", "P1-UNIT-YI", 6, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-vanguard-squire-active-unit.fixture.json", "P1-UNIT-VANGUARD-SQUIRE", 5, "CARD_TYPE:UNIT|精锐")]
+    [InlineData("p2-preflight-play-warwick-active-unit.fixture.json", "P1-UNIT-WARWICK", 5, "CARD_TYPE:UNIT|犬形")]
+    [InlineData("p2-preflight-play-arc-warwick-active-unit.fixture.json", "P1-UNIT-ARC-WARWICK", 5, "CARD_TYPE:UNIT|犬形")]
+    public async Task CoreRuleEnginePlaysActiveEntrySourceUnit(
+        string fixtureFileName,
+        string sourceObjectId,
+        int expectedPower,
+        string expectedTags)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
+        Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
+        Assert.False(result.FinalState.CardObjects[sourceObjectId].IsExhausted);
+    }
+
+    [Theory]
+    [InlineData(3, "P1-UNIT-AGGRESSIVE-DRAGONHOUND", "SFD·006/221", "P1-BASE-AGGRESSIVE-DRAGONHOUND-TARGET-001")]
+    [InlineData(7, "P1-UNIT-YI", "OGS·009/024", "P1-BASE-YI-TARGET-001")]
+    [InlineData(6, "P1-UNIT-VANGUARD-SQUIRE", "OGS·016/024", "P1-BASE-VANGUARD-SQUIRE-TARGET-001")]
+    [InlineData(6, "P1-UNIT-WARWICK", "OGN·159/298", "P1-BASE-WARWICK-TARGET-001")]
+    [InlineData(6, "P1-UNIT-ARC-WARWICK", "ARC-004/006", "P1-BASE-ARC-WARWICK-TARGET-001")]
+    public Task CoreRuleEngineRejectsActiveEntrySourceUnitWhenTargetsAreProvided(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string targetObjectId) =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            mana,
+            sourceObjectId,
+            cardNo,
+            targetObjectId);
+
+    [Theory]
     [InlineData("p2-preflight-play-blast-crew-apprentice-no-optional-damage.fixture.json", "P1-UNIT-BLAST-CREW-APPRENTICE", 2, "CARD_TYPE:UNIT")]
     [InlineData("p2-preflight-play-frostcoat-cub-no-optional-power-minus-two.fixture.json", "P1-UNIT-FROSTCOAT-CUB", 3, "CARD_TYPE:UNIT|犬形")]
     [InlineData("p2-preflight-play-ship-monkey-no-optional-boon.fixture.json", "P1-UNIT-SHIP-MONKEY", 2, "CARD_TYPE:UNIT|海盗")]
