@@ -7226,6 +7226,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-treasure-hunter-move-gold-static.fixture.json", "P1-UNIT-TREASURE-HUNTER", 1)]
     [InlineData("p2-preflight-play-honest-broker-last-breath-gold-static.fixture.json", "P1-UNIT-HONEST-BROKER", 2)]
     [InlineData("p2-preflight-play-icevale-archer-attack-payment-static.fixture.json", "P1-UNIT-ICEVALE-ARCHER", 2)]
+    [InlineData("p2-preflight-play-black-market-broker-face-down-static.fixture.json", "P1-UNIT-BLACK-MARKET-BROKER", 3)]
     [InlineData("p2-preflight-play-wildclaw-shaman-no-boon-consume-static.fixture.json", "P1-UNIT-WILDCLAW-SHAMAN", 3)]
     [InlineData("p2-preflight-play-ogn-jinx-alt-a-discard-trigger-static.fixture.json", "P1-UNIT-OGN-JINX-A", 5)]
     [InlineData("p2-preflight-play-albus-ferros-no-boon-call-rune-static.fixture.json", "P1-UNIT-ALBUS-FERROS", 3)]
@@ -7287,6 +7288,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-TREASURE-HUNTER", "SFD·130/221", "P1-BASE-TREASURE-HUNTER-TARGET-001")]
     [InlineData(2, "P1-UNIT-HONEST-BROKER", "SFD·155/221", "P1-BASE-HONEST-BROKER-TARGET-001")]
     [InlineData(2, "P1-UNIT-ICEVALE-ARCHER", "UNL-065/219", "P1-BASE-ICEVALE-ARCHER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-BLACK-MARKET-BROKER", "SFD·121/221", "P1-BASE-BLACK-MARKET-BROKER-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-RENATA", "SFD·171/221", "P1-BASE-SFD-RENATA-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-RENATA-A", "SFD·171a/221", "P1-BASE-SFD-RENATA-A-TARGET-001")]
     [InlineData(6, "P1-UNIT-DESERT-PLUNDERER", "SFD·105/221", "P1-BASE-DESERT-PLUNDERER-TARGET-001")]
@@ -7502,6 +7504,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-bad-poro-pirate-unit.fixture.json", "P1-UNIT-BAD-PORO", 2, "CARD_TYPE:UNIT|海盗|魄罗")]
     [InlineData("p2-preflight-play-sfd-bad-poro-pirate-unit.fixture.json", "P1-UNIT-SFD-BAD-PORO", 2, "CARD_TYPE:UNIT|海盗|魄罗")]
     [InlineData("p2-preflight-play-unsung-hero-last-breath-static.fixture.json", "P1-UNIT-UNSUNG-HERO", 2, "CARD_TYPE:UNIT|精锐")]
+    [InlineData("p2-preflight-play-yordle-explorer-rune-cost-static.fixture.json", "P1-UNIT-YORDLE-EXPLORER", 4, "CARD_TYPE:UNIT|约德尔人")]
+    [InlineData("p2-preflight-play-hunting-sea-crew-move-power-static.fixture.json", "P1-UNIT-HUNTING-SEA-CREW", 4, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-ghostly-centaur-friendly-destroyed-static.fixture.json", "P1-UNIT-GHOSTLY-CENTAUR", 5, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-siege-ram-trifarian-unit.fixture.json", "P1-UNIT-SIEGE-RAM", 5, "CARD_TYPE:UNIT|崔法利")]
     [InlineData("p2-preflight-play-vex-alt-a-keyword-unit.fixture.json", "P1-UNIT-VEX-A", 5, "CARD_TYPE:UNIT|坚守|壁垒|约德尔人")]
     [InlineData("p2-preflight-play-yuumi-faerie-cat-unit.fixture.json", "P1-UNIT-YUUMI", 1, "CARD_TYPE:UNIT|仙灵|猫科")]
@@ -7543,6 +7548,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ogn-karthus-spirit-last-breath-static.fixture.json", "P1-UNIT-OGN-KARTHUS", 3, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-gloompath-guard-spirit-hold-static.fixture.json", "P1-UNIT-GLOOMPATH-GUARD", 6, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-sfd-089-rumble-mechanical-static.fixture.json", "P1-UNIT-SFD-089-RUMBLE", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-sfd-089a-rumble-mechanical-static.fixture.json", "P1-UNIT-SFD-089A-RUMBLE", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7712,6 +7718,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-BAD-PORO", "UNL-222/219", "P1-BASE-BAD-PORO-TARGET-001")]
     [InlineData(2, "P1-UNIT-SFD-BAD-PORO", "SFD·069/221", "P1-BASE-SFD-BAD-PORO-TARGET-001")]
     [InlineData(2, "P1-UNIT-UNSUNG-HERO", "SFD·167/221", "P1-BASE-UNSUNG-HERO-TARGET-001")]
+    [InlineData(4, "P1-UNIT-YORDLE-EXPLORER", "SFD·100/221", "P1-BASE-YORDLE-EXPLORER-TARGET-001")]
+    [InlineData(4, "P1-UNIT-HUNTING-SEA-CREW", "SFD·137/221", "P1-BASE-HUNTING-SEA-CREW-TARGET-001")]
+    [InlineData(6, "P1-UNIT-GHOSTLY-CENTAUR", "UNL-068/219", "P1-BASE-GHOSTLY-CENTAUR-TARGET-001")]
     [InlineData(5, "P1-UNIT-SIEGE-RAM", "SFD·012/221", "P1-BASE-SIEGE-RAM-TARGET-001")]
     [InlineData(5, "P1-UNIT-VEX-A", "UNL-055a/219", "P1-BASE-VEX-A-TARGET-001")]
     [InlineData(3, "P1-UNIT-YUUMI", "UNL-056/219", "P1-BASE-YUUMI-TARGET-001")]
@@ -7753,6 +7762,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-OGN-KARTHUS", "OGN·236/298", "P1-BASE-OGN-KARTHUS-TARGET-001")]
     [InlineData(6, "P1-UNIT-GLOOMPATH-GUARD", "SFD·035/221", "P1-BASE-GLOOMPATH-GUARD-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-089-RUMBLE", "SFD·089/221", "P1-BASE-SFD-089-RUMBLE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-089A-RUMBLE", "SFD·089a/221", "P1-BASE-SFD-089A-RUMBLE-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
