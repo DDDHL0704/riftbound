@@ -7206,6 +7206,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-wildclaw-beastmaster-keyword-unit.fixture.json", "P1-UNIT-WILDCLAW-BEASTMASTER", 7, "CARD_TYPE:UNIT|壁垒|猫科")]
     [InlineData("p2-preflight-play-huge-yordle-keyword-unit.fixture.json", "P1-UNIT-HUGE-YORDLE", 5, "CARD_TYPE:UNIT|坚守5|壁垒|约德尔人")]
     [InlineData("p2-preflight-play-tianna-crownguard-keyword-unit.fixture.json", "P1-UNIT-TIANNA-CROWNGUARD", 4, "CARD_TYPE:UNIT|法盾|精锐")]
+    [InlineData("p2-preflight-play-jhin-spellshield-roam-keyword-unit.fixture.json", "P1-UNIT-JHIN-ROAM", 4, "CARD_TYPE:UNIT|法盾|游走")]
+    [InlineData("p2-preflight-play-jhin-alt-a-spellshield-roam-keyword-unit.fixture.json", "P1-UNIT-JHIN-ROAM-A", 4, "CARD_TYPE:UNIT|法盾|游走")]
+    [InlineData("p2-preflight-play-vi-keyword-unit.fixture.json", "P1-UNIT-VI", 3, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-vi-alt-a-keyword-unit.fixture.json", "P1-UNIT-VI-A", 3, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json", "P1-UNIT-LEBLANC", 4, "CARD_TYPE:UNIT|后排")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7255,6 +7260,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-WILDCLAW-BEASTMASTER", "UNL-057/219", "P1-BASE-WILDCLAW-BEASTMASTER-TARGET-001")]
     [InlineData(10, "P1-UNIT-HUGE-YORDLE", "SFD·055/221", "P1-BASE-HUGE-YORDLE-TARGET-001")]
     [InlineData(7, "P1-UNIT-TIANNA-CROWNGUARD", "SFD·060/221", "P1-BASE-TIANNA-CROWNGUARD-TARGET-001")]
+    [InlineData(4, "P1-UNIT-JHIN-ROAM", "UNL-022/219", "P1-BASE-JHIN-ROAM-TARGET-001")]
+    [InlineData(4, "P1-UNIT-JHIN-ROAM-A", "UNL-022a/219", "P1-BASE-JHIN-ROAM-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-VI", "UNL-030/219", "P1-BASE-VI-TARGET-001")]
+    [InlineData(4, "P1-UNIT-VI-A", "UNL-030a/219", "P1-BASE-VI-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-LEBLANC", "UNL-090/219", "P1-BASE-LEBLANC-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
