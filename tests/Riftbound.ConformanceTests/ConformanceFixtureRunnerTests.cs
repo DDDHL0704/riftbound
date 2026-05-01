@@ -7160,6 +7160,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ogn-fiora-not-powerful-vanilla-unit.fixture.json", "P1-UNIT-OGN-FIORA", 4)]
     [InlineData("p2-preflight-play-balanced-disciple-no-other-power-vanilla-unit.fixture.json", "P1-UNIT-BALANCED-DISCIPLE", 3)]
     [InlineData("p2-preflight-play-crescent-guard-no-spell-vanilla-unit.fixture.json", "P1-UNIT-CRESCENT-GUARD", 4)]
+    [InlineData("p2-preflight-play-silk-dancer-vanilla-unit.fixture.json", "P1-UNIT-SILK-DANCER", 3)]
+    [InlineData("p2-preflight-play-skyhorn-shepherd-vanilla-unit.fixture.json", "P1-UNIT-SKYHORN-SHEPHERD", 3)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7200,6 +7202,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-OGN-FIORA", "OGN·232/298", "P1-BASE-OGN-FIORA-TARGET-001")]
     [InlineData(3, "P1-UNIT-BALANCED-DISCIPLE", "UNL-097/219", "P1-BASE-BALANCED-DISCIPLE-TARGET-001")]
     [InlineData(4, "P1-UNIT-CRESCENT-GUARD", "UNL-122/219", "P1-BASE-CRESCENT-GUARD-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SILK-DANCER", "SFD·038/221", "P1-BASE-SILK-DANCER-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SKYHORN-SHEPHERD", "SFD·048/221", "P1-BASE-SKYHORN-SHEPHERD-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7331,6 +7335,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-vanguard-captain-no-encourage-elite-unit.fixture.json", "P1-UNIT-VANGUARD-CAPTAIN", 3, "CARD_TYPE:UNIT|精锐")]
     [InlineData("p2-preflight-play-ogn-darius-no-encourage-trifarian-unit.fixture.json", "P1-UNIT-OGN-DARIUS", 6, "CARD_TYPE:UNIT|崔法利")]
     [InlineData("p2-preflight-play-ogn-darius-alt-a-no-encourage-trifarian-unit.fixture.json", "P1-UNIT-OGN-DARIUS-A", 6, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-steadfast-sentinel-yordle-unit.fixture.json", "P1-UNIT-STEADFAST-SENTINEL", 1, "CARD_TYPE:UNIT|约德尔人")]
+    [InlineData("p2-preflight-play-alluring-faerie-unit.fixture.json", "P1-UNIT-ALLURING-FAERIE", 1, "CARD_TYPE:UNIT|仙灵")]
+    [InlineData("p2-preflight-play-loyal-hound-dog-unit.fixture.json", "P1-UNIT-LOYAL-HOUND", 3, "CARD_TYPE:UNIT|犬形")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7473,6 +7480,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-VANGUARD-CAPTAIN", "OGN·218/298", "P1-BASE-VANGUARD-CAPTAIN-TARGET-001")]
     [InlineData(6, "P1-UNIT-OGN-DARIUS", "OGN·243/298", "P1-BASE-OGN-DARIUS-TARGET-001")]
     [InlineData(6, "P1-UNIT-OGN-DARIUS-A", "OGN·243a/298", "P1-BASE-OGN-DARIUS-A-TARGET-001")]
+    [InlineData(1, "P1-UNIT-STEADFAST-SENTINEL", "UNL-111/219", "P1-BASE-STEADFAST-SENTINEL-TARGET-001")]
+    [InlineData(2, "P1-UNIT-ALLURING-FAERIE", "UNL-112/219", "P1-BASE-ALLURING-FAERIE-TARGET-001")]
+    [InlineData(3, "P1-UNIT-LOYAL-HOUND", "SFD·126/221", "P1-BASE-LOYAL-HOUND-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
