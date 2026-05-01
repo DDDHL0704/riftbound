@@ -7289,6 +7289,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-leona-alt-a-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEONA-STEADFAST-A", 4, "CARD_TYPE:UNIT|坚守")]
     [InlineData("p2-preflight-play-ironclad-vanguard-keyword-unit.fixture.json", "P1-UNIT-IRONCLAD-VANGUARD", 6, "CARD_TYPE:UNIT|机械|约德尔人")]
     [InlineData("p2-preflight-play-sfd-lucian-keyword-unit.fixture.json", "P1-UNIT-SFD-LUCIAN", 2, "CARD_TYPE:UNIT|哨兵|强攻")]
+    [InlineData("p2-preflight-play-qiyana-spellshield-keyword-unit.fixture.json", "P1-UNIT-QIYANA", 4, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-kayn-roam-keyword-unit.fixture.json", "P1-UNIT-KAYN", 6, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-nocturne-roam-keyword-unit.fixture.json", "P1-UNIT-NOCTURNE", 4, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-ogn-yasuo-roam-keyword-unit.fixture.json", "P1-UNIT-OGN-YASUO", 4, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-ogn-yasuo-alt-a-roam-keyword-unit.fixture.json", "P1-UNIT-OGN-YASUO-A", 4, "CARD_TYPE:UNIT|游走")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7399,6 +7404,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-LEONA-STEADFAST-A", "OGN·238a/298", "P1-BASE-LEONA-STEADFAST-A-TARGET-001")]
     [InlineData(6, "P1-UNIT-IRONCLAD-VANGUARD", "SFD·021/221", "P1-BASE-IRONCLAD-VANGUARD-TARGET-001")]
     [InlineData(3, "P1-UNIT-SFD-LUCIAN", "SFD·028/221", "P1-BASE-SFD-LUCIAN-TARGET-001")]
+    [InlineData(4, "P1-UNIT-QIYANA", "OGN·155/298", "P1-BASE-QIYANA-TARGET-001")]
+    [InlineData(6, "P1-UNIT-KAYN", "OGN·189/298", "P1-BASE-KAYN-TARGET-001")]
+    [InlineData(4, "P1-UNIT-NOCTURNE", "OGN·194/298", "P1-BASE-NOCTURNE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-OGN-YASUO", "OGN·205/298", "P1-BASE-OGN-YASUO-TARGET-001")]
+    [InlineData(5, "P1-UNIT-OGN-YASUO-A", "OGN·205a/298", "P1-BASE-OGN-YASUO-A-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
