@@ -7264,6 +7264,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sad-poro-keyword-unit.fixture.json", "P1-UNIT-SAD-PORO", 2, "CARD_TYPE:UNIT|魄罗")]
     [InlineData("p2-preflight-play-unl-sad-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-SAD-PORO", 2, "CARD_TYPE:UNIT|魄罗")]
     [InlineData("p2-preflight-play-scouting-warhawk-keyword-unit.fixture.json", "P1-UNIT-SCOUTING-WARHAWK", 1, "CARD_TYPE:UNIT|鸟类")]
+    [InlineData("p2-preflight-play-fearless-vanguard-keyword-unit.fixture.json", "P1-UNIT-FEARLESS-VANGUARD", 4, "CARD_TYPE:UNIT|精锐")]
+    [InlineData("p2-preflight-play-sneaky-sailor-keyword-unit.fixture.json", "P1-UNIT-SNEAKY-SAILOR", 2, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-terror-spider-hunt-keyword-unit.fixture.json", "P1-UNIT-TERROR-SPIDER", 6, "CARD_TYPE:UNIT|狩猎2|蜘蛛")]
+    [InlineData("p2-preflight-play-bandle-soldier-keyword-unit.fixture.json", "P1-UNIT-BANDLE-SOLDIER", 5, "CARD_TYPE:UNIT|约德尔人")]
+    [InlineData("p2-preflight-play-fiercewing-keyword-unit.fixture.json", "P1-UNIT-FIERCEWING", 7, "CARD_TYPE:UNIT|龙")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7359,6 +7364,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-SAD-PORO", "SFD·036/221", "P1-BASE-SAD-PORO-TARGET-001")]
     [InlineData(2, "P1-UNIT-UNL-SAD-PORO", "UNL-221/219", "P1-BASE-UNL-SAD-PORO-TARGET-001")]
     [InlineData(2, "P1-UNIT-SCOUTING-WARHAWK", "OGN·216/298", "P1-BASE-SCOUTING-WARHAWK-TARGET-001")]
+    [InlineData(4, "P1-UNIT-FEARLESS-VANGUARD", "SFD·093/221", "P1-BASE-FEARLESS-VANGUARD-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SNEAKY-SAILOR", "OGN·176/298", "P1-BASE-SNEAKY-SAILOR-TARGET-001")]
+    [InlineData(6, "P1-UNIT-TERROR-SPIDER", "UNL-117/219", "P1-BASE-TERROR-SPIDER-TARGET-001")]
+    [InlineData(4, "P1-UNIT-BANDLE-SOLDIER", "UNL-151/219", "P1-BASE-BANDLE-SOLDIER-TARGET-001")]
+    [InlineData(7, "P1-UNIT-FIERCEWING", "SFD·094/221", "P1-BASE-FIERCEWING-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
