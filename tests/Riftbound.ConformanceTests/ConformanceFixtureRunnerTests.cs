@@ -7299,6 +7299,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-lucian-no-optional-assemble.fixture.json", "P1-UNIT-SFD-113-LUCIAN", 3, "CARD_TYPE:UNIT|哨兵|百炼")]
     [InlineData("p2-preflight-play-sfd-lucian-alt-a-no-optional-assemble.fixture.json", "P1-UNIT-SFD-113A-LUCIAN", 3, "CARD_TYPE:UNIT|哨兵|百炼")]
     [InlineData("p2-preflight-play-sfd-yone-precon-no-optional-assemble.fixture.json", "P1-UNIT-SFD-116-YONE", 5, "CARD_TYPE:UNIT|恶魔|百炼")]
+    [InlineData("p2-preflight-play-ogn-volibear-spellshield2-keyword-unit.fixture.json", "P1-UNIT-OGN-041-VOLIBEAR", 9, "CARD_TYPE:UNIT|法盾2")]
+    [InlineData("p2-preflight-play-ogn-volibear-alt-a-spellshield2-keyword-unit.fixture.json", "P1-UNIT-OGN-041A-VOLIBEAR", 9, "CARD_TYPE:UNIT|法盾2")]
+    [InlineData("p2-preflight-play-ogn-volibear-steadfast3-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-158-VOLIBEAR", 10, "CARD_TYPE:UNIT|坚守3|壁垒")]
+    [InlineData("p2-preflight-play-ogn-volibear-alt-a-steadfast3-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-158A-VOLIBEAR", 10, "CARD_TYPE:UNIT|坚守3|壁垒")]
+    [InlineData("p2-preflight-play-shen-reaction-steadfast2-barrier-keyword-unit.fixture.json", "P1-UNIT-SHEN", 3, "CARD_TYPE:UNIT|反应|坚守2|壁垒")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7419,6 +7424,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-SFD-113-LUCIAN", "SFD·113/221", "P1-BASE-SFD-113-LUCIAN-TARGET-001")]
     [InlineData(3, "P1-UNIT-SFD-113A-LUCIAN", "SFD·113a/221", "P1-BASE-SFD-113A-LUCIAN-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-116-YONE", "SFD·116/221", "P1-BASE-SFD-116-YONE-TARGET-001")]
+    [InlineData(10, "P1-UNIT-OGN-041-VOLIBEAR", "OGN·041/298", "P1-BASE-OGN-041-VOLIBEAR-TARGET-001")]
+    [InlineData(10, "P1-UNIT-OGN-041A-VOLIBEAR", "OGN·041a/298", "P1-BASE-OGN-041A-VOLIBEAR-TARGET-001")]
+    [InlineData(12, "P1-UNIT-OGN-158-VOLIBEAR", "OGN·158/298", "P1-BASE-OGN-158-VOLIBEAR-TARGET-001")]
+    [InlineData(12, "P1-UNIT-OGN-158A-VOLIBEAR", "OGN·158a/298", "P1-BASE-OGN-158A-VOLIBEAR-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SHEN", "OGN·241/298", "P1-BASE-SHEN-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
