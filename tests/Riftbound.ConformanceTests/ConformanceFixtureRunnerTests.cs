@@ -7168,6 +7168,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-soul-shepherd-vanilla-unit.fixture.json", "P1-UNIT-SOUL-SHEPHERD", 3)]
     [InlineData("p2-preflight-play-savage-jawfish-vanilla-unit.fixture.json", "P1-UNIT-SAVAGE-JAWFISH", 5)]
     [InlineData("p2-preflight-play-sfd-020-draven-vanilla-unit.fixture.json", "P1-UNIT-SFD-020-DRAVEN", 4)]
+    [InlineData("p2-preflight-play-sfd-renata-glasc-vanilla-unit.fixture.json", "P1-UNIT-SFD-RENATA", 4)]
+    [InlineData("p2-preflight-play-sfd-renata-glasc-alt-a-vanilla-unit.fixture.json", "P1-UNIT-SFD-RENATA-A", 4)]
+    [InlineData("p2-preflight-play-desert-plunderer-vanilla-unit.fixture.json", "P1-UNIT-DESERT-PLUNDERER", 5)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7216,6 +7219,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-SOUL-SHEPHERD", "UNL-077/219", "P1-BASE-SOUL-SHEPHERD-TARGET-001")]
     [InlineData(5, "P1-UNIT-SAVAGE-JAWFISH", "UNL-129/219", "P1-BASE-SAVAGE-JAWFISH-TARGET-001")]
     [InlineData(4, "P1-UNIT-SFD-020-DRAVEN", "SFD·020/221", "P1-BASE-SFD-020-DRAVEN-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-RENATA", "SFD·171/221", "P1-BASE-SFD-RENATA-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-RENATA-A", "SFD·171a/221", "P1-BASE-SFD-RENATA-A-TARGET-001")]
+    [InlineData(6, "P1-UNIT-DESERT-PLUNDERER", "SFD·105/221", "P1-BASE-DESERT-PLUNDERER-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7364,6 +7370,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-unl-lillia-faerie-unit.fixture.json", "P1-UNIT-UNL-LILLIA", 4, "CARD_TYPE:UNIT|仙灵")]
     [InlineData("p2-preflight-play-unl-lillia-alt-a-faerie-unit.fixture.json", "P1-UNIT-UNL-LILLIA-A", 4, "CARD_TYPE:UNIT|仙灵")]
     [InlineData("p2-preflight-play-vilemaw-spider-unit.fixture.json", "P1-UNIT-VILEMAW", 8, "CARD_TYPE:UNIT|蜘蛛")]
+    [InlineData("p2-preflight-play-noxian-saboteur-trifarian-unit.fixture.json", "P1-UNIT-NOXIAN-SABOTEUR", 3, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-reliable-siege-dog-elite-dog-unit.fixture.json", "P1-UNIT-RELIABLE-SIEGE-DOG", 2, "CARD_TYPE:UNIT|犬形|精锐")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7523,6 +7531,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-UNL-LILLIA", "UNL-058/219", "P1-BASE-UNL-LILLIA-TARGET-001")]
     [InlineData(5, "P1-UNIT-UNL-LILLIA-A", "UNL-058a/219", "P1-BASE-UNL-LILLIA-A-TARGET-001")]
     [InlineData(8, "P1-UNIT-VILEMAW", "UNL-060/219", "P1-BASE-VILEMAW-TARGET-001")]
+    [InlineData(3, "P1-UNIT-NOXIAN-SABOTEUR", "OGN·018/298", "P1-BASE-NOXIAN-SABOTEUR-TARGET-001")]
+    [InlineData(2, "P1-UNIT-RELIABLE-SIEGE-DOG", "SFD·159/221", "P1-BASE-RELIABLE-SIEGE-DOG-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
