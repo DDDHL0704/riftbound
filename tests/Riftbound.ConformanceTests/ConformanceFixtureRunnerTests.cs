@@ -7231,6 +7231,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-jax-alt-a-keyword-unit.fixture.json", "P1-UNIT-SFD-JAX-A", 5, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-giant-arm-kato-keyword-unit.fixture.json", "P1-UNIT-GIANT-ARM-KATO", 3, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-xin-zhao-keyword-unit.fixture.json", "P1-UNIT-XIN-ZHAO", 4, "CARD_TYPE:UNIT|壁垒")]
+    [InlineData("p2-preflight-play-sfd-sivir-spellshield2-keyword-unit.fixture.json", "P1-UNIT-SFD-SIVIR-SPELLSHIELD2", 7, "CARD_TYPE:UNIT|法盾2")]
+    [InlineData("p2-preflight-play-sfd-sivir-alt-a-spellshield2-keyword-unit.fixture.json", "P1-UNIT-SFD-SIVIR-SPELLSHIELD2-A", 7, "CARD_TYPE:UNIT|法盾2")]
+    [InlineData("p2-preflight-play-sfd-draven-keyword-unit.fixture.json", "P1-UNIT-SFD-DRAVEN", 6, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-sfd-draven-alt-a-keyword-unit.fixture.json", "P1-UNIT-SFD-DRAVEN-A", 6, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-sfd-vayne-keyword-unit.fixture.json", "P1-UNIT-SFD-VAYNE", 2, "CARD_TYPE:UNIT|哨兵|强攻3")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7305,6 +7310,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-SFD-JAX-A", "SFD·054a/221", "P1-BASE-SFD-JAX-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-GIANT-ARM-KATO", "SFD·112/221", "P1-BASE-GIANT-ARM-KATO-TARGET-001")]
     [InlineData(3, "P1-UNIT-XIN-ZHAO", "SFD·176/221", "P1-BASE-XIN-ZHAO-TARGET-001")]
+    [InlineData(6, "P1-UNIT-SFD-SIVIR-SPELLSHIELD2", "SFD·120/221", "P1-BASE-SFD-SIVIR-SPELLSHIELD2-TARGET-001")]
+    [InlineData(6, "P1-UNIT-SFD-SIVIR-SPELLSHIELD2-A", "SFD·120a/221", "P1-BASE-SFD-SIVIR-SPELLSHIELD2-A-TARGET-001")]
+    [InlineData(6, "P1-UNIT-SFD-DRAVEN", "SFD·148/221", "P1-BASE-SFD-DRAVEN-TARGET-001")]
+    [InlineData(6, "P1-UNIT-SFD-DRAVEN-A", "SFD·148a/221", "P1-BASE-SFD-DRAVEN-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-VAYNE", "SFD·223/221", "P1-BASE-SFD-VAYNE-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
