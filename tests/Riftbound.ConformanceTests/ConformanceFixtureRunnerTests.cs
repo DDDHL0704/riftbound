@@ -7304,6 +7304,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ogn-volibear-steadfast3-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-158-VOLIBEAR", 10, "CARD_TYPE:UNIT|坚守3|壁垒")]
     [InlineData("p2-preflight-play-ogn-volibear-alt-a-steadfast3-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-158A-VOLIBEAR", 10, "CARD_TYPE:UNIT|坚守3|壁垒")]
     [InlineData("p2-preflight-play-shen-reaction-steadfast2-barrier-keyword-unit.fixture.json", "P1-UNIT-SHEN", 3, "CARD_TYPE:UNIT|反应|坚守2|壁垒")]
+    [InlineData("p2-preflight-play-sfd-rengar-reaction-overwhelm-keyword-unit.fixture.json", "P1-UNIT-SFD-025-RENGAR", 3, "CARD_TYPE:UNIT|反应|强攻2|猫科")]
+    [InlineData("p2-preflight-play-sfd-rengar-promo-reaction-overwhelm-keyword-unit.fixture.json", "P1-UNIT-SFD-025A-RENGAR", 3, "CARD_TYPE:UNIT|反应|强攻2|猫科")]
+    [InlineData("p2-preflight-play-ogn-sett-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-240-SETT", 5, "CARD_TYPE:UNIT|壁垒")]
+    [InlineData("p2-preflight-play-ogn-sett-alt-a-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-240A-SETT", 5, "CARD_TYPE:UNIT|壁垒")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7429,6 +7433,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(12, "P1-UNIT-OGN-158-VOLIBEAR", "OGN·158/298", "P1-BASE-OGN-158-VOLIBEAR-TARGET-001")]
     [InlineData(12, "P1-UNIT-OGN-158A-VOLIBEAR", "OGN·158a/298", "P1-BASE-OGN-158A-VOLIBEAR-TARGET-001")]
     [InlineData(3, "P1-UNIT-SHEN", "OGN·241/298", "P1-BASE-SHEN-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-025-RENGAR", "SFD·025/221", "P1-BASE-SFD-025-RENGAR-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-025A-RENGAR", "SFD·025a/221·P", "P1-BASE-SFD-025A-RENGAR-TARGET-001")]
+    [InlineData(4, "P1-UNIT-OGN-240-SETT", "OGN·240/298", "P1-BASE-OGN-240-SETT-TARGET-001")]
+    [InlineData(4, "P1-UNIT-OGN-240A-SETT", "OGN·240a/298", "P1-BASE-OGN-240A-SETT-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
