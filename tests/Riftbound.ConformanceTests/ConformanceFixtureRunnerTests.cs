@@ -7150,6 +7150,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-ahri-promo-vanilla-unit.fixture.json", "P1-UNIT-SFD-AHRI-PROMO", 3)]
     [InlineData("p2-preflight-play-watchful-sentinel-vanilla-unit.fixture.json", "P1-UNIT-WATCHFUL-SENTINEL", 1)]
     [InlineData("p2-preflight-play-mechanical-trickster-vanilla-unit.fixture.json", "P1-UNIT-MECHANICAL-TRICKSTER", 4)]
+    [InlineData("p2-preflight-play-kenken-vanilla-unit.fixture.json", "P1-UNIT-KENKEN", 6)]
+    [InlineData("p2-preflight-play-shadow-guard-vanilla-unit.fixture.json", "P1-UNIT-SHADOW-GUARD", 5)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7180,6 +7182,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-SFD-AHRI-PROMO", "SFD·227*/221", "P1-BASE-SFD-AHRI-PROMO-TARGET-001")]
     [InlineData(2, "P1-UNIT-WATCHFUL-SENTINEL", "OGN·096/298", "P1-BASE-WATCHFUL-SENTINEL-TARGET-001")]
     [InlineData(5, "P1-UNIT-MECHANICAL-TRICKSTER", "OGN·239/298", "P1-BASE-MECHANICAL-TRICKSTER-TARGET-001")]
+    [InlineData(6, "P1-UNIT-KENKEN", "UNL-035/219", "P1-BASE-KENKEN-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SHADOW-GUARD", "UNL-037/219", "P1-BASE-SHADOW-GUARD-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7269,6 +7273,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-terror-spider-hunt-keyword-unit.fixture.json", "P1-UNIT-TERROR-SPIDER", 6, "CARD_TYPE:UNIT|狩猎2|蜘蛛")]
     [InlineData("p2-preflight-play-bandle-soldier-keyword-unit.fixture.json", "P1-UNIT-BANDLE-SOLDIER", 5, "CARD_TYPE:UNIT|约德尔人")]
     [InlineData("p2-preflight-play-fiercewing-keyword-unit.fixture.json", "P1-UNIT-FIERCEWING", 7, "CARD_TYPE:UNIT|龙")]
+    [InlineData("p2-preflight-play-ogn-miss-fortune-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE", 4, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-ogn-miss-fortune-alt-a-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE-A", 4, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-ogn-miss-fortune-alt-b-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE-B", 4, "CARD_TYPE:UNIT|海盗")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7369,6 +7376,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-TERROR-SPIDER", "UNL-117/219", "P1-BASE-TERROR-SPIDER-TARGET-001")]
     [InlineData(4, "P1-UNIT-BANDLE-SOLDIER", "UNL-151/219", "P1-BASE-BANDLE-SOLDIER-TARGET-001")]
     [InlineData(7, "P1-UNIT-FIERCEWING", "SFD·094/221", "P1-BASE-FIERCEWING-TARGET-001")]
+    [InlineData(4, "P1-UNIT-OGN-MISS-FORTUNE", "OGN·193/298", "P1-BASE-OGN-MISS-FORTUNE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-OGN-MISS-FORTUNE-A", "OGN·193a/298", "P1-BASE-OGN-MISS-FORTUNE-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-OGN-MISS-FORTUNE-B", "OGN·193b/298", "P1-BASE-OGN-MISS-FORTUNE-B-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
