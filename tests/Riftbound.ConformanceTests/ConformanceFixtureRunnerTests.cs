@@ -7148,6 +7148,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-aphelios-promo-vanilla-unit.fixture.json", "P1-UNIT-SFD-APHELIOS-PROMO", 4)]
     [InlineData("p2-preflight-play-sfd-ahri-vanilla-unit.fixture.json", "P1-UNIT-SFD-AHRI", 3)]
     [InlineData("p2-preflight-play-sfd-ahri-promo-vanilla-unit.fixture.json", "P1-UNIT-SFD-AHRI-PROMO", 3)]
+    [InlineData("p2-preflight-play-watchful-sentinel-vanilla-unit.fixture.json", "P1-UNIT-WATCHFUL-SENTINEL", 1)]
+    [InlineData("p2-preflight-play-mechanical-trickster-vanilla-unit.fixture.json", "P1-UNIT-MECHANICAL-TRICKSTER", 4)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7176,6 +7178,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-SFD-APHELIOS-PROMO", "SFD·224*/221", "P1-BASE-SFD-APHELIOS-PROMO-TARGET-001")]
     [InlineData(3, "P1-UNIT-SFD-AHRI", "SFD·227/221", "P1-BASE-SFD-AHRI-TARGET-001")]
     [InlineData(3, "P1-UNIT-SFD-AHRI-PROMO", "SFD·227*/221", "P1-BASE-SFD-AHRI-PROMO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-WATCHFUL-SENTINEL", "OGN·096/298", "P1-BASE-WATCHFUL-SENTINEL-TARGET-001")]
+    [InlineData(5, "P1-UNIT-MECHANICAL-TRICKSTER", "OGN·239/298", "P1-BASE-MECHANICAL-TRICKSTER-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7257,6 +7261,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-corpse-flower-predator-keyword-unit.fixture.json", "P1-UNIT-CORPSE-FLOWER-PREDATOR", 8, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-revna-roam-keyword-unit.fixture.json", "P1-UNIT-REVNA", 7, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-jungle-elephant-keyword-unit.fixture.json", "P1-UNIT-JUNGLE-ELEPHANT", 6, "CARD_TYPE:UNIT|强攻")]
+    [InlineData("p2-preflight-play-sad-poro-keyword-unit.fixture.json", "P1-UNIT-SAD-PORO", 2, "CARD_TYPE:UNIT|魄罗")]
+    [InlineData("p2-preflight-play-unl-sad-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-SAD-PORO", 2, "CARD_TYPE:UNIT|魄罗")]
+    [InlineData("p2-preflight-play-scouting-warhawk-keyword-unit.fixture.json", "P1-UNIT-SCOUTING-WARHAWK", 1, "CARD_TYPE:UNIT|鸟类")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7349,6 +7356,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(8, "P1-UNIT-CORPSE-FLOWER-PREDATOR", "OGN·161/298", "P1-BASE-CORPSE-FLOWER-PREDATOR-TARGET-001")]
     [InlineData(7, "P1-UNIT-REVNA", "UNL-005/219", "P1-BASE-REVNA-TARGET-001")]
     [InlineData(6, "P1-UNIT-JUNGLE-ELEPHANT", "UNL-008/219", "P1-BASE-JUNGLE-ELEPHANT-TARGET-001")]
+    [InlineData(2, "P1-UNIT-SAD-PORO", "SFD·036/221", "P1-BASE-SAD-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-UNL-SAD-PORO", "UNL-221/219", "P1-BASE-UNL-SAD-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-SCOUTING-WARHAWK", "OGN·216/298", "P1-BASE-SCOUTING-WARHAWK-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
