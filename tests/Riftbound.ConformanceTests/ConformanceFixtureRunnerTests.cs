@@ -7247,8 +7247,12 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-vayne-promo-keyword-unit.fixture.json", "P1-UNIT-SFD-VAYNE-PROMO", 2, "CARD_TYPE:UNIT|哨兵|强攻3")]
     [InlineData("p2-preflight-play-sfd-irelia-keyword-unit.fixture.json", "P1-UNIT-SFD-IRELIA", 4, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-sfd-irelia-promo-keyword-unit.fixture.json", "P1-UNIT-SFD-IRELIA-PROMO", 4, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-sfd-yone-no-optional-assemble.fixture.json", "P1-UNIT-SFD-YONE", 5, "CARD_TYPE:UNIT|恶魔|百炼")]
+    [InlineData("p2-preflight-play-sfd-yone-promo-no-optional-assemble.fixture.json", "P1-UNIT-SFD-YONE-PROMO", 5, "CARD_TYPE:UNIT|恶魔|百炼")]
     [InlineData("p2-preflight-play-sfd-yasuo-keyword-unit.fixture.json", "P1-UNIT-SFD-YASUO", 4, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-sfd-yasuo-promo-keyword-unit.fixture.json", "P1-UNIT-SFD-YASUO-PROMO", 4, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-sfd-darius-trifarian-unit.fixture.json", "P1-UNIT-SFD-DARIUS", 6, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-sfd-darius-promo-trifarian-unit.fixture.json", "P1-UNIT-SFD-DARIUS-PROMO", 6, "CARD_TYPE:UNIT|崔法利")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7331,8 +7335,12 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-SFD-VAYNE-PROMO", "SFD·223*/221", "P1-BASE-SFD-VAYNE-PROMO-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-IRELIA", "SFD·225/221", "P1-BASE-SFD-IRELIA-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-IRELIA-PROMO", "SFD·225*/221", "P1-BASE-SFD-IRELIA-PROMO-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-YONE", "SFD·233/221", "P1-BASE-SFD-YONE-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-YONE-PROMO", "SFD·233*/221", "P1-BASE-SFD-YONE-PROMO-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-YASUO", "SFD·235/221", "P1-BASE-SFD-YASUO-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-YASUO-PROMO", "SFD·235*/221", "P1-BASE-SFD-YASUO-PROMO-TARGET-001")]
+    [InlineData(6, "P1-UNIT-SFD-DARIUS", "SFD·236/221", "P1-BASE-SFD-DARIUS-TARGET-001")]
+    [InlineData(6, "P1-UNIT-SFD-DARIUS-PROMO", "SFD·236*/221", "P1-BASE-SFD-DARIUS-PROMO-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
