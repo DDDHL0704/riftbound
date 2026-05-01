@@ -7201,6 +7201,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json", "P1-UNIT-LAURENT-BLADEGUARD", 3, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-garen-keyword-unit.fixture.json", "P1-UNIT-GAREN", 5, "CARD_TYPE:UNIT|坚守2|强攻2|精锐")]
     [InlineData("p2-preflight-play-solari-guard-keyword-unit.fixture.json", "P1-UNIT-SOLARI-GUARD", 3, "CARD_TYPE:UNIT|坚守|壁垒")]
+    [InlineData("p2-preflight-play-aerie-head-fan-keyword-unit.fixture.json", "P1-UNIT-AERIE-HEAD-FAN", 3, "CARD_TYPE:UNIT|法盾|约德尔人")]
+    [InlineData("p2-preflight-play-vex-keyword-unit.fixture.json", "P1-UNIT-VEX", 5, "CARD_TYPE:UNIT|坚守|壁垒|约德尔人")]
+    [InlineData("p2-preflight-play-wildclaw-beastmaster-keyword-unit.fixture.json", "P1-UNIT-WILDCLAW-BEASTMASTER", 7, "CARD_TYPE:UNIT|壁垒|猫科")]
+    [InlineData("p2-preflight-play-huge-yordle-keyword-unit.fixture.json", "P1-UNIT-HUGE-YORDLE", 5, "CARD_TYPE:UNIT|坚守5|壁垒|约德尔人")]
+    [InlineData("p2-preflight-play-tianna-crownguard-keyword-unit.fixture.json", "P1-UNIT-TIANNA-CROWNGUARD", 4, "CARD_TYPE:UNIT|法盾|精锐")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7245,6 +7250,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-LAURENT-BLADEGUARD", "SFD·096/221", "P1-BASE-LAURENT-BLADEGUARD-TARGET-001")]
     [InlineData(6, "P1-UNIT-GAREN", "OGS·007/024", "P1-BASE-GAREN-TARGET-001")]
     [InlineData(3, "P1-UNIT-SOLARI-GUARD", "OGN·054/298", "P1-BASE-SOLARI-GUARD-TARGET-001")]
+    [InlineData(3, "P1-UNIT-AERIE-HEAD-FAN", "UNL-041/219", "P1-BASE-AERIE-HEAD-FAN-TARGET-001")]
+    [InlineData(5, "P1-UNIT-VEX", "UNL-055/219", "P1-BASE-VEX-TARGET-001")]
+    [InlineData(6, "P1-UNIT-WILDCLAW-BEASTMASTER", "UNL-057/219", "P1-BASE-WILDCLAW-BEASTMASTER-TARGET-001")]
+    [InlineData(10, "P1-UNIT-HUGE-YORDLE", "SFD·055/221", "P1-BASE-HUGE-YORDLE-TARGET-001")]
+    [InlineData(7, "P1-UNIT-TIANNA-CROWNGUARD", "SFD·060/221", "P1-BASE-TIANNA-CROWNGUARD-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
