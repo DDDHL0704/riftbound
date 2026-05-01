@@ -7113,6 +7113,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-assault-poro-keyword-unit.fixture.json", "P1-UNIT-ASSAULT-PORO", 2, "CARD_TYPE:UNIT|强攻|魄罗")]
     [InlineData("p2-preflight-play-fierce-first-mate-keyword-unit.fixture.json", "P1-UNIT-FIERCE-FIRST-MATE", 5, "CARD_TYPE:UNIT|强攻|海盗")]
     [InlineData("p2-preflight-play-zephyr-sage-keyword-unit.fixture.json", "P1-UNIT-ZEPHYR-SAGE", 6, "CARD_TYPE:UNIT|坚守|鸟类")]
+    [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json", "P1-UNIT-PAKAA-CUB", 3, "CARD_TYPE:UNIT|待命|猫科")]
+    [InlineData("p2-preflight-play-navori-scout-keyword-unit.fixture.json", "P1-UNIT-NAVORI-SCOUT", 4, "CARD_TYPE:UNIT|法盾|约德尔人")]
+    [InlineData("p2-preflight-play-laurent-swordsman-keyword-unit.fixture.json", "P1-UNIT-LAURENT-SWORDSMAN", 3, "CARD_TYPE:UNIT|强攻2")]
+    [InlineData("p2-preflight-play-gluttonous-toadfrog-keyword-unit.fixture.json", "P1-UNIT-GLUTTONOUS-TOADFROG", 5, "CARD_TYPE:UNIT|狩猎3")]
+    [InlineData("p2-preflight-play-sentinel-adept-no-optional-assemble.fixture.json", "P1-UNIT-SENTINEL-ADEPT", 3, "CARD_TYPE:UNIT|哨兵|百炼")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7141,6 +7146,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-ASSAULT-PORO", "OGN·210/298", "P1-BASE-ASSAULT-PORO-TARGET-001")]
     [InlineData(5, "P1-UNIT-FIERCE-FIRST-MATE", "OGN·215/298", "P1-BASE-FIERCE-FIRST-MATE-TARGET-001")]
     [InlineData(6, "P1-UNIT-ZEPHYR-SAGE", "OGS·005/024", "P1-BASE-ZEPHYR-SAGE-TARGET-001")]
+    [InlineData(3, "P1-UNIT-PAKAA-CUB", "OGN·135/298", "P1-BASE-PAKAA-CUB-TARGET-001")]
+    [InlineData(4, "P1-UNIT-NAVORI-SCOUT", "SFD·037/221", "P1-BASE-NAVORI-SCOUT-TARGET-001")]
+    [InlineData(4, "P1-UNIT-LAURENT-SWORDSMAN", "SFD·156/221", "P1-BASE-LAURENT-SWORDSMAN-TARGET-001")]
+    [InlineData(5, "P1-UNIT-GLUTTONOUS-TOADFROG", "UNL-100/219", "P1-BASE-GLUTTONOUS-TOADFROG-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SENTINEL-ADEPT", "SFD·008/221", "P1-BASE-SENTINEL-ADEPT-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
