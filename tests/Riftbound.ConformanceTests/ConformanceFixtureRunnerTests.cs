@@ -7152,6 +7152,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-mechanical-trickster-vanilla-unit.fixture.json", "P1-UNIT-MECHANICAL-TRICKSTER", 4)]
     [InlineData("p2-preflight-play-kenken-vanilla-unit.fixture.json", "P1-UNIT-KENKEN", 6)]
     [InlineData("p2-preflight-play-shadow-guard-vanilla-unit.fixture.json", "P1-UNIT-SHADOW-GUARD", 5)]
+    [InlineData("p2-preflight-play-void-grasshopper-vanilla-unit.fixture.json", "P1-UNIT-VOID-GRASSHOPPER", 3)]
+    [InlineData("p2-preflight-play-minotaur-reckoner-vanilla-unit.fixture.json", "P1-UNIT-MINOTAUR-RECKONER", 5)]
+    [InlineData("p2-preflight-play-voidling-seedling-vanilla-unit.fixture.json", "P1-UNIT-VOIDLING-SEEDLING", 2)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7184,6 +7187,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-MECHANICAL-TRICKSTER", "OGN·239/298", "P1-BASE-MECHANICAL-TRICKSTER-TARGET-001")]
     [InlineData(6, "P1-UNIT-KENKEN", "UNL-035/219", "P1-BASE-KENKEN-TARGET-001")]
     [InlineData(4, "P1-UNIT-SHADOW-GUARD", "UNL-037/219", "P1-BASE-SHADOW-GUARD-TARGET-001")]
+    [InlineData(3, "P1-UNIT-VOID-GRASSHOPPER", "SFD·010/221", "P1-BASE-VOID-GRASSHOPPER-TARGET-001")]
+    [InlineData(5, "P1-UNIT-MINOTAUR-RECKONER", "SFD·014/221", "P1-BASE-MINOTAUR-RECKONER-TARGET-001")]
+    [InlineData(2, "P1-UNIT-VOIDLING-SEEDLING", "SFD·018/221", "P1-BASE-VOIDLING-SEEDLING-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7281,6 +7287,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-lee-sin-alt-a-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEE-SIN-STEADFAST-A", 5, "CARD_TYPE:UNIT|坚守")]
     [InlineData("p2-preflight-play-leona-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEONA-STEADFAST", 4, "CARD_TYPE:UNIT|坚守")]
     [InlineData("p2-preflight-play-leona-alt-a-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEONA-STEADFAST-A", 4, "CARD_TYPE:UNIT|坚守")]
+    [InlineData("p2-preflight-play-ironclad-vanguard-keyword-unit.fixture.json", "P1-UNIT-IRONCLAD-VANGUARD", 6, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-sfd-lucian-keyword-unit.fixture.json", "P1-UNIT-SFD-LUCIAN", 2, "CARD_TYPE:UNIT|哨兵|强攻")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7389,6 +7397,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-LEE-SIN-STEADFAST-A", "OGN·078a/298", "P1-BASE-LEE-SIN-STEADFAST-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-LEONA-STEADFAST", "OGN·238/298", "P1-BASE-LEONA-STEADFAST-TARGET-001")]
     [InlineData(4, "P1-UNIT-LEONA-STEADFAST-A", "OGN·238a/298", "P1-BASE-LEONA-STEADFAST-A-TARGET-001")]
+    [InlineData(6, "P1-UNIT-IRONCLAD-VANGUARD", "SFD·021/221", "P1-BASE-IRONCLAD-VANGUARD-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-LUCIAN", "SFD·028/221", "P1-BASE-SFD-LUCIAN-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
