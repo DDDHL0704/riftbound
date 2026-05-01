@@ -7216,6 +7216,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-trevor-duttonel-keyword-unit.fixture.json", "P1-UNIT-TREVOR-DUTTONEL", 3, "CARD_TYPE:UNIT|坚守|约德尔人")]
     [InlineData("p2-preflight-play-windrunner-fox-keyword-unit.fixture.json", "P1-UNIT-WINDRUNNER-FOX", 3, "CARD_TYPE:UNIT|犬形|狩猎2")]
     [InlineData("p2-preflight-play-crystalhand-hunter-keyword-unit.fixture.json", "P1-UNIT-CRYSTALHAND-HUNTER", 2, "CARD_TYPE:UNIT|狩猎|约德尔人")]
+    [InlineData("p2-preflight-play-flameclaw-keyword-unit.fixture.json", "P1-UNIT-FLAMECLAW", 3, "CARD_TYPE:UNIT|犬形|狩猎2")]
+    [InlineData("p2-preflight-play-wuji-apprentice-keyword-unit.fixture.json", "P1-UNIT-WUJI-APPRENTICE", 2, "CARD_TYPE:UNIT|狩猎")]
+    [InlineData("p2-preflight-play-arena-crowd-favorite-keyword-unit.fixture.json", "P1-UNIT-ARENA-CROWD-FAVORITE", 3, "CARD_TYPE:UNIT|狩猎")]
+    [InlineData("p2-preflight-play-unl-yi-hunt-keyword-unit.fixture.json", "P1-UNIT-UNL-YI-HUNT", 4, "CARD_TYPE:UNIT|狩猎2")]
+    [InlineData("p2-preflight-play-unl-yi-alt-a-hunt-keyword-unit.fixture.json", "P1-UNIT-UNL-YI-HUNT-A", 4, "CARD_TYPE:UNIT|狩猎2")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7275,6 +7280,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-TREVOR-DUTTONEL", "UNL-048/219", "P1-BASE-TREVOR-DUTTONEL-TARGET-001")]
     [InlineData(3, "P1-UNIT-WINDRUNNER-FOX", "UNL-075/219", "P1-BASE-WINDRUNNER-FOX-TARGET-001")]
     [InlineData(2, "P1-UNIT-CRYSTALHAND-HUNTER", "UNL-094/219", "P1-BASE-CRYSTALHAND-HUNTER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-FLAMECLAW", "UNL-016/219", "P1-BASE-FLAMECLAW-TARGET-001")]
+    [InlineData(2, "P1-UNIT-WUJI-APPRENTICE", "UNL-040/219", "P1-BASE-WUJI-APPRENTICE-TARGET-001")]
+    [InlineData(3, "P1-UNIT-ARENA-CROWD-FAVORITE", "UNL-102/219", "P1-BASE-ARENA-CROWD-FAVORITE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-UNL-YI-HUNT", "UNL-113/219", "P1-BASE-UNL-YI-HUNT-TARGET-001")]
+    [InlineData(4, "P1-UNIT-UNL-YI-HUNT-A", "UNL-113a/219", "P1-BASE-UNL-YI-HUNT-A-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
