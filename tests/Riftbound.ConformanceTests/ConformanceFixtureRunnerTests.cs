@@ -4921,6 +4921,78 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Theory]
+    [InlineData("p2-preflight-play-unl-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-UNL-BABBLING-PORO", "P1-UNL-BABBLING-PORO-KEEP-001", "P1-UNL-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
+    [InlineData("p2-preflight-play-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-BABBLING-PORO", "P1-BABBLING-PORO-KEEP-001", "P1-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
+    [InlineData("p2-preflight-play-gemstone-golem-predict-recycle.fixture.json", "P1-UNIT-GEMSTONE-GOLEM", "P1-GEMSTONE-GOLEM-KEEP-001", "P1-GEMSTONE-GOLEM-RECYCLE-001", 5, "CARD_TYPE:UNIT|坚守|预知")]
+    [InlineData("p2-preflight-play-dase-scout-predict-recycle.fixture.json", "P1-UNIT-DASE-SCOUT", "P1-DASE-SCOUT-KEEP-001", "P1-DASE-SCOUT-RECYCLE-001", 5, "CARD_TYPE:UNIT|预知")]
+    [InlineData("p2-preflight-play-jhin-predict-recycle.fixture.json", "P1-UNIT-JHIN", "P1-JHIN-KEEP-001", "P1-JHIN-RECYCLE-001", 4, "CARD_TYPE:UNIT|预知")]
+    public async Task CoreRuleEnginePlaysPredictSourceUnitRecycleTopCard(
+        string fixtureFileName,
+        string sourceObjectId,
+        string expectedTopObjectId,
+        string expectedRecycledObjectId,
+        int expectedPower,
+        string expectedTags)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal([expectedTopObjectId, expectedRecycledObjectId], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(expectedPower, result.FinalState.CardObjects[sourceObjectId].Power);
+        Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
+    }
+
+    [Theory]
+    [InlineData(2, "P1-UNIT-UNL-BABBLING-PORO", "UNL-224/219", "P1-UNL-BABBLING-PORO-TOP-001", "P1-UNL-BABBLING-PORO-SECOND-001")]
+    [InlineData(2, "P1-UNIT-BABBLING-PORO", "OGN·171/298", "P1-BABBLING-PORO-TOP-001", "P1-BABBLING-PORO-SECOND-001")]
+    [InlineData(5, "P1-UNIT-GEMSTONE-GOLEM", "OGN·086/298", "P1-GEMSTONE-GOLEM-TOP-001", "P1-GEMSTONE-GOLEM-SECOND-001")]
+    [InlineData(6, "P1-UNIT-DASE-SCOUT", "OGN·174/298", "P1-DASE-SCOUT-TOP-001", "P1-DASE-SCOUT-SECOND-001")]
+    [InlineData(4, "P1-UNIT-JHIN", "UNL-089/219", "P1-JHIN-TOP-001", "P1-JHIN-SECOND-001")]
+    public async Task CoreRuleEngineRejectsPredictSourceUnitWhenTargetIsOutsideTopCard(
+        int mana,
+        string sourceObjectId,
+        string cardNo,
+        string topObjectId,
+        string secondObjectId)
+    {
+        var state = PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = [sourceObjectId],
+                    MainDeck = [topObjectId, secondObjectId]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-predict-unit-second-card", "P1", "PLAY_CARD"),
+            new PlayCardCommand(sourceObjectId, cardNo, [secondObjectId]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(mana, 0), result.State.RunePools["P1"]);
+        Assert.Equal([sourceObjectId], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal([topObjectId, secondObjectId], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
     [Fact]
     public async Task CoreRuleEnginePlaysForcedConscriptionControlSmallEnemyRecall()
     {
