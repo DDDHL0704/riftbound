@@ -7124,6 +7124,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-unl-plucky-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-PLUCKY-PORO", 2, "CARD_TYPE:UNIT|法盾|魄罗")]
     [InlineData("p2-preflight-play-unl-stout-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-STOUT-PORO", 2, "CARD_TYPE:UNIT|百炼|魄罗")]
     [InlineData("p2-preflight-play-unl-assault-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-ASSAULT-PORO", 2, "CARD_TYPE:UNIT|强攻|魄罗")]
+    [InlineData("p2-preflight-play-mutant-kitten-keyword-unit.fixture.json", "P1-UNIT-MUTANT-KITTEN", 1, "CARD_TYPE:UNIT|坚守2|壁垒|猫科")]
+    [InlineData("p2-preflight-play-burly-brawler-keyword-unit.fixture.json", "P1-UNIT-BURLY-BRAWLER", 3, "CARD_TYPE:UNIT|坚守2|壁垒")]
+    [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json", "P1-UNIT-LAURENT-BLADEGUARD", 3, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-garen-keyword-unit.fixture.json", "P1-UNIT-GAREN", 5, "CARD_TYPE:UNIT|坚守2|强攻2|精锐")]
+    [InlineData("p2-preflight-play-solari-guard-keyword-unit.fixture.json", "P1-UNIT-SOLARI-GUARD", 3, "CARD_TYPE:UNIT|坚守|壁垒")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7163,6 +7168,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(2, "P1-UNIT-UNL-PLUCKY-PORO", "UNL-220/219", "P1-BASE-UNL-PLUCKY-PORO-TARGET-001")]
     [InlineData(2, "P1-UNIT-UNL-STOUT-PORO", "UNL-223/219", "P1-BASE-UNL-STOUT-PORO-TARGET-001")]
     [InlineData(2, "P1-UNIT-UNL-ASSAULT-PORO", "UNL-225/219", "P1-BASE-UNL-ASSAULT-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-MUTANT-KITTEN", "UNL-036/219", "P1-BASE-MUTANT-KITTEN-TARGET-001")]
+    [InlineData(4, "P1-UNIT-BURLY-BRAWLER", "UNL-099/219", "P1-BASE-BURLY-BRAWLER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-LAURENT-BLADEGUARD", "SFD·096/221", "P1-BASE-LAURENT-BLADEGUARD-TARGET-001")]
+    [InlineData(6, "P1-UNIT-GAREN", "OGS·007/024", "P1-BASE-GAREN-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SOLARI-GUARD", "OGN·054/298", "P1-BASE-SOLARI-GUARD-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
