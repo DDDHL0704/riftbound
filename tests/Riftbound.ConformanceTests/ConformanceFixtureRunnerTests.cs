@@ -7226,6 +7226,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-black-rose-agent-keyword-unit.fixture.json", "P1-UNIT-BLACK-ROSE-AGENT", 2, "CARD_TYPE:UNIT|强攻")]
     [InlineData("p2-preflight-play-stunning-guardian-keyword-unit.fixture.json", "P1-UNIT-STUNNING-GUARDIAN", 2, "CARD_TYPE:UNIT|仙灵|狩猎")]
     [InlineData("p2-preflight-play-galio-keyword-unit.fixture.json", "P1-UNIT-GALIO", 6, "CARD_TYPE:UNIT|壁垒|法盾")]
+    [InlineData("p2-preflight-play-rell-keyword-unit.fixture.json", "P1-UNIT-RELL", 4, "CARD_TYPE:UNIT|壁垒")]
+    [InlineData("p2-preflight-play-sfd-jax-keyword-unit.fixture.json", "P1-UNIT-SFD-JAX", 5, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-sfd-jax-alt-a-keyword-unit.fixture.json", "P1-UNIT-SFD-JAX-A", 5, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-giant-arm-kato-keyword-unit.fixture.json", "P1-UNIT-GIANT-ARM-KATO", 3, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-xin-zhao-keyword-unit.fixture.json", "P1-UNIT-XIN-ZHAO", 4, "CARD_TYPE:UNIT|壁垒")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7295,6 +7300,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-BLACK-ROSE-AGENT", "UNL-152/219", "P1-BASE-BLACK-ROSE-AGENT-TARGET-001")]
     [InlineData(2, "P1-UNIT-STUNNING-GUARDIAN", "UNL-162/219", "P1-BASE-STUNNING-GUARDIAN-TARGET-001")]
     [InlineData(3, "P1-UNIT-GALIO", "UNL-171/219", "P1-BASE-GALIO-TARGET-001")]
+    [InlineData(4, "P1-UNIT-RELL", "SFD·024/221", "P1-BASE-RELL-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-JAX", "SFD·054/221", "P1-BASE-SFD-JAX-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-JAX-A", "SFD·054a/221", "P1-BASE-SFD-JAX-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-GIANT-ARM-KATO", "SFD·112/221", "P1-BASE-GIANT-ARM-KATO-TARGET-001")]
+    [InlineData(3, "P1-UNIT-XIN-ZHAO", "SFD·176/221", "P1-BASE-XIN-ZHAO-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
