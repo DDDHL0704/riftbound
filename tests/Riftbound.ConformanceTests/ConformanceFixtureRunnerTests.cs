@@ -7121,6 +7121,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-battle-chef-no-optional-assemble.fixture.json", "P1-UNIT-BATTLE-CHEF", 5, "CARD_TYPE:UNIT|百炼")]
     [InlineData("p2-preflight-play-stout-poro-no-optional-assemble.fixture.json", "P1-UNIT-STOUT-PORO", 2, "CARD_TYPE:UNIT|百炼|魄罗")]
     [InlineData("p2-preflight-play-master-bingwen-no-optional-assemble.fixture.json", "P1-UNIT-MASTER-BINGWEN", 6, "CARD_TYPE:UNIT|百炼")]
+    [InlineData("p2-preflight-play-unl-plucky-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-PLUCKY-PORO", 2, "CARD_TYPE:UNIT|法盾|魄罗")]
+    [InlineData("p2-preflight-play-unl-stout-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-STOUT-PORO", 2, "CARD_TYPE:UNIT|百炼|魄罗")]
+    [InlineData("p2-preflight-play-unl-assault-poro-keyword-unit.fixture.json", "P1-UNIT-UNL-ASSAULT-PORO", 2, "CARD_TYPE:UNIT|强攻|魄罗")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7157,6 +7160,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-BATTLE-CHEF", "SFD·092/221", "P1-BASE-BATTLE-CHEF-TARGET-001")]
     [InlineData(2, "P1-UNIT-STOUT-PORO", "SFD·099/221", "P1-BASE-STOUT-PORO-TARGET-001")]
     [InlineData(6, "P1-UNIT-MASTER-BINGWEN", "SFD·127/221", "P1-BASE-MASTER-BINGWEN-TARGET-001")]
+    [InlineData(2, "P1-UNIT-UNL-PLUCKY-PORO", "UNL-220/219", "P1-BASE-UNL-PLUCKY-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-UNL-STOUT-PORO", "UNL-223/219", "P1-BASE-UNL-STOUT-PORO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-UNL-ASSAULT-PORO", "UNL-225/219", "P1-BASE-UNL-ASSAULT-PORO-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
