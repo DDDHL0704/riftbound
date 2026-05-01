@@ -7372,6 +7372,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-vilemaw-spider-unit.fixture.json", "P1-UNIT-VILEMAW", 8, "CARD_TYPE:UNIT|蜘蛛")]
     [InlineData("p2-preflight-play-noxian-saboteur-trifarian-unit.fixture.json", "P1-UNIT-NOXIAN-SABOTEUR", 3, "CARD_TYPE:UNIT|崔法利")]
     [InlineData("p2-preflight-play-reliable-siege-dog-elite-dog-unit.fixture.json", "P1-UNIT-RELIABLE-SIEGE-DOG", 2, "CARD_TYPE:UNIT|犬形|精锐")]
+    [InlineData("p2-preflight-play-sfd-rumble-mechanical-yordle-unit.fixture.json", "P1-UNIT-SFD-RUMBLE", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-sfd-rumble-alt-a-mechanical-yordle-unit.fixture.json", "P1-UNIT-SFD-RUMBLE-A", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-prescient-mech-yordle-mechanical-unit.fixture.json", "P1-UNIT-PRESCIENT-MECH", 2, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-speeding-mech-yordle-mechanical-unit.fixture.json", "P1-UNIT-SPEEDING-MECH", 7, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-progress-glory-mechanical-unit.fixture.json", "P1-UNIT-PROGRESS-GLORY", 3, "CARD_TYPE:UNIT|机械")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7533,6 +7538,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(8, "P1-UNIT-VILEMAW", "UNL-060/219", "P1-BASE-VILEMAW-TARGET-001")]
     [InlineData(3, "P1-UNIT-NOXIAN-SABOTEUR", "OGN·018/298", "P1-BASE-NOXIAN-SABOTEUR-TARGET-001")]
     [InlineData(2, "P1-UNIT-RELIABLE-SIEGE-DOG", "SFD·159/221", "P1-BASE-RELIABLE-SIEGE-DOG-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-RUMBLE", "SFD·026/221", "P1-BASE-SFD-RUMBLE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SFD-RUMBLE-A", "SFD·026a/221", "P1-BASE-SFD-RUMBLE-A-TARGET-001")]
+    [InlineData(2, "P1-UNIT-PRESCIENT-MECH", "SFD·065/221", "P1-BASE-PRESCIENT-MECH-TARGET-001")]
+    [InlineData(8, "P1-UNIT-SPEEDING-MECH", "SFD·071/221", "P1-BASE-SPEEDING-MECH-TARGET-001")]
+    [InlineData(4, "P1-UNIT-PROGRESS-GLORY", "SFD·075/221", "P1-BASE-PROGRESS-GLORY-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
