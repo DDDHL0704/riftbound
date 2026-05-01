@@ -7158,6 +7158,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ascended-believer-no-spell-vanilla-unit.fixture.json", "P1-UNIT-ASCENDED-BELIEVER", 1)]
     [InlineData("p2-preflight-play-sly-salamander-no-experience-vanilla-unit.fixture.json", "P1-UNIT-SLY-SALAMANDER", 4)]
     [InlineData("p2-preflight-play-ogn-fiora-not-powerful-vanilla-unit.fixture.json", "P1-UNIT-OGN-FIORA", 4)]
+    [InlineData("p2-preflight-play-balanced-disciple-no-other-power-vanilla-unit.fixture.json", "P1-UNIT-BALANCED-DISCIPLE", 3)]
+    [InlineData("p2-preflight-play-crescent-guard-no-spell-vanilla-unit.fixture.json", "P1-UNIT-CRESCENT-GUARD", 4)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7196,6 +7198,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-ASCENDED-BELIEVER", "UNL-004/219", "P1-BASE-ASCENDED-BELIEVER-TARGET-001")]
     [InlineData(4, "P1-UNIT-SLY-SALAMANDER", "UNL-108/219", "P1-BASE-SLY-SALAMANDER-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGN-FIORA", "OGN·232/298", "P1-BASE-OGN-FIORA-TARGET-001")]
+    [InlineData(3, "P1-UNIT-BALANCED-DISCIPLE", "UNL-097/219", "P1-BASE-BALANCED-DISCIPLE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-CRESCENT-GUARD", "UNL-122/219", "P1-BASE-CRESCENT-GUARD-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7319,6 +7323,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-poppy-spellshield-yordle-keyword-unit.fixture.json", "P1-UNIT-POPPY", 5, "CARD_TYPE:UNIT|法盾|约德尔人")]
     [InlineData("p2-preflight-play-poppy-alt-a-spellshield-yordle-keyword-unit.fixture.json", "P1-UNIT-POPPY-A", 5, "CARD_TYPE:UNIT|法盾|约德尔人")]
     [InlineData("p2-preflight-play-rampaging-soul-no-discard-spirit-unit.fixture.json", "P1-UNIT-RAMPAGING-SOUL", 4, "CARD_TYPE:UNIT|灵体")]
+    [InlineData("p2-preflight-play-noxian-recruit-no-encourage-trifarian-unit.fixture.json", "P1-UNIT-NOXIAN-RECRUIT", 4, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-dangerous-duo-no-encourage-mechanical-unit.fixture.json", "P1-UNIT-DANGEROUS-DUO", 3, "CARD_TYPE:UNIT|机械")]
+    [InlineData("p2-preflight-play-trifarian-gloryseeker-no-encourage-unit.fixture.json", "P1-UNIT-TRIFARIAN-GLORYSEEKER", 2, "CARD_TYPE:UNIT|崔法利")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7453,6 +7460,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-POPPY", "UNL-116/219", "P1-BASE-POPPY-TARGET-001")]
     [InlineData(5, "P1-UNIT-POPPY-A", "UNL-116a/219", "P1-BASE-POPPY-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-RAMPAGING-SOUL", "OGN·019/298", "P1-BASE-RAMPAGING-SOUL-TARGET-001")]
+    [InlineData(4, "P1-UNIT-NOXIAN-RECRUIT", "OGN·012/298", "P1-BASE-NOXIAN-RECRUIT-TARGET-001")]
+    [InlineData(3, "P1-UNIT-DANGEROUS-DUO", "OGN·016/298", "P1-BASE-DANGEROUS-DUO-TARGET-001")]
+    [InlineData(2, "P1-UNIT-TRIFARIAN-GLORYSEEKER", "OGN·217/298", "P1-BASE-TRIFARIAN-GLORYSEEKER-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
