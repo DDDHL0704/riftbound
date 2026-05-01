@@ -7308,6 +7308,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-rengar-promo-reaction-overwhelm-keyword-unit.fixture.json", "P1-UNIT-SFD-025A-RENGAR", 3, "CARD_TYPE:UNIT|反应|强攻2|猫科")]
     [InlineData("p2-preflight-play-ogn-sett-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-240-SETT", 5, "CARD_TYPE:UNIT|壁垒")]
     [InlineData("p2-preflight-play-ogn-sett-alt-a-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-240A-SETT", 5, "CARD_TYPE:UNIT|壁垒")]
+    [InlineData("p2-preflight-play-azure-glyph-golem-steadfast2-keyword-unit.fixture.json", "P1-UNIT-AZURE-GLYPH-GOLEM", 4, "CARD_TYPE:UNIT|坚守2")]
+    [InlineData("p2-preflight-play-azure-glyph-golem-alt-a-steadfast2-keyword-unit.fixture.json", "P1-UNIT-AZURE-GLYPH-GOLEM-A", 4, "CARD_TYPE:UNIT|坚守2")]
+    [InlineData("p2-preflight-play-poppy-spellshield-yordle-keyword-unit.fixture.json", "P1-UNIT-POPPY", 5, "CARD_TYPE:UNIT|法盾|约德尔人")]
+    [InlineData("p2-preflight-play-poppy-alt-a-spellshield-yordle-keyword-unit.fixture.json", "P1-UNIT-POPPY-A", 5, "CARD_TYPE:UNIT|法盾|约德尔人")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7437,6 +7441,10 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-SFD-025A-RENGAR", "SFD·025a/221·P", "P1-BASE-SFD-025A-RENGAR-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGN-240-SETT", "OGN·240/298", "P1-BASE-OGN-240-SETT-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGN-240A-SETT", "OGN·240a/298", "P1-BASE-OGN-240A-SETT-TARGET-001")]
+    [InlineData(4, "P1-UNIT-AZURE-GLYPH-GOLEM", "UNL-087/219", "P1-BASE-AZURE-GLYPH-GOLEM-TARGET-001")]
+    [InlineData(4, "P1-UNIT-AZURE-GLYPH-GOLEM-A", "UNL-087a/219", "P1-BASE-AZURE-GLYPH-GOLEM-A-TARGET-001")]
+    [InlineData(5, "P1-UNIT-POPPY", "UNL-116/219", "P1-BASE-POPPY-TARGET-001")]
+    [InlineData(5, "P1-UNIT-POPPY-A", "UNL-116a/219", "P1-BASE-POPPY-A-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
