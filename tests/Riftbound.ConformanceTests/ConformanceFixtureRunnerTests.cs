@@ -7294,6 +7294,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-nocturne-roam-keyword-unit.fixture.json", "P1-UNIT-NOCTURNE", 4, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-ogn-yasuo-roam-keyword-unit.fixture.json", "P1-UNIT-OGN-YASUO", 4, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-ogn-yasuo-alt-a-roam-keyword-unit.fixture.json", "P1-UNIT-OGN-YASUO-A", 4, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-sfd-irelia-spellshield-keyword-unit.fixture.json", "P1-UNIT-SFD-057-IRELIA", 4, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-sfd-irelia-alt-a-spellshield-keyword-unit.fixture.json", "P1-UNIT-SFD-057A-IRELIA", 4, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-sfd-lucian-no-optional-assemble.fixture.json", "P1-UNIT-SFD-113-LUCIAN", 3, "CARD_TYPE:UNIT|哨兵|百炼")]
+    [InlineData("p2-preflight-play-sfd-lucian-alt-a-no-optional-assemble.fixture.json", "P1-UNIT-SFD-113A-LUCIAN", 3, "CARD_TYPE:UNIT|哨兵|百炼")]
+    [InlineData("p2-preflight-play-sfd-yone-precon-no-optional-assemble.fixture.json", "P1-UNIT-SFD-116-YONE", 5, "CARD_TYPE:UNIT|恶魔|百炼")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7409,6 +7414,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-NOCTURNE", "OGN·194/298", "P1-BASE-NOCTURNE-TARGET-001")]
     [InlineData(5, "P1-UNIT-OGN-YASUO", "OGN·205/298", "P1-BASE-OGN-YASUO-TARGET-001")]
     [InlineData(5, "P1-UNIT-OGN-YASUO-A", "OGN·205a/298", "P1-BASE-OGN-YASUO-A-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-057-IRELIA", "SFD·057/221", "P1-BASE-SFD-057-IRELIA-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-057A-IRELIA", "SFD·057a/221", "P1-BASE-SFD-057A-IRELIA-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-113-LUCIAN", "SFD·113/221", "P1-BASE-SFD-113-LUCIAN-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SFD-113A-LUCIAN", "SFD·113a/221", "P1-BASE-SFD-113A-LUCIAN-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SFD-116-YONE", "SFD·116/221", "P1-BASE-SFD-116-YONE-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
