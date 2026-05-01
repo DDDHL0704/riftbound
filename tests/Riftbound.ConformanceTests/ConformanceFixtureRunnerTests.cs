@@ -7155,6 +7155,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-void-grasshopper-vanilla-unit.fixture.json", "P1-UNIT-VOID-GRASSHOPPER", 3)]
     [InlineData("p2-preflight-play-minotaur-reckoner-vanilla-unit.fixture.json", "P1-UNIT-MINOTAUR-RECKONER", 5)]
     [InlineData("p2-preflight-play-voidling-seedling-vanilla-unit.fixture.json", "P1-UNIT-VOIDLING-SEEDLING", 2)]
+    [InlineData("p2-preflight-play-ascended-believer-no-spell-vanilla-unit.fixture.json", "P1-UNIT-ASCENDED-BELIEVER", 1)]
+    [InlineData("p2-preflight-play-sly-salamander-no-experience-vanilla-unit.fixture.json", "P1-UNIT-SLY-SALAMANDER", 4)]
+    [InlineData("p2-preflight-play-ogn-fiora-not-powerful-vanilla-unit.fixture.json", "P1-UNIT-OGN-FIORA", 4)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7190,6 +7193,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-VOID-GRASSHOPPER", "SFD·010/221", "P1-BASE-VOID-GRASSHOPPER-TARGET-001")]
     [InlineData(5, "P1-UNIT-MINOTAUR-RECKONER", "SFD·014/221", "P1-BASE-MINOTAUR-RECKONER-TARGET-001")]
     [InlineData(2, "P1-UNIT-VOIDLING-SEEDLING", "SFD·018/221", "P1-BASE-VOIDLING-SEEDLING-TARGET-001")]
+    [InlineData(3, "P1-UNIT-ASCENDED-BELIEVER", "UNL-004/219", "P1-BASE-ASCENDED-BELIEVER-TARGET-001")]
+    [InlineData(4, "P1-UNIT-SLY-SALAMANDER", "UNL-108/219", "P1-BASE-SLY-SALAMANDER-TARGET-001")]
+    [InlineData(4, "P1-UNIT-OGN-FIORA", "OGN·232/298", "P1-BASE-OGN-FIORA-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7312,6 +7318,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-azure-glyph-golem-alt-a-steadfast2-keyword-unit.fixture.json", "P1-UNIT-AZURE-GLYPH-GOLEM-A", 4, "CARD_TYPE:UNIT|坚守2")]
     [InlineData("p2-preflight-play-poppy-spellshield-yordle-keyword-unit.fixture.json", "P1-UNIT-POPPY", 5, "CARD_TYPE:UNIT|法盾|约德尔人")]
     [InlineData("p2-preflight-play-poppy-alt-a-spellshield-yordle-keyword-unit.fixture.json", "P1-UNIT-POPPY-A", 5, "CARD_TYPE:UNIT|法盾|约德尔人")]
+    [InlineData("p2-preflight-play-rampaging-soul-no-discard-spirit-unit.fixture.json", "P1-UNIT-RAMPAGING-SOUL", 4, "CARD_TYPE:UNIT|灵体")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7445,6 +7452,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-AZURE-GLYPH-GOLEM-A", "UNL-087a/219", "P1-BASE-AZURE-GLYPH-GOLEM-A-TARGET-001")]
     [InlineData(5, "P1-UNIT-POPPY", "UNL-116/219", "P1-BASE-POPPY-TARGET-001")]
     [InlineData(5, "P1-UNIT-POPPY-A", "UNL-116a/219", "P1-BASE-POPPY-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-RAMPAGING-SOUL", "OGN·019/298", "P1-BASE-RAMPAGING-SOUL-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
