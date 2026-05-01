@@ -7211,6 +7211,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-vi-keyword-unit.fixture.json", "P1-UNIT-VI", 3, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-vi-alt-a-keyword-unit.fixture.json", "P1-UNIT-VI-A", 3, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json", "P1-UNIT-LEBLANC", 4, "CARD_TYPE:UNIT|后排")]
+    [InlineData("p2-preflight-play-enthusiastic-announcer-keyword-unit.fixture.json", "P1-UNIT-ENTHUSIASTIC-ANNOUNCER", 2, "CARD_TYPE:UNIT|后排|约德尔人")]
+    [InlineData("p2-preflight-play-moss-stepper-keyword-unit.fixture.json", "P1-UNIT-MOSS-STEPPER", 3, "CARD_TYPE:UNIT|犬形|狩猎2")]
+    [InlineData("p2-preflight-play-trevor-duttonel-keyword-unit.fixture.json", "P1-UNIT-TREVOR-DUTTONEL", 3, "CARD_TYPE:UNIT|坚守|约德尔人")]
+    [InlineData("p2-preflight-play-windrunner-fox-keyword-unit.fixture.json", "P1-UNIT-WINDRUNNER-FOX", 3, "CARD_TYPE:UNIT|犬形|狩猎2")]
+    [InlineData("p2-preflight-play-crystalhand-hunter-keyword-unit.fixture.json", "P1-UNIT-CRYSTALHAND-HUNTER", 2, "CARD_TYPE:UNIT|狩猎|约德尔人")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7265,6 +7270,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-VI", "UNL-030/219", "P1-BASE-VI-TARGET-001")]
     [InlineData(4, "P1-UNIT-VI-A", "UNL-030a/219", "P1-BASE-VI-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-LEBLANC", "UNL-090/219", "P1-BASE-LEBLANC-TARGET-001")]
+    [InlineData(3, "P1-UNIT-ENTHUSIASTIC-ANNOUNCER", "UNL-043/219", "P1-BASE-ENTHUSIASTIC-ANNOUNCER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-MOSS-STEPPER", "UNL-047/219", "P1-BASE-MOSS-STEPPER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-TREVOR-DUTTONEL", "UNL-048/219", "P1-BASE-TREVOR-DUTTONEL-TARGET-001")]
+    [InlineData(3, "P1-UNIT-WINDRUNNER-FOX", "UNL-075/219", "P1-BASE-WINDRUNNER-FOX-TARGET-001")]
+    [InlineData(2, "P1-UNIT-CRYSTALHAND-HUNTER", "UNL-094/219", "P1-BASE-CRYSTALHAND-HUNTER-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
