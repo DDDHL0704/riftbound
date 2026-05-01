@@ -7359,6 +7359,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-unl-leblanc-alt-a-assault-unit.fixture.json", "P1-UNIT-UNL-LEBLANC-A", 3, "CARD_TYPE:UNIT|强攻")]
     [InlineData("p2-preflight-play-bad-poro-pirate-unit.fixture.json", "P1-UNIT-BAD-PORO", 2, "CARD_TYPE:UNIT|海盗|魄罗")]
     [InlineData("p2-preflight-play-siege-ram-trifarian-unit.fixture.json", "P1-UNIT-SIEGE-RAM", 5, "CARD_TYPE:UNIT|崔法利")]
+    [InlineData("p2-preflight-play-vex-alt-a-keyword-unit.fixture.json", "P1-UNIT-VEX-A", 5, "CARD_TYPE:UNIT|坚守|壁垒|约德尔人")]
+    [InlineData("p2-preflight-play-yuumi-faerie-cat-unit.fixture.json", "P1-UNIT-YUUMI", 1, "CARD_TYPE:UNIT|仙灵|猫科")]
+    [InlineData("p2-preflight-play-unl-lillia-faerie-unit.fixture.json", "P1-UNIT-UNL-LILLIA", 4, "CARD_TYPE:UNIT|仙灵")]
+    [InlineData("p2-preflight-play-unl-lillia-alt-a-faerie-unit.fixture.json", "P1-UNIT-UNL-LILLIA-A", 4, "CARD_TYPE:UNIT|仙灵")]
+    [InlineData("p2-preflight-play-vilemaw-spider-unit.fixture.json", "P1-UNIT-VILEMAW", 8, "CARD_TYPE:UNIT|蜘蛛")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7513,6 +7518,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-UNL-LEBLANC-A", "UNL-172a/219", "P1-BASE-UNL-LEBLANC-A-TARGET-001")]
     [InlineData(2, "P1-UNIT-BAD-PORO", "UNL-222/219", "P1-BASE-BAD-PORO-TARGET-001")]
     [InlineData(5, "P1-UNIT-SIEGE-RAM", "SFD·012/221", "P1-BASE-SIEGE-RAM-TARGET-001")]
+    [InlineData(5, "P1-UNIT-VEX-A", "UNL-055a/219", "P1-BASE-VEX-A-TARGET-001")]
+    [InlineData(3, "P1-UNIT-YUUMI", "UNL-056/219", "P1-BASE-YUUMI-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNL-LILLIA", "UNL-058/219", "P1-BASE-UNL-LILLIA-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNL-LILLIA-A", "UNL-058a/219", "P1-BASE-UNL-LILLIA-A-TARGET-001")]
+    [InlineData(8, "P1-UNIT-VILEMAW", "UNL-060/219", "P1-BASE-VILEMAW-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
