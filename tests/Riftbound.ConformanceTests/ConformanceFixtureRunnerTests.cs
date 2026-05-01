@@ -7276,6 +7276,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ogn-miss-fortune-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE", 4, "CARD_TYPE:UNIT|海盗")]
     [InlineData("p2-preflight-play-ogn-miss-fortune-alt-a-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE-A", 4, "CARD_TYPE:UNIT|海盗")]
     [InlineData("p2-preflight-play-ogn-miss-fortune-alt-b-keyword-unit.fixture.json", "P1-UNIT-OGN-MISS-FORTUNE-B", 4, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-taric-keyword-unit.fixture.json", "P1-UNIT-TARIC", 4, "CARD_TYPE:UNIT|坚守|壁垒")]
+    [InlineData("p2-preflight-play-lee-sin-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEE-SIN-STEADFAST", 5, "CARD_TYPE:UNIT|坚守")]
+    [InlineData("p2-preflight-play-lee-sin-alt-a-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEE-SIN-STEADFAST-A", 5, "CARD_TYPE:UNIT|坚守")]
+    [InlineData("p2-preflight-play-leona-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEONA-STEADFAST", 4, "CARD_TYPE:UNIT|坚守")]
+    [InlineData("p2-preflight-play-leona-alt-a-steadfast-keyword-unit.fixture.json", "P1-UNIT-LEONA-STEADFAST-A", 4, "CARD_TYPE:UNIT|坚守")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7379,6 +7384,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-OGN-MISS-FORTUNE", "OGN·193/298", "P1-BASE-OGN-MISS-FORTUNE-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGN-MISS-FORTUNE-A", "OGN·193a/298", "P1-BASE-OGN-MISS-FORTUNE-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGN-MISS-FORTUNE-B", "OGN·193b/298", "P1-BASE-OGN-MISS-FORTUNE-B-TARGET-001")]
+    [InlineData(4, "P1-UNIT-TARIC", "OGN·074/298", "P1-BASE-TARIC-TARGET-001")]
+    [InlineData(5, "P1-UNIT-LEE-SIN-STEADFAST", "OGN·078/298", "P1-BASE-LEE-SIN-STEADFAST-TARGET-001")]
+    [InlineData(5, "P1-UNIT-LEE-SIN-STEADFAST-A", "OGN·078a/298", "P1-BASE-LEE-SIN-STEADFAST-A-TARGET-001")]
+    [InlineData(4, "P1-UNIT-LEONA-STEADFAST", "OGN·238/298", "P1-BASE-LEONA-STEADFAST-TARGET-001")]
+    [InlineData(4, "P1-UNIT-LEONA-STEADFAST-A", "OGN·238a/298", "P1-BASE-LEONA-STEADFAST-A-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
