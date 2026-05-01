@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-targon-seer-no-level-unit",
+  "description": "Targon Seer enters without the level 11 bonus.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302553,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-098/219 巨神峰先知",
+      "note": "官方卡面：费用 6；单位；战力 6；等级11以上时获得战力+4。当前 fixture 覆盖普通主阶段从手牌打出且未达到等级11时的源单位入场；经验等级阈值和条件战力修正路径暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算，关键词/等级文本可作为后续条件路径单独审计。"
+    }
+  ],
+  "roomId": "p2-preflight-unl-098-targon-seer-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302553,
+    "turnNumber": 553,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-TARGON-SEER"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-unl-098-targon-seer-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-TARGON-SEER",
+        "cardNo": "UNL-098/219",
+        "targetObjectIds": []
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-098-targon-seer-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-098-targon-seer-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE"
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 553,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-UNIT-TARGON-SEER"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-TARGON-SEER": {
+          "power": 6,
+          "tags": ["CARD_TYPE:UNIT"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
