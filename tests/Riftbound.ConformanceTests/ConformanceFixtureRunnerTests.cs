@@ -7185,6 +7185,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-wise-elder-no-boon-static.fixture.json", "P1-UNIT-WISE-ELDER", 4)]
     [InlineData("p2-preflight-play-eager-apprentice-spell-cost-static.fixture.json", "P1-UNIT-EAGER-APPRENTICE", 3)]
     [InlineData("p2-preflight-play-arena-service-crew-equipment-trigger-static.fixture.json", "P1-UNIT-ARENA-SERVICE-CREW", 3)]
+    [InlineData("p2-preflight-play-poro-herder-no-poro-static.fixture.json", "P1-UNIT-PORO-HERDER", 3)]
+    [InlineData("p2-preflight-play-ravenbloom-student-spell-trigger-static.fixture.json", "P1-UNIT-RAVENBLOOM-STUDENT", 2)]
     public async Task CoreRuleEnginePlaysVanillaSourceUnit(string fixtureFileName, string sourceObjectId, int expectedPower)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -7250,6 +7252,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-WISE-ELDER", "OGN·065/298", "P1-BASE-WISE-ELDER-TARGET-001")]
     [InlineData(3, "P1-UNIT-EAGER-APPRENTICE", "OGN·084/298", "P1-BASE-EAGER-APPRENTICE-TARGET-001")]
     [InlineData(3, "P1-UNIT-ARENA-SERVICE-CREW", "OGN·091/298", "P1-BASE-ARENA-SERVICE-CREW-TARGET-001")]
+    [InlineData(3, "P1-UNIT-PORO-HERDER", "OGN·061/298", "P1-BASE-PORO-HERDER-TARGET-001")]
+    [InlineData(2, "P1-UNIT-RAVENBLOOM-STUDENT", "OGN·103/298", "P1-BASE-RAVENBLOOM-STUDENT-TARGET-001")]
     public Task CoreRuleEngineRejectsVanillaSourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
@@ -7369,6 +7373,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-leblanc-alt-a-back-row-ephemeral-static.fixture.json", "P1-UNIT-LEBLANC-A-BACKROW", 4, "CARD_TYPE:UNIT|后排")]
     [InlineData("p2-preflight-play-farron-captain-trifarian-static-assault.fixture.json", "P1-UNIT-FARRON-CAPTAIN", 5, "CARD_TYPE:UNIT|崔法利")]
     [InlineData("p2-preflight-play-rude-pirate-no-optional-discard.fixture.json", "P1-UNIT-RUDE-PIRATE", 5, "CARD_TYPE:UNIT|海盗")]
+    [InlineData("p2-preflight-play-raging-drake-next-spell-cost-static.fixture.json", "P1-UNIT-RAGING-DRAKE", 4, "CARD_TYPE:UNIT|龙")]
+    [InlineData("p2-preflight-play-adaptive-robot-conquer-boon-static.fixture.json", "P1-UNIT-ADAPTIVE-ROBOT", 3, "CARD_TYPE:UNIT|机械")]
+    [InlineData("p2-preflight-play-eclipse-vanguard-stun-trigger-static.fixture.json", "P1-UNIT-ECLIPSE-VANGUARD", 7, "CARD_TYPE:UNIT|鸟类")]
     [InlineData("p2-preflight-play-ogn-volibear-spellshield2-keyword-unit.fixture.json", "P1-UNIT-OGN-041-VOLIBEAR", 9, "CARD_TYPE:UNIT|法盾2")]
     [InlineData("p2-preflight-play-ogn-volibear-alt-a-spellshield2-keyword-unit.fixture.json", "P1-UNIT-OGN-041A-VOLIBEAR", 9, "CARD_TYPE:UNIT|法盾2")]
     [InlineData("p2-preflight-play-ogn-volibear-steadfast3-barrier-keyword-unit.fixture.json", "P1-UNIT-OGN-158-VOLIBEAR", 10, "CARD_TYPE:UNIT|坚守3|壁垒")]
@@ -7546,6 +7553,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-LEBLANC-A-BACKROW", "UNL-090a/219", "P1-BASE-LEBLANC-A-BACKROW-TARGET-001")]
     [InlineData(4, "P1-UNIT-FARRON-CAPTAIN", "OGN·015/298", "P1-BASE-FARRON-CAPTAIN-TARGET-001")]
     [InlineData(6, "P1-UNIT-RUDE-PIRATE", "OGN·002/298", "P1-BASE-RUDE-PIRATE-TARGET-001")]
+    [InlineData(6, "P1-UNIT-RAGING-DRAKE", "OGN·031/298", "P1-BASE-RAGING-DRAKE-TARGET-001")]
+    [InlineData(4, "P1-UNIT-ADAPTIVE-ROBOT", "OGN·056/298", "P1-BASE-ADAPTIVE-ROBOT-TARGET-001")]
+    [InlineData(7, "P1-UNIT-ECLIPSE-VANGUARD", "OGN·059/298", "P1-BASE-ECLIPSE-VANGUARD-TARGET-001")]
     [InlineData(10, "P1-UNIT-OGN-041-VOLIBEAR", "OGN·041/298", "P1-BASE-OGN-041-VOLIBEAR-TARGET-001")]
     [InlineData(10, "P1-UNIT-OGN-041A-VOLIBEAR", "OGN·041a/298", "P1-BASE-OGN-041A-VOLIBEAR-TARGET-001")]
     [InlineData(12, "P1-UNIT-OGN-158-VOLIBEAR", "OGN·158/298", "P1-BASE-OGN-158-VOLIBEAR-TARGET-001")]
