@@ -27,7 +27,8 @@ public static class GameCommandJsonMapper
                 Text(cmd, "cardNo"),
                 TextArray(cmd, "targetObjectIds"),
                 Text(cmd, "mode"),
-                TextArray(cmd, "optionalCosts")),
+                TextArray(cmd, "optionalCosts"),
+                Text(cmd, "destination")),
             "ACTIVATE_ABILITY" => new ActivateAbilityCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "abilityId"),

@@ -5,6 +5,7 @@ namespace Riftbound.Engine;
 public sealed class CoreRuleEngine : IRuleEngine
 {
     private const int WinningScore = 8;
+    private const string AmbushPlayMode = "AMBUSH";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -96,6 +97,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         PlayCardCommand command)
     {
+        if (IsAmbushPlayMode(command.Mode))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PLAY_CARD mode AMBUSH is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
         if (!TryBuildPlayCardPlan(state, intent, command, out var plan, out var rejection))
         {
             return rejection;
@@ -889,6 +898,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(targetObjectId => !string.IsNullOrWhiteSpace(targetObjectId))
             .Select(targetObjectId => targetObjectId.Trim())
             .ToArray();
+    }
+
+    private static bool IsAmbushPlayMode(string? mode)
+    {
+        return string.Equals(mode?.Trim(), AmbushPlayMode, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)

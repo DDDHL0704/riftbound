@@ -90,7 +90,8 @@ public sealed record PlayCardCommand(
     string CardNo,
     IReadOnlyList<string> TargetObjectIds,
     string Mode = "",
-    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("PLAY_CARD");
+    IReadOnlyList<string>? OptionalCosts = null,
+    string Destination = "") : GameCommand("PLAY_CARD");
 
 public sealed record ActivateAbilityCommand(
     string SourceObjectId,

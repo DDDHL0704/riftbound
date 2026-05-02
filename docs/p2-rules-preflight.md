@@ -2340,6 +2340,8 @@ P4 延展 1. 已完成：新增 `ACTIVATE_ABILITY` command 前置模型，服务
 
 P4 延展 2. 已完成：新增 `HIDE_CARD` command 前置模型，服务端协议能解析 `sourceObjectId` / `cardNo` / `destination` / `optionalCosts`，但 `CoreRuleEngine` 在待命正面朝下放置、隐藏信息 snapshot 和翻开打出模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`OGN·121/298 提莫` 这类“待命”文本仍暂缓真实 face-down 执行。
 
+P4 延展 3. 已完成：新增 `PLAY_CARD` 伏击目的地前置模型，服务端协议能解析 `sourceObjectId` / `cardNo` / `targetObjectIds` / `mode` / `optionalCosts` / `destination`，但 `CoreRuleEngine` 在反应窗口、战场目的地合法性和单位打出至战场模型完成前对 `mode = "AMBUSH"` 显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`UNL-021/219 阴森药剂师` 这类“伏击”文本仍暂缓真实反应战场打出。
+
 ## 7. 暂缓项
 
 - 不实现完整打出卡牌流程。

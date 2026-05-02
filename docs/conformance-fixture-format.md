@@ -66,6 +66,7 @@ seed + initial setup + command log
 - 重复 `clientIntentId` 必须不重复推进 tick，也不重复写入规则事件日志。
 - `expected.events[]` 可以继续只写 `kind`，也可以按需补 `tick`、`sequence` 和 `payload`。
 - `payload` 是局部匹配，只需要写本 fixture 关心的字段。
+- `PLAY_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.64 只为 `mode = "AMBUSH"` 锁定伏击战场目的地 envelope，Core 仍显式拒绝真实反应战场打出。
 
 现有 fixture 不在本格式文档逐条维护，避免每新增卡牌都同步长清单。需要查找样例时：
 

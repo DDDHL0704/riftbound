@@ -254,6 +254,29 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(new[] { "P2-UNIT-001" }, command.TargetObjectIds);
         Assert.Equal("BASE_UNIT_DAMAGE_4", command.Mode);
         Assert.Equal(new[] { "ECHO" }, command.OptionalCosts);
+        Assert.Equal(string.Empty, command.Destination);
+    }
+
+    [Fact]
+    public void GameCommandMapperParsesAmbushPlayCardDestination()
+    {
+        var command = Assert.IsType<PlayCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+              "cardNo": "UNL-021/219",
+              "targetObjectIds": [],
+              "mode": "AMBUSH",
+              "destination": "BATTLEFIELD:P1-MAIN"
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-HAND-UNL-GLOOMY-APOTHECARY", command.SourceObjectId);
+        Assert.Equal("UNL-021/219", command.CardNo);
+        Assert.Empty(command.TargetObjectIds);
+        Assert.Equal("AMBUSH", command.Mode);
+        Assert.Empty(command.OptionalCosts ?? []);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", command.Destination);
     }
 
     [Fact]

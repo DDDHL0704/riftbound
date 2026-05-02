@@ -18261,6 +18261,55 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AmbushPlayCardModeIsExplicitlyRejectedUntilBattlefieldReactionPlayExists()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+                    Battlefields = ["P1-BATTLEFIELD-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNL-GLOOMY-APOTHECARY"] = new(
+                    "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush]),
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-ambush-play-card-premodel", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                "UNL-021/219",
+                [],
+                Mode: "AMBUSH",
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4SpellshieldTaxState(mana: 2);
