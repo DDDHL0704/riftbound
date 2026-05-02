@@ -7704,6 +7704,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-starhound-graveyard-return-static.fixture.json", "P1-UNIT-STARHOUND", 6, "CARD_TYPE:UNIT|犬形")]
     [InlineData("p2-preflight-play-masked-attendant-ephemeral-copy-static.fixture.json", "P1-UNIT-MASKED-ATTENDANT", 1, "CARD_TYPE:UNIT|待命|瞬息")]
     [InlineData("p2-preflight-play-atakhan-no-optional-destroy-roam-static.fixture.json", "P1-UNIT-ATAKHAN", 7, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-ivern-trait-choice-score-static.fixture.json", "P1-UNIT-IVERN-TRAIT", 6, "CARD_TYPE:UNIT|犬形")]
+    [InlineData("p2-preflight-play-ivern-alt-a-trait-choice-score-static.fixture.json", "P1-UNIT-IVERN-A-TRAIT", 6, "CARD_TYPE:UNIT|魄罗")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7963,6 +7965,173 @@ public sealed class ConformanceFixtureRunnerTests
             sourceObjectId,
             cardNo,
             targetObjectId);
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysSnowstalkingWolfDestroyTraitUnitAdditionalCost()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-snowstalking-wolf-trait-destroy-ambush-static.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SNOWSTALKING-WOLF"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BASE-SNOWSTALKING-WOLF-COST-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P1-BASE-SNOWSTALKING-WOLF-COST-001"));
+        Assert.Equal([CardObjectTags.UnitCard, "犬形"], result.FinalState.CardObjects["P1-UNIT-SNOWSTALKING-WOLF"].Tags);
+        Assert.Equal(["P1"], result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSnowstalkingWolfWithoutTraitAdditionalCost()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SNOWSTALKING-WOLF"],
+                    Base = ["P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-SNOWSTALKING-WOLF-COST-001"] = new(
+                    "P1-BASE-SNOWSTALKING-WOLF-COST-001",
+                    tags: [CardObjectTags.UnitCard, "犬形"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-snowstalking-wolf-missing-trait-additional-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-SNOWSTALKING-WOLF", "UNL-166/219", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-SNOWSTALKING-WOLF"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BASE-SNOWSTALKING-WOLF-COST-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSnowstalkingWolfWhenAdditionalCostUnitLacksTrait()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SNOWSTALKING-WOLF"],
+                    Base = ["P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-SNOWSTALKING-WOLF-COST-001"] = new(
+                    "P1-BASE-SNOWSTALKING-WOLF-COST-001",
+                    tags: [CardObjectTags.UnitCard, "机械"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-snowstalking-wolf-wrong-trait-additional-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SNOWSTALKING-WOLF",
+                "UNL-166/219",
+                [],
+                OptionalCosts: ["DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-SNOWSTALKING-WOLF"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BASE-SNOWSTALKING-WOLF-COST-001"], result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects.ContainsKey("P1-BASE-SNOWSTALKING-WOLF-COST-001"));
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSnowstalkingWolfWhenTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SNOWSTALKING-WOLF"],
+                    Base =
+                    [
+                        "P1-BASE-SNOWSTALKING-WOLF-COST-001",
+                        "P1-BASE-SNOWSTALKING-WOLF-TARGET-001"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-SNOWSTALKING-WOLF-COST-001"] = new(
+                    "P1-BASE-SNOWSTALKING-WOLF-COST-001",
+                    tags: [CardObjectTags.UnitCard, "犬形"]),
+                ["P1-BASE-SNOWSTALKING-WOLF-TARGET-001"] = new(
+                    "P1-BASE-SNOWSTALKING-WOLF-TARGET-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-snowstalking-wolf-with-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SNOWSTALKING-WOLF",
+                "UNL-166/219",
+                ["P1-BASE-SNOWSTALKING-WOLF-TARGET-001"],
+                OptionalCosts: ["DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-SNOWSTALKING-WOLF"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-BASE-SNOWSTALKING-WOLF-COST-001", "P1-BASE-SNOWSTALKING-WOLF-TARGET-001"],
+            result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Theory]
+    [InlineData("P1-UNIT-IVERN-TRAIT", "UNL-177/219", "CHOOSE_DOG", "P1-BASE-IVERN-TRAIT-TARGET-001")]
+    [InlineData("P1-UNIT-IVERN-A-TRAIT", "UNL-177a/219", "CHOOSE_PORO", "P1-BASE-IVERN-A-TRAIT-TARGET-001")]
+    public Task CoreRuleEngineRejectsIvernTraitChoiceSourceUnitWhenTargetsAreProvided(
+        string sourceObjectId,
+        string cardNo,
+        string mode,
+        string targetObjectId) =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            6,
+            sourceObjectId,
+            cardNo,
+            targetObjectId,
+            mode);
 
     [Theory]
     [InlineData("p2-preflight-play-aggressive-dragonhound-active-unit.fixture.json", "P1-UNIT-AGGRESSIVE-DRAGONHOUND", 3, "CARD_TYPE:UNIT|犬形|龙")]
@@ -13751,7 +13920,8 @@ public sealed class ConformanceFixtureRunnerTests
         int mana,
         string sourceObjectId,
         string cardNo,
-        string targetObjectId)
+        string targetObjectId,
+        string mode = "")
     {
         var state = PunishmentState(mana) with
         {
@@ -13777,7 +13947,8 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 sourceObjectId,
                 cardNo,
-                [targetObjectId]),
+                [targetObjectId],
+                mode),
             CancellationToken.None);
 
         Assert.False(result.Accepted);

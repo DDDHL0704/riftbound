@@ -12,6 +12,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DestroyOnNextDamageThisTurnEffectId = "DESTROY_ON_NEXT_DAMAGE_THIS_TURN";
     private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
+    private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
 
@@ -319,6 +320,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (exhaustedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanExhaustFriendlyUnitAsOptionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -329,12 +340,24 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+        if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDestroyFriendlyPowerfulUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
             rejection = RejectWithCorePrompts(
                 state,
                 $"{behavior.DisplayName} requires a friendly powerful unit as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanDestroyFriendlyTraitUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -1084,6 +1107,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
+            && behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost
+            && TryParseDestroyFriendlyTraitUnitAdditionalCost(
+                normalizedOptionalCosts[0],
+                out var destroyedTraitTargetObjectId))
+        {
+            destroyedAdditionalCostTargetObjectIds = [destroyedTraitTargetObjectId];
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
             && behavior.DamageAmountFromOptionalPowerCost
             && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost))
         {
@@ -1128,6 +1161,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         targetObjectId = optionalCost[DestroyFriendlyPowerfulUnitAdditionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
+    private static bool TryParseDestroyFriendlyTraitUnitAdditionalCost(
+        string optionalCost,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(DestroyFriendlyTraitUnitAdditionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[DestroyFriendlyTraitUnitAdditionalCostPrefix.Length..].Trim();
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
@@ -1177,6 +1224,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         return IsControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Power >= 5;
+    }
+
+    private static bool CanDestroyFriendlyTraitUnitAsAdditionalCost(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        if (!IsControlledFieldObject(state, playerId, targetObjectId)
+            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return targetState.Tags.Contains("鸟类", StringComparer.Ordinal)
+            || targetState.Tags.Contains("猫科", StringComparer.Ordinal)
+            || targetState.Tags.Contains("犬形", StringComparer.Ordinal)
+            || targetState.Tags.Contains("魄罗", StringComparer.Ordinal);
     }
 
     private static bool CanDiscardHandCardAsOptionalCost(

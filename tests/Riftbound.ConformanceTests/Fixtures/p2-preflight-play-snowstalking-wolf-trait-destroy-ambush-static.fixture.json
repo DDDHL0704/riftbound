@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-snowstalking-wolf-trait-destroy-ambush-static",
+  "description": "Snowstalking Wolf destroys a friendly trait unit as its mandatory additional cost, then enters as a Dog unit while Ambush battlefield placement is deferred.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302784,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-166/219 追猎雪狼",
+      "note": "官方卡面：费用 4；单位；战力 6；犬形属性；伏击；必须摧毁一名自己控制的鸟类、猫科、犬形或魄罗属性单位作为打出额外费用，并可以打出至该单位所在战场。当前 fixture 覆盖普通主阶段支付基础费用并摧毁友方犬形单位作为额外费用，结算后源单位进入控制者基地并记录犬形标签；伏击反应打出、战场目的地选择和打出至被摧毁单位所在战场路径暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4; p62-p63 rule 428; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象；打出卡牌需要支付费用和额外费用、加入结算链并在双方让过后结算；摧毁会将单位从场上移至其拥有者弃牌堆；对象标签用于表达属性/关键词。"
+    }
+  ],
+  "roomId": "p2-preflight-unl-166-snowstalking-wolf-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302784,
+    "turnNumber": 784,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-SNOWSTALKING-WOLF"],
+        "base": ["P1-BASE-SNOWSTALKING-WOLF-COST-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-SNOWSTALKING-WOLF-COST-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT", "犬形"],
+        "isExhausted": false,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-unl-166-snowstalking-wolf-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-SNOWSTALKING-WOLF",
+        "cardNo": "UNL-166/219",
+        "targetObjectIds": [],
+        "optionalCosts": ["DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-166-snowstalking-wolf-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-166-snowstalking-wolf-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "UNIT_DESTROYED",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4,
+          "optionalCosts": ["DESTROY_FRIENDLY_TRAIT_UNIT:P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "sourceObjectId": "P1-UNIT-SNOWSTALKING-WOLF",
+          "targetObjectId": "P1-BASE-SNOWSTALKING-WOLF-COST-001",
+          "ownerPlayerId": "P1",
+          "destroyedByPlayerId": "P1",
+          "destinationZone": "GRAVEYARD",
+          "reason": "ADDITIONAL_COST"
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "tick": 1,
+        "sequence": 4,
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-SNOWSTALKING-WOLF",
+          "cardNo": "UNL-166/219",
+          "targetObjectIds": [],
+          "effectKind": "SNOWSTALKING_WOLF_TRAIT_DESTROY_AMBUSH_STATIC"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      { "kind": "UNIT_PLAYED_TO_BASE" }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 784,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-UNIT-SNOWSTALKING-WOLF"],
+          "battlefields": [],
+          "graveyard": ["P1-BASE-SNOWSTALKING-WOLF-COST-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-SNOWSTALKING-WOLF": {
+          "power": 6,
+          "tags": ["CARD_TYPE:UNIT", "犬形"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
