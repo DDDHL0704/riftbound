@@ -1806,6 +1806,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.RemovesDamageFromAllFriendlyBattlefieldUnits)
+        {
+            RemoveDamageFromFriendlyBattlefieldUnits(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                events);
+        }
+
         if (behavior.CountersTargetStackSpell)
         {
             foreach (var targetStackItemId in stackItem.TargetObjectIds)
@@ -5321,6 +5331,46 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static void RemoveDamageFromFriendlyBattlefieldUnits(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var damagedObjectIds = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var state)
+                && state.Damage > 0
+                && state.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (damagedObjectIds.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var objectId in damagedObjectIds)
+        {
+            cardObjects[objectId] = cardObjects[objectId] with { Damage = 0 };
+        }
+
+        events.Add(new GameEvent(
+            "DAMAGE_REMOVED",
+            $"{behavior.DisplayName}移除己方战场单位伤害",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["playerId"] = stackItem.ControllerId,
+                ["objectIds"] = damagedObjectIds,
+                ["count"] = damagedObjectIds.Length
+            }));
     }
 
     private static bool TryMoveTargetToOwnerBattlefield(
