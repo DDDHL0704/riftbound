@@ -2499,7 +2499,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "鸟类|急速"),
+            SourceUnitTags: "鸟类|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·177a/221",
             "阿兹尔",
