@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-ephemeral-destroys-controlled-objects-turn-start",
+  "description": "Ephemeral controlled objects are destroyed at their controller's turn start before rune call and draw.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603303001,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "UNL-149/219 蒙面侍者",
+      "note": "官方卡面：单位；待命；瞬息。瞬息说明：在我控制者的开始阶段开始时，结算得分之前将我摧毁。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p92-p105 keyword rules 800+",
+      "note": "开始阶段包含开始阶段开始、召出符文和抽牌等流程；瞬息在控制者的开始阶段开始时、结算得分之前摧毁自身。"
+    }
+  ],
+  "roomId": "p4-ephemeral-turn-start-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603303001,
+    "turnNumber": 8,
+    "activePlayerId": "P2",
+    "turnPlayerId": "P2",
+    "phase": "TURN_START",
+    "timingState": "NEUTRAL_CLOSED",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 1, "power": 1 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": [],
+        "hand": [],
+        "base": ["P1-EPHEMERAL-OTHER"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": ["P2-EPHEMERAL-BASE", "P2-KEEP-BASE"],
+        "battlefields": ["P2-EPHEMERAL-BATTLEFIELD"],
+        "graveyard": ["P2-GRAVE-EXISTING"],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-EPHEMERAL-OTHER": {
+        "power": 1,
+        "tags": ["CARD_TYPE:UNIT", "瞬息"]
+      },
+      "P2-EPHEMERAL-BASE": {
+        "power": 1,
+        "tags": ["CARD_TYPE:UNIT", "瞬息"]
+      },
+      "P2-EPHEMERAL-BATTLEFIELD": {
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT", "瞬息"]
+      },
+      "P2-KEEP-BASE": {
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-ephemeral-turn-start",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_START_BEGAN",
+      "UNIT_DESTROYED",
+      "UNIT_DESTROYED",
+      "RUNES_CALLED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_START_BEGAN" },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "sourceObjectId": "P2-EPHEMERAL-BASE",
+          "targetObjectId": "P2-EPHEMERAL-BASE",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P2",
+          "destinationZone": "GRAVEYARD",
+          "reason": "EPHEMERAL_TURN_START"
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "sourceObjectId": "P2-EPHEMERAL-BATTLEFIELD",
+          "targetObjectId": "P2-EPHEMERAL-BATTLEFIELD",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P2",
+          "destinationZone": "GRAVEYARD",
+          "reason": "EPHEMERAL_TURN_START"
+        }
+      },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 8,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "base": ["P1-EPHEMERAL-OTHER"],
+          "graveyard": []
+        },
+        "P2": {
+          "mainDeck": [],
+          "runeDeck": [],
+          "hand": ["P2-MAIN-001"],
+          "base": ["P2-KEEP-BASE", "P2-RUNE-001", "P2-RUNE-002"],
+          "battlefields": [],
+          "graveyard": ["P2-GRAVE-EXISTING", "P2-EPHEMERAL-BASE", "P2-EPHEMERAL-BATTLEFIELD"]
+        }
+      },
+      "cardObjects": {
+        "P1-EPHEMERAL-OTHER": {
+          "power": 1,
+          "tags": ["CARD_TYPE:UNIT", "瞬息"]
+        },
+        "P2-KEEP-BASE": {
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}

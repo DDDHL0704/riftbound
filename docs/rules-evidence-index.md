@@ -77,6 +77,7 @@
 | `p2-preflight-turn-start-first-p2-extra-rune` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.3, rule 430, rule 481.7 | 已验证 1v1 第二个行动玩家首个召出阶段额外召出 1 张符文。 |
 | `p2-preflight-turn-start-burnout` | `RULE_AUDITED` | `CORE-260330` p28-p29 rule 315.4, p57 rule 413.4, p67 rule 431.2, rule 481.7 | 已验证抽牌阶段主牌堆为空且废牌堆有牌可回收时执行燃尽、对手得 1 分、回收后完成抽牌。 |
 | `p2-preflight-turn-start-burnout-empty-graveyard-wins` | `RULE_AUDITED` | `CORE-260330` p57 rule 413.4, p67-p68 rules 431.1-431.3, p31 rule 323.1 | 已验证燃尽后主牌堆仍为空时继续燃尽；对手达到获胜分且领先时立即获胜，不等待清理。 |
+| `p4-ephemeral-destroys-controlled-objects-turn-start` | `RULE_AUDITED` | `CATALOG` UNL-149/219；`CORE-260330` p20 rules 164-167；p92-p105 keyword rules 800+ | P4.3 已验证当前回合玩家控制的 `瞬息` 对象会在其开始阶段开始时、召出符文和抽牌前被摧毁并进入拥有者废牌堆；对手控制的 `瞬息` 对象不会在此玩家开始阶段被清理。 |
 | `p2-preflight-end-turn-advances-to-next-start` | `RULE_AUDITED` | `CORE-260330` p29-p31 rules 316.1-317.3, p20 rules 164-167, p28-p29 rule 315, rule 481.7；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证 P1 主阶段 `END_TURN` 会记录回合结束声明、执行无伤害/无持续效果的最小特殊清理、清空符文池、推进到 P2，并自动结算 P2 回合开始。 |
 | `p2-preflight-end-turn-special-cleanup` | `RULE_AUDITED` | `CORE-260330` p30-p31 rules 317.2.a-317.2.f, p31-p33 rules 318-324；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证回合结束特殊清理会移除单位伤害、令期限为本回合内的效果失效、清空符文池，并自动结算下一回合开始。 |
 | `p2-preflight-cleanup-repeats-until-stable` | `RULE_AUDITED` | `CORE-260330` p31-p33 rules 318-324；`JFAQ-251023` p6-p7 questions 5.1-5.2 | 已验证特殊清理导致对象状态变化后追加一次常规清理检查，并且不重复执行回合结束特殊清理步骤。 |

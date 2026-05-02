@@ -130,6 +130,25 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4EphemeralKeywordDestroysControlledObjectsAtTurnStart()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-ephemeral-destroys-controlled-objects-turn-start.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2"], result.FinalState.DestroyedUnitOwnerIdsThisTurn);
+        Assert.DoesNotContain("P2-EPHEMERAL-BASE", result.FinalState.CardObjects.Keys);
+        Assert.DoesNotContain("P2-EPHEMERAL-BATTLEFIELD", result.FinalState.CardObjects.Keys);
+        Assert.Contains("P1-EPHEMERAL-OTHER", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineCallsAvailableRunesWhenRuneDeckIsShort()
     {
         var fixture = await ConformanceFixture.LoadAsync(

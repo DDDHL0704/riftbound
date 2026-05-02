@@ -12,7 +12,7 @@
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
-- P4 已进入高频关键词与基础卡牌小批次：P4.1 完成 template delegation bridge，P4.2 完成 `迅捷` / `反应` / `急速` 权限关键词最小模型；当前只把已验证的 `OGN·004/298 顺劈` 法术对决焦点窗口接入可玩路径。
+- P4 已进入高频关键词与基础卡牌小批次：P4.1 完成 template delegation bridge，P4.2 完成 `迅捷` / `反应` / `急速` 权限关键词最小模型，P4.3 完成 `瞬息` 控制者开始阶段到期摧毁；当前只接入已验证的小批次可玩路径。
 
 ## 新窗口接手
 

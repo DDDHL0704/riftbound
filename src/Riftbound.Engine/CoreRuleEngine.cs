@@ -695,6 +695,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var turnPlayerId = state.TurnPlayerId;
         var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var ephemeralCleanupResult = DestroyEphemeralObjectsAtTurnStart(
+            playerZones,
+            cardObjects,
+            turnPlayerId,
+            state.Tick);
         var currentZones = playerZones.TryGetValue(turnPlayerId, out var zones)
             ? zones
             : PlayerZones.Empty;
@@ -723,8 +729,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = drawResult.WinnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
             PlayerZones = playerZones,
             PlayerScores = drawResult.PlayerScores,
+            CardObjects = cardObjects,
             WinnerPlayerId = drawResult.WinnerPlayerId,
-            DestroyedUnitOwnerIdsThisTurn = [],
+            DestroyedUnitOwnerIdsThisTurn = ephemeralCleanupResult.DestroyedUnitOwnerIds,
             RngCursor = drawResult.RngCursor
         };
 
@@ -732,9 +739,69 @@ public sealed class CoreRuleEngine : IRuleEngine
             true,
             null,
             nextState,
-            BuildTurnStartEvents(state, calledRunes.Length, drawResult),
+            BuildTurnStartEvents(state, calledRunes.Length, drawResult, ephemeralCleanupResult.Events),
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string turnPlayerId,
+        long currentTick)
+    {
+        if (!playerZones.TryGetValue(turnPlayerId, out var zones))
+        {
+            return EphemeralCleanupResult.Empty;
+        }
+
+        var controlledFieldObjectIds = zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
+                && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (controlledFieldObjectIds.Length == 0)
+        {
+            return EphemeralCleanupResult.Empty;
+        }
+
+        var events = new List<GameEvent>();
+        var destroyedUnitOwnerIds = new List<string>();
+        foreach (var objectId in controlledFieldObjectIds)
+        {
+            var pseudoStackItem = new StackItemState(
+                $"TURN-START-{currentTick}-{objectId}",
+                turnPlayerId,
+                objectId,
+                "EPHEMERAL_TURN_START_DESTROY",
+                string.Empty,
+                [],
+                0);
+            if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var removalResult))
+            {
+                continue;
+            }
+
+            events.Add(BuildFieldRemovalEvent(
+                CardObjectTags.Ephemeral,
+                pseudoStackItem,
+                objectId,
+                removalResult,
+                "EPHEMERAL_TURN_START"));
+            if (removalResult.WasDestroyed && removalResult.WasUnit)
+            {
+                destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+            }
+        }
+
+        return new EphemeralCleanupResult(
+            events,
+            destroyedUnitOwnerIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                .ToArray());
     }
 
     private static ResolutionResult RejectWithCorePrompts(
@@ -7143,7 +7210,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<GameEvent> BuildTurnStartEvents(
         MatchState state,
         int calledRuneCount,
-        DrawResult drawResult)
+        DrawResult drawResult,
+        IReadOnlyList<GameEvent> preRuneCallEvents)
     {
         List<GameEvent> events =
         [
@@ -7153,7 +7221,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["turnPlayerId"] = state.TurnPlayerId
-                }),
+                })
+        ];
+
+        events.AddRange(preRuneCallEvents);
+        events.Add(
             new GameEvent(
                 "RUNES_CALLED",
                 $"{state.TurnPlayerId} 召出 {calledRuneCount} 张符文",
@@ -7161,8 +7233,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = state.TurnPlayerId,
                     ["count"] = calledRuneCount
-                })
-        ];
+                }));
 
         foreach (var (burnout, index) in drawResult.Burnouts.Select((burnout, index) => (burnout, index)))
         {
@@ -7225,6 +7296,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? WinnerPlayerId,
         IReadOnlyDictionary<string, int> PlayerScores,
         long RngCursor);
+
+    private sealed record EphemeralCleanupResult(
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> DestroyedUnitOwnerIds)
+    {
+        public static EphemeralCleanupResult Empty { get; } = new([], []);
+    }
 
     private sealed record DrawApplicationResult(
         IReadOnlyDictionary<string, int> PlayerScores,
