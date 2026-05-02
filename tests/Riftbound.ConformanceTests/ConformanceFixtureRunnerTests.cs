@@ -7691,6 +7691,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-poppy-alt-a-no-experience-ambush-barrier-static.fixture.json", "P1-UNIT-UNL-178A-POPPY", 5, "CARD_TYPE:UNIT|壁垒|约德尔人")]
     [InlineData("p2-preflight-play-vex-spellshield-stun-static.fixture.json", "P1-UNIT-UNL-150-VEX", 4, "CARD_TYPE:UNIT|法盾|约德尔人")]
     [InlineData("p2-preflight-play-vex-alt-a-spellshield-stun-static.fixture.json", "P1-UNIT-UNL-150A-VEX", 4, "CARD_TYPE:UNIT|法盾|约德尔人")]
+    [InlineData("p2-preflight-play-ancient-dragon-lethal-damage-static.fixture.json", "P1-UNIT-ANCIENT-DRAGON", 10, "CARD_TYPE:UNIT|龙")]
+    [InlineData("p2-preflight-play-ancient-dragon-alt-a-lethal-damage-static.fixture.json", "P1-UNIT-ANCIENT-DRAGON-A", 10, "CARD_TYPE:UNIT|龙")]
+    [InlineData("p2-preflight-play-moving-perch-spellshield-token-static.fixture.json", "P1-UNIT-MOVING-PERCH", 6, "CARD_TYPE:UNIT|法盾")]
+    [InlineData("p2-preflight-play-safety-inspector-experience-destroy-static.fixture.json", "P1-UNIT-SAFETY-INSPECTOR", 3, "CARD_TYPE:UNIT|约德尔人")]
+    [InlineData("p2-preflight-play-starhound-graveyard-return-static.fixture.json", "P1-UNIT-STARHOUND", 6, "CARD_TYPE:UNIT|犬形")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7933,6 +7938,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-UNL-178A-POPPY", "UNL-178a/219", "P1-BASE-UNL-178A-POPPY-TARGET-001")]
     [InlineData(4, "P1-UNIT-UNL-150-VEX", "UNL-150/219", "P1-BASE-UNL-150-VEX-TARGET-001")]
     [InlineData(4, "P1-UNIT-UNL-150A-VEX", "UNL-150a/219", "P1-BASE-UNL-150A-VEX-TARGET-001")]
+    [InlineData(12, "P1-UNIT-ANCIENT-DRAGON", "UNL-118/219", "P1-BASE-ANCIENT-DRAGON-TARGET-001")]
+    [InlineData(12, "P1-UNIT-ANCIENT-DRAGON-A", "UNL-118a/219", "P1-BASE-ANCIENT-DRAGON-A-TARGET-001")]
+    [InlineData(5, "P1-UNIT-MOVING-PERCH", "UNL-130/219", "P1-BASE-MOVING-PERCH-TARGET-001")]
+    [InlineData(5, "P1-UNIT-SAFETY-INSPECTOR", "UNL-164/219", "P1-BASE-SAFETY-INSPECTOR-TARGET-001")]
+    [InlineData(5, "P1-UNIT-STARHOUND", "UNL-167/219", "P1-BASE-STARHOUND-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
