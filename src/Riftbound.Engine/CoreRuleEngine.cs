@@ -3247,6 +3247,30 @@ public sealed class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
+                    if (behavior.GainsControlOfTargetToBattlefield
+                        && TryGainControlOfTargetToBattlefield(
+                            playerZones,
+                            cardObjects,
+                            stackItem.ControllerId,
+                            targetObjectId,
+                            out var previousBattlefieldControllerId,
+                            out var battleControlledTargetState))
+                    {
+                        events.Add(new GameEvent(
+                            "UNIT_CONTROL_GAINED",
+                            $"{behavior.DisplayName}获得战场单位控制权",
+                            new Dictionary<string, object?>
+                            {
+                                ["sourceObjectId"] = stackItem.SourceObjectId,
+                                ["targetObjectId"] = targetObjectId,
+                                ["controllerId"] = stackItem.ControllerId,
+                                ["previousControllerId"] = previousBattlefieldControllerId,
+                                ["destinationZone"] = "BATTLEFIELD",
+                                ["isExhausted"] = battleControlledTargetState.IsExhausted
+                            }));
+                        continue;
+                    }
+
                     if (behavior.MovesTargetToBase
                         && targetIndex >= behavior.MoveToBaseTargetStartIndex
                         && TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var movedOwnerPlayerId))
@@ -5451,6 +5475,50 @@ public sealed class CoreRuleEngine : IRuleEngine
             };
             cardObjects[targetObjectId] = targetState;
             ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGainControlOfTargetToBattlefield(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string targetObjectId,
+        out string previousControllerId,
+        out CardObjectState controlledTargetState)
+    {
+        previousControllerId = string.Empty;
+        controlledTargetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+            ? existingTargetState
+            : new CardObjectState(targetObjectId);
+        if (!playerZones.ContainsKey(controllerId))
+        {
+            return false;
+        }
+
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (string.Equals(playerId, controllerId, StringComparison.Ordinal)
+                || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+            };
+            var controllerZones = playerZones[controllerId];
+            playerZones[controllerId] = controllerZones with
+            {
+                Battlefields = controllerZones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? controllerZones.Battlefields
+                    : controllerZones.Battlefields.Concat([targetObjectId]).ToArray()
+            };
+            cardObjects[targetObjectId] = controlledTargetState;
+            previousControllerId = playerId;
             return true;
         }
 

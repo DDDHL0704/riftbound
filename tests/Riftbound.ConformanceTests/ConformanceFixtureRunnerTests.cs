@@ -1570,6 +1570,68 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysHostileTakeoverGainControlReadyBattlefieldUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-hostile-takeover-gain-control-ready-battlefield-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2-HOSTILE-TAKEOVER-TARGET"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.False(result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].IsExhausted);
+        Assert.Contains(
+            "UNIT_CONTROL_GAINED",
+            result.EventKinds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHostileTakeoverWhenTargetIsFriendlyBattlefieldUnit()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HOSTILE-TAKEOVER"],
+                    Battlefields = ["P1-HOSTILE-TAKEOVER-FRIENDLY-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HOSTILE-TAKEOVER-FRIENDLY-UNIT"] = new(
+                    "P1-HOSTILE-TAKEOVER-FRIENDLY-UNIT",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-hostile-takeover-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-HOSTILE-TAKEOVER",
+                "SFD·202/221",
+                ["P1-HOSTILE-TAKEOVER-FRIENDLY-UNIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-HOSTILE-TAKEOVER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-HOSTILE-TAKEOVER-FRIENDLY-UNIT"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPredictiveOffensiveDrawOneRecycleOther()
     {
         var fixture = await ConformanceFixture.LoadAsync(
