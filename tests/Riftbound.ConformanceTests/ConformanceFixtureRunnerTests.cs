@@ -7180,6 +7180,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-ashe-hand-banish-static.fixture.json", "P1-UNIT-ASHE-HAND-BANISH", 4)]
     [InlineData("p2-preflight-play-rift-herald-move-last-breath-static.fixture.json", "P1-UNIT-RIFT-HERALD", 7)]
     [InlineData("p2-preflight-play-rift-herald-alt-a-move-last-breath-static.fixture.json", "P1-UNIT-RIFT-HERALD-A", 7)]
+    [InlineData("p2-preflight-play-baron-nashor-pit-static.fixture.json", "P1-UNIT-BARON-NASHOR", 12)]
+    [InlineData("p2-preflight-play-baron-nashor-alt-a-pit-static.fixture.json", "P1-UNIT-BARON-NASHOR-A", 12)]
+    [InlineData("p2-preflight-play-baron-nashor-promo-pit-static.fixture.json", "P1-UNIT-BARON-NASHOR-PROMO", 12)]
     [InlineData("p2-preflight-play-void-grasshopper-vanilla-unit.fixture.json", "P1-UNIT-VOID-GRASSHOPPER", 3)]
     [InlineData("p2-preflight-play-minotaur-reckoner-vanilla-unit.fixture.json", "P1-UNIT-MINOTAUR-RECKONER", 5)]
     [InlineData("p2-preflight-play-voidling-seedling-vanilla-unit.fixture.json", "P1-UNIT-VOIDLING-SEEDLING", 2)]
@@ -7349,6 +7352,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-ASHE-HAND-BANISH", "UNL-169/219", "P1-BASE-ASHE-HAND-BANISH-TARGET-001")]
     [InlineData(8, "P1-UNIT-RIFT-HERALD", "UNL-179/219", "P1-BASE-RIFT-HERALD-TARGET-001")]
     [InlineData(8, "P1-UNIT-RIFT-HERALD-A", "UNL-179a/219", "P1-BASE-RIFT-HERALD-A-TARGET-001")]
+    [InlineData(10, "P1-UNIT-BARON-NASHOR", "UNL-147/219", "P1-BASE-BARON-NASHOR-TARGET-001")]
+    [InlineData(10, "P1-UNIT-BARON-NASHOR-A", "UNL-147a/219", "P1-BASE-BARON-NASHOR-A-TARGET-001")]
+    [InlineData(10, "P1-UNIT-BARON-NASHOR-PROMO", "UNL-238/219", "P1-BASE-BARON-NASHOR-PROMO-TARGET-001")]
     [InlineData(3, "P1-UNIT-VOID-GRASSHOPPER", "SFD·010/221", "P1-BASE-VOID-GRASSHOPPER-TARGET-001")]
     [InlineData(5, "P1-UNIT-MINOTAUR-RECKONER", "SFD·014/221", "P1-BASE-MINOTAUR-RECKONER-TARGET-001")]
     [InlineData(2, "P1-UNIT-VOIDLING-SEEDLING", "SFD·018/221", "P1-BASE-VOIDLING-SEEDLING-TARGET-001")]
@@ -7696,6 +7702,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-moving-perch-spellshield-token-static.fixture.json", "P1-UNIT-MOVING-PERCH", 6, "CARD_TYPE:UNIT|法盾")]
     [InlineData("p2-preflight-play-safety-inspector-experience-destroy-static.fixture.json", "P1-UNIT-SAFETY-INSPECTOR", 3, "CARD_TYPE:UNIT|约德尔人")]
     [InlineData("p2-preflight-play-starhound-graveyard-return-static.fixture.json", "P1-UNIT-STARHOUND", 6, "CARD_TYPE:UNIT|犬形")]
+    [InlineData("p2-preflight-play-masked-attendant-ephemeral-copy-static.fixture.json", "P1-UNIT-MASKED-ATTENDANT", 1, "CARD_TYPE:UNIT|待命|瞬息")]
+    [InlineData("p2-preflight-play-atakhan-no-optional-destroy-roam-static.fixture.json", "P1-UNIT-ATAKHAN", 7, "CARD_TYPE:UNIT|游走")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7943,6 +7951,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-MOVING-PERCH", "UNL-130/219", "P1-BASE-MOVING-PERCH-TARGET-001")]
     [InlineData(5, "P1-UNIT-SAFETY-INSPECTOR", "UNL-164/219", "P1-BASE-SAFETY-INSPECTOR-TARGET-001")]
     [InlineData(5, "P1-UNIT-STARHOUND", "UNL-167/219", "P1-BASE-STARHOUND-TARGET-001")]
+    [InlineData(2, "P1-UNIT-MASKED-ATTENDANT", "UNL-081/219", "P1-BASE-MASKED-ATTENDANT-TARGET-001")]
+    [InlineData(10, "P1-UNIT-ATAKHAN", "UNL-170/219", "P1-BASE-ATAKHAN-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
