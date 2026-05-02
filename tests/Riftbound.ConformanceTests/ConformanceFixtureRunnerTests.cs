@@ -16959,11 +16959,13 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-gluttonous-toadfrog-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-moss-stepper-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-noxian-recruit-no-encourage-trifarian-unit.fixture.json")]
+    [InlineData("p2-preflight-play-dangerous-duo-no-encourage-mechanical-unit.fixture.json")]
     [InlineData("p2-preflight-play-trifarian-gloryseeker-no-encourage-unit.fixture.json")]
     [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
+    [InlineData("p4-play-dangerous-duo-encourage-target-temp-might.fixture.json")]
     [InlineData("p4-play-trifarian-gloryseeker-encourage-self-boon.fixture.json")]
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
@@ -17084,6 +17086,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4EncourageTargetTempMightRequiresPriorCardAndTarget()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-dangerous-duo-encourage-target-temp-might.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BASE-DANGEROUS-DUO-TARGET-001"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-BASE-DANGEROUS-DUO-TARGET-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-DANGEROUS-DUO"].Power);
+        Assert.Contains("POWER_MODIFIED_UNTIL_END_OF_TURN", result.EventKinds);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsNoxianRecruitEncourageReductionWithoutPriorCardThisTurn()
     {
         var state = PunishmentState(mana: 2) with
@@ -17115,6 +17137,52 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.PlayerCardsPlayedThisTurn.ContainsKey("P1"));
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-NOXIAN-RECRUIT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDangerousDuoEncourageWhenPriorCardButMissingTarget()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 1
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-DANGEROUS-DUO"],
+                    Base = ["P1-BASE-DANGEROUS-DUO-TARGET-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-DANGEROUS-DUO-TARGET-001"] = new(
+                    "P1-BASE-DANGEROUS-DUO-TARGET-001",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-dangerous-duo-prior-card-missing-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-DANGEROUS-DUO",
+                "OGN·016/298",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(1, result.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-DANGEROUS-DUO"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
 

@@ -532,6 +532,17 @@ public sealed class CardCatalogBaselineTests
             noxianRecruitBehavior.CostReductionConditionKind);
         Assert.Equal(2, noxianRecruitBehavior.CostReductionMana);
 
+        var dangerousDuo = BuildResourceProfile(specs, "OGN·016/298", CardResourceKeywordNames.Encourage);
+        Assert.True(dangerousDuo.HasEncourage);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·016/298", out var dangerousDuoBehavior));
+        Assert.Equal(1, dangerousDuoBehavior.RequiredTargetCount);
+        Assert.Equal(CardTargetScopes.AnyUnit, dangerousDuoBehavior.TargetScope);
+        Assert.Equal(CardObjectTags.UnitCard, dangerousDuoBehavior.TargetRequiredTag);
+        Assert.Equal(2, dangerousDuoBehavior.PowerModifierAmount);
+        Assert.Equal(
+            CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn,
+            dangerousDuoBehavior.TargetCountConditionKind);
+
         var trifarianGloryseeker = BuildResourceProfile(specs, "OGN·217/298", CardResourceKeywordNames.Encourage);
         Assert.True(trifarianGloryseeker.HasEncourage);
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·217/298", out var trifarianGloryseekerBehavior));
@@ -665,6 +676,11 @@ public sealed class CardCatalogBaselineTests
         var secretArtMercy = BuildBasicActionProfile(specs, "OGN·053/298");
         Assert.True(secretArtMercy.HasBoon);
         Assert.Contains(CardBasicActionNames.Boon, secretArtMercy.DelegatedP2Actions);
+
+        var dangerousDuo = BuildBasicActionProfile(specs, "OGN·016/298");
+        Assert.True(dangerousDuo.HasTempMight);
+        Assert.Contains(CardBasicActionNames.TempMight, dangerousDuo.PrimitiveActions);
+        Assert.DoesNotContain(CardBasicActionNames.TempMight, dangerousDuo.DeferredActions);
 
         var trifarianGloryseeker = BuildBasicActionProfile(specs, "OGN·217/298");
         Assert.True(trifarianGloryseeker.HasBoon);

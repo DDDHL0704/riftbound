@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-dangerous-duo-encourage-target-temp-might",
+  "description": "Dangerous Duo requires a unit target and gives it +2 power for the turn when Encourage is active.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304123,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·016/298 危险二人组",
+      "note": "官方卡面：费用 3；单位；战力 3；机械属性；鼓舞—当你打出我时，让一名单位本回合内战力 +2。当前 fixture 覆盖本回合先打出另一张牌后再打出《危险二人组》，并选择一名场上单位获得本回合 +2 战力。"
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·222/221 暴怒之印",
+      "note": "官方卡面：费用 0；装备。当前 fixture 使用它作为同回合已打出的另一张卡牌，横置资源技能仍暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出卡牌需要支付费用、选择目标、加入结算链并在双方让过后结算；鼓舞在本回合已打出过其他卡牌时生效；本回合内战力修正由已有 until-end-of-turn power modifier 原语记录。"
+    }
+  ],
+  "roomId": "p4-dangerous-duo-encourage-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304123,
+    "turnNumber": 4123,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-EQUIPMENT-RAGE-SIGIL", "P1-UNIT-DANGEROUS-DUO"],
+        "base": ["P1-BASE-DANGEROUS-DUO-TARGET-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-DANGEROUS-DUO-TARGET-001": {
+        "power": 1,
+        "tags": ["CARD_TYPE:UNIT"],
+        "isExhausted": false
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-dangerous-duo-rage-sigil-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-EQUIPMENT-RAGE-SIGIL",
+        "cardNo": "SFD·222/221",
+        "targetObjectIds": []
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p4-dangerous-duo-rage-sigil-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-dangerous-duo-rage-sigil-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-dangerous-duo-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-DANGEROUS-DUO",
+        "cardNo": "OGN·016/298",
+        "targetObjectIds": ["P1-BASE-DANGEROUS-DUO-TARGET-001"]
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p4-dangerous-duo-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-dangerous-duo-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 6,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      { "kind": "EQUIPMENT_PLAYED_TO_BASE" },
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 3
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-DANGEROUS-DUO",
+          "cardNo": "OGN·016/298",
+          "targetObjectIds": ["P1-BASE-DANGEROUS-DUO-TARGET-001"],
+          "effectKind": "DANGEROUS_DUO_PLAY_UNIT_ENCOURAGE_TARGET_TEMP_MIGHT",
+          "playedAfterAnotherCardThisTurn": true
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-DANGEROUS-DUO",
+          "unitObjectId": "P1-UNIT-DANGEROUS-DUO",
+          "unitName": "危险二人组",
+          "destinationZone": "BASE",
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT", "机械"]
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-DANGEROUS-DUO",
+          "targetObjectId": "P1-BASE-DANGEROUS-DUO-TARGET-001",
+          "powerDelta": 2,
+          "appliedPowerDelta": 2,
+          "minimumPower": 0,
+          "resultingPower": 3
+        }
+      }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 4123,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-BASE-DANGEROUS-DUO-TARGET-001", "P1-EQUIPMENT-RAGE-SIGIL", "P1-UNIT-DANGEROUS-DUO"],
+          "graveyard": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-BASE-DANGEROUS-DUO-TARGET-001": {
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnPowerModifier": 2,
+          "isExhausted": false
+        },
+        "P1-EQUIPMENT-RAGE-SIGIL": {
+          "damage": 0,
+          "power": 0,
+          "tags": ["CARD_TYPE:EQUIPMENT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false
+        },
+        "P1-UNIT-DANGEROUS-DUO": {
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT", "机械"],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

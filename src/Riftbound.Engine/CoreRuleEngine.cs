@@ -1654,8 +1654,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> targetObjectIds)
     {
-        var minTargetCount = MinTargetCount(behavior);
-        var maxTargetCount = MaxTargetCount(state, playerId, behavior);
+        var targetCountConditionApplies = TargetCountConditionApplies(state, playerId, behavior);
+        var minTargetCount = MinTargetCount(behavior, targetCountConditionApplies);
+        var maxTargetCount = MaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         return targetObjectIds.Count >= minTargetCount
             && targetObjectIds.Count <= maxTargetCount
             && (behavior.AllowsRepeatedTargets
@@ -1664,16 +1665,19 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool HasValidResolvedTargetCount(
         CardBehaviorDefinition behavior,
-        IReadOnlyList<string> targetObjectIds)
+        StackItemState stackItem)
     {
-        var minTargetCount = MinTargetCount(behavior);
-        var maxTargetCount = behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
-            ? targetObjectIds.Count
-            : behavior.RequiredTargetCount;
-        return targetObjectIds.Count >= minTargetCount
-            && targetObjectIds.Count <= maxTargetCount
+        var targetCountConditionApplies = TargetCountConditionApplies(behavior, stackItem);
+        var minTargetCount = MinTargetCount(behavior, targetCountConditionApplies);
+        var maxTargetCount = !targetCountConditionApplies
+            ? 0
+            : behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
+                ? stackItem.TargetObjectIds.Count
+                : behavior.RequiredTargetCount;
+        return stackItem.TargetObjectIds.Count >= minTargetCount
+            && stackItem.TargetObjectIds.Count <= maxTargetCount
             && (behavior.AllowsRepeatedTargets
-                || targetObjectIds.Distinct(StringComparer.Ordinal).Count() == targetObjectIds.Count);
+                || stackItem.TargetObjectIds.Distinct(StringComparer.Ordinal).Count() == stackItem.TargetObjectIds.Count);
     }
 
     private static bool TryBuildOptionalCostPlan(
@@ -2039,6 +2043,33 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static bool TargetCountConditionApplies(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.TargetCountConditionKind switch
+        {
+            CardTargetCountConditionKinds.None => true,
+            CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn
+                => ControllerPlayedAnotherCardThisTurn(state, playerId),
+            _ => false
+        };
+    }
+
+    private static bool TargetCountConditionApplies(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem)
+    {
+        return behavior.TargetCountConditionKind switch
+        {
+            CardTargetCountConditionKinds.None => true,
+            CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn
+                => stackItem.PlayedAfterAnotherCardThisTurn,
+            _ => false
+        };
+    }
+
     private static bool EnemyUnitDestroyedThisTurn(MatchState state, string playerId)
     {
         return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
@@ -2095,13 +2126,29 @@ public sealed class CoreRuleEngine : IRuleEngine
             && opponentScore >= WinningScore - distance;
     }
 
-    private static int MinTargetCount(CardBehaviorDefinition behavior)
+    private static int MinTargetCount(
+        CardBehaviorDefinition behavior,
+        bool targetCountConditionApplies = true)
     {
+        if (!targetCountConditionApplies)
+        {
+            return 0;
+        }
+
         return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
     }
 
-    private static int MaxTargetCount(MatchState state, string playerId, CardBehaviorDefinition behavior)
+    private static int MaxTargetCount(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        bool targetCountConditionApplies = true)
     {
+        if (!targetCountConditionApplies)
+        {
+            return 0;
+        }
+
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             return behavior.RequiredTargetCount;
@@ -2114,8 +2161,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetCount(MatchState state, string playerId, CardBehaviorDefinition behavior)
     {
-        var minTargetCount = MinTargetCount(behavior);
-        var maxTargetCount = MaxTargetCount(state, playerId, behavior);
+        var targetCountConditionApplies = TargetCountConditionApplies(state, playerId, behavior);
+        var minTargetCount = MinTargetCount(behavior, targetCountConditionApplies);
+        var maxTargetCount = MaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
         return minTargetCount == maxTargetCount
             ? maxTargetCount.ToString()
             : $"{minTargetCount}-{maxTargetCount}";
@@ -2189,7 +2237,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            || !HasValidResolvedTargetCount(behavior, stackItem.TargetObjectIds))
+            || !HasValidResolvedTargetCount(behavior, stackItem))
         {
             return new StackResolutionResult(
                 state.PlayerZones,

@@ -166,7 +166,8 @@ public sealed record CardBehaviorDefinition(
     int LevelSourceUnitPowerBonus = 0,
     string LevelSourceUnitTags = "",
     int LevelDrawOnPlayCount = 0,
-    string SourceBoonConditionKind = CardSourceBoonConditionKinds.None);
+    string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
+    string TargetCountConditionKind = CardTargetCountConditionKinds.None);
 
 public static class CardDamageConditionKinds
 {
@@ -260,6 +261,12 @@ public static class CardCostReductionConditionKinds
 }
 
 public static class CardSourceBoonConditionKinds
+{
+    public const string None = "NONE";
+    public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
+}
+
+public static class CardTargetCountConditionKinds
 {
     public const string None = "NONE";
     public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
@@ -4723,12 +4730,16 @@ public static class CardBehaviorRegistry
             "OGN·016/298",
             "危险二人组",
             3,
-            "DANGEROUS_DUO_NO_ENCOURAGE_MECHANICAL_PLAY_UNIT",
+            "DANGEROUS_DUO_PLAY_UNIT_ENCOURAGE_TARGET_TEMP_MIGHT",
             0,
-            0,
+            1,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "机械"),
+            SourceUnitTags: "机械",
+            TargetScope: CardTargetScopes.AnyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            PowerModifierAmount: 2,
+            TargetCountConditionKind: CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn),
         new(
             "OGN·217/298",
             "崔法利求战者",
