@@ -393,7 +393,7 @@ public sealed class CardCatalogBaselineTests
             hasteProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, hasteProfile.HasteReadyManaCost);
         Assert.Equal(1, hasteProfile.HasteReadyPowerCost);
-        Assert.Contains("P4.13/P4.18", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("P4.13/P4.18/P4.20", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
 
         var babySharkSpec = specs.Single(spec => string.Equals(spec.CardNo, "UNL-006/219", StringComparison.Ordinal));
         Assert.Contains(babySharkSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
@@ -406,6 +406,18 @@ public sealed class CardCatalogBaselineTests
             babySharkProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, babySharkProfile.HasteReadyManaCost);
         Assert.Equal(1, babySharkProfile.HasteReadyPowerCost);
+
+        var legionRearguardSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·010/298", StringComparison.Ordinal));
+        Assert.Contains(legionRearguardSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(legionRearguardSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·010/298", out var legionRearguardDefinition));
+        var legionRearguardProfile = CardPermissionKeywordRules.BuildProfile(legionRearguardDefinition);
+        Assert.True(legionRearguardProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            legionRearguardProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, legionRearguardProfile.HasteReadyManaCost);
+        Assert.Equal(1, legionRearguardProfile.HasteReadyPowerCost);
     }
 
     [Fact]

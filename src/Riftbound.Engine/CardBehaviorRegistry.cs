@@ -2297,7 +2297,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "崔法利|急速"),
+            SourceUnitTags: "崔法利|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "UNL-006/219",
             "小鲨鱼",
