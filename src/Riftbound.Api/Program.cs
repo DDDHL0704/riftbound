@@ -55,6 +55,9 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
     var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
     var summary = FunctionalUnitBuilder.Summarize(units);
+    var schema = OfficialCardSchemaValidator.Validate(catalog);
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+    var behaviorReport = BehaviorSpecCatalogBuilder.BuildReport(specs);
     return Results.Ok(new
     {
         catalog.Source,
@@ -64,10 +67,63 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
         summary.FunctionalUnits,
         summary.DuplicateGroups,
         summary.DuplicateEntries,
-        summary.SavedLogicImplementations
+        summary.SavedLogicImplementations,
+        schemaValid = schema.IsValid,
+        schemaViolationCount = schema.Violations.Count,
+        behaviorStatusCounts = behaviorReport.StatusCounts
     });
+});
+
+app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
+{
+    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var units = FunctionalUnitBuilder.Build(catalog.Cards);
+    var summary = FunctionalUnitBuilder.Summarize(units);
+    var schema = OfficialCardSchemaValidator.Validate(catalog);
+    var stability = FunctionalUnitReporter.Build(units);
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+    var behaviorReport = BehaviorSpecCatalogBuilder.BuildReport(specs);
+
+    return Results.Ok(new
+    {
+        officialEntries = catalog.Cards.Count,
+        catalog.Total,
+        schemaValid = schema.IsValid,
+        schemaViolationCount = schema.Violations.Count,
+        summary.FunctionalUnits,
+        stability.IdsAreUnique,
+        behaviorReport.BehaviorSpecs,
+        behaviorReport.StatusCounts,
+        behaviorReport.MissingReasonCardNos
+    });
+});
+
+app.MapGet("/catalog/behavior-specs", async (string? cardNo, CancellationToken cancellationToken) =>
+{
+    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var units = FunctionalUnitBuilder.Build(catalog.Cards);
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+    if (string.IsNullOrWhiteSpace(cardNo))
+    {
+        return Results.Ok(specs);
+    }
+
+    var spec = specs.FirstOrDefault(candidate => string.Equals(candidate.CardNo, cardNo.Trim(), StringComparison.Ordinal));
+    return spec is null
+        ? Results.NotFound(new { cardNo, message = "BehaviorSpec not found." })
+        : Results.Ok(spec);
 });
 
 app.MapHub<GameHub>("/hubs/game");
 
 app.Run();
+
+static IReadOnlyList<ImplementedCardBehavior> ImplementedBehaviors()
+{
+    return CardBehaviorRegistry.GetAll()
+        .Select(definition => new ImplementedCardBehavior(
+            definition.CardNo,
+            definition.EffectKind,
+            definition.DisplayName))
+        .ToArray();
+}

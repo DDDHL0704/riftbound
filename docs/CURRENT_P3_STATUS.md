@@ -37,18 +37,50 @@
 - P2 core rules preflight：`811/811 = 100.0%`
 - 最小 card behavior registry：`794/811 = 97.9%`
 - 可打出官方牌差集：已清空
-- 最新提交：`216a2ae feat: complete p2.5 dev test bench`
+- P3 BehaviorSpec：`1009/1009 = 100.0%`
+- P3 当前 Part：`P3.5 = 100.0%`
+- P3 schema validation：`1009/1009`，violations `0`
+- P3 functional unit stable id：`811/811`，ids unique
+- P3 BehaviorSpec status counts：`implemented 785`、`manual-rule-required 211`、`unimplemented 13`
+- P3 missing reason：`0`
+- 最新 P2.5 提交：`216a2ae feat: complete p2.5 dev test bench`
 
 ## Implementation Plan
 
 | Part | Status | Notes |
 |---|---|---|
-| P3.0 审计与状态文档 | In Progress | 建立本文件，确认 P3 不回退 P2/P2.5。 |
-| P3.1 BehaviorSpec contracts/model | Pending | 放在稳定 DTO/模型层，供 catalog、API、engine skeleton 和测试消费。 |
-| P3.2 schema 校验与 functional unit stable report | Pending | 覆盖 `1009` 卡和 `811` units。 |
-| P3.3 规则文本解析最小管线 | Pending | 输出结构化 keyword/cost/target/trigger/effect fields。 |
-| P3.4 模板执行器骨架 | Pending | 只做 registry、路由和 unimplemented reason，不接管真实结算。 |
-| P3.5 测试、文档、验证、提交 | Pending | 保持现有 `1627/1627` 测试不破坏。 |
+| P3.0 审计与状态文档 | Done | 建立本文件，确认 P3 不回退 P2/P2.5。 |
+| P3.1 BehaviorSpec contracts/model | Done | 新增 `BehaviorSpec`、`TriggerSpec`、`ReplacementSpec`、`ActivatedAbilitySpec`、`StaticAbilitySpec`。 |
+| P3.2 schema 校验与 functional unit stable report | Done | 覆盖 `1009` 卡和 `811` units，schema violations 为 `0`。 |
+| P3.3 规则文本解析最小管线 | Done | 输出 keyword/cost/target/trigger/replacement/activated/static/effect phrase parsed fields。 |
+| P3.4 模板执行器骨架 | Done | 新增 template registry/executor route，不接管真实结算。 |
+| P3.5 测试、文档、验证、提交 | Done | 保持 P2/P2.5 测试绿色，全量测试为 `1632/1632`。 |
+
+## API Surface
+
+- `GET /catalog/summary`：保留既有 summary，并新增 schema 与 behavior status count。
+- `GET /catalog/p3-status`：返回 P3 schema、functional unit stability 与 BehaviorSpec 覆盖报告。
+- `GET /catalog/behavior-specs`：返回全部 `BehaviorSpec`；可用 `?cardNo=...` 查询单卡。
+
+`/catalog/p3-status` smoke 摘要：
+
+```json
+{
+  "officialEntries": 1009,
+  "total": 1009,
+  "schemaValid": true,
+  "schemaViolationCount": 0,
+  "functionalUnits": 811,
+  "idsAreUnique": true,
+  "behaviorSpecs": 1009,
+  "statusCounts": {
+    "implemented": 785,
+    "manual-rule-required": 211,
+    "unimplemented": 13
+  },
+  "missingReasonCount": 0
+}
+```
 
 ## Running
 
@@ -69,8 +101,13 @@ git diff --check
 
 ## Latest Validation
 
-待 P3 实现完成后更新。
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，`0` warnings / `0` errors
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：通过 `8/8`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1574/1574`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1632/1632`
+- API smoke：`GET http://127.0.0.1:5090/catalog/p3-status` 返回 `schemaValid=true`、`behaviorSpecs=1009`、`missingReasonCount=0`
+- `git diff --check`：通过
 
 ## Next Step
 
-实现 P3.1-P3.4 的只读行为规格层、解析管线和模板执行器骨架，然后补齐测试与验证记录。
+P3 已完成。后续进入 P4 时再按关键词/模板分桶小批次接入真实规则执行；不要直接用 P3 模板骨架替换 P2 已通过的手写规则。

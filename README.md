@@ -11,18 +11,21 @@
 - 五份官方 PDF 规则文档与官网卡牌快照是最终规则权威。
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
+- P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
 
 ## 新窗口接手
 
 如果在新的 Codex 窗口继续开发，先读：
 
-1. `docs/CURRENT_P2_STATUS.md`
-2. 本 `README.md`（如果不是从这里进入）
-3. `docs/p2-rules-preflight.md` 的最近进度和目标 fixture 段落
-4. `docs/rules-evidence-index.md` 中目标卡牌对应行
-5. `docs/conformance-fixture-format.md` 中 fixture schema 规则
+1. `docs/CURRENT_P3_STATUS.md`
+2. `docs/CURRENT_P2_STATUS.md`
+3. `docs/CURRENT_P2_5_STATUS.md`
+4. 本 `README.md`（如果不是从这里进入）
+5. `docs/p2-rules-preflight.md` 的最近进度和目标 fixture 段落
+6. `docs/rules-evidence-index.md` 中目标卡牌对应行
+7. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
-`docs/CURRENT_P2_STATUS.md` 是短交接入口；`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁，默认按需读取。更完整的计划/审计文档也按需读取，避免每次新窗口加载重复长清单。
+`docs/CURRENT_P3_STATUS.md` 是当前短交接入口；`docs/CURRENT_P2_STATUS.md` 和 `docs/CURRENT_P2_5_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁，默认按需读取。更完整的计划/审计文档也按需读取，避免每次新窗口加载重复长清单。
 
 ## 推荐本地准备
 
@@ -42,6 +45,7 @@ dotnet test Riftbound.slnx --no-build
 ASPNETCORE_URLS=http://127.0.0.1:5088 dotnet run --project src/Riftbound.Api/Riftbound.Api.csproj
 curl http://127.0.0.1:5088/health
 curl http://127.0.0.1:5088/catalog/summary
+curl http://127.0.0.1:5088/catalog/p3-status
 ```
 
 P2.5 开发期测试 UI：
@@ -66,10 +70,10 @@ npm run dev
 
 | 路径 | 职责 |
 |---|---|
-| `src/Riftbound.Contracts` | 协议 DTO、命令 DTO、事件和快照 envelope。 |
+| `src/Riftbound.Contracts` | 协议 DTO、命令 DTO、事件、快照 envelope 和 P3 BehaviorSpec DTO。 |
 | `src/Riftbound.Engine` | `RoomActor/MatchSession`、`RuleEngine`、命令串行和幂等边界。 |
 | `src/Riftbound.Persistence` | PostgreSQL P1 event store schema 与 `IMatchJournal` 实现。 |
-| `src/Riftbound.CardCatalog` | 官网卡牌快照加载、功能逻辑单元分组。 |
+| `src/Riftbound.CardCatalog` | 官网卡牌快照加载、schema 校验、功能逻辑单元分组、规则文本解析和 BehaviorSpec 生成。 |
 | `src/Riftbound.Api` | ASP.NET Core + SignalR `GameHub`。 |
 | `src/Riftbound.DevUi` | P2.5 React + Vite 开发期 GameHub 测试 UI。 |
 | `tests/Riftbound.ConformanceTests` | PDF/FAQ 规则依据、Java legacy oracle fixture 与 C# 回放结果对比。 |
@@ -79,6 +83,7 @@ npm run dev
 
 核心计划文档：
 
+- `docs/CURRENT_P3_STATUS.md`：当前短交接，记录 P3 卡牌数据、BehaviorSpec、解析管线、模板骨架和验证状态。
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
 - `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。
 - `docs/START_HERE.md`：项目边界、资料优先级、开发顺序和验收门禁。

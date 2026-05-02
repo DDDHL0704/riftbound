@@ -8040,6 +8040,11 @@ public static class CardBehaviorRegistry
         return definition is not null;
     }
 
+    public static IReadOnlyList<CardBehaviorDefinition> GetAll()
+    {
+        return Definitions;
+    }
+
     public static bool TryGetByCardNoAndMode(
         string cardNo,
         string mode,
