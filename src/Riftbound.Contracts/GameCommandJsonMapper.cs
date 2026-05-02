@@ -39,6 +39,11 @@ public static class GameCommandJsonMapper
                 Text(cmd, "cardNo"),
                 Text(cmd, "destination"),
                 TextArray(cmd, "optionalCosts")),
+            "MOVE_UNIT" => new MoveUnitCommand(
+                Text(cmd, "sourceObjectId"),
+                Text(cmd, "origin"),
+                Text(cmd, "destination"),
+                TextArray(cmd, "optionalCosts")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

@@ -18310,6 +18310,49 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandIsExplicitlyRejectedUntilRoamMovementExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-SFD-YASUO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SFD-YASUO"] = new(
+                    "P1-BATTLEFIELD-SFD-YASUO",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "游走"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-premodel", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BATTLEFIELD-SFD-YASUO",
+                "BATTLEFIELD:P1-LEFT",
+                "BATTLEFIELD:P1-RIGHT",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4SpellshieldTaxState(mana: 2);

@@ -318,6 +318,25 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesMoveUnitPayload()
+    {
+        var command = Assert.IsType<MoveUnitCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-SFD-YASUO",
+              "origin": "BATTLEFIELD:P1-LEFT",
+              "destination": "BATTLEFIELD:P1-RIGHT",
+              "optionalCosts": ["ROAM"]
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-BATTLEFIELD-SFD-YASUO", command.SourceObjectId);
+        Assert.Equal("BATTLEFIELD:P1-LEFT", command.Origin);
+        Assert.Equal("BATTLEFIELD:P1-RIGHT", command.Destination);
+        Assert.Equal(new[] { "ROAM" }, command.OptionalCosts);
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(
