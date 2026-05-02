@@ -16723,10 +16723,34 @@ public sealed class ConformanceFixtureRunnerTests
     [Theory]
     [InlineData("p2-preflight-play-wind-wall-counter-spell.fixture.json")]
     [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json")]
+    [InlineData("p2-preflight-play-baby-shark-no-optional-haste.fixture.json")]
+    [InlineData("p4-play-baby-shark-haste-ready.fixture.json")]
     public async Task P4PermissionKeywordsKeepExistingP2FixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchPaysManaAndPowerForBabyShark()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-006/219", out var hasteDefinition));
+        var profile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
+
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-baby-shark-haste-ready.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(

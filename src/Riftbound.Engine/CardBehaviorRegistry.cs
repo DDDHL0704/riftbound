@@ -2306,7 +2306,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "急速|强攻4"),
+            SourceUnitTags: "急速|强攻4",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·029/221",
             "雷克塞",

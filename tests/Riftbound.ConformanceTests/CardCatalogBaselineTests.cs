@@ -393,7 +393,19 @@ public sealed class CardCatalogBaselineTests
             hasteProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, hasteProfile.HasteReadyManaCost);
         Assert.Equal(1, hasteProfile.HasteReadyPowerCost);
-        Assert.Contains("P4.13", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("P4.13/P4.18", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
+
+        var babySharkSpec = specs.Single(spec => string.Equals(spec.CardNo, "UNL-006/219", StringComparison.Ordinal));
+        Assert.Contains(babySharkSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(babySharkSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-006/219", out var babySharkDefinition));
+        var babySharkProfile = CardPermissionKeywordRules.BuildProfile(babySharkDefinition);
+        Assert.True(babySharkProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            babySharkProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, babySharkProfile.HasteReadyManaCost);
+        Assert.Equal(1, babySharkProfile.HasteReadyPowerCost);
     }
 
     [Fact]

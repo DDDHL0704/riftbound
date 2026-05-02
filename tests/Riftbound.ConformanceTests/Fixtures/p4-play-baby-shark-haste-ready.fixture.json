@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-baby-shark-no-optional-haste",
-  "description": "Baby Shark enters as a Haste and Overwhelm unit object without paying its Haste optional red additional cost.",
+  "fixtureId": "p4-play-baby-shark-haste-ready",
+  "description": "Baby Shark pays the P4.18 HASTE_READY optional cost and records the active-entry branch on resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302369,
+  "seed": 2603304118,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-006/219 小鲨鱼",
-      "note": "官方卡面：费用 3；单位；战力 1；急速，可选择额外支付 1 和红色让我以活跃状态进场；强攻 4。当前 fixture 覆盖普通主阶段从手牌打出且不支付急速可选额外费用时的源单位入场和关键词标签记录；HASTE_READY 代表路径由 p4-play-baby-shark-haste-ready 覆盖，强攻战斗修正暂缓。"
+      "note": "官方卡面：费用 3；单位；战力 1；急速，可选择额外支付 1 和红色让我以活跃状态进场；强攻 4。本 P4.18 fixture 覆盖代表路径：在现有 mana/power 资源模型中用 HASTE_READY 支付额外 1 mana + 1 power，并在单位入场事件中记录已支付急速活跃分支。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；强攻战斗加成留待战斗模型覆盖。"
+      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；强攻战斗修正仍留待战斗模型。"
     }
   ],
-  "roomId": "p2-preflight-baby-shark-room",
+  "roomId": "p4-baby-shark-haste-ready-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302369,
-    "turnNumber": 368,
+    "seed": 2603304118,
+    "turnNumber": 4118,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
+      "P1": { "mana": 4, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-baby-shark-play",
+      "clientIntentId": "intent-p4-baby-shark-haste-ready-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-BABY-SHARK",
         "cardNo": "UNL-006/219",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["HASTE_READY"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-baby-shark-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-baby-shark-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-baby-shark-haste-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-baby-shark-haste-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -87,7 +88,16 @@
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 3, "baseMana": 3 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "power": 1,
+          "baseMana": 3,
+          "optionalCosts": ["HASTE_READY"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -110,13 +120,15 @@
           "unitName": "小鲨鱼",
           "destinationZone": "BASE",
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT", "强攻4", "急速"]
+          "tags": ["CARD_TYPE:UNIT", "强攻4", "急速"],
+          "isExhausted": false,
+          "hasteReadyOptionalCostPaid": true
         }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 368,
+      "turnNumber": 4118,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
