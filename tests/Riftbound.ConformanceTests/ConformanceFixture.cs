@@ -71,6 +71,7 @@ public sealed record ConformanceInitialState(
     IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
     IReadOnlyDictionary<string, int>? Scores = null,
+    IReadOnlyDictionary<string, int>? Experience = null,
     IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null,
     string? PriorityPlayerId = null,
     IReadOnlyList<string>? PassedPriorityPlayerIds = null,
@@ -143,6 +144,7 @@ public sealed record ConformanceExpectedState(
     IReadOnlyDictionary<string, RunePool>? RunePools = null,
     IReadOnlyDictionary<string, ConformancePlayerInitialState>? Players = null,
     IReadOnlyDictionary<string, int>? Scores = null,
+    IReadOnlyDictionary<string, int>? Experience = null,
     IReadOnlyDictionary<string, ConformanceCardObjectState>? CardObjects = null,
     string? PriorityPlayerId = null,
     IReadOnlyList<string>? PassedPriorityPlayerIds = null,
@@ -309,7 +311,8 @@ public static class ConformanceFixtureRunner
             initial.PassedFocusPlayerIds,
             initial.WinnerPlayerId,
             seed: initial.Seed,
-            untilEndOfTurnEffects: initial.UntilEndOfTurnEffects);
+            untilEndOfTurnEffects: initial.UntilEndOfTurnEffects,
+            playerExperience: BuildPlayerExperience(initial, fixture.Players));
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)
@@ -357,6 +360,18 @@ public static class ConformanceFixtureRunner
             playerId => NormalizePlayerId(playerId, playerId),
             playerId => initial.Scores is not null && initial.Scores.TryGetValue(playerId, out var score)
                 ? score
+                : 0,
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> BuildPlayerExperience(
+        ConformanceInitialState initial,
+        IReadOnlyList<string> playerIds)
+    {
+        return playerIds.ToDictionary(
+            playerId => NormalizePlayerId(playerId, playerId),
+            playerId => initial.Experience is not null && initial.Experience.TryGetValue(playerId, out var experience)
+                ? experience
                 : 0,
             StringComparer.Ordinal);
     }
@@ -451,6 +466,7 @@ public static class ConformanceFixtureRunner
         AddMismatch(mismatches, "finalState.winnerPlayerId", expected.WinnerPlayerId, actual.WinnerPlayerId);
         CompareRunePools(mismatches, expected.RunePools, actual.RunePools);
         ComparePlayerScores(mismatches, expected.Scores, actual.PlayerScores);
+        ComparePlayerExperience(mismatches, expected.Experience, actual.PlayerExperience);
         ComparePlayerZones(mismatches, expected.Players, actual.PlayerZones);
         CompareCardObjects(mismatches, expected.CardObjects, actual.CardObjects);
         CompareStackItems(mismatches, expected.StackItems, actual.StackItems);
@@ -596,6 +612,28 @@ public static class ConformanceFixtureRunner
             }
 
             AddMismatch(mismatches, $"finalState.scores.{playerId}", expectedScore, actualScore);
+        }
+    }
+
+    private static void ComparePlayerExperience(
+        List<string> mismatches,
+        IReadOnlyDictionary<string, int>? expected,
+        IReadOnlyDictionary<string, int> actual)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        foreach (var (playerId, expectedExperience) in expected)
+        {
+            if (!actual.TryGetValue(playerId, out var actualExperience))
+            {
+                mismatches.Add($"finalState.experience.{playerId}: missing experience");
+                continue;
+            }
+
+            AddMismatch(mismatches, $"finalState.experience.{playerId}", expectedExperience, actualExperience);
         }
     }
 

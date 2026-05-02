@@ -8236,6 +8236,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p2-preflight-play-demacia-envoy-experience-static.fixture.json", 1)]
+    [InlineData("p2-preflight-play-spring-messenger-experience-static.fixture.json", 2)]
+    [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json", 1)]
+    public async Task P4FixedExperienceGainOnPlayUpdatesControllerExperience(
+        string fixtureFileName,
+        int expectedExperience)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(expectedExperience, result.FinalState.PlayerExperience["P1"]);
+        Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
+    }
+
+    [Theory]
     [InlineData(3, "P1-UNIT-DOCKSIDE-LURKER", "OGN·175/298", "P1-BASE-DOCKSIDE-LURKER-TARGET-001")]
     [InlineData(4, "P1-UNIT-VANGUARD-SERGEANT", "OGN·219/298", "P1-BASE-VANGUARD-SERGEANT-TARGET-001")]
     [InlineData(5, "P1-UNIT-PLAYFUL-IMP", "OGN·049/298", "P1-BASE-PLAYFUL-IMP-TARGET-001")]

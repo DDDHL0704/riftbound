@@ -155,7 +155,8 @@ public sealed record CardBehaviorDefinition(
     bool RecyclesUnkeptSacredJudgmentCards = false,
     bool PlaysOpponentTopMainDeckUnitToBase = false,
     bool PlaysEachPlayerTopFiveUnitToBase = false,
-    bool CanPlayDuringSpellDuel = false);
+    bool CanPlayDuringSpellDuel = false,
+    int GainExperienceOnPlay = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -1195,7 +1196,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsEquipment: true,
-            SourceEquipmentTags: "武装"),
+            SourceEquipmentTags: "武装",
+            GainExperienceOnPlay: 1),
         new(
             "UNL-011/219",
             "魔法鲜豆",
@@ -6246,7 +6248,8 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 2),
+            SourceUnitPower: 2,
+            GainExperienceOnPlay: 1),
         new(
             "UNL-034/219",
             "暖春之使",
@@ -6256,7 +6259,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "狩猎"),
+            SourceUnitTags: "狩猎",
+            GainExperienceOnPlay: 2),
         new(
             "UNL-064/219",
             "命运编织者",

@@ -85,7 +85,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 - `p2-preflight-cleanup-repeats-until-stable.fixture.json` 验证特殊清理后的常规清理重复事件。
 - `p2-preflight-pass-priority-does-not-end-turn.fixture.json` 验证拒绝态不推进 tick 或事件。
 
-`ConformanceFixtureRunner.CompareExpected` 已开始通用比较 final tick、event kinds、event tick/sequence/payload 局部字段、prompt actions、最终 timing、符文池、分数、玩家区域、对象状态和结算链；后续继续扩展 snapshots canonical diff：
+`ConformanceFixtureRunner.CompareExpected` 已开始通用比较 final tick、event kinds、event tick/sequence/payload 局部字段、prompt actions、最终 timing、符文池、分数、经验、玩家区域、对象状态和结算链；后续继续扩展 snapshots canonical diff：
 
 ```json
 {
@@ -107,6 +107,9 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
     "runePools": {
       "P2": { "mana": 0, "power": 0 }
     },
+    "experience": {
+      "P2": 0
+    },
     "untilEndOfTurnEffects": [],
     "cardObjects": {
       "P2-UNIT-001": {
@@ -126,6 +129,9 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
       "timingState": "NEUTRAL_OPEN",
       "runePools": {
         "P2": { "mana": 0, "power": 0 }
+      },
+      "experience": {
+        "P2": 0
       },
       "players": {
         "P2": {
@@ -162,7 +168,7 @@ P2 fixture 已开始使用 `schemaVersion = 2`。当前 C# 侧已能读取以下
 }
 ```
 
-schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、玩家区域、对象状态（含 `damage`、`power`、`untilEndOfTurnPowerModifier`、`untilEndOfTurnEffects`、`isFaceDown`、`isAttacking`、`isDefending`、`isExhausted`、`tags`、`manaCost`、`attachedToObjectId`）、全局 `untilEndOfTurnEffects`、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`initialState.seed` 已接入权威 `MatchState.seed`，先用于多张卡牌同时回收到主牌堆底部和燃尽回收洗匀时的可回放随机顺序。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
+schema v2 目前已支持 P2 初始状态和 expected 中的事件 tick/sequence/payload 局部匹配、turn/phase/timing、符文池、分数、经验、玩家区域、对象状态（含 `damage`、`power`、`untilEndOfTurnPowerModifier`、`untilEndOfTurnEffects`、`isFaceDown`、`isAttacking`、`isDefending`、`isExhausted`、`tags`、`manaCost`、`attachedToObjectId`）、全局 `untilEndOfTurnEffects`、`winnerPlayerId`，以及 FEPR/法术对决所需的 `priorityPlayerId`、`passedPriorityPlayerIds`、`stackItems`、`focusPlayerId`、`passedFocusPlayerIds`。`initialState.seed` 已接入权威 `MatchState.seed`，先用于多张卡牌同时回收到主牌堆底部和燃尽回收洗匀时的可回放随机顺序。`CompareExpected` 已接入出牌与回合结束组合 fixture，下一步继续把更多 P2 fixture 从手写断言迁移到通用 expected diff。
 
 ## 3. Fixture 后续必须补齐
 

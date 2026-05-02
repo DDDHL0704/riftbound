@@ -84,6 +84,7 @@ public static class CardBasicActionRules
         AddIf(delegatedActions, hasRecycle && HasRecycleBehavior(behavior), CardBasicActionNames.Recycle);
         AddIf(delegatedActions, hasBanish && HasBanishBehavior(behavior), CardBasicActionNames.Banish);
         AddIf(delegatedActions, hasBoon && HasBoonBehavior(behavior), CardBasicActionNames.Boon);
+        AddIf(delegatedActions, hasExperience && HasExperienceBehavior(behavior), CardBasicActionNames.Experience);
 
         var deferredActions = new List<string>();
         AddIf(deferredActions, hasDraw && !hasDrawPrimitive, CardBasicActionNames.Draw);
@@ -96,7 +97,7 @@ public static class CardBasicActionRules
         AddIf(deferredActions, hasBanish && !HasBanishBehavior(behavior), CardBasicActionNames.Banish);
         AddIf(deferredActions, hasTempMight && !hasTempMightPrimitive, CardBasicActionNames.TempMight);
         AddIf(deferredActions, hasBoon && !HasBoonBehavior(behavior), CardBasicActionNames.Boon);
-        AddIf(deferredActions, hasExperience, CardBasicActionNames.Experience);
+        AddIf(deferredActions, hasExperience && !HasExperienceBehavior(behavior), CardBasicActionNames.Experience);
 
         var hasAnyAction = hasDraw
             || hasDamage
@@ -134,9 +135,9 @@ public static class CardBasicActionRules
             status switch
             {
                 CardBasicActionProfileStatuses.RecognizedCovered =>
-                    "P4.9 recognizes these basic actions as covered by primitive plans or existing audited P2 behavior paths.",
+                    "P4.10 recognizes these basic actions as covered by primitive plans or existing audited P2 behavior paths.",
                 CardBasicActionProfileStatuses.MixedDeferred =>
-                    "P4.9 recognizes these basic actions, but at least one requested action remains deferred, most commonly experience gain/spend or a non-audited branch.",
+                    "P4.10 recognizes these basic actions, but at least one requested action remains deferred, most commonly dynamic experience, experience spend, or a non-audited branch.",
                 _ =>
                     "Card does not expose P4 basic action surfaces through P3 BehaviorSpec or the P2 behavior path."
             });
@@ -225,6 +226,11 @@ public static class CardBasicActionRules
                 || behavior.GrantsBoonToAllFriendlyUnits
                 || behavior.GrantsBoonToSourceUnit
                 || string.Equals(behavior.TargetAddedTag, CardObjectTags.Boon, StringComparison.Ordinal));
+    }
+
+    private static bool HasExperienceBehavior(CardBehaviorDefinition? behavior)
+    {
+        return behavior?.GainExperienceOnPlay > 0;
     }
 
     private static void AddIf(

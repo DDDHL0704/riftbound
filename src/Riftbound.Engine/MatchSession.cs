@@ -229,7 +229,8 @@ public sealed record MatchState
         long? seed = null,
         long? rngCursor = null,
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
-        string? extraTurnPlayerId = null)
+        string? extraTurnPlayerId = null,
+        IReadOnlyDictionary<string, int>? playerExperience = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -254,6 +255,7 @@ public sealed record MatchState
         RunePools = NormalizeRunePools(runePools);
         PlayerZones = NormalizePlayerZones(playerZones);
         PlayerScores = NormalizePlayerScores(playerScores);
+        PlayerExperience = NormalizePlayerExperience(playerExperience);
         CardObjects = NormalizeCardObjects(cardObjects);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
@@ -293,6 +295,8 @@ public sealed record MatchState
     public IReadOnlyDictionary<string, PlayerZones> PlayerZones { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
+
+    public IReadOnlyDictionary<string, int> PlayerExperience { get; init; }
 
     public IReadOnlyDictionary<string, CardObjectState> CardObjects { get; init; }
 
@@ -398,6 +402,17 @@ public sealed record MatchState
         IReadOnlyDictionary<string, int>? playerScores)
     {
         return (playerScores ?? new Dictionary<string, int>(StringComparer.Ordinal))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
+            .ToDictionary(
+                entry => entry.Key.Trim(),
+                entry => entry.Value,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> NormalizePlayerExperience(
+        IReadOnlyDictionary<string, int>? playerExperience)
+    {
+        return (playerExperience ?? new Dictionary<string, int>(StringComparer.Ordinal))
             .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
             .ToDictionary(
                 entry => entry.Key.Trim(),
@@ -570,6 +585,7 @@ public sealed record ResolutionResult(
             ["ready"] = readyPlayers.Contains(subjectPlayerId),
             ["handSize"] = zones.Hand.Count,
             ["score"] = state.PlayerScores.TryGetValue(subjectPlayerId, out var score) ? score : 0,
+            ["experience"] = state.PlayerExperience.TryGetValue(subjectPlayerId, out var experience) ? experience : 0,
             ["runePool"] = state.RunePools.TryGetValue(subjectPlayerId, out var runePool)
                 ? new Dictionary<string, object?>
                 {
@@ -1142,7 +1158,8 @@ public sealed class MatchSession : IMatchSession
                     .ToArray(),
                 RunePools = RunePoolsForSeats(state.RunePools, seats.Keys),
                 PlayerZones = PlayerZonesForSeats(state.PlayerZones, seats.Keys),
-                PlayerScores = PlayerScoresForSeats(state.PlayerScores, seats.Keys)
+                PlayerScores = PlayerScoresForSeats(state.PlayerScores, seats.Keys),
+                PlayerExperience = PlayerExperienceForSeats(state.PlayerExperience, seats.Keys)
             };
             return PlayerSessionFor(normalizedPlayerId);
         }
@@ -1596,6 +1613,16 @@ public sealed class MatchSession : IMatchSession
         return playerIds.ToDictionary(
             playerId => playerId,
             playerId => current.TryGetValue(playerId, out var score) ? score : 0,
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> PlayerExperienceForSeats(
+        IReadOnlyDictionary<string, int> current,
+        IEnumerable<string> playerIds)
+    {
+        return playerIds.ToDictionary(
+            playerId => playerId,
+            playerId => current.TryGetValue(playerId, out var experience) ? experience : 0,
             StringComparer.Ordinal);
     }
 

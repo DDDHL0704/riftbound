@@ -12,12 +12,12 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-158/219 牧人的传家宝",
-      "note": "官方卡面：费用 2；装备；战力 2；武装；当你打出此牌时获得 1 经验；装配消耗 1 经验。当前 fixture 覆盖从手牌打出成为带武装标签的装备对象路径，经验获得、装备战力修正和装配贴附分支暂缓。"
+      "note": "官方卡面：费用 2；装备；战力 2；武装；当你打出此牌时获得 1 经验；装配消耗 1 经验。当前 fixture 覆盖从手牌打出成为带武装标签的装备对象路径并获得 1 经验；装备战力修正和装配贴附分支暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；武装、经验和装配关键词的后续贴附或经验流程暂缓。"
+      "note": "装备是游戏对象，可位于公开区域；打出卡牌需要费用足够并作为结算链项目在双方让过后结算；武装标签和打出获得经验已覆盖，装配关键词的后续贴附或经验消耗流程暂缓。"
     }
   ],
   "roomId": "p2-preflight-shepherds-heirloom-room",
@@ -127,7 +127,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "EQUIPMENT_PLAYED_TO_BASE"
+      "EQUIPMENT_PLAYED_TO_BASE",
+      "EXPERIENCE_GAINED"
     ],
     "events": [
       {
@@ -173,6 +174,16 @@
             "武装"
           ]
         }
+      },
+      {
+        "kind": "EXPERIENCE_GAINED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
+          "cardNo": "UNL-158/219",
+          "amount": 1,
+          "totalExperience": 1
+        }
       }
     ],
     "promptActions": {
@@ -191,6 +202,10 @@
       "timingState": "NEUTRAL_OPEN",
       "scores": {
         "P1": 0,
+        "P2": 0
+      },
+      "experience": {
+        "P1": 1,
         "P2": 0
       },
       "runePools": {

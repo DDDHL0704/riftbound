@@ -553,6 +553,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 StackItems = nextStack,
                 PlayerZones = stackResolution.PlayerZones,
                 PlayerScores = stackResolution.PlayerScores,
+                PlayerExperience = stackResolution.PlayerExperience,
                 CardObjects = stackResolution.CardObjects,
                 UntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects,
                 RngCursor = stackResolution.RngCursor,
@@ -2051,6 +2052,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.PlayerZones,
                 state.CardObjects,
                 state.PlayerScores,
+                state.PlayerExperience,
                 state.UntilEndOfTurnEffects,
                 null,
                 [],
@@ -2076,6 +2078,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
         var playerScores = state.PlayerScores;
+        var playerExperience = NormalizeExperienceForSeats(state);
         string? winnerPlayerId = null;
         string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
@@ -2098,6 +2101,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 cardObjects,
                 behavior,
+                stackItem,
+                events);
+        }
+
+        if (behavior.GainExperienceOnPlay > 0)
+        {
+            playerExperience = GainExperience(
+                playerExperience,
+                stackItem.ControllerId,
+                behavior.GainExperienceOnPlay,
                 stackItem,
                 events);
         }
@@ -3795,6 +3808,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             playerScores,
+            playerExperience,
             untilEndOfTurnEffects.ToArray(),
             winnerPlayerId,
             events,
@@ -7064,6 +7078,43 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
     }
 
+    private static Dictionary<string, int> GainExperience(
+        IReadOnlyDictionary<string, int> currentExperience,
+        string playerId,
+        int amount,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        var playerExperience = currentExperience.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        playerExperience[playerId] = playerExperience.TryGetValue(playerId, out var current)
+            ? current + amount
+            : amount;
+        events.Add(new GameEvent(
+            "EXPERIENCE_GAINED",
+            $"{playerId} 获得 {amount} 经验",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["cardNo"] = stackItem.CardNo,
+                ["amount"] = amount,
+                ["totalExperience"] = playerExperience[playerId]
+            }));
+
+        return playerExperience;
+    }
+
+    private static Dictionary<string, int> NormalizeExperienceForSeats(MatchState state)
+    {
+        return state.Seats.Keys.ToDictionary(
+            playerId => playerId,
+            playerId => state.PlayerExperience.TryGetValue(playerId, out var experience) ? experience : 0,
+            StringComparer.Ordinal);
+    }
+
     private static string? OpponentOf(MatchState state, string playerId)
     {
         return state.Seats
@@ -7339,6 +7390,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyDictionary<string, int> PlayerScores,
+        IReadOnlyDictionary<string, int> PlayerExperience,
         IReadOnlyList<string> UntilEndOfTurnEffects,
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events,

@@ -601,8 +601,14 @@ public sealed class CardCatalogBaselineTests
 
         var shepherdsHeirloom = BuildBasicActionProfile(specs, "UNL-158/219");
         Assert.True(shepherdsHeirloom.HasExperience);
-        Assert.Contains(CardBasicActionNames.Experience, shepherdsHeirloom.DeferredActions);
-        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, shepherdsHeirloom.Status);
+        Assert.Contains(CardBasicActionNames.Experience, shepherdsHeirloom.DelegatedP2Actions);
+        Assert.Equal(CardBasicActionProfileStatuses.RecognizedCovered, shepherdsHeirloom.Status);
+
+        var sternSergeant = BuildBasicActionProfile(specs, "UNL-157/219");
+        Assert.True(sternSergeant.HasExperience);
+        Assert.DoesNotContain(CardBasicActionNames.Experience, sternSergeant.DelegatedP2Actions);
+        Assert.Contains(CardBasicActionNames.Experience, sternSergeant.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, sternSergeant.Status);
     }
 
     [Fact]

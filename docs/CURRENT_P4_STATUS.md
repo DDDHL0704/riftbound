@@ -37,6 +37,8 @@
 - P4.6 提交：`0693e27 feat: add p4 combat keyword profiles`
 - P4.7 提交：`c93cb87 feat: add p4 resource keyword profiles`
 - P4.8 提交：`c376b94 feat: add p4 equipment keyword profiles`
+- P4.9 提交：`60396c5 feat: add p4 remaining profile audit`
+- P4.10 提交：本提交 `feat: add p4 fixed experience gain`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -99,7 +101,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | `draw` | 131 | 105 | 26 | 0 | Low | P4.5 已有固定抽牌 primitive plan；抽牌与燃尽状态写入仍由 P2 覆盖。 |
 | `destroy` | 127 | 115 | 8 | 4 | Low/Medium | P4.5 已有单目标摧毁 primitive plan；替代/触发导致的摧毁仍分层处理。 |
 | `assemble` | 55 | 53 | 2 | 0 | High | 暂不进 P4.1；涉及贴附、owner/controller、费用与 P5 边界。 |
-| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.9 已纳入 basic action profile；经验获得/消耗状态执行仍 deferred。 |
+| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”代表路径；动态经验、经验消耗和等级/装配联动仍 deferred。 |
 | `recall` | 49 | 39 | 10 | 0 | Medium | 当前只桥接/委托 P2；召回到基地/手牌已有 P2 原语，精确时序分层。 |
 | `stun` | 33 | 30 | 3 | 0 | Low | P4.5 已有 `STUNNED` primitive plan；P3 parser 的眩晕 reminder damage 噪声不会阻断该 primitive。 |
 | `echo` | 24 | 22 | 2 | 0 | Medium | P4.4 已将 mana-only `ECHO` optional cost/repeat 抽成互动关键词模型；有色/弃牌/授予回响仍延后。 |
@@ -122,7 +124,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 瞬息 | 21 | 7 | 2 | Medium | P4.3 候选；P2 已记录标签，缺“控制者下个回合开始、得分前摧毁”。 |
 | 绝念 | 25 | 0 | 0 | High | P4.9 已识别 profile；离场触发队列和摧毁来源时序仍 deferred。 |
 | 预知 | 12 | 0 | 0 | Medium | P4.9 已识别 profile，并标注已审计顶牌回收/不回收代表路径 delegated to P2；广义授予与隐藏信息仍 deferred。 |
-| 狩猎 | 14 | 0 | 0 | Medium/High | P4.7 已识别 profile 和数值；征服/据守事件与经验获得仍 deferred。 |
+| 狩猎 | 14 | 0 | 0 | Medium/High | P4.7 已识别 profile 和数值；P4.10 只覆盖固定打出获得经验，征服/据守事件经验仍 deferred。 |
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；等级条件执行仍 deferred。 |
 | 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；本回合已打出其他卡牌记忆仍 deferred。 |
 | 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；目标选择额外支付税仍 deferred。 |
@@ -150,11 +152,11 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Ephemeral | `UNL-149/219 蒙面侍者` / `OGN·094/298 精灵召唤`：瞬息会在控制者开始阶段开始时摧毁。 | P2 已记录 `瞬息` 标签；P4.3 新增 turn-start 到期摧毁 fixture。 | 已完成最小到期路径；绝念/贴附/战斗触发另拆。 |
 | Swift/Reaction/Haste | `OGN·004/298 顺劈`、`OGN·064/298 风之障壁`、`OGN·001/298 灼焰飞龙`。 | P2 已有反应优先权窗口和急速不支付额外费用入场路径。 | P4.2 已建立权限关键词 profile/timing model；只接入已验证 `顺劈` 法术对决焦点窗口，急速额外支付活跃进场继续 deferred。 |
 | Combat keywords | `OGS·007/024 盖伦`：强攻2、坚守2；`UNL-036/219 变异猫咪`：坚守2、壁垒；`UNL-090/219 乐芙兰`：后排；`SFD·096/221 劳伦特护刃者`：游走。 | P2 已有大量 keyword-unit fixture 记录标签。 | P4.6 已建立 combat keyword profile；完整战斗/移动执行仍 deferred。 |
-| Resource keywords | `UNL-100/219 贪食魔沼蛙`：狩猎3；`UNL-047/219 踏苔蜥`：狩猎2、等级3；`OGN·012/298 诺克萨斯新兵`：鼓舞；`OGN·013/298 呸呸魄罗`：法盾；`SFD·085/221 奥恩`：法盾2。 | P2 已有 keyword-unit fixture 记录标签或 no-optional 分支。 | P4.7 已建立 resource keyword profile；经验、等级、鼓舞记忆和法盾目标税执行仍 deferred。 |
+| Resource keywords | `UNL-100/219 贪食魔沼蛙`：狩猎3；`UNL-047/219 踏苔蜥`：狩猎2、等级3；`OGN·012/298 诺克萨斯新兵`：鼓舞；`OGN·013/298 呸呸魄罗`：法盾；`SFD·085/221 奥恩`：法盾2。 | P2 已有 keyword-unit fixture 记录标签或 no-optional 分支。 | P4.7 已建立 resource keyword profile；狩猎征服/据守经验、等级、鼓舞记忆和法盾目标税执行仍 deferred。 |
 | Equipment keywords | `SFD·033/221 多兰之盾`：装配绿色；`SFD·022/221 长剑`：灵便、装配红色；`SFD·008/221 哨兵好手`：百炼；`SFD·085/221 奥恩`：法盾2、百炼。 | P2 已有装备打出和 no-optional 百炼 fixture，记录装备/武装/灵便/百炼标签。 | P4.8 已建立 equipment keyword profile；贴附、卸除、费用、owner/controller 和自动贴附执行仍 deferred。 |
 | Lifecycle remaining | `UNL-081/219 赐面守侍`：待命、瞬息；`UNL-161/219 占卜贝壳`：预知；`OGN·190/298 克格莫`：绝念。 | P4.3 瞬息 fixture；P2 已有预知回收/no-recycle fixture 与绝念静态 fixture。 | P4.9 已建立 lifecycle keyword profile；绝念 trigger queue 和广义预知授予仍 deferred。 |
 | Interaction remaining | `OGN·199/298 控潮者`：待命；`UNL-021/219 阴森药剂师`：伏击；`UNL-176a/219 蔚`：伏击。 | P2 已有普通打出/静态 fixture；`回响` 已有 P4.4 mana-only 执行路径。 | P4.9 已建立 interaction keyword profile；待命 face-down 和伏击 reaction battlefield play 仍 deferred。 |
-| Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验。 | P2 已有回收/放逐/增益代表路径；经验 fixture 明确暂缓。 | P4.9 已建立 basic action profile；经验获得/消耗状态仍 deferred。 |
+| Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；经验消耗/动态经验仍 deferred。 |
 
 ## P4.2 Permission Keyword Batch
 
@@ -242,10 +244,10 @@ Prompt-to-artifact checklist：
 | 权限关键词：迅捷、反应、急速 | `CardPermissionKeywordRules`、`P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags`、`P4SwiftKeywordAllowsCleaveInSpellDuelFocusWindow`、`P4PermissionKeywordsKeepExistingP2FixturesGreen` | Partial：迅捷代表路径可玩，反应 P2 path 可玩，急速额外支付活跃进场 deferred。 |
 | 战斗关键词：强攻、坚守、壁垒、后排、游走 | `CardCombatKeywordRules`、`P4CombatKeywordProfilesMapOfficialTextToRegistryTags`、6 条 keyword-unit fixture | Profile only：完整战斗伤害/承伤/游走移动 deferred。 |
 | 生命周期关键词：瞬息、绝念、预知 | `CardLifecycleKeywordRules`、`P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags`、3 条 representative fixture | Partial：瞬息到期可玩，预知顶牌回收代表路径 delegated to P2，绝念 trigger queue deferred。 |
-| 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、5 条 fixture | Profile only：经验、等级、鼓舞记忆、法盾税 deferred。 |
+| 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、5 条 fixture | Profile only：狩猎征服/据守经验、等级、鼓舞记忆、法盾税 deferred。 |
 | 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、3 条 remaining fixture | Partial：mana-only 回响可玩，待命/伏击 face-down/reaction battlefield play deferred。 |
 | 装备关键词：装配、灵便、百炼 | `CardEquipmentKeywordRules`、`P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags`、5 条 no-attach fixture | Profile only：attach/detach/费用/owner-controller deferred。 |
-| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、4 条 representative fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；experience deferred。 |
+| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验可玩；动态/消耗经验 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests | Covered for registered templates and representative P2 bridges. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
 | 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.9 once committed. |
@@ -257,7 +259,18 @@ P4.9 新增内容：
 - 新增 `CardBasicActionRules` 与 `CardBasicActionProfile`，把基础动作分为 primitive、delegated-to-P2 和 deferred 三类，补齐 `回收`、`放逐`、`增益`、`经验` 的 P4 状态表达。
 - 新增 `P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions` 三个 CardCatalog baseline tests。
 - 新增 `P4LifecycleKeywordProfilesKeepExistingRepresentativeFixturesGreen`、`P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen`、`P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen`，复用 10 条已审计 fixture。
-- 本批次没有实现 `绝念` 触发队列、广义 `预知` 授予、`待命` 正面朝下/翻开、`伏击` 反应战场打出、经验获得/消耗状态、完整战斗或装备贴附系统。
+- 本批次没有实现 `绝念` 触发队列、广义 `预知` 授予、`待命` 正面朝下/翻开、`伏击` 反应战场打出、经验获得/消耗状态、完整战斗或装备贴附系统；P4.10 随后只补固定打出获得经验的低风险切片。
+
+## P4.10 Fixed Experience Gain On Play
+
+本阶段补一个低风险真实执行切片，仍不进入等级、狩猎征服/据守、装配贴附或经验消耗大系统：
+
+- `MatchState` 新增 `PlayerExperience`，conformance fixture schema 新增 `initialState.experience` / `expected.finalState.experience`，玩家 snapshot 暴露 `experience`。
+- `CardBehaviorDefinition.GainExperienceOnPlay` 只表示固定数值的“当你打出此牌时获得 N 经验”，在 stack item 结算、源牌入场后追加 `EXPERIENCE_GAINED` 事件并更新控制者经验。
+- 已接入代表卡：`UNL-092/219 德玛西亚使节` 获得 1 经验，`UNL-034/219 暖春之使` 获得 2 经验，`UNL-158/219 牧人的传家宝` 获得 1 经验。
+- `CardBasicActionRules` 将这些固定经验路径标记为 `delegated-to-P2` / `recognized-covered`，同时保留 `UNL-157/219 严厉军士` 这类“按友方单位数量获得经验”的动态经验为 deferred。
+- 已更新三条已审计 fixture：`p2-preflight-play-demacia-envoy-experience-static`、`p2-preflight-play-spring-messenger-experience-static`、`p2-preflight-play-shepherds-heirloom-weapon-equipment`。
+- 本批次没有实现经验消耗、等级阈值、狩猎征服/据守经验、装配消耗经验、获得经验记忆条件、动态友方单位计数或任何 P5 装备贴附系统。
 
 ## Risk Layers
 
@@ -273,7 +286,7 @@ P4.9 新增内容：
 - 瞬息到期、预知最小回收分支
 - 回响复杂额外费用、授予回响和模式重复分支
 - 法盾目标税的最小支付校验；P4.7 只完成 profile 识别
-- 经验获得/消耗、等级阈值、鼓舞本回合记忆；P4.7 只完成 profile 识别
+- 固定数值“打出时获得经验”已由 P4.10 接入；经验消耗、动态经验、等级阈值、鼓舞本回合记忆仍需后续小批次
 
 高风险，暂不进入 P4.1：
 
@@ -294,12 +307,13 @@ P4.9 新增内容：
 | P4.4 互动关键词一小批 | Done | 100% | `回响` mana-only optional cost/repeat 显式模型；复杂回响、待命、伏击继续 deferred。 |
 | P4.5 基础动作 executor 小批测试 | Done | 100% | `draw`/`damage`/`destroy`/`stun`/`temp_might` primitive plan；`move`/`recall` 继续 delegated to P2 handwritten。 |
 | P4.6 完成审计与战斗关键词 profile | Done | 100% | 审计确认 P4 尚未完成；新增 `强攻`/`坚守`/`壁垒`/`后排`/`游走` profile，完整战斗执行继续 deferred。 |
-| P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；经验、等级、鼓舞记忆和法盾目标税执行继续 deferred。 |
+| P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；狩猎征服/据守经验、等级、鼓舞记忆和法盾目标税执行继续 deferred。 |
 | P4.8 装备关键词 profile | Done | 100% | 新增 `装配`/`灵便`/`百炼` profile；贴附、费用、自动贴附和 owner/controller 执行继续 deferred。 |
 | P4.9 完成审计与剩余 profile 收口 | Done | 100% | 新增 lifecycle/interaction/basic-action profile，明确 P4 goal 尚未完全达成的 deferred 能力。 |
-| P4.10 goal completion decision | Pending | 0% | 基于 P4.9 audit 决定继续补一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
+| P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；动态经验与经验消耗继续 deferred。 |
+| P4.11 goal completion decision | Pending | 0% | 基于 P4.10 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
 
-P4 当前整体进度：按当前 part 计 `10/11 = 90.9%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile。
+P4 当前整体进度：按当前 part 计 `11/12 = 91.7%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行。
 
 ## Validation Gate
 
@@ -314,15 +328,15 @@ P4 当前整体进度：按当前 part 计 `10/11 = 90.9%`；P4.1 已验证 `5` 
 
 ## Latest Validation
 
-P4.9 已完成验证：
+P4.10 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，`0` warnings / `0` errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1684/1684`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1615/1615`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1687/1687`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1618/1618`
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：通过 `19/19`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4Lifecycle|FullyQualifiedName~P4Interaction|FullyQualifiedName~P4BasicAction"`：通过 `13/13`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4FixedExperienceGainOnPlayUpdatesControllerExperience"`：通过 `3/3`
 - `git diff --check`：通过
 
 ## Next Step
 
-进入 P4.10：基于 P4.9 audit 决定是否再补一个低风险执行切片；若不补，需把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。
+进入 P4.11：基于 P4.10 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。
