@@ -2594,6 +2594,121 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysCruelRevivalDestroyFriendlyUnitPlayGraveyardUnitToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-cruel-revival-destroy-unit-play-graveyard-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-CRUEL-REVIVAL-COST-UNIT-001", "P1-SPELL-CRUEL-REVIVAL", "P1-SPELL-INCINERATE"],
+            result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"].ManaCost);
+        Assert.False(result.FinalState.CardObjects["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCruelRevivalWithoutDestroyAdditionalCost()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CRUEL-REVIVAL"],
+                    Graveyard = ["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"] = new(
+                    "P1-CRUEL-REVIVAL-GRAVE-UNIT-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 2)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-cruel-revival-missing-additional-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-CRUEL-REVIVAL",
+                "UNL-142/219",
+                ["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-CRUEL-REVIVAL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCruelRevivalWhenGraveyardUnitCostsMoreThanDestroyedUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CRUEL-REVIVAL"],
+                    Base = ["P1-CRUEL-REVIVAL-COST-UNIT-001"],
+                    Graveyard = ["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-CRUEL-REVIVAL-COST-UNIT-001"] = new(
+                    "P1-CRUEL-REVIVAL-COST-UNIT-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 2),
+                ["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"] = new(
+                    "P1-CRUEL-REVIVAL-GRAVE-UNIT-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 3)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-cruel-revival-expensive-graveyard-unit", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-CRUEL-REVIVAL",
+                "UNL-142/219",
+                ["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"],
+                OptionalCosts: ["DESTROY_FRIENDLY_UNIT:P1-CRUEL-REVIVAL-COST-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-CRUEL-REVIVAL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-CRUEL-REVIVAL-COST-UNIT-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-CRUEL-REVIVAL-GRAVE-UNIT-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSteadfastLoyaltyWhenTargetIsNonUnitGraveyardCard()
     {
         var state = PunishmentState(mana: 2) with

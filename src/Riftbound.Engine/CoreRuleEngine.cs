@@ -423,6 +423,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!AreTargetsManaCostAtMostDestroyedAdditionalCostUnit(
+                state,
+                behavior,
+                targetObjectIds,
+                destroyedAdditionalCostTargetObjectIds))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a graveyard unit with mana cost no greater than the destroyed unit.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (discardedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDiscardHandCardAsOptionalCost(state, intent.PlayerId, command.SourceObjectId, targetObjectId)))
         {
@@ -1020,6 +1033,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !behavior.RequiresTargetManaCostAtMostControllerPower
             || state.RunePools.TryGetValue(playerId, out var runePool)
                 && targetManaCost <= runePool.Power;
+    }
+
+    private static bool AreTargetsManaCostAtMostDestroyedAdditionalCostUnit(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds,
+        IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds)
+    {
+        if (!behavior.RequiresTargetManaCostAtMostDestroyedAdditionalCostUnit)
+        {
+            return true;
+        }
+
+        if (destroyedAdditionalCostTargetObjectIds.Count != 1
+            || !TryGetTargetManaCost(state, destroyedAdditionalCostTargetObjectIds[0], behavior, out var destroyedUnitManaCost))
+        {
+            return false;
+        }
+
+        return targetObjectIds.All(targetObjectId =>
+            TryGetTargetManaCost(state, targetObjectId, behavior, out var targetManaCost)
+            && targetManaCost <= destroyedUnitManaCost);
     }
 
     private static bool TryGetTargetManaCost(
