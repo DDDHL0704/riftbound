@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-jinx-discard-two-hand",
-  "description": "Jinx enters as a unit object and discards two other hand cards.",
+  "fixtureId": "p4-play-jinx-haste-ready",
+  "description": "Jinx pays the P4.56 HASTE_READY optional cost while resolving its discard-two-hand on-play effect.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302343,
+  "seed": 2603304156,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·030/298 金克丝",
-      "note": "官方卡面：费用 3；英雄单位；战力 4；急速；强攻2；当你打出我时，弃置两张手牌。当前 fixture 覆盖单位源牌入场、关键词标签和弃置另外两张己方手牌；P4.56 fixture 覆盖急速 HASTE_READY 代表路径，强攻战斗修正暂缓。"
+      "note": "官方卡面：费用 3；英雄单位；战力 4；急速，可选择额外支付 1 和红色让我以活跃状态进场；强攻2；当你打出我时，弃置两张手牌。本 P4.56 fixture 覆盖代表路径：在现有 mana/power 资源模型中用 HASTE_READY 支付额外 1 mana + 1 power，并继续结算打出时弃置另外两张己方手牌；红色资源精确匹配和强攻战斗修正路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；弃牌移动到废牌堆。"
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；弃牌移动到废牌堆；本批次不进入完整战斗系统。"
     }
   ],
-  "roomId": "p2-preflight-jinx-room",
+  "roomId": "p4-jinx-haste-ready-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302343,
-    "turnNumber": 342,
+    "seed": 2603304156,
+    "turnNumber": 4156,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,7 +34,7 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
+      "P1": { "mana": 4, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -66,24 +66,25 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-jinx-play",
+      "clientIntentId": "intent-p4-jinx-haste-ready-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-JINX",
         "cardNo": "OGN·030/298",
-        "targetObjectIds": ["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"]
+        "targetObjectIds": ["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"],
+        "optionalCosts": ["HASTE_READY"]
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-jinx-p1-pass",
+      "clientIntentId": "intent-p4-jinx-haste-ready-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-jinx-p2-pass",
+      "clientIntentId": "intent-p4-jinx-haste-ready-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -108,8 +109,10 @@
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
-          "mana": 3,
-          "baseMana": 3
+          "mana": 4,
+          "power": 1,
+          "baseMana": 3,
+          "optionalCosts": ["HASTE_READY"]
         }
       },
       {
@@ -134,7 +137,9 @@
           "unitName": "金克丝",
           "destinationZone": "BASE",
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "强攻2", "急速"]
+          "tags": ["CARD_TYPE:UNIT", "强攻2", "急速"],
+          "isExhausted": false,
+          "hasteReadyOptionalCostPaid": true
         }
       },
       {
@@ -161,7 +166,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 342,
+      "turnNumber": 4156,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",

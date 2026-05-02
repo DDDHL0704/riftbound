@@ -768,6 +768,28 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4PermissionKeywordProfileIncludesJinxHasteReadyDiscardBranch()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var jinxSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·030/298", StringComparison.Ordinal));
+        Assert.Contains(jinxSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(jinxSpec.Keywords, keyword => string.Equals(keyword.Keyword, "强攻", StringComparison.Ordinal));
+        Assert.Contains(jinxSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·030/298", out var jinxDefinition));
+        var profile = CardPermissionKeywordRules.BuildProfile(jinxDefinition);
+
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
+        Assert.Contains("P4.56", profile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task P4EchoKeywordProfileMapsOfficialTextToRegistryOptionalCost()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
