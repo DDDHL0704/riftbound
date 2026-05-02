@@ -2427,7 +2427,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "海盗|急速|游走"),
+            SourceUnitTags: "海盗|急速|游走",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·162a/298",
             "厄运小姐",
