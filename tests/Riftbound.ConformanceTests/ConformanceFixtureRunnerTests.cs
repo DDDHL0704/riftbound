@@ -8567,8 +8567,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-yi-active-unit.fixture.json", "P1-UNIT-YI", 6, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-vanguard-squire-active-unit.fixture.json", "P1-UNIT-VANGUARD-SQUIRE", 5, "CARD_TYPE:UNIT|精锐")]
     [InlineData("p2-preflight-play-warwick-active-unit.fixture.json", "P1-UNIT-WARWICK", 5, "CARD_TYPE:UNIT|犬形")]
+    [InlineData("p2-preflight-play-arc-vi-roam-static.fixture.json", "P1-UNIT-ARC-VI", 3, "CARD_TYPE:UNIT|游走")]
+    [InlineData("p2-preflight-play-arc-heimerdinger-yordle-static.fixture.json", "P1-UNIT-ARC-HEIMERDINGER", 3, "CARD_TYPE:UNIT|约德尔人")]
     [InlineData("p2-preflight-play-arc-warwick-active-unit.fixture.json", "P1-UNIT-ARC-WARWICK", 5, "CARD_TYPE:UNIT|犬形")]
     [InlineData("p2-preflight-play-arena-councilor-active-unit.fixture.json", "P1-UNIT-ARENA-COUNCILOR", 3, "CARD_TYPE:UNIT|约德尔人")]
+    [InlineData("p2-preflight-play-shadow-base-unit-static.fixture.json", "P1-UNIT-SHADOW", 3, "CARD_TYPE:UNIT")]
     public async Task CoreRuleEnginePlaysActiveEntrySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -8597,8 +8600,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(7, "P1-UNIT-YI", "OGS·009/024", "P1-BASE-YI-TARGET-001")]
     [InlineData(6, "P1-UNIT-VANGUARD-SQUIRE", "OGS·016/024", "P1-BASE-VANGUARD-SQUIRE-TARGET-001")]
     [InlineData(6, "P1-UNIT-WARWICK", "OGN·159/298", "P1-BASE-WARWICK-TARGET-001")]
+    [InlineData(2, "P1-UNIT-ARC-VI", "ARC-001/006", "P1-BASE-ARC-VI-TARGET-001")]
+    [InlineData(3, "P1-UNIT-ARC-HEIMERDINGER", "ARC-003/006", "P1-BASE-ARC-HEIMERDINGER-TARGET-001")]
     [InlineData(6, "P1-UNIT-ARC-WARWICK", "ARC-004/006", "P1-BASE-ARC-WARWICK-TARGET-001")]
     [InlineData(5, "P1-UNIT-ARENA-COUNCILOR", "UNL-001/219", "P1-BASE-ARENA-COUNCILOR-TARGET-001")]
+    [InlineData(3, "P1-UNIT-SHADOW", "UNL-194/219", "P1-BASE-SHADOW-TARGET-001")]
     public Task CoreRuleEngineRejectsActiveEntrySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
