@@ -496,6 +496,16 @@ public static class CardBehaviorRegistry
             TargetRequiredTag: CardObjectTags.UnitCard,
             DamagesSecondTargetByFirstTargetPower: true),
         new(
+            "UNL-192/219",
+            "阿尔法突袭",
+            3,
+            "ALPHA_STRIKE_FRIENDLY_POWER_DAMAGE_ENEMY_BATTLEFIELD",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            DamagesSecondTargetByFirstTargetPower: true),
+        new(
             "OGN·108/298",
             "聚合变异",
             2,

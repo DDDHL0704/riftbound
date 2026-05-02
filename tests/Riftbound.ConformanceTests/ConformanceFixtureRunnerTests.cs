@@ -12451,6 +12451,76 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysAlphaStrikeSingleEnemyPowerDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-alpha-strike-single-enemy-power-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(5, result.FinalState.CardObjects["P2-ALPHA-ENEMY-001"].Damage);
+        Assert.Equal(["P1-ALPHA-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsAlphaStrikeWhenEnemyTargetIsNotBattlefieldUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ALPHA-STRIKE"],
+                    Base = ["P1-ALPHA-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-ALPHA-ENEMY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-ALPHA-FRIENDLY-001"] = new(
+                    "P1-ALPHA-FRIENDLY-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-ALPHA-ENEMY-001"] = new(
+                    "P2-ALPHA-ENEMY-001",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-alpha-strike-base-enemy-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-ALPHA-STRIKE",
+                "UNL-192/219",
+                ["P1-ALPHA-FRIENDLY-001", "P2-ALPHA-ENEMY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-ALPHA-STRIKE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-ALPHA-FRIENDLY-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-ALPHA-ENEMY-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDangerTemperatureBuffsOnlyFriendlyMechanicalUnits()
     {
         var fixture = await ConformanceFixture.LoadAsync(
