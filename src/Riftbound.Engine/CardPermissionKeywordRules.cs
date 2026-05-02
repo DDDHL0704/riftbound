@@ -13,6 +13,12 @@ public static class HasteOptionalReadyBranchStatuses
 {
     public const string NotApplicable = "not-applicable";
     public const string RecognizedDeferred = "recognized-deferred";
+    public const string ImplementedRepresentative = "implemented-representative";
+}
+
+public static class HasteOptionalCostNames
+{
+    public const string HasteReady = "HASTE_READY";
 }
 
 public sealed record CardPermissionKeywordProfile(
@@ -20,7 +26,9 @@ public sealed record CardPermissionKeywordProfile(
     bool HasReaction,
     bool HasHaste,
     string HasteOptionalReadyBranchStatus,
-    string HasteOptionalReadyBranchReason);
+    string HasteOptionalReadyBranchReason,
+    int HasteReadyManaCost,
+    int HasteReadyPowerCost);
 
 public sealed record CardPlayTimingDecision(
     bool IsAllowed,
@@ -34,16 +42,24 @@ public static class CardPermissionKeywordRules
         ArgumentNullException.ThrowIfNull(behavior);
 
         var hasHaste = HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste);
+        var hasImplementedHasteReadyBranch = hasHaste
+            && (behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0);
         return new CardPermissionKeywordProfile(
             behavior.CanPlayDuringSpellDuel,
             behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction),
             hasHaste,
             hasHaste
-                ? HasteOptionalReadyBranchStatuses.RecognizedDeferred
+                ? hasImplementedHasteReadyBranch
+                    ? HasteOptionalReadyBranchStatuses.ImplementedRepresentative
+                    : HasteOptionalReadyBranchStatuses.RecognizedDeferred
                 : HasteOptionalReadyBranchStatuses.NotApplicable,
             hasHaste
-                ? "P4.2 recognizes Haste in source unit tags and keeps the verified no-optional entry path; the extra-pay ready-entry branch is deferred until colored resource and ready-entry cost modeling."
-                : "Card does not expose the Haste keyword through the P2 source unit tag path.");
+                ? hasImplementedHasteReadyBranch
+                    ? "P4.13 implements the representative HASTE_READY optional cost through the current mana + power resource model and keeps other Haste cards deferred."
+                    : "P4.2 recognizes Haste in source unit tags and keeps the verified no-optional entry path; the extra-pay ready-entry branch is deferred until colored resource and ready-entry cost modeling."
+                : "Card does not expose the Haste keyword through the P2 source unit tag path.",
+            hasImplementedHasteReadyBranch ? behavior.HasteReadyManaCost : 0,
+            hasImplementedHasteReadyBranch ? behavior.HasteReadyPowerCost : 0);
     }
 
     public static CardPlayTimingDecision EvaluatePlayTiming(
@@ -96,6 +112,41 @@ public static class CardPermissionKeywordRules
 
         return SourceTags(behavior)
             .Any(tag => string.Equals(tag, keyword.Trim(), StringComparison.Ordinal));
+    }
+
+    public static bool TryBuildHasteReadyOptionalCost(
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out int extraManaCost,
+        out int extraPowerCost)
+    {
+        ArgumentNullException.ThrowIfNull(normalizedOptionalCosts);
+        ArgumentNullException.ThrowIfNull(behavior);
+
+        extraManaCost = 0;
+        extraPowerCost = 0;
+        if (normalizedOptionalCosts.Count == 1
+            && string.Equals(normalizedOptionalCosts[0], HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)
+            && HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
+            && (behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0))
+        {
+            extraManaCost = behavior.HasteReadyManaCost;
+            extraPowerCost = behavior.HasteReadyPowerCost;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool IsHasteReadyOptionalCostPaid(
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> optionalCosts)
+    {
+        return TryBuildHasteReadyOptionalCost(
+            optionalCosts,
+            behavior,
+            out _,
+            out _);
     }
 
     private static bool IsTurnPlayerOrdinaryOpenMainPhase(MatchState state, string playerId)

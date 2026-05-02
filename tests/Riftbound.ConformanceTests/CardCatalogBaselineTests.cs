@@ -388,8 +388,12 @@ public sealed class CardCatalogBaselineTests
         Assert.False(hasteProfile.HasSwift);
         Assert.False(hasteProfile.HasReaction);
         Assert.True(hasteProfile.HasHaste);
-        Assert.Equal(HasteOptionalReadyBranchStatuses.RecognizedDeferred, hasteProfile.HasteOptionalReadyBranchStatus);
-        Assert.Contains("deferred", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            hasteProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, hasteProfile.HasteReadyManaCost);
+        Assert.Equal(1, hasteProfile.HasteReadyPowerCost);
+        Assert.Contains("P4.13", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

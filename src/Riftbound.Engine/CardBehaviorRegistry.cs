@@ -158,7 +158,9 @@ public sealed record CardBehaviorDefinition(
     bool CanPlayDuringSpellDuel = false,
     int GainExperienceOnPlay = 0,
     int OptionalExperienceCost = 0,
-    int ManaReductionIfExperiencePaid = 0);
+    int ManaReductionIfExperiencePaid = 0,
+    int HasteReadyManaCost = 0,
+    int HasteReadyPowerCost = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -2277,7 +2279,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "龙|急速"),
+            SourceUnitTags: "龙|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·010/298",
             "军团后卫",

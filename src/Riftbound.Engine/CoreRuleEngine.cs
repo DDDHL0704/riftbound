@@ -100,7 +100,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.CardNo,
             targetObjectIds,
             behavior.DamageAmountFromOptionalPowerCost ? plan.TotalPowerCost : behavior.DamageAmount,
-            plan.EffectRepeatCount);
+            plan.EffectRepeatCount,
+            plan.OptionalCosts);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -1709,6 +1710,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             extraManaCost = echoExtraManaCost;
             effectRepeatCount = echoEffectRepeatCount;
+            return true;
+        }
+
+        if (CardPermissionKeywordRules.TryBuildHasteReadyOptionalCost(
+            normalizedOptionalCosts,
+            behavior,
+            out var hasteExtraManaCost,
+            out var hasteExtraPowerCost))
+        {
+            extraManaCost = hasteExtraManaCost;
+            extraPowerCost = hasteExtraPowerCost;
             return true;
         }
 
@@ -4868,10 +4880,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
             ? baseUnitPower + zones.Graveyard.Count
             : baseUnitPower;
+        var hasteReadyOptionalCostPaid = CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(
+            behavior,
+            stackItem.OptionalCosts);
         var unitState = existingState with
         {
             Power = unitPower,
-            IsExhausted = existingState.IsExhausted || behavior.SourceUnitIsExhausted,
+            IsExhausted = existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
                 .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
@@ -4894,13 +4909,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             CreateUnitPlayedPayload(
                 stackItem,
                 behavior,
-                unitState)));
+                unitState,
+                hasteReadyOptionalCostPaid)));
     }
 
     private static Dictionary<string, object?> CreateUnitPlayedPayload(
         StackItemState stackItem,
         CardBehaviorDefinition behavior,
-        CardObjectState unitState)
+        CardObjectState unitState,
+        bool hasteReadyOptionalCostPaid)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -4915,6 +4932,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (unitState.IsExhausted)
         {
             payload["isExhausted"] = true;
+        }
+
+        if (hasteReadyOptionalCostPaid)
+        {
+            payload["isExhausted"] = unitState.IsExhausted;
+            payload["hasteReadyOptionalCostPaid"] = true;
         }
 
         return payload;

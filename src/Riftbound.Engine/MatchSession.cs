@@ -149,7 +149,8 @@ public sealed record StackItemState
         string? cardNo = null,
         IReadOnlyList<string>? targetObjectIds = null,
         int damageAmount = 0,
-        int effectRepeatCount = 1)
+        int effectRepeatCount = 1,
+        IReadOnlyList<string>? optionalCosts = null)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -159,6 +160,7 @@ public sealed record StackItemState
         TargetObjectIds = NormalizeList(targetObjectIds);
         DamageAmount = Math.Max(0, damageAmount);
         EffectRepeatCount = Math.Max(1, effectRepeatCount);
+        OptionalCosts = NormalizeList(optionalCosts);
     }
 
     public string StackItemId { get; init; }
@@ -176,6 +178,8 @@ public sealed record StackItemState
     public int DamageAmount { get; init; }
 
     public int EffectRepeatCount { get; init; }
+
+    public IReadOnlyList<string> OptionalCosts { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -462,7 +466,9 @@ public sealed record MatchState
                 item.EffectKind,
                 item.CardNo,
                 item.TargetObjectIds,
-                item.DamageAmount))
+                item.DamageAmount,
+                item.EffectRepeatCount,
+                item.OptionalCosts))
             .ToArray();
     }
 

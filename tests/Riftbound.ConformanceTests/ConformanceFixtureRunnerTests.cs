@@ -16738,18 +16738,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4HasteOptionalReadyBranchIsRecognizedButStillRejected()
+    public async Task P4HasteOptionalReadyBranchPaysManaAndPowerForRepresentative()
     {
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·001/298", out var hasteDefinition));
         var profile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
         Assert.True(profile.HasHaste);
-        Assert.Equal(HasteOptionalReadyBranchStatuses.RecognizedDeferred, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
 
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-blazing-drake-haste-ready.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchRejectsInsufficientPower()
+    {
         var state = PunishmentState(mana: 6) with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(6, 1),
+                ["P1"] = new(6, 0),
                 ["P2"] = RunePool.Empty
             },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -16770,14 +16787,14 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-UNIT-BLAZING-DRAKE",
                 "OGN·001/298",
                 [],
-                OptionalCosts: ["HASTE_READY"]),
+                OptionalCosts: [HasteOptionalCostNames.HasteReady]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(6, 1), result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(6, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-BLAZING-DRAKE"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
