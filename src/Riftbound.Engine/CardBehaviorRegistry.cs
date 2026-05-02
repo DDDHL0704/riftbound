@@ -4880,6 +4880,16 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "崔法利"),
         new(
+            "SFD·015/221",
+            "栖息的冥龙",
+            4,
+            "ROOSTING_DARK_DRAKE_PLAY_UNIT_STATIC",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 5,
+            SourceUnitTags: "龙"),
+        new(
             "SFD·020/221",
             "德莱文",
             4,
