@@ -17691,6 +17691,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-unl-yi-level6-spellshield-roam.fixture.json")]
     [InlineData("p4-play-unl-yi-alt-a-level6-spellshield-roam.fixture.json")]
+    [InlineData("p4-play-spirit-fire-multiple-spellshield-tax.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -18117,6 +18118,32 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4SpellshieldTaxAggregatesMultipleEnemySpellTargets()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-spirit-fire-multiple-spellshield-tax.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(
+            ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
+            result.FinalState.PlayerZones["P2"].Graveyard);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(6, costPaidEvent.Payload["mana"]);
+        Assert.Equal(3, costPaidEvent.Payload["baseMana"]);
+        Assert.Equal(3, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(
+            ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
+            Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4SpellshieldTaxState(mana: 2);
@@ -18136,6 +18163,32 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-INCINERATE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient()
+    {
+        var state = P4MultipleSpellshieldTaxState(mana: 5);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-multiple-spellshield-tax-insufficient", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SPIRIT-FIRE",
+                "OGN·256/298",
+                ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
+            result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -18376,6 +18429,39 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-SPELLSHIELD-UNIT-001"] = new(
                     "P2-SPELLSHIELD-UNIT-001",
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+    }
+
+    private static MatchState P4MultipleSpellshieldTaxState(int mana)
+    {
+        return PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SPIRIT-FIRE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+                        "P2-SPIRIT-FIRE-SPELLSHIELD2-001"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPIRIT-FIRE-SPELLSHIELD-001"] = new(
+                    "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield]),
+                ["P2-SPIRIT-FIRE-SPELLSHIELD2-001"] = new(
+                    "P2-SPIRIT-FIRE-SPELLSHIELD2-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "法盾2"])
             }
         };
     }
