@@ -77,7 +77,8 @@ public sealed record ConformanceInitialState(
     IReadOnlyList<ConformanceStackItemState>? StackItems = null,
     string? FocusPlayerId = null,
     IReadOnlyList<string>? PassedFocusPlayerIds = null,
-    string? WinnerPlayerId = null);
+    string? WinnerPlayerId = null,
+    IReadOnlyList<string>? UntilEndOfTurnEffects = null);
 
 public sealed record ConformancePlayerInitialState(
     IReadOnlyList<string>? MainDeck = null,
@@ -146,7 +147,8 @@ public sealed record ConformanceExpectedState(
     IReadOnlyList<ConformanceStackItemState>? StackItems = null,
     string? FocusPlayerId = null,
     IReadOnlyList<string>? PassedFocusPlayerIds = null,
-    string? WinnerPlayerId = null);
+    string? WinnerPlayerId = null,
+    IReadOnlyList<string>? UntilEndOfTurnEffects = null);
 
 public sealed record ConformanceExpectedEvent(
     string Kind,
@@ -304,7 +306,8 @@ public static class ConformanceFixtureRunner
             initial.FocusPlayerId,
             initial.PassedFocusPlayerIds,
             initial.WinnerPlayerId,
-            seed: initial.Seed);
+            seed: initial.Seed,
+            untilEndOfTurnEffects: initial.UntilEndOfTurnEffects);
     }
 
     private static IReadOnlyDictionary<string, string> BuildSeats(IReadOnlyList<string> playerIds)
@@ -448,6 +451,7 @@ public static class ConformanceFixtureRunner
         ComparePlayerZones(mismatches, expected.Players, actual.PlayerZones);
         CompareCardObjects(mismatches, expected.CardObjects, actual.CardObjects);
         CompareStackItems(mismatches, expected.StackItems, actual.StackItems);
+        CompareSequence(mismatches, "finalState.untilEndOfTurnEffects", expected.UntilEndOfTurnEffects, actual.UntilEndOfTurnEffects);
     }
 
     private static void ComparePromptActions(

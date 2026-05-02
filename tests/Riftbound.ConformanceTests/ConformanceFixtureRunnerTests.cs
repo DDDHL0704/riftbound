@@ -9376,6 +9376,68 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysStandFirmAndPreventsSpellDamageThisTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-stand-firm-prevent-spell-damage-this-turn.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-STAND-FIRM-001"].Damage);
+        Assert.Contains(
+            "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN",
+            result.FinalState.UntilEndOfTurnEffects);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-SPELL-STAND-FIRM"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsStandFirmWithTargets()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-STAND-FIRM"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-STAND-FIRM-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-STAND-FIRM-001"] = new("P2-UNIT-STAND-FIRM-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-stand-firm-target-rejected", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-STAND-FIRM",
+                "OGN·145/298",
+                ["P2-UNIT-STAND-FIRM-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-STAND-FIRM"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+        Assert.Empty(result.State.UntilEndOfTurnEffects);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysWindWallCounterSpell()
     {
         var fixture = await ConformanceFixture.LoadAsync(

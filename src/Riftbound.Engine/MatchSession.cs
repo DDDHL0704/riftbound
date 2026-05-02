@@ -218,7 +218,8 @@ public sealed record MatchState
         string? winnerPlayerId = null,
         IReadOnlyList<string>? destroyedUnitOwnerIdsThisTurn = null,
         long? seed = null,
-        long? rngCursor = null)
+        long? rngCursor = null,
+        IReadOnlyList<string>? untilEndOfTurnEffects = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -253,6 +254,7 @@ public sealed record MatchState
         DestroyedUnitOwnerIdsThisTurn = NormalizeTextList(destroyedUnitOwnerIdsThisTurn);
         Seed = seed ?? 0;
         RngCursor = Math.Max(0, rngCursor ?? 0);
+        UntilEndOfTurnEffects = NormalizeTextList(untilEndOfTurnEffects);
     }
 
     public string RoomId { get; init; }
@@ -300,6 +302,8 @@ public sealed record MatchState
     public long Seed { get; init; }
 
     public long RngCursor { get; init; }
+
+    public IReadOnlyList<string> UntilEndOfTurnEffects { get; init; }
 
     public static MatchState Create(string roomId)
     {

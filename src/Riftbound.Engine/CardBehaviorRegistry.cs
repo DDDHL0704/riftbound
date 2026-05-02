@@ -140,7 +140,8 @@ public sealed record CardBehaviorDefinition(
     bool AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost = false,
     int DamageTargetIndex = -1,
     int BanishPlayTargetIndex = -1,
-    bool BanishesSourceOnResolution = false);
+    bool BanishesSourceOnResolution = false,
+    bool PreventsAllSpellAndSkillDamageThisTurn = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7169,6 +7170,15 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.AnyUnit,
             ReadiesTarget: true),
+        new(
+            "OGN·145/298",
+            "坚毅不倒",
+            1,
+            "STAND_FIRM_PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN",
+            0,
+            0,
+            CanPlayDuringPriority: true,
+            PreventsAllSpellAndSkillDamageThisTurn: true),
         new(
             "SFD·204/221",
             "狩猎",

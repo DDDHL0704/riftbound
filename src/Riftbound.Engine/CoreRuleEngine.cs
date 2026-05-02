@@ -9,6 +9,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
+    private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string DestroyOnNextDamageThisTurnEffectId = "DESTROY_ON_NEXT_DAMAGE_THIS_TURN";
     private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
@@ -528,6 +529,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerZones = stackResolution.PlayerZones,
                 PlayerScores = stackResolution.PlayerScores,
                 CardObjects = stackResolution.CardObjects,
+                UntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects,
                 RngCursor = stackResolution.RngCursor,
                 DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                     state.DestroyedUnitOwnerIdsThisTurn,
@@ -645,6 +647,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             TimingState = TimingStates.NeutralClosed,
             RunePools = ClearRunePools(state),
             CardObjects = cleanupResult.CardObjects,
+            UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
             DestroyedUnitOwnerIdsThisTurn = []
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
@@ -1717,11 +1720,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem.TargetObjectIds))
         {
-            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, [], [], [], state.RngCursor);
+            return new StackResolutionResult(
+                state.PlayerZones,
+                state.CardObjects,
+                state.PlayerScores,
+                state.UntilEndOfTurnEffects,
+                null,
+                [],
+                [],
+                [],
+                state.RngCursor);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var untilEndOfTurnEffects = state.UntilEndOfTurnEffects
+            .Where(effectId => !string.IsNullOrWhiteSpace(effectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToList();
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
@@ -1732,6 +1749,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         int? drawCountOverride = null;
+        var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
@@ -1826,6 +1844,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events);
+        }
+
+        if (behavior.PreventsAllSpellAndSkillDamageThisTurn)
+        {
+            untilEndOfTurnEffects = untilEndOfTurnEffects
+                .Append(PreventSpellAndSkillDamageThisTurnEffectId)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                .ToList();
+            events.Add(new GameEvent(
+                "STATUS_EFFECT_APPLIED",
+                $"{behavior.DisplayName}无效化本回合法术或技能伤害",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["effectId"] = PreventSpellAndSkillDamageThisTurnEffectId,
+                    ["scope"] = "SPELL_OR_SKILL_DAMAGE_THIS_TURN"
+                }));
         }
 
         if (behavior.DiscardsTargetFromHand)
@@ -2124,7 +2160,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem,
                     ResolveDamageAmount(state, stackItem, behavior),
                     events,
-                    damageTriggeredDestroyTargetObjectIds);
+                    damageTriggeredDestroyTargetObjectIds,
+                    preventDamageFromThisStackItem,
+                    PreventSpellAndSkillDamageThisTurnEffectId);
             }
         }
         else if (behavior.DamagesAllBattlefieldUnits)
@@ -2136,7 +2174,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 ResolveDamageAmount(state, stackItem, behavior),
                 events,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamageFromThisStackItem,
+                PreventSpellAndSkillDamageThisTurnEffectId);
         }
         else if (behavior.DamagesAllEnemyCombatUnits)
         {
@@ -2147,7 +2187,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 ResolveDamageAmount(state, stackItem, behavior),
                 events,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamageFromThisStackItem,
+                PreventSpellAndSkillDamageThisTurnEffectId);
         }
         else if (behavior.DamagesAllEnemyBattlefieldUnits)
         {
@@ -2158,7 +2200,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 ResolveDamageAmount(state, stackItem, behavior),
                 events,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamageFromThisStackItem,
+                PreventSpellAndSkillDamageThisTurnEffectId);
         }
         else if (behavior.ModifiesAllFriendlyBattlefieldUnits
             || behavior.ModifiesAllEnemyBattlefieldUnits)
@@ -2422,7 +2466,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         cardObjects,
                         secondTargetObjectId,
                         firstTargetPower,
-                        damageTriggeredDestroyTargetObjectIds);
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
                         $"{behavior.DisplayName}造成单位互斗伤害",
@@ -2440,7 +2486,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         cardObjects,
                         firstTargetObjectId,
                         secondTargetPower,
-                        damageTriggeredDestroyTargetObjectIds);
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
                         $"{behavior.DisplayName}造成单位互斗伤害",
@@ -2470,7 +2518,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     targetObjectId,
                     sourcePower,
-                    damageTriggeredDestroyTargetObjectIds);
+                    damageTriggeredDestroyTargetObjectIds,
+                    preventDamageFromThisStackItem,
+                    PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new GameEvent(
                     "DAMAGE_APPLIED",
                     $"{behavior.DisplayName}造成源单位互斗伤害",
@@ -2488,7 +2538,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     stackItem.SourceObjectId,
                     targetPower,
-                    damageTriggeredDestroyTargetObjectIds);
+                    damageTriggeredDestroyTargetObjectIds,
+                    preventDamageFromThisStackItem,
+                    PreventSpellAndSkillDamageThisTurnEffectId);
                 events.Add(new GameEvent(
                     "DAMAGE_APPLIED",
                     $"{behavior.DisplayName}造成目标单位互斗伤害",
@@ -2525,7 +2577,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         cardObjects,
                         damagedTargetObjectId,
                         damageAmount,
-                        damageTriggeredDestroyTargetObjectIds);
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new GameEvent(
                         "DAMAGE_APPLIED",
                         $"{behavior.DisplayName}按友方单位战力造成伤害",
@@ -2610,7 +2664,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 damageAmount,
                 events,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamageFromThisStackItem,
+                PreventSpellAndSkillDamageThisTurnEffectId);
 
             if (behavior.MovesTargetToBattlefield
                 && TryMoveTargetToControllerBattlefield(playerZones, stackItem.ControllerId, firstTargetObjectId))
@@ -2761,7 +2817,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                             cardObjects,
                             targetObjectId,
                             damageAmount,
-                            damageTriggeredDestroyTargetObjectIds);
+                            damageTriggeredDestroyTargetObjectIds,
+                            preventDamageFromThisStackItem,
+                            PreventSpellAndSkillDamageThisTurnEffectId);
                         targetState = cardObjects[targetObjectId];
                         events.Add(new GameEvent(
                             "DAMAGE_APPLIED",
@@ -3104,7 +3162,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         behavior.OtherEnemyBattlefieldUnitsDamageAmount,
                         stackItem.TargetObjectIds,
                         events,
-                        damageTriggeredDestroyTargetObjectIds);
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
                 }
             }
         }
@@ -3206,6 +3266,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             playerScores,
+            untilEndOfTurnEffects.ToArray(),
             winnerPlayerId,
             events,
             destroyedUnitOwnerIds
@@ -3507,7 +3568,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         int damageAmount,
         List<GameEvent> events,
-        ISet<string> damageTriggeredDestroyTargetObjectIds)
+        ISet<string> damageTriggeredDestroyTargetObjectIds,
+        bool preventDamage = false,
+        string preventionEffectId = "")
     {
         if (damageAmount <= 0)
         {
@@ -3520,7 +3583,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 targetObjectId,
                 damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamage,
+                preventionEffectId);
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
@@ -3591,7 +3656,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         int damageAmount,
         List<GameEvent> events,
-        ISet<string> damageTriggeredDestroyTargetObjectIds)
+        ISet<string> damageTriggeredDestroyTargetObjectIds,
+        bool preventDamage = false,
+        string preventionEffectId = "")
     {
         if (damageAmount <= 0)
         {
@@ -3604,7 +3671,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 targetObjectId,
                 damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamage,
+                preventionEffectId);
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
@@ -3619,7 +3688,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         int damageAmount,
         List<GameEvent> events,
-        ISet<string> damageTriggeredDestroyTargetObjectIds)
+        ISet<string> damageTriggeredDestroyTargetObjectIds,
+        bool preventDamage = false,
+        string preventionEffectId = "")
     {
         if (damageAmount <= 0)
         {
@@ -3632,7 +3703,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 targetObjectId,
                 damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamage,
+                preventionEffectId);
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
@@ -3648,7 +3721,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         int damageAmount,
         IReadOnlyCollection<string> excludedObjectIds,
         List<GameEvent> events,
-        ISet<string> damageTriggeredDestroyTargetObjectIds)
+        ISet<string> damageTriggeredDestroyTargetObjectIds,
+        bool preventDamage = false,
+        string preventionEffectId = "")
     {
         if (damageAmount <= 0)
         {
@@ -3666,7 +3741,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 targetObjectId,
                 damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamage,
+                preventionEffectId);
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点溅射伤害",
@@ -3678,7 +3755,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         int damageAmount,
-        ISet<string>? damageTriggeredDestroyTargetObjectIds = null)
+        ISet<string>? damageTriggeredDestroyTargetObjectIds = null,
+        bool preventDamage = false,
+        string preventionEffectId = "")
     {
         if (damageAmount <= 0)
         {
@@ -3688,9 +3767,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
             ? existingTarget
             : new CardObjectState(targetObjectId);
-        var preventsDamage = targetState.UntilEndOfTurnEffects.Contains(
-            PreventNextDamageThisTurnEffectId,
-            StringComparer.Ordinal);
+        var preventsWithTargetEffect = !preventDamage
+            && targetState.UntilEndOfTurnEffects.Contains(
+                PreventNextDamageThisTurnEffectId,
+                StringComparer.Ordinal);
+        var preventsDamage = preventDamage || preventsWithTargetEffect;
         var adjustedDamageAmount = preventsDamage
             ? 0
             : targetState.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, StringComparer.Ordinal)
@@ -3701,7 +3782,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 DestroyOnNextDamageThisTurnEffectId,
                 StringComparer.Ordinal);
         var nextEffects = targetState.UntilEndOfTurnEffects
-            .Where(effectId => !preventsDamage
+            .Where(effectId => !preventsWithTargetEffect
                 || !string.Equals(effectId, PreventNextDamageThisTurnEffectId, StringComparison.Ordinal))
             .Where(effectId => !triggersDestroyOnDamage
                 || !string.Equals(effectId, DestroyOnNextDamageThisTurnEffectId, StringComparison.Ordinal))
@@ -3721,7 +3802,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             adjustedDamageAmount,
             damageAmount,
             preventsDamage,
-            preventsDamage ? PreventNextDamageThisTurnEffectId : string.Empty);
+            preventsWithTargetEffect
+                ? PreventNextDamageThisTurnEffectId
+                : preventDamage
+                    ? preventionEffectId
+                    : string.Empty);
     }
 
     private static Dictionary<string, object?> BuildDamagePayload(
@@ -4382,6 +4467,21 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool ShouldApplyDamageToTarget(CardBehaviorDefinition behavior, int targetIndex)
     {
         return behavior.DamageTargetIndex < 0 || behavior.DamageTargetIndex == targetIndex;
+    }
+
+    private static bool ShouldPreventSpellOrSkillDamage(
+        MatchState state,
+        CardBehaviorDefinition behavior)
+    {
+        if (!state.UntilEndOfTurnEffects.Contains(
+                PreventSpellAndSkillDamageThisTurnEffectId,
+                StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
     private static bool ShouldApplyBanishPlayToTarget(CardBehaviorDefinition behavior, int targetIndex)
@@ -5727,6 +5827,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var damagedObjectIds = new List<string>();
         var expiredEffectIds = new List<string>();
         var expiredPowerModifierObjectIds = new List<string>();
+        var expiredGlobalEffectIds = state.UntilEndOfTurnEffects
+            .Where(effectId => !string.IsNullOrWhiteSpace(effectId))
+            .ToArray();
         var cardObjects = state.CardObjects.ToDictionary(
             entry => entry.Key,
             entry =>
@@ -5764,10 +5867,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return new CleanupResult(
             cardObjects,
+            [],
             damagedObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
-            expiredEffectIds.Distinct(StringComparer.Ordinal).OrderBy(effectId => effectId, StringComparer.Ordinal).ToArray(),
+            expiredEffectIds
+                .Concat(expiredGlobalEffectIds)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                .ToArray(),
             expiredPowerModifierObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal).ToArray(),
-            damagedObjectIds.Count > 0 || expiredEffectIds.Count > 0 || expiredPowerModifierObjectIds.Count > 0);
+            damagedObjectIds.Count > 0
+                || expiredEffectIds.Count > 0
+                || expiredGlobalEffectIds.Length > 0
+                || expiredPowerModifierObjectIds.Count > 0);
     }
 
     private static int RuneCallCount(MatchState state)
@@ -6123,6 +6234,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyDictionary<string, int> PlayerScores,
+        IReadOnlyList<string> UntilEndOfTurnEffects,
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
@@ -6156,6 +6268,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
+        IReadOnlyList<string> UntilEndOfTurnEffects,
         IReadOnlyList<string> DamagedObjectIds,
         IReadOnlyList<string> ExpiredEffectIds,
         IReadOnlyList<string> ExpiredPowerModifierObjectIds,
