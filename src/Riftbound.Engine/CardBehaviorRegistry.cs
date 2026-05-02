@@ -149,7 +149,8 @@ public sealed record CardBehaviorDefinition(
     int BanishPlayTargetIndex = -1,
     bool BanishesSourceOnResolution = false,
     bool SchedulesExtraTurnForController = false,
-    bool PreventsAllSpellAndSkillDamageThisTurn = false);
+    bool PreventsAllSpellAndSkillDamageThisTurn = false,
+    bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false);
 
 public static class CardDamageConditionKinds
 {
@@ -167,6 +168,7 @@ public static class CardTargetScopes
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
+    public const string UnitThenItsControllersWeapon = "UNIT_THEN_ITS_CONTROLLERS_WEAPON";
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldThenEnemyBattlefieldUnits = "FRIENDLY_BATTLEFIELD_THEN_ENEMY_BATTLEFIELD_UNITS";
@@ -7266,6 +7268,17 @@ public static class CardBehaviorRegistry
             0,
             CanPlayDuringPriority: true,
             PreventsAllSpellAndSkillDamageThisTurn: true),
+        new(
+            "SFD·011/221",
+            "取放自如",
+            2,
+            "TAKE_UP_ATTACH_OR_DETACH_WEAPON_DRAW_1",
+            0,
+            2,
+            DrawCount: 1,
+            TargetScope: CardTargetScopes.UnitThenItsControllersWeapon,
+            CanPlayDuringPriority: true,
+            AttachesOrDetachesSecondTargetEquipmentToFirstTarget: true),
         new(
             "SFD·204/221",
             "狩猎",

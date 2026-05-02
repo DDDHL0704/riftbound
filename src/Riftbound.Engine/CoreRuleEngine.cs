@@ -284,6 +284,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
+            || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
@@ -844,6 +845,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
                 ? IsControlledFieldObject(state, playerId, objectId)
                 : IsEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
+                ? IsFieldUnitObject(state, objectId)
+                : IsEquipmentObject(state, objectId),
             CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : IsEnemyEquipmentObject(state, playerId, objectId),
@@ -1171,6 +1175,38 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard));
     }
 
+    private static bool AreAttachDetachTargetsAllowed(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.AttachesOrDetachesSecondTargetEquipmentToFirstTarget)
+        {
+            return true;
+        }
+
+        if (targetObjectIds.Count != 2)
+        {
+            return false;
+        }
+
+        var unitObjectId = targetObjectIds[0];
+        var equipmentObjectId = targetObjectIds[1];
+        if (!IsFieldUnitObject(state, unitObjectId)
+            || !IsEquipmentObject(state, equipmentObjectId)
+            || !CardObjectHasTag(state.CardObjects, equipmentObjectId, "武装")
+            || !TryGetFieldControllerId(state.PlayerZones, unitObjectId, out var unitControllerId)
+            || !TryGetFieldControllerId(state.PlayerZones, equipmentObjectId, out var equipmentControllerId)
+            || !string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal)
+            || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState))
+        {
+            return false;
+        }
+
+        return string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId)
+            || string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
+    }
+
     private static bool HasRequiredAnyTargetTag(
         MatchState state,
         CardBehaviorDefinition behavior,
@@ -1220,6 +1256,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(objectId)
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsFieldUnitObject(MatchState state, string objectId)
+    {
+        return IsFieldObject(state.PlayerZones, objectId)
+            && !CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
     private static bool IsEquipmentObject(MatchState state, string objectId)
@@ -1781,7 +1823,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                                                     ? "equipment"
                                                                                                     : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
                                                                                                         ? "spell on the stack"
-                                                                                                        : "battlefield unit";
+                                                                                                        : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
+                                                                                                            ? "unit and its controller's weapon"
+                                                                                                            : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -1943,6 +1987,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectId"] = PreventSpellAndSkillDamageThisTurnEffectId,
                     ["scope"] = "SPELL_OR_SKILL_DAMAGE_THIS_TURN"
                 }));
+        }
+
+        if (behavior.AttachesOrDetachesSecondTargetEquipmentToFirstTarget
+            && TryAttachOrDetachSecondTargetEquipmentToFirstTarget(
+                playerZones,
+                cardObjects,
+                behavior,
+                stackItem,
+                out var attachmentEvent))
+        {
+            events.Add(attachmentEvent);
         }
 
         if (behavior.DiscardsTargetFromHand)
@@ -3750,6 +3805,94 @@ public sealed class CoreRuleEngine : IRuleEngine
             && playerZones.Values.Any(zones =>
                 zones.Base.Contains(objectId, StringComparer.Ordinal)
                 || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool TryGetFieldControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out string controllerId)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                controllerId = playerId;
+                return true;
+            }
+        }
+
+        controllerId = string.Empty;
+        return false;
+    }
+
+    private static bool TryAttachOrDetachSecondTargetEquipmentToFirstTarget(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        out GameEvent attachmentEvent)
+    {
+        attachmentEvent = default!;
+        if (stackItem.TargetObjectIds.Count < 2)
+        {
+            return false;
+        }
+
+        var unitObjectId = stackItem.TargetObjectIds[0];
+        var equipmentObjectId = stackItem.TargetObjectIds[1];
+        if (!IsFieldObject(playerZones, unitObjectId)
+            || !IsFieldObject(playerZones, equipmentObjectId)
+            || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
+            || !TryGetFieldControllerId(playerZones, unitObjectId, out var unitControllerId)
+            || !TryGetFieldControllerId(playerZones, equipmentObjectId, out var equipmentControllerId)
+            || !string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal))
+        {
+            cardObjects[equipmentObjectId] = equipmentState with
+            {
+                AttachedToObjectId = null
+            };
+            attachmentEvent = new GameEvent(
+                "EQUIPMENT_DETACHED",
+                $"{behavior.DisplayName}卸除武装",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["unitObjectId"] = unitObjectId,
+                    ["equipmentObjectId"] = equipmentObjectId,
+                    ["controllerId"] = unitControllerId
+                });
+            return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId))
+        {
+            return false;
+        }
+
+        cardObjects[equipmentObjectId] = equipmentState with
+        {
+            AttachedToObjectId = unitObjectId
+        };
+        attachmentEvent = new GameEvent(
+            "EQUIPMENT_ATTACHED",
+            $"{behavior.DisplayName}贴附武装",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["unitObjectId"] = unitObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["controllerId"] = unitControllerId,
+                ["attachedToObjectId"] = unitObjectId
+            });
+        return true;
     }
 
     private static void ApplyDamageToBattlefieldUnits(

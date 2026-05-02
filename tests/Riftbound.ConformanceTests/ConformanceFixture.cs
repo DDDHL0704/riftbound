@@ -112,6 +112,8 @@ public sealed record ConformanceCardObjectState
     public IReadOnlyList<string>? Tags { get; init; }
 
     public int? ManaCost { get; init; }
+
+    public string? AttachedToObjectId { get; init; }
 }
 
 public sealed record ConformanceStackItemState(
@@ -376,7 +378,8 @@ public static class ConformanceFixtureRunner
                     entry.Value.UntilEndOfTurnPowerModifier ?? 0,
                     entry.Value.IsExhausted ?? false,
                     entry.Value.Tags,
-                    entry.Value.ManaCost ?? 0),
+                    entry.Value.ManaCost ?? 0,
+                    entry.Value.AttachedToObjectId),
                 StringComparer.Ordinal);
     }
 
@@ -662,6 +665,11 @@ public static class ConformanceFixtureRunner
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.isExhausted", expectedObject.IsExhausted, actualObject.IsExhausted);
             CompareSequence(mismatches, $"finalState.cardObjects.{objectId}.tags", expectedObject.Tags, actualObject.Tags);
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.manaCost", expectedObject.ManaCost, actualObject.ManaCost);
+            AddMismatch(
+                mismatches,
+                $"finalState.cardObjects.{objectId}.attachedToObjectId",
+                expectedObject.AttachedToObjectId,
+                actualObject.AttachedToObjectId);
         }
     }
 

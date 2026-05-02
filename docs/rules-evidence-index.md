@@ -1,6 +1,6 @@
 # 规则证据索引
 
-更新时间：2026-05-01
+更新时间：2026-05-02
 
 ## 1. 目的
 
@@ -137,6 +137,8 @@
 | `p2-preflight-play-ashes-to-ashes-equipment-ephemeral` | `RULE_AUDITED` | `CATALOG` UNL-070/219；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p92-p105 keyword rules 800+ | 已验证官方法术《化为灰烬》选择一件场上装备并给予 `瞬息` 对象标签；单位目标由直接测试拒绝，开始阶段摧毁瞬息对象暂缓。 |
 | `p2-preflight-play-sigil-burst-destroy-equipment-draw` | `RULE_AUDITED` | `CATALOG` SFD·005/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《印爆术》选择一件场上装备并摧毁，然后让该装备控制者抽 2 张牌；单位目标由直接测试拒绝，装备摧毁不会写入本回合单位摧毁记忆。 |
 | `p2-preflight-play-emergency-recall-return-equipment` | `RULE_AUDITED` | `CATALOG` SFD·135/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方法术《紧急召回》选择一件场上装备并让其返回拥有者手牌；单位目标由直接测试拒绝，返回手牌后移除公开对象状态。 |
+| `p2-preflight-play-take-up-attach-weapon-draw` | `RULE_AUDITED` | `CATALOG` SFD·011/221、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p89 rules 718-719 | 已验证官方反应《取放自如》在优先权窗口支付 2 点费用，选择一名单位和其控制者的一件未贴附 `武装` 装备；双方让过后写入 `attachedToObjectId` 并抽 1 张牌。 |
+| `p2-preflight-play-take-up-detach-weapon-draw` | `RULE_AUDITED` | `CATALOG` SFD·011/221、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p89 rules 718-719 | 已验证官方反应《取放自如》选择一名单位和已贴附到该单位的同控制者 `武装` 装备；双方让过后清除 `attachedToObjectId` 并抽 1 张牌，非法武装目标由直接测试拒绝。 |
 | `p2-preflight-play-poro-snax-equipment-draw` | `RULE_AUDITED` | `CATALOG` SFD·046/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方装备《魄罗佳肴》从手牌打出时支付 1 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象，然后控制者抽 1 张牌；带目标打出由直接测试拒绝，自毁激活抽牌技能暂缓。 |
 | `p2-preflight-play-shurelyas-requiem-equipment-ready-all` | `RULE_AUDITED` | `CATALOG` SFD·192/221；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p33 rules 318-324；p39-p42 rules 355-356 | 已验证官方专属装备《舒瑞娅的安魂曲》从手牌打出时支付 4 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象，然后让控制者所有单位变为活跃状态；带目标打出由直接测试拒绝，唯我和装配技能暂缓。 |
 | `p2-preflight-play-future-forge-equipment-create-minion` | `RULE_AUDITED` | `CATALOG` OGN·212/298；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p39-p42 rules 355-356 | 已验证官方装备《未来熔炉》从手牌打出时支付 2 点费用、0 目标加入结算链、双方让过后源牌进入控制者基地成为带 `CARD_TYPE:EQUIPMENT` 标签的装备对象，然后打出一名带 `CARD_TYPE:UNIT` 标签的 1 战力“随从”到控制者基地；带目标打出由直接测试拒绝，摧毁装备回收废牌堆分支暂缓。 |

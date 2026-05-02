@@ -71,7 +71,8 @@ public sealed record CardObjectState
         int untilEndOfTurnPowerModifier = 0,
         bool isExhausted = false,
         IReadOnlyList<string>? tags = null,
-        int manaCost = 0)
+        int manaCost = 0,
+        string? attachedToObjectId = null)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
@@ -84,6 +85,7 @@ public sealed record CardObjectState
         IsExhausted = isExhausted;
         Tags = NormalizeTags(tags);
         ManaCost = Math.Max(0, manaCost);
+        AttachedToObjectId = NormalizeOptionalText(attachedToObjectId);
     }
 
     public string ObjectId { get; init; }
@@ -108,6 +110,8 @@ public sealed record CardObjectState
 
     public int ManaCost { get; init; }
 
+    public string? AttachedToObjectId { get; init; }
+
     private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
     {
         return (effectIds ?? [])
@@ -126,6 +130,11 @@ public sealed record CardObjectState
             .Distinct(StringComparer.Ordinal)
             .OrderBy(tag => tag, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static string? NormalizeOptionalText(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }
 
@@ -423,7 +432,8 @@ public sealed record MatchState
             state.UntilEndOfTurnPowerModifier,
             state.IsExhausted,
             state.Tags,
-            state.ManaCost);
+            state.ManaCost,
+            state.AttachedToObjectId);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)

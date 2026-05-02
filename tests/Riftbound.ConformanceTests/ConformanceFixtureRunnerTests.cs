@@ -10035,6 +10035,106 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysTakeUpAttachWeaponDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-take-up-attach-weapon-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal("P2-UNIT-TAKE-UP-001", result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].AttachedToObjectId);
+        Assert.Equal(["P2-DRAW-TAKE-UP-001"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-SPELL-TAKE-UP"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysTakeUpDetachWeaponDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-take-up-detach-weapon-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Null(result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].AttachedToObjectId);
+        Assert.Equal(["P2-DRAW-TAKE-UP-DETACH-001"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-SPELL-TAKE-UP-DETACH"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsTakeUpInvalidWeaponTargets()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-TAKE-UP"],
+                    Base =
+                    [
+                        "P1-UNIT-TAKE-UP-001",
+                        "P1-UNIT-TAKE-UP-002",
+                        "P1-EQUIPMENT-NON-WEAPON",
+                        "P1-EQUIPMENT-WEAPON-ATTACHED-OTHER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-EQUIPMENT-WEAPON"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-TAKE-UP-001"] = new("P1-UNIT-TAKE-UP-001", tags: [CardObjectTags.UnitCard]),
+                ["P1-UNIT-TAKE-UP-002"] = new("P1-UNIT-TAKE-UP-002", tags: [CardObjectTags.UnitCard]),
+                ["P1-EQUIPMENT-NON-WEAPON"] = new("P1-EQUIPMENT-NON-WEAPON", tags: [CardObjectTags.EquipmentCard]),
+                ["P1-EQUIPMENT-WEAPON-ATTACHED-OTHER"] = new(
+                    "P1-EQUIPMENT-WEAPON-ATTACHED-OTHER",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    attachedToObjectId: "P1-UNIT-TAKE-UP-002"),
+                ["P2-EQUIPMENT-WEAPON"] = new("P2-EQUIPMENT-WEAPON", tags: [CardObjectTags.EquipmentCard, "武装"])
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-UNIT-TAKE-UP-001", "P1-EQUIPMENT-NON-WEAPON"],
+            ["P1-UNIT-TAKE-UP-001", "P2-EQUIPMENT-WEAPON"],
+            ["P1-UNIT-TAKE-UP-001", "P1-EQUIPMENT-WEAPON-ATTACHED-OTHER"],
+            ["P1-EQUIPMENT-NON-WEAPON", "P1-EQUIPMENT-WEAPON-ATTACHED-OTHER"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-take-up-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-TAKE-UP",
+                    "SFD·011/221",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Empty(result.State.StackItems);
+            Assert.Equal(["P1-SPELL-TAKE-UP"], result.State.PlayerZones["P1"].Hand);
+        }
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with

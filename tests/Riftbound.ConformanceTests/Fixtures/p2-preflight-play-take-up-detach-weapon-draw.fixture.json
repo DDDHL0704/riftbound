@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-take-up-detach-weapon-draw",
+  "description": "Take Up is played during priority, detaches the target unit controller's attached weapon from that unit, and draws a card.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302827,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "SFD·011/221 取放自如; OGS·003/024 焚烧",
+      "note": "官方卡面：《取放自如》费用 2，反应；选择一名单位和其控制者的一件武装，为该单位贴附或卸除该武装，然后抽一张牌。本 fixture 覆盖已贴附武装的卸除分支。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "反应牌可在优先权窗口打出；打出法术需要支付费用并加入结算链；结算链最新项目在所有玩家让过后结算；当前 fixture 用最小 attachedToObjectId 表达武装贴附关系。"
+    }
+  ],
+  "roomId": "p2-preflight-take-up-detach-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302827,
+    "turnNumber": 827,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 2, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-INCINERATE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-DRAW-TAKE-UP-DETACH-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": ["P2-SPELL-TAKE-UP-DETACH"],
+        "base": ["P2-EQUIPMENT-TAKE-UP-WEAPON"],
+        "battlefields": ["P2-UNIT-TAKE-UP-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-TAKE-UP-001": {
+        "damage": 0,
+        "power": 4,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-EQUIPMENT-TAKE-UP-WEAPON": {
+        "damage": 0,
+        "power": 0,
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装"],
+        "attachedToObjectId": "P2-UNIT-TAKE-UP-001"
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-take-up-detach-incinerate-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-INCINERATE",
+        "cardNo": "OGS·003/024",
+        "targetObjectIds": ["P2-UNIT-TAKE-UP-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-take-up-detach-incinerate-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-take-up-detach-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P2-SPELL-TAKE-UP-DETACH",
+        "cardNo": "SFD·011/221",
+        "targetObjectIds": ["P2-UNIT-TAKE-UP-001", "P2-EQUIPMENT-TAKE-UP-WEAPON"]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-take-up-detach-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-take-up-detach-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 5,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "EQUIPMENT_DETACHED",
+      "CARD_DRAWN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 2, "baseMana": 2 } },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-SPELL-INCINERATE",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-INCINERATE",
+          "cardNo": "OGS·003/024",
+          "targetObjectIds": ["P2-UNIT-TAKE-UP-001"],
+          "effectKind": "INCINERATE_DAMAGE_2"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID", "payload": { "playerId": "P2", "mana": 2, "baseMana": 2 } },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-3-P2-SPELL-TAKE-UP-DETACH",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-TAKE-UP-DETACH",
+          "cardNo": "SFD·011/221",
+          "targetObjectIds": ["P2-UNIT-TAKE-UP-001", "P2-EQUIPMENT-TAKE-UP-WEAPON"],
+          "effectKind": "TAKE_UP_ATTACH_OR_DETACH_WEAPON_DRAW_1"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "payload": {
+          "stackItemId": "STACK-3-P2-SPELL-TAKE-UP-DETACH",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-TAKE-UP-DETACH",
+          "effectKind": "TAKE_UP_ATTACH_OR_DETACH_WEAPON_DRAW_1"
+        }
+      },
+      {
+        "kind": "EQUIPMENT_DETACHED",
+        "payload": {
+          "sourceObjectId": "P2-SPELL-TAKE-UP-DETACH",
+          "unitObjectId": "P2-UNIT-TAKE-UP-001",
+          "equipmentObjectId": "P2-EQUIPMENT-TAKE-UP-WEAPON",
+          "controllerId": "P2"
+        }
+      },
+      {
+        "kind": "CARD_DRAWN",
+        "payload": {
+          "playerId": "P2",
+          "count": 1
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["PASS_PRIORITY"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 827,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P1",
+      "passedPriorityPlayerIds": [],
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": []
+        },
+        "P2": {
+          "mainDeck": [],
+          "hand": ["P2-DRAW-TAKE-UP-DETACH-001"],
+          "base": ["P2-EQUIPMENT-TAKE-UP-WEAPON"],
+          "battlefields": ["P2-UNIT-TAKE-UP-001"],
+          "graveyard": ["P2-SPELL-TAKE-UP-DETACH"]
+        }
+      },
+      "cardObjects": {
+        "P2-UNIT-TAKE-UP-001": {
+          "damage": 0,
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P2-EQUIPMENT-TAKE-UP-WEAPON": {
+          "damage": 0,
+          "power": 0,
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装"]
+        }
+      },
+      "stackItems": [
+        {
+          "stackItemId": "STACK-1-P1-SPELL-INCINERATE",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-INCINERATE",
+          "effectKind": "INCINERATE_DAMAGE_2",
+          "cardNo": "OGS·003/024",
+          "targetObjectIds": ["P2-UNIT-TAKE-UP-001"],
+          "damageAmount": 2
+        }
+      ]
+    }
+  }
+}

@@ -52,8 +52,7 @@ public sealed class CardCatalogBaselineTests
                 "OGN·025/298 暴怒冲动 法术",
                 "OGN·080/298 倒转神通 法术",
                 "OGN·115/298 光明未来 法术",
-                "OGN·244/298 圣裁之刻 法术",
-                "SFD·011/221 取放自如 法术"
+                "OGN·244/298 圣裁之刻 法术"
             ],
             uncoveredPlayableUnits);
 
