@@ -520,6 +520,92 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var maskedAttendant = BuildLifecycleProfile(specs, "UNL-081/219", CardLifecycleKeywordNames.Ephemeral);
+        Assert.True(maskedAttendant.HasEphemeral);
+        Assert.False(maskedAttendant.HasLastBreath);
+        Assert.Equal(LifecycleKeywordProfileStatuses.Implemented, maskedAttendant.Status);
+
+        var scryingShell = BuildLifecycleProfile(specs, "UNL-161/219", CardLifecycleKeywordNames.Predict);
+        Assert.True(scryingShell.HasPredict);
+        Assert.True(scryingShell.HasPredictRecyclePath);
+        Assert.Equal(LifecycleKeywordProfileStatuses.RecognizedDelegated, scryingShell.Status);
+
+        var kogmaw = BuildLifecycleProfile(specs, "OGN·190/298", CardLifecycleKeywordNames.LastBreath);
+        Assert.True(kogmaw.HasLastBreath);
+        Assert.Equal(LifecycleKeywordProfileStatuses.RecognizedDeferred, kogmaw.Status);
+        Assert.Contains("deferred", kogmaw.Reason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task P4InteractionKeywordProfilesMapOfficialTextToRegistryTags()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var centerStage = BuildInteractionProfile(specs, "UNL-061/219", CardInteractionKeywordNames.Echo);
+        Assert.True(centerStage.HasEcho);
+        Assert.Equal(2, centerStage.EchoManaCost);
+        Assert.Equal(InteractionKeywordProfileStatuses.Implemented, centerStage.Status);
+
+        var tidecaller = BuildInteractionProfile(specs, "OGN·199/298", CardInteractionKeywordNames.Standby);
+        Assert.True(tidecaller.HasStandby);
+        Assert.False(tidecaller.HasAmbush);
+        Assert.Equal(InteractionKeywordProfileStatuses.RecognizedDeferred, tidecaller.Status);
+
+        var gloomyApothecary = BuildInteractionProfile(specs, "UNL-021/219", CardInteractionKeywordNames.Ambush);
+        Assert.True(gloomyApothecary.HasAmbush);
+        Assert.Contains("Ambush", gloomyApothecary.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var prophetsOmen = BuildBasicActionProfile(specs, "SFD·087/221");
+        Assert.True(prophetsOmen.HasDraw);
+        Assert.Contains(CardBasicActionNames.Draw, prophetsOmen.PrimitiveActions);
+        Assert.Equal(CardBasicActionProfileStatuses.RecognizedCovered, prophetsOmen.Status);
+
+        var charm = BuildBasicActionProfile(specs, "OGN·043/298");
+        Assert.True(charm.HasMove);
+        Assert.Contains(CardBasicActionNames.Move, charm.DelegatedP2Actions);
+
+        var zaunBouncer = BuildBasicActionProfile(specs, "OGN·188/298");
+        Assert.True(zaunBouncer.HasRecall);
+        Assert.Contains(CardBasicActionNames.Recall, zaunBouncer.DelegatedP2Actions);
+
+        var disposalOrderRecycle = BuildBasicActionProfile(
+            specs,
+            "UNL-103/219",
+            "DISPOSAL_ORDER_RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3");
+        Assert.True(disposalOrderRecycle.HasRecycle);
+        Assert.Contains(CardBasicActionNames.Recycle, disposalOrderRecycle.DelegatedP2Actions);
+
+        var portalpalRescue = BuildBasicActionProfile(specs, "OGN·102/298");
+        Assert.True(portalpalRescue.HasBanish);
+        Assert.Contains(CardBasicActionNames.Banish, portalpalRescue.DelegatedP2Actions);
+
+        var secretArtMercy = BuildBasicActionProfile(specs, "OGN·053/298");
+        Assert.True(secretArtMercy.HasBoon);
+        Assert.Contains(CardBasicActionNames.Boon, secretArtMercy.DelegatedP2Actions);
+
+        var shepherdsHeirloom = BuildBasicActionProfile(specs, "UNL-158/219");
+        Assert.True(shepherdsHeirloom.HasExperience);
+        Assert.Contains(CardBasicActionNames.Experience, shepherdsHeirloom.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, shepherdsHeirloom.Status);
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -617,5 +703,57 @@ public sealed class CardCatalogBaselineTests
 
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
         return CardEquipmentKeywordRules.BuildProfile(spec, definition);
+    }
+
+    private static CardLifecycleKeywordProfile BuildLifecycleProfile(
+        IReadOnlyList<BehaviorSpec> specs,
+        string cardNo,
+        params string[] officialTextNeedles)
+    {
+        var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        foreach (var needle in officialTextNeedles)
+        {
+            Assert.Contains(needle, spec.OfficialText, StringComparison.Ordinal);
+            Assert.Contains(spec.Keywords, keyword => string.Equals(keyword.Keyword, needle, StringComparison.Ordinal));
+        }
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+        return CardLifecycleKeywordRules.BuildProfile(spec, definition);
+    }
+
+    private static CardInteractionKeywordProfile BuildInteractionProfile(
+        IReadOnlyList<BehaviorSpec> specs,
+        string cardNo,
+        params string[] officialTextNeedles)
+    {
+        var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        foreach (var needle in officialTextNeedles)
+        {
+            Assert.Contains(needle, spec.OfficialText, StringComparison.Ordinal);
+            Assert.Contains(spec.Keywords, keyword => string.Equals(keyword.Keyword, needle, StringComparison.Ordinal));
+        }
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+        return CardInteractionKeywordRules.BuildProfile(spec, definition);
+    }
+
+    private static CardBasicActionProfile BuildBasicActionProfile(
+        IReadOnlyList<BehaviorSpec> specs,
+        string cardNo,
+        string? effectKind = null)
+    {
+        var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        CardBehaviorDefinition definition;
+        if (string.IsNullOrWhiteSpace(effectKind))
+        {
+            Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out definition));
+        }
+        else
+        {
+            definition = CardBehaviorRegistry.GetAll()
+                .Single(candidate => string.Equals(candidate.EffectKind, effectKind, StringComparison.Ordinal));
+        }
+
+        return CardBasicActionRules.BuildProfile(spec, definition);
     }
 }

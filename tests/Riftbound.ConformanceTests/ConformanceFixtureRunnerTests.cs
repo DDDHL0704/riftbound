@@ -16830,6 +16830,61 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p4-ephemeral-destroys-controlled-objects-turn-start.fixture.json")]
+    [InlineData("p2-preflight-play-scrying-shell-equipment-predict-recycle.fixture.json")]
+    [InlineData("p2-preflight-play-ogn-kogmaw-last-breath-static.fixture.json")]
+    public async Task P4LifecycleKeywordProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Theory]
+    [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
+    [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
+    [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json")]
+    public async Task P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Theory]
+    [InlineData("p2-preflight-play-disposal-order-recycle-opponent-graveyard.fixture.json")]
+    [InlineData("p2-preflight-play-portalpal-rescue-banish-play-base.fixture.json")]
+    [InlineData("p2-preflight-play-secret-art-mercy-grant-boon.fixture.json")]
+    [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
+    public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
     [InlineData("java-oracle-p1-duplicate-pass.fixture.json")]
