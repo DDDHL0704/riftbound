@@ -2635,7 +2635,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "急速"),
+            SourceUnitTags: "急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·116/298",
             "千尾监视者",
