@@ -25,6 +25,13 @@ public sealed record BehaviorTemplateExecutionPlan(
     string Reason,
     IReadOnlyList<BehaviorTemplateExecutionStep> Steps);
 
+public sealed record BehaviorTemplateDelegationPlan(
+    string CardNo,
+    string Status,
+    string Reason,
+    BehaviorTemplateExecutionPlan ExecutionPlan,
+    CardBehaviorDefinition? DelegatedBehavior);
+
 public static class BehaviorTemplateRegistry
 {
     private static readonly BehaviorTemplateDefinition[] Definitions =
@@ -54,6 +61,71 @@ public static class BehaviorTemplateRegistry
             templateId,
             StringComparison.Ordinal))!;
         return definition is not null;
+    }
+}
+
+public sealed class BehaviorTemplateDelegationBridge
+{
+    private readonly BehaviorTemplateExecutor executor = new();
+
+    public BehaviorTemplateDelegationPlan BuildDelegationPlan(
+        BehaviorSpec spec,
+        BehaviorTemplateExecutionContext context)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        ArgumentNullException.ThrowIfNull(context);
+
+        var executionPlan = executor.BuildPlan(spec, context);
+        if (!string.Equals(executionPlan.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+        {
+            return new BehaviorTemplateDelegationPlan(
+                context.CardNo,
+                executionPlan.Status,
+                "Template route is not safe to delegate to P2 hand-written behavior.",
+                executionPlan,
+                null);
+        }
+
+        if (executionPlan.Steps.Count == 0)
+        {
+            return new BehaviorTemplateDelegationPlan(
+                context.CardNo,
+                BehaviorImplementationStatuses.Unimplemented,
+                "No template steps were parsed for this BehaviorSpec, so no template delegation is available.",
+                executionPlan,
+                null);
+        }
+
+        var delegatedCardNo = string.IsNullOrWhiteSpace(spec.ImplementedByCardNo)
+            ? spec.CardNo
+            : spec.ImplementedByCardNo;
+        if (!CardBehaviorRegistry.TryGetByCardNo(delegatedCardNo, out var behavior))
+        {
+            return new BehaviorTemplateDelegationPlan(
+                context.CardNo,
+                BehaviorImplementationStatuses.Unimplemented,
+                $"No P2 hand-written CardBehaviorDefinition exists for delegated card '{delegatedCardNo}'.",
+                executionPlan,
+                null);
+        }
+
+        if (!string.IsNullOrWhiteSpace(spec.ImplementedEffectKind)
+            && !string.Equals(spec.ImplementedEffectKind, behavior.EffectKind, StringComparison.Ordinal))
+        {
+            return new BehaviorTemplateDelegationPlan(
+                context.CardNo,
+                BehaviorImplementationStatuses.Unimplemented,
+                $"BehaviorSpec effect kind '{spec.ImplementedEffectKind}' does not match P2 behavior '{behavior.EffectKind}'.",
+                executionPlan,
+                null);
+        }
+
+        return new BehaviorTemplateDelegationPlan(
+            context.CardNo,
+            BehaviorImplementationStatuses.Implemented,
+            $"Template route is safely delegated to existing P2 hand-written behavior '{behavior.EffectKind}'.",
+            executionPlan,
+            behavior);
     }
 }
 

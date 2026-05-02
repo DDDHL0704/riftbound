@@ -176,6 +176,84 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var bridge = new BehaviorTemplateDelegationBridge();
+        var candidates = new[]
+        {
+            new { CardNo = "SFD·087/221", TemplateId = BehaviorTemplateIds.Draw, EffectKind = "PROPHETS_OMEN_DRAW_3" },
+            new { CardNo = "OGS·003/024", TemplateId = BehaviorTemplateIds.Damage, EffectKind = "INCINERATE_DAMAGE_2" },
+            new { CardNo = "OGN·229/298", TemplateId = BehaviorTemplateIds.Destroy, EffectKind = "VENGEANCE_DESTROY_UNIT" },
+            new { CardNo = "OGN·050/298", TemplateId = BehaviorTemplateIds.Stun, EffectKind = "RUNE_PRISON_STUN_UNIT" },
+            new { CardNo = "OGN·004/298", TemplateId = BehaviorTemplateIds.TempMight, EffectKind = "CLEAVE_OVERWHELM_3" }
+        };
+
+        foreach (var candidate in candidates)
+        {
+            var spec = specs.Single(spec => string.Equals(spec.CardNo, candidate.CardNo, StringComparison.Ordinal));
+            var delegation = bridge.BuildDelegationPlan(
+                spec,
+                new BehaviorTemplateExecutionContext("P1", $"P1-SOURCE-{candidate.CardNo}", candidate.CardNo, []));
+
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, delegation.Status);
+            Assert.NotNull(delegation.DelegatedBehavior);
+            Assert.Equal(candidate.CardNo, delegation.CardNo);
+            Assert.Equal(candidate.EffectKind, delegation.DelegatedBehavior.EffectKind);
+            Assert.Contains(
+                delegation.ExecutionPlan.Steps,
+                step => string.Equals(step.TemplateId, candidate.TemplateId, StringComparison.Ordinal)
+                    && string.Equals(step.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal));
+            Assert.Contains("P2 hand-written behavior", delegation.Reason, StringComparison.Ordinal);
+
+            switch (candidate.TemplateId)
+            {
+                case BehaviorTemplateIds.Draw:
+                    Assert.Equal(3, delegation.DelegatedBehavior.DrawCount);
+                    break;
+                case BehaviorTemplateIds.Damage:
+                    Assert.Equal(2, delegation.DelegatedBehavior.DamageAmount);
+                    break;
+                case BehaviorTemplateIds.Destroy:
+                    Assert.True(delegation.DelegatedBehavior.DestroysTarget);
+                    break;
+                case BehaviorTemplateIds.Stun:
+                    Assert.Equal("STUNNED", delegation.DelegatedBehavior.StatusEffectId);
+                    break;
+                case BehaviorTemplateIds.TempMight:
+                    Assert.Equal(3, delegation.DelegatedBehavior.PowerModifierAmount);
+                    Assert.Equal(
+                        CardPowerModifierConditionKinds.TargetIsAttacking,
+                        delegation.DelegatedBehavior.PowerModifierConditionKind);
+                    break;
+            }
+        }
+    }
+
+    [Fact]
+    public async Task P4BridgeDoesNotDelegateUnimplementedTemplateRoutes()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var bridge = new BehaviorTemplateDelegationBridge();
+        var spec = specs.Single(candidate => string.Equals(candidate.CardNo, "SFD·077/221", StringComparison.Ordinal));
+
+        var delegation = bridge.BuildDelegationPlan(
+            spec,
+            new BehaviorTemplateExecutionContext("P1", "P1-SPELL-ROCKET-BARRAGE", "SFD·077/221", []));
+
+        Assert.Equal(BehaviorImplementationStatuses.Unimplemented, delegation.Status);
+        Assert.Null(delegation.DelegatedBehavior);
+        Assert.Contains(
+            delegation.ExecutionPlan.Steps,
+            step => string.Equals(step.TemplateId, BehaviorTemplateIds.Echo, StringComparison.Ordinal)
+                && string.Equals(step.Status, BehaviorImplementationStatuses.Unimplemented, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

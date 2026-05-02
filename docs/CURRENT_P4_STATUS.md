@@ -27,7 +27,8 @@
 
 ## Baseline
 
-- 最新提交：`4a3b45f feat: complete p3 card behavior specs`
+- P3 完成提交：`4a3b45f feat: complete p3 card behavior specs`
+- P4.0 提交：`fb19570 docs: add p4 status audit`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -170,14 +171,14 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Part | Status | Percentage | Notes |
 |---|---|---:|---|
 | P4.0 审计与状态文档 | Done | 100% | 本文件记录候选、统计、风险分层和下一批边界。 |
-| P4.1 基础模板安全桥接 | Pending | 0% | 先测 draw/damage/destroy/stun/temp might，不替换 `CoreRuleEngine`。 |
+| P4.1 基础模板安全桥接 | Done | 100% | 新增 template delegation bridge，覆盖 draw/damage/destroy/stun/temp might，并拒绝未启用 `echo` route；不替换 `CoreRuleEngine`。 |
 | P4.2 权限关键词最小模型 | Pending | 0% | 迅捷/反应/急速，优先复用现有 P2 fixture。 |
 | P4.3 生命周期/资源低风险小批 | Pending | 0% | 瞬息到期、预知代表路径或明确 blocked reason。 |
 | P4.4 互动关键词一小批 | Pending | 0% | 先选回响或待命/伏击中的最窄路径。 |
 | P4.5 基础动作 executor 小批测试 | Pending | 0% | 明确哪些继续 delegated to P2 handwritten。 |
 | P4.6 文档同步与全量验证 | Pending | 0% | README/docs/status 同步，跑全量验证。 |
 
-P4 当前整体进度：按计划 part 计 `1/7 = 14.3%`；按新增已验证规则能力计 `0` 个，因为 P4.0 只完成审计，不新增可玩路径。
+P4 当前整体进度：按计划 part 计 `2/7 = 28.6%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，但尚未新增独立可玩 executor。
 
 ## Validation Gate
 
@@ -192,14 +193,14 @@ P4 当前整体进度：按计划 part 计 `1/7 = 14.3%`；按新增已验证规
 
 ## Latest Validation
 
-P4.0 已完成验证：
+P4.1 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，`0` warnings / `0` errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1632/1632`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1634/1634`
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1574/1574`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：通过 `8/8`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：通过 `10/10`
 - `git diff --check`：通过
 
 ## Next Step
 
-进入 P4.1：建立基础动作模板到现有 P2 手写 `CardBehaviorDefinition` 的安全桥接测试。首批只选 `draw`、`damage`、`destroy`、`stun`、`temp_might` 的代表卡，验证 P3 `BehaviorSpec` 能定位模板和既有 registry 行为，但 `BehaviorTemplateExecutor` 仍不改状态，`CoreRuleEngine` 主路径保持权威。
+进入 P4.2：实现权限关键词最小模型，优先拆 `迅捷` / `反应` / `急速`。先复用 P2 已通过的法术对决、优先权窗口和急速标签 fixture，补规则证据、官网卡面文本、engine/conformance 测试，再接入最小可玩路径。
