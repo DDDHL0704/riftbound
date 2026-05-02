@@ -419,6 +419,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, reksaiProfile.HasteReadyManaCost);
         Assert.Equal(1, reksaiProfile.HasteReadyPowerCost);
 
+        var reksaiAltASpec = specs.Single(spec => string.Equals(spec.CardNo, "SFD·029a/221", StringComparison.Ordinal));
+        Assert.Contains(reksaiAltASpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(reksaiAltASpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·029a/221", out var reksaiAltADefinition));
+        var reksaiAltAProfile = CardPermissionKeywordRules.BuildProfile(reksaiAltADefinition);
+        Assert.True(reksaiAltAProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            reksaiAltAProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, reksaiAltAProfile.HasteReadyManaCost);
+        Assert.Equal(1, reksaiAltAProfile.HasteReadyPowerCost);
+
         var legionRearguardSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·010/298", StringComparison.Ordinal));
         Assert.Contains(legionRearguardSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
         Assert.Contains(legionRearguardSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));

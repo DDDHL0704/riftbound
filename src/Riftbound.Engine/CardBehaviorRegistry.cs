@@ -2355,7 +2355,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "急速|强攻"),
+            SourceUnitTags: "急速|强攻",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·039/298",
             "卡莎",

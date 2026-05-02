@@ -16762,10 +16762,33 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-thousand-tailed-watcher-haste-ready.fixture.json")]
     [InlineData("p4-play-kaisa-haste-ready.fixture.json")]
     [InlineData("p4-play-reksai-haste-ready.fixture.json")]
+    [InlineData("p4-play-reksai-alt-a-haste-ready.fixture.json")]
     public async Task P4PermissionKeywordsKeepExistingP2FixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchPaysManaAndPowerForReksaiAltA()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·029a/221", out var hasteDefinition));
+        var profile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
+
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-reksai-alt-a-haste-ready.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
