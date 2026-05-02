@@ -2239,6 +2239,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.GainExperienceOnPlayPerFriendlyFieldUnit > 0)
+        {
+            var experienceAmount = CountControlledFieldUnitObjects(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId) * behavior.GainExperienceOnPlayPerFriendlyFieldUnit;
+            if (experienceAmount > 0)
+            {
+                playerExperience = GainExperience(
+                    playerExperience,
+                    stackItem.ControllerId,
+                    experienceAmount,
+                    stackItem,
+                    events);
+            }
+        }
+
         if (behavior.LevelDrawOnPlayCount > 0
             && ControllerMeetsLevelExperienceThreshold(behavior, stackItem.ControllerId, playerExperience))
         {
@@ -4273,6 +4290,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static int CountControlledFieldUnitObjects(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .Count(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
     }
 
     private static IReadOnlyList<string> GetEnemyFieldUnitObjectIds(

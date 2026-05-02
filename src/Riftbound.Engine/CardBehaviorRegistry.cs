@@ -157,6 +157,7 @@ public sealed record CardBehaviorDefinition(
     bool PlaysEachPlayerTopFiveUnitToBase = false,
     bool CanPlayDuringSpellDuel = false,
     int GainExperienceOnPlay = 0,
+    int GainExperienceOnPlayPerFriendlyFieldUnit = 0,
     int OptionalExperienceCost = 0,
     int ManaReductionIfExperiencePaid = 0,
     int HasteReadyManaCost = 0,
@@ -6302,7 +6303,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "精锐"),
+            SourceUnitTags: "精锐",
+            GainExperienceOnPlayPerFriendlyFieldUnit: 1),
         new(
             "UNL-062/219",
             "戏精远见家",

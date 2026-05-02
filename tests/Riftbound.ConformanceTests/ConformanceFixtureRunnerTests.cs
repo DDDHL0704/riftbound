@@ -8258,6 +8258,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-157/219", out var sternSergeantDefinition));
+        Assert.Equal(1, sternSergeantDefinition.GainExperienceOnPlayPerFriendlyFieldUnit);
+
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-stern-sergeant-dynamic-experience.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
+        Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
+        Assert.Contains("EXPERIENCE_GAINED", result.EventKinds);
+    }
+
+    [Fact]
     public async Task P4ExperienceOptionalCostReducesManaAndSpendsExperience()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -17197,6 +17218,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
+    [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(

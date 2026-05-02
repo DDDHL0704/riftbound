@@ -137,9 +137,9 @@ public static class CardBasicActionRules
             status switch
             {
                 CardBasicActionProfileStatuses.RecognizedCovered =>
-                    "P4.10 recognizes these basic actions as covered by primitive plans or existing audited P2 behavior paths.",
+                    "P4.10/P4.19 recognize these basic actions as covered by primitive plans or existing audited P2 behavior paths.",
                 CardBasicActionProfileStatuses.MixedDeferred =>
-                    "P4.10 recognizes these basic actions, but at least one requested action remains deferred, most commonly dynamic experience, experience spend, or a non-audited branch.",
+                    "P4.10/P4.19 recognize these basic actions, but at least one requested action remains deferred, most commonly trigger-based experience, experience spend, or a non-audited branch.",
                 _ =>
                     "Card does not expose P4 basic action surfaces through P3 BehaviorSpec or the P2 behavior path."
             });
@@ -234,6 +234,7 @@ public static class CardBasicActionRules
     {
         return behavior is not null
             && (behavior.GainExperienceOnPlay > 0
+                || behavior.GainExperienceOnPlayPerFriendlyFieldUnit > 0
                 || behavior.OptionalExperienceCost > 0);
     }
 

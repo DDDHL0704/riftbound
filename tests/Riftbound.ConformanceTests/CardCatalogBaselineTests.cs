@@ -665,9 +665,11 @@ public sealed class CardCatalogBaselineTests
 
         var sternSergeant = BuildBasicActionProfile(specs, "UNL-157/219");
         Assert.True(sternSergeant.HasExperience);
-        Assert.DoesNotContain(CardBasicActionNames.Experience, sternSergeant.DelegatedP2Actions);
-        Assert.Contains(CardBasicActionNames.Experience, sternSergeant.DeferredActions);
-        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, sternSergeant.Status);
+        Assert.Contains(CardBasicActionNames.Experience, sternSergeant.DelegatedP2Actions);
+        Assert.DoesNotContain(CardBasicActionNames.Experience, sternSergeant.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.RecognizedCovered, sternSergeant.Status);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-157/219", out var sternSergeantBehavior));
+        Assert.Equal(1, sternSergeantBehavior.GainExperienceOnPlayPerFriendlyFieldUnit);
 
         var safetyInspector = BuildBasicActionProfile(specs, "UNL-164/219");
         Assert.True(safetyInspector.HasExperience);

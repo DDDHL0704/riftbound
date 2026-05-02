@@ -46,7 +46,8 @@
 - P4.15 提交：`3bc7060 feat: add p4 level threshold source unit`
 - P4.16 提交：`df6f5b3 feat: add p4 windrunner level roam`
 - P4.17 提交：`c7c8aa7 feat: add p4 wuji level draw`
-- P4.18 提交：本提交 `feat: add p4 baby shark haste ready`
+- P4.18 提交：`36723be feat: add p4 baby shark haste ready`
+- P4.19 提交：本提交 `feat: add p4 dynamic experience gain`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -109,7 +110,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | `draw` | 131 | 105 | 26 | 0 | Low | P4.5 已有固定抽牌 primitive plan；抽牌与燃尽状态写入仍由 P2 覆盖。 |
 | `destroy` | 127 | 115 | 8 | 4 | Low/Medium | P4.5 已有单目标摧毁 primitive plan；替代/触发导致的摧毁仍分层处理。 |
 | `assemble` | 55 | 53 | 2 | 0 | High | 暂不进 P4.1；涉及贴附、owner/controller、费用与 P5 边界。 |
-| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”；P4.11 已接入固定经验额外费用减费代表路径；动态经验、经验激活技能和等级/装配联动仍 deferred。 |
+| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”；P4.11 已接入固定经验额外费用减费代表路径；P4.19 已接入《严厉军士》按友方场上单位数量获得经验代表路径；经验激活技能和等级/装配联动仍 deferred。 |
 | `recall` | 49 | 39 | 10 | 0 | Medium | 当前只桥接/委托 P2；召回到基地/手牌已有 P2 原语，精确时序分层。 |
 | `stun` | 33 | 30 | 3 | 0 | Low | P4.5 已有 `STUNNED` primitive plan；P3 parser 的眩晕 reminder damage 噪声不会阻断该 primitive。 |
 | `echo` | 24 | 22 | 2 | 0 | Medium | P4.4 已将 mana-only `ECHO` optional cost/repeat 抽成互动关键词模型；有色/弃牌/授予回响仍延后。 |
@@ -164,7 +165,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Equipment keywords | `SFD·033/221 多兰之盾`：装配绿色；`SFD·022/221 长剑`：灵便、装配红色；`SFD·008/221 哨兵好手`：百炼；`SFD·085/221 奥恩`：法盾2、百炼。 | P2 已有装备打出和 no-optional 百炼 fixture，记录装备/武装/灵便/百炼标签。 | P4.8 已建立 equipment keyword profile；贴附、卸除、费用、owner/controller 和自动贴附执行仍 deferred。 |
 | Lifecycle remaining | `UNL-081/219 赐面守侍`：待命、瞬息；`UNL-161/219 占卜贝壳`：预知；`OGN·190/298 克格莫`：绝念。 | P4.3 瞬息 fixture；P2 已有预知回收/no-recycle fixture 与绝念静态 fixture。 | P4.9 已建立 lifecycle keyword profile；绝念 trigger queue 和广义预知授予仍 deferred。 |
 | Interaction remaining | `OGN·199/298 控潮者`：待命；`UNL-021/219 阴森药剂师`：伏击；`UNL-176a/219 蔚`：伏击。 | P2 已有普通打出/静态 fixture；`回响` 已有 P4.4 mana-only 执行路径。 | P4.9 已建立 interaction keyword profile；待命 face-down 和伏击 reaction battlefield play 仍 deferred。 |
-| Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验；`UNL-040/219 无极学徒`：等级打出抽牌。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；P4.17 已执行《无极学徒》等级 6 打出抽 1；经验消耗/动态经验和其他条件抽牌仍 deferred。 |
+| Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验；`UNL-040/219 无极学徒`：等级打出抽牌；`UNL-157/219 严厉军士`：按友方场上单位获得经验。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.19 新增 `p4-play-stern-sergeant-dynamic-experience`。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；P4.17 已执行《无极学徒》等级 6 打出抽 1；P4.19 已执行《严厉军士》按友方场上单位数量获得经验；经验消耗/激活技能和其他条件抽牌仍 deferred。 |
 
 ## P4.2 Permission Keyword Batch
 
@@ -255,7 +256,7 @@ Prompt-to-artifact checklist：
 | 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、`P4SpellshieldTaxAddsManaForEnemySpellTarget`、`P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn`、`P4LevelThresholdAppliesMossStepperPowerAndSpellshieldAtThreeExperience`、`P4LevelThresholdAppliesWindrunnerFoxPowerAndRoamAtThreeExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、`p4-play-incinerate-spellshield-tax`、`p4-play-noxian-recruit-encourage-cost-reduction`、`p4-play-moss-stepper-level3-spellshield`、`p4-play-windrunner-fox-level3-roam`、`p4-play-wuji-apprentice-level6-draw`、代表 fixture | Partial：法术选择敌方场上法盾对象的 mana 目标税可玩；《诺克萨斯新兵》鼓舞费用 -2 代表路径可玩；《踏苔蜥》`等级3` 入场 +1/法盾代表路径可玩；《风行狐》`等级3` 入场 +1/游走代表路径可玩；《无极学徒》`等级6` 打出抽 1 代表路径可玩；狩猎征服/据守经验、其他等级条件、其他鼓舞效果、技能目标税和授予/静态法盾 deferred。 |
 | 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、3 条 remaining fixture | Partial：mana-only 回响可玩，待命/伏击 face-down/reaction battlefield play deferred。 |
 | 装备关键词：装配、灵便、百炼 | `CardEquipmentKeywordRules`、`P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags`、5 条 no-attach fixture | Profile only：attach/detach/费用/owner-controller deferred。 |
-| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验、固定经验额外费用减费和《无极学徒》等级条件抽牌可玩；动态/激活/条件经验 deferred。 |
+| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests | Covered for registered templates and representative P2 bridges. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
 | 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.9 once committed. |
@@ -276,7 +277,7 @@ P4.9 新增内容：
 - `MatchState` 新增 `PlayerExperience`，conformance fixture schema 新增 `initialState.experience` / `expected.finalState.experience`，玩家 snapshot 暴露 `experience`。
 - `CardBehaviorDefinition.GainExperienceOnPlay` 只表示固定数值的“当你打出此牌时获得 N 经验”，在 stack item 结算、源牌入场后追加 `EXPERIENCE_GAINED` 事件并更新控制者经验。
 - 已接入代表卡：`UNL-092/219 德玛西亚使节` 获得 1 经验，`UNL-034/219 暖春之使` 获得 2 经验，`UNL-158/219 牧人的传家宝` 获得 1 经验。
-- `CardBasicActionRules` 将这些固定经验路径标记为 `delegated-to-P2` / `recognized-covered`，同时保留 `UNL-157/219 严厉军士` 这类“按友方单位数量获得经验”的动态经验为 deferred。
+- `CardBasicActionRules` 将这些固定经验路径标记为 `delegated-to-P2` / `recognized-covered`；P4.19 随后将 `UNL-157/219 严厉军士` 这类“按友方场上单位数量获得经验”的动态计数代表路径接入。
 - 已更新三条已审计 fixture：`p2-preflight-play-demacia-envoy-experience-static`、`p2-preflight-play-spring-messenger-experience-static`、`p2-preflight-play-shepherds-heirloom-weapon-equipment`。
 - 本批次没有实现经验消耗、等级阈值、狩猎征服/据守经验、装配消耗经验、获得经验记忆条件、动态友方单位计数或任何 P5 装备贴附系统。
 
@@ -366,6 +367,17 @@ P4.9 新增内容：
 - 新增 `P4HasteOptionalReadyBranchPaysManaAndPowerForBabyShark`，并扩展 permission profile baseline 与代表 fixture theory，锁定官方文本 -> registry -> engine fixture 的证据链。
 - 本批次没有实现彩色资源精确匹配、急速授予、从手牌以外打出获得急速、战场目的地、强攻战斗修正、游走/战斗联动或 P5 触发替换系统。
 
+## P4.19 Dynamic Experience Gain Slice
+
+本阶段继续基础动作模板里的经验获得，只补一个仍处于 `PLAY_CARD` 结算内的动态计数代表，不进入战斗胜利、移动触发或技能激活：
+
+- `CardBehaviorDefinition` 新增 `GainExperienceOnPlayPerFriendlyFieldUnit`，当前只给 `UNL-157/219 严厉军士` 配置 `1`，对应官方“场上每有一名友方单位，便获得 1 经验”。
+- `CoreRuleEngine` 在源单位入场后统计控制者基地和战场中的友方 `CARD_TYPE:UNIT` 对象，乘以配置值后复用既有 `GainExperience` / `EXPERIENCE_GAINED` 事件；友方装备、敌方单位和非单位对象不计入。
+- 更新原 P2 fixture `p2-preflight-play-stern-sergeant-experience-static`：无其他友方单位时，《严厉军士》自身入场后计为 1 名友方场上单位，因此获得 1 经验。
+- 新增 fixture `p4-play-stern-sergeant-dynamic-experience.fixture.json`：P1 已有 2 名友方场上单位和 1 件友方装备，打出《严厉军士》后共 3 名友方单位，获得 3 经验；敌方单位和友方装备不计入。
+- 新增 `P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`，并扩展 basic-action profile baseline 与代表 fixture theory，锁定官方文本 -> registry -> engine fixture 的证据链。
+- 本批次没有实现狩猎征服/据守经验、战斗/移动触发经验、经验激活技能、经验改变效果或目标范围、装备装配经验消耗、更多动态经验卡牌和 P5 触发队列。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -380,7 +392,7 @@ P4.9 新增内容：
 - 瞬息到期、预知最小回收分支
 - 回响复杂额外费用、授予回响和模式重复分支
 - 法盾目标税的最小支付校验已由 P4.12 覆盖法术选择敌方场上对象；技能、授予/静态法盾和完整 FAQ 细节仍需后续小批次
-- 固定数值“打出时获得经验”已由 P4.10 接入；固定经验额外费用减费已由 P4.11 接入；《诺克萨斯新兵》鼓舞费用减免已由 P4.14 接入；《踏苔蜥》`等级3` 入场 +1/法盾已由 P4.15 接入；《风行狐》`等级3` 入场 +1/游走已由 P4.16 接入；《无极学徒》`等级6` 打出抽 1 已由 P4.17 接入；经验激活技能、经验改变效果/目标范围、动态经验、其他等级分支、其他鼓舞效果仍需后续小批次
+- 固定数值“打出时获得经验”已由 P4.10 接入；固定经验额外费用减费已由 P4.11 接入；《诺克萨斯新兵》鼓舞费用减免已由 P4.14 接入；《踏苔蜥》`等级3` 入场 +1/法盾已由 P4.15 接入；《风行狐》`等级3` 入场 +1/游走已由 P4.16 接入；《无极学徒》`等级6` 打出抽 1 已由 P4.17 接入；《严厉军士》按友方场上单位数量获得经验已由 P4.19 接入；经验激活技能、经验改变效果/目标范围、其他动态经验、其他等级分支、其他鼓舞效果仍需后续小批次
 
 高风险，暂不进入 P4.1：
 
@@ -404,7 +416,7 @@ P4.9 新增内容：
 | P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；P4.12/P4.14/P4.15/P4.16/P4.17 后法盾法术目标税、《诺克萨斯新兵》鼓舞费用、《踏苔蜥》《风行狐》和《无极学徒》等级代表路径已接入，其余资源关键词分支继续 deferred。 |
 | P4.8 装备关键词 profile | Done | 100% | 新增 `装配`/`灵便`/`百炼` profile；贴附、费用、自动贴附和 owner/controller 执行继续 deferred。 |
 | P4.9 完成审计与剩余 profile 收口 | Done | 100% | 新增 lifecycle/interaction/basic-action profile，明确 P4 goal 尚未完全达成的 deferred 能力。 |
-| P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；动态经验与经验消耗继续 deferred。 |
+| P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；P4.19 已补《严厉军士》动态计数经验，其他动态经验与经验消耗继续 deferred。 |
 | P4.11 经验额外费用减费执行切片 | Done | 100% | 新增 `SPEND_EXPERIENCE:n` optional cost、波比代表 fixture 和经验不足拒绝测试；改变效果/目标的经验费用继续 deferred。 |
 | P4.12 法盾目标税执行切片 | Done | 100% | 新增 `spellshieldTaxMana` 费用计划、`法盾`/`法盾N` 标签税值复用、代表 fixture 和费用不足拒绝测试；技能/授予/FAQ 全细节继续 deferred。 |
 | P4.13 急速活跃可选费用切片 | Done | 100% | 新增 `HASTE_READY` 代表 optional cost、《灼焰飞龙》fixture 和 power 不足拒绝测试；其他急速牌彩色资源/授予/战场联动继续 deferred。 |
@@ -413,9 +425,10 @@ P4.9 新增内容：
 | P4.16 等级游走入场修正执行切片 | Done | 100% | 复用 `LevelExperienceThreshold` 源单位入场修正，新增《风行狐》`等级3` +1/游走 fixture；游走移动和其他等级分支继续 deferred。 |
 | P4.17 等级条件抽牌执行切片 | Done | 100% | 新增 `LevelDrawOnPlayCount` 源牌结算抽牌、《无极学徒》`等级6` 抽 1 fixture；狩猎经验和其他等级分支继续 deferred。 |
 | P4.18 急速活跃第二代表切片 | Done | 100% | 复用 `HASTE_READY` optional cost，新增《小鲨鱼》fixture 和 profile/fixture 测试；彩色资源精确匹配和强攻战斗修正继续 deferred。 |
-| P4.19 goal completion decision | Pending | 0% | 基于 P4.18 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
+| P4.19 动态经验获得执行切片 | Done | 100% | 新增 `GainExperienceOnPlayPerFriendlyFieldUnit` 和《严厉军士》动态经验 fixture；战斗/移动触发经验和技能消耗继续 deferred。 |
+| P4.20 goal completion decision | Pending | 0% | 基于 P4.19 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
 
-P4 当前整体进度：按当前 part 计 `19/20 = 95.0%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行，P4.12 已新增法术目标 `法盾` mana 税执行，P4.13 已新增《灼焰飞龙》`HASTE_READY` 急速活跃代表费用执行，P4.14 已新增《诺克萨斯新兵》鼓舞费用减免代表执行，P4.15 已新增《踏苔蜥》`等级3` 入场 +1/法盾代表执行，P4.16 已新增《风行狐》`等级3` 入场 +1/游走代表执行，P4.17 已新增《无极学徒》`等级6` 打出抽 1 代表执行，P4.18 已新增《小鲨鱼》`HASTE_READY` 急速活跃第二代表执行。
+P4 当前整体进度：按当前 part 计 `20/21 = 95.2%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行，P4.12 已新增法术目标 `法盾` mana 税执行，P4.13 已新增《灼焰飞龙》`HASTE_READY` 急速活跃代表费用执行，P4.14 已新增《诺克萨斯新兵》鼓舞费用减免代表执行，P4.15 已新增《踏苔蜥》`等级3` 入场 +1/法盾代表执行，P4.16 已新增《风行狐》`等级3` 入场 +1/游走代表执行，P4.17 已新增《无极学徒》`等级6` 打出抽 1 代表执行，P4.18 已新增《小鲨鱼》`HASTE_READY` 急速活跃第二代表执行，P4.19 已新增《严厉军士》按友方场上单位数量获得经验执行。
 
 ## Validation Gate
 
@@ -430,15 +443,15 @@ P4 当前整体进度：按当前 part 计 `19/20 = 95.0%`；P4.1 已验证 `5` 
 
 ## Latest Validation
 
-P4.18 已完成验证：
+P4.19 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1708/1708
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1639/1639
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1710/1710
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1641/1641
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，19/19
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForBabyShark|FullyQualifiedName~P4PermissionKeywordsKeepExistingP2FixturesGreen|FullyQualifiedName~P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags"`：pass，6/6
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits|FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen|FullyQualifiedName~P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions"`：pass，9/9
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.19：基于 P4.18 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、装备贴附、动态经验/等级、其他鼓舞效果、其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.20：基于 P4.19 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、装备贴附、战斗/移动触发经验、其他鼓舞效果、其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。

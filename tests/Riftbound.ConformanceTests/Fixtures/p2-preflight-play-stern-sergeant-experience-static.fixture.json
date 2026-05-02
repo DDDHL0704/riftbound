@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-stern-sergeant-experience-static",
-  "description": "Stern Sergeant enters as an Elite unit while its dynamic experience gain is deferred.",
+  "description": "Stern Sergeant enters as an Elite unit and gains experience for each friendly field unit.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-157/219 严厉军士",
-      "note": "官方卡面：费用 6；单位；战力 6；精锐属性；当你打出我时，场上每有一名友方单位便获得 1 经验。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录精锐属性标签；友方单位计数和经验获得路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 6；精锐属性；当你打出我时，场上每有一名友方单位便获得 1 经验。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录精锐属性标签；结算后自身位于场上，因此获得 1 经验。P4.19 另以 p4-play-stern-sergeant-dynamic-experience 覆盖已有友方单位计数。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -83,7 +83,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "EXPERIENCE_GAINED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
@@ -93,6 +94,7 @@
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "scores": { "P1": 0, "P2": 0 },
+      "experience": { "P1": 1, "P2": 0 },
       "runePools": {
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
