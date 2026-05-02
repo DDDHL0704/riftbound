@@ -2563,7 +2563,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "仙灵|急速"),
+            SourceUnitTags: "仙灵|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·110/298",
             "艾克",
