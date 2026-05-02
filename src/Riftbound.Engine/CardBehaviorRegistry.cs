@@ -130,7 +130,8 @@ public sealed record CardBehaviorDefinition(
     bool GrantsBoonToSourceUnit = false,
     bool ModifiesAllEnemyUnits = false,
     bool RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
-    bool AddsControllerGraveyardCountToSourceUnitPower = false);
+    bool AddsControllerGraveyardCountToSourceUnitPower = false,
+    string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard);
 
 public static class CardDamageConditionKinds
 {
@@ -168,6 +169,12 @@ public static class CardTargetScopes
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string StackSpell = "STACK_SPELL";
+}
+
+public static class CardCounteredStackItemDestinationZones
+{
+    public const string Graveyard = "GRAVEYARD";
+    public const string Hand = "HAND";
 }
 
 public static class CardObjectTags
@@ -7471,6 +7478,17 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.StackSpell,
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true),
+        new(
+            "UNL-131/219",
+            "遗弃",
+            2,
+            "ABANDON_COUNTER_SPELL_RETURN_TO_HAND_NO_INSIGHT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true,
+            CounteredStackItemDestination: CardCounteredStackItemDestinationZones.Hand),
         new(
             "SFD·135/221",
             "紧急召回",

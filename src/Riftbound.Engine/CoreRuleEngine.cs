@@ -1630,6 +1630,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                         playerZones,
                         targetStackItemId,
                         stackItem,
+                        behavior,
                         out var counteredEvent))
                 {
                     continue;
@@ -3075,6 +3076,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, PlayerZones> playerZones,
         string targetStackItemId,
         StackItemState counteringStackItem,
+        CardBehaviorDefinition counteringBehavior,
         out GameEvent counteredEvent)
     {
         counteredEvent = default!;
@@ -3089,7 +3091,24 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!targetControllerZones.Graveyard.Contains(targetStackItem.SourceObjectId, StringComparer.Ordinal))
+        var destinationZone = string.Equals(
+            counteringBehavior.CounteredStackItemDestination,
+            CardCounteredStackItemDestinationZones.Hand,
+            StringComparison.Ordinal)
+            ? CardCounteredStackItemDestinationZones.Hand
+            : CardCounteredStackItemDestinationZones.Graveyard;
+
+        if (string.Equals(destinationZone, CardCounteredStackItemDestinationZones.Hand, StringComparison.Ordinal))
+        {
+            if (!targetControllerZones.Hand.Contains(targetStackItem.SourceObjectId, StringComparer.Ordinal))
+            {
+                playerZones[targetStackItem.ControllerId] = targetControllerZones with
+                {
+                    Hand = targetControllerZones.Hand.Concat([targetStackItem.SourceObjectId]).ToArray()
+                };
+            }
+        }
+        else if (!targetControllerZones.Graveyard.Contains(targetStackItem.SourceObjectId, StringComparer.Ordinal))
         {
             playerZones[targetStackItem.ControllerId] = targetControllerZones with
             {
@@ -3107,7 +3126,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["sourceObjectId"] = targetStackItem.SourceObjectId,
                 ["controllerId"] = targetStackItem.ControllerId,
                 ["counteredByPlayerId"] = counteringStackItem.ControllerId,
-                ["destinationZone"] = "GRAVEYARD"
+                ["destinationZone"] = destinationZone
             });
         return true;
     }
