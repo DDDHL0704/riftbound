@@ -156,7 +156,9 @@ public sealed record CardBehaviorDefinition(
     bool PlaysOpponentTopMainDeckUnitToBase = false,
     bool PlaysEachPlayerTopFiveUnitToBase = false,
     bool CanPlayDuringSpellDuel = false,
-    int GainExperienceOnPlay = 0);
+    int GainExperienceOnPlay = 0,
+    int OptionalExperienceCost = 0,
+    int ManaReductionIfExperiencePaid = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -6417,7 +6419,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|壁垒"),
+            SourceUnitTags: "约德尔人|壁垒",
+            OptionalExperienceCost: 3,
+            ManaReductionIfExperiencePaid: 3),
         new(
             "UNL-012/219",
             "布罗梅因领主",
@@ -6464,7 +6468,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "约德尔人|壁垒"),
+            SourceUnitTags: "约德尔人|壁垒",
+            OptionalExperienceCost: 3,
+            ManaReductionIfExperiencePaid: 3),
         new(
             "UNL-051a/219",
             "艾翁",

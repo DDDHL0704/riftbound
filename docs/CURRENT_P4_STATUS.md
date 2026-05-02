@@ -38,7 +38,8 @@
 - P4.7 提交：`c93cb87 feat: add p4 resource keyword profiles`
 - P4.8 提交：`c376b94 feat: add p4 equipment keyword profiles`
 - P4.9 提交：`60396c5 feat: add p4 remaining profile audit`
-- P4.10 提交：本提交 `feat: add p4 fixed experience gain`
+- P4.10 提交：`af40d9f feat: add p4 fixed experience gain`
+- P4.11 提交：本提交 `feat: add p4 experience optional cost`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -101,7 +102,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | `draw` | 131 | 105 | 26 | 0 | Low | P4.5 已有固定抽牌 primitive plan；抽牌与燃尽状态写入仍由 P2 覆盖。 |
 | `destroy` | 127 | 115 | 8 | 4 | Low/Medium | P4.5 已有单目标摧毁 primitive plan；替代/触发导致的摧毁仍分层处理。 |
 | `assemble` | 55 | 53 | 2 | 0 | High | 暂不进 P4.1；涉及贴附、owner/controller、费用与 P5 边界。 |
-| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”代表路径；动态经验、经验消耗和等级/装配联动仍 deferred。 |
+| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”；P4.11 已接入固定经验额外费用减费代表路径；动态经验、经验激活技能和等级/装配联动仍 deferred。 |
 | `recall` | 49 | 39 | 10 | 0 | Medium | 当前只桥接/委托 P2；召回到基地/手牌已有 P2 原语，精确时序分层。 |
 | `stun` | 33 | 30 | 3 | 0 | Low | P4.5 已有 `STUNNED` primitive plan；P3 parser 的眩晕 reminder damage 噪声不会阻断该 primitive。 |
 | `echo` | 24 | 22 | 2 | 0 | Medium | P4.4 已将 mana-only `ECHO` optional cost/repeat 抽成互动关键词模型；有色/弃牌/授予回响仍延后。 |
@@ -247,7 +248,7 @@ Prompt-to-artifact checklist：
 | 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、5 条 fixture | Profile only：狩猎征服/据守经验、等级、鼓舞记忆、法盾税 deferred。 |
 | 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、3 条 remaining fixture | Partial：mana-only 回响可玩，待命/伏击 face-down/reaction battlefield play deferred。 |
 | 装备关键词：装配、灵便、百炼 | `CardEquipmentKeywordRules`、`P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags`、5 条 no-attach fixture | Profile only：attach/detach/费用/owner-controller deferred。 |
-| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验可玩；动态/消耗经验 deferred。 |
+| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验和固定经验额外费用减费可玩；动态/激活/条件经验 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests | Covered for registered templates and representative P2 bridges. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
 | 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.9 once committed. |
@@ -272,6 +273,18 @@ P4.9 新增内容：
 - 已更新三条已审计 fixture：`p2-preflight-play-demacia-envoy-experience-static`、`p2-preflight-play-spring-messenger-experience-static`、`p2-preflight-play-shepherds-heirloom-weapon-equipment`。
 - 本批次没有实现经验消耗、等级阈值、狩猎征服/据守经验、装配消耗经验、获得经验记忆条件、动态友方单位计数或任何 P5 装备贴附系统。
 
+## P4.11 Experience Optional Cost Slice
+
+本阶段继续沿 P4.10 的玩家经验状态补一个低风险费用切片，只覆盖“支付固定经验作为打出额外费用来减少法力费用”的代表路径：
+
+- `CoreRuleEngine` 新增 `SPEND_EXPERIENCE:n` optional cost，先只在 registry 显式配置了 `OptionalExperienceCost` 与 `ManaReductionIfExperiencePaid` 的牌上接受。
+- `CardBehaviorDefinition` 新增 `OptionalExperienceCost` / `ManaReductionIfExperiencePaid`，当前只接入 `UNL-178/219 波比` 与 `UNL-178a/219 波比`：支付 3 经验，使打出费用减少 3。
+- `COST_PAID` payload 暴露 `experience` 与 `optionalCostManaReduction`，`MatchState.PlayerExperience` 在打出时扣减；经验不足时以 `InsufficientCost` 拒绝且不改变状态。
+- 新增 fixture `p4-play-poppy-spend-experience-reduce-cost.fixture.json`，验证 P1 以 3 mana + 3 experience 打出《波比》，结算后 P1 experience 为 0，单位进入基地。
+- 新增负向 engine test `CoreRuleEngineRejectsPoppyExperienceOptionalCostWhenExperienceIsInsufficient`。
+- `CardBasicActionRules` 将固定经验获得和固定经验额外费用都视为已委托/覆盖的 experience 行为，但仍把 `UNL-164/219 安全检查员` 这类会改变效果分支的经验额外费用保持 deferred。
+- 本批次没有实现经验激活技能、经验额外费用改变目标范围、装配消耗经验、等级阈值、获得经验记忆、伏击反应战场打出或壁垒战斗承伤。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -286,7 +299,7 @@ P4.9 新增内容：
 - 瞬息到期、预知最小回收分支
 - 回响复杂额外费用、授予回响和模式重复分支
 - 法盾目标税的最小支付校验；P4.7 只完成 profile 识别
-- 固定数值“打出时获得经验”已由 P4.10 接入；经验消耗、动态经验、等级阈值、鼓舞本回合记忆仍需后续小批次
+- 固定数值“打出时获得经验”已由 P4.10 接入；固定经验额外费用减费已由 P4.11 接入；经验激活技能、经验改变效果/目标范围、动态经验、等级阈值、鼓舞本回合记忆仍需后续小批次
 
 高风险，暂不进入 P4.1：
 
@@ -311,9 +324,10 @@ P4.9 新增内容：
 | P4.8 装备关键词 profile | Done | 100% | 新增 `装配`/`灵便`/`百炼` profile；贴附、费用、自动贴附和 owner/controller 执行继续 deferred。 |
 | P4.9 完成审计与剩余 profile 收口 | Done | 100% | 新增 lifecycle/interaction/basic-action profile，明确 P4 goal 尚未完全达成的 deferred 能力。 |
 | P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；动态经验与经验消耗继续 deferred。 |
-| P4.11 goal completion decision | Pending | 0% | 基于 P4.10 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
+| P4.11 经验额外费用减费执行切片 | Done | 100% | 新增 `SPEND_EXPERIENCE:n` optional cost、波比代表 fixture 和经验不足拒绝测试；改变效果/目标的经验费用继续 deferred。 |
+| P4.12 goal completion decision | Pending | 0% | 基于 P4.11 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
 
-P4 当前整体进度：按当前 part 计 `11/12 = 91.7%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行。
+P4 当前整体进度：按当前 part 计 `12/13 = 92.3%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行。
 
 ## Validation Gate
 
@@ -328,15 +342,15 @@ P4 当前整体进度：按当前 part 计 `11/12 = 91.7%`；P4.1 已验证 `5` 
 
 ## Latest Validation
 
-P4.10 已完成验证：
+P4.11 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，`0` warnings / `0` errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1687/1687`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1618/1618`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1690/1690`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1621/1621`
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：通过 `19/19`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4FixedExperienceGainOnPlayUpdatesControllerExperience"`：通过 `3/3`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ExperienceOptionalCost|FullyQualifiedName~CoreRuleEngineRejectsPoppyExperienceOptionalCost|FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：通过 `7/7`
 - `git diff --check`：通过
 
 ## Next Step
 
-进入 P4.11：基于 P4.10 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。
+进入 P4.12：基于 P4.11 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。

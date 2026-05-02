@@ -8257,6 +8257,65 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
     }
 
+    [Fact]
+    public async Task P4ExperienceOptionalCostReducesManaAndSpendsExperience()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-poppy-spend-experience-reduce-cost.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.PlayerExperience["P1"]);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-UNL-178-POPPY"], result.FinalState.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsPoppyExperienceOptionalCostWhenExperienceIsInsufficient()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 2,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-UNL-178-POPPY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-poppy-insufficient-experience", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-UNL-178-POPPY",
+                "UNL-178/219",
+                [],
+                OptionalCosts: ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(2, result.State.PlayerExperience["P1"]);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-UNL-178-POPPY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
     [Theory]
     [InlineData(3, "P1-UNIT-DOCKSIDE-LURKER", "OGN·175/298", "P1-BASE-DOCKSIDE-LURKER-TARGET-001")]
     [InlineData(4, "P1-UNIT-VANGUARD-SERGEANT", "OGN·219/298", "P1-BASE-VANGUARD-SERGEANT-TARGET-001")]
@@ -16892,6 +16951,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-portalpal-rescue-banish-play-base.fixture.json")]
     [InlineData("p2-preflight-play-secret-art-mercy-grant-boon.fixture.json")]
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
+    [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -18,6 +18,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ReturnFriendlyEquipmentAdditionalCostPrefix = "RETURN_FRIENDLY_EQUIPMENT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
+    private const string SpendExperienceOptionalCostPrefix = "SPEND_EXPERIENCE:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -87,6 +88,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var behavior = plan.Behavior;
         var targetObjectIds = plan.TargetObjectIds;
         var runePools = PayRuneCosts(state, intent.PlayerId, plan.TotalManaCost, plan.TotalPowerCost);
+        var playerExperience = PayExperienceCosts(state, intent.PlayerId, plan.TotalExperienceCost);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
 
@@ -105,6 +107,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
+            PlayerExperience = playerExperience,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
@@ -139,8 +142,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = plan.TotalManaCost,
                     ["power"] = plan.TotalPowerCost,
+                    ["experience"] = plan.TotalExperienceCost,
                     ["baseMana"] = behavior.ManaCost,
                     ["costReductionMana"] = plan.CostReductionMana,
+                    ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
                 })
         };
@@ -327,6 +332,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var optionalCosts,
                 out var extraManaCost,
                 out var extraPowerCost,
+                out var experienceCost,
+                out var optionalCostManaReduction,
                 out var effectRepeatCount,
                 out var exhaustedOptionalCostTargetObjectIds,
                 out var destroyedAdditionalCostTargetObjectIds,
@@ -458,8 +465,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var costReductionMana = ResolveCostReductionMana(state, intent.PlayerId, behavior);
-        var totalManaCost = Math.Max(0, behavior.ManaCost - costReductionMana) + extraManaCost;
+        var totalManaCost = Math.Max(0, behavior.ManaCost - costReductionMana - optionalCostManaReduction) + extraManaCost;
         var totalPowerCost = extraPowerCost;
+        var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < totalManaCost)
         {
@@ -479,15 +487,29 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var currentExperience = state.PlayerExperience.TryGetValue(intent.PlayerId, out var availableExperience)
+            ? availableExperience
+            : 0;
+        if (currentExperience < totalExperienceCost)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Not enough experience to play {behavior.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+            return false;
+        }
+
         plan = new PlayCardPlan(
             behavior,
             zones,
             targetObjectIds,
             totalManaCost,
             totalPowerCost,
+            totalExperienceCost,
             effectRepeatCount,
             optionalCosts,
             costReductionMana,
+            optionalCostManaReduction,
             exhaustedOptionalCostTargetObjectIds,
             destroyedAdditionalCostTargetObjectIds,
             returnedAdditionalCostTargetObjectIds,
@@ -1604,6 +1626,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         out IReadOnlyList<string> normalizedOptionalCosts,
         out int extraManaCost,
         out int extraPowerCost,
+        out int experienceCost,
+        out int optionalCostManaReduction,
         out int effectRepeatCount,
         out IReadOnlyList<string> exhaustedOptionalCostTargetObjectIds,
         out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds,
@@ -1613,6 +1637,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         normalizedOptionalCosts = NormalizeOptionalCosts(optionalCosts);
         extraManaCost = 0;
         extraPowerCost = 0;
+        experienceCost = 0;
+        optionalCostManaReduction = 0;
         effectRepeatCount = 1;
         exhaustedOptionalCostTargetObjectIds = [];
         destroyedAdditionalCostTargetObjectIds = [];
@@ -1689,6 +1715,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost))
         {
             extraPowerCost = powerCost;
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.OptionalExperienceCost > 0
+            && behavior.ManaReductionIfExperiencePaid > 0
+            && TryParseSpendExperienceOptionalCost(normalizedOptionalCosts[0], out var spendExperienceCost)
+            && spendExperienceCost == behavior.OptionalExperienceCost)
+        {
+            experienceCost = spendExperienceCost;
+            optionalCostManaReduction = behavior.ManaReductionIfExperiencePaid;
             return true;
         }
 
@@ -1800,6 +1837,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 optionalCost[SpendPowerOptionalCostPrefix.Length..].Trim(),
                 out powerCost)
             && powerCost >= 0;
+    }
+
+    private static bool TryParseSpendExperienceOptionalCost(string optionalCost, out int experienceCost)
+    {
+        experienceCost = 0;
+        if (!optionalCost.StartsWith(SpendExperienceOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return int.TryParse(
+                optionalCost[SpendExperienceOptionalCostPrefix.Length..].Trim(),
+                out experienceCost)
+            && experienceCost > 0;
     }
 
     private static bool CanExhaustFriendlyUnitAsOptionalCost(
@@ -7115,6 +7166,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
     }
 
+    private static IReadOnlyDictionary<string, int> PayExperienceCosts(
+        MatchState state,
+        string playerId,
+        int experienceCost)
+    {
+        if (experienceCost <= 0)
+        {
+            return state.PlayerExperience;
+        }
+
+        var playerExperience = NormalizeExperienceForSeats(state);
+        playerExperience[playerId] = Math.Max(
+            0,
+            playerExperience.TryGetValue(playerId, out var currentExperience)
+                ? currentExperience - experienceCost
+                : 0);
+        return playerExperience;
+    }
+
     private static string? OpponentOf(MatchState state, string playerId)
     {
         return state.Seats
@@ -7378,9 +7448,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> TargetObjectIds,
         int TotalManaCost,
         int TotalPowerCost,
+        int TotalExperienceCost,
         int EffectRepeatCount,
         IReadOnlyList<string> OptionalCosts,
         int CostReductionMana,
+        int OptionalCostManaReduction,
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,
         IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> ReturnedAdditionalCostTargetObjectIds,

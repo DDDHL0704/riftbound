@@ -230,7 +230,9 @@ public static class CardBasicActionRules
 
     private static bool HasExperienceBehavior(CardBehaviorDefinition? behavior)
     {
-        return behavior?.GainExperienceOnPlay > 0;
+        return behavior is not null
+            && (behavior.GainExperienceOnPlay > 0
+                || behavior.OptionalExperienceCost > 0);
     }
 
     private static void AddIf(

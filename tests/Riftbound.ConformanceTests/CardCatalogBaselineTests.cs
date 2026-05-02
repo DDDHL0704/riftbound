@@ -604,11 +604,23 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(CardBasicActionNames.Experience, shepherdsHeirloom.DelegatedP2Actions);
         Assert.Equal(CardBasicActionProfileStatuses.RecognizedCovered, shepherdsHeirloom.Status);
 
+        var poppy = BuildBasicActionProfile(specs, "UNL-178/219");
+        Assert.True(poppy.HasExperience);
+        Assert.Contains(CardBasicActionNames.Experience, poppy.DelegatedP2Actions);
+        Assert.DoesNotContain(CardBasicActionNames.Experience, poppy.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, poppy.Status);
+
         var sternSergeant = BuildBasicActionProfile(specs, "UNL-157/219");
         Assert.True(sternSergeant.HasExperience);
         Assert.DoesNotContain(CardBasicActionNames.Experience, sternSergeant.DelegatedP2Actions);
         Assert.Contains(CardBasicActionNames.Experience, sternSergeant.DeferredActions);
         Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, sternSergeant.Status);
+
+        var safetyInspector = BuildBasicActionProfile(specs, "UNL-164/219");
+        Assert.True(safetyInspector.HasExperience);
+        Assert.DoesNotContain(CardBasicActionNames.Experience, safetyInspector.DelegatedP2Actions);
+        Assert.Contains(CardBasicActionNames.Experience, safetyInspector.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, safetyInspector.Status);
     }
 
     [Fact]
