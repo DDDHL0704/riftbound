@@ -48,6 +48,7 @@
 - `p2-preflight-play-incinerate-damage-stack.fixture.json` 已验证官方法术 `OGS·003/024 焚烧` 的最小 `PLAY_CARD` 通道：支付 2 点费用，加入结算链，双方让过后对目标单位造成 2 点伤害并进入废牌堆。
 - `p4-play-incinerate-spellshield-tax.fixture.json` 已验证 P4 资源关键词代表路径：`OGS·003/024 焚烧` 选择敌方带 `法盾` 的场上单位时，需在基础 2 点费用外支付 1 点法盾目标税；费用不足由 `CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient` 直接测试拒绝，技能目标税和完整 FAQ 细节暂缓。
 - `p4-play-spirit-fire-multiple-spellshield-tax.fixture.json` 已验证 P4 法盾多目标费用聚合代表路径：`OGN·256/298 妖异狐火` 同时选择敌方带 `法盾` 与 `法盾2` 的场上单位时，需在基础 3 点费用外支付 3 点法盾目标税；费用不足由 `CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient` 直接测试拒绝，技能目标税和授予/静态法盾暂缓。
+- `p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json` 已验证 P4 法盾友方目标边界：`OGN·053/298 秘奥义！慈悲度魂落` 选择己方带 `法盾` 的场上单位时只支付基础 3 点费用，`spellshieldTaxMana` 记录为 0，随后正常给予增益；技能目标税和授予/静态法盾仍暂缓。
 - `p2-preflight-play-lotus-trap-doubles-next-damage.fixture.json` 已验证官方法术 `UNL-013/219 莲花陷阱` 先对目标施加 `DAMAGE_RECEIVED_DOUBLED_THIS_TURN`，随后同回合《焚烧》对该目标的 2 点伤害会按卡面翻倍为 4 点；本回合内效果清理由既有 `END_TURN` 特殊清理覆盖。
 - `p2-preflight-play-counterstorm-prevent-next-damage.fixture.json` 已验证官方法术 `SFD·194/221 反击风暴` 先对目标施加 `PREVENT_NEXT_DAMAGE_THIS_TURN` 并抽 1 张牌，随后同回合《焚烧》对该目标的 2 点伤害被抵挡为 0，且抵挡效果被消耗。
 - `p2-preflight-play-stand-firm-prevent-spell-damage-this-turn.fixture.json` 已验证官方法术 `OGN·145/298 坚毅不倒` 可在优先权窗口打出并施加全局本回合内 `PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN`，随后同回合《焚烧》的 2 点法术伤害被无效化为 0；独立技能结算链伤害路径暂缓。
@@ -106,7 +107,7 @@
 - `p2-preflight-play-darkin-blade-destroy-target-controller-draw.fixture.json` 已验证官方法术 `OGN·213/298 暗刃` 从手牌打出的基础路径：支付 2 点费用，摧毁战场中的一名单位，然后让该单位当前控制者抽 2 张牌；待命路径暂缓。
 - `p2-preflight-play-housecleaning-destroy-each-player-unit.fixture.json` 已验证官方法术 `OGN·209/298 清理门户` 支付 2 点费用，按顺序记录 P1 自选友方单位和 P2 自选敌方单位，双方让过后各摧毁一名自己的单位；反向顺序和两个友方目标由直接拒绝测试覆盖。
 - `p2-preflight-play-kings-edict-destroy-enemy-unit.fixture.json` 已验证官方法术 `OGN·237/298 国王诏令` 在当前 2P preflight 中用一名敌方单位目标记录另一名玩家选择的非控制者单位，双方让过后摧毁该单位；友方单位目标由直接拒绝测试覆盖，多人逐玩家选择暂缓到 prompt/多席位选择模型。
-- `p2-preflight-play-spirit-fire-destroy-total-power-four.fixture.json` 已验证官方法术 `OGN·256/298 妖异狐火` 选择战场上总战力不高于 4 的任意数量单位，双方让过后摧毁所选单位；总战力超过 4 的目标组合由直接拒绝测试覆盖，一处战场精确位置暂缓到多战场位置模型。P4.59 另以 `p4-play-spirit-fire-multiple-spellshield-tax.fixture.json` 覆盖同一多目标法术的 `法盾` + `法盾2` 目标税聚合。
+- `p2-preflight-play-spirit-fire-destroy-total-power-four.fixture.json` 已验证官方法术 `OGN·256/298 妖异狐火` 选择战场上总战力不高于 4 的任意数量单位，双方让过后摧毁所选单位；总战力超过 4 的目标组合由直接拒绝测试覆盖，一处战场精确位置暂缓到多战场位置模型。P4.59 另以 `p4-play-spirit-fire-multiple-spellshield-tax.fixture.json` 覆盖同一多目标法术的 `法盾` + `法盾2` 目标税聚合；P4.61 以 `p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json` 覆盖友方法盾目标不缴税边界。
 - `p2-preflight-play-quicksand-pit-destroy-battlefield-unit-stack.fixture.json` 已验证官方法术 `SFD·164/221 流沙陷坑` 从手牌打出的全额费用路径：支付 5 点费用，选择战场上的一名单位，双方让过后摧毁目标单位并移入拥有者废牌堆；从手牌以外位置打出的减费路径暂缓。
 - `p2-preflight-play-ruination-destroy-all-units.fixture.json` 已验证官方法术 `UNL-180/219 破败之咒` 的全局摧毁路径：支付 9 点费用，0 目标入栈，双方让过后摧毁当前所有场上单位，即各玩家基地和战场区域中的单位。
 - `p2-preflight-play-undertow-return-all-units.fixture.json` 已验证官方法术 `SFD·147/221 坠渊之流` 的全局回手路径：支付 8 点费用，0 目标入栈，双方让过后让当前所有场上单位和装备返回所属者手牌。

@@ -17692,6 +17692,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-unl-yi-level6-spellshield-roam.fixture.json")]
     [InlineData("p4-play-unl-yi-alt-a-level6-spellshield-roam.fixture.json")]
     [InlineData("p4-play-spirit-fire-multiple-spellshield-tax.fixture.json")]
+    [InlineData("p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -18141,6 +18142,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
             Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
+    public async Task P4SpellshieldTaxDoesNotApplyToFriendlySpellTarget()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Boon, CardObjectTags.Spellshield],
+            result.FinalState.CardObjects["P1-BOON-SPELLSHIELD-UNIT-001"].Tags);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BOON-SPELLSHIELD-UNIT-001"].Power);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(3, costPaidEvent.Payload["baseMana"]);
+        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Empty(Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
     }
 
     [Fact]
