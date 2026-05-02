@@ -529,7 +529,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             var resolvedItem = state.StackItems[^1];
             var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
-            var nextStack = RemoveCounteredStackItems(remainingStack, stackResolution.CounteredStackItemIds);
+            var resolvedStack = stackResolution.StackItems ?? remainingStack;
+            var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
             var nextPriorityPlayerId = nextStack.Length == 0
                 ? null
                 : nextStack[^1].ControllerId;
@@ -1841,6 +1842,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 null,
                 [],
                 [],
+                null,
                 [],
                 null,
                 state.RngCursor);
@@ -1865,6 +1867,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
+        StackItemState[]? updatedStackItems = null;
 
         if (behavior.PlaysSourceToBaseAsEquipment)
         {
@@ -1914,6 +1917,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 counteredStackItemIds.Add(targetStackItemId);
                 events.Add(counteredEvent);
             }
+        }
+
+        if (behavior.GainsControlOfTargetStackSpell
+            && TryGainControlOfTargetStackSpell(
+                state.StackItems,
+                behavior,
+                stackItem,
+                out var controlledStackItems,
+                out var stackControlEvent))
+        {
+            updatedStackItems = controlledStackItems;
+            events.Add(stackControlEvent);
         }
 
         if (behavior.AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost
@@ -3518,6 +3533,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
+            updatedStackItems,
             counteredStackItemIds
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(stackItemId => stackItemId, StringComparer.Ordinal)
@@ -3596,6 +3612,49 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["controllerId"] = targetStackItem.ControllerId,
                 ["counteredByPlayerId"] = counteringStackItem.ControllerId,
                 ["destinationZone"] = destinationZone
+            });
+        return true;
+    }
+
+    private static bool TryGainControlOfTargetStackSpell(
+        IReadOnlyList<StackItemState> stackItems,
+        CardBehaviorDefinition behavior,
+        StackItemState gainingStackItem,
+        out StackItemState[] updatedStackItems,
+        out GameEvent controlEvent)
+    {
+        updatedStackItems = [];
+        controlEvent = default!;
+        if (gainingStackItem.TargetObjectIds.Count == 0)
+        {
+            return false;
+        }
+
+        var targetStackItemId = gainingStackItem.TargetObjectIds[0];
+        var targetStackItem = stackItems.FirstOrDefault(stackItem =>
+            string.Equals(stackItem.StackItemId, targetStackItemId, StringComparison.Ordinal));
+        if (targetStackItem is null)
+        {
+            return false;
+        }
+
+        updatedStackItems = stackItems
+            .Where(stackItem => !string.Equals(stackItem.StackItemId, gainingStackItem.StackItemId, StringComparison.Ordinal))
+            .Select(stackItem => string.Equals(stackItem.StackItemId, targetStackItemId, StringComparison.Ordinal)
+                ? stackItem with { ControllerId = gainingStackItem.ControllerId }
+                : stackItem)
+            .ToArray();
+
+        controlEvent = new GameEvent(
+            "STACK_ITEM_CONTROL_GAINED",
+            $"{behavior.DisplayName}获得法术控制权",
+            new Dictionary<string, object?>
+            {
+                ["stackItemId"] = targetStackItem.StackItemId,
+                ["sourceObjectId"] = gainingStackItem.SourceObjectId,
+                ["targetSourceObjectId"] = targetStackItem.SourceObjectId,
+                ["previousControllerId"] = targetStackItem.ControllerId,
+                ["controllerId"] = gainingStackItem.ControllerId
             });
         return true;
     }
@@ -6706,6 +6765,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
+        IReadOnlyList<StackItemState>? StackItems,
         IReadOnlyList<string> CounteredStackItemIds,
         string? ExtraTurnPlayerId,
         long RngCursor);

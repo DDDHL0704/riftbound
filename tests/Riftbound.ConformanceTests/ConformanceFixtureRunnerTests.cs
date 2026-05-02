@@ -10135,6 +10135,77 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysReversalGainStackSpellControl()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-reversal-gain-stack-spell-control.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var remainingStackItem = Assert.Single(result.FinalState.StackItems);
+        Assert.Equal("STACK-1-P1-SPELL-INCINERATE", remainingStackItem.StackItemId);
+        Assert.Equal("P2", remainingStackItem.ControllerId);
+        Assert.Equal("P2", result.FinalState.PriorityPlayerId);
+        Assert.Equal(["P2-SPELL-REVERSAL"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsReversalAgainstUnitStackItem()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(4, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-REVERSAL"]
+                }
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-UNIT-SCUTTLE",
+                    "P1",
+                    "P1-UNIT-SCUTTLE",
+                    "SCUTTLE_CRAB_PLAY_UNIT_DRAW_1",
+                    "UNL-053/219",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-reversal-unit-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-REVERSAL",
+                "OGN·080/298",
+                ["STACK-1-P1-UNIT-SCUTTLE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-REVERSAL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with

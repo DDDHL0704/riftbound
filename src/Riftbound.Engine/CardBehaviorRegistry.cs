@@ -150,7 +150,8 @@ public sealed record CardBehaviorDefinition(
     bool BanishesSourceOnResolution = false,
     bool SchedulesExtraTurnForController = false,
     bool PreventsAllSpellAndSkillDamageThisTurn = false,
-    bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false);
+    bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false,
+    bool GainsControlOfTargetStackSpell = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7643,6 +7644,16 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.StackSpell,
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true),
+        new(
+            "OGN·080/298",
+            "倒转神通",
+            4,
+            "REVERSAL_GAIN_CONTROL_OF_STACK_SPELL",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            CanPlayDuringPriority: true,
+            GainsControlOfTargetStackSpell: true),
         new(
             "OGN·045/298",
             "蔑视",
