@@ -2730,7 +2730,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ? existingTarget
                         : new CardObjectState(targetObjectId);
 
-                    var damageAmount = ResolveDamageAmount(state, stackItem, behavior, targetObjectId);
+                    var damageAmount = ShouldApplyDamageToTarget(behavior, targetIndex)
+                        ? ResolveDamageAmount(state, stackItem, behavior, targetObjectId)
+                        : 0;
                     if (behavior.BanishesIfDestroyedThisTurn)
                     {
                         targetState = targetState with
@@ -2959,7 +2961,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                         continue;
                     }
 
-                    if ((behavior.BanishesTargetThenPlaysToBase || behavior.BanishesTargetThenPlaysToBattlefield)
+                    if (ShouldApplyBanishPlayToTarget(behavior, targetIndex)
+                        && (behavior.BanishesTargetThenPlaysToBase || behavior.BanishesTargetThenPlaysToBattlefield)
                         && TryBanishTargetThenPlayToOwnerField(
                             playerZones,
                             cardObjects,
@@ -3178,7 +3181,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !behavior.PlaysSourceToBaseAsUnit
             && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
-            if (!controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
+            if (behavior.BanishesSourceOnResolution)
+            {
+                if (!controllerZones.Banished.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
+                {
+                    controllerZones = controllerZones with
+                    {
+                        Banished = controllerZones.Banished.Concat([stackItem.SourceObjectId]).ToArray()
+                    };
+                }
+            }
+            else if (!controllerZones.Graveyard.Contains(stackItem.SourceObjectId, StringComparer.Ordinal))
             {
                 controllerZones = controllerZones with
                 {
@@ -4364,6 +4377,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool ShouldApplyStatusEffectsToTarget(CardBehaviorDefinition behavior, int targetIndex)
     {
         return behavior.StatusEffectTargetIndex < 0 || behavior.StatusEffectTargetIndex == targetIndex;
+    }
+
+    private static bool ShouldApplyDamageToTarget(CardBehaviorDefinition behavior, int targetIndex)
+    {
+        return behavior.DamageTargetIndex < 0 || behavior.DamageTargetIndex == targetIndex;
+    }
+
+    private static bool ShouldApplyBanishPlayToTarget(CardBehaviorDefinition behavior, int targetIndex)
+    {
+        return behavior.BanishPlayTargetIndex < 0 || behavior.BanishPlayTargetIndex == targetIndex;
     }
 
     private static bool ShouldApplyPowerModifierToTarget(CardBehaviorDefinition behavior, int targetIndex)

@@ -1105,6 +1105,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysArcaneShiftBanishFriendlyDamageEnemy()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-arcane-shift-banish-friendly-damage-enemy.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-ARCANE-SHIFT-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P1-SPELL-ARCANE-SHIFT"], result.FinalState.PlayerZones["P1"].Banished);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-ARCANE-SHIFT-FRIENDLY-001"].Damage);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-ARCANE-SHIFT-FRIENDLY-001"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-ARCANE-SHIFT-ENEMY-001"].Damage);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsPortalpalRescueAgainstEnemyUnit()
     {
         var state = PunishmentState(mana: 3) with
@@ -1142,6 +1164,101 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-PORTALPAL-RESCUE"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P2-PORTALPAL-ENEMY-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsArcaneShiftAgainstEnemyFirstTarget()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ARCANE-SHIFT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-ARCANE-SHIFT-ENEMY-001", "P2-ARCANE-SHIFT-ENEMY-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-ARCANE-SHIFT-ENEMY-001"] = new(
+                    "P2-ARCANE-SHIFT-ENEMY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-ARCANE-SHIFT-ENEMY-002"] = new(
+                    "P2-ARCANE-SHIFT-ENEMY-002",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-arcane-shift-enemy-first-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-ARCANE-SHIFT",
+                "SFD·200/221",
+                ["P2-ARCANE-SHIFT-ENEMY-001", "P2-ARCANE-SHIFT-ENEMY-002"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-ARCANE-SHIFT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsArcaneShiftAgainstBaseEnemySecondTarget()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-ARCANE-SHIFT"],
+                    Battlefields = ["P1-ARCANE-SHIFT-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-ARCANE-SHIFT-BASE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-ARCANE-SHIFT-FRIENDLY-001"] = new(
+                    "P1-ARCANE-SHIFT-FRIENDLY-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-ARCANE-SHIFT-BASE-001"] = new(
+                    "P2-ARCANE-SHIFT-BASE-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-arcane-shift-base-enemy-second-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-ARCANE-SHIFT",
+                "SFD·200/221",
+                ["P1-ARCANE-SHIFT-FRIENDLY-001", "P2-ARCANE-SHIFT-BASE-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-ARCANE-SHIFT"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
 

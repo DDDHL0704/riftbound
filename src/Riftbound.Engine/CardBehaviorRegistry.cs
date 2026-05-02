@@ -137,7 +137,10 @@ public sealed record CardBehaviorDefinition(
     bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false,
     bool RequiresTargetStackItemTargetsFirstTarget = false,
     bool RequiresTargetStackItemTargetsNoOtherFriendlyUnits = false,
-    bool AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost = false);
+    bool AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost = false,
+    int DamageTargetIndex = -1,
+    int BanishPlayTargetIndex = -1,
+    bool BanishesSourceOnResolution = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7242,6 +7245,19 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard,
             BanishesTargetThenPlaysToBase: true),
+        new(
+            "SFD·200/221",
+            "奥术跃迁",
+            3,
+            "ARCANE_SHIFT_BANISH_FRIENDLY_UNIT_PLAY_TO_BASE_DAMAGE_ENEMY_BATTLEFIELD_BANISH_SOURCE",
+            3,
+            2,
+            TargetScope: CardTargetScopes.FriendlyThenEnemyBattlefieldUnits,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            BanishesTargetThenPlaysToBase: true,
+            DamageTargetIndex: 1,
+            BanishPlayTargetIndex: 0,
+            BanishesSourceOnResolution: true),
         new(
             "OGN·104/298",
             "择日再战",
