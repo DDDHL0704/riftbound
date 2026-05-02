@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-defiance-counter-spell-cost-limit",
+  "description": "Defiance is played during priority and counters a spell whose cost is at most 4 and at most the controller's available power.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302809,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·045/298 蔑视; OGS·003/024 焚烧",
+      "note": "官方卡面：《蔑视》费用 1；反应；无效化一个法术，但其费用不得高于 4，也不得高于 A。《焚烧》用于提供费用 2 的结算链法术目标；当前 fixture 让《蔑视》控制者有 2 点 A 以满足该限制。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "反应牌可在优先权窗口中打出；打出法术需要支付费用和合法目标；法术作为结算链项目在双方让过后结算，被无效化的法术不会继续结算。"
+    }
+  ],
+  "roomId": "p2-preflight-defiance-room",
+  "players": [
+    "P1",
+    "P2"
+  ],
+  "initialState": {
+    "seed": 2603302809,
+    "turnNumber": 809,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": {
+        "mana": 2,
+        "power": 0
+      },
+      "P2": {
+        "mana": 1,
+        "power": 2
+      }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-INCINERATE"
+        ],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
+      },
+      "P2": {
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
+        "hand": [
+          "P2-SPELL-DEFIANCE"
+        ],
+        "base": [],
+        "battlefields": [
+          "P2-UNIT-DEFIANCE-001"
+        ],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-DEFIANCE-001": {
+        "damage": 0,
+        "power": 5,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-defiance-incinerate-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-INCINERATE",
+        "cardNo": "OGS·003/024",
+        "targetObjectIds": [
+          "P2-UNIT-DEFIANCE-001"
+        ]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-defiance-incinerate-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-defiance-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P2-SPELL-DEFIANCE",
+        "cardNo": "OGN·045/298",
+        "targetObjectIds": [
+          "STACK-1-P1-SPELL-INCINERATE"
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-defiance-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-defiance-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 5,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "STACK_ITEM_COUNTERED"
+    ],
+    "events": [
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-SPELL-INCINERATE",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-INCINERATE",
+          "cardNo": "OGS·003/024",
+          "targetObjectIds": [
+            "P2-UNIT-DEFIANCE-001"
+          ],
+          "effectKind": "INCINERATE_DAMAGE_2"
+        }
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P2",
+          "mana": 1,
+          "baseMana": 1
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-3-P2-SPELL-DEFIANCE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-DEFIANCE",
+          "cardNo": "OGN·045/298",
+          "targetObjectIds": [
+            "STACK-1-P1-SPELL-INCINERATE"
+          ],
+          "effectKind": "DEFIANCE_COUNTER_SPELL_COST_4_AND_POWER_LIMIT"
+        }
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "payload": {
+          "stackItemId": "STACK-3-P2-SPELL-DEFIANCE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-DEFIANCE",
+          "effectKind": "DEFIANCE_COUNTER_SPELL_COST_4_AND_POWER_LIMIT"
+        }
+      },
+      {
+        "kind": "STACK_ITEM_COUNTERED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-SPELL-INCINERATE",
+          "counteredByStackItemId": "STACK-3-P2-SPELL-DEFIANCE",
+          "sourceObjectId": "P1-SPELL-INCINERATE",
+          "controllerId": "P1",
+          "counteredByPlayerId": "P2",
+          "destinationZone": "GRAVEYARD"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
+    "finalState": {
+      "turnNumber": 809,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 2
+        }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": [
+            "P1-SPELL-INCINERATE"
+          ]
+        },
+        "P2": {
+          "hand": [],
+          "battlefields": [
+            "P2-UNIT-DEFIANCE-001"
+          ],
+          "graveyard": [
+            "P2-SPELL-DEFIANCE"
+          ]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-UNIT-DEFIANCE-001": {
+          "damage": 0,
+          "power": 5,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
+        }
+      }
+    },
+    "prompts": {
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
+    }
+  }
+}

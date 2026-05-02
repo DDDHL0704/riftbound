@@ -131,7 +131,8 @@ public sealed record CardBehaviorDefinition(
     bool ModifiesAllEnemyUnits = false,
     bool RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
     bool AddsControllerGraveyardCountToSourceUnitPower = false,
-    string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard);
+    string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard,
+    bool RequiresTargetManaCostAtMostControllerPower = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7478,6 +7479,18 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.StackSpell,
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true),
+        new(
+            "OGN·045/298",
+            "蔑视",
+            1,
+            "DEFIANCE_COUNTER_SPELL_COST_4_AND_POWER_LIMIT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            MaxTargetManaCost: 4,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true,
+            RequiresTargetManaCostAtMostControllerPower: true),
         new(
             "UNL-131/219",
             "遗弃",

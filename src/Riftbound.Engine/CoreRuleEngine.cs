@@ -288,7 +288,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsMainDeckTargetTagAllowed(state, targetObjectId, targetIndex, behavior)
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetTagAllowed(state, targetObjectId, behavior)
-                || !IsTargetManaCostAllowed(state, targetObjectId, behavior)
+                || !IsTargetManaCostAllowed(state, intent.PlayerId, targetObjectId, behavior)
                 || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
         {
             rejection = RejectWithCorePrompts(
@@ -989,12 +989,60 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsTargetManaCostAllowed(
         MatchState state,
+        string playerId,
         string objectId,
         CardBehaviorDefinition behavior)
     {
-        return behavior.MaxTargetManaCost <= 0
-            || state.CardObjects.TryGetValue(objectId, out var targetState)
-                && targetState.ManaCost <= behavior.MaxTargetManaCost;
+        if (behavior.MaxTargetManaCost <= 0
+            && !behavior.RequiresTargetManaCostAtMostControllerPower)
+        {
+            return true;
+        }
+
+        if (!TryGetTargetManaCost(state, objectId, behavior, out var targetManaCost))
+        {
+            return false;
+        }
+
+        if (behavior.MaxTargetManaCost > 0
+            && targetManaCost > behavior.MaxTargetManaCost)
+        {
+            return false;
+        }
+
+        return !behavior.RequiresTargetManaCostAtMostControllerPower
+            || state.RunePools.TryGetValue(playerId, out var runePool)
+                && targetManaCost <= runePool.Power;
+    }
+
+    private static bool TryGetTargetManaCost(
+        MatchState state,
+        string objectId,
+        CardBehaviorDefinition behavior,
+        out int targetManaCost)
+    {
+        targetManaCost = 0;
+        if (string.Equals(behavior.TargetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal))
+        {
+            var stackItem = state.StackItems.FirstOrDefault(candidate =>
+                string.Equals(candidate.StackItemId, objectId, StringComparison.Ordinal));
+            if (stackItem is null
+                || !CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var targetBehavior))
+            {
+                return false;
+            }
+
+            targetManaCost = targetBehavior.ManaCost;
+            return true;
+        }
+
+        if (!state.CardObjects.TryGetValue(objectId, out var targetState))
+        {
+            return false;
+        }
+
+        targetManaCost = targetState.ManaCost;
+        return true;
     }
 
     private static bool HasRequiredAnyTargetTag(

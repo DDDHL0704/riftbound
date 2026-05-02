@@ -9355,6 +9355,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysDefianceCounterSpellWithinCostLimits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-defiance-counter-spell-cost-limit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-DEFIANCE-001"].Damage);
+        Assert.Equal(new RunePool(0, 2), result.FinalState.RunePools["P2"]);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-SPELL-DEFIANCE"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with
@@ -9609,6 +9629,159 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
         Assert.Equal(["P2-SPELL-HARD-BARGAIN"], result.State.PlayerZones["P2"].Hand);
         Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDefianceAgainstUnitStackItem()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 2)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-DEFIANCE"]
+                }
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-UNIT-SCUTTLE",
+                    "P1",
+                    "P1-UNIT-SCUTTLE",
+                    "SCUTTLE_CRAB_PLAY_UNIT_DRAW_1",
+                    "UNL-053/219",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-defiance-unit-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-DEFIANCE",
+                "OGN·045/298",
+                ["STACK-1-P1-UNIT-SCUTTLE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 2), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-DEFIANCE"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDefianceWhenStackSpellCostExceedsFour()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 5)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-DEFIANCE"]
+                }
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-COMET",
+                    "P1",
+                    "P1-SPELL-COMET",
+                    "COMET_STRIKE_DAMAGE_6",
+                    "OGN·085/298",
+                    ["P2-UNIT-DEFIANCE-001"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-defiance-expensive-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-DEFIANCE",
+                "OGN·045/298",
+                ["STACK-1-P1-SPELL-COMET"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 5), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-DEFIANCE"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-SPELL-COMET"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDefianceWhenStackSpellCostExceedsPower()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 1)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-DEFIANCE"]
+                }
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-INCINERATE",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-DEFIANCE-001"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-defiance-low-power-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-DEFIANCE",
+                "OGN·045/298",
+                ["STACK-1-P1-SPELL-INCINERATE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 1), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-DEFIANCE"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], result.State.StackItems.Select(item => item.StackItemId));
     }
 
     [Fact]
