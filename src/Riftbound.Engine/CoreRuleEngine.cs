@@ -1623,12 +1623,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        if (normalizedOptionalCosts.Count == 1
-            && string.Equals(normalizedOptionalCosts[0], "ECHO", StringComparison.Ordinal)
-            && behavior.EchoManaCost > 0)
+        if (CardInteractionKeywordRules.TryBuildEchoOptionalCost(
+            normalizedOptionalCosts,
+            behavior,
+            out var echoExtraManaCost,
+            out var echoEffectRepeatCount))
         {
-            extraManaCost = behavior.EchoManaCost;
-            effectRepeatCount = 2;
+            extraManaCost = echoExtraManaCost;
+            effectRepeatCount = echoEffectRepeatCount;
             return true;
         }
 

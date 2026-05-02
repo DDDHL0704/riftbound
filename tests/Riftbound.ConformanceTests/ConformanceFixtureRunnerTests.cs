@@ -16701,6 +16701,53 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Fact]
+    public void P4EchoKeywordProfileBuildsManaOnlyRepeatPlan()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-061/219", out var centerStageDefinition));
+
+        var profile = CardInteractionKeywordRules.BuildEchoProfile(centerStageDefinition);
+        Assert.True(profile.HasEcho);
+        Assert.Equal(2, profile.EchoManaCost);
+        Assert.Equal(EchoKeywordProfileStatuses.Implemented, profile.Status);
+        Assert.True(CardInteractionKeywordRules.TryBuildEchoOptionalCost(
+            [EchoOptionalCostNames.Echo],
+            centerStageDefinition,
+            out var extraManaCost,
+            out var effectRepeatCount));
+        Assert.Equal(2, extraManaCost);
+        Assert.Equal(2, effectRepeatCount);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-007/219", out var punishmentDefinition));
+        var nonEchoProfile = CardInteractionKeywordRules.BuildEchoProfile(punishmentDefinition);
+        Assert.False(nonEchoProfile.HasEcho);
+        Assert.False(CardInteractionKeywordRules.TryBuildEchoOptionalCost(
+            [EchoOptionalCostNames.Echo],
+            punishmentDefinition,
+            out var rejectedExtraManaCost,
+            out var rejectedRepeatCount));
+        Assert.Equal(0, rejectedExtraManaCost);
+        Assert.Equal(1, rejectedRepeatCount);
+    }
+
+    [Theory]
+    [InlineData("p2-preflight-play-center-stage-echo-draw-stack.fixture.json")]
+    [InlineData("p2-preflight-play-the-curtain-rises-echo-ready-unit.fixture.json")]
+    [InlineData("p2-preflight-play-sandcraft-echo-create-two-sand-soldiers-base.fixture.json")]
+    public async Task P4EchoKeywordKeepsExistingP2FixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]

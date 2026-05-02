@@ -290,6 +290,33 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4EchoKeywordProfileMapsOfficialTextToRegistryOptionalCost()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var centerStageSpec = specs.Single(spec => string.Equals(spec.CardNo, "UNL-061/219", StringComparison.Ordinal));
+        Assert.Contains(centerStageSpec.Keywords, keyword =>
+            string.Equals(keyword.Keyword, CardInteractionKeywordNames.Echo, StringComparison.Ordinal));
+        Assert.Contains(CardInteractionKeywordNames.Echo, centerStageSpec.OfficialText, StringComparison.Ordinal);
+        Assert.Contains("echo", centerStageSpec.Cost.OptionalCosts);
+        Assert.Contains(BehaviorTemplateIds.Echo, centerStageSpec.TemplateIds);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-061/219", out var centerStageDefinition));
+        var echoProfile = CardInteractionKeywordRules.BuildEchoProfile(centerStageDefinition);
+        Assert.True(echoProfile.HasEcho);
+        Assert.Equal(2, echoProfile.EchoManaCost);
+        Assert.Equal(EchoKeywordProfileStatuses.Implemented, echoProfile.Status);
+        Assert.Contains("P2 optional cost repeat path", echoProfile.Reason, StringComparison.Ordinal);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-007/219", out var punishmentDefinition));
+        var nonEchoProfile = CardInteractionKeywordRules.BuildEchoProfile(punishmentDefinition);
+        Assert.False(nonEchoProfile.HasEcho);
+        Assert.Equal(EchoKeywordProfileStatuses.NotApplicable, nonEchoProfile.Status);
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
