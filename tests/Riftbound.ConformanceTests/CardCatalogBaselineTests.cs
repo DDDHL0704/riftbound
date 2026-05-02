@@ -479,6 +479,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, crimsonSignetTreantProfile.HasteReadyManaCost);
         Assert.Equal(1, crimsonSignetTreantProfile.HasteReadyPowerCost);
 
+        var kaisaSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·039/298", StringComparison.Ordinal));
+        Assert.Contains(kaisaSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(kaisaSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·039/298", out var kaisaDefinition));
+        var kaisaProfile = CardPermissionKeywordRules.BuildProfile(kaisaDefinition);
+        Assert.True(kaisaProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            kaisaProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, kaisaProfile.HasteReadyManaCost);
+        Assert.Equal(1, kaisaProfile.HasteReadyPowerCost);
+
         var tastyFaerieSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·075/298", StringComparison.Ordinal));
         Assert.Contains(tastyFaerieSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
         Assert.Contains(tastyFaerieSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
