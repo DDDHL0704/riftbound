@@ -442,6 +442,18 @@ public sealed class CardCatalogBaselineTests
             mechManiacProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, mechManiacProfile.HasteReadyManaCost);
         Assert.Equal(1, mechManiacProfile.HasteReadyPowerCost);
+
+        var xersaiFishSpec = specs.Single(spec => string.Equals(spec.CardNo, "SFD·103/221", StringComparison.Ordinal));
+        Assert.Contains(xersaiFishSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(xersaiFishSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·103/221", out var xersaiFishDefinition));
+        var xersaiFishProfile = CardPermissionKeywordRules.BuildProfile(xersaiFishDefinition);
+        Assert.True(xersaiFishProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            xersaiFishProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, xersaiFishProfile.HasteReadyManaCost);
+        Assert.Equal(1, xersaiFishProfile.HasteReadyPowerCost);
     }
 
     [Fact]

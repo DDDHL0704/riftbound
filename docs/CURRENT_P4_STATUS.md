@@ -54,7 +54,8 @@
 - P4.23 提交：`9da6828 feat: add p4 junkyard bully encourage`
 - P4.24 提交：`6b4bd28 feat: add p4 vanguard captain encourage`
 - P4.25 提交：`b381a15 feat: add p4 mr root haste ready`
-- P4.26 提交：本提交 `feat: add p4 mech maniac haste ready`
+- P4.26 提交：`5926729 feat: add p4 mech maniac haste ready`
+- P4.27 提交：本提交 `feat: add p4 xersai fish haste ready`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -131,7 +132,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 |---|---:|---:|---:|---|---|
 | 迅捷 | 82 | 0 | 0 | Medium | P4.2 候选；需把普通回合/法术对决时机从卡牌特例提升为关键词模型。 |
 | 反应 | 136 | 14 | 2 | Medium/High | P4.2 候选；P2 已有 `CanPlayDuringPriority`，但符文/装备/指示物反应需分域。 |
-| 急速 | 34 | 0 | 0 | Medium | P4.2 已识别 profile；P4.13 已给《灼焰飞龙》接入 `HASTE_READY` 代表可选费用，P4.18 已给《小鲨鱼》接入第二条 `HASTE_READY` 代表可选费用，P4.20 已给《军团后卫》接入第三条 `HASTE_READY` 代表可选费用，P4.25 已给《树根先生》接入第四条 `HASTE_READY` 代表可选费用，P4.26 已给《机械迷》接入第五条 `HASTE_READY` 代表可选费用，其他急速额外费用仍 deferred。 |
+| 急速 | 34 | 0 | 0 | Medium | P4.2 已识别 profile；P4.13 已给《灼焰飞龙》接入 `HASTE_READY` 代表可选费用，P4.18 已给《小鲨鱼》接入第二条 `HASTE_READY` 代表可选费用，P4.20 已给《军团后卫》接入第三条 `HASTE_READY` 代表可选费用，P4.25 已给《树根先生》接入第四条 `HASTE_READY` 代表可选费用，P4.26 已给《机械迷》接入第五条 `HASTE_READY` 代表可选费用，P4.27 已给《琢珥鱼》接入第六条 `HASTE_READY` 代表可选费用，其他急速额外费用仍 deferred。 |
 | 强攻 | 37 | 2 | 0 | High | P4.6 已识别 profile 和数值；完整进攻战力修正仍 deferred。 |
 | 坚守 | 24 | 4 | 0 | High | P4.6 已识别 profile 和数值；完整防守战力修正仍 deferred。 |
 | 壁垒 | 26 | 0 | 0 | High | P4.6 已识别 profile；完整承伤顺序和同优先级选择仍 deferred。 |
@@ -166,7 +167,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Recall | `OGN·188/298 祖安保镖`：让战场单位返回所属者手牌。 | P2 已有 `UNIT_RETURNED_TO_HAND` / `EQUIPMENT_RETURNED_TO_HAND`。 | P4.5 明确继续 `delegated-to-p2`；隐藏/控制权边界另拆。 |
 | Echo | `SFD·031/221 点沙成兵` / `UNL-061/219 台前作秀`：回响 2，重复法术效果。 | P2 已有 `ECHO` optional cost 和 repeat count 样例。 | P4.4 已把 mana-only 回响接入显式 profile/helper；复杂费用与授予回响继续 deferred。 |
 | Ephemeral | `UNL-149/219 蒙面侍者` / `OGN·094/298 精灵召唤`：瞬息会在控制者开始阶段开始时摧毁。 | P2 已记录 `瞬息` 标签；P4.3 新增 turn-start 到期摧毁 fixture。 | 已完成最小到期路径；绝念/贴附/战斗触发另拆。 |
-| Swift/Reaction/Haste | `OGN·004/298 顺劈`、`OGN·064/298 风之障壁`、`OGN·001/298 灼焰飞龙`、`UNL-006/219 小鲨鱼`、`OGN·010/298 军团后卫`、`UNL-127/219 树根先生`、`SFD·068/221 机械迷`。 | P2 已有反应优先权窗口和急速不支付额外费用入场路径；P4.13 新增 `p4-play-blazing-drake-haste-ready`，P4.18 新增 `p4-play-baby-shark-haste-ready`，P4.20 新增 `p4-play-legion-rearguard-haste-ready`，P4.25 新增 `p4-play-mr-root-haste-ready`，P4.26 新增 `p4-play-mech-maniac-haste-ready`。 | P4.2 已建立权限关键词 profile/timing model；已接入 `顺劈` 法术对决焦点窗口、《灼焰飞龙》《小鲨鱼》《军团后卫》《树根先生》和《机械迷》`HASTE_READY` 代表路径，其他急速牌的彩色资源/活跃分支仍 deferred。 |
+| Swift/Reaction/Haste | `OGN·004/298 顺劈`、`OGN·064/298 风之障壁`、`OGN·001/298 灼焰飞龙`、`UNL-006/219 小鲨鱼`、`OGN·010/298 军团后卫`、`UNL-127/219 树根先生`、`SFD·068/221 机械迷`、`SFD·103/221 琢珥鱼`。 | P2 已有反应优先权窗口和急速不支付额外费用入场路径；P4.13 新增 `p4-play-blazing-drake-haste-ready`，P4.18 新增 `p4-play-baby-shark-haste-ready`，P4.20 新增 `p4-play-legion-rearguard-haste-ready`，P4.25 新增 `p4-play-mr-root-haste-ready`，P4.26 新增 `p4-play-mech-maniac-haste-ready`，P4.27 新增 `p4-play-xersai-fish-haste-ready`。 | P4.2 已建立权限关键词 profile/timing model；已接入 `顺劈` 法术对决焦点窗口、《灼焰飞龙》《小鲨鱼》《军团后卫》《树根先生》《机械迷》和《琢珥鱼》`HASTE_READY` 代表路径，其他急速牌的彩色资源/活跃分支仍 deferred。 |
 | Combat keywords | `OGS·007/024 盖伦`：强攻2、坚守2；`UNL-036/219 变异猫咪`：坚守2、壁垒；`UNL-090/219 乐芙兰`：后排；`SFD·096/221 劳伦特护刃者`：游走。 | P2 已有大量 keyword-unit fixture 记录标签。 | P4.6 已建立 combat keyword profile；完整战斗/移动执行仍 deferred。 |
 | Resource keywords | `UNL-100/219 贪食魔沼蛙`：狩猎3；`UNL-047/219 踏苔蜥`：狩猎2、等级3；`UNL-075/219 风行狐`：狩猎2、等级3；`UNL-040/219 无极学徒`：狩猎、等级6；`OGN·012/298 诺克萨斯新兵`：鼓舞费用；`OGN·016/298 危险二人组`：鼓舞目标临时战力；`OGN·020/298 垃圾场小霸王`：鼓舞弃 2 抽 2；`OGN·217/298 崔法利求战者`：鼓舞自增益；`OGN·218/298 先锋队长`：鼓舞创建两名随从；`OGN·013/298 呸呸魄罗`：法盾；`SFD·085/221 奥恩`：法盾2。 | P2 已有 keyword-unit fixture 记录标签或 no-optional 分支；P4.12 新增 `p4-play-incinerate-spellshield-tax`；P4.14 新增 `p4-play-noxian-recruit-encourage-cost-reduction`；P4.15 新增 `p4-play-moss-stepper-level3-spellshield`；P4.16 新增 `p4-play-windrunner-fox-level3-roam`；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.21 新增 `p4-play-trifarian-gloryseeker-encourage-self-boon`；P4.22 新增 `p4-play-dangerous-duo-encourage-target-temp-might`；P4.23 新增 `p4-play-junkyard-bully-encourage-discard-draw`；P4.24 新增 `p4-play-vanguard-captain-encourage-create-minions`。 | P4.7 已建立 resource keyword profile；P4.12 已执行法术选择敌方场上法盾对象的 mana 目标税；P4.14 已执行《诺克萨斯新兵》鼓舞费用 -2 代表路径；P4.15 已执行《踏苔蜥》`等级3` 入场 +1 与法盾代表路径；P4.16 已执行《风行狐》`等级3` 入场 +1 与游走代表路径；P4.17 已执行《无极学徒》`等级6` 打出抽 1 代表路径；P4.21 已执行《崔法利求战者》鼓舞自增益代表路径；P4.22 已执行《危险二人组》鼓舞目标临时战力代表路径；P4.23 已执行《垃圾场小霸王》鼓舞弃 2 抽 2 代表路径；P4.24 已执行《先锋队长》鼓舞创建两名 1 战力随从代表路径；狩猎征服/据守经验、其他等级条件、其他鼓舞效果、技能目标税和授予/静态法盾仍 deferred。 |
 | Equipment keywords | `SFD·033/221 多兰之盾`：装配绿色；`SFD·022/221 长剑`：灵便、装配红色；`SFD·008/221 哨兵好手`：百炼；`SFD·085/221 奥恩`：法盾2、百炼。 | P2 已有装备打出和 no-optional 百炼 fixture，记录装备/武装/灵便/百炼标签。 | P4.8 已建立 equipment keyword profile；贴附、卸除、费用、owner/controller 和自动贴附执行仍 deferred。 |
@@ -181,7 +182,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 - 新增 `CardPermissionKeywordRules`，把出牌时机判定抽成可单测的 `CardPlayTimingDecision`，并提供 `CardPermissionKeywordProfile` 显式识别 `迅捷` / `反应` / `急速`。
 - `反应`：沿用 P2 已验证 `CardBehaviorDefinition.CanPlayDuringPriority` 优先权窗口路径，新增 profile 断言并用 `p2-preflight-play-wind-wall-counter-spell.fixture.json` 保持 conformance 绿色；符文/装备激活反应技能仍不在 P4.2 范围。
 - `迅捷`：新增 `CanPlayDuringSpellDuel` registry 开关，只给已验证代表 `OGN·004/298 顺劈` 打开；焦点玩家在 `SPELL_DUEL_OPEN` 且无 stack item 时可打出，之后进入现有 P2 结算链路径。新增 fixture `p4-play-swift-cleave-in-spell-duel-focus.fixture.json`。
-- `急速`：从 source unit tags 识别 `急速`，并保留现有不支付额外费用的单位入场路径；P4.13 已将《灼焰飞龙》`HASTE_READY` 代表路径接入现有 `mana + power` 费用模型，P4.18 已将《小鲨鱼》接入同一代表路径，P4.20 已将《军团后卫》接入同一代表路径，P4.25 已将《树根先生》接入同一代表路径，P4.26 已将《机械迷》接入同一代表路径，其他急速牌仍以 `recognized-deferred` 标记。
+- `急速`：从 source unit tags 识别 `急速`，并保留现有不支付额外费用的单位入场路径；P4.13 已将《灼焰飞龙》`HASTE_READY` 代表路径接入现有 `mana + power` 费用模型，P4.18 已将《小鲨鱼》接入同一代表路径，P4.20 已将《军团后卫》接入同一代表路径，P4.25 已将《树根先生》接入同一代表路径，P4.26 已将《机械迷》接入同一代表路径，P4.27 已将《琢珥鱼》接入同一代表路径，其他急速牌仍以 `recognized-deferred` 标记。
 - 本批次没有批量启用全部 `迅捷` 牌，没有改动战斗关键词、待命/伏击、装备激活技能或急速额外费用结算。
 
 ## P4.3 Lifecycle Keyword Batch
@@ -257,7 +258,7 @@ Prompt-to-artifact checklist：
 
 | Requirement | Evidence | Status |
 |---|---|---|
-| 权限关键词：迅捷、反应、急速 | `CardPermissionKeywordRules`、`P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags`、`P4SwiftKeywordAllowsCleaveInSpellDuelFocusWindow`、`P4HasteOptionalReadyBranchPaysManaAndPowerForRepresentative`、`P4HasteOptionalReadyBranchPaysManaAndPowerForBabyShark`、`P4HasteOptionalReadyBranchPaysManaAndPowerForLegionRearguard`、`P4HasteOptionalReadyBranchPaysManaAndPowerForMrRoot`、`P4HasteOptionalReadyBranchPaysManaAndPowerForMechManiac`、`P4PermissionKeywordsKeepExistingP2FixturesGreen` | Partial：迅捷代表路径可玩，反应 P2 path 可玩，《灼焰飞龙》《小鲨鱼》《军团后卫》《树根先生》和《机械迷》`HASTE_READY` 代表路径可玩；其他急速额外费用仍 deferred。 |
+| 权限关键词：迅捷、反应、急速 | `CardPermissionKeywordRules`、`P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags`、`P4SwiftKeywordAllowsCleaveInSpellDuelFocusWindow`、`P4HasteOptionalReadyBranchPaysManaAndPowerForRepresentative`、`P4HasteOptionalReadyBranchPaysManaAndPowerForBabyShark`、`P4HasteOptionalReadyBranchPaysManaAndPowerForLegionRearguard`、`P4HasteOptionalReadyBranchPaysManaAndPowerForMrRoot`、`P4HasteOptionalReadyBranchPaysManaAndPowerForMechManiac`、`P4HasteOptionalReadyBranchPaysManaAndPowerForXersaiFish`、`P4PermissionKeywordsKeepExistingP2FixturesGreen` | Partial：迅捷代表路径可玩，反应 P2 path 可玩，《灼焰飞龙》《小鲨鱼》《军团后卫》《树根先生》《机械迷》和《琢珥鱼》`HASTE_READY` 代表路径可玩；其他急速额外费用仍 deferred。 |
 | 战斗关键词：强攻、坚守、壁垒、后排、游走 | `CardCombatKeywordRules`、`P4CombatKeywordProfilesMapOfficialTextToRegistryTags`、6 条 keyword-unit fixture | Profile only：完整战斗伤害/承伤/游走移动 deferred。 |
 | 生命周期关键词：瞬息、绝念、预知 | `CardLifecycleKeywordRules`、`P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags`、3 条 representative fixture | Partial：瞬息到期可玩，预知顶牌回收代表路径 delegated to P2，绝念 trigger queue deferred。 |
 | 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、`P4SpellshieldTaxAddsManaForEnemySpellTarget`、`P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn`、`P4EncourageSelfBoonGrantsBoonAfterAnotherCardThisTurn`、`P4EncourageTargetTempMightRequiresPriorCardAndTarget`、`P4EncourageDiscardDrawRequiresPriorCardAndTwoHandTargets`、`P4EncourageMinionCreationRequiresPriorCard`、`P4LevelThresholdAppliesMossStepperPowerAndSpellshieldAtThreeExperience`、`P4LevelThresholdAppliesWindrunnerFoxPowerAndRoamAtThreeExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、`p4-play-incinerate-spellshield-tax`、`p4-play-noxian-recruit-encourage-cost-reduction`、`p4-play-trifarian-gloryseeker-encourage-self-boon`、`p4-play-dangerous-duo-encourage-target-temp-might`、`p4-play-junkyard-bully-encourage-discard-draw`、`p4-play-vanguard-captain-encourage-create-minions`、`p4-play-moss-stepper-level3-spellshield`、`p4-play-windrunner-fox-level3-roam`、`p4-play-wuji-apprentice-level6-draw`、代表 fixture | Partial：法术选择敌方场上法盾对象的 mana 目标税可玩；《诺克萨斯新兵》鼓舞费用 -2 代表路径可玩；《崔法利求战者》鼓舞自增益代表路径可玩；《危险二人组》鼓舞目标临时战力代表路径可玩；《垃圾场小霸王》鼓舞弃 2 抽 2 代表路径可玩；《先锋队长》鼓舞创建两名 1 战力随从代表路径可玩；《踏苔蜥》`等级3` 入场 +1/法盾代表路径可玩；《风行狐》`等级3` 入场 +1/游走代表路径可玩；《无极学徒》`等级6` 打出抽 1 代表路径可玩；狩猎征服/据守经验、其他等级条件、其他鼓舞效果、技能目标税和授予/静态法盾 deferred。 |
@@ -266,7 +267,7 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests | Covered for registered templates and representative P2 bridges. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.26 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.27 once committed. |
 
 P4.9 新增内容：
 
@@ -456,6 +457,15 @@ P4.9 新增内容：
 - `p2-preflight-play-mech-maniac-no-optional-haste.fixture.json` 继续覆盖未支付急速额外费用时只作为 3 战力 `急速` 单位入场；`P4HasteOptionalReadyBranchPaysManaAndPowerForMechManiac` 和 profile baseline 锁定官方文本 -> registry -> engine fixture 的证据链。
 - 本批次没有实现蓝色资源精确匹配、武装贴附、贴附武装双倍基础战力加成、装备持续修正、从手牌以外打出获得急速或 P5/P6 触发队列。
 
+## P4.27 Haste Ready Sixth Representative Slice
+
+本阶段继续按 completion audit 推进：P4 仍不能标记 goal complete，缺口仍包括技能目标税、待命/伏击、完整战斗、装备贴附、战斗/移动触发经验、其他急速牌彩色资源/活跃分支等。选择《琢珥鱼》作为第六个低风险急速代表，只接入可选费用，不进入强力单位计数减费或完整战斗：
+
+- `SFD·103/221 琢珥鱼` registry 接入 `HasteReadyManaCost: 1` / `HasteReadyPowerCost: 1`，对应官方“额外支付 1 和橙色，让我以活跃状态进场”文本在现有 mana + power 资源模型下的代表路径。
+- 新增 fixture `p4-play-xersai-fish-haste-ready.fixture.json`：P1 以基础 7 mana + 额外 1 mana + 1 power 打出《琢珥鱼》，双方让过后单位进入基地，事件 payload 标记 `hasteReadyOptionalCostPaid: true` 且 `isExhausted: false`。
+- `p2-preflight-play-xersai-fish-no-optional-haste.fixture.json` 继续覆盖未支付急速额外费用时只作为 6 战力 `急速` 单位入场；`P4HasteOptionalReadyBranchPaysManaAndPowerForXersaiFish` 和 profile baseline 锁定官方文本 -> registry -> engine fixture 的证据链。
+- 本批次没有实现橙色资源精确匹配、按强力单位减少费用、强力单位定义的费用动态计数、从手牌以外打出获得急速或 P5/P6 触发队列。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -466,7 +476,7 @@ P4.9 新增内容：
 
 中风险，需要小模型后再接入可玩路径：
 
-- 迅捷、反应；急速的《灼焰飞龙》`HASTE_READY` 代表路径已由 P4.13 接入，《小鲨鱼》`HASTE_READY` 第二代表路径已由 P4.18 接入，《军团后卫》`HASTE_READY` 第三代表路径已由 P4.20 接入，《树根先生》`HASTE_READY` 第四代表路径已由 P4.25 接入，《机械迷》`HASTE_READY` 第五代表路径已由 P4.26 接入，其他急速牌的彩色资源/活跃进场仍需后续小批次
+- 迅捷、反应；急速的《灼焰飞龙》`HASTE_READY` 代表路径已由 P4.13 接入，《小鲨鱼》`HASTE_READY` 第二代表路径已由 P4.18 接入，《军团后卫》`HASTE_READY` 第三代表路径已由 P4.20 接入，《树根先生》`HASTE_READY` 第四代表路径已由 P4.25 接入，《机械迷》`HASTE_READY` 第五代表路径已由 P4.26 接入，《琢珥鱼》`HASTE_READY` 第六代表路径已由 P4.27 接入，其他急速牌的彩色资源/活跃进场仍需后续小批次
 - 瞬息到期、预知最小回收分支
 - 回响复杂额外费用、授予回响和模式重复分支
 - 法盾目标税的最小支付校验已由 P4.12 覆盖法术选择敌方场上对象；技能、授予/静态法盾和完整 FAQ 细节仍需后续小批次
@@ -511,9 +521,10 @@ P4.9 新增内容：
 | P4.24 completion audit + 鼓舞随从创建执行切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增条件 token 创建、《先锋队长》鼓舞创建两名 1 战力随从 fixture 和 profile/fixture 测试。 |
 | P4.25 completion audit + 急速活跃第四代表切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《树根先生》`HASTE_READY` fixture 和 profile/fixture 测试，移动触发经验继续 deferred。 |
 | P4.26 completion audit + 急速活跃第五代表切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《机械迷》`HASTE_READY` fixture 和 profile/fixture 测试，武装贴附/双倍基础战力继续 deferred。 |
-| P4.27 goal completion decision | Pending | 0% | 基于 P4.26 audit 继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。 |
+| P4.27 completion audit + 急速活跃第六代表切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《琢珥鱼》`HASTE_READY` fixture 和 profile/fixture 测试，强力单位减费继续 deferred。 |
+| P4.28 goal completion decision | Pending | 0% | 基于 P4.27 audit 继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。 |
 
-P4 当前整体进度：按当前 part 计 `27/28 = 96.4%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行，P4.12 已新增法术目标 `法盾` mana 税执行，P4.13 已新增《灼焰飞龙》`HASTE_READY` 急速活跃代表费用执行，P4.14 已新增《诺克萨斯新兵》鼓舞费用减免代表执行，P4.15 已新增《踏苔蜥》`等级3` 入场 +1/法盾代表执行，P4.16 已新增《风行狐》`等级3` 入场 +1/游走代表执行，P4.17 已新增《无极学徒》`等级6` 打出抽 1 代表执行，P4.18 已新增《小鲨鱼》`HASTE_READY` 急速活跃第二代表执行，P4.19 已新增《严厉军士》按友方场上单位数量获得经验执行，P4.20 已新增《军团后卫》`HASTE_READY` 急速活跃第三代表执行，P4.21 已新增《崔法利求战者》鼓舞自增益代表执行，P4.22 已新增《危险二人组》鼓舞目标临时战力代表执行，P4.23 已新增《垃圾场小霸王》鼓舞弃 2 抽 2 代表执行，P4.24 已新增《先锋队长》鼓舞创建两名 1 战力随从代表执行，P4.25 已新增《树根先生》`HASTE_READY` 急速活跃第四代表执行，P4.26 已新增《机械迷》`HASTE_READY` 急速活跃第五代表执行。
+P4 当前整体进度：按当前 part 计 `28/29 = 96.6%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行，P4.12 已新增法术目标 `法盾` mana 税执行，P4.13 已新增《灼焰飞龙》`HASTE_READY` 急速活跃代表费用执行，P4.14 已新增《诺克萨斯新兵》鼓舞费用减免代表执行，P4.15 已新增《踏苔蜥》`等级3` 入场 +1/法盾代表执行，P4.16 已新增《风行狐》`等级3` 入场 +1/游走代表执行，P4.17 已新增《无极学徒》`等级6` 打出抽 1 代表执行，P4.18 已新增《小鲨鱼》`HASTE_READY` 急速活跃第二代表执行，P4.19 已新增《严厉军士》按友方场上单位数量获得经验执行，P4.20 已新增《军团后卫》`HASTE_READY` 急速活跃第三代表执行，P4.21 已新增《崔法利求战者》鼓舞自增益代表执行，P4.22 已新增《危险二人组》鼓舞目标临时战力代表执行，P4.23 已新增《垃圾场小霸王》鼓舞弃 2 抽 2 代表执行，P4.24 已新增《先锋队长》鼓舞创建两名 1 战力随从代表执行，P4.25 已新增《树根先生》`HASTE_READY` 急速活跃第四代表执行，P4.26 已新增《机械迷》`HASTE_READY` 急速活跃第五代表执行，P4.27 已新增《琢珥鱼》`HASTE_READY` 急速活跃第六代表执行。
 
 ## Validation Gate
 
@@ -528,15 +539,15 @@ P4 当前整体进度：按当前 part 计 `27/28 = 96.4%`；P4.1 已验证 `5` 
 
 ## Latest Validation
 
-P4.26 已完成验证：
+P4.27 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1728/1728
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1659/1659
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1730/1730
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1661/1661
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，19/19
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForMechManiac|FullyQualifiedName~P4PermissionKeywordsKeepExistingP2FixturesGreen|FullyQualifiedName~P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags"`：pass，9/9
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4HasteOptionalReadyBranchPaysManaAndPowerForXersaiFish|FullyQualifiedName~P4PermissionKeywordsKeepExistingP2FixturesGreen|FullyQualifiedName~P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags"`：pass，10/10
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.27：基于 P4.26 audit 继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、装备贴附、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环、其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.28：基于 P4.27 audit 继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、装备贴附、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环、其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。

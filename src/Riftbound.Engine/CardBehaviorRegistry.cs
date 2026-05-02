@@ -2517,7 +2517,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "急速"),
+            SourceUnitTags: "急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·179/221",
             "卡银娜·薇蕊泽",

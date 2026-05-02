@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-xersai-fish-no-optional-haste",
-  "description": "Xer'sai Fish enters as a Haste unit object without paying its Haste optional orange additional cost.",
+  "fixtureId": "p4-play-xersai-fish-haste-ready",
+  "description": "Xer'sai Fish pays the P4.27 HASTE_READY optional cost and records the active-entry branch on resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302387,
+  "seed": 2603304127,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·103/221 琢珥鱼",
-      "note": "官方卡面：费用 7；单位；战力 6；急速，可选择额外支付 1 和橙色让我以活跃状态进场；你每控制一名强力单位，我的费用便减少 2。当前 fixture 覆盖普通主阶段从手牌打出且不支付急速可选额外费用时的源单位入场和关键词标签记录；P4.27 fixture 覆盖 HASTE_READY 代表路径，按强力单位减少费用路径暂缓。"
+      "note": "官方卡面：费用 7；单位；战力 6；急速，可选择额外支付 1 和橙色让我以活跃状态进场；你每控制一名强力单位，我的费用便减少 2。本 P4.27 fixture 覆盖代表路径：在现有 mana/power 资源模型中用 HASTE_READY 支付额外 1 mana + 1 power，并在单位入场事件中记录已支付急速活跃分支；按强力单位减少费用路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；按控制者强力单位数量调整费用留待后续模型覆盖。"
+      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；本批次不进入强力单位计数减费或完整战斗系统。"
     }
   ],
-  "roomId": "p2-preflight-xersai-fish-room",
+  "roomId": "p4-xersai-fish-haste-ready-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302387,
-    "turnNumber": 386,
+    "seed": 2603304127,
+    "turnNumber": 4127,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 7, "power": 0 },
+      "P1": { "mana": 8, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-xersai-fish-play",
+      "clientIntentId": "intent-p4-xersai-fish-haste-ready-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-XERSAI-FISH",
         "cardNo": "SFD·103/221",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["HASTE_READY"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-xersai-fish-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-xersai-fish-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-xersai-fish-haste-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-xersai-fish-haste-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -87,7 +88,16 @@
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 7, "baseMana": 7 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 8,
+          "power": 1,
+          "baseMana": 7,
+          "optionalCosts": ["HASTE_READY"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -110,13 +120,15 @@
           "unitName": "琢珥鱼",
           "destinationZone": "BASE",
           "power": 6,
-          "tags": ["CARD_TYPE:UNIT", "急速"]
+          "tags": ["CARD_TYPE:UNIT", "急速"],
+          "isExhausted": false,
+          "hasteReadyOptionalCostPaid": true
         }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 386,
+      "turnNumber": 4127,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
