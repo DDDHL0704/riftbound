@@ -48,6 +48,11 @@ public static class GameCommandJsonMapper
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "targetObjectId"),
                 TextArray(cmd, "optionalCosts")),
+            "DECLARE_BATTLE" => new DeclareBattleCommand(
+                Text(cmd, "battlefieldId"),
+                TextArray(cmd, "attackerObjectIds"),
+                TextArray(cmd, "defenderObjectIds"),
+                TextArray(cmd, "optionalCosts")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

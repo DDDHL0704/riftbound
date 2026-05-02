@@ -116,6 +116,12 @@ public sealed record AssembleEquipmentCommand(
     string TargetObjectId = "",
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ASSEMBLE_EQUIPMENT");
 
+public sealed record DeclareBattleCommand(
+    string BattlefieldId = "",
+    IReadOnlyList<string>? AttackerObjectIds = null,
+    IReadOnlyList<string>? DefenderObjectIds = null,
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("DECLARE_BATTLE");
+
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
 

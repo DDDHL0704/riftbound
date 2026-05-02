@@ -354,6 +354,25 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesDeclareBattlePayload()
+    {
+        var command = Assert.IsType<DeclareBattleCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GAREN"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement));
+
+        Assert.Equal("BATTLEFIELD:P1-MAIN", command.BattlefieldId);
+        Assert.Equal(new[] { "P1-BATTLEFIELD-GAREN" }, command.AttackerObjectIds);
+        Assert.Equal(new[] { "P2-BATTLEFIELD-MUTANT-KITTEN" }, command.DefenderObjectIds);
+        Assert.Equal(new[] { "COMBAT_ASSIGNMENT" }, command.OptionalCosts);
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(
