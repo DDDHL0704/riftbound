@@ -648,6 +648,60 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysTibbersDamageAllBattlefieldUnits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-tibbers-damage-all-battlefield-units.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-TIBBERS"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(7, result.FinalState.CardObjects["P1-UNIT-TIBBERS"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-TIBBERS-FRIENDLY-UNIT"].Damage);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-TIBBERS-ENEMY-UNIT"].Damage);
+        Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsTibbersWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            8,
+            "P1-UNIT-TIBBERS",
+            "OGS·018/024",
+            "P1-TIBBERS-BASE-UNIT-001");
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysDaisyNoTraitDiscountActiveUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-daisy-no-trait-discount-active-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-DAISY"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(8, result.FinalState.CardObjects["P1-UNIT-DAISY"].Power);
+        Assert.False(result.FinalState.CardObjects["P1-UNIT-DAISY"].IsExhausted);
+    }
+
+    [Fact]
+    public Task CoreRuleEngineRejectsDaisyWhenTargetsAreProvided() =>
+        AssertSourceUnitWithTargetRejectedAsync(
+            9,
+            "P1-UNIT-DAISY",
+            "UNL-196/219",
+            "P1-DAISY-BASE-UNIT-001");
+
+    [Fact]
     public async Task CoreRuleEngineDestroysUnitsAfterLethalBladeWhirlwindDamage()
     {
         var fixture = await ConformanceFixture.LoadAsync(

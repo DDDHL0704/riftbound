@@ -3664,6 +3664,16 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4),
         new(
+            "OGS·018/024",
+            "提伯斯",
+            8,
+            "TIBBERS_PLAY_UNIT_DAMAGE_ALL_BATTLEFIELD_UNITS_3",
+            3,
+            0,
+            DamagesAllBattlefieldUnits: true,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 7),
+        new(
             "OGS·004/024",
             "易",
             5,
@@ -6717,6 +6727,15 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
             SourceUnitTags: "魄罗"),
+        new(
+            "UNL-196/219",
+            "小菊！",
+            9,
+            "DAISY_ACTIVE_UNIT_NO_TRAIT_DISCOUNT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 8),
         new(
             "UNL-238/219",
             "纳什男爵",
