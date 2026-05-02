@@ -3792,9 +3792,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
             ? sourceState
             : new CardObjectState(stackItem.SourceObjectId);
-        var unitPower = behavior.SourceUnitPower > 0
+        var baseUnitPower = behavior.SourceUnitPower > 0
             ? behavior.SourceUnitPower
             : existingState.Power;
+        var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
+            ? baseUnitPower + zones.Graveyard.Count
+            : baseUnitPower;
         var unitState = existingState with
         {
             Power = unitPower,

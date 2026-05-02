@@ -129,7 +129,8 @@ public sealed record CardBehaviorDefinition(
     bool AppliesPowerModifierToSourceUnit = false,
     bool GrantsBoonToSourceUnit = false,
     bool ModifiesAllEnemyUnits = false,
-    bool RequiresDestroyFriendlyTraitUnitAdditionalCost = false);
+    bool RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
+    bool AddsControllerGraveyardCountToSourceUnitPower = false);
 
 public static class CardDamageConditionKinds
 {
@@ -4161,6 +4162,16 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
             SourceUnitTags: "约德尔人"),
+        new(
+            "OGN·109/298",
+            "蒙多医生",
+            8,
+            "OGN_MUNDO_GRAVEYARD_POWER_PLAY_UNIT",
+            0,
+            0,
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 6,
+            AddsControllerGraveyardCountToSourceUnitPower: true),
         new(
             "OGN·111/298",
             "黑默丁格",
