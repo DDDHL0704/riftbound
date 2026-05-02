@@ -7,6 +7,28 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var devUiOrigins = builder.Configuration
+    .GetSection("Riftbound:DevUiOrigins")
+    .Get<string[]>()
+    ?? [
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://127.0.0.1:5174",
+        "http://localhost:5174"
+    ];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevUi", policy =>
+    {
+        policy
+            .WithOrigins(devUiOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddSignalR().AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -17,6 +39,8 @@ builder.Services.AddSingleton<IRuleEngine, CoreRuleEngine>();
 builder.Services.AddSingleton<IMatchSessionRegistry, InMemoryMatchSessionRegistry>();
 
 var app = builder.Build();
+
+app.UseCors("DevUi");
 
 app.MapGet("/health", () => Results.Ok(new
 {

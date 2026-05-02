@@ -60,8 +60,7 @@ create table if not exists game_events (
     rules_evidence jsonb not null default '[]'::jsonb,
     payload jsonb not null,
     created_at timestamptz not null default now(),
-    unique (match_id, event_sequence),
-    unique (match_id, event_tick, event_order)
+    unique (match_id, event_sequence)
 );
 
 create table if not exists snapshots (

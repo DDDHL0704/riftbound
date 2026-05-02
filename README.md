@@ -44,6 +44,24 @@ curl http://127.0.0.1:5088/health
 curl http://127.0.0.1:5088/catalog/summary
 ```
 
+P2.5 开发期测试 UI：
+
+```bash
+source scripts/dev-env.sh
+ASPNETCORE_URLS=http://127.0.0.1:5088 dotnet run --project src/Riftbound.Api/Riftbound.Api.csproj
+```
+
+另开一个终端：
+
+```bash
+source scripts/dev-env.sh
+cd src/Riftbound.DevUi
+npm install
+npm run dev
+```
+
+访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`，点击 `Join Both`、`Ready Both`、`Snapshot Both`，再从当前 `ActionPrompt` 按钮或手写 JSON `SubmitIntent` 面板提交最小命令。P2.5 UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
+
 ## 项目结构
 
 | 路径 | 职责 |
@@ -53,6 +71,7 @@ curl http://127.0.0.1:5088/catalog/summary
 | `src/Riftbound.Persistence` | PostgreSQL P1 event store schema 与 `IMatchJournal` 实现。 |
 | `src/Riftbound.CardCatalog` | 官网卡牌快照加载、功能逻辑单元分组。 |
 | `src/Riftbound.Api` | ASP.NET Core + SignalR `GameHub`。 |
+| `src/Riftbound.DevUi` | P2.5 React + Vite 开发期 GameHub 测试 UI。 |
 | `tests/Riftbound.ConformanceTests` | PDF/FAQ 规则依据、Java legacy oracle fixture 与 C# 回放结果对比。 |
 | `data/official` | 官网卡牌快照，当前 1009 条官方图鉴条目。 |
 | `scripts/dev-env.sh` | 本机开发 shell 环境入口。 |
@@ -61,6 +80,7 @@ curl http://127.0.0.1:5088/catalog/summary
 核心计划文档：
 
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
+- `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。
 - `docs/START_HERE.md`：项目边界、资料优先级、开发顺序和验收门禁。
 - `docs/rules-authority-and-audit.md`：五份 PDF 的规则权威、冲突裁决和已开发部分重审协议。
 - `docs/development-audit-status.md`：当前已开发内容的保留、修改和重审状态。
