@@ -11517,6 +11517,83 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysFaceOffAndMovesWeakerEnemyBattlefieldUnitsToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-face-off-move-weaker-enemy-units.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-FACE-OFF-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(
+            ["P2-BASE-UNIT-001", "P2-FACE-OFF-ENEMY-001", "P2-FACE-OFF-ENEMY-002"],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-FACE-OFF-ENEMY-003"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(
+            2,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsFaceOffWhenEnemyTargetIsNotWeakerThanFirstTarget()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-FACE-OFF"],
+                    Battlefields = ["P1-FACE-OFF-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-FACE-OFF-ENEMY-001", "P2-FACE-OFF-ENEMY-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACE-OFF-FRIENDLY-001"] = new(
+                    "P1-FACE-OFF-FRIENDLY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-FACE-OFF-ENEMY-001"] = new(
+                    "P2-FACE-OFF-ENEMY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-FACE-OFF-ENEMY-002"] = new(
+                    "P2-FACE-OFF-ENEMY-002",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-face-off-reject-equal-power", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-FACE-OFF",
+                "UNL-107/219",
+                ["P1-FACE-OFF-FRIENDLY-001", "P2-FACE-OFF-ENEMY-001", "P2-FACE-OFF-ENEMY-002"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-FACE-OFF"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-FACE-OFF-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-FACE-OFF-ENEMY-001", "P2-FACE-OFF-ENEMY-002"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysRideTheWindAndMovesFriendlyBattlefieldUnitToBaseReady()
     {
         var fixture = await ConformanceFixture.LoadAsync(

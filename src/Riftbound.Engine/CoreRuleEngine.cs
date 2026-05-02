@@ -282,6 +282,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
+            || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
@@ -1279,6 +1280,34 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             totalPower += targetState.Power;
             if (totalPower > behavior.MaxTotalTargetPower)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool AreTargetsAfterFirstPowerLessThanFirstTarget(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.RequiresTargetsAfterFirstPowerLessThanFirstTarget)
+        {
+            return true;
+        }
+
+        if (targetObjectIds.Count < 2
+            || !state.CardObjects.TryGetValue(targetObjectIds[0], out var firstTargetState))
+        {
+            return false;
+        }
+
+        for (var targetIndex = 1; targetIndex < targetObjectIds.Count; targetIndex++)
+        {
+            if (!state.CardObjects.TryGetValue(targetObjectIds[targetIndex], out var targetState)
+                || targetState.Power >= firstTargetState.Power)
             {
                 return false;
             }
@@ -3148,6 +3177,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBase
+                        && targetIndex >= behavior.MoveToBaseTargetStartIndex
                         && TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var movedOwnerPlayerId))
                     {
                         events.Add(new GameEvent(
