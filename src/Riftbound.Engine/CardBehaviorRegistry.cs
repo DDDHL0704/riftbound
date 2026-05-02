@@ -151,7 +151,8 @@ public sealed record CardBehaviorDefinition(
     bool SchedulesExtraTurnForController = false,
     bool PreventsAllSpellAndSkillDamageThisTurn = false,
     bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false,
-    bool GainsControlOfTargetStackSpell = false);
+    bool GainsControlOfTargetStackSpell = false,
+    bool RecyclesUnkeptSacredJudgmentCards = false);
 
 public static class CardDamageConditionKinds
 {
@@ -191,6 +192,7 @@ public static class CardTargetScopes
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string StackSpell = "STACK_SPELL";
+    public const string SacredJudgmentKeepCard = "SACRED_JUDGMENT_KEEP_CARD";
 }
 
 public static class CardCounteredStackItemDestinationZones
@@ -203,6 +205,7 @@ public static class CardObjectTags
 {
     public const string UnitCard = "CARD_TYPE:UNIT";
     public const string EquipmentCard = "CARD_TYPE:EQUIPMENT";
+    public const string RuneCard = "CARD_TYPE:RUNE";
     public const string SpellCard = "CARD_TYPE:SPELL";
     public const string Spellshield = "法盾";
     public const string Standby = "待命";
@@ -7654,6 +7657,15 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.StackSpell,
             CanPlayDuringPriority: true,
             GainsControlOfTargetStackSpell: true),
+        new(
+            "OGN·244/298",
+            "圣裁之刻",
+            7,
+            "JUDGMENT_DAY_RECYCLE_UNKEPT_CARDS",
+            0,
+            16,
+            TargetScope: CardTargetScopes.SacredJudgmentKeepCard,
+            RecyclesUnkeptSacredJudgmentCards: true),
         new(
             "OGN·045/298",
             "蔑视",

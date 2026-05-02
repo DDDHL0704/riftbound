@@ -10206,6 +10206,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysJudgmentDayRecycleUnkept()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-judgment-day-recycle-unkept.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-HAND-KEEP-001", "P1-HAND-KEEP-002"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-HAND-KEEP-001", "P2-HAND-KEEP-002"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P1-SPELL-JUDGMENT"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-UNIT-RECYCLE-001", result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P2-HAND-RECYCLE-001", result.FinalState.PlayerZones["P2"].MainDeck);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsJudgmentDayInvalidKeepSelection()
+    {
+        var invalidTargets = JudgmentDayKeepTargets().ToArray();
+        invalidTargets[3] = "P1-UNIT-RECYCLE-001";
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            JudgmentDayState(),
+            new PlayerIntent("intent-judgment-day-invalid-keep-selection", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-JUDGMENT",
+                "OGN·244/298",
+                invalidTargets),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(7, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-SPELL-JUDGMENT", "P1-HAND-KEEP-001", "P1-HAND-KEEP-002", "P1-HAND-RECYCLE-001"],
+            result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with
@@ -16397,6 +16442,95 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             });
+    }
+
+    private static MatchState JudgmentDayState()
+    {
+        return PunishmentState(7) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-JUDGMENT", "P1-HAND-KEEP-001", "P1-HAND-KEEP-002", "P1-HAND-RECYCLE-001"],
+                    Base =
+                    [
+                        "P1-UNIT-KEEP-001",
+                        "P1-UNIT-RECYCLE-001",
+                        "P1-EQUIPMENT-KEEP-001",
+                        "P1-EQUIPMENT-RECYCLE-001",
+                        "P1-RUNE-KEEP-001",
+                        "P1-RUNE-KEEP-002",
+                        "P1-RUNE-RECYCLE-001"
+                    ],
+                    Battlefields = ["P1-UNIT-KEEP-002", "P1-EQUIPMENT-KEEP-002"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-HAND-KEEP-001", "P2-HAND-KEEP-002", "P2-HAND-RECYCLE-001"],
+                    Base =
+                    [
+                        "P2-UNIT-KEEP-001",
+                        "P2-UNIT-RECYCLE-001",
+                        "P2-EQUIPMENT-KEEP-001",
+                        "P2-EQUIPMENT-RECYCLE-001",
+                        "P2-RUNE-KEEP-001",
+                        "P2-RUNE-KEEP-002",
+                        "P2-RUNE-RECYCLE-001"
+                    ],
+                    Battlefields = ["P2-UNIT-KEEP-002", "P2-EQUIPMENT-KEEP-002"]
+                }
+            },
+            CardObjects = JudgmentDayCardObjects()
+        };
+    }
+
+    private static string[] JudgmentDayKeepTargets()
+    {
+        return
+        [
+            "P1-UNIT-KEEP-001",
+            "P1-UNIT-KEEP-002",
+            "P1-EQUIPMENT-KEEP-001",
+            "P1-EQUIPMENT-KEEP-002",
+            "P1-RUNE-KEEP-001",
+            "P1-RUNE-KEEP-002",
+            "P1-HAND-KEEP-001",
+            "P1-HAND-KEEP-002",
+            "P2-UNIT-KEEP-001",
+            "P2-UNIT-KEEP-002",
+            "P2-EQUIPMENT-KEEP-001",
+            "P2-EQUIPMENT-KEEP-002",
+            "P2-RUNE-KEEP-001",
+            "P2-RUNE-KEEP-002",
+            "P2-HAND-KEEP-001",
+            "P2-HAND-KEEP-002"
+        ];
+    }
+
+    private static Dictionary<string, CardObjectState> JudgmentDayCardObjects()
+    {
+        return new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-UNIT-KEEP-001"] = new("P1-UNIT-KEEP-001", tags: [CardObjectTags.UnitCard]),
+            ["P1-UNIT-KEEP-002"] = new("P1-UNIT-KEEP-002", tags: [CardObjectTags.UnitCard]),
+            ["P1-UNIT-RECYCLE-001"] = new("P1-UNIT-RECYCLE-001", tags: [CardObjectTags.UnitCard]),
+            ["P1-EQUIPMENT-KEEP-001"] = new("P1-EQUIPMENT-KEEP-001", tags: [CardObjectTags.EquipmentCard]),
+            ["P1-EQUIPMENT-KEEP-002"] = new("P1-EQUIPMENT-KEEP-002", tags: [CardObjectTags.EquipmentCard]),
+            ["P1-EQUIPMENT-RECYCLE-001"] = new("P1-EQUIPMENT-RECYCLE-001", tags: [CardObjectTags.EquipmentCard]),
+            ["P1-RUNE-KEEP-001"] = new("P1-RUNE-KEEP-001", tags: [CardObjectTags.RuneCard]),
+            ["P1-RUNE-KEEP-002"] = new("P1-RUNE-KEEP-002", tags: [CardObjectTags.RuneCard]),
+            ["P1-RUNE-RECYCLE-001"] = new("P1-RUNE-RECYCLE-001", tags: [CardObjectTags.RuneCard]),
+            ["P2-UNIT-KEEP-001"] = new("P2-UNIT-KEEP-001", tags: [CardObjectTags.UnitCard]),
+            ["P2-UNIT-KEEP-002"] = new("P2-UNIT-KEEP-002", tags: [CardObjectTags.UnitCard]),
+            ["P2-UNIT-RECYCLE-001"] = new("P2-UNIT-RECYCLE-001", tags: [CardObjectTags.UnitCard]),
+            ["P2-EQUIPMENT-KEEP-001"] = new("P2-EQUIPMENT-KEEP-001", tags: [CardObjectTags.EquipmentCard]),
+            ["P2-EQUIPMENT-KEEP-002"] = new("P2-EQUIPMENT-KEEP-002", tags: [CardObjectTags.EquipmentCard]),
+            ["P2-EQUIPMENT-RECYCLE-001"] = new("P2-EQUIPMENT-RECYCLE-001", tags: [CardObjectTags.EquipmentCard]),
+            ["P2-RUNE-KEEP-001"] = new("P2-RUNE-KEEP-001", tags: [CardObjectTags.RuneCard]),
+            ["P2-RUNE-KEEP-002"] = new("P2-RUNE-KEEP-002", tags: [CardObjectTags.RuneCard]),
+            ["P2-RUNE-RECYCLE-001"] = new("P2-RUNE-RECYCLE-001", tags: [CardObjectTags.RuneCard])
+        };
     }
 
     private static async Task AssertSimpleEquipmentFixtureAsync(

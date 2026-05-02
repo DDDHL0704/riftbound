@@ -285,6 +285,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
             || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
+            || !HasValidSacredJudgmentKeepTargets(state, command.SourceObjectId, behavior, targetObjectIds)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
@@ -883,6 +884,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
             CardTargetScopes.StackSpell => IsStackSpellItem(state, objectId),
+            CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
     }
@@ -1208,6 +1210,67 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
     }
 
+    private static bool HasValidSacredJudgmentKeepTargets(
+        MatchState state,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.RecyclesUnkeptSacredJudgmentCards)
+        {
+            return true;
+        }
+
+        var targetSet = targetObjectIds.ToHashSet(StringComparer.Ordinal);
+        if (targetSet.Contains(sourceObjectId))
+        {
+            return false;
+        }
+
+        var categorizedTargetIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (_, zones) in state.PlayerZones)
+        {
+            if (!HasExactlyTwoSacredJudgmentTargets(
+                    targetSet,
+                    SacredJudgmentFieldUnitIds(state.CardObjects, zones),
+                    categorizedTargetIds)
+                || !HasExactlyTwoSacredJudgmentTargets(
+                    targetSet,
+                    SacredJudgmentEquipmentIds(state.CardObjects, zones),
+                    categorizedTargetIds)
+                || !HasExactlyTwoSacredJudgmentTargets(
+                    targetSet,
+                    SacredJudgmentRuneIds(state.CardObjects, zones),
+                    categorizedTargetIds)
+                || !HasExactlyTwoSacredJudgmentTargets(
+                    targetSet,
+                    zones.Hand.Where(cardId => !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal)),
+                    categorizedTargetIds))
+            {
+                return false;
+            }
+        }
+
+        return targetSet.SetEquals(categorizedTargetIds);
+    }
+
+    private static bool HasExactlyTwoSacredJudgmentTargets(
+        ISet<string> targetSet,
+        IEnumerable<string> categoryObjectIds,
+        ISet<string> categorizedTargetIds)
+    {
+        var selectedObjectIds = categoryObjectIds
+            .Where(targetSet.Contains)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        foreach (var objectId in selectedObjectIds)
+        {
+            categorizedTargetIds.Add(objectId);
+        }
+
+        return selectedObjectIds.Length == 2;
+    }
+
     private static bool HasRequiredAnyTargetTag(
         MatchState state,
         CardBehaviorDefinition behavior,
@@ -1263,6 +1326,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return IsFieldObject(state.PlayerZones, objectId)
             && !CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+    }
+
+    private static bool IsSacredJudgmentKeepCandidate(MatchState state, string objectId)
+    {
+        return state.PlayerZones.Values.Any(zones =>
+            zones.Hand.Contains(objectId, StringComparer.Ordinal)
+            || zones.Base.Contains(objectId, StringComparer.Ordinal)
+            || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static bool IsEquipmentObject(MatchState state, string objectId)
@@ -1826,7 +1897,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                                                         ? "spell on the stack"
                                                                                                         : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
                                                                                                             ? "unit and its controller's weapon"
-                                                                                                            : "battlefield unit";
+                                                                                                            : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
+                                                                                                                ? "cards kept for Judgment Day"
+                                                                                                                : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -2125,6 +2198,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.AddRange(topDeckSelectionResult.Events);
             rngCursor = topDeckSelectionResult.RngCursor;
             drawCountOverride = 0;
+        }
+        else if (behavior.RecyclesUnkeptSacredJudgmentCards)
+        {
+            var recycleResult = RecycleUnkeptSacredJudgmentCards(
+                state,
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                stackItem.TargetObjectIds,
+                rngCursor);
+            events.AddRange(recycleResult.Events);
+            rngCursor = recycleResult.RngCursor;
         }
         else if (behavior.RecyclesTargets)
         {
@@ -3659,6 +3744,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static IEnumerable<string> SacredJudgmentFieldUnitIds(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        PlayerZones zones)
+    {
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
+    }
+
+    private static IEnumerable<string> SacredJudgmentEquipmentIds(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        PlayerZones zones)
+    {
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard));
+    }
+
+    private static IEnumerable<string> SacredJudgmentRuneIds(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        PlayerZones zones)
+    {
+        return zones.Base
+            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.RuneCard));
+    }
+
     private static void ApplyStatusEffectsToFieldUnits(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IDictionary<string, CardObjectState> cardObjects,
@@ -4948,6 +5059,68 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = ownerPlayerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["cardIds"] = randomizedCardIds,
+                    ["count"] = randomizedCardIds.Count
+                }));
+        }
+
+        return new RecycleResult(events, rngCursor);
+    }
+
+    private static RecycleResult RecycleUnkeptSacredJudgmentCards(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string sourceObjectId,
+        IReadOnlyList<string> keptObjectIds,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        var keptSet = keptObjectIds.ToHashSet(StringComparer.Ordinal);
+        foreach (var (playerId, zones) in playerZones.ToArray())
+        {
+            var recycledCardIds = SacredJudgmentFieldUnitIds(cardObjects, zones)
+                .Concat(SacredJudgmentEquipmentIds(cardObjects, zones))
+                .Concat(SacredJudgmentRuneIds(cardObjects, zones))
+                .Concat(zones.Hand)
+                .Where(cardId => !keptSet.Contains(cardId))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (recycledCardIds.Length == 0)
+            {
+                continue;
+            }
+
+            var randomizedCardIds = RandomizeForMainDeckBottom(
+                recycledCardIds,
+                state.Seed,
+                rngCursor,
+                sourceObjectId);
+            if (recycledCardIds.Length > 1)
+            {
+                rngCursor++;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                MainDeck = zones.MainDeck.Concat(randomizedCardIds).ToArray(),
+                Hand = zones.Hand
+                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
+                    .ToArray(),
+                Base = zones.Base
+                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
+                    .ToArray(),
+                Battlefields = zones.Battlefields
+                    .Where(cardId => !recycledCardIds.Contains(cardId, StringComparer.Ordinal))
+                    .ToArray()
+            };
+            events.Add(new GameEvent(
+                "CARDS_RECYCLED",
+                $"{playerId} 回收 {recycledCardIds.Length} 张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
                     ["cardIds"] = randomizedCardIds,
                     ["count"] = randomizedCardIds.Count

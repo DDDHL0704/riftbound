@@ -50,8 +50,7 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(
             [
                 "OGN·025/298 暴怒冲动 法术",
-                "OGN·115/298 光明未来 法术",
-                "OGN·244/298 圣裁之刻 法术"
+                "OGN·115/298 光明未来 法术"
             ],
             uncoveredPlayableUnits);
 
