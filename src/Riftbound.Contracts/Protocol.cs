@@ -92,6 +92,12 @@ public sealed record PlayCardCommand(
     string Mode = "",
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("PLAY_CARD");
 
+public sealed record ActivateAbilityCommand(
+    string SourceObjectId,
+    string AbilityId,
+    IReadOnlyList<string> TargetObjectIds,
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ACTIVATE_ABILITY");
+
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
 

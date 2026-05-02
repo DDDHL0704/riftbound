@@ -257,6 +257,25 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesActivateAbilityPayload()
+    {
+        var command = Assert.IsType<ActivateAbilityCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              "sourceObjectId": "P1-UNIT-VI",
+              "abilityId": "PAY_2_RED_DOUBLE_POWER",
+              "targetObjectIds": ["P2-SPELLSHIELD-UNIT-001"],
+              "optionalCosts": ["SPEND_EXPERIENCE:1"]
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-UNIT-VI", command.SourceObjectId);
+        Assert.Equal("PAY_2_RED_DOUBLE_POWER", command.AbilityId);
+        Assert.Equal(new[] { "P2-SPELLSHIELD-UNIT-001" }, command.TargetObjectIds);
+        Assert.Equal(new[] { "SPEND_EXPERIENCE:1" }, command.OptionalCosts);
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(

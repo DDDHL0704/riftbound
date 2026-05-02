@@ -28,6 +28,11 @@ public static class GameCommandJsonMapper
                 TextArray(cmd, "targetObjectIds"),
                 Text(cmd, "mode"),
                 TextArray(cmd, "optionalCosts")),
+            "ACTIVATE_ABILITY" => new ActivateAbilityCommand(
+                Text(cmd, "sourceObjectId"),
+                Text(cmd, "abilityId"),
+                TextArray(cmd, "targetObjectIds"),
+                TextArray(cmd, "optionalCosts")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

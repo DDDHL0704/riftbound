@@ -44,6 +44,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolvePlayCard(state, intent, playCardCommand));
         }
 
+        if (command is ActivateAbilityCommand)
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "ACTIVATE_ABILITY is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand));
+        }
+
         if (command is PassPriorityCommand && CanPassPriority(state, intent.PlayerId))
         {
             return ValueTask.FromResult(ResolvePassPriority(state, intent));

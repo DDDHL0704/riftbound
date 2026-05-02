@@ -18170,6 +18170,54 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandIsExplicitlyRejectedUntilSkillStackExists()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield]),
+                ["P2-SPELLSHIELD-UNIT-001"] = new(
+                    "P2-SPELLSHIELD-UNIT-001",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-ability-premodel", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                "PAY_2_RED_DOUBLE_POWER",
+                ["P2-SPELLSHIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ACTIVATE_ABILITY is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4SpellshieldTaxState(mana: 2);
