@@ -12,7 +12,7 @@
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
-- P4 已进入高频关键词与基础卡牌小批次：P4.1 完成 template delegation bridge，P4.2 完成 `迅捷` / `反应` / `急速` 权限关键词最小模型，P4.3 完成 `瞬息` 控制者开始阶段到期摧毁，P4.4 完成 `回响` mana-only optional cost/repeat 显式模型，P4.5 完成 `draw` / `damage` / `destroy` / `stun` / `temp_might` primitive plan 小批次，P4.6 完成 `强攻` / `坚守` / `壁垒` / `后排` / `游走` combat keyword profile，P4.7 完成 `狩猎` / `等级` / `鼓舞` / `法盾` resource keyword profile，P4.8 完成 `装配` / `灵便` / `百炼` equipment keyword profile，P4.9 完成 lifecycle / interaction / basic-action 剩余 profile 与 completion audit，P4.10 完成固定数值“打出时获得经验”执行切片，P4.11 完成固定经验额外费用减费执行切片，P4.12 完成 `法盾` 法术目标税最小执行切片，P4.13 完成《灼焰飞龙》`HASTE_READY` 代表可选费用切片，P4.14 完成《诺克萨斯新兵》`鼓舞` 费用减免代表切片，P4.15 完成《踏苔蜥》`等级3` 入场 +1/法盾代表切片，P4.16 完成《风行狐》`等级3` 入场 +1/游走代表切片，P4.17 完成《无极学徒》`等级6` 打出抽 1 代表切片，P4.18 完成《小鲨鱼》`HASTE_READY` 急速活跃代表切片，P4.19 完成《严厉军士》动态经验代表切片，P4.20 完成《军团后卫》`HASTE_READY` 第三代表切片，P4.21 完成《崔法利求战者》`鼓舞` 自增益代表切片，P4.22 完成《危险二人组》`鼓舞` 目标临时战力代表切片，P4.23 完成《垃圾场小霸王》`鼓舞` 弃 2 抽 2 代表切片，P4.24 完成《先锋队长》`鼓舞` 随从指示物代表切片，P4.25 完成《树根先生》`HASTE_READY` 第四代表切片，P4.26 完成《机械迷》`HASTE_READY` 第五代表切片，P4.27 完成《琢珥鱼》`HASTE_READY` 第六代表切片，P4.28 完成《易》`等级6` 法盾/游走代表切片；当前只接入已验证的小批次可玩路径。
+- P4 已进入高频关键词与基础卡牌小批次：P4.1 完成 template delegation bridge，P4.2 完成 `迅捷` / `反应` / `急速` 权限关键词最小模型，P4.3 完成 `瞬息` 控制者开始阶段到期摧毁，P4.4 完成 `回响` mana-only optional cost/repeat 显式模型，P4.5 完成 `draw` / `damage` / `destroy` / `stun` / `temp_might` primitive plan 小批次，P4.6 完成 `强攻` / `坚守` / `壁垒` / `后排` / `游走` combat keyword profile，P4.7 完成 `狩猎` / `等级` / `鼓舞` / `法盾` resource keyword profile，P4.8 完成 `装配` / `灵便` / `百炼` equipment keyword profile，P4.9 完成 lifecycle / interaction / basic-action 剩余 profile 与 completion audit，P4.10 完成固定数值“打出时获得经验”执行切片，P4.11 完成固定经验额外费用减费执行切片，P4.12 完成 `法盾` 法术目标税最小执行切片，P4.13 完成《灼焰飞龙》`HASTE_READY` 代表可选费用切片，P4.14 完成《诺克萨斯新兵》`鼓舞` 费用减免代表切片，P4.15 完成《踏苔蜥》`等级3` 入场 +1/法盾代表切片，P4.16 完成《风行狐》`等级3` 入场 +1/游走代表切片，P4.17 完成《无极学徒》`等级6` 打出抽 1 代表切片，P4.18 完成《小鲨鱼》`HASTE_READY` 急速活跃代表切片，P4.19 完成《严厉军士》动态经验代表切片，P4.20 完成《军团后卫》`HASTE_READY` 第三代表切片，P4.21 完成《崔法利求战者》`鼓舞` 自增益代表切片，P4.22 完成《危险二人组》`鼓舞` 目标临时战力代表切片，P4.23 完成《垃圾场小霸王》`鼓舞` 弃 2 抽 2 代表切片，P4.24 完成《先锋队长》`鼓舞` 随从指示物代表切片，P4.25 完成《树根先生》`HASTE_READY` 第四代表切片，P4.26 完成《机械迷》`HASTE_READY` 第五代表切片，P4.27 完成《琢珥鱼》`HASTE_READY` 第六代表切片，P4.28 完成《易》`等级6` 法盾/游走代表切片，P4.29 完成《易》A 版本 `等级6` 法盾/游走代表切片；当前只接入已验证的小批次可玩路径。
 
 ## 新窗口接手
 
@@ -84,7 +84,7 @@ npm run dev
 
 核心计划文档：
 
-- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.28 完成状态和下一批计划。
+- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.29 完成状态和下一批计划。
 - `docs/CURRENT_P3_STATUS.md`：当前短交接，记录 P3 卡牌数据、BehaviorSpec、解析管线、模板骨架和验证状态。
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
 - `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。

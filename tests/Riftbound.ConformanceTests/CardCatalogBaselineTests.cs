@@ -568,6 +568,15 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(6, yiBehavior.LevelExperienceThreshold);
         Assert.Equal(CardObjectTags.Spellshield + "|游走", yiBehavior.LevelSourceUnitTags);
 
+        var yiAltA = BuildResourceProfile(specs, "UNL-113a/219", CardResourceKeywordNames.Hunt, CardResourceKeywordNames.Level);
+        Assert.True(yiAltA.HasHunt);
+        Assert.Equal(2, yiAltA.HuntAmount);
+        Assert.True(yiAltA.HasLevel);
+        Assert.Equal([6], yiAltA.LevelThresholds);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-113a/219", out var yiAltABehavior));
+        Assert.Equal(6, yiAltABehavior.LevelExperienceThreshold);
+        Assert.Equal(CardObjectTags.Spellshield + "|游走", yiAltABehavior.LevelSourceUnitTags);
+
         var noxianRecruit = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
         Assert.True(noxianRecruit.HasEncourage);
         Assert.Contains("deferred", noxianRecruit.Reason, StringComparison.OrdinalIgnoreCase);

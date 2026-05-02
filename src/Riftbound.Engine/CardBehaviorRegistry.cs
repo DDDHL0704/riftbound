@@ -3052,7 +3052,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "狩猎2"),
+            SourceUnitTags: "狩猎2",
+            LevelExperienceThreshold: 6,
+            LevelSourceUnitTags: CardObjectTags.Spellshield + "|游走"),
         new(
             "UNL-119/219",
             "卡兹克",
