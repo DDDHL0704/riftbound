@@ -455,6 +455,37 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4ResourceKeywordProfilesMapOfficialTextToRegistryTags()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var gluttonousToadfrog = BuildResourceProfile(specs, "UNL-100/219", CardResourceKeywordNames.Hunt);
+        Assert.True(gluttonousToadfrog.HasHunt);
+        Assert.Equal(3, gluttonousToadfrog.HuntAmount);
+        Assert.Equal(ResourceKeywordProfileStatuses.RecognizedDeferred, gluttonousToadfrog.Status);
+
+        var mossStepper = BuildResourceProfile(specs, "UNL-047/219", CardResourceKeywordNames.Hunt, CardResourceKeywordNames.Level);
+        Assert.True(mossStepper.HasHunt);
+        Assert.Equal(2, mossStepper.HuntAmount);
+        Assert.True(mossStepper.HasLevel);
+        Assert.Equal([3], mossStepper.LevelThresholds);
+
+        var noxianRecruit = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
+        Assert.True(noxianRecruit.HasEncourage);
+        Assert.Contains("deferred", noxianRecruit.Reason, StringComparison.OrdinalIgnoreCase);
+
+        var pluckyPoro = BuildResourceProfile(specs, "OGN·013/298", CardResourceKeywordNames.Spellshield);
+        Assert.True(pluckyPoro.HasSpellshield);
+        Assert.Equal(1, pluckyPoro.SpellshieldTax);
+
+        var ornn = BuildResourceProfile(specs, "SFD·085/221", CardResourceKeywordNames.Spellshield);
+        Assert.True(ornn.HasSpellshield);
+        Assert.Equal(2, ornn.SpellshieldTax);
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -514,5 +545,21 @@ public sealed class CardCatalogBaselineTests
 
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
         return CardCombatKeywordRules.BuildProfile(definition);
+    }
+
+    private static CardResourceKeywordProfile BuildResourceProfile(
+        IReadOnlyList<BehaviorSpec> specs,
+        string cardNo,
+        params string[] officialTextNeedles)
+    {
+        var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        foreach (var needle in officialTextNeedles)
+        {
+            Assert.Contains(needle, spec.OfficialText, StringComparison.Ordinal);
+            Assert.Contains(spec.Keywords, keyword => string.Equals(keyword.Keyword, needle, StringComparison.Ordinal));
+        }
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+        return CardResourceKeywordRules.BuildProfile(spec, definition);
     }
 }
