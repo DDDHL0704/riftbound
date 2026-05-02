@@ -250,23 +250,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         plan = default!;
         rejection = default!;
 
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal))
-        {
-            rejection = RejectWithCorePrompts(
-                state,
-                "PLAY_CARD is not allowed outside the turn player's ordinary open main phase.",
-                ErrorCodes.PhaseNotAllowed);
-            return false;
-        }
-
         if (!CardBehaviorRegistry.TryGetByCardNoAndMode(command.CardNo, command.Mode, out var behavior))
         {
             rejection = RejectWithCorePrompts(
                 state,
                 $"Unsupported card behavior or mode: {command.CardNo} {command.Mode}",
                 ErrorCodes.UnsupportedCardBehavior);
+            return false;
+        }
+
+        if (!CanPlayCardAtCurrentTiming(state, intent.PlayerId, behavior))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "PLAY_CARD is not allowed outside the turn player's ordinary open main phase.",
+                ErrorCodes.PhaseNotAllowed);
             return false;
         }
 
@@ -513,18 +511,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var resolvedItem = state.StackItems[^1];
             var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
-            var nextPriorityPlayerId = remainingStack.Length == 0
-                ? null
-                : remainingStack[^1].ControllerId;
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
+            var nextStack = RemoveCounteredStackItems(remainingStack, stackResolution.CounteredStackItemIds);
+            var nextPriorityPlayerId = nextStack.Length == 0
+                ? null
+                : nextStack[^1].ControllerId;
             nextState = state with
             {
                 Tick = state.Tick + 1,
                 ActivePlayerId = nextPriorityPlayerId ?? state.TurnPlayerId,
-                TimingState = remainingStack.Length == 0 ? TimingStates.NeutralOpen : state.TimingState,
+                TimingState = nextStack.Length == 0 ? TimingStates.NeutralOpen : state.TimingState,
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = [],
-                StackItems = remainingStack,
+                StackItems = nextStack,
                 PlayerZones = stackResolution.PlayerZones,
                 PlayerScores = stackResolution.PlayerScores,
                 CardObjects = stackResolution.CardObjects,
@@ -852,8 +851,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
+            CardTargetScopes.StackSpell => IsStackSpellItem(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
+    }
+
+    private static bool CanPlayCardAtCurrentTiming(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return behavior.CanPlayDuringPriority
+            && state.StackItems.Count > 0
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool IsControlledFieldObject(MatchState state, string playerId, string objectId)
@@ -1030,6 +1052,15 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return IsFieldObject(state.PlayerZones, objectId)
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
+    }
+
+    private static bool IsStackSpellItem(MatchState state, string stackItemId)
+    {
+        return state.StackItems.Any(stackItem =>
+            string.Equals(stackItem.StackItemId, stackItemId, StringComparison.Ordinal)
+            && CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
+            && !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment);
     }
 
     private static bool IsFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
@@ -1544,7 +1575,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                                             ? "opponent graveyard card"
                                                                                             : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
                                                                                                 ? "equipment"
-                                                                                                : "battlefield unit";
+                                                                                                : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
+                                                                                                    ? "spell on the stack"
+                                                                                                    : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -1552,7 +1585,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem.TargetObjectIds))
         {
-            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, [], [], state.RngCursor);
+            return new StackResolutionResult(state.PlayerZones, state.CardObjects, state.PlayerScores, null, [], [], [], state.RngCursor);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
@@ -1560,6 +1593,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
+        var counteredStackItemIds = new List<string>();
         var targetControllerDrawRecipientIds = new List<string>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
@@ -1585,6 +1619,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior,
                 stackItem,
                 events);
+        }
+
+        if (behavior.CountersTargetStackSpell)
+        {
+            foreach (var targetStackItemId in stackItem.TargetObjectIds)
+            {
+                if (!TryCounterStackItem(
+                        state,
+                        playerZones,
+                        targetStackItemId,
+                        stackItem,
+                        out var counteredEvent))
+                {
+                    continue;
+                }
+
+                counteredStackItemIds.Add(targetStackItemId);
+                events.Add(counteredEvent);
+            }
         }
 
         if (behavior.AppliesPowerModifierToSourceUnit
@@ -2996,7 +3049,67 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
+            counteredStackItemIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(stackItemId => stackItemId, StringComparer.Ordinal)
+                .ToArray(),
             rngCursor);
+    }
+
+    private static StackItemState[] RemoveCounteredStackItems(
+        IReadOnlyList<StackItemState> stackItems,
+        IReadOnlyList<string> counteredStackItemIds)
+    {
+        if (counteredStackItemIds.Count == 0)
+        {
+            return stackItems.ToArray();
+        }
+
+        return stackItems
+            .Where(stackItem => !counteredStackItemIds.Contains(stackItem.StackItemId, StringComparer.Ordinal))
+            .ToArray();
+    }
+
+    private static bool TryCounterStackItem(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        string targetStackItemId,
+        StackItemState counteringStackItem,
+        out GameEvent counteredEvent)
+    {
+        counteredEvent = default!;
+        var targetStackItem = state.StackItems.FirstOrDefault(stackItem =>
+            string.Equals(stackItem.StackItemId, targetStackItemId, StringComparison.Ordinal));
+        if (targetStackItem is null
+            || !CardBehaviorRegistry.TryGetByEffectKind(targetStackItem.EffectKind, out var targetBehavior)
+            || targetBehavior.PlaysSourceToBaseAsUnit
+            || targetBehavior.PlaysSourceToBaseAsEquipment
+            || !playerZones.TryGetValue(targetStackItem.ControllerId, out var targetControllerZones))
+        {
+            return false;
+        }
+
+        if (!targetControllerZones.Graveyard.Contains(targetStackItem.SourceObjectId, StringComparer.Ordinal))
+        {
+            playerZones[targetStackItem.ControllerId] = targetControllerZones with
+            {
+                Graveyard = targetControllerZones.Graveyard.Concat([targetStackItem.SourceObjectId]).ToArray()
+            };
+        }
+
+        counteredEvent = new GameEvent(
+            "STACK_ITEM_COUNTERED",
+            $"{counteringStackItem.SourceObjectId}无效化法术",
+            new Dictionary<string, object?>
+            {
+                ["stackItemId"] = targetStackItem.StackItemId,
+                ["counteredByStackItemId"] = counteringStackItem.StackItemId,
+                ["sourceObjectId"] = targetStackItem.SourceObjectId,
+                ["controllerId"] = targetStackItem.ControllerId,
+                ["counteredByPlayerId"] = counteringStackItem.ControllerId,
+                ["destinationZone"] = "GRAVEYARD"
+            });
+        return true;
     }
 
     private static void ApplyStatusEffectsToFieldUnits(
@@ -5819,6 +5932,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
+        IReadOnlyList<string> CounteredStackItemIds,
         long RngCursor);
 
     private sealed record RecycleResult(

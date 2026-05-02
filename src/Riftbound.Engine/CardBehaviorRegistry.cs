@@ -60,6 +60,8 @@ public sealed record CardBehaviorDefinition(
     bool PlaysGraveyardTargetToBase = false,
     bool DealsMutualTargetPowerDamage = false,
     bool DealsSourceAndTargetPowerDamage = false,
+    bool CountersTargetStackSpell = false,
+    bool CanPlayDuringPriority = false,
     int CreatedBaseUnitTokenCount = 0,
     int CreatedBaseUnitTokenPower = 0,
     string CreatedBaseUnitTokenName = "",
@@ -164,6 +166,7 @@ public static class CardTargetScopes
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
+    public const string StackSpell = "STACK_SPELL";
 }
 
 public static class CardObjectTags
@@ -7372,6 +7375,16 @@ public static class CardBehaviorRegistry
             0,
             0,
             DestroysAllEquipment: true),
+        new(
+            "OGN·064/298",
+            "风之障壁",
+            3,
+            "WIND_WALL_COUNTER_SPELL",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true),
         new(
             "SFD·135/221",
             "紧急召回",
