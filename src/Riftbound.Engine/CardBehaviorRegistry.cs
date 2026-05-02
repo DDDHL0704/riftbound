@@ -2611,7 +2611,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "海盗|急速|强攻"),
+            SourceUnitTags: "海盗|急速|强攻",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·151/298",
             "李青",
