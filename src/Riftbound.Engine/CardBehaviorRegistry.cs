@@ -2403,7 +2403,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "猫科|急速|强攻2|法盾|游走"),
+            SourceUnitTags: "猫科|急速|强攻2|法盾|游走",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "UNL-115/219",
             "尼菈",
