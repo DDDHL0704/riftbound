@@ -132,7 +132,9 @@ public sealed record CardBehaviorDefinition(
     bool RequiresDestroyFriendlyTraitUnitAdditionalCost = false,
     bool AddsControllerGraveyardCountToSourceUnitPower = false,
     string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard,
-    bool RequiresTargetManaCostAtMostControllerPower = false);
+    bool RequiresTargetManaCostAtMostControllerPower = false,
+    bool RequiresTargetStackItemControlledByEnemy = false,
+    bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7491,6 +7493,18 @@ public static class CardBehaviorRegistry
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true,
             RequiresTargetManaCostAtMostControllerPower: true),
+        new(
+            "SFD·045/221",
+            "极速反制",
+            2,
+            "QUICK_COUNTER_COUNTER_ENEMY_SPELL_TARGETING_FRIENDLY_OBJECT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true,
+            RequiresTargetStackItemControlledByEnemy: true,
+            RequiresTargetStackItemTargetsFriendlyUnitOrEquipment: true),
         new(
             "UNL-131/219",
             "遗弃",

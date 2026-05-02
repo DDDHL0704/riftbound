@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `OGN·045/298` 《蔑视》的费用上限反制法术路径、`SFD·136/221` 《强买强卖》目标控制者不支付 2 的反制法术代表分支，以及 `UNL-190/219` 《夜阑谣》、`UNL-044/219` 《羽毛旋风》、`UNL-131/219` 《遗弃》和 `OGN·064/298` 《风之障壁》的反应时机反制法术路径；最新提交以 `git log -1 --oneline` 为准
+- 当前 P2 功能基线：已覆盖 `SFD·045/221` 《极速反制》的敌方法术指定友方单位反制路径、`OGN·045/298` 《蔑视》的费用上限反制法术路径、`SFD·136/221` 《强买强卖》目标控制者不支付 2 的反制法术代表分支，以及 `UNL-190/219` 《夜阑谣》、`UNL-044/219` 《羽毛旋风》、`UNL-131/219` 《遗弃》和 `OGN·064/298` 《风之障壁》的反应时机反制法术路径；最新提交以 `git log -1 --oneline` 为准
 - 上一个 P2 功能基线：`OGN·109/298` 《蒙多医生》的废牌堆计数动态战力单位入场路径、`ARC-001/006` 至 `ARC-006/006` 的 ARC 官方英雄单位入场/标签静态代表路径、`UNL-194/219` 《黑影》的专属单位基地入场路径，以及 `UNL-196/219` 《小菊！》和 `OGS·018/024` 《提伯斯》的专属单位入场路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `1573/1573`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `1525/1525`
-- 最小 card behavior registry：`774/811 = 95.4%`
-- P2 preflight 清单：已完成到 `809`，下一项是 `810. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `1577/1577`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `1529/1529`
+- 最小 card behavior registry：`775/811 = 95.6%`
+- P2 preflight 清单：已完成到 `810`，下一项是 `811. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,7 @@
 
 ## Latest Completed
 
+- `SFD·045/221` 《极速反制》：当前 2P preflight 覆盖反应牌在优先权窗口打出、目标限定为敌方控制且正在指定友方单位的结算链法术项目，双方让过后以 `STACK_ITEM_COUNTERED` 无效化目标法术并将其源牌移入控制者废牌堆；单位源牌结算链项目、己方控制的结算链项目和敌方法术未指定友方单位/装备的场景由直接测试拒绝，技能路径暂缓。
 - `OGN·045/298` 《蔑视》：当前 2P preflight 覆盖费用上限反制法术路径；P2 在当前有 2 点 A 时，对 P1 费用 2 的《焚烧》支付 1 点费用打出《蔑视》，双方让过后以 `STACK_ITEM_COUNTERED` 无效化目标法术并将其源牌移入控制者废牌堆；费用超过 4、费用超过当前 A 和单位源牌结算链项目由直接测试拒绝。
 - `SFD·136/221` 《强买强卖》：当前 2P preflight 覆盖 `PLAY_CARD.mode = "TARGET_DECLINES_PAY_2_NO_ECHO"` 的目标控制者不支付 2 代表分支；P2 在 P1 的《焚烧》位于结算链上时支付 2 点费用打出《强买强卖》，双方让过后以 `STACK_ITEM_COUNTERED` 无效化目标法术并将其源牌移入控制者废牌堆；回响和目标控制者支付 2 分支暂缓，单位源牌结算链项目由直接测试拒绝。
 - `UNL-190/219` 《夜阑谣》：当前 2P preflight 覆盖反应牌在优先权窗口打出、目标限定为结算链上的法术项目、双方让过后以 `STACK_ITEM_COUNTERED` 无效化目标法术并将其源牌移入控制者废牌堆；单位源牌结算链项目由直接测试拒绝，本回合法术禁用持续效果暂缓。

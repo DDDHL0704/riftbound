@@ -289,6 +289,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetManaCostAllowed(state, intent.PlayerId, targetObjectId, behavior)
+                || !IsStackItemTargetConditionAllowed(state, intent.PlayerId, targetObjectId, behavior)
                 || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
         {
             rejection = RejectWithCorePrompts(
@@ -1043,6 +1044,48 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         targetManaCost = targetState.ManaCost;
         return true;
+    }
+
+    private static bool IsStackItemTargetConditionAllowed(
+        MatchState state,
+        string playerId,
+        string objectId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!behavior.RequiresTargetStackItemControlledByEnemy
+            && !behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment)
+        {
+            return true;
+        }
+
+        if (!string.Equals(behavior.TargetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var stackItem = state.StackItems.FirstOrDefault(candidate =>
+            string.Equals(candidate.StackItemId, objectId, StringComparison.Ordinal));
+        if (stackItem is null)
+        {
+            return false;
+        }
+
+        if (behavior.RequiresTargetStackItemControlledByEnemy
+            && string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return !behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment
+            || stackItem.TargetObjectIds.Any(targetObjectId =>
+                IsFriendlyUnitOrEquipmentObject(state, playerId, targetObjectId));
+    }
+
+    private static bool IsFriendlyUnitOrEquipmentObject(MatchState state, string playerId, string objectId)
+    {
+        return IsControlledFieldObject(state, playerId, objectId)
+            && (CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard)
+                || CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard));
     }
 
     private static bool HasRequiredAnyTargetTag(
