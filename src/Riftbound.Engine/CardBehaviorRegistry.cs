@@ -2475,7 +2475,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "仙灵|急速"),
+            SourceUnitTags: "仙灵|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "UNL-082a/219",
             "莉莉娅",
