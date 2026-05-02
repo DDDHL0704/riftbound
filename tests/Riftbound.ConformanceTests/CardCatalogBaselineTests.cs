@@ -543,6 +543,20 @@ public sealed class CardCatalogBaselineTests
             CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn,
             dangerousDuoBehavior.TargetCountConditionKind);
 
+        var junkyardBully = BuildResourceProfile(specs, "OGN·020/298", CardResourceKeywordNames.Encourage);
+        Assert.True(junkyardBully.HasEncourage);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·020/298", out var junkyardBullyBehavior));
+        Assert.Equal(2, junkyardBullyBehavior.RequiredTargetCount);
+        Assert.Equal(CardTargetScopes.FriendlyHandCard, junkyardBullyBehavior.TargetScope);
+        Assert.True(junkyardBullyBehavior.DiscardsTargetFromHand);
+        Assert.Equal(2, junkyardBullyBehavior.DrawCount);
+        Assert.Equal(
+            CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn,
+            junkyardBullyBehavior.DrawConditionKind);
+        Assert.Equal(
+            CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn,
+            junkyardBullyBehavior.TargetCountConditionKind);
+
         var trifarianGloryseeker = BuildResourceProfile(specs, "OGN·217/298", CardResourceKeywordNames.Encourage);
         Assert.True(trifarianGloryseeker.HasEncourage);
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·217/298", out var trifarianGloryseekerBehavior));
@@ -681,6 +695,11 @@ public sealed class CardCatalogBaselineTests
         Assert.True(dangerousDuo.HasTempMight);
         Assert.Contains(CardBasicActionNames.TempMight, dangerousDuo.PrimitiveActions);
         Assert.DoesNotContain(CardBasicActionNames.TempMight, dangerousDuo.DeferredActions);
+
+        var junkyardBully = BuildBasicActionProfile(specs, "OGN·020/298");
+        Assert.True(junkyardBully.HasDraw);
+        Assert.Contains(CardBasicActionNames.Draw, junkyardBully.PrimitiveActions);
+        Assert.DoesNotContain(CardBasicActionNames.Draw, junkyardBully.DeferredActions);
 
         var trifarianGloryseeker = BuildBasicActionProfile(specs, "OGN·217/298");
         Assert.True(trifarianGloryseeker.HasBoon);

@@ -2620,7 +2620,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (behavior.DrawsBeforeRuneCall)
             {
                 var preRuneDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
-                if (ShouldDrawForBehavior(behavior, destroyedObjectIds, preRuneDrawCount))
+                if (ShouldDrawForBehavior(behavior, stackItem, destroyedObjectIds, preRuneDrawCount))
                 {
                     foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, targetControllerDrawRecipientIds))
                     {
@@ -3968,7 +3968,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
 
         var drawCount = drawCountOverride ?? ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
-        if (ShouldDrawForBehavior(behavior, destroyedObjectIds, drawCount))
+        if (ShouldDrawForBehavior(behavior, stackItem, destroyedObjectIds, drawCount))
         {
             foreach (var drawPlayerId in DrawRecipientPlayerIds(behavior, stackItem.ControllerId, targetControllerDrawRecipientIds))
             {
@@ -6833,6 +6833,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool ShouldDrawForBehavior(
         CardBehaviorDefinition behavior,
+        StackItemState stackItem,
         IReadOnlyList<string> destroyedObjectIds,
         int drawCount)
     {
@@ -6845,6 +6846,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             CardDrawConditionKinds.None => true,
             CardDrawConditionKinds.TargetDestroyedByThisEffect => destroyedObjectIds.Count > 0,
+            CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn => stackItem.PlayedAfterAnotherCardThisTurn,
             _ => false
         };
     }

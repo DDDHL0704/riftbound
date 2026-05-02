@@ -236,6 +236,7 @@ public static class CardDrawConditionKinds
 {
     public const string None = "NONE";
     public const string TargetDestroyedByThisEffect = "TARGET_DESTROYED_BY_THIS_EFFECT";
+    public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
 }
 
 public static class CardDynamicDrawCountKinds
@@ -4766,12 +4767,17 @@ public static class CardBehaviorRegistry
             "OGN·020/298",
             "垃圾场小霸王",
             5,
-            "JUNKYARD_BULLY_NO_ENCOURAGE_MECHANICAL_PLAY_UNIT",
+            "JUNKYARD_BULLY_PLAY_UNIT_ENCOURAGE_DISCARD_TWO_DRAW_TWO",
             0,
-            0,
+            2,
+            DrawCount: 2,
+            DrawConditionKind: CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn,
+            TargetScope: CardTargetScopes.FriendlyHandCard,
+            DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "机械"),
+            SourceUnitTags: "机械",
+            TargetCountConditionKind: CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn),
         new(
             "OGN·218/298",
             "先锋队长",

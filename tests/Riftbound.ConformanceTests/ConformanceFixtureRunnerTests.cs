@@ -16966,6 +16966,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
     [InlineData("p4-play-dangerous-duo-encourage-target-temp-might.fixture.json")]
+    [InlineData("p4-play-junkyard-bully-encourage-discard-draw.fixture.json")]
     [InlineData("p4-play-trifarian-gloryseeker-encourage-self-boon.fixture.json")]
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
@@ -17106,6 +17107,34 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4EncourageDiscardDrawRequiresPriorCardAndTwoHandTargets()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-junkyard-bully-encourage-discard-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(
+            ["P1-JUNKYARD-DRAW-001", "P1-JUNKYARD-DRAW-002"],
+            result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-JUNKYARD-DISCARD-001", "P1-JUNKYARD-DISCARD-002"],
+            result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(5, result.FinalState.CardObjects["P1-UNIT-JUNKYARD-BULLY"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, "机械"],
+            result.FinalState.CardObjects["P1-UNIT-JUNKYARD-BULLY"].Tags);
+        Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+        Assert.Contains("CARD_DRAWN", result.EventKinds);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsNoxianRecruitEncourageReductionWithoutPriorCardThisTurn()
     {
         var state = PunishmentState(mana: 2) with
@@ -17183,6 +17212,54 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.PlayerCardsPlayedThisTurn["P1"]);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-DANGEROUS-DUO"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsJunkyardBullyEncourageWhenPriorCardButMissingDiscardTargets()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 1
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand =
+                    [
+                        "P1-UNIT-JUNKYARD-BULLY",
+                        "P1-JUNKYARD-DISCARD-001",
+                        "P1-JUNKYARD-DISCARD-002"
+                    ],
+                    MainDeck = ["P1-JUNKYARD-DRAW-001", "P1-JUNKYARD-DRAW-002"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-junkyard-bully-prior-card-missing-targets", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-JUNKYARD-BULLY",
+                "OGN·020/298",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(1, result.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-UNIT-JUNKYARD-BULLY", "P1-JUNKYARD-DISCARD-001", "P1-JUNKYARD-DISCARD-002"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-JUNKYARD-DRAW-001", "P1-JUNKYARD-DRAW-002"], result.State.PlayerZones["P1"].MainDeck);
         Assert.Empty(result.State.StackItems);
     }
 
