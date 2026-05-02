@@ -5955,6 +5955,148 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysLegionQuartermasterReturnFriendlyEquipmentAdditionalCost()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-legion-quartermaster-return-friendly-equipment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-LEGION-QUARTERMASTER"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-LEGION-QUARTERMASTER"].Power);
+        Assert.Contains("崔法利", result.FinalState.CardObjects["P1-UNIT-LEGION-QUARTERMASTER"].Tags);
+        Assert.DoesNotContain("P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsLegionQuartermasterWithoutAdditionalCost()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-LEGION-QUARTERMASTER"],
+                    Base = ["P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"] = new(
+                    "P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001",
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-legion-quartermaster-missing-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-LEGION-QUARTERMASTER", "SFD·044/221", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-LEGION-QUARTERMASTER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsLegionQuartermasterWhenAdditionalCostTargetsUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-LEGION-QUARTERMASTER"],
+                    Base = ["P1-LEGION-QUARTERMASTER-COST-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGION-QUARTERMASTER-COST-UNIT-001"] = new(
+                    "P1-LEGION-QUARTERMASTER-COST-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-legion-quartermaster-unit-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-LEGION-QUARTERMASTER",
+                "SFD·044/221",
+                [],
+                OptionalCosts: ["RETURN_FRIENDLY_EQUIPMENT:P1-LEGION-QUARTERMASTER-COST-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-LEGION-QUARTERMASTER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-LEGION-QUARTERMASTER-COST-UNIT-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsLegionQuartermasterWhenAdditionalCostTargetsEnemyEquipment()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-LEGION-QUARTERMASTER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"] = new(
+                    "P2-LEGION-QUARTERMASTER-COST-EQUIPMENT-001",
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-legion-quartermaster-enemy-equipment-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-LEGION-QUARTERMASTER",
+                "SFD·044/221",
+                [],
+                OptionalCosts: ["RETURN_FRIENDLY_EQUIPMENT:P2-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-LEGION-QUARTERMASTER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-LEGION-QUARTERMASTER-COST-EQUIPMENT-001"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysQuicksandMageDestroySmallEnemy()
     {
         var fixture = await ConformanceFixture.LoadAsync(

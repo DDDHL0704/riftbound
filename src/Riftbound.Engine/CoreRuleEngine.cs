@@ -14,6 +14,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
     private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
+    private const string ReturnFriendlyEquipmentAdditionalCostPrefix = "RETURN_FRIENDLY_EQUIPMENT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
 
@@ -170,6 +171,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        foreach (var additionalCostTargetObjectId in plan.ReturnedAdditionalCostTargetObjectIds)
+        {
+            if (!TryReturnTargetToHand(playerZones, cardObjects, additionalCostTargetObjectId, out var returnedOwnerPlayerId, out var returnedWasEquipment))
+            {
+                continue;
+            }
+
+            events.Add(BuildReturnedToHandEvent(
+                behavior.DisplayName,
+                stackItem,
+                additionalCostTargetObjectId,
+                returnedOwnerPlayerId,
+                returnedWasEquipment,
+                "ADDITIONAL_COST"));
+        }
+
         foreach (var discardedOptionalCostTargetObjectId in plan.DiscardedOptionalCostTargetObjectIds)
         {
             if (!TryDiscardCardFromHand(playerZones, intent.PlayerId, discardedOptionalCostTargetObjectId))
@@ -302,6 +319,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var effectRepeatCount,
                 out var exhaustedOptionalCostTargetObjectIds,
                 out var destroyedAdditionalCostTargetObjectIds,
+                out var returnedAdditionalCostTargetObjectIds,
                 out var discardedOptionalCostTargetObjectIds))
         {
             rejection = RejectWithCorePrompts(
@@ -337,6 +355,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             rejection = RejectWithCorePrompts(
                 state,
                 $"{behavior.DisplayName} requires a friendly Bird, Cat, Dog, or Poro unit as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && returnedAdditionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -384,6 +412,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && returnedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanReturnFriendlyEquipmentAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly equipment as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (discardedOptionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDiscardHandCardAsOptionalCost(state, intent.PlayerId, command.SourceObjectId, targetObjectId)))
         {
@@ -427,6 +466,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             costReductionMana,
             exhaustedOptionalCostTargetObjectIds,
             destroyedAdditionalCostTargetObjectIds,
+            returnedAdditionalCostTargetObjectIds,
             discardedOptionalCostTargetObjectIds);
         return true;
     }
@@ -1085,6 +1125,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         out int effectRepeatCount,
         out IReadOnlyList<string> exhaustedOptionalCostTargetObjectIds,
         out IReadOnlyList<string> destroyedAdditionalCostTargetObjectIds,
+        out IReadOnlyList<string> returnedAdditionalCostTargetObjectIds,
         out IReadOnlyList<string> discardedOptionalCostTargetObjectIds)
     {
         normalizedOptionalCosts = NormalizeOptionalCosts(optionalCosts);
@@ -1093,6 +1134,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         effectRepeatCount = 1;
         exhaustedOptionalCostTargetObjectIds = [];
         destroyedAdditionalCostTargetObjectIds = [];
+        returnedAdditionalCostTargetObjectIds = [];
         discardedOptionalCostTargetObjectIds = [];
 
         if (normalizedOptionalCosts.Count == 0)
@@ -1145,6 +1187,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var destroyedTraitTargetObjectId))
         {
             destroyedAdditionalCostTargetObjectIds = [destroyedTraitTargetObjectId];
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
+            && behavior.RequiresReturnFriendlyEquipmentAdditionalCost
+            && TryParseReturnFriendlyEquipmentAdditionalCost(
+                normalizedOptionalCosts[0],
+                out var returnedEquipmentTargetObjectId))
+        {
+            returnedAdditionalCostTargetObjectIds = [returnedEquipmentTargetObjectId];
             return true;
         }
 
@@ -1224,6 +1276,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
+    private static bool TryParseReturnFriendlyEquipmentAdditionalCost(
+        string optionalCost,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(ReturnFriendlyEquipmentAdditionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[ReturnFriendlyEquipmentAdditionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
     private static bool TryParseDiscardHandCardOptionalCost(
         string optionalCost,
         out string targetObjectId)
@@ -1298,6 +1364,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetState.Tags.Contains("猫科", StringComparer.Ordinal)
             || targetState.Tags.Contains("犬形", StringComparer.Ordinal)
             || targetState.Tags.Contains("魄罗", StringComparer.Ordinal);
+    }
+
+    private static bool CanReturnFriendlyEquipmentAsAdditionalCost(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return IsFriendlyEquipmentObject(state, playerId, targetObjectId);
     }
 
     private static bool CanDiscardHandCardAsOptionalCost(
@@ -4443,17 +4517,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         string targetObjectId,
         string ownerPlayerId,
-        bool wasEquipment)
+        bool wasEquipment,
+        string reason = "")
     {
+        var payload = new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = stackItem.SourceObjectId,
+            ["targetObjectId"] = targetObjectId,
+            ["ownerPlayerId"] = ownerPlayerId
+        };
+        if (!string.IsNullOrWhiteSpace(reason))
+        {
+            payload["reason"] = reason;
+        }
+
         return new GameEvent(
             wasEquipment ? "EQUIPMENT_RETURNED_TO_HAND" : "UNIT_RETURNED_TO_HAND",
             wasEquipment ? $"{displayName}让装备返回手牌" : $"{displayName}让单位返回手牌",
-            new Dictionary<string, object?>
-            {
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["targetObjectId"] = targetObjectId,
-                ["ownerPlayerId"] = ownerPlayerId
-            });
+            payload);
     }
 
     private static bool TryReturnTargetToHand(
@@ -5728,6 +5809,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int CostReductionMana,
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,
         IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
+        IReadOnlyList<string> ReturnedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds);
 
     private sealed record StackResolutionResult(
