@@ -148,6 +148,7 @@ public sealed record CardBehaviorDefinition(
     int DamageTargetIndex = -1,
     int BanishPlayTargetIndex = -1,
     bool BanishesSourceOnResolution = false,
+    bool SchedulesExtraTurnForController = false,
     bool PreventsAllSpellAndSkillDamageThisTurn = false);
 
 public static class CardDamageConditionKinds
@@ -7413,6 +7414,15 @@ public static class CardBehaviorRegistry
             0,
             DrawCount: 4,
             DiscardsAllPlayersHandsThenDraws: true),
+        new(
+            "OGN·122/298",
+            "时间扭曲",
+            10,
+            "TIME_TWIST_SCHEDULE_EXTRA_TURN_BANISH_SOURCE",
+            0,
+            0,
+            BanishesSourceOnResolution: true,
+            SchedulesExtraTurnForController: true),
         new(
             "OGN·172/298",
             "责退",

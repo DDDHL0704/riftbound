@@ -1632,6 +1632,55 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysTimeTwistSchedulesExtraTurnAndBanishesSource()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-time-twist-extra-turn-banish-source.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal("P1", result.FinalState.ExtraTurnPlayerId);
+        Assert.Equal(["P1-SPELL-TIME-TWIST"], result.FinalState.PlayerZones["P1"].Banished);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Contains("EXTRA_TURN_SCHEDULED", result.EventKinds);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineUsesTimeTwistExtraTurnOnEndTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-time-twist-extra-turn-banish-source.fixture.json"),
+            CancellationToken.None);
+        var played = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            played.FinalState,
+            new PlayerIntent("intent-time-twist-end-turn", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(823, result.State.TurnNumber);
+        Assert.Equal("P1", result.State.TurnPlayerId);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal(MatchPhases.Main, result.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Null(result.State.ExtraTurnPlayerId);
+        Assert.Equal(["P1-MAIN-TIME-TWIST-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-RUNE-TIME-TWIST-001", "P1-RUNE-TIME-TWIST-002"],
+            result.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPredictiveOffensiveDrawOneRecycleOther()
     {
         var fixture = await ConformanceFixture.LoadAsync(

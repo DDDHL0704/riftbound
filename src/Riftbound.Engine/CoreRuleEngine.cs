@@ -549,7 +549,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     state.DestroyedUnitOwnerIdsThisTurn,
                     stackResolution.DestroyedUnitOwnerIds),
                 Status = stackResolution.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-                WinnerPlayerId = stackResolution.WinnerPlayerId ?? state.WinnerPlayerId
+                WinnerPlayerId = stackResolution.WinnerPlayerId ?? state.WinnerPlayerId,
+                ExtraTurnPlayerId = stackResolution.ExtraTurnPlayerId ?? state.ExtraTurnPlayerId
             };
             events.Add(new GameEvent(
                 "STACK_ITEM_RESOLVED",
@@ -650,7 +651,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)
     {
-        var nextPlayerId = NextPlayerId(state);
+        var nextPlayerId = !string.IsNullOrWhiteSpace(state.ExtraTurnPlayerId)
+            && state.Seats.ContainsKey(state.ExtraTurnPlayerId)
+            ? state.ExtraTurnPlayerId
+            : NextPlayerId(state);
         var cleanupResult = ApplyTurnEndCleanup(state);
         var nextTurnState = state with
         {
@@ -662,7 +666,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = ClearRunePools(state),
             CardObjects = cleanupResult.CardObjects,
             UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
-            DestroyedUnitOwnerIdsThisTurn = []
+            DestroyedUnitOwnerIdsThisTurn = [],
+            ExtraTurnPlayerId = null
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
         var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult)
@@ -1793,6 +1798,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 [],
                 [],
                 [],
+                null,
                 state.RngCursor);
         }
 
@@ -1812,6 +1818,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var rngCursor = state.RngCursor;
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
+        string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
         var preventDamageFromThisStackItem = ShouldPreventSpellOrSkillDamage(state, behavior);
 
@@ -3407,6 +3414,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        if (behavior.SchedulesExtraTurnForController)
+        {
+            extraTurnPlayerId = stackItem.ControllerId;
+            events.Add(new GameEvent(
+                "EXTRA_TURN_SCHEDULED",
+                $"{behavior.DisplayName}安排额外回合",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["playerId"] = stackItem.ControllerId
+                }));
+        }
+
         if (!behavior.PlaysSourceToBaseAsEquipment
             && !behavior.PlaysSourceToBaseAsUnit
             && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
@@ -3447,6 +3467,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(stackItemId => stackItemId, StringComparer.Ordinal)
                 .ToArray(),
+            extraTurnPlayerId,
             rngCursor);
     }
 
@@ -6543,6 +6564,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
         IReadOnlyList<string> CounteredStackItemIds,
+        string? ExtraTurnPlayerId,
         long RngCursor);
 
     private sealed record RecycleResult(
