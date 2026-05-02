@@ -16765,6 +16765,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-azir-haste-ready.fixture.json")]
     [InlineData("p4-play-azir-alt-a-haste-ready.fixture.json")]
     [InlineData("p4-play-jinx-haste-ready.fixture.json")]
+    [InlineData("p4-play-jinx-alt-a-haste-ready.fixture.json")]
     [InlineData("p4-play-tasty-faerie-haste-ready.fixture.json")]
     [InlineData("p4-play-ekko-haste-ready.fixture.json")]
     [InlineData("p4-play-armed-assaulter-haste-ready.fixture.json")]
@@ -16945,6 +16946,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Contains("急速", result.FinalState.CardObjects["P1-UNIT-JINX"].Tags);
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchPaysManaAndPowerForJinxAltADiscardBranch()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·030a/298", out var hasteDefinition));
+        var profile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
+
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-jinx-alt-a-haste-ready.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-JINX-A-DISCARD-001", "P1-JINX-A-DISCARD-002"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Contains("急速", result.FinalState.CardObjects["P1-UNIT-JINX-A"].Tags);
     }
 
     [Fact]

@@ -6212,7 +6212,10 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.FriendlyHandCard,
             DiscardsTargetFromHand: true,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 4),
+            SourceUnitPower: 4,
+            SourceUnitTags: "急速|强攻2",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·175/298",
             "船坞潜伏者",
