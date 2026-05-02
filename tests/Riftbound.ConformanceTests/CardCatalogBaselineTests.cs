@@ -420,6 +420,41 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4CombatKeywordProfilesMapOfficialTextToRegistryTags()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var assaultPoro = BuildCombatProfile(specs, "OGN·210/298", CardCombatKeywordNames.Assault);
+        Assert.True(assaultPoro.HasAssault);
+        Assert.Equal(1, assaultPoro.AssaultAmount);
+        Assert.Equal(CombatKeywordProfileStatuses.RecognizedDeferred, assaultPoro.Status);
+
+        var mightyPoro = BuildCombatProfile(specs, "OGN·052/298", CardCombatKeywordNames.Steadfast);
+        Assert.True(mightyPoro.HasSteadfast);
+        Assert.Equal(1, mightyPoro.SteadfastAmount);
+
+        var garen = BuildCombatProfile(specs, "OGS·007/024", CardCombatKeywordNames.Assault, CardCombatKeywordNames.Steadfast);
+        Assert.True(garen.HasAssault);
+        Assert.Equal(2, garen.AssaultAmount);
+        Assert.True(garen.HasSteadfast);
+        Assert.Equal(2, garen.SteadfastAmount);
+
+        var mutantKitten = BuildCombatProfile(specs, "UNL-036/219", CardCombatKeywordNames.Steadfast, CardCombatKeywordNames.Bulwark);
+        Assert.True(mutantKitten.HasSteadfast);
+        Assert.Equal(2, mutantKitten.SteadfastAmount);
+        Assert.True(mutantKitten.HasBulwark);
+
+        var leblanc = BuildCombatProfile(specs, "UNL-090/219", CardCombatKeywordNames.BackRow);
+        Assert.True(leblanc.HasBackRow);
+
+        var bladeguard = BuildCombatProfile(specs, "SFD·096/221", CardCombatKeywordNames.Roam);
+        Assert.True(bladeguard.HasRoam);
+        Assert.Contains("deferred", bladeguard.Reason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -463,5 +498,21 @@ public sealed class CardCatalogBaselineTests
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)
     {
         return catalog.Cards.Single(card => string.Equals(card.CardNo, cardNo, StringComparison.Ordinal));
+    }
+
+    private static CardCombatKeywordProfile BuildCombatProfile(
+        IReadOnlyList<BehaviorSpec> specs,
+        string cardNo,
+        params string[] officialTextNeedles)
+    {
+        var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        foreach (var needle in officialTextNeedles)
+        {
+            Assert.Contains(needle, spec.OfficialText, StringComparison.Ordinal);
+            Assert.Contains(spec.Keywords, keyword => string.Equals(keyword.Keyword, needle, StringComparison.Ordinal));
+        }
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+        return CardCombatKeywordRules.BuildProfile(definition);
     }
 }

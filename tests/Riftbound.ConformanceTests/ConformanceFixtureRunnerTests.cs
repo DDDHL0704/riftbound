@@ -16769,6 +16769,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p2-preflight-play-assault-poro-keyword-unit.fixture.json")]
+    [InlineData("p2-preflight-play-mighty-poro-keyword-unit.fixture.json")]
+    [InlineData("p2-preflight-play-garen-keyword-unit.fixture.json")]
+    [InlineData("p2-preflight-play-mutant-kitten-keyword-unit.fixture.json")]
+    [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json")]
+    [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json")]
+    public async Task P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
     [InlineData("java-oracle-p1-duplicate-pass.fixture.json")]
