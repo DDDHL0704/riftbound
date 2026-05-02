@@ -518,6 +518,18 @@ public static class CardBehaviorRegistry
             TargetRequiredTag: CardObjectTags.UnitCard,
             PlaysHandTargetToBase: true),
         new(
+            "SFD·111/221",
+            "前来相助",
+            2,
+            "HELP_ARRIVES_PLAY_FRIENDLY_HAND_UNIT_COST_REDUCED_TO_ZERO",
+            0,
+            1,
+            MinTargetCount: 0,
+            MaxTargetManaCost: 3,
+            TargetScope: CardTargetScopes.FriendlyHandCard,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            PlaysHandTargetToBase: true),
+        new(
             "OGN·108/298",
             "聚合变异",
             2,

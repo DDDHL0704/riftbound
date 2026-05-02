@@ -1504,6 +1504,72 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysHelpArrivesFriendlyHandUnitForFree()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-help-arrives-friendly-hand-unit-free.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-HELP-ARRIVES-HAND-SPELL"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-BASE-UNIT-001", "P1-HELP-ARRIVES-HAND-UNIT"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-HELP-ARRIVES-HAND-UNIT"].ManaCost);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsHelpArrivesWhenHandUnitCostExceedsReductionWindow()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HELP-ARRIVES", "P1-HELP-ARRIVES-HIGH-COST-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HELP-ARRIVES-HIGH-COST-UNIT"] = new(
+                    "P1-HELP-ARRIVES-HIGH-COST-UNIT",
+                    manaCost: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-help-arrives-high-cost-hand-unit", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-HELP-ARRIVES",
+                "SFD·111/221",
+                ["P1-HELP-ARRIVES-HIGH-COST-UNIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-SPELL-HELP-ARRIVES", "P1-HELP-ARRIVES-HIGH-COST-UNIT"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPredictiveOffensiveDrawOneRecycleOther()
     {
         var fixture = await ConformanceFixture.LoadAsync(
