@@ -7162,6 +7162,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-khazix-lone-enemy-static.fixture.json", "P1-UNIT-UNL-143-KHAZIX", 4)]
     [InlineData("p2-preflight-play-khazix-alt-a-lone-enemy-static.fixture.json", "P1-UNIT-UNL-143A-KHAZIX", 4)]
     [InlineData("p2-preflight-play-diana-ambush-spell-power-static.fixture.json", "P1-UNIT-UNL-149-DIANA", 3)]
+    [InlineData("p2-preflight-play-diana-alt-a-ambush-spell-power-static.fixture.json", "P1-UNIT-UNL-149A-DIANA", 3)]
+    [InlineData("p2-preflight-play-vi-ambush-attack-stun-static.fixture.json", "P1-UNIT-UNL-176-VI", 5)]
+    [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json", "P1-UNIT-UNL-176A-VI", 5)]
     [InlineData("p2-preflight-play-void-grasshopper-vanilla-unit.fixture.json", "P1-UNIT-VOID-GRASSHOPPER", 3)]
     [InlineData("p2-preflight-play-minotaur-reckoner-vanilla-unit.fixture.json", "P1-UNIT-MINOTAUR-RECKONER", 5)]
     [InlineData("p2-preflight-play-voidling-seedling-vanilla-unit.fixture.json", "P1-UNIT-VOIDLING-SEEDLING", 2)]
@@ -7313,6 +7316,9 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(4, "P1-UNIT-UNL-143-KHAZIX", "UNL-143/219", "P1-BASE-UNL-143-KHAZIX-TARGET-001")]
     [InlineData(4, "P1-UNIT-UNL-143A-KHAZIX", "UNL-143a/219", "P1-BASE-UNL-143A-KHAZIX-TARGET-001")]
     [InlineData(4, "P1-UNIT-UNL-149-DIANA", "UNL-149/219", "P1-BASE-UNL-149-DIANA-TARGET-001")]
+    [InlineData(4, "P1-UNIT-UNL-149A-DIANA", "UNL-149a/219", "P1-BASE-UNL-149A-DIANA-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNL-176-VI", "UNL-176/219", "P1-BASE-UNL-176-VI-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNL-176A-VI", "UNL-176a/219", "P1-BASE-UNL-176A-VI-TARGET-001")]
     [InlineData(3, "P1-UNIT-VOID-GRASSHOPPER", "SFD·010/221", "P1-BASE-VOID-GRASSHOPPER-TARGET-001")]
     [InlineData(5, "P1-UNIT-MINOTAUR-RECKONER", "SFD·014/221", "P1-BASE-MINOTAUR-RECKONER-TARGET-001")]
     [InlineData(2, "P1-UNIT-VOIDLING-SEEDLING", "SFD·018/221", "P1-BASE-VOIDLING-SEEDLING-TARGET-001")]
@@ -7653,6 +7659,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-poppy-no-experience-ambush-barrier-static.fixture.json", "P1-UNIT-UNL-178-POPPY", 5, "CARD_TYPE:UNIT|壁垒|约德尔人")]
     [InlineData("p2-preflight-play-spirited-poro-attack-move-static.fixture.json", "P1-UNIT-SPIRITED-PORO", 1, "CARD_TYPE:UNIT|魄罗")]
     [InlineData("p2-preflight-play-poppy-alt-a-no-experience-ambush-barrier-static.fixture.json", "P1-UNIT-UNL-178A-POPPY", 5, "CARD_TYPE:UNIT|壁垒|约德尔人")]
+    [InlineData("p2-preflight-play-vex-spellshield-stun-static.fixture.json", "P1-UNIT-UNL-150-VEX", 4, "CARD_TYPE:UNIT|法盾|约德尔人")]
+    [InlineData("p2-preflight-play-vex-alt-a-spellshield-stun-static.fixture.json", "P1-UNIT-UNL-150A-VEX", 4, "CARD_TYPE:UNIT|法盾|约德尔人")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7893,6 +7901,8 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-UNL-178-POPPY", "UNL-178/219", "P1-BASE-UNL-178-POPPY-TARGET-001")]
     [InlineData(2, "P1-UNIT-SPIRITED-PORO", "UNL-137/219", "P1-BASE-SPIRITED-PORO-TARGET-001")]
     [InlineData(6, "P1-UNIT-UNL-178A-POPPY", "UNL-178a/219", "P1-BASE-UNL-178A-POPPY-TARGET-001")]
+    [InlineData(4, "P1-UNIT-UNL-150-VEX", "UNL-150/219", "P1-BASE-UNL-150-VEX-TARGET-001")]
+    [InlineData(4, "P1-UNIT-UNL-150A-VEX", "UNL-150a/219", "P1-BASE-UNL-150A-VEX-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
