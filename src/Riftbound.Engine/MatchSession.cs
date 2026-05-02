@@ -509,49 +509,165 @@ public sealed record ResolutionResult(
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
     {
         var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
-        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new SnapshotDto(
-            state.Tick,
-            state.TurnNumber,
-            state.ActivePlayerId,
-            state.Seats.ToDictionary(
+        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+        {
+            var players = state.Seats.ToDictionary(
                 entry => entry.Key,
-                entry => (object?)new Dictionary<string, object?>
+                entry => (object?)BuildPlayerSnapshotView(state, readyPlayers, playerId, entry.Key));
+
+            return new SnapshotDto(
+                state.Tick,
+                state.TurnNumber,
+                state.ActivePlayerId,
+                players,
+                BuildLaneSnapshotView(state),
+                state.StackItems.Select(item => (object?)new Dictionary<string, object?>
                 {
-                    ["id"] = entry.Key,
-                    ["name"] = entry.Key,
-                    ["seat"] = entry.Value,
-                    ["ready"] = readyPlayers.Contains(entry.Key),
-                    ["handSize"] = state.PlayerZones.TryGetValue(entry.Key, out var zones) ? zones.Hand.Count : 0,
-                    ["score"] = state.PlayerScores.TryGetValue(entry.Key, out var score) ? score : 0
-                }),
-            new Dictionary<string, object?>(),
-            state.StackItems.Select(item => (object?)new Dictionary<string, object?>
+                    ["stackItemId"] = item.StackItemId,
+                    ["controllerId"] = item.ControllerId,
+                    ["sourceObjectId"] = item.SourceObjectId,
+                    ["effectKind"] = item.EffectKind,
+                    ["cardNo"] = item.CardNo,
+                    ["targetObjectIds"] = item.TargetObjectIds,
+                    ["damageAmount"] = item.DamageAmount
+                }).ToArray(),
+                new Dictionary<string, object?>
+                {
+                    ["phase"] = state.Phase,
+                    ["timingState"] = state.TimingState,
+                    ["turnPlayerId"] = state.TurnPlayerId,
+                    ["priorityPlayerId"] = state.PriorityPlayerId,
+                    ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
+                    ["focusPlayerId"] = state.FocusPlayerId,
+                    ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
+                    ["winnerPlayerId"] = state.WinnerPlayerId,
+                    ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
+                    ["seed"] = state.Seed,
+                    ["rngCursor"] = state.RngCursor,
+                    ["roomStatus"] = state.Status,
+                    ["readyPlayerIds"] = state.ReadyPlayerIds
+                },
+                state.TimingState);
+        });
+    }
+
+    private static Dictionary<string, object?> BuildPlayerSnapshotView(
+        MatchState state,
+        HashSet<string> readyPlayers,
+        string viewerPlayerId,
+        string subjectPlayerId)
+    {
+        var zones = state.PlayerZones.TryGetValue(subjectPlayerId, out var playerZones)
+            ? playerZones
+            : PlayerZones.Empty;
+        var ownView = string.Equals(viewerPlayerId, subjectPlayerId, StringComparison.Ordinal);
+
+        return new Dictionary<string, object?>
+        {
+            ["id"] = subjectPlayerId,
+            ["name"] = subjectPlayerId,
+            ["seat"] = state.Seats[subjectPlayerId],
+            ["ready"] = readyPlayers.Contains(subjectPlayerId),
+            ["handSize"] = zones.Hand.Count,
+            ["score"] = state.PlayerScores.TryGetValue(subjectPlayerId, out var score) ? score : 0,
+            ["runePool"] = state.RunePools.TryGetValue(subjectPlayerId, out var runePool)
+                ? new Dictionary<string, object?>
+                {
+                    ["mana"] = runePool.Mana,
+                    ["power"] = runePool.Power
+                }
+                : new Dictionary<string, object?>
+                {
+                    ["mana"] = 0,
+                    ["power"] = 0
+                },
+            ["zones"] = BuildZoneSnapshotView(zones, ownView),
+            ["objects"] = BuildObjectSnapshotView(state, VisibleObjectIds(zones, ownView))
+        };
+    }
+
+    private static Dictionary<string, object?> BuildZoneSnapshotView(PlayerZones zones, bool ownView)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["mainDeckCount"] = zones.MainDeck.Count,
+            ["runeDeckCount"] = zones.RuneDeck.Count,
+            ["hand"] = ownView ? zones.Hand : [],
+            ["handHidden"] = ownView ? 0 : zones.Hand.Count,
+            ["base"] = zones.Base,
+            ["battlefields"] = zones.Battlefields,
+            ["graveyard"] = zones.Graveyard,
+            ["banished"] = zones.Banished,
+            ["legendZone"] = zones.LegendZone,
+            ["championZone"] = zones.ChampionZone
+        };
+    }
+
+    private static Dictionary<string, object?> BuildLaneSnapshotView(MatchState state)
+    {
+        var battlefieldObjectIds = state.PlayerZones
+            .OrderBy(entry => state.Seats.TryGetValue(entry.Key, out var seat) ? seat : entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields.Select(objectId => new Dictionary<string, object?>
             {
-                ["stackItemId"] = item.StackItemId,
-                ["controllerId"] = item.ControllerId,
-                ["sourceObjectId"] = item.SourceObjectId,
-                ["effectKind"] = item.EffectKind,
-                ["cardNo"] = item.CardNo,
-                ["targetObjectIds"] = item.TargetObjectIds,
-                ["damageAmount"] = item.DamageAmount
-            }).ToArray(),
-            new Dictionary<string, object?>
-            {
-                ["phase"] = state.Phase,
-                ["timingState"] = state.TimingState,
-                ["turnPlayerId"] = state.TurnPlayerId,
-                ["priorityPlayerId"] = state.PriorityPlayerId,
-                ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
-                ["focusPlayerId"] = state.FocusPlayerId,
-                ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
-                ["winnerPlayerId"] = state.WinnerPlayerId,
-                ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
-                ["seed"] = state.Seed,
-                ["rngCursor"] = state.RngCursor,
-                ["roomStatus"] = state.Status,
-                ["readyPlayerIds"] = state.ReadyPlayerIds
-            },
-            state.TimingState));
+                ["playerId"] = entry.Key,
+                ["objectId"] = objectId
+            }))
+            .ToArray();
+
+        return new Dictionary<string, object?>
+        {
+            ["battlefieldObjectIds"] = battlefieldObjectIds,
+            ["battlefieldCount"] = battlefieldObjectIds.Length
+        };
+    }
+
+    private static IReadOnlyList<string> VisibleObjectIds(PlayerZones zones, bool ownView)
+    {
+        var ids = new List<string>();
+        if (ownView)
+        {
+            ids.AddRange(zones.Hand);
+        }
+
+        ids.AddRange(zones.Base);
+        ids.AddRange(zones.Battlefields);
+        ids.AddRange(zones.Graveyard);
+        ids.AddRange(zones.Banished);
+        ids.AddRange(zones.LegendZone);
+        ids.AddRange(zones.ChampionZone);
+        return ids
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static Dictionary<string, object?> BuildObjectSnapshotView(MatchState state, IReadOnlyList<string> visibleObjectIds)
+    {
+        return visibleObjectIds
+            .Where(objectId => state.CardObjects.ContainsKey(objectId))
+            .ToDictionary(
+                objectId => objectId,
+                objectId => (object?)BuildCardObjectSnapshotView(state.CardObjects[objectId]),
+                StringComparer.Ordinal);
+    }
+
+    private static Dictionary<string, object?> BuildCardObjectSnapshotView(CardObjectState cardObject)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["objectId"] = cardObject.ObjectId,
+            ["damage"] = cardObject.Damage,
+            ["power"] = cardObject.Power,
+            ["untilEndOfTurnPowerModifier"] = cardObject.UntilEndOfTurnPowerModifier,
+            ["isExhausted"] = cardObject.IsExhausted,
+            ["isFaceDown"] = cardObject.IsFaceDown,
+            ["isAttacking"] = cardObject.IsAttacking,
+            ["isDefending"] = cardObject.IsDefending,
+            ["tags"] = cardObject.Tags,
+            ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects,
+            ["manaCost"] = cardObject.ManaCost,
+            ["attachedToObjectId"] = cardObject.AttachedToObjectId
+        };
     }
 
     public static IReadOnlyDictionary<string, ActionPromptDto> BuildPrompts(MatchState state)
@@ -766,6 +882,13 @@ public interface IMatchSession
     SnapshotDto SnapshotFor(string playerId);
 
     ActionPromptDto PromptFor(string playerId);
+
+    ValueTask<ResolutionResult> SeedScenarioAsync(
+        string playerId,
+        string clientIntentId,
+        string scenarioId,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken);
 
     ValueTask<ResolutionResult> ReadyAsync(
         string playerId,
@@ -1117,6 +1240,91 @@ public sealed class MatchSession : IMatchSession
         return ResolutionResult.BuildPrompts(state)[normalizedPlayerId];
     }
 
+    public async ValueTask<ResolutionResult> SeedScenarioAsync(
+        string playerId,
+        string clientIntentId,
+        string scenarioId,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        RequirePlayer(normalizedPlayerId);
+        var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
+        var normalizedScenarioId = NormalizeScenarioId(scenarioId);
+        var commandType = $"DEV_SEED_SCENARIO:{normalizedScenarioId}";
+        var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+
+        await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (intentCache.TryGetValue(cacheKey, out var cached))
+            {
+                if (!string.Equals(cached.CommandType, commandType, StringComparison.Ordinal))
+                {
+                    throw new MatchSessionException(
+                        ErrorCodes.ClientIntentConflict,
+                        "clientIntentId already belongs to another command");
+                }
+
+                return cached.Result;
+            }
+
+            var startedTick = state.Tick;
+            var startedEventSequence = lastEventSequence;
+            var nextState = BuildDevScenarioState(state, normalizedScenarioId) with
+            {
+                Tick = state.Tick + 1
+            };
+            var events = new[]
+            {
+                new GameEvent(
+                    "DEV_SCENARIO_SEEDED",
+                    $"开发测试场景已载入: {normalizedScenarioId}",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = normalizedPlayerId,
+                        ["scenarioId"] = normalizedScenarioId
+                    })
+            };
+            var result = new ResolutionResult(
+                true,
+                null,
+                nextState,
+                events,
+                ResolutionResult.BuildSnapshots(nextState),
+                ResolutionResult.BuildPrompts(nextState));
+
+            var completedEventSequence = startedEventSequence + events.Length;
+            await journal.RecordAsync(new MatchJournalEntry(
+                    RoomId,
+                    normalizedPlayerId,
+                    normalizedIntentId,
+                    commandType,
+                    rawCommand,
+                    startedTick,
+                    nextState.Tick,
+                    startedEventSequence,
+                    completedEventSequence,
+                    true,
+                    null,
+                    nextState,
+                    events,
+                    result.Snapshots,
+                    result.Prompts,
+                    DateTimeOffset.UtcNow),
+                cancellationToken).ConfigureAwait(false);
+            lastEventSequence = completedEventSequence;
+
+            state = nextState;
+            intentCache[cacheKey] = new CachedResolution(commandType, result);
+            return result;
+        }
+        finally
+        {
+            serialGate.Release();
+        }
+    }
+
     public async ValueTask<ResolutionResult> ReadyAsync(
         string playerId,
         string clientIntentId,
@@ -1458,6 +1666,344 @@ public sealed class MatchSession : IMatchSession
         return clientIntentId.Trim();
     }
 
+    private static string NormalizeScenarioId(string scenarioId)
+    {
+        return string.IsNullOrWhiteSpace(scenarioId)
+            ? throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "scenarioId is required")
+            : scenarioId.Trim();
+    }
+
+    private static MatchState BuildDevScenarioState(MatchState current, string scenarioId)
+    {
+        var p1 = PlayerBySeat(current, "P1");
+        var p2 = PlayerBySeat(current, "P2");
+        if (p1 is null || p2 is null)
+        {
+            throw new MatchSessionException(ErrorCodes.PlayerNotInRoom, "dev scenarios require two joined players");
+        }
+
+        var seed = new DevScenarioSeed(p1, p2);
+        return scenarioId switch
+        {
+            "basic-play" => BuildBasicPlayScenario(current, seed),
+            "movement" => BuildMovementScenario(current, seed),
+            "spell-duel" => BuildSpellDuelScenario(current, seed),
+            "equipment" => BuildEquipmentScenario(current, seed),
+            "control" => BuildControlScenario(current, seed),
+            "battle-score" => BuildBattleScoreScenario(current, seed),
+            "specified-hand" => BuildSpecifiedHandScenario(current, seed),
+            _ => throw new MatchSessionException(
+                ErrorCodes.UnsupportedCommand,
+                $"Unsupported dev scenario: {scenarioId}")
+        };
+    }
+
+    private static MatchState BuildBasicPlayScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302690,
+            690,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(4, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-UNIT-MIGHTY-FAERIE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+    }
+
+    private static MatchState BuildMovementScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302093,
+            68,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(2, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-RIDE-THE-WIND"],
+                    battlefields: ["P1-BATTLEFIELD-UNIT-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-UNIT-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNIT-001"] = new(power: 3, damage: 1, isExhausted: true, tags: ["CARD_TYPE:UNIT"]),
+                ["P2-BATTLEFIELD-UNIT-001"] = new(power: 3, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildSpellDuelScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302019,
+            9,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-HEXTECH-RAY"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-UNIT-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildEquipmentScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302787,
+            787,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(2, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-LONG-SWORD-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-EQUIPMENT-LONG-SWORD"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+    }
+
+    private static MatchState BuildControlScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302821,
+            821,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(5, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-HOSTILE-TAKEOVER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-HOSTILE-TAKEOVER-TARGET"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-HOSTILE-TAKEOVER-TARGET"] = new(power: 4, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildBattleScoreScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302501,
+            75,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-BATTLE-COMMAND-DRAW-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    baseZone: ["P1-BATTLE-COMMAND-BASE-001"],
+                    battlefields: ["P1-BATTLE-COMMAND-FIELD-KEEPER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    baseZone: ["P2-BATTLE-COMMAND-BASE-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-COMMAND-BASE-001"] = new(power: 4, damage: 1, tags: ["CARD_TYPE:UNIT"]),
+                ["P1-BATTLE-COMMAND-FIELD-KEEPER"] = new(power: 2, tags: ["CARD_TYPE:UNIT"]),
+                ["P2-BATTLE-COMMAND-BASE-001"] = new(power: 3, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildSpecifiedHandScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302999,
+            999,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(12, 2),
+                [seed.P2] = new(2, 0)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001", "P1-MAIN-002"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand:
+                    [
+                        "P1-UNIT-MIGHTY-FAERIE",
+                        "P1-SPELL-HEXTECH-RAY",
+                        "P1-EQUIPMENT-LONG-SWORD",
+                        "P1-SPELL-RIDE-THE-WIND"
+                    ],
+                    battlefields: ["P1-BATTLEFIELD-UNIT-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-UNIT-001", "P2-HOSTILE-TAKEOVER-TARGET"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNIT-001"] = new(power: 3, isExhausted: true, tags: ["CARD_TYPE:UNIT"]),
+                ["P2-UNIT-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"]),
+                ["P2-HOSTILE-TAKEOVER-TARGET"] = new(power: 4, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildScenarioState(
+        MatchState current,
+        DevScenarioSeed seed,
+        long scenarioSeed,
+        int turnNumber,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
+    {
+        return current with
+        {
+            TurnNumber = turnNumber,
+            ActivePlayerId = seed.P1,
+            Status = MatchStatuses.InProgress,
+            ReadyPlayerIds = [seed.P1, seed.P2],
+            TurnPlayerId = seed.P1,
+            Phase = MatchPhases.Main,
+            TimingState = TimingStates.NeutralOpen,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            PlayerScores = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [seed.P1] = 0,
+                [seed.P2] = 0
+            },
+            CardObjects = cardObjects,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            StackItems = [],
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            WinnerPlayerId = null,
+            DestroyedUnitOwnerIdsThisTurn = [],
+            Seed = scenarioSeed,
+            RngCursor = 0,
+            UntilEndOfTurnEffects = [],
+            ExtraTurnPlayerId = null
+        };
+    }
+
+    private static PlayerZones Zones(
+        IReadOnlyList<string>? mainDeck = null,
+        IReadOnlyList<string>? runeDeck = null,
+        IReadOnlyList<string>? hand = null,
+        IReadOnlyList<string>? baseZone = null,
+        IReadOnlyList<string>? battlefields = null,
+        IReadOnlyList<string>? graveyard = null,
+        IReadOnlyList<string>? banished = null,
+        IReadOnlyList<string>? legendZone = null,
+        IReadOnlyList<string>? championZone = null)
+    {
+        return new PlayerZones(
+            mainDeck ?? [],
+            runeDeck ?? [],
+            hand ?? [],
+            baseZone ?? [],
+            battlefields ?? [],
+            graveyard ?? [],
+            banished ?? [],
+            legendZone ?? [],
+            championZone ?? []);
+    }
+
+    private static string? PlayerBySeat(MatchState state, string seat)
+    {
+        return state.Seats
+            .Where(entry => string.Equals(entry.Value, seat, StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .FirstOrDefault();
+    }
+
     private static string NormalizePlayerId(string playerId)
     {
         if (string.IsNullOrWhiteSpace(playerId))
@@ -1467,6 +2013,8 @@ public sealed class MatchSession : IMatchSession
 
         return playerId.Trim();
     }
+
+    private sealed record DevScenarioSeed(string P1, string P2);
 }
 
 public sealed class MatchSessionException(string code, string message) : InvalidOperationException(message)

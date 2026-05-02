@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 
@@ -18,7 +19,7 @@ public interface IGameClient
     Task Error(WsServerMessage message);
 }
 
-public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
+public sealed class GameHub(IMatchSessionRegistry sessions, IHostEnvironment? hostEnvironment = null) : Hub<IGameClient>
 {
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
@@ -148,6 +149,68 @@ public sealed class GameHub(IMatchSessionRegistry sessions) : Hub<IGameClient>
     public Task SubmitIntent(string roomId, string playerId, string clientIntentId, JsonElement cmd)
     {
         return SubmitCommand(roomId, playerId, clientIntentId, GameCommandJsonMapper.Map(cmd), cmd.Clone());
+    }
+
+    public async Task SeedScenario(string roomId, string playerId, string scenarioId, string clientIntentId)
+    {
+        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        if (hostEnvironment is not null && !hostEnvironment.IsDevelopment())
+        {
+            await Clients.Caller.Error(new WsServerMessage(
+                MessageType.ERROR,
+                roomId,
+                normalizedPlayerId,
+                0,
+                new ErrorDto(ErrorCodes.UnsupportedCommand, "SeedScenario is only available in Development.")));
+            return;
+        }
+
+        ResolutionResult result;
+        try
+        {
+            var session = await sessions.GetOrCreateAsync(roomId, Context.ConnectionAborted);
+            result = await session.SeedScenarioAsync(
+                normalizedPlayerId,
+                clientIntentId,
+                scenarioId,
+                JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId }),
+                Context.ConnectionAborted);
+        }
+        catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException)
+        {
+            await SendError(roomId, normalizedPlayerId, 0, ex);
+            return;
+        }
+
+        if (result.Events.Count > 0)
+        {
+            await Clients.Group(RoomGroup(roomId)).Events(new WsServerMessage(
+                MessageType.EVENTS,
+                roomId,
+                normalizedPlayerId,
+                result.State.Tick,
+                result.Events));
+        }
+
+        foreach (var (snapshotPlayerId, snapshot) in result.Snapshots)
+        {
+            await Clients.Group(PlayerGroup(roomId, snapshotPlayerId)).Snapshot(new WsServerMessage(
+                MessageType.SNAPSHOT,
+                roomId,
+                snapshotPlayerId,
+                snapshot.Tick,
+                snapshot));
+        }
+
+        foreach (var (promptPlayerId, prompt) in result.Prompts)
+        {
+            await Clients.Group(PlayerGroup(roomId, promptPlayerId)).Prompt(new WsServerMessage(
+                MessageType.PROMPT,
+                roomId,
+                promptPlayerId,
+                result.State.Tick,
+                prompt));
+        }
     }
 
     private async Task SubmitCommand(

@@ -48,7 +48,7 @@ P2.5 开发期测试 UI：
 
 ```bash
 source scripts/dev-env.sh
-ASPNETCORE_URLS=http://127.0.0.1:5088 dotnet run --project src/Riftbound.Api/Riftbound.Api.csproj
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5088 dotnet run --project src/Riftbound.Api/Riftbound.Api.csproj
 ```
 
 另开一个终端：
@@ -60,7 +60,7 @@ npm install
 npm run dev
 ```
 
-访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`，点击 `Join Both`、`Ready Both`、`Snapshot Both`，再从当前 `ActionPrompt` 按钮或手写 JSON `SubmitIntent` 面板提交最小命令。P2.5 UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
+访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`，点击 `Join Both`、`Ready Both`、`Snapshot Both`。开发测试台包含 Battle Desk、Operation Panel、Debug Panel、`PLAY_CARD` builder、手写 JSON `SubmitIntent` 面板、fixture draft，以及 Development-only scenario seeds：`basic-play`、`movement`、`spell-duel`、`equipment`、`control`、`battle-score`、`specified-hand`。P2.5 UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
 
 ## 项目结构
 

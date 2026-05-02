@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Riftbound.Api.Hubs;
 using Riftbound.Contracts;
 using Riftbound.Engine;
@@ -322,15 +324,77 @@ public sealed class GameHubJoinTests
         Assert.Equal("keep-me", entry.RawCommand.Value.GetProperty("clientNote").GetString());
     }
 
+    [Fact]
+    public async Task SeedScenarioBroadcastsDevSnapshotsAndPromptsInDevelopment()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "P2");
+        var clients = new RecordingHubClients();
+
+        await CreateHub(
+                clients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario("room-a", "P1", "basic-play", "seed-basic-play");
+
+        Assert.Empty(clients.CallerClient.Errors);
+        var eventsMessage = Assert.Single(clients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.EVENTS, eventsMessage.Type);
+        var events = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(eventsMessage.Payload);
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "DEV_SCENARIO_SEEDED", StringComparison.Ordinal));
+        Assert.Equal(2, clients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, clients.GroupClient.Prompts.Count);
+
+        var p1Snapshot = Assert.IsType<SnapshotDto>(
+            Assert.Single(clients.GroupClient.Snapshots, message => string.Equals(message.PlayerId, "P1", StringComparison.Ordinal)).Payload);
+        var p1View = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1View["zones"]);
+        Assert.Contains("P1-UNIT-MIGHTY-FAERIE", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+    }
+
+    [Fact]
+    public async Task SeedScenarioIsRejectedOutsideDevelopment()
+    {
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom("room-a", "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom("room-a", "P2");
+        var clients = new RecordingHubClients();
+
+        await CreateHub(
+                clients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Production))
+            .SeedScenario("room-a", "P1", "basic-play", "seed-basic-play");
+
+        var error = Assert.Single(clients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
+        Assert.Equal("SeedScenario is only available in Development.", payload.Message);
+        Assert.Empty(clients.GroupClient.EventMessages);
+        Assert.Empty(clients.GroupClient.Snapshots);
+        Assert.Empty(clients.GroupClient.Prompts);
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
         string connectionId,
-        IMatchSessionRegistry? registry = null)
+        IMatchSessionRegistry? registry = null,
+        IHostEnvironment? hostEnvironment = null)
     {
         return new GameHub(registry ?? new InMemoryMatchSessionRegistry(
             new PlaceholderRuleEngine(),
-            NoopMatchJournal.Instance))
+            NoopMatchJournal.Instance),
+            hostEnvironment)
         {
             Clients = clients,
             Groups = groups,
@@ -500,6 +564,17 @@ public sealed class GameHubJoinTests
                 && string.Equals(saved.PlayerId, playerId, StringComparison.Ordinal)
                 && string.Equals(saved.ReconnectTokenHash, reconnectTokenHash, StringComparison.Ordinal)));
         }
+    }
+
+    private sealed class TestHostEnvironment(string environmentName) : IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = environmentName;
+
+        public string ApplicationName { get; set; } = "Riftbound.ConformanceTests";
+
+        public string ContentRootPath { get; set; } = Directory.GetCurrentDirectory();
+
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 
     private sealed record SavedPlayer(

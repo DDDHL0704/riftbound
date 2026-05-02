@@ -21,6 +21,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -48,6 +49,7 @@ button:disabled {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid #c9c1b4;
@@ -55,6 +57,10 @@ textarea {
   background: #fffdf9;
   color: #20211f;
   padding: 8px 10px;
+}
+
+select {
+  min-height: 36px;
 }
 
 textarea {
@@ -81,6 +87,8 @@ label {
 
 .top-bar,
 .room-strip,
+.desk-panel,
+.workbench-panel,
 .player-panel,
 .prompt-panel,
 .intent-panel,
@@ -130,7 +138,7 @@ h3 {
 
 .room-strip {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
   gap: 0;
   overflow: hidden;
 }
@@ -164,6 +172,245 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   align-items: start;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(660px, 1.25fr) minmax(430px, 0.75fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.desk-panel,
+.workbench-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.lane-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.desk-player {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #e3d9cb;
+  border-radius: 8px;
+  background: #fffdf9;
+  padding: 12px;
+}
+
+.desk-player header,
+.resource-row,
+.zone-title,
+.workbench-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.desk-player header,
+.zone-title,
+.workbench-controls {
+  justify-content: space-between;
+}
+
+.score-box {
+  display: grid;
+  gap: 2px;
+  min-width: 72px;
+  border: 1px solid #bfd5cc;
+  border-radius: 6px;
+  background: #eef7f2;
+  padding: 7px 9px;
+  text-align: center;
+}
+
+.score-box span {
+  color: #4f7469;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.score-box strong {
+  font-size: 22px;
+}
+
+.resource-row {
+  flex-wrap: wrap;
+}
+
+.resource-row span,
+.action-chip,
+.target-palette button {
+  border: 1px solid #d4c7b6;
+  border-radius: 999px;
+  background: #f5efe6;
+  color: #4d463e;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.zone-row {
+  display: grid;
+  gap: 6px;
+  min-height: 94px;
+  border: 1px solid #ebe1d4;
+  border-radius: 8px;
+  background: #fbf7ee;
+  padding: 8px;
+}
+
+.zone-row.compact {
+  min-height: 62px;
+}
+
+.zone-title span {
+  color: #6a6257;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.zone-title strong {
+  min-width: 24px;
+  border-radius: 999px;
+  background: #274b63;
+  color: #fff;
+  padding: 2px 7px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.battlefield-pair,
+.zone-minor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.object-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: start;
+}
+
+.object-chip {
+  display: grid;
+  gap: 2px;
+  max-width: 100%;
+  min-height: 38px;
+  border-color: #758b9c;
+  background: #edf4f7;
+  color: #213748;
+  text-align: left;
+}
+
+.object-chip:hover:not(:disabled) {
+  background: #dcecf2;
+}
+
+.object-chip span {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+
+.object-chip small {
+  color: #526a7a;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.hidden-card,
+.empty-zone,
+.empty-desk {
+  border: 1px dashed #d4c7b6;
+  border-radius: 6px;
+  color: #74695d;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.stack-strip,
+.scenario-panel,
+.play-card-panel,
+.fixture-panel {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #e3d9cb;
+  border-radius: 8px;
+  background: #fffdf9;
+  padding: 10px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wide-input {
+  grid-column: 1 / -1;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.scenario-grid button {
+  display: grid;
+  gap: 3px;
+  min-height: 58px;
+  background: #274b63;
+  border-color: #203f55;
+  text-align: left;
+}
+
+.scenario-grid button:hover:not(:disabled) {
+  background: #203f55;
+}
+
+.scenario-grid small {
+  color: #dcecf2;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.target-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 110px;
+  overflow: auto;
+}
+
+.target-palette button {
+  min-height: 28px;
+  border-color: #c4b6a2;
+  cursor: pointer;
+}
+
+.action-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.action-chip.actionable {
+  border-color: #1f6b5d;
+  background: #d9efe2;
+  color: #175c3d;
 }
 
 .player-panel {

@@ -256,6 +256,115 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(new[] { "ECHO" }, command.OptionalCosts);
     }
 
+    [Fact]
+    public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
+    {
+        var state = new MatchState(
+            "dev-room",
+            7,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["alice"] = new(3, 1),
+                ["bob"] = new(2, 0)
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = new(
+                    MainDeck: ["A-DECK-1"],
+                    RuneDeck: ["A-RUNE-1"],
+                    Hand: ["A-HAND-1"],
+                    Base: ["A-BASE-1"],
+                    Battlefields: [],
+                    Graveyard: [],
+                    Banished: [],
+                    LegendZone: [],
+                    ChampionZone: []),
+                ["bob"] = new(
+                    MainDeck: ["B-DECK-1"],
+                    RuneDeck: ["B-RUNE-1"],
+                    Hand: ["B-HAND-1"],
+                    Base: [],
+                    Battlefields: ["B-FIELD-1"],
+                    Graveyard: [],
+                    Banished: [],
+                    LegendZone: [],
+                    ChampionZone: [])
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["A-HAND-1"] = new("A-HAND-1", power: 1, tags: ["CARD_TYPE:UNIT"]),
+                ["A-BASE-1"] = new("A-BASE-1", power: 2, tags: ["CARD_TYPE:UNIT"]),
+                ["B-HAND-1"] = new("B-HAND-1", power: 3, tags: ["CARD_TYPE:UNIT"]),
+                ["B-FIELD-1"] = new("B-FIELD-1", power: 4, tags: ["CARD_TYPE:UNIT"])
+            });
+
+        var aliceSnapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var aliceView = PlayerView(aliceSnapshot, "alice");
+        var bobView = PlayerView(aliceSnapshot, "bob");
+        var aliceZones = ZoneView(aliceView);
+        var bobZones = ZoneView(bobView);
+        var bobObjects = ObjectView(bobView);
+        var lanes = Assert.IsType<Dictionary<string, object?>>(aliceSnapshot.Lanes);
+
+        Assert.Equal("P1", Assert.IsType<string>(aliceView["seat"]));
+        Assert.Contains("A-HAND-1", StringList(aliceZones["hand"]));
+        Assert.Equal(0, Assert.IsType<int>(aliceZones["handHidden"]));
+        Assert.Empty(StringList(bobZones["hand"]));
+        Assert.Equal(1, Assert.IsType<int>(bobZones["handHidden"]));
+        Assert.DoesNotContain("B-HAND-1", bobObjects.Keys);
+        Assert.Contains("B-FIELD-1", bobObjects.Keys);
+        Assert.Equal(1, Assert.IsType<int>(lanes["battlefieldCount"]));
+    }
+
+    [Fact]
+    public async Task SeedScenarioCreatesPlayableDevelopmentState()
+    {
+        var session = new MatchSession("dev-room", new CoreRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var seed = await session.SeedScenarioAsync(
+            "P1",
+            "seed-basic-play",
+            "basic-play",
+            JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = "basic-play" }),
+            CancellationToken.None);
+
+        var p1View = PlayerView(seed.Snapshots["P1"], "P1");
+        var p1Zones = ZoneView(p1View);
+
+        Assert.True(seed.Accepted);
+        Assert.Contains(seed.Events, evt => string.Equals(evt.Kind, "DEV_SCENARIO_SEEDED", StringComparison.Ordinal));
+        Assert.Contains("P1-UNIT-MIGHTY-FAERIE", StringList(p1Zones["hand"]));
+        Assert.Contains("PLAY_CARD", seed.Prompts["P1"].Actions);
+
+        var play = await session.SubmitAsync(
+            "P1",
+            "play-mighty-faerie",
+            new PlayCardCommand("P1-UNIT-MIGHTY-FAERIE", "SFD·125/221", []),
+            JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-UNIT-MIGHTY-FAERIE",
+                cardNo = "SFD·125/221",
+                targetObjectIds = Array.Empty<string>()
+            }),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.Contains(play.Events, evt => string.Equals(evt.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains("PASS_PRIORITY", play.Prompts["P1"].Actions);
+    }
+
     private sealed class RecordingMatchJournal : IMatchJournal
     {
         public List<MatchJournalEntry> Entries { get; } = [];
@@ -282,6 +391,26 @@ public sealed class ConformanceFixtureShapeTests
     {
         var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
         return Assert.IsType<string>(player["seat"]);
+    }
+
+    private static Dictionary<string, object?> PlayerView(SnapshotDto snapshot, string playerId)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+    }
+
+    private static Dictionary<string, object?> ZoneView(Dictionary<string, object?> player)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(player["zones"]);
+    }
+
+    private static Dictionary<string, object?> ObjectView(Dictionary<string, object?> player)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(player["objects"]);
+    }
+
+    private static IReadOnlyList<string> StringList(object? value)
+    {
+        return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
     }
 
     private static JsonElement RawCommand(string cmdType)
