@@ -16876,6 +16876,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-noxian-recruit-no-encourage-trifarian-unit.fixture.json")]
     [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
+    [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -16888,6 +16889,57 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4SpellshieldTaxAddsManaForEnemySpellTarget()
+    {
+        var state = P4SpellshieldTaxState(mana: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-spellshield-tax", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-INCINERATE",
+                "OGS·003/024",
+                ["P2-SPELLSHIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Single(result.State.StackItems);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(3, costPaidEvent.Payload["mana"]);
+        Assert.Equal(1, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal(
+            ["P2-SPELLSHIELD-UNIT-001"],
+            Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
+    {
+        var state = P4SpellshieldTaxState(mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-spellshield-tax-insufficient", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-INCINERATE",
+                "OGS·003/024",
+                ["P2-SPELLSHIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
     }
 
     [Theory]
@@ -17075,6 +17127,30 @@ public sealed class ConformanceFixtureRunnerTests
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001", power: 2, isAttacking: true)
+            }
+        };
+    }
+
+    private static MatchState P4SpellshieldTaxState(int mana)
+    {
+        return PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-INCINERATE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPELLSHIELD-UNIT-001"] = new(
+                    "P2-SPELLSHIELD-UNIT-001",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
             }
         };
     }

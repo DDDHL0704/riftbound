@@ -146,6 +146,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["baseMana"] = behavior.ManaCost,
                     ["costReductionMana"] = plan.CostReductionMana,
                     ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
+                    ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
+                    ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
                 })
         };
@@ -465,7 +467,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var costReductionMana = ResolveCostReductionMana(state, intent.PlayerId, behavior);
-        var totalManaCost = Math.Max(0, behavior.ManaCost - costReductionMana - optionalCostManaReduction) + extraManaCost;
+        var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
+            state,
+            intent.PlayerId,
+            behavior,
+            targetObjectIds,
+            out var spellshieldTaxTargetObjectIds);
+        var totalManaCost = Math.Max(0, behavior.ManaCost - costReductionMana - optionalCostManaReduction)
+            + extraManaCost
+            + spellshieldTaxMana;
         var totalPowerCost = extraPowerCost;
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
@@ -510,6 +520,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCosts,
             costReductionMana,
             optionalCostManaReduction,
+            spellshieldTaxMana,
+            spellshieldTaxTargetObjectIds,
             exhaustedOptionalCostTargetObjectIds,
             destroyedAdditionalCostTargetObjectIds,
             returnedAdditionalCostTargetObjectIds,
@@ -1296,6 +1308,45 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? targetIndex == 0
             : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
                 && targetIndex == 1;
+    }
+
+    private static int ResolveSpellshieldTargetTaxMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds,
+        out IReadOnlyList<string> spellshieldTaxTargetObjectIds)
+    {
+        spellshieldTaxTargetObjectIds = [];
+        if (behavior.PlaysSourceToBaseAsUnit
+            || behavior.PlaysSourceToBaseAsEquipment
+            || targetObjectIds.Count == 0)
+        {
+            return 0;
+        }
+
+        var taxedTargetObjectIds = new List<string>();
+        var taxMana = 0;
+        foreach (var targetObjectId in targetObjectIds)
+        {
+            if (!IsEnemyFieldObject(state, playerId, targetObjectId)
+                || !state.CardObjects.TryGetValue(targetObjectId, out var targetState))
+            {
+                continue;
+            }
+
+            var targetTax = CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags);
+            if (targetTax <= 0)
+            {
+                continue;
+            }
+
+            taxMana += targetTax;
+            taxedTargetObjectIds.Add(targetObjectId);
+        }
+
+        spellshieldTaxTargetObjectIds = taxedTargetObjectIds.ToArray();
+        return taxMana;
     }
 
     private static bool IsFriendlyUnitOrEquipmentObject(MatchState state, string playerId, string objectId)
@@ -7453,6 +7504,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> OptionalCosts,
         int CostReductionMana,
         int OptionalCostManaReduction,
+        int SpellshieldTaxMana,
+        IReadOnlyList<string> SpellshieldTaxTargetObjectIds,
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,
         IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> ReturnedAdditionalCostTargetObjectIds,

@@ -81,6 +81,13 @@ public static class CardResourceKeywordRules
                 : "Card does not expose resource keywords through P3 BehaviorSpec or the P2 source-object tag path.");
     }
 
+    public static int SpellshieldTaxFromTags(IReadOnlyList<string> tags)
+    {
+        ArgumentNullException.ThrowIfNull(tags);
+
+        return KeywordAmount(tags, CardResourceKeywordNames.Spellshield);
+    }
+
     private static bool HasKeyword(
         BehaviorSpec spec,
         string keyword)

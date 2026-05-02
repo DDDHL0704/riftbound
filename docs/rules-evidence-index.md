@@ -1,6 +1,6 @@
 # 规则证据索引
 
-更新时间：2026-05-02
+更新时间：2026-05-03
 
 ## 1. 目的
 
@@ -776,6 +776,7 @@
 | `p2-preflight-play-abyssal-hunt-face-down-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-014/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《渊海狩咒》在控制者控制正面朝下战场牌时改为造成 4 点伤害。 |
 | `p2-preflight-play-dancing-grenade-base-unit-damage` | `RULE_AUDITED` | `CATALOG` UNL-020/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356 | 已验证官方法术《曼舞手雷》不进入再次打出分支时支付 2 点费用、可指定基地单位、加入结算链、双方让过后造成 2 点伤害；支付 `A` 再次打出并按伤害次数递增的分支暂缓。 |
 | `p2-preflight-play-incinerate-damage-stack` | `RULE_AUDITED` | `CATALOG` OGS·003/024；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《焚烧》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 2 点伤害并进入废牌堆。 |
+| `p4-play-incinerate-spellshield-tax` | `RULE_AUDITED` | `CATALOG` OGS·003/024、OGN·013/298；`CORE-260330` p39-p42 rules 355-356；p92-p105 keyword rules 800+；`SOUL-OFAQ-260114` p1-p4 | 已验证官方法术《焚烧》选择敌方带 `法盾` 的场上单位时支付基础 2 点费用外加 1 点法盾目标税；费用不足由直接测试拒绝，技能目标税、授予/静态法盾和完整 FAQ 细节暂缓。 |
 | `p2-preflight-play-lotus-trap-doubles-next-damage` | `RULE_AUDITED` | `CATALOG` UNL-013/219、OGS·003/024；`CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356 | 已验证官方法术《莲花陷阱》令目标本回合受到的后续伤害翻倍；同回合《焚烧》的 2 点伤害会翻倍为 4 点。 |
 | `p2-preflight-play-counterstorm-prevent-next-damage` | `RULE_AUDITED` | `CATALOG` SFD·194/221、OGS·003/024；`CORE-260330` p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356；p57 rule 413.4 | 已验证官方法术《反击风暴》对目标施加本回合下一次伤害抵挡效果并抽 1 张牌；同回合《焚烧》的 2 点伤害被抵挡为 0，且抵挡效果被消耗。 |
 | `p2-preflight-play-stand-firm-prevent-spell-damage-this-turn` | `RULE_AUDITED` | `CATALOG` OGN·145/298、OGS·003/024；`CORE-260330` p4-p8 rules 107-129；p14-p15 rules 142-143；p31-p35 rules 318-340；p39-p42 rules 355-356 | 已验证官方法术《坚毅不倒》可在优先权窗口打出并施加全局本回合内 `PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN`；同回合后续《焚烧》的 2 点法术伤害被无效化为 0。独立技能结算链伤害路径暂缓，带目标打出由直接测试拒绝。 |

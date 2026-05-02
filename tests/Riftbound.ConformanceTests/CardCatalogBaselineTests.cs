@@ -483,6 +483,9 @@ public sealed class CardCatalogBaselineTests
         var ornn = BuildResourceProfile(specs, "SFD·085/221", CardResourceKeywordNames.Spellshield);
         Assert.True(ornn.HasSpellshield);
         Assert.Equal(2, ornn.SpellshieldTax);
+        Assert.Equal(
+            2,
+            CardResourceKeywordRules.SpellshieldTaxFromTags([CardObjectTags.UnitCard, "法盾2"]));
     }
 
     [Fact]

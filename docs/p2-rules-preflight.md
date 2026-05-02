@@ -1,6 +1,6 @@
 # P2 核心规则前置审查
 
-更新时间：2026-05-02
+更新时间：2026-05-03
 
 ## 1. 目的
 
@@ -46,6 +46,7 @@
 - `p2-preflight-play-highway-robbery-enemy-unit-damage.fixture.json` 已验证官方法术 `OGN·033/298 巧取豪夺` 在目标控制者不选择让你抽两张牌时，对敌方单位造成 6 点伤害；目标范围覆盖敌方基地/战场单位，友方单位和离场敌方牌由直接拒绝测试覆盖。
 - `p2-preflight-play-highway-robbery-target-controller-draw-choice.fixture.json` 已验证《巧取豪夺》目标控制者选择让来源控制者抽两张牌以避免伤害的分支，通过 `PLAY_CARD.mode = TARGET_CONTROLLER_CHOOSES_DRAW_2` 记录当前 2P preflight 选择。
 - `p2-preflight-play-incinerate-damage-stack.fixture.json` 已验证官方法术 `OGS·003/024 焚烧` 的最小 `PLAY_CARD` 通道：支付 2 点费用，加入结算链，双方让过后对目标单位造成 2 点伤害并进入废牌堆。
+- `p4-play-incinerate-spellshield-tax.fixture.json` 已验证 P4 资源关键词代表路径：`OGS·003/024 焚烧` 选择敌方带 `法盾` 的场上单位时，需在基础 2 点费用外支付 1 点法盾目标税；费用不足由 `CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient` 直接测试拒绝，技能目标税和完整 FAQ 细节暂缓。
 - `p2-preflight-play-lotus-trap-doubles-next-damage.fixture.json` 已验证官方法术 `UNL-013/219 莲花陷阱` 先对目标施加 `DAMAGE_RECEIVED_DOUBLED_THIS_TURN`，随后同回合《焚烧》对该目标的 2 点伤害会按卡面翻倍为 4 点；本回合内效果清理由既有 `END_TURN` 特殊清理覆盖。
 - `p2-preflight-play-counterstorm-prevent-next-damage.fixture.json` 已验证官方法术 `SFD·194/221 反击风暴` 先对目标施加 `PREVENT_NEXT_DAMAGE_THIS_TURN` 并抽 1 张牌，随后同回合《焚烧》对该目标的 2 点伤害被抵挡为 0，且抵挡效果被消耗。
 - `p2-preflight-play-stand-firm-prevent-spell-damage-this-turn.fixture.json` 已验证官方法术 `OGN·145/298 坚毅不倒` 可在优先权窗口打出并施加全局本回合内 `PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN`，随后同回合《焚烧》的 2 点法术伤害被无效化为 0；独立技能结算链伤害路径暂缓。
