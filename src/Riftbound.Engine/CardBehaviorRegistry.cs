@@ -2599,7 +2599,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "灵体|急速"),
+            SourceUnitTags: "灵体|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "OGN·150/298",
             "海妖猎手",

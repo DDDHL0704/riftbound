@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-ancient-berserker-no-optional-haste",
-  "description": "Ancient Berserker enters as a Spirit and Haste unit object without paying its Haste optional purple additional cost.",
+  "fixtureId": "p4-play-ancient-berserker-haste-ready",
+  "description": "Ancient Berserker pays the P4.35 HASTE_READY optional cost and records the active-entry branch on resolution without resolving its dynamic assault value.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302394,
+  "seed": 2603304135,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·131/221 远古战狂",
-      "note": "官方卡面：费用 5；单位；战力 4；灵体属性；急速，可选择额外支付 1 和紫色让我以活跃状态进场；拥有等同于此处敌方单位数量的强攻数值。当前 fixture 覆盖普通主阶段从手牌打出且不支付急速可选额外费用时的源单位入场和关键词/属性标签记录；P4.35 另以 p4-play-ancient-berserker-haste-ready 覆盖 HASTE_READY 代表可选费用路径，战场位置和动态强攻数值暂缓。"
+      "note": "官方卡面：费用 5；单位；战力 4；灵体属性；急速，可选择额外支付 1 和紫色让我以活跃状态进场；拥有等同于此处敌方单位数量的强攻数值。本 P4.35 fixture 覆盖代表路径：在现有 mana/power 资源模型中用 HASTE_READY 支付额外 1 mana + 1 power，并在单位入场事件中记录已支付急速活跃分支；战场位置和动态强攻数值路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；依赖战场位置和敌方单位数量的强攻修正留待后续战斗模型覆盖。"
+      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；本批次不进入完整战斗、战场位置或动态强攻修正。"
     }
   ],
-  "roomId": "p2-preflight-ancient-berserker-room",
+  "roomId": "p4-ancient-berserker-haste-ready-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302394,
-    "turnNumber": 393,
+    "seed": 2603304135,
+    "turnNumber": 4135,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 5, "power": 0 },
+      "P1": { "mana": 6, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-ancient-berserker-play",
+      "clientIntentId": "intent-p4-ancient-berserker-haste-ready-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-ANCIENT-BERSERKER",
         "cardNo": "SFD·131/221",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["HASTE_READY"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ancient-berserker-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ancient-berserker-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-ancient-berserker-haste-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-ancient-berserker-haste-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -87,7 +88,16 @@
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 5, "baseMana": 5 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 6,
+          "power": 1,
+          "baseMana": 5,
+          "optionalCosts": ["HASTE_READY"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -110,13 +120,15 @@
           "unitName": "远古战狂",
           "destinationZone": "BASE",
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "急速", "灵体"]
+          "tags": ["CARD_TYPE:UNIT", "急速", "灵体"],
+          "isExhausted": false,
+          "hasteReadyOptionalCostPaid": true
         }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 393,
+      "turnNumber": 4135,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
