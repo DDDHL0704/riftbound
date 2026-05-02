@@ -7625,6 +7625,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-gloompath-guard-spirit-hold-static.fixture.json", "P1-UNIT-GLOOMPATH-GUARD", 6, "CARD_TYPE:UNIT|灵体")]
     [InlineData("p2-preflight-play-sfd-089-rumble-mechanical-static.fixture.json", "P1-UNIT-SFD-089-RUMBLE", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
     [InlineData("p2-preflight-play-sfd-089a-rumble-mechanical-static.fixture.json", "P1-UNIT-SFD-089A-RUMBLE", 4, "CARD_TYPE:UNIT|机械|约德尔人")]
+    [InlineData("p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json", "P1-UNIT-MERFOLK-RABBLE-ROUSER", 2, "CARD_TYPE:UNIT|待命")]
+    [InlineData("p2-preflight-play-vilemaw-alt-a-spider-static.fixture.json", "P1-UNIT-VILEMAW-A", 8, "CARD_TYPE:UNIT|蜘蛛")]
+    [InlineData("p2-preflight-play-unl-rengar-cat-static.fixture.json", "P1-UNIT-UNL-RENGAR", 6, "CARD_TYPE:UNIT|猫科")]
+    [InlineData("p2-preflight-play-unl-rengar-alt-a-cat-static.fixture.json", "P1-UNIT-UNL-RENGAR-A", 6, "CARD_TYPE:UNIT|猫科")]
+    [InlineData("p2-preflight-play-muddy-dredger-mechanical-static.fixture.json", "P1-UNIT-MUDDY-DREDGER", 1, "CARD_TYPE:UNIT|机械")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7853,6 +7858,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(6, "P1-UNIT-GLOOMPATH-GUARD", "SFD·035/221", "P1-BASE-GLOOMPATH-GUARD-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-089-RUMBLE", "SFD·089/221", "P1-BASE-SFD-089-RUMBLE-TARGET-001")]
     [InlineData(5, "P1-UNIT-SFD-089A-RUMBLE", "SFD·089a/221", "P1-BASE-SFD-089A-RUMBLE-TARGET-001")]
+    [InlineData(2, "P1-UNIT-MERFOLK-RABBLE-ROUSER", "UNL-003/219", "P1-BASE-MERFOLK-RABBLE-ROUSER-TARGET-001")]
+    [InlineData(8, "P1-UNIT-VILEMAW-A", "UNL-060a/219", "P1-BASE-VILEMAW-A-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNL-RENGAR", "UNL-120/219", "P1-BASE-UNL-RENGAR-TARGET-001")]
+    [InlineData(5, "P1-UNIT-UNL-RENGAR-A", "UNL-120a/219", "P1-BASE-UNL-RENGAR-A-TARGET-001")]
+    [InlineData(2, "P1-UNIT-MUDDY-DREDGER", "UNL-153/219", "P1-BASE-MUDDY-DREDGER-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
