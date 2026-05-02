@@ -2625,6 +2625,36 @@ public sealed class CoreRuleEngine : IRuleEngine
                         targetObjectId)));
             }
         }
+        else if (behavior.DamagesSecondTargetByFirstTargetPower
+            && stackItem.TargetObjectIds.Count >= 2)
+        {
+            var firstTargetObjectId = stackItem.TargetObjectIds[0];
+            var damagedTargetObjectId = stackItem.TargetObjectIds[1];
+
+            var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                ? Math.Max(0, firstTargetState.Power)
+                : 0;
+            if (damageAmount > 0
+                && IsFieldObject(playerZones, damagedTargetObjectId)
+                && cardObjects.ContainsKey(damagedTargetObjectId))
+            {
+                var damageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    damagedTargetObjectId,
+                    damageAmount,
+                    damageTriggeredDestroyTargetObjectIds,
+                    preventDamageFromThisStackItem,
+                    PreventSpellAndSkillDamageThisTurnEffectId);
+                events.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    $"{behavior.DisplayName}按友方单位战力造成伤害",
+                    BuildDamagePayload(
+                        stackItem.SourceObjectId,
+                        damagedTargetObjectId,
+                        damageApplication,
+                        firstTargetObjectId)));
+            }
+        }
         else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower
             && stackItem.TargetObjectIds.Count >= 2)
         {

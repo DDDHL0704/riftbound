@@ -12385,6 +12385,72 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysKnockdownFriendlyPowerDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-knockdown-friendly-power-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(5, result.FinalState.CardObjects["P2-KNOCKDOWN-ENEMY-001"].Damage);
+        Assert.Equal(["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-WEAPON-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsKnockdownWhenSecondTargetIsFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-KNOCKDOWN"],
+                    Base = ["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-KNOCKDOWN-FRIENDLY-001"] = new(
+                    "P1-KNOCKDOWN-FRIENDLY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-KNOCKDOWN-FRIENDLY-002"] = new(
+                    "P1-KNOCKDOWN-FRIENDLY-002",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-knockdown-friendly-second-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-KNOCKDOWN",
+                "SFD·107/221",
+                ["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-KNOCKDOWN"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-KNOCKDOWN-FRIENDLY-001", "P1-KNOCKDOWN-FRIENDLY-002"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDangerTemperatureBuffsOnlyFriendlyMechanicalUnits()
     {
         var fixture = await ConformanceFixture.LoadAsync(
