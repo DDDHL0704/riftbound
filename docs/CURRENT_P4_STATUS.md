@@ -41,7 +41,8 @@
 - P4.10 提交：`af40d9f feat: add p4 fixed experience gain`
 - P4.11 提交：`10a2256 feat: add p4 experience optional cost`
 - P4.12 提交：`fc6046c feat: add p4 spellshield target tax`
-- P4.13 提交：本提交 `feat: add p4 haste ready optional cost`
+- P4.13 提交：`1f2347d feat: add p4 haste ready optional cost`
+- P4.14 提交：本提交 `feat: add p4 encourage cost reduction`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -129,7 +130,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 预知 | 12 | 0 | 0 | Medium | P4.9 已识别 profile，并标注已审计顶牌回收/不回收代表路径 delegated to P2；广义授予与隐藏信息仍 deferred。 |
 | 狩猎 | 14 | 0 | 0 | Medium/High | P4.7 已识别 profile 和数值；P4.10 只覆盖固定打出获得经验，征服/据守事件经验仍 deferred。 |
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；等级条件执行仍 deferred。 |
-| 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；本回合已打出其他卡牌记忆仍 deferred。 |
+| 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；P4.14 已给《诺克萨斯新兵》接入本回合已打出其他卡牌记忆和费用 -2 代表路径，其他鼓舞分支仍 deferred。 |
 | 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的目标税；技能、每次选取 FAQ 细节和授予/静态法盾仍 deferred。 |
 | 待命 | 47 | 6 | 0 | High | P4.9 已识别 profile；face-down、隐藏信息、翻开打出和位置限制仍 deferred。 |
 | 回响 | 22 | 2 | 0 | Medium | P4.4 已完成 mana-only optional cost/repeat 模型；复杂额外费用、授予回响和模式重复仍后续拆分。 |
@@ -155,7 +156,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Ephemeral | `UNL-149/219 蒙面侍者` / `OGN·094/298 精灵召唤`：瞬息会在控制者开始阶段开始时摧毁。 | P2 已记录 `瞬息` 标签；P4.3 新增 turn-start 到期摧毁 fixture。 | 已完成最小到期路径；绝念/贴附/战斗触发另拆。 |
 | Swift/Reaction/Haste | `OGN·004/298 顺劈`、`OGN·064/298 风之障壁`、`OGN·001/298 灼焰飞龙`。 | P2 已有反应优先权窗口和急速不支付额外费用入场路径；P4.13 新增 `p4-play-blazing-drake-haste-ready`。 | P4.2 已建立权限关键词 profile/timing model；已接入 `顺劈` 法术对决焦点窗口和《灼焰飞龙》`HASTE_READY` 代表路径，其他急速牌的彩色资源/活跃分支仍 deferred。 |
 | Combat keywords | `OGS·007/024 盖伦`：强攻2、坚守2；`UNL-036/219 变异猫咪`：坚守2、壁垒；`UNL-090/219 乐芙兰`：后排；`SFD·096/221 劳伦特护刃者`：游走。 | P2 已有大量 keyword-unit fixture 记录标签。 | P4.6 已建立 combat keyword profile；完整战斗/移动执行仍 deferred。 |
-| Resource keywords | `UNL-100/219 贪食魔沼蛙`：狩猎3；`UNL-047/219 踏苔蜥`：狩猎2、等级3；`OGN·012/298 诺克萨斯新兵`：鼓舞；`OGN·013/298 呸呸魄罗`：法盾；`SFD·085/221 奥恩`：法盾2。 | P2 已有 keyword-unit fixture 记录标签或 no-optional 分支；P4.12 新增 `p4-play-incinerate-spellshield-tax`。 | P4.7 已建立 resource keyword profile；P4.12 已执行法术选择敌方场上法盾对象的 mana 目标税；狩猎征服/据守经验、等级、鼓舞记忆、技能目标税和授予/静态法盾仍 deferred。 |
+| Resource keywords | `UNL-100/219 贪食魔沼蛙`：狩猎3；`UNL-047/219 踏苔蜥`：狩猎2、等级3；`OGN·012/298 诺克萨斯新兵`：鼓舞；`OGN·013/298 呸呸魄罗`：法盾；`SFD·085/221 奥恩`：法盾2。 | P2 已有 keyword-unit fixture 记录标签或 no-optional 分支；P4.12 新增 `p4-play-incinerate-spellshield-tax`；P4.14 新增 `p4-play-noxian-recruit-encourage-cost-reduction`。 | P4.7 已建立 resource keyword profile；P4.12 已执行法术选择敌方场上法盾对象的 mana 目标税；P4.14 已执行《诺克萨斯新兵》鼓舞费用 -2 代表路径；狩猎征服/据守经验、等级、其他鼓舞效果、技能目标税和授予/静态法盾仍 deferred。 |
 | Equipment keywords | `SFD·033/221 多兰之盾`：装配绿色；`SFD·022/221 长剑`：灵便、装配红色；`SFD·008/221 哨兵好手`：百炼；`SFD·085/221 奥恩`：法盾2、百炼。 | P2 已有装备打出和 no-optional 百炼 fixture，记录装备/武装/灵便/百炼标签。 | P4.8 已建立 equipment keyword profile；贴附、卸除、费用、owner/controller 和自动贴附执行仍 deferred。 |
 | Lifecycle remaining | `UNL-081/219 赐面守侍`：待命、瞬息；`UNL-161/219 占卜贝壳`：预知；`OGN·190/298 克格莫`：绝念。 | P4.3 瞬息 fixture；P2 已有预知回收/no-recycle fixture 与绝念静态 fixture。 | P4.9 已建立 lifecycle keyword profile；绝念 trigger queue 和广义预知授予仍 deferred。 |
 | Interaction remaining | `OGN·199/298 控潮者`：待命；`UNL-021/219 阴森药剂师`：伏击；`UNL-176a/219 蔚`：伏击。 | P2 已有普通打出/静态 fixture；`回响` 已有 P4.4 mana-only 执行路径。 | P4.9 已建立 interaction keyword profile；待命 face-down 和伏击 reaction battlefield play 仍 deferred。 |
@@ -220,10 +221,10 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 
 - 新增 `CardResourceKeywordRules` 与 `CardResourceKeywordProfile`，从 P3 `BehaviorSpec` 官方文本和 P2 source object tags 识别 `狩猎`、`等级`、`鼓舞`、`法盾`。
 - `狩猎` / `法盾` 支持无数字默认 `1`，以及 `狩猎3`、`法盾2` 等数值后缀；`等级` 解析 `等级3>`、`等级6>` 等阈值列表。
-- profile status 为 `recognized-deferred`：只表示 P3 parser、官方文本和 P2 registry/tag 已对齐；P4.12 已把法术选择敌方场上对象的法盾目标税接入费用计划，但经验获得/消耗、等级条件、鼓舞记忆、技能目标税和授予/静态法盾仍未完整执行。
+- profile status 为 `recognized-deferred`：只表示 P3 parser、官方文本和 P2 registry/tag 已对齐；P4.12 已把法术选择敌方场上对象的法盾目标税接入费用计划，P4.14 已把《诺克萨斯新兵》本回合已打出其他卡牌的鼓舞费用减免接入费用计划，但经验获得/消耗、等级条件、其他鼓舞效果、技能目标税和授予/静态法盾仍未完整执行。
 - 代表卡验证：`UNL-100/219 贪食魔沼蛙`、`UNL-047/219 踏苔蜥`、`OGN·012/298 诺克萨斯新兵`、`OGN·013/298 呸呸魄罗`、`SFD·085/221 奥恩`。
-- 新增 `P4ResourceKeywordProfilesMapOfficialTextToRegistryTags` 锁定官方卡面文本到 profile；新增 `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 复用 5 条已审计 fixture 保持 P2 入场/标签/no-optional 路径绿色。
-- 本批次没有实现法盾目标税支付、每次被选为目标的 FAQ 细节、狩猎征服/据守经验获得、经验消耗、等级阈值动态生效、鼓舞本回合记忆或相关触发；P4.12 随后只补法术目标税的代表执行切片。
+- 新增 `P4ResourceKeywordProfilesMapOfficialTextToRegistryTags` 锁定官方卡面文本到 profile；`P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 复用已审计 fixture 保持 P2 入场/标签/no-optional 路径绿色，并在 P4.14 纳入鼓舞费用减免代表 fixture。
+- P4.7 当时没有实现法盾目标税支付、每次被选为目标的 FAQ 细节、狩猎征服/据守经验获得、经验消耗、等级阈值动态生效、鼓舞本回合记忆或相关触发；P4.12 随后只补法术目标税的代表执行切片，P4.14 随后只补《诺克萨斯新兵》鼓舞费用减免代表执行切片。
 
 ## P4.8 Equipment Keyword Profile
 
@@ -247,7 +248,7 @@ Prompt-to-artifact checklist：
 | 权限关键词：迅捷、反应、急速 | `CardPermissionKeywordRules`、`P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags`、`P4SwiftKeywordAllowsCleaveInSpellDuelFocusWindow`、`P4HasteOptionalReadyBranchPaysManaAndPowerForRepresentative`、`P4PermissionKeywordsKeepExistingP2FixturesGreen` | Partial：迅捷代表路径可玩，反应 P2 path 可玩，《灼焰飞龙》`HASTE_READY` 代表路径可玩；其他急速额外费用仍 deferred。 |
 | 战斗关键词：强攻、坚守、壁垒、后排、游走 | `CardCombatKeywordRules`、`P4CombatKeywordProfilesMapOfficialTextToRegistryTags`、6 条 keyword-unit fixture | Profile only：完整战斗伤害/承伤/游走移动 deferred。 |
 | 生命周期关键词：瞬息、绝念、预知 | `CardLifecycleKeywordRules`、`P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags`、3 条 representative fixture | Partial：瞬息到期可玩，预知顶牌回收代表路径 delegated to P2，绝念 trigger queue deferred。 |
-| 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、`P4SpellshieldTaxAddsManaForEnemySpellTarget`、`p4-play-incinerate-spellshield-tax`、代表 fixture | Partial：法术选择敌方场上法盾对象的 mana 目标税可玩；狩猎征服/据守经验、等级、鼓舞记忆、技能目标税和授予/静态法盾 deferred。 |
+| 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、`P4SpellshieldTaxAddsManaForEnemySpellTarget`、`P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn`、`p4-play-incinerate-spellshield-tax`、`p4-play-noxian-recruit-encourage-cost-reduction`、代表 fixture | Partial：法术选择敌方场上法盾对象的 mana 目标税可玩；《诺克萨斯新兵》鼓舞费用 -2 代表路径可玩；狩猎征服/据守经验、等级、其他鼓舞效果、技能目标税和授予/静态法盾 deferred。 |
 | 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、3 条 remaining fixture | Partial：mana-only 回响可玩，待命/伏击 face-down/reaction battlefield play deferred。 |
 | 装备关键词：装配、灵便、百炼 | `CardEquipmentKeywordRules`、`P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags`、5 条 no-attach fixture | Profile only：attach/detach/费用/owner-controller deferred。 |
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验和固定经验额外费用减费可玩；动态/激活/条件经验 deferred。 |
@@ -309,6 +310,18 @@ P4.9 新增内容：
 - 新增负向 engine test `P4HasteOptionalReadyBranchRejectsInsufficientPower`，验证缺少 power 时不能支付 `HASTE_READY`，且不改手牌、符文池或结算链。
 - 本批次没有重写普通单位入场的活跃/休眠默认规则，没有处理全部彩色符能精确匹配、急速授予、从手牌以外打出获得急速、战场目的地、游走/战斗联动或 P5 触发替换系统。
 
+## P4.14 Encourage Cost Reduction Slice
+
+本阶段继续资源关键词里的 `鼓舞`，只补一个官方代表的费用减免分支，不批量启用所有鼓舞效果：
+
+- `MatchState` 新增 `PlayerCardsPlayedThisTurn`，在成功 `PLAY_CARD` 时递增，并在 `END_TURN` 进入下一回合前清空；snapshot player view 暴露 `cardsPlayedThisTurn`，便于开发期 UI/调试观察。
+- `CardCostReductionConditionKinds` 新增 `CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN`，由 `CoreRuleEngine.ResolveCostReductionMana` 在费用支付前判断；当前被打出的牌尚未计入，因此 `count > 0` 就表示本回合已打出过其他卡牌。
+- `OGN·012/298 诺克萨斯新兵` registry 接入 `CostReductionMana: 2`，对应官方“鼓舞—我的费用减少 2”文本；未满足鼓舞条件时仍按原 P2 fixture 支付基础 4 mana。
+- 新增 fixture `p4-play-noxian-recruit-encourage-cost-reduction.fixture.json`：P1 先以 0 mana 打出《暴怒之印》，双方让过后再以 2 mana 打出《诺克萨斯新兵》，`COST_PAID` payload 记录 `baseMana: 4` 与 `costReductionMana: 2`。
+- 新增负向 engine test `CoreRuleEngineRejectsNoxianRecruitEncourageReductionWithoutPriorCardThisTurn`，验证没有同回合先前打牌记忆且只有 2 mana 时不能打出《诺克萨斯新兵》，且不改手牌、符文池或结算链。
+- 新增 `P4CardsPlayedThisTurnMemoryResetsWhenTurnEnds`，锁定“本回合”记忆在回合结束后清空。
+- 本批次没有实现鼓舞的目标选择、活跃入场、弃牌抽牌、额外打出随从、从废牌堆打出、有色费用、技能上的鼓舞条件或 P5/P6 触发队列；这些仍按更小批次拆分。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -323,7 +336,7 @@ P4.9 新增内容：
 - 瞬息到期、预知最小回收分支
 - 回响复杂额外费用、授予回响和模式重复分支
 - 法盾目标税的最小支付校验已由 P4.12 覆盖法术选择敌方场上对象；技能、授予/静态法盾和完整 FAQ 细节仍需后续小批次
-- 固定数值“打出时获得经验”已由 P4.10 接入；固定经验额外费用减费已由 P4.11 接入；经验激活技能、经验改变效果/目标范围、动态经验、等级阈值、鼓舞本回合记忆仍需后续小批次
+- 固定数值“打出时获得经验”已由 P4.10 接入；固定经验额外费用减费已由 P4.11 接入；《诺克萨斯新兵》鼓舞费用减免已由 P4.14 接入；经验激活技能、经验改变效果/目标范围、动态经验、等级阈值、其他鼓舞效果仍需后续小批次
 
 高风险，暂不进入 P4.1：
 
@@ -344,16 +357,17 @@ P4.9 新增内容：
 | P4.4 互动关键词一小批 | Done | 100% | `回响` mana-only optional cost/repeat 显式模型；复杂回响、待命、伏击继续 deferred。 |
 | P4.5 基础动作 executor 小批测试 | Done | 100% | `draw`/`damage`/`destroy`/`stun`/`temp_might` primitive plan；`move`/`recall` 继续 delegated to P2 handwritten。 |
 | P4.6 完成审计与战斗关键词 profile | Done | 100% | 审计确认 P4 尚未完成；新增 `强攻`/`坚守`/`壁垒`/`后排`/`游走` profile，完整战斗执行继续 deferred。 |
-| P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；狩猎征服/据守经验、等级、鼓舞记忆和法盾目标税执行继续 deferred。 |
+| P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；P4.12/P4.14 后法盾法术目标税与《诺克萨斯新兵》鼓舞费用代表路径已接入，其余资源关键词分支继续 deferred。 |
 | P4.8 装备关键词 profile | Done | 100% | 新增 `装配`/`灵便`/`百炼` profile；贴附、费用、自动贴附和 owner/controller 执行继续 deferred。 |
 | P4.9 完成审计与剩余 profile 收口 | Done | 100% | 新增 lifecycle/interaction/basic-action profile，明确 P4 goal 尚未完全达成的 deferred 能力。 |
 | P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；动态经验与经验消耗继续 deferred。 |
 | P4.11 经验额外费用减费执行切片 | Done | 100% | 新增 `SPEND_EXPERIENCE:n` optional cost、波比代表 fixture 和经验不足拒绝测试；改变效果/目标的经验费用继续 deferred。 |
 | P4.12 法盾目标税执行切片 | Done | 100% | 新增 `spellshieldTaxMana` 费用计划、`法盾`/`法盾N` 标签税值复用、代表 fixture 和费用不足拒绝测试；技能/授予/FAQ 全细节继续 deferred。 |
 | P4.13 急速活跃可选费用切片 | Done | 100% | 新增 `HASTE_READY` 代表 optional cost、《灼焰飞龙》fixture 和 power 不足拒绝测试；其他急速牌彩色资源/授予/战场联动继续 deferred。 |
-| P4.14 goal completion decision | Pending | 0% | 基于 P4.13 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
+| P4.14 鼓舞费用减免执行切片 | Done | 100% | 新增同回合已打出卡牌记忆、《诺克萨斯新兵》费用 -2 代表 fixture、无先前打牌记忆费用不足拒绝测试和回合结束清空测试；其他鼓舞效果继续 deferred。 |
+| P4.15 goal completion decision | Pending | 0% | 基于 P4.14 audit 决定继续补下一个低风险执行切片，或把高风险执行移交 P5/P6 后再标记 P4 收口。 |
 
-P4 当前整体进度：按当前 part 计 `14/15 = 93.3%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行，P4.12 已新增法术目标 `法盾` mana 税执行，P4.13 已新增《灼焰飞龙》`HASTE_READY` 急速活跃代表费用执行。
+P4 当前整体进度：按当前 part 计 `15/16 = 93.8%`；P4.1 已验证 `5` 个基础模板可安全委托到现有 P2 手写行为，P4.2 已新增最小权限关键词模型和 `1` 条 `迅捷` 法术对决焦点窗口可玩路径，P4.3 已新增 `瞬息` 开始阶段到期摧毁路径，P4.4 已新增 `回响` mana-only optional cost/repeat 显式模型，P4.5 已新增 `5` 个基础动作 primitive plan 并锁定 `move`/`recall` 继续委托 P2，P4.6 已新增 `5` 个战斗关键词 profile，P4.7 已新增 `4` 个资源关键词 profile，P4.8 已新增 `3` 个装备关键词 profile，P4.9 已新增 lifecycle/interaction/basic-action 剩余 profile，P4.10 已新增固定打出获得经验状态执行，P4.11 已新增固定经验额外费用减费执行，P4.12 已新增法术目标 `法盾` mana 税执行，P4.13 已新增《灼焰飞龙》`HASTE_READY` 急速活跃代表费用执行，P4.14 已新增《诺克萨斯新兵》鼓舞费用减免代表执行。
 
 ## Validation Gate
 
@@ -368,15 +382,16 @@ P4 当前整体进度：按当前 part 计 `14/15 = 93.3%`；P4.1 已验证 `5` 
 
 ## Latest Validation
 
-P4.13 已完成验证：
+P4.14 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，`0` warnings / `0` errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1694/1694`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1625/1625`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 `1698/1698`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：通过 `1629/1629`
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：通过 `19/19`
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4HasteOptionalReadyBranch|FullyQualifiedName~P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags|FullyQualifiedName~P4PermissionKeywordsKeepExistingP2FixturesGreen"`：通过 `5/5`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn|FullyQualifiedName~CoreRuleEngineRejectsNoxianRecruitEncourageReductionWithoutPriorCardThisTurn|FullyQualifiedName~P4CardsPlayedThisTurnMemoryResetsWhenTurnEnds|FullyQualifiedName~P4ResourceKeywordProfilesMapOfficialTextToRegistryTags"`：通过 `4/4`
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：通过 `7/7`
 - `git diff --check`：通过
 
 ## Next Step
 
-进入 P4.14：基于 P4.13 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、装备贴附、动态经验/等级/鼓舞、其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.15：基于 P4.14 audit 决定继续补下一个低风险执行切片，或把 high-risk execution gaps 明确移交 P5/P6 后再做 goal completion decision。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、装备贴附、动态经验/等级、其他鼓舞效果、其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。

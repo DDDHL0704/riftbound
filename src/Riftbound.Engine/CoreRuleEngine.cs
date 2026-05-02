@@ -109,6 +109,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
             PlayerExperience = playerExperience,
+            PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
@@ -714,6 +715,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cleanupResult.CardObjects,
             UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
             DestroyedUnitOwnerIdsThisTurn = [],
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal),
             ExtraTurnPlayerId = null
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
@@ -2006,8 +2008,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 => ControllerControlsTaggedUnit(state, playerId, behavior.CostReductionUnitTag)
                     ? behavior.CostReductionMana
                     : 0,
+            CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
+                => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             _ => 0
         };
+    }
+
+    private static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)
+    {
+        return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0;
     }
 
     private static bool EnemyUnitDestroyedThisTurn(MatchState state, string playerId)
@@ -7257,6 +7266,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ? currentExperience - experienceCost
                 : 0);
         return playerExperience;
+    }
+
+    private static IReadOnlyDictionary<string, int> IncrementPlayerCardsPlayedThisTurn(
+        MatchState state,
+        string playerId)
+    {
+        var playerCardsPlayedThisTurn = state.PlayerCardsPlayedThisTurn.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        playerCardsPlayedThisTurn[playerId] = playerCardsPlayedThisTurn.TryGetValue(playerId, out var count)
+            ? count + 1
+            : 1;
+        return playerCardsPlayedThisTurn;
     }
 
     private static string? OpponentOf(MatchState state, string playerId)

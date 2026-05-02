@@ -479,6 +479,11 @@ public sealed class CardCatalogBaselineTests
         var noxianRecruit = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
         Assert.True(noxianRecruit.HasEncourage);
         Assert.Contains("deferred", noxianRecruit.Reason, StringComparison.OrdinalIgnoreCase);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·012/298", out var noxianRecruitBehavior));
+        Assert.Equal(
+            CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn,
+            noxianRecruitBehavior.CostReductionConditionKind);
+        Assert.Equal(2, noxianRecruitBehavior.CostReductionMana);
 
         var pluckyPoro = BuildResourceProfile(specs, "OGN·013/298", CardResourceKeywordNames.Spellshield);
         Assert.True(pluckyPoro.HasSpellshield);

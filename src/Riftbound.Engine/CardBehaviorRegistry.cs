@@ -250,6 +250,7 @@ public static class CardCostReductionConditionKinds
     public const string ControllerHighestUnitPower = "CONTROLLER_HIGHEST_UNIT_POWER";
     public const string OpponentWithinThreeOfWinningScore = "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE";
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
+    public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
 }
 
 public static class CardPowerModifierConditionKinds
@@ -4691,7 +4692,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            CostReductionConditionKind: CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn,
+            CostReductionMana: 2),
         new(
             "OGN·016/298",
             "危险二人组",

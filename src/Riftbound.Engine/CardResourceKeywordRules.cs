@@ -77,7 +77,7 @@ public static class CardResourceKeywordRules
                 ? ResourceKeywordProfileStatuses.RecognizedDeferred
                 : ResourceKeywordProfileStatuses.NotApplicable,
             hasAnyResourceKeyword
-                ? "P4.7 recognizes resource keyword surfaces from P3 BehaviorSpec and P2 tags; experience gain/spend, level thresholds, encourage memory, and spellshield target tax execution remain deferred unless covered by a separate P2 path."
+                ? "P4.7 recognizes resource keyword surfaces from P3 BehaviorSpec and P2 tags; P4.12/P4.14 cover narrow spellshield target tax and encourage cost-reduction representatives while broader experience, level, encourage, and spellshield branches remain deferred unless covered by a separate P2 path."
                 : "Card does not expose resource keywords through P3 BehaviorSpec or the P2 source-object tag path.");
     }
 

@@ -234,7 +234,8 @@ public sealed record MatchState
         long? rngCursor = null,
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
         string? extraTurnPlayerId = null,
-        IReadOnlyDictionary<string, int>? playerExperience = null)
+        IReadOnlyDictionary<string, int>? playerExperience = null,
+        IReadOnlyDictionary<string, int>? playerCardsPlayedThisTurn = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -260,6 +261,7 @@ public sealed record MatchState
         PlayerZones = NormalizePlayerZones(playerZones);
         PlayerScores = NormalizePlayerScores(playerScores);
         PlayerExperience = NormalizePlayerExperience(playerExperience);
+        PlayerCardsPlayedThisTurn = NormalizePlayerCardsPlayedThisTurn(playerCardsPlayedThisTurn);
         CardObjects = NormalizeCardObjects(cardObjects);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
@@ -301,6 +303,8 @@ public sealed record MatchState
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerExperience { get; init; }
+
+    public IReadOnlyDictionary<string, int> PlayerCardsPlayedThisTurn { get; init; }
 
     public IReadOnlyDictionary<string, CardObjectState> CardObjects { get; init; }
 
@@ -418,6 +422,17 @@ public sealed record MatchState
     {
         return (playerExperience ?? new Dictionary<string, int>(StringComparer.Ordinal))
             .Where(entry => !string.IsNullOrWhiteSpace(entry.Key))
+            .ToDictionary(
+                entry => entry.Key.Trim(),
+                entry => entry.Value,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> NormalizePlayerCardsPlayedThisTurn(
+        IReadOnlyDictionary<string, int>? playerCardsPlayedThisTurn)
+    {
+        return (playerCardsPlayedThisTurn ?? new Dictionary<string, int>(StringComparer.Ordinal))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Value > 0)
             .ToDictionary(
                 entry => entry.Key.Trim(),
                 entry => entry.Value,
@@ -592,6 +607,9 @@ public sealed record ResolutionResult(
             ["handSize"] = zones.Hand.Count,
             ["score"] = state.PlayerScores.TryGetValue(subjectPlayerId, out var score) ? score : 0,
             ["experience"] = state.PlayerExperience.TryGetValue(subjectPlayerId, out var experience) ? experience : 0,
+            ["cardsPlayedThisTurn"] = state.PlayerCardsPlayedThisTurn.TryGetValue(subjectPlayerId, out var cardsPlayedThisTurn)
+                ? cardsPlayedThisTurn
+                : 0,
             ["runePool"] = state.RunePools.TryGetValue(subjectPlayerId, out var runePool)
                 ? new Dictionary<string, object?>
                 {
@@ -1165,7 +1183,8 @@ public sealed class MatchSession : IMatchSession
                 RunePools = RunePoolsForSeats(state.RunePools, seats.Keys),
                 PlayerZones = PlayerZonesForSeats(state.PlayerZones, seats.Keys),
                 PlayerScores = PlayerScoresForSeats(state.PlayerScores, seats.Keys),
-                PlayerExperience = PlayerExperienceForSeats(state.PlayerExperience, seats.Keys)
+                PlayerExperience = PlayerExperienceForSeats(state.PlayerExperience, seats.Keys),
+                PlayerCardsPlayedThisTurn = PlayerCardsPlayedThisTurnForSeats(state.PlayerCardsPlayedThisTurn, seats.Keys)
             };
             return PlayerSessionFor(normalizedPlayerId);
         }
@@ -1630,6 +1649,18 @@ public sealed class MatchSession : IMatchSession
             playerId => playerId,
             playerId => current.TryGetValue(playerId, out var experience) ? experience : 0,
             StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, int> PlayerCardsPlayedThisTurnForSeats(
+        IReadOnlyDictionary<string, int> current,
+        IEnumerable<string> playerIds)
+    {
+        return playerIds
+            .Where(playerId => current.TryGetValue(playerId, out var count) && count > 0)
+            .ToDictionary(
+                playerId => playerId,
+                playerId => current[playerId],
+                StringComparer.Ordinal);
     }
 
     private PlayerSessionDto PlayerSessionFor(string playerId)

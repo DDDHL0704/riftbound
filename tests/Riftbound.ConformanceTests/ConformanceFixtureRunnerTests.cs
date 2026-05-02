@@ -16894,6 +16894,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
+    [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -16906,6 +16907,93 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-noxian-recruit-encourage-cost-reduction.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-EQUIPMENT-RAGE-SIGIL", "P1-UNIT-NOXIAN-RECRUIT"],
+            result.FinalState.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsNoxianRecruitEncourageReductionWithoutPriorCardThisTurn()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-NOXIAN-RECRUIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-encourage-insufficient-without-prior-card", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-NOXIAN-RECRUIT",
+                "OGN·012/298",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.False(result.State.PlayerCardsPlayedThisTurn.ContainsKey("P1"));
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-NOXIAN-RECRUIT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4CardsPlayedThisTurnMemoryResetsWhenTurnEnds()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 2,
+                ["P2"] = 1
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001"]
+                }
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-cards-played-reset-end-turn", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Empty(result.State.PlayerCardsPlayedThisTurn);
     }
 
     [Fact]
