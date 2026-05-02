@@ -3929,6 +3929,21 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-SPINNING-AXE-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysShepherdsHeirloomWeaponEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json",
+            "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
+            expectedTags: [CardObjectTags.EquipmentCard, "武装"]);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsShepherdsHeirloomWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SHEPHERDS-HEIRLOOM",
+            "UNL-158/219",
+            "P1-SHEPHERDS-HEIRLOOM-BASE-UNIT-001");
+
+    [Fact]
     public Task CoreRuleEnginePlaysBrutalizerEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-brutalizer-equipment.fixture.json",
@@ -5778,6 +5793,164 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(6, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-MEGASHARK-CANNON"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-BATTLEFIELD-MEGASHARK-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCarnivorousVinetendrilSourceTargetPowerDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-carnivorous-vinetendril-source-target-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-CARNIVOROUS-VINETENDRIL"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-VINETENDRIL-TARGET-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-CARNIVOROUS-VINETENDRIL"].Damage);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-CARNIVOROUS-VINETENDRIL"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCarnivorousVinetendrilWhenTargetIsFriendlyUnit()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CARNIVOROUS-VINETENDRIL"],
+                    Battlefields = ["P1-BATTLEFIELD-VINETENDRIL-FRIENDLY-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-VINETENDRIL-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-VINETENDRIL-FRIENDLY-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-vinetendril-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+                "OGN·149/298",
+                ["P1-BATTLEFIELD-VINETENDRIL-FRIENDLY-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-CARNIVOROUS-VINETENDRIL"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-VINETENDRIL-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysColdBloodedAristocratDestroyFriendlyUnitAdditionalCost()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-cold-blooded-aristocrat-destroy-friendly-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-COLD-BLOODED-ARISTOCRAT"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-COLD-BLOODED-COST-UNIT-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-COLD-BLOODED-ARISTOCRAT"].Power);
+        Assert.DoesNotContain("P1-COLD-BLOODED-COST-UNIT-001", result.FinalState.CardObjects.Keys);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsColdBloodedAristocratWithoutAdditionalCost()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-COLD-BLOODED-ARISTOCRAT"],
+                    Base = ["P1-COLD-BLOODED-COST-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-COLD-BLOODED-COST-UNIT-001"] = new(
+                    "P1-COLD-BLOODED-COST-UNIT-001",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-cold-blooded-aristocrat-missing-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-COLD-BLOODED-ARISTOCRAT", "OGN·208/298", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-COLD-BLOODED-ARISTOCRAT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-COLD-BLOODED-COST-UNIT-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsColdBloodedAristocratWhenAdditionalCostTargetsEquipment()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-COLD-BLOODED-ARISTOCRAT"],
+                    Base = ["P1-COLD-BLOODED-COST-EQUIPMENT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-COLD-BLOODED-COST-EQUIPMENT-001"] = new(
+                    "P1-COLD-BLOODED-COST-EQUIPMENT-001",
+                    tags: [CardObjectTags.EquipmentCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-cold-blooded-aristocrat-equipment-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-COLD-BLOODED-ARISTOCRAT",
+                "OGN·208/298",
+                [],
+                OptionalCosts: ["DESTROY_FRIENDLY_UNIT:P1-COLD-BLOODED-COST-EQUIPMENT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-COLD-BLOODED-ARISTOCRAT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-COLD-BLOODED-COST-EQUIPMENT-001"], result.State.PlayerZones["P1"].Base);
         Assert.Empty(result.State.StackItems);
     }
 

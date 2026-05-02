@@ -11,6 +11,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string DestroyOnNextDamageThisTurnEffectId = "DESTROY_ON_NEXT_DAMAGE_THIS_TURN";
     private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
+    private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
     private const string DestroyFriendlyTraitUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_TRAIT_UNIT:";
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
@@ -310,6 +311,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Count != 1)
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
             && destroyedAdditionalCostTargetObjectIds.Count != 1)
         {
@@ -336,6 +347,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             rejection = RejectWithCorePrompts(
                 state,
                 $"{behavior.DisplayName} requires an active friendly unit for its optional cost.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
+                !CanDestroyFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires a friendly unit as an additional cost.",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -1097,6 +1119,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
+            && behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            && TryParseDestroyFriendlyUnitAdditionalCost(
+                normalizedOptionalCosts[0],
+                out var destroyedFriendlyUnitTargetObjectId))
+        {
+            destroyedAdditionalCostTargetObjectIds = [destroyedFriendlyUnitTargetObjectId];
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
             && behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
             && TryParseDestroyFriendlyPowerfulUnitAdditionalCost(
                 normalizedOptionalCosts[0],
@@ -1164,6 +1196,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
+    private static bool TryParseDestroyFriendlyUnitAdditionalCost(
+        string optionalCost,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!optionalCost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        targetObjectId = optionalCost[DestroyFriendlyUnitAdditionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
     private static bool TryParseDestroyFriendlyTraitUnitAdditionalCost(
         string optionalCost,
         out string targetObjectId)
@@ -1224,6 +1270,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         return IsControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Power >= 5;
+    }
+
+    private static bool CanDestroyFriendlyUnitAsAdditionalCost(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return IsControlledFieldObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
     private static bool CanDestroyFriendlyTraitUnitAsAdditionalCost(
@@ -2117,6 +2173,53 @@ public sealed class CoreRuleEngine : IRuleEngine
                             damageApplication,
                             secondTargetObjectId)));
                 }
+            }
+        }
+        else if (behavior.DealsSourceAndTargetPowerDamage
+            && stackItem.TargetObjectIds.Count >= 1)
+        {
+            var targetObjectId = stackItem.TargetObjectIds[0];
+            var sourcePower = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+                ? Math.Max(0, sourceState.Power)
+                : 0;
+            var targetPower = cardObjects.TryGetValue(targetObjectId, out var targetState)
+                ? Math.Max(0, targetState.Power)
+                : 0;
+
+            if (sourcePower > 0
+                && cardObjects.ContainsKey(targetObjectId))
+            {
+                var damageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    targetObjectId,
+                    sourcePower,
+                    damageTriggeredDestroyTargetObjectIds);
+                events.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    $"{behavior.DisplayName}造成源单位互斗伤害",
+                    BuildDamagePayload(
+                        stackItem.SourceObjectId,
+                        targetObjectId,
+                        damageApplication,
+                        stackItem.SourceObjectId)));
+            }
+
+            if (targetPower > 0
+                && cardObjects.ContainsKey(stackItem.SourceObjectId))
+            {
+                var damageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    stackItem.SourceObjectId,
+                    targetPower,
+                    damageTriggeredDestroyTargetObjectIds);
+                events.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    $"{behavior.DisplayName}造成目标单位互斗伤害",
+                    BuildDamagePayload(
+                        stackItem.SourceObjectId,
+                        stackItem.SourceObjectId,
+                        damageApplication,
+                        targetObjectId)));
             }
         }
         else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower

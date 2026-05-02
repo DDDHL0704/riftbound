@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-carnivorous-vinetendril-source-target-damage",
+  "description": "Carnivorous Vinetendril enters as a unit object and trades power damage with an enemy battlefield unit.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302792,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·149/298 食肉蛇藤",
+      "note": "官方卡面：费用 5；单位；战力 6；当你打出我时，选择任意战场上的一名敌方单位，让我和这名单位相互以自身战力给对方造成伤害。当前 fixture 覆盖源单位入场后与敌方战场单位互伤并进行致命伤害清理。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356; p62-p63 rule 428",
+      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；伤害记录到单位对象，伤害达到战力后按致命伤害摧毁。"
+    }
+  ],
+  "roomId": "p2-preflight-carnivorous-vinetendril-room",
+  "players": [
+    "P1",
+    "P2"
+  ],
+  "initialState": {
+    "seed": 2603302792,
+    "turnNumber": 792,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": {
+        "mana": 5,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-UNIT-CARNIVOROUS-VINETENDRIL"
+        ],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
+      },
+      "P2": {
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
+        "hand": [],
+        "base": [],
+        "battlefields": [
+          "P2-BATTLEFIELD-VINETENDRIL-TARGET-001"
+        ],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
+      }
+    },
+    "cardObjects": {
+      "P2-BATTLEFIELD-VINETENDRIL-TARGET-001": {
+        "power": 4,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-carnivorous-vinetendril-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+        "cardNo": "OGN·149/298",
+        "targetObjectIds": [
+          "P2-BATTLEFIELD-VINETENDRIL-TARGET-001"
+        ]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-carnivorous-vinetendril-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-carnivorous-vinetendril-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_DESTROYED"
+    ],
+    "events": [
+      {
+        "kind": "CARD_PLAYED"
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 5,
+          "baseMana": 5
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "cardNo": "OGN·149/298",
+          "targetObjectIds": [
+            "P2-BATTLEFIELD-VINETENDRIL-TARGET-001"
+          ],
+          "effectKind": "CARNIVOROUS_VINETENDRIL_SOURCE_TARGET_POWER_DAMAGE"
+        }
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "unitObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "unitName": "食肉蛇藤",
+          "destinationZone": "BASE",
+          "power": 6,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "damageSourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "targetObjectId": "P2-BATTLEFIELD-VINETENDRIL-TARGET-001",
+          "damage": 6
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "damageSourceObjectId": "P2-BATTLEFIELD-VINETENDRIL-TARGET-001",
+          "targetObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "damage": 4
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-CARNIVOROUS-VINETENDRIL",
+          "targetObjectId": "P2-BATTLEFIELD-VINETENDRIL-TARGET-001",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "reason": "LETHAL_DAMAGE"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
+    },
+    "finalState": {
+      "turnNumber": 792,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [
+            "P1-UNIT-CARNIVOROUS-VINETENDRIL"
+          ],
+          "graveyard": []
+        },
+        "P2": {
+          "battlefields": [],
+          "graveyard": [
+            "P2-BATTLEFIELD-VINETENDRIL-TARGET-001"
+          ]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-CARNIVOROUS-VINETENDRIL": {
+          "damage": 4,
+          "power": 6,
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
+          "isExhausted": false
+        }
+      }
+    },
+    "prompts": {
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
+    }
+  }
+}
