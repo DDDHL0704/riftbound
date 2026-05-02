@@ -10,18 +10,32 @@
 - 上一个 P2 功能基线：`OGN·109/298` 《蒙多医生》的废牌堆计数动态战力单位入场路径、`ARC-001/006` 至 `ARC-006/006` 的 ARC 官方英雄单位入场/标签静态代表路径、`UNL-194/219` 《黑影》的专属单位基地入场路径，以及 `UNL-196/219` 《小菊！》和 `OGS·018/024` 《提伯斯》的专属单位入场路径
 - 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `1611/1611`
 - 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `1563/1563`
-- 最小 card behavior registry：`789/811 = 97.3%`
-- P2 preflight 清单：当前 Part 已完成到 `811/811`；后续低复杂度延展已新增 `13` 张官方卡牌/模式
+- 最小 card behavior registry：`789/811 = 97.3%`；2026-05-02 复核后，当前低复杂度 `PLAY_CARD` 候选已清空，剩余未覆盖项属于下方 Scope Audit 的 blocked / 非 `PLAY_CARD` 类别
+- P2 preflight 清单：当前 Part 已完成到 `811/811 = 100.0%`；后续低复杂度延展已新增 `13` 张官方卡牌/模式
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
+
+## Scope Audit
+
+2026-05-02 对官网 `811` 个 functional units 与当前 `CardBehaviorRegistry` 做只读差集复核后，排除符文、传奇、战场和纯指示物，未覆盖的可打出官方牌只剩 `5` 张法术，且都不是低复杂度 P2 preflight 适合继续顺手迁移的目标：
+
+| cardNo | 名称 | 暂缓原因 |
+|---|---|---|
+| `SFD·011/221` | 取放自如 | 需要完整武装贴附/卸除模型。 |
+| `OGN·025/298` | 暴怒冲动 | 需要多玩家牌堆顶展示、临时控制和免费打出模型。 |
+| `OGN·080/298` | 倒转神通 | 需要法术控制权转移和目标重选模型。 |
+| `OGN·115/298` | 光明未来 | 需要多玩家查看顶部五张、批量回收和依次免费打出模型。 |
+| `OGN·244/298` | 圣裁之刻 | 需要跨区域保留选择与大规模回收模型。 |
+
+差集中的其他未覆盖 functional units 是非当前 `PLAY_CARD` 低复杂度迁移目标：符文 `6`、传奇 `44`、战场 `54`、指示物 `13`。因此 P2 core rules preflight 的低复杂度官方卡牌迁移范围已收口；若继续追 `811/811` full registry，需要进入 P3/P6 级别的贴附、战场、传奇、符文、批量选择和免费打出系统，而不是继续在当前 P2 小批次内加 fixture。
 
 ## Current Focus
 
-继续 P2 core rules preflight，逐批迁移低复杂度官方卡牌/模式。优先选择：
+P2 core rules preflight 当前焦点转为收口与升级准备：保持现有 fixture 绿色，避免把 blocked 的复杂系统混进低复杂度批次。后续若用户明确要求继续推进 full registry，应优先拆解小模型：
 
-- 费用清晰、单目标或少量目标
-- 伤害、摧毁、回手、抽牌、本回合效果
-- 简单标签、装备对象、战力修正
-- 能复用现有 `CardBehaviorRegistry`、`CoreRuleEngine` 和 fixture runner 能力的路径
+- 武装贴附/卸除与装备 owner/controller
+- 法术控制权转移、目标重选和免费打出
+- 多玩家查看牌堆顶、选择、回收和隐藏信息边界
+- 战场、传奇、符文和指示物的非 `PLAY_CARD` 行为台账
 
 暂不进入：
 
