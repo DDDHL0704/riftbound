@@ -10206,6 +10206,89 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBerserkImpulseOpponentTopUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-berserk-impulse-play-opponent-top-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-BASE-UNIT-001", "P2-BERSERK-IMPULSE-TOP-UNIT"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BERSERK-IMPULSE-DECK-KEEP"], result.FinalState.PlayerZones["P2"].MainDeck);
+        Assert.Equal(["P1-SPELL-BERSERK-IMPULSE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].Damage);
+        Assert.Empty(result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].UntilEndOfTurnEffects);
+        Assert.False(result.FinalState.CardObjects["P2-BERSERK-IMPULSE-TOP-UNIT"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBerserkImpulseInvalidTopDeckTargets()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BERSERK-IMPULSE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P2-BERSERK-IMPULSE-TOP-SPELL",
+                        "P2-BERSERK-IMPULSE-SECOND-UNIT"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BERSERK-IMPULSE-TOP-SPELL"] = new(
+                    "P2-BERSERK-IMPULSE-TOP-SPELL",
+                    tags: [CardObjectTags.SpellCard]),
+                ["P2-BERSERK-IMPULSE-SECOND-UNIT"] = new(
+                    "P2-BERSERK-IMPULSE-SECOND-UNIT",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P2-BERSERK-IMPULSE-TOP-SPELL"],
+            ["P2-BERSERK-IMPULSE-SECOND-UNIT"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-berserk-impulse-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-BERSERK-IMPULSE",
+                    "OGN·025/298",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+            Assert.Equal(["P1-SPELL-BERSERK-IMPULSE"], result.State.PlayerZones["P1"].Hand);
+            Assert.Equal(
+                ["P2-BERSERK-IMPULSE-TOP-SPELL", "P2-BERSERK-IMPULSE-SECOND-UNIT"],
+                result.State.PlayerZones["P2"].MainDeck);
+        }
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysJudgmentDayRecycleUnkept()
     {
         var fixture = await ConformanceFixture.LoadAsync(

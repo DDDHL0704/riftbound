@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-berserk-impulse-play-opponent-top-unit",
+  "description": "Berserk Impulse plays the chosen opponent top-deck unit as the controller's own card.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302837,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·025/298 暴怒冲动",
+      "note": "官方卡面：费用 4；返还 2；迅捷；每名对手展示主牌堆顶一张牌，你从中选择一张，并当作自己的牌打出、无视费用，然后回收其余卡牌。当前 2P fixture 覆盖唯一对手牌堆顶为单位牌时，将其从对手主牌堆顶打出到来源控制者基地；多对手其余已展示牌回收、非单位牌免费打出分支和法术对决时机暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "打出法术需要目标合法、支付费用并作为结算链项目在双方让过后结算；卡面效果可以移动公开/已选择对象并让单位进入公开区域。"
+    }
+  ],
+  "roomId": "p2-preflight-berserk-impulse-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302837,
+    "turnNumber": 837,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-BERSERK-IMPULSE"],
+        "base": ["P1-BASE-UNIT-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": [
+          "P2-BERSERK-IMPULSE-TOP-UNIT",
+          "P2-BERSERK-IMPULSE-DECK-KEEP"
+        ],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-BERSERK-IMPULSE-TOP-UNIT": {
+        "damage": 1,
+        "power": 6,
+        "manaCost": 6,
+        "untilEndOfTurnEffects": ["STUNNED"],
+        "isExhausted": true,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-BERSERK-IMPULSE-DECK-KEEP": {
+        "manaCost": 1,
+        "tags": ["CARD_TYPE:SPELL"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-berserk-impulse-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-BERSERK-IMPULSE",
+        "cardNo": "OGN·025/298",
+        "targetObjectIds": ["P2-BERSERK-IMPULSE-TOP-UNIT"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-berserk-impulse-p1-pass",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p2-preflight-berserk-impulse-p2-pass",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-BERSERK-IMPULSE",
+          "cardNo": "OGN·025/298",
+          "targetObjectIds": ["P2-BERSERK-IMPULSE-TOP-UNIT"],
+          "effectKind": "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-BERSERK-IMPULSE",
+          "targetObjectId": "P2-BERSERK-IMPULSE-TOP-UNIT",
+          "ownerPlayerId": "P2",
+          "playedByPlayerId": "P1",
+          "sourceZone": "MAIN_DECK",
+          "destinationZone": "BASE"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 837,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [
+            "P1-BASE-UNIT-001",
+            "P2-BERSERK-IMPULSE-TOP-UNIT"
+          ],
+          "graveyard": ["P1-SPELL-BERSERK-IMPULSE"]
+        },
+        "P2": {
+          "mainDeck": ["P2-BERSERK-IMPULSE-DECK-KEEP"],
+          "base": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-BERSERK-IMPULSE-TOP-UNIT": {
+          "damage": 0,
+          "power": 6,
+          "manaCost": 6,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false
+        },
+        "P2-BERSERK-IMPULSE-DECK-KEEP": {
+          "manaCost": 1,
+          "tags": ["CARD_TYPE:SPELL"]
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": {
+        "actionable": true,
+        "actions": ["END_TURN"]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": ["WAIT"]
+      }
+    }
+  }
+}

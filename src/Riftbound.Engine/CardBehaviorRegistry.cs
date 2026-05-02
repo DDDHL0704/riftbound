@@ -152,7 +152,8 @@ public sealed record CardBehaviorDefinition(
     bool PreventsAllSpellAndSkillDamageThisTurn = false,
     bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false,
     bool GainsControlOfTargetStackSpell = false,
-    bool RecyclesUnkeptSacredJudgmentCards = false);
+    bool RecyclesUnkeptSacredJudgmentCards = false,
+    bool PlaysOpponentTopMainDeckUnitToBase = false);
 
 public static class CardDamageConditionKinds
 {
@@ -189,6 +190,7 @@ public static class CardTargetScopes
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
+    public const string OpponentMainDeckTopCard = "OPPONENT_MAIN_DECK_TOP_CARD";
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string StackSpell = "STACK_SPELL";
@@ -7637,6 +7639,16 @@ public static class CardBehaviorRegistry
             0,
             0,
             DestroysAllEquipment: true),
+        new(
+            "OGN·025/298",
+            "暴怒冲动",
+            4,
+            "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.OpponentMainDeckTopCard,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            PlaysOpponentTopMainDeckUnitToBase: true),
         new(
             "OGN·064/298",
             "风之障壁",
