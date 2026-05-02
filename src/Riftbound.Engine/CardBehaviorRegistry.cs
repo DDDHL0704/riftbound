@@ -136,7 +136,8 @@ public sealed record CardBehaviorDefinition(
     bool RequiresTargetStackItemControlledByEnemy = false,
     bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false,
     bool RequiresTargetStackItemTargetsFirstTarget = false,
-    bool RequiresTargetStackItemTargetsNoOtherFriendlyUnits = false);
+    bool RequiresTargetStackItemTargetsNoOtherFriendlyUnits = false,
+    bool AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7521,6 +7522,17 @@ public static class CardBehaviorRegistry
             RequiresTargetStackItemControlledByEnemy: true,
             RequiresTargetStackItemTargetsFirstTarget: true,
             RequiresTargetStackItemTargetsNoOtherFriendlyUnits: true),
+        new(
+            "SFD·206/221",
+            "劳伦特心眼刀",
+            2,
+            "LAURENT_DUELIST_COUNTER_SPELL_POWER_BY_SPELL_COST",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true,
+            AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost: true),
         new(
             "UNL-131/219",
             "遗弃",

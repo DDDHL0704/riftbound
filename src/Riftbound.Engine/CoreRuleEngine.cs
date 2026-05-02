@@ -1028,16 +1028,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         targetManaCost = 0;
         if (string.Equals(behavior.TargetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal))
         {
-            var stackItem = state.StackItems.FirstOrDefault(candidate =>
-                string.Equals(candidate.StackItemId, objectId, StringComparison.Ordinal));
-            if (stackItem is null
-                || !CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var targetBehavior))
-            {
-                return false;
-            }
-
-            targetManaCost = targetBehavior.ManaCost;
-            return true;
+            return TryGetStackItemManaCost(state, objectId, out targetManaCost);
         }
 
         if (!state.CardObjects.TryGetValue(objectId, out var targetState))
@@ -1046,6 +1037,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         targetManaCost = targetState.ManaCost;
+        return true;
+    }
+
+    private static bool TryGetStackItemManaCost(MatchState state, string stackItemId, out int manaCost)
+    {
+        manaCost = 0;
+        var stackItem = state.StackItems.FirstOrDefault(candidate =>
+            string.Equals(candidate.StackItemId, stackItemId, StringComparison.Ordinal));
+        if (stackItem is null
+            || !CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var targetBehavior))
+        {
+            return false;
+        }
+
+        manaCost = targetBehavior.ManaCost;
         return true;
     }
 
@@ -1060,7 +1066,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!behavior.RequiresTargetStackItemControlledByEnemy
             && !behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment
             && !behavior.RequiresTargetStackItemTargetsFirstTarget
-            && !behavior.RequiresTargetStackItemTargetsNoOtherFriendlyUnits)
+            && !behavior.RequiresTargetStackItemTargetsNoOtherFriendlyUnits
+            && !behavior.AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost)
         {
             return true;
         }
@@ -1764,6 +1771,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 counteredStackItemIds.Add(targetStackItemId);
                 events.Add(counteredEvent);
             }
+        }
+
+        if (behavior.AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost
+            && stackItem.TargetObjectIds.Count >= 2
+            && cardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var dynamicPowerTargetState)
+            && TryGetStackItemManaCost(state, stackItem.TargetObjectIds[1], out var stackSpellManaCost)
+            && stackSpellManaCost != 0)
+        {
+            var modifiedFirstTargetState = ApplyPowerModifier(
+                dynamicPowerTargetState,
+                behavior,
+                stackItem,
+                stackItem.TargetObjectIds[0],
+                stackSpellManaCost,
+                out var powerEvent);
+            cardObjects[stackItem.TargetObjectIds[0]] = modifiedFirstTargetState;
+            events.Add(powerEvent);
         }
 
         if (behavior.AppliesPowerModifierToSourceUnit

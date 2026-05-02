@@ -9413,6 +9413,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysLaurentDuelistCounterSpellPowerBySpellCost()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-laurent-duelist-counter-spell-power-by-cost.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-LAURENT-DUELIST-001"].Damage);
+        Assert.Equal(5, result.FinalState.CardObjects["P2-UNIT-LAURENT-DUELIST-001"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-UNIT-LAURENT-DUELIST-001"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-SPELL-LAURENT-DUELIST"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with
@@ -10235,6 +10256,126 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P2"]);
         Assert.Equal(["P2-SPELL-REPEL"], result.State.PlayerZones["P2"].Hand);
         Assert.Equal(["STACK-1-P1-SPELL-STELLAR-CONVERGENCE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsLaurentDuelistAgainstUnitStackItem()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(2, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-LAURENT-DUELIST"],
+                    Battlefields = ["P2-UNIT-LAURENT-DUELIST-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-LAURENT-DUELIST-001"] = new(
+                    "P2-UNIT-LAURENT-DUELIST-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-UNIT-SCUTTLE",
+                    "P1",
+                    "P1-UNIT-SCUTTLE",
+                    "SCUTTLE_CRAB_PLAY_UNIT_DRAW_1",
+                    "UNL-053/219",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-laurent-duelist-unit-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-LAURENT-DUELIST",
+                "SFD·206/221",
+                ["P2-UNIT-LAURENT-DUELIST-001", "STACK-1-P1-UNIT-SCUTTLE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-LAURENT-DUELIST"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsLaurentDuelistWhenFirstTargetIsEnemyUnit()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(2, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-LAURENT-DUELIST-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-LAURENT-DUELIST"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-LAURENT-DUELIST-001"] = new(
+                    "P1-UNIT-LAURENT-DUELIST-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-INCINERATE",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P1-UNIT-LAURENT-DUELIST-001"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-laurent-duelist-enemy-unit-first-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-LAURENT-DUELIST",
+                "SFD·206/221",
+                ["P1-UNIT-LAURENT-DUELIST-001", "STACK-1-P1-SPELL-INCINERATE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-LAURENT-DUELIST"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], result.State.StackItems.Select(item => item.StackItemId));
     }
 
     [Fact]
