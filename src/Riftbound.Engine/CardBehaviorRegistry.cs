@@ -2650,6 +2650,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7,
             SourceUnitTags: "急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1,
             ModifiesAllEnemyUnits: true),
         new(
             "OGN·013/298",
