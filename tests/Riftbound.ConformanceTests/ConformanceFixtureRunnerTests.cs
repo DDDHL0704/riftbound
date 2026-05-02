@@ -3869,6 +3869,66 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-RECURVE-BOW-BASE-UNIT-001");
 
     [Fact]
+    public Task CoreRuleEnginePlaysLongSwordAgileEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-long-sword-agile-equipment.fixture.json",
+            "P1-EQUIPMENT-LONG-SWORD",
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"]);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsLongSwordWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-LONG-SWORD",
+            "SFD·022/221",
+            "P1-LONG-SWORD-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSteraksGageAgileEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-steraks-gage-agile-equipment.fixture.json",
+            "P1-EQUIPMENT-STERAKS-GAGE",
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"]);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSteraksGageWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            3,
+            "P1-EQUIPMENT-STERAKS-GAGE",
+            "SFD·056/221",
+            "P1-STERAKS-GAGE-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysClothArmorAgileEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-cloth-armor-agile-equipment.fixture.json",
+            "P1-EQUIPMENT-CLOTH-ARMOR",
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便"]);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsClothArmorWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            1,
+            "P1-EQUIPMENT-CLOTH-ARMOR",
+            "SFD·064/221",
+            "P1-CLOTH-ARMOR-BASE-UNIT-001");
+
+    [Fact]
+    public Task CoreRuleEnginePlaysSpinningAxeAgileEphemeralEquipment() =>
+        AssertSimpleEquipmentFixtureAsync(
+            "p2-preflight-play-spinning-axe-agile-ephemeral-equipment.fixture.json",
+            "P1-EQUIPMENT-SPINNING-AXE",
+            expectedTags: [CardObjectTags.EquipmentCard, "武装", "灵便", CardObjectTags.Ephemeral]);
+
+    [Fact]
+    public Task CoreRuleEngineRejectsSpinningAxeWhenTargetsAreProvided() =>
+        AssertEquipmentWithTargetRejectedAsync(
+            2,
+            "P1-EQUIPMENT-SPINNING-AXE",
+            "SFD·186/221",
+            "P1-SPINNING-AXE-BASE-UNIT-001");
+
+    [Fact]
     public Task CoreRuleEnginePlaysBrutalizerEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-brutalizer-equipment.fixture.json",
