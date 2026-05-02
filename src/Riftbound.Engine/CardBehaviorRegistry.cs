@@ -2493,7 +2493,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 1,
-            SourceUnitTags: "仙灵|急速"),
+            SourceUnitTags: "仙灵|急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·068/221",
             "机械迷",
