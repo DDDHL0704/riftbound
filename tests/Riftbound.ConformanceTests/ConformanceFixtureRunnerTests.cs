@@ -9394,6 +9394,25 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysRepelCounterEnemySpellTargetingChosenFriendlyUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-repel-counter-enemy-spell-targeting-chosen-friendly-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-REPEL-001"].Damage);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-SPELL-REPEL"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with
@@ -9972,6 +9991,250 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
         Assert.Equal(["P2-SPELL-QUICK-COUNTER"], result.State.PlayerZones["P2"].Hand);
         Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRepelAgainstUnitStackItem()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-REPEL"],
+                    Battlefields = ["P2-UNIT-REPEL-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-REPEL-001"] = new(
+                    "P2-UNIT-REPEL-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-UNIT-SCUTTLE",
+                    "P1",
+                    "P1-UNIT-SCUTTLE",
+                    "SCUTTLE_CRAB_PLAY_UNIT_DRAW_1",
+                    "UNL-053/219",
+                    ["P2-UNIT-REPEL-001"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-repel-unit-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-REPEL",
+                "UNL-106/219",
+                ["P2-UNIT-REPEL-001", "STACK-1-P1-UNIT-SCUTTLE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-REPEL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRepelAgainstFriendlyControlledStackItem()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-REPEL"],
+                    Battlefields = ["P2-UNIT-REPEL-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-REPEL-001"] = new(
+                    "P2-UNIT-REPEL-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P2-SPELL-INCINERATE",
+                    "P2",
+                    "P2-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-REPEL-001"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-repel-friendly-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-REPEL",
+                "UNL-106/219",
+                ["P2-UNIT-REPEL-001", "STACK-1-P2-SPELL-INCINERATE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-REPEL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P2-SPELL-INCINERATE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRepelWhenEnemySpellDoesNotTargetChosenUnit()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-REPEL"],
+                    Battlefields = ["P2-UNIT-REPEL-001", "P2-UNIT-REPEL-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-REPEL-001"] = new(
+                    "P2-UNIT-REPEL-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-UNIT-REPEL-002"] = new(
+                    "P2-UNIT-REPEL-002",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-INCINERATE",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-REPEL-002"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-repel-spell-misses-chosen-unit", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-REPEL",
+                "UNL-106/219",
+                ["P2-UNIT-REPEL-001", "STACK-1-P1-SPELL-INCINERATE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-REPEL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRepelWhenEnemySpellTargetsAnotherFriendlyUnitToo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-REPEL"],
+                    Battlefields = ["P2-UNIT-REPEL-001", "P2-UNIT-REPEL-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-REPEL-001"] = new(
+                    "P2-UNIT-REPEL-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-UNIT-REPEL-002"] = new(
+                    "P2-UNIT-REPEL-002",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-STELLAR-CONVERGENCE",
+                    "P1",
+                    "P1-SPELL-STELLAR-CONVERGENCE",
+                    "STELLAR_CONVERGENCE_DAMAGE_6_UP_TO_2",
+                    "OGN·105/298",
+                    ["P2-UNIT-REPEL-001", "P2-UNIT-REPEL-002"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-repel-spell-targets-other-friendly-unit", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-REPEL",
+                "UNL-106/219",
+                ["P2-UNIT-REPEL-001", "STACK-1-P1-SPELL-STELLAR-CONVERGENCE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-REPEL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-SPELL-STELLAR-CONVERGENCE"], result.State.StackItems.Select(item => item.StackItemId));
     }
 
     [Fact]

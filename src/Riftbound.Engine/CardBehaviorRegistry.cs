@@ -134,7 +134,9 @@ public sealed record CardBehaviorDefinition(
     string CounteredStackItemDestination = CardCounteredStackItemDestinationZones.Graveyard,
     bool RequiresTargetManaCostAtMostControllerPower = false,
     bool RequiresTargetStackItemControlledByEnemy = false,
-    bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false);
+    bool RequiresTargetStackItemTargetsFriendlyUnitOrEquipment = false,
+    bool RequiresTargetStackItemTargetsFirstTarget = false,
+    bool RequiresTargetStackItemTargetsNoOtherFriendlyUnits = false);
 
 public static class CardDamageConditionKinds
 {
@@ -155,6 +157,7 @@ public static class CardTargetScopes
     public const string FriendlyEquipmentThenEnemyEquipment = "FRIENDLY_EQUIPMENT_THEN_ENEMY_EQUIPMENT";
     public const string FriendlyThenEnemyBattlefieldUnits = "FRIENDLY_THEN_ENEMY_BATTLEFIELD_UNITS";
     public const string FriendlyBattlefieldThenEnemyBattlefieldUnits = "FRIENDLY_BATTLEFIELD_THEN_ENEMY_BATTLEFIELD_UNITS";
+    public const string FriendlyBattlefieldUnitThenStackSpell = "FRIENDLY_BATTLEFIELD_UNIT_THEN_STACK_SPELL";
     public const string AnyUnitThenFriendlyMainDeckCard = "ANY_UNIT_THEN_FRIENDLY_MAIN_DECK_CARD";
     public const string FriendlyBattlefieldUnit = "FRIENDLY_BATTLEFIELD_UNIT";
     public const string FriendlyHandCard = "FRIENDLY_HAND_CARD";
@@ -7505,6 +7508,19 @@ public static class CardBehaviorRegistry
             CanPlayDuringPriority: true,
             RequiresTargetStackItemControlledByEnemy: true,
             RequiresTargetStackItemTargetsFriendlyUnitOrEquipment: true),
+        new(
+            "UNL-106/219",
+            "击退",
+            1,
+            "REPEL_COUNTER_ENEMY_SPELL_TARGETING_CHOSEN_FRIENDLY_UNIT",
+            0,
+            2,
+            TargetScope: CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true,
+            RequiresTargetStackItemControlledByEnemy: true,
+            RequiresTargetStackItemTargetsFirstTarget: true,
+            RequiresTargetStackItemTargetsNoOtherFriendlyUnits: true),
         new(
             "UNL-131/219",
             "遗弃",

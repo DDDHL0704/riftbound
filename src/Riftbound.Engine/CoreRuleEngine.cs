@@ -289,7 +289,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || !IsTargetRequiredTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetTagAllowed(state, targetObjectId, behavior)
                 || !IsTargetManaCostAllowed(state, intent.PlayerId, targetObjectId, behavior)
-                || !IsStackItemTargetConditionAllowed(state, intent.PlayerId, targetObjectId, behavior)
+                || !IsStackItemTargetConditionAllowed(state, intent.PlayerId, targetObjectId, targetIndex, targetObjectIds, behavior)
                 || !IsTargetPowerAllowed(state, targetObjectId, behavior)).Any())
         {
             rejection = RejectWithCorePrompts(
@@ -831,6 +831,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
                 ? IsControlledBattlefieldObject(state, playerId, objectId)
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
+                ? IsControlledBattlefieldObject(state, playerId, objectId)
+                : IsStackSpellItem(state, objectId),
             CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => targetIndex == 0
                 ? IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId)
                 : IsFriendlyMainDeckCard(state, playerId, objectId),
@@ -1050,17 +1053,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         string playerId,
         string objectId,
+        int targetIndex,
+        IReadOnlyList<string> targetObjectIds,
         CardBehaviorDefinition behavior)
     {
         if (!behavior.RequiresTargetStackItemControlledByEnemy
-            && !behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment)
+            && !behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment
+            && !behavior.RequiresTargetStackItemTargetsFirstTarget
+            && !behavior.RequiresTargetStackItemTargetsNoOtherFriendlyUnits)
         {
             return true;
         }
 
-        if (!string.Equals(behavior.TargetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal))
+        if (!IsStackItemTargetIndex(behavior.TargetScope, targetIndex))
         {
-            return false;
+            return true;
         }
 
         var stackItem = state.StackItems.FirstOrDefault(candidate =>
@@ -1076,9 +1083,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        return !behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment
-            || stackItem.TargetObjectIds.Any(targetObjectId =>
-                IsFriendlyUnitOrEquipmentObject(state, playerId, targetObjectId));
+        if (behavior.RequiresTargetStackItemTargetsFriendlyUnitOrEquipment
+            && !stackItem.TargetObjectIds.Any(targetObjectId =>
+                IsFriendlyUnitOrEquipmentObject(state, playerId, targetObjectId)))
+        {
+            return false;
+        }
+
+        if (behavior.RequiresTargetStackItemTargetsFirstTarget
+            && (targetObjectIds.Count == 0
+                || !stackItem.TargetObjectIds.Contains(targetObjectIds[0], StringComparer.Ordinal)))
+        {
+            return false;
+        }
+
+        return !behavior.RequiresTargetStackItemTargetsNoOtherFriendlyUnits
+            || !stackItem.TargetObjectIds.Any(targetObjectId =>
+                targetObjectIds.Count > 0
+                && !string.Equals(targetObjectId, targetObjectIds[0], StringComparison.Ordinal)
+                && IsControlledFieldObject(state, playerId, targetObjectId)
+                && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard));
+    }
+
+    private static bool IsStackItemTargetIndex(string targetScope, int targetIndex)
+    {
+        return string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
+            ? targetIndex == 0
+            : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
+                && targetIndex == 1;
     }
 
     private static bool IsFriendlyUnitOrEquipmentObject(MatchState state, string playerId, string objectId)
@@ -1636,39 +1668,41 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 ? "friendly unit then enemy battlefield unit"
                                 : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits, StringComparison.Ordinal)
                                     ? "friendly battlefield unit then enemy battlefield unit"
-                                    : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnit, StringComparison.Ordinal)
-                                        ? "friendly battlefield unit"
-                                        : string.Equals(targetScope, CardTargetScopes.AnyUnitThenFriendlyMainDeckCard, StringComparison.Ordinal)
-                                            ? "unit then friendly main deck card"
-                                            : string.Equals(targetScope, CardTargetScopes.FriendlyHandCard, StringComparison.Ordinal)
-                                                ? "friendly hand card"
-                                                : string.Equals(targetScope, CardTargetScopes.FriendlyHandCardThenBattlefieldUnit, StringComparison.Ordinal)
-                                                    ? "friendly hand card then battlefield unit"
-                                                    : string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal)
-                                                        ? "friendly main deck card"
-                                                        : string.Equals(targetScope, CardTargetScopes.FriendlyGraveyardCard, StringComparison.Ordinal)
-                                                            ? "friendly graveyard card"
-                                                            : string.Equals(targetScope, CardTargetScopes.FriendlyBaseUnit, StringComparison.Ordinal)
-                                                                ? "friendly base unit"
-                                                                : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
-                                                                    ? "attacking unit"
-                                                                    : string.Equals(targetScope, CardTargetScopes.EnemyAttackingUnit, StringComparison.Ordinal)
-                                                                        ? "enemy attacking unit"
-                                                                        : string.Equals(targetScope, CardTargetScopes.EnemyBattlefieldUnit, StringComparison.Ordinal)
-                                                                            ? "enemy battlefield unit"
-                                                                            : string.Equals(targetScope, CardTargetScopes.EnemyUnit, StringComparison.Ordinal)
-                                                                                ? "enemy unit"
-                                                                                : string.Equals(targetScope, CardTargetScopes.EnemyUnitThenEnemyUnit, StringComparison.Ordinal)
-                                                                                    ? "enemy unit then another enemy unit"
-                                                                                    : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
-                                                                                        ? "opponent hand card"
-                                                                                        : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
-                                                                                            ? "opponent graveyard card"
-                                                                                            : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
-                                                                                                ? "equipment"
-                                                                                                : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
-                                                                                                    ? "spell on the stack"
-                                                                                                    : "battlefield unit";
+                                    : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
+                                        ? "friendly battlefield unit then spell on the stack"
+                                        : string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnit, StringComparison.Ordinal)
+                                            ? "friendly battlefield unit"
+                                            : string.Equals(targetScope, CardTargetScopes.AnyUnitThenFriendlyMainDeckCard, StringComparison.Ordinal)
+                                                ? "unit then friendly main deck card"
+                                                : string.Equals(targetScope, CardTargetScopes.FriendlyHandCard, StringComparison.Ordinal)
+                                                    ? "friendly hand card"
+                                                    : string.Equals(targetScope, CardTargetScopes.FriendlyHandCardThenBattlefieldUnit, StringComparison.Ordinal)
+                                                        ? "friendly hand card then battlefield unit"
+                                                        : string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal)
+                                                            ? "friendly main deck card"
+                                                            : string.Equals(targetScope, CardTargetScopes.FriendlyGraveyardCard, StringComparison.Ordinal)
+                                                                ? "friendly graveyard card"
+                                                                : string.Equals(targetScope, CardTargetScopes.FriendlyBaseUnit, StringComparison.Ordinal)
+                                                                    ? "friendly base unit"
+                                                                    : string.Equals(targetScope, CardTargetScopes.AttackingUnit, StringComparison.Ordinal)
+                                                                        ? "attacking unit"
+                                                                        : string.Equals(targetScope, CardTargetScopes.EnemyAttackingUnit, StringComparison.Ordinal)
+                                                                            ? "enemy attacking unit"
+                                                                            : string.Equals(targetScope, CardTargetScopes.EnemyBattlefieldUnit, StringComparison.Ordinal)
+                                                                                ? "enemy battlefield unit"
+                                                                                : string.Equals(targetScope, CardTargetScopes.EnemyUnit, StringComparison.Ordinal)
+                                                                                    ? "enemy unit"
+                                                                                    : string.Equals(targetScope, CardTargetScopes.EnemyUnitThenEnemyUnit, StringComparison.Ordinal)
+                                                                                        ? "enemy unit then another enemy unit"
+                                                                                        : string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
+                                                                                            ? "opponent hand card"
+                                                                                            : string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal)
+                                                                                                ? "opponent graveyard card"
+                                                                                                : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
+                                                                                                    ? "equipment"
+                                                                                                    : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
+                                                                                                        ? "spell on the stack"
+                                                                                                        : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
