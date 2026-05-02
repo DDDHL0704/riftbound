@@ -2483,6 +2483,47 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }));
             }
         }
+        else if (behavior.PlaysHandTargetToBase)
+        {
+            foreach (var targetObjectId in stackItem.TargetObjectIds)
+            {
+                if (!TryPlayHandCardToBase(
+                        playerZones,
+                        cardObjects,
+                        targetObjectId,
+                        behavior.StatusEffectId,
+                        out var ownerPlayerId,
+                        out _))
+                {
+                    continue;
+                }
+
+                events.Add(new GameEvent(
+                    "UNIT_PLAYED_TO_BASE",
+                    $"{behavior.DisplayName}打出手牌里的单位到基地",
+                    new Dictionary<string, object?>
+                    {
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["targetObjectId"] = targetObjectId,
+                        ["ownerPlayerId"] = ownerPlayerId,
+                        ["sourceZone"] = "HAND",
+                        ["destinationZone"] = "BASE"
+                    }));
+
+                if (!string.IsNullOrWhiteSpace(behavior.StatusEffectId))
+                {
+                    events.Add(new GameEvent(
+                        "STATUS_EFFECT_APPLIED",
+                        $"{behavior.DisplayName}施加{behavior.StatusEffectId}",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["targetObjectId"] = targetObjectId,
+                            ["effectId"] = behavior.StatusEffectId
+                        }));
+                }
+            }
+        }
         else if (behavior.DealsMutualTargetPowerDamage
             && stackItem.TargetObjectIds.Count >= 2)
         {
@@ -5364,6 +5405,56 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsExhausted = false
         };
         return true;
+    }
+
+    private static bool TryPlayHandCardToBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string statusEffectId,
+        out string ownerPlayerId,
+        out CardObjectState targetState)
+    {
+        ownerPlayerId = string.Empty;
+        targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+            ? existingTargetState
+            : new CardObjectState(targetObjectId);
+
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Hand = RemoveFromZone(zones.Hand, targetObjectId),
+                Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                    ? zones.Base
+                    : zones.Base.Concat([targetObjectId]).ToArray()
+            };
+
+            targetState = targetState with
+            {
+                Damage = 0,
+                Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+                UntilEndOfTurnEffects = string.IsNullOrWhiteSpace(statusEffectId)
+                    ? []
+                    : targetState.UntilEndOfTurnEffects
+                        .Concat([statusEffectId])
+                        .Distinct(StringComparer.Ordinal)
+                        .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                        .ToArray(),
+                UntilEndOfTurnPowerModifier = 0,
+                IsExhausted = false
+            };
+            cardObjects[targetObjectId] = targetState;
+            ownerPlayerId = playerId;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryMoveTargetToOwnerBase(

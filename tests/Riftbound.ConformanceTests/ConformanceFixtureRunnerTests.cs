@@ -1438,6 +1438,72 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBoneSkewerOpponentHandUnitStunned()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-bone-skewer-opponent-hand-unit-stunned.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P2-BONE-SKEWER-HAND-SPELL"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(
+            ["P2-BASE-UNIT-001", "P2-BONE-SKEWER-HAND-UNIT"],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Contains("STUNNED", result.FinalState.CardObjects["P2-BONE-SKEWER-HAND-UNIT"].UntilEndOfTurnEffects);
+        Assert.Equal(
+            1,
+            result.EventKinds.Count(kind => string.Equals(kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBoneSkewerWhenOpponentHandTargetIsNotUnit()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BONE-SKEWER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-BONE-SKEWER-HAND-SPELL"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BONE-SKEWER-HAND-SPELL"] = new(
+                    "P2-BONE-SKEWER-HAND-SPELL",
+                    tags: [CardObjectTags.SpellCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bone-skewer-non-unit-hand-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BONE-SKEWER",
+                "UNL-139/219",
+                ["P2-BONE-SKEWER-HAND-SPELL"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-BONE-SKEWER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-BONE-SKEWER-HAND-SPELL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPredictiveOffensiveDrawOneRecycleOther()
     {
         var fixture = await ConformanceFixture.LoadAsync(
