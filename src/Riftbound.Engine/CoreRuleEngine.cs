@@ -2225,6 +2225,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 behavior,
                 stackItem,
+                state.PlayerExperience,
                 events);
         }
 
@@ -4873,6 +4874,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
+        IReadOnlyDictionary<string, int> playerExperience,
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
@@ -4889,6 +4891,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
             ? baseUnitPower + zones.Graveyard.Count
             : baseUnitPower;
+        var levelApplies = ControllerMeetsLevelExperienceThreshold(
+            behavior,
+            stackItem.ControllerId,
+            playerExperience);
+        if (levelApplies)
+        {
+            unitPower += behavior.LevelSourceUnitPowerBonus;
+        }
+
         var hasteReadyOptionalCostPaid = CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(
             behavior,
             stackItem.OptionalCosts);
@@ -4899,6 +4910,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
                 .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
+                .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
@@ -4919,7 +4931,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 behavior,
                 unitState,
-                hasteReadyOptionalCostPaid)));
+            hasteReadyOptionalCostPaid)));
+    }
+
+    private static bool ControllerMeetsLevelExperienceThreshold(
+        CardBehaviorDefinition behavior,
+        string playerId,
+        IReadOnlyDictionary<string, int> playerExperience)
+    {
+        return behavior.LevelExperienceThreshold > 0
+            && playerExperience.TryGetValue(playerId, out var experience)
+            && experience >= behavior.LevelExperienceThreshold;
     }
 
     private static Dictionary<string, object?> CreateUnitPlayedPayload(

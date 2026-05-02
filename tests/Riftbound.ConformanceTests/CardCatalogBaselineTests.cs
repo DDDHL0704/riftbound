@@ -475,6 +475,10 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(2, mossStepper.HuntAmount);
         Assert.True(mossStepper.HasLevel);
         Assert.Equal([3], mossStepper.LevelThresholds);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-047/219", out var mossStepperBehavior));
+        Assert.Equal(3, mossStepperBehavior.LevelExperienceThreshold);
+        Assert.Equal(1, mossStepperBehavior.LevelSourceUnitPowerBonus);
+        Assert.Equal(CardObjectTags.Spellshield, mossStepperBehavior.LevelSourceUnitTags);
 
         var noxianRecruit = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
         Assert.True(noxianRecruit.HasEncourage);

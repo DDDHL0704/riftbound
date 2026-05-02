@@ -160,7 +160,10 @@ public sealed record CardBehaviorDefinition(
     int OptionalExperienceCost = 0,
     int ManaReductionIfExperiencePaid = 0,
     int HasteReadyManaCost = 0,
-    int HasteReadyPowerCost = 0);
+    int HasteReadyPowerCost = 0,
+    int LevelExperienceThreshold = 0,
+    int LevelSourceUnitPowerBonus = 0,
+    string LevelSourceUnitTags = "");
 
 public static class CardDamageConditionKinds
 {
@@ -2925,7 +2928,10 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "犬形|狩猎2"),
+            SourceUnitTags: "犬形|狩猎2",
+            LevelExperienceThreshold: 3,
+            LevelSourceUnitPowerBonus: 1,
+            LevelSourceUnitTags: CardObjectTags.Spellshield),
         new(
             "UNL-048/219",
             "特雷弗·达顿尔",

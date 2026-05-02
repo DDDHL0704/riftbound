@@ -16895,6 +16895,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
+    [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -16907,6 +16908,26 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4LevelThresholdAppliesMossStepperPowerAndSpellshieldAtThreeExperience()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-moss-stepper-level3-spellshield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-MOSS-STEPPER"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "犬形", "狩猎2"],
+            result.FinalState.CardObjects["P1-UNIT-MOSS-STEPPER"].Tags);
+        Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
     }
 
     [Fact]
