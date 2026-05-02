@@ -109,6 +109,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
+            FocusPlayerId = string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                ? null
+                : state.FocusPlayerId,
+            PassedFocusPlayerIds = string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                ? []
+                : state.PassedFocusPlayerIds,
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
         };
         var destroyedAdditionalCostOwnerIds = new List<string>();
@@ -260,11 +266,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!CanPlayCardAtCurrentTiming(state, intent.PlayerId, behavior))
+        var timingDecision = CardPermissionKeywordRules.EvaluatePlayTiming(state, intent.PlayerId, behavior);
+        if (!timingDecision.IsAllowed)
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "PLAY_CARD is not allowed outside the turn player's ordinary open main phase.",
+                timingDecision.Reason,
                 ErrorCodes.PhaseNotAllowed);
             return false;
         }
@@ -890,28 +897,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
         };
-    }
-
-    private static bool CanPlayCardAtCurrentTiming(
-        MatchState state,
-        string playerId,
-        CardBehaviorDefinition behavior)
-    {
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        if (string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        return behavior.CanPlayDuringPriority
-            && state.StackItems.Count > 0
-            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
-            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool IsControlledFieldObject(MatchState state, string playerId, string objectId)

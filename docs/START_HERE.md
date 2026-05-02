@@ -1,6 +1,6 @@
 # 新窗口接手指南
 
-更新时间：2026-04-30
+更新时间：2026-05-02
 
 这份文档用于在新 Codex 窗口中快速恢复上下文，确保后续开发不偏离《符文战场》的最终目标。
 
@@ -46,11 +46,13 @@
 
 默认先读短交接，避免每次新窗口都加载完整历史长清单：
 
-1. `docs/CURRENT_P2_STATUS.md`
-2. `README.md`
-3. `docs/p2-rules-preflight.md` 的最近进度和目标 fixture 段落
-4. `docs/rules-evidence-index.md` 中目标卡牌对应行
-5. `docs/conformance-fixture-format.md` 中 fixture schema 规则
+1. `docs/CURRENT_P4_STATUS.md`
+2. `docs/CURRENT_P3_STATUS.md`
+3. `docs/CURRENT_P2_STATUS.md`
+4. `docs/CURRENT_P2_5_STATUS.md`
+5. `README.md`
+6. `docs/rules-evidence-index.md` 中目标卡牌对应行
+7. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
 按需再读：
 
@@ -68,7 +70,7 @@
 
 新项目已建立第一阶段骨架：`Riftbound.Contracts`、`Riftbound.Engine`、`Riftbound.Api`、`Riftbound.Persistence`、`Riftbound.CardCatalog` 和 `Riftbound.ConformanceTests` 均已可用。本机环境为 .NET 10.0.203、PostgreSQL 16、Redis 6.2.4、Node 24，新的终端先执行 `source scripts/dev-env.sh`。
 
-当前 P2 core rules preflight 状态以 `docs/CURRENT_P2_STATUS.md` 为准。本文件只记录阶段方向和工作约束；功能基线提交、最近测试计数、registry 百分比和 P2 清单位置都从短状态文件读取。
+当前 P4 高频关键词与基础卡牌状态以 `docs/CURRENT_P4_STATUS.md` 为准；P3/P2/P2.5 完成状态分别以对应 `CURRENT_*_STATUS.md` 为准。本文件只记录阶段方向和工作约束；功能基线提交、最近测试计数、registry 百分比和阶段清单位置都从短状态文件读取。
 
 完整卡牌/模式覆盖列表不再重复维护在本文件中：
 
@@ -80,11 +82,11 @@
 
 ## 5. 立即开发顺序
 
-当前阶段是从 P1 联机底座过渡到 P2 核心规则 preflight。继续迁移低复杂度官方卡牌/模式，优先费用清晰、单目标或少量目标、伤害、摧毁、回手、抽牌、本回合效果、简单标签/装备对象/战力修正等可复用路径。
+当前阶段是 P4 高频关键词与基础卡牌。继续按 P4.0/P4.1/P4.2... 小批次推进，优先把 P3 BehaviorSpec/template skeleton 安全桥接到已验证 P2 手写规则，再逐个接入低风险关键词或动作模板；不要一次性全卡牌迁移。
 
-每个新增能力必须补齐 registry、fixture、`rulesEvidence`、conformance 测试、`docs/rules-evidence-index.md` 和 `docs/p2-rules-preflight.md`。长摘要文档只做短状态维护，不再粘贴完整已覆盖卡牌清单。
+每个新增能力必须补齐 registry 或 template/profile 绑定、fixture、`rulesEvidence`、conformance/engine 测试、`docs/rules-evidence-index.md` 和当前阶段状态文件。长摘要文档只做短状态维护，不再粘贴完整已覆盖卡牌清单。
 
-P1 验收前不要开始：最终产品级 UI、一次性全卡牌迁移、复杂 AI、移动端适配或多实例房间热迁移。
+P4 期间不要开始：最终产品级 UI、一次性全卡牌迁移、复杂 AI、移动端适配、多实例房间热迁移，或 P5 装备/控制权/触发替换大系统，除非某个 P4 最小能力必须依赖并已明确记录边界。
 
 ## 6. 阶段验收门禁
 
@@ -136,8 +138,8 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 
 ```text
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
-先读取 docs/CURRENT_P2_STATUS.md 和 README.md；需要迁移具体卡牌时，再读取 docs/p2-rules-preflight.md 的相关 fixture/进度段落、docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。只有遇到项目边界、资料优先级或验收门禁问题时，再读取 docs/START_HERE.md。
+先读取 docs/CURRENT_P4_STATUS.md、docs/CURRENT_P3_STATUS.md、docs/CURRENT_P2_STATUS.md、docs/CURRENT_P2_5_STATUS.md 和 README.md；需要迁移具体卡牌或关键词时，再读取 docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。只有遇到项目边界、资料优先级或验收门禁问题时，再读取 docs/START_HERE.md。
 目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
-当前阶段从 P1 联机底座过渡到 P2 preflight：继续逐批迁移低复杂度官方卡牌；不要跳到全卡牌迁移。
-不要重做最终 UI，不要全量迁移卡牌，不要提交规则 PDF/FAQ，不要回退现有改动。
+当前阶段是 P4 高频关键词与基础卡牌：按 P4.0/P4.1/P4.2... 小批次推进，优先接入已验证能力，不要一次性全卡牌迁移。
+不要重做最终 UI，不要进入 P5/P6/P7，不要提交规则 PDF/FAQ，不要回退现有改动。
 ```

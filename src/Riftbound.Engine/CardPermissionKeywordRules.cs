@@ -1,0 +1,150 @@
+namespace Riftbound.Engine;
+
+public static class CardPermissionKeywordNames
+{
+    public const string None = "NONE";
+    public const string OrdinaryTurn = "ORDINARY_TURN";
+    public const string Swift = "迅捷";
+    public const string Reaction = "反应";
+    public const string Haste = "急速";
+}
+
+public static class HasteOptionalReadyBranchStatuses
+{
+    public const string NotApplicable = "not-applicable";
+    public const string RecognizedDeferred = "recognized-deferred";
+}
+
+public sealed record CardPermissionKeywordProfile(
+    bool HasSwift,
+    bool HasReaction,
+    bool HasHaste,
+    string HasteOptionalReadyBranchStatus,
+    string HasteOptionalReadyBranchReason);
+
+public sealed record CardPlayTimingDecision(
+    bool IsAllowed,
+    string PermissionKeyword,
+    string Reason);
+
+public static class CardPermissionKeywordRules
+{
+    public static CardPermissionKeywordProfile BuildProfile(CardBehaviorDefinition behavior)
+    {
+        ArgumentNullException.ThrowIfNull(behavior);
+
+        var hasHaste = HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste);
+        return new CardPermissionKeywordProfile(
+            behavior.CanPlayDuringSpellDuel,
+            behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction),
+            hasHaste,
+            hasHaste
+                ? HasteOptionalReadyBranchStatuses.RecognizedDeferred
+                : HasteOptionalReadyBranchStatuses.NotApplicable,
+            hasHaste
+                ? "P4.2 recognizes Haste in source unit tags and keeps the verified no-optional entry path; the extra-pay ready-entry branch is deferred until colored resource and ready-entry cost modeling."
+                : "Card does not expose the Haste keyword through the P2 source unit tag path.");
+    }
+
+    public static CardPlayTimingDecision EvaluatePlayTiming(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(behavior);
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
+        {
+            return Rejected("PLAY_CARD is not allowed outside MAIN phase.");
+        }
+
+        if (IsTurnPlayerOrdinaryOpenMainPhase(state, playerId))
+        {
+            return new CardPlayTimingDecision(
+                true,
+                CardPermissionKeywordNames.OrdinaryTurn,
+                "Turn player may play cards in the ordinary open main phase.");
+        }
+
+        if (CanPlayReactionInPriorityWindow(state, playerId, behavior))
+        {
+            return new CardPlayTimingDecision(
+                true,
+                CardPermissionKeywordNames.Reaction,
+                "Reaction card may be played by the priority player while a stack item is pending.");
+        }
+
+        if (CanPlaySwiftInSpellDuelFocusWindow(state, playerId, behavior))
+        {
+            return new CardPlayTimingDecision(
+                true,
+                CardPermissionKeywordNames.Swift,
+                "Swift card may be played by the focus player during an open spell duel.");
+        }
+
+        return Rejected("PLAY_CARD is not allowed in the current timing window.");
+    }
+
+    public static bool HasSourceKeyword(CardBehaviorDefinition behavior, string keyword)
+    {
+        ArgumentNullException.ThrowIfNull(behavior);
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            return false;
+        }
+
+        return SourceTags(behavior)
+            .Any(tag => string.Equals(tag, keyword.Trim(), StringComparison.Ordinal));
+    }
+
+    private static bool IsTurnPlayerOrdinaryOpenMainPhase(MatchState state, string playerId)
+    {
+        return string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && string.Equals(state.TurnPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool CanPlayReactionInPriorityWindow(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.CanPlayDuringPriority
+            && state.StackItems.Count > 0
+            && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool CanPlaySwiftInSpellDuelFocusWindow(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.CanPlayDuringSpellDuel
+            && state.StackItems.Count == 0
+            && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static CardPlayTimingDecision Rejected(string reason)
+    {
+        return new CardPlayTimingDecision(false, CardPermissionKeywordNames.None, reason);
+    }
+
+    private static IReadOnlyList<string> SourceTags(CardBehaviorDefinition behavior)
+    {
+        return ParseDelimitedValues(behavior.SourceUnitTags)
+            .Concat(ParseDelimitedValues(behavior.SourceEquipmentTags))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ParseDelimitedValues(string value)
+    {
+        return value
+            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .ToArray();
+    }
+}

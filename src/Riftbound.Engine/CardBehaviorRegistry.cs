@@ -154,7 +154,8 @@ public sealed record CardBehaviorDefinition(
     bool GainsControlOfTargetStackSpell = false,
     bool RecyclesUnkeptSacredJudgmentCards = false,
     bool PlaysOpponentTopMainDeckUnitToBase = false,
-    bool PlaysEachPlayerTopFiveUnitToBase = false);
+    bool PlaysEachPlayerTopFiveUnitToBase = false,
+    bool CanPlayDuringSpellDuel = false);
 
 public static class CardDamageConditionKinds
 {
@@ -7142,7 +7143,8 @@ public static class CardBehaviorRegistry
             StatusEffectId: "OVERWHELM_3",
             TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: 3,
-            PowerModifierConditionKind: CardPowerModifierConditionKinds.TargetIsAttacking),
+            PowerModifierConditionKind: CardPowerModifierConditionKinds.TargetIsAttacking,
+            CanPlayDuringSpellDuel: true),
         new(
             "SFD·003/221",
             "血性冲刺",

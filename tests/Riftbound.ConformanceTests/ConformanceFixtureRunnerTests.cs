@@ -16548,6 +16548,140 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
+    [Fact]
+    public void P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·004/298", out var swiftDefinition));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·058/298", out var ordinaryDefinition));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·064/298", out var reactionDefinition));
+
+        var spellDuelState = P4SpellDuelFocusState();
+        var swiftDecision = CardPermissionKeywordRules.EvaluatePlayTiming(
+            spellDuelState,
+            "P1",
+            swiftDefinition);
+        Assert.True(swiftDecision.IsAllowed);
+        Assert.Equal(CardPermissionKeywordNames.Swift, swiftDecision.PermissionKeyword);
+
+        var ordinaryDecision = CardPermissionKeywordRules.EvaluatePlayTiming(
+            spellDuelState,
+            "P1",
+            ordinaryDefinition);
+        Assert.False(ordinaryDecision.IsAllowed);
+        Assert.Equal(CardPermissionKeywordNames.None, ordinaryDecision.PermissionKeyword);
+
+        var priorityState = spellDuelState with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            PriorityPlayerId = "P2",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-P4-001",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-001"],
+                    2)
+            ]
+        };
+
+        var reactionDecision = CardPermissionKeywordRules.EvaluatePlayTiming(
+            priorityState,
+            "P2",
+            reactionDefinition);
+        Assert.True(reactionDecision.IsAllowed);
+        Assert.Equal(CardPermissionKeywordNames.Reaction, reactionDecision.PermissionKeyword);
+
+        var swiftDuringPriorityDecision = CardPermissionKeywordRules.EvaluatePlayTiming(
+            priorityState,
+            "P2",
+            swiftDefinition);
+        Assert.False(swiftDuringPriorityDecision.IsAllowed);
+    }
+
+    [Fact]
+    public async Task P4SwiftKeywordAllowsCleaveInSpellDuelFocusWindow()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-swift-cleave-in-spell-duel-focus.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Null(result.FinalState.FocusPlayerId);
+        Assert.Empty(result.FinalState.PassedFocusPlayerIds);
+    }
+
+    [Theory]
+    [InlineData("p2-preflight-play-wind-wall-counter-spell.fixture.json")]
+    [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json")]
+    public async Task P4PermissionKeywordsKeepExistingP2FixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchIsRecognizedButStillRejected()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·001/298", out var hasteDefinition));
+        var profile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.RecognizedDeferred, profile.HasteOptionalReadyBranchStatus);
+
+        var state = PunishmentState(mana: 6) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(6, 1),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-BLAZING-DRAKE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-haste-ready-branch", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-BLAZING-DRAKE",
+                "OGN·001/298",
+                [],
+                OptionalCosts: ["HASTE_READY"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(6, 1), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-BLAZING-DRAKE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
     [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
@@ -16634,6 +16768,31 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             });
+    }
+
+    private static MatchState P4SpellDuelFocusState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = "P1",
+            PassedFocusPlayerIds = [],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CLEAVE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-001"] = new("P2-UNIT-001", power: 2, isAttacking: true)
+            }
+        };
     }
 
     private static MatchState JudgmentDayState()

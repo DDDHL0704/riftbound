@@ -254,6 +254,42 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var swiftSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·004/298", StringComparison.Ordinal));
+        Assert.Contains(swiftSpec.Keywords, keyword => string.Equals(keyword.Keyword, "迅捷", StringComparison.Ordinal));
+        Assert.Contains("迅捷", swiftSpec.OfficialText, StringComparison.Ordinal);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·004/298", out var swiftDefinition));
+        var swiftProfile = CardPermissionKeywordRules.BuildProfile(swiftDefinition);
+        Assert.True(swiftProfile.HasSwift);
+        Assert.False(swiftProfile.HasReaction);
+        Assert.False(swiftProfile.HasHaste);
+
+        var reactionSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·064/298", StringComparison.Ordinal));
+        Assert.Contains(reactionSpec.Keywords, keyword => string.Equals(keyword.Keyword, "反应", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·064/298", out var reactionDefinition));
+        var reactionProfile = CardPermissionKeywordRules.BuildProfile(reactionDefinition);
+        Assert.False(reactionProfile.HasSwift);
+        Assert.True(reactionProfile.HasReaction);
+        Assert.False(reactionProfile.HasHaste);
+
+        var hasteSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·001/298", StringComparison.Ordinal));
+        Assert.Contains(hasteSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(hasteSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·001/298", out var hasteDefinition));
+        var hasteProfile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
+        Assert.False(hasteProfile.HasSwift);
+        Assert.False(hasteProfile.HasReaction);
+        Assert.True(hasteProfile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.RecognizedDeferred, hasteProfile.HasteOptionalReadyBranchStatus);
+        Assert.Contains("deferred", hasteProfile.HasteOptionalReadyBranchReason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
