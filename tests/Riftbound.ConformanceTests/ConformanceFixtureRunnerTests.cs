@@ -16810,6 +16810,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p2-preflight-play-dorans-shield-equipment.fixture.json")]
+    [InlineData("p2-preflight-play-long-sword-agile-equipment.fixture.json")]
+    [InlineData("p2-preflight-play-sentinel-adept-no-optional-assemble.fixture.json")]
+    [InlineData("p2-preflight-play-stout-poro-no-optional-assemble.fixture.json")]
+    [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
+    public async Task P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
     [InlineData("java-oracle-p1-duplicate-pass.fixture.json")]

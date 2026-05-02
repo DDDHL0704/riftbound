@@ -486,6 +486,40 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var doransShield = BuildEquipmentProfile(specs, "SFD·033/221", CardEquipmentKeywordNames.Assemble);
+        Assert.True(doransShield.HasAssemble);
+        Assert.False(doransShield.HasAgile);
+        Assert.False(doransShield.HasTempered);
+        Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, doransShield.Status);
+
+        var longSword = BuildEquipmentProfile(
+            specs,
+            "SFD·022/221",
+            CardEquipmentKeywordNames.Agile,
+            CardEquipmentKeywordNames.Assemble);
+        Assert.True(longSword.HasAssemble);
+        Assert.True(longSword.HasAgile);
+        Assert.True(longSword.HasWeapon);
+        Assert.False(longSword.HasTempered);
+
+        var sentinelAdept = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
+        Assert.False(sentinelAdept.HasAssemble);
+        Assert.False(sentinelAdept.HasAgile);
+        Assert.True(sentinelAdept.HasTempered);
+        Assert.Contains("deferred", sentinelAdept.Reason, StringComparison.OrdinalIgnoreCase);
+
+        var ornn = BuildEquipmentProfile(specs, "SFD·085/221", CardEquipmentKeywordNames.Tempered);
+        Assert.True(ornn.HasTempered);
+        Assert.False(ornn.HasWeapon);
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -561,5 +595,27 @@ public sealed class CardCatalogBaselineTests
 
         Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
         return CardResourceKeywordRules.BuildProfile(spec, definition);
+    }
+
+    private static CardEquipmentKeywordProfile BuildEquipmentProfile(
+        IReadOnlyList<BehaviorSpec> specs,
+        string cardNo,
+        params string[] officialTextNeedles)
+    {
+        var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+        foreach (var needle in officialTextNeedles)
+        {
+            Assert.Contains(needle, spec.OfficialText, StringComparison.Ordinal);
+            Assert.Contains(spec.Keywords, keyword => string.Equals(keyword.Keyword, needle, StringComparison.Ordinal));
+        }
+
+        if (officialTextNeedles.Any(needle => string.Equals(needle, CardEquipmentKeywordNames.Assemble, StringComparison.Ordinal)
+            || string.Equals(needle, CardEquipmentKeywordNames.Tempered, StringComparison.Ordinal)))
+        {
+            Assert.Contains(BehaviorTemplateIds.Assemble, spec.TemplateIds);
+        }
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+        return CardEquipmentKeywordRules.BuildProfile(spec, definition);
     }
 }
