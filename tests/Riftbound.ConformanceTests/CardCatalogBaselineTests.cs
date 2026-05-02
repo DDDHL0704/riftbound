@@ -538,6 +538,18 @@ public sealed class CardCatalogBaselineTests
             krakenHunterProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, krakenHunterProfile.HasteReadyManaCost);
         Assert.Equal(1, krakenHunterProfile.HasteReadyPowerCost);
+
+        var leeSinSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·151/298", StringComparison.Ordinal));
+        Assert.Contains(leeSinSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(leeSinSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·151/298", out var leeSinDefinition));
+        var leeSinProfile = CardPermissionKeywordRules.BuildProfile(leeSinDefinition);
+        Assert.True(leeSinProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            leeSinProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, leeSinProfile.HasteReadyManaCost);
+        Assert.Equal(1, leeSinProfile.HasteReadyPowerCost);
     }
 
     [Fact]
