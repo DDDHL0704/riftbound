@@ -7500,6 +7500,17 @@ public static class CardBehaviorRegistry
             CountersTargetStackSpell: true,
             CanPlayDuringPriority: true),
         new(
+            "SFD·136/221",
+            "强买强卖",
+            2,
+            "HARD_BARGAIN_COUNTER_SPELL_TARGET_DECLINES_PAY_2_NO_ECHO",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            Mode: "TARGET_DECLINES_PAY_2_NO_ECHO",
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true),
+        new(
             "SFD·135/221",
             "紧急召回",
             1,
