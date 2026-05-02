@@ -2439,7 +2439,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "海盗|急速|游走"),
+            SourceUnitTags: "海盗|急速|游走",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·143/221",
             "希维尔",
