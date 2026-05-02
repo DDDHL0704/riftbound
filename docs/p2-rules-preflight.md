@@ -405,7 +405,7 @@
 - `p2-preflight-play-stay-away-stun-draw-stack.fixture.json` 已验证《走开》从手牌打出时对目标施加 `STUNNED`，然后抽 1 张牌；待命路径暂缓。
 - `p2-preflight-play-disposal-order-draw-mode.fixture.json` 已验证《处置命令》的 `DRAW_1` 模式，支付费用后 0 目标入栈并抽 1 张牌。
 - `p2-preflight-play-disposal-order-recycle-opponent-graveyard.fixture.json` 已验证《处置命令》的 `RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3` 模式，选择对手废牌堆中最多三张牌并让其拥有者回收。
-- `p2-preflight-play-covert-sabotage-recycle-opponent-non-unit-hand-card.fixture.json` 已验证《暗中破坏》选择对手手牌中的非单位牌并让其拥有者回收；带 `CARD_TYPE:UNIT` 的对手手牌目标由直接拒绝测试覆盖。
+- `p2-preflight-play-covert-sabotage-recycle-opponent-non-unit-hand-card.fixture.json` 已验证《暗中破坏》选择对手手牌中的非单位牌并让其拥有者回收；带 `CARD_TYPE:UNIT` 的对手手牌目标由直接拒绝测试覆盖。P4.60 将该路径纳入 `recycle` template skeleton 的 safe delegation 证据。
 - `p2-preflight-play-predictive-offensive-draw-one-recycle-other.fixture.json` 已验证《预判攻势》不支付回响时，选择己方主牌堆顶部两张中的一张抽取，并将另一张回收到主牌堆底部；选择顶部两张以外的卡牌由直接拒绝测试覆盖。
 - `p2-preflight-play-card-trick-draw-one-recycle-rest.fixture.json` 已验证《卡牌骗术》选择己方主牌堆顶部三张中的一张加入手牌，并将其余两张回收到主牌堆底部；选择顶部三张以外的卡牌由直接拒绝测试覆盖。
 - `p2-preflight-play-dragon-tiger-draw-unit-recycle-rest.fixture.json` 已验证《龙虎双雄》不支付回响时，选择己方主牌堆顶部三张中带 `CARD_TYPE:UNIT` 对象标签的一张单位牌抽取，并将其余两张回收到主牌堆底部；非单位目标和顶部三张以外目标由直接拒绝测试覆盖。
@@ -435,7 +435,7 @@
 - `p2-preflight-play-spoils-of-war-draw-stack.fixture.json` 已验证《以战养战》未满足减费条件时的全额支付基础路径，支付 4 点费用后 0 目标入栈并抽 2 张牌。
 - `p2-preflight-play-assemble-the-ranks-draw.fixture.json` 已验证《集结部队》从手牌打出时支付 2 点费用，0 目标入栈并抽 1 张牌；友方单位进场给予增益的全局触发暂缓到单位打出/延迟触发模型。
 - `p2-preflight-play-call-to-action-draw.fixture.json` 已验证《迎敌号令》从手牌打出时支付 2 点费用，0 目标入栈并抽 1 张牌；本回合单位活跃进场的全局效果暂缓到单位打出模型。
-- `p2-preflight-play-secret-art-mercy-grant-boon.fixture.json` 已验证《秘奥义！慈悲度魂落》从手牌打出时支付 3 点费用，选择一名友方单位并给予 `增益` 标签和永久 +1 战力；本回合所有增益额外 +1 的全局效果暂缓。
+- `p2-preflight-play-secret-art-mercy-grant-boon.fixture.json` 已验证《秘奥义！慈悲度魂落》从手牌打出时支付 3 点费用，选择一名友方单位并给予 `增益` 标签和永久 +1 战力；本回合所有增益额外 +1 的全局效果暂缓。P4.60 将该路径纳入 `boon` template skeleton 的 safe delegation 证据。
 - `p2-preflight-play-stunning-display-boon-move-base-unit.fixture.json` 已验证《叹为观止》从手牌打出时支付 1 点费用，选择基地中的一名友方单位，给予 `增益` 标签和永久 +1 战力后移动到当前单战场区域。
 - `p2-preflight-play-void-rush-draw-no-free-play.fixture.json` 已验证《虚空猛冲》从手牌打出时支付 2 点费用，当前 preflight 选择不免费打出顶部牌，因此抽取两张展示牌；免费打出分支暂缓。
 - `p2-preflight-play-open-action-grant-all-boons.fixture.json` 已验证《公开行动》从手牌打出时支付 5 点费用，在当前没有既有增益可消耗时，给予所有友方单位 `增益` 标签和永久 +1 战力。
@@ -444,7 +444,7 @@
 - `p2-preflight-play-battle-command-move-friendly-and-opponent-unit.fixture.json` 已验证《战斗号令》当前 2P preflight 以目标顺序记录友方单位和对手所选单位，双方让过后将两名基地单位移动到当前粗粒度战场区域；完整对手选择 prompt 和多战场精确位置暂缓。
 - `p2-preflight-play-void-assault-move-friendly-and-enemy-unit.fixture.json` 已验证《虚空来袭》当前 preflight 按顺序选择一名友方单位和一名敌方单位，双方让过后将两名基地单位移动到当前粗粒度战场区域；目标顺序反转由直接拒绝测试覆盖，战场控制/进攻方细节暂缓。
 - `p2-preflight-play-bullet-time-power-damage-enemy-battlefield.fixture.json` 已验证《弹幕时间》用 `optionalCosts = ["SPEND_POWER:3"]` 支付 3 点符能，并按支付数值对当前单战场区域中的敌方战场单位造成 3 点伤害；符能不足由直接拒绝测试覆盖。
-- `p2-preflight-play-portalpal-rescue-banish-play-base.fixture.json` 已验证《传送门大营救》选择一名友方单位，双方让过后先放逐该单位，再将其重新打出到所属基地，并清除该单位场上伤害、本回合内战力修正和本回合内效果；敌方目标由直接拒绝测试覆盖。
+- `p2-preflight-play-portalpal-rescue-banish-play-base.fixture.json` 已验证《传送门大营救》选择一名友方单位，双方让过后先放逐该单位，再将其重新打出到所属基地，并清除该单位场上伤害、本回合内战力修正和本回合内效果；敌方目标由直接拒绝测试覆盖。P4.60 将该路径纳入 `banish` template skeleton 的 safe delegation 证据。
 - `p2-preflight-play-hunting-rhythm-banish-play-battlefield.fixture.json` 已验证《狩猎律动》选择一名友方单位，双方让过后先放逐该单位，再将其重新打出到当前粗粒度战场，并清除该单位场上伤害、本回合内战力修正和本回合内效果；敌方目标由直接拒绝测试覆盖。
 - `p2-preflight-play-arcane-shift-banish-friendly-damage-enemy.fixture.json` 已验证《奥术跃迁》选择一名友方单位和战场上的一名敌方单位，双方让过后先放逐友方单位并将其重新打出到所属基地，再对敌方战场单位造成 3 点伤害，结算后源法术进入放逐区；敌方单位作为第一目标和敌方基地单位作为第二目标由直接拒绝测试覆盖。
 - `p2-preflight-spoils-of-war-reduced-after-enemy-unit-destroyed.fixture.json` 已验证本回合先由《复仇》摧毁敌方单位后，《以战养战》读取 `destroyedUnitOwnerIdsThisTurn` 并减少 2 点费用，再抽 2 张牌。

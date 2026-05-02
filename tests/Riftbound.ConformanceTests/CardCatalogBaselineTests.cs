@@ -127,6 +127,15 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(windsongWing.Keywords, keyword => string.Equals(keyword.Keyword, "待命", StringComparison.Ordinal));
         Assert.Contains(windsongWing.Triggers, trigger => string.Equals(trigger.Kind, "on-play", StringComparison.Ordinal));
         Assert.Contains(windsongWing.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Recall, StringComparison.Ordinal));
+
+        var covertSabotage = RuleTextParser.Parse(Card(catalog, "OGN·156/298"));
+        Assert.Contains(covertSabotage.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Recycle, StringComparison.Ordinal));
+
+        var portalpalRescue = RuleTextParser.Parse(Card(catalog, "OGN·102/298"));
+        Assert.Contains(portalpalRescue.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Banish, StringComparison.Ordinal));
+
+        var secretArtMercy = RuleTextParser.Parse(Card(catalog, "OGN·053/298"));
+        Assert.Contains(secretArtMercy.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Boon, StringComparison.Ordinal));
     }
 
     [Fact]
@@ -139,8 +148,11 @@ public sealed class CardCatalogBaselineTests
             BehaviorTemplateIds.Destroy,
             BehaviorTemplateIds.Move,
             BehaviorTemplateIds.Recall,
+            BehaviorTemplateIds.Recycle,
+            BehaviorTemplateIds.Banish,
             BehaviorTemplateIds.Stun,
             BehaviorTemplateIds.TempMight,
+            BehaviorTemplateIds.Boon,
             BehaviorTemplateIds.GainExperience,
             BehaviorTemplateIds.Assemble,
             BehaviorTemplateIds.Echo,
@@ -187,8 +199,11 @@ public sealed class CardCatalogBaselineTests
             new { CardNo = "SFD·087/221", TemplateId = BehaviorTemplateIds.Draw, EffectKind = "PROPHETS_OMEN_DRAW_3" },
             new { CardNo = "OGS·003/024", TemplateId = BehaviorTemplateIds.Damage, EffectKind = "INCINERATE_DAMAGE_2" },
             new { CardNo = "OGN·229/298", TemplateId = BehaviorTemplateIds.Destroy, EffectKind = "VENGEANCE_DESTROY_UNIT" },
+            new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle, EffectKind = "COVERT_SABOTAGE_RECYCLE_OPPONENT_NON_UNIT_HAND_CARD" },
+            new { CardNo = "OGN·102/298", TemplateId = BehaviorTemplateIds.Banish, EffectKind = "PORTALPAL_RESCUE_BANISH_FRIENDLY_UNIT_PLAY_TO_BASE" },
             new { CardNo = "OGN·050/298", TemplateId = BehaviorTemplateIds.Stun, EffectKind = "RUNE_PRISON_STUN_UNIT" },
-            new { CardNo = "OGN·004/298", TemplateId = BehaviorTemplateIds.TempMight, EffectKind = "CLEAVE_OVERWHELM_3" }
+            new { CardNo = "OGN·004/298", TemplateId = BehaviorTemplateIds.TempMight, EffectKind = "CLEAVE_OVERWHELM_3" },
+            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon, EffectKind = "SECRET_ART_MERCY_GRANT_BOON_NO_GLOBAL_BONUS" }
         };
 
         foreach (var candidate in candidates)
@@ -219,6 +234,12 @@ public sealed class CardCatalogBaselineTests
                 case BehaviorTemplateIds.Destroy:
                     Assert.True(delegation.DelegatedBehavior.DestroysTarget);
                     break;
+                case BehaviorTemplateIds.Recycle:
+                    Assert.True(delegation.DelegatedBehavior.RecyclesTargets);
+                    break;
+                case BehaviorTemplateIds.Banish:
+                    Assert.True(delegation.DelegatedBehavior.BanishesTargetThenPlaysToBase);
+                    break;
                 case BehaviorTemplateIds.Stun:
                     Assert.Equal("STUNNED", delegation.DelegatedBehavior.StatusEffectId);
                     break;
@@ -227,6 +248,9 @@ public sealed class CardCatalogBaselineTests
                     Assert.Equal(
                         CardPowerModifierConditionKinds.TargetIsAttacking,
                         delegation.DelegatedBehavior.PowerModifierConditionKind);
+                    break;
+                case BehaviorTemplateIds.Boon:
+                    Assert.True(delegation.DelegatedBehavior.GrantsBoon);
                     break;
             }
         }
@@ -338,7 +362,10 @@ public sealed class CardCatalogBaselineTests
         var delegatedCandidates = new[]
         {
             new { CardNo = "OGN·188/298", TemplateId = BehaviorTemplateIds.Recall },
-            new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move }
+            new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move },
+            new { CardNo = "OGN·156/298", TemplateId = BehaviorTemplateIds.Recycle },
+            new { CardNo = "OGN·102/298", TemplateId = BehaviorTemplateIds.Banish },
+            new { CardNo = "OGN·053/298", TemplateId = BehaviorTemplateIds.Boon }
         };
         foreach (var candidate in delegatedCandidates)
         {

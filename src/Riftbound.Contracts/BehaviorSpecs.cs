@@ -14,8 +14,11 @@ public static class BehaviorTemplateIds
     public const string Destroy = "destroy";
     public const string Move = "move";
     public const string Recall = "recall";
+    public const string Recycle = "recycle";
+    public const string Banish = "banish";
     public const string Stun = "stun";
     public const string TempMight = "temp_might";
+    public const string Boon = "boon";
     public const string GainExperience = "gain_experience";
     public const string Assemble = "assemble";
     public const string Echo = "echo";

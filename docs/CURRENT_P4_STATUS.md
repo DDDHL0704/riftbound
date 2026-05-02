@@ -87,7 +87,8 @@
 - P4.56 提交：`0b0334a feat: add p4 jinx haste ready`
 - P4.57 提交：`d789bbf feat: add p4 jinx alt haste ready`
 - P4.58 提交：`1044523 feat: add p4 equipment attachment audit`
-- P4.59 提交：本提交 `feat: add p4 spellshield multi target tax`
+- P4.59 提交：`126bde5 feat: add p4 spellshield multi target tax`
+- P4.60 提交：本提交 `feat: add p4 recycle banish boon templates`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -149,12 +150,15 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | `move` | 136 | 116 | 19 | 1 | Medium | 当前只桥接/委托 P2；精确多战场/游走/此处目的地仍需后续模型。 |
 | `draw` | 131 | 105 | 26 | 0 | Low | P4.5 已有固定抽牌 primitive plan；抽牌与燃尽状态写入仍由 P2 覆盖。 |
 | `destroy` | 127 | 115 | 8 | 4 | Low/Medium | P4.5 已有单目标摧毁 primitive plan；替代/触发导致的摧毁仍分层处理。 |
+| `boon` | 66 | 51 | 15 | 0 | Medium | P4.60 已注册为 P3/P4 template skeleton，并验证《秘奥义！慈悲度魂落》可安全委托到 P2 增益代表路径；全局增益加成、消耗增益和触发增益仍 deferred。 |
+| `recycle` | 63 | 55 | 8 | 0 | Medium | P4.60 已注册为 P3/P4 template skeleton，并验证《暗中破坏》/已有回收 fixture 可安全委托到 P2；隐藏信息、多玩家选择和触发回收仍 deferred。 |
 | `assemble` | 55 | 53 | 2 | 0 | High | P4.58 已把《取放自如》武装贴附/卸除作为 P2 手写代表路径纳入 P4 证据；装配费用、owner/controller、灵便自动贴附、百炼 optional attach 仍属高风险边界。 |
 | `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”；P4.11 已接入固定经验额外费用减费代表路径；P4.19 已接入《严厉军士》按友方场上单位数量获得经验代表路径；经验激活技能和等级/装配联动仍 deferred。 |
 | `recall` | 49 | 39 | 10 | 0 | Medium | 当前只桥接/委托 P2；召回到基地/手牌已有 P2 原语，精确时序分层。 |
 | `stun` | 33 | 30 | 3 | 0 | Low | P4.5 已有 `STUNNED` primitive plan；P3 parser 的眩晕 reminder damage 噪声不会阻断该 primitive。 |
 | `echo` | 24 | 22 | 2 | 0 | Medium | P4.4 已将 mana-only `ECHO` optional cost/repeat 抽成互动关键词模型；有色/弃牌/授予回响仍延后。 |
 | `ambush` | 18 | 18 | 0 | 0 | High | P4.9 已识别 profile；待命/反应/战场目的地和 face-down 交互仍 deferred。 |
+| `banish` | 11 | 8 | 3 | 0 | Medium | P4.60 已注册为 P3/P4 template skeleton，并验证《传送门大营救》可安全委托到 P2 放逐并重新打出代表路径；替代放逐、来源放逐和复杂重新打出目的地仍分层。 |
 
 ## Keyword Candidates
 
@@ -205,7 +209,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Equipment keywords | `SFD·033/221 多兰之盾`：装配绿色；`SFD·022/221 长剑`：灵便、装配红色；`SFD·008/221 哨兵好手`：百炼；`SFD·085/221 奥恩`：法盾2、百炼；`SFD·011/221 取放自如`：选择一名单位和其控制者的一件武装，为该单位贴附或卸除该武装，抽一张牌。 | P2 已有装备打出和 no-optional 百炼 fixture，记录装备/武装/灵便/百炼标签；P4.58 复用 `p2-preflight-play-take-up-attach-weapon-draw` 与 `p2-preflight-play-take-up-detach-weapon-draw` 作为武装贴附/卸除代表执行证据。 | P4.8 已建立 equipment keyword profile；P4.58 已锁定《取放自如》贴附/卸除代表路径；装配费用、灵便自动贴附、百炼 optional attach、owner/controller 和未激活文本仍 deferred。 |
 | Lifecycle remaining | `UNL-081/219 赐面守侍`：待命、瞬息；`UNL-161/219 占卜贝壳`：预知；`OGN·190/298 克格莫`：绝念。 | P4.3 瞬息 fixture；P2 已有预知回收/no-recycle fixture 与绝念静态 fixture。 | P4.9 已建立 lifecycle keyword profile；绝念 trigger queue 和广义预知授予仍 deferred。 |
 | Interaction remaining | `OGN·199/298 控潮者`：待命；`UNL-021/219 阴森药剂师`：伏击；`UNL-176a/219 蔚`：伏击。 | P2 已有普通打出/静态 fixture；`回响` 已有 P4.4 mana-only 执行路径。 | P4.9 已建立 interaction keyword profile；待命 face-down 和伏击 reaction battlefield play 仍 deferred。 |
-| Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验；`UNL-040/219 无极学徒`：等级打出抽牌；`UNL-157/219 严厉军士`：按友方场上单位获得经验。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.19 新增 `p4-play-stern-sergeant-dynamic-experience`。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；P4.17 已执行《无极学徒》等级 6 打出抽 1；P4.19 已执行《严厉军士》按友方场上单位数量获得经验；经验消耗/激活技能和其他条件抽牌仍 deferred。 |
+| Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·156/298 暗中破坏`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验；`UNL-040/219 无极学徒`：等级打出抽牌；`UNL-157/219 严厉军士`：按友方场上单位获得经验。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.19 新增 `p4-play-stern-sergeant-dynamic-experience`；P4.60 新增 `recycle` / `banish` / `boon` template id、parser、registry 与 safe delegation tests。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；P4.17 已执行《无极学徒》等级 6 打出抽 1；P4.19 已执行《严厉军士》按友方场上单位数量获得经验；P4.60 已把回收/放逐/增益纳入 P3 template skeleton 并继续委托 P2 状态写入；经验消耗/激活技能、条件经验和复杂隐藏信息/多玩家选择仍 deferred。 |
 
 ## P4.2 Permission Keyword Batch
 
@@ -298,10 +302,10 @@ Prompt-to-artifact checklist：
 | 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、`P4SpellshieldTaxAddsManaForEnemySpellTarget`、`P4SpellshieldTaxAggregatesMultipleEnemySpellTargets`、`CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient`、`P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn`、`P4EncourageSelfBoonGrantsBoonAfterAnotherCardThisTurn`、`P4EncourageTargetTempMightRequiresPriorCardAndTarget`、`P4EncourageDiscardDrawRequiresPriorCardAndTwoHandTargets`、`P4EncourageMinionCreationRequiresPriorCard`、`P4LevelThresholdAppliesMossStepperPowerAndSpellshieldAtThreeExperience`、`P4LevelThresholdAppliesWindrunnerFoxPowerAndRoamAtThreeExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、`P4LevelThresholdAppliesYiSpellshieldAndRoamAtSixExperience`、`P4LevelThresholdAppliesYiAltASpellshieldAndRoamAtSixExperience`、`p4-play-incinerate-spellshield-tax`、`p4-play-spirit-fire-multiple-spellshield-tax`、`p4-play-noxian-recruit-encourage-cost-reduction`、`p4-play-trifarian-gloryseeker-encourage-self-boon`、`p4-play-dangerous-duo-encourage-target-temp-might`、`p4-play-junkyard-bully-encourage-discard-draw`、`p4-play-vanguard-captain-encourage-create-minions`、`p4-play-moss-stepper-level3-spellshield`、`p4-play-windrunner-fox-level3-roam`、`p4-play-wuji-apprentice-level6-draw`、`p4-play-unl-yi-level6-spellshield-roam`、`p4-play-unl-yi-alt-a-level6-spellshield-roam`、代表 fixture | Partial：法术选择敌方场上法盾对象的 mana 目标税可玩，P4.59 已覆盖同一法术同时选择 `法盾` 与 `法盾2` 敌方目标时的税值聚合；《诺克萨斯新兵》鼓舞费用 -2 代表路径可玩；《崔法利求战者》鼓舞自增益代表路径可玩；《危险二人组》鼓舞目标临时战力代表路径可玩；《垃圾场小霸王》鼓舞弃 2 抽 2 代表路径可玩；《先锋队长》鼓舞创建两名 1 战力随从代表路径可玩；《踏苔蜥》`等级3` 入场 +1/法盾代表路径可玩；《风行狐》`等级3` 入场 +1/游走代表路径可玩；《无极学徒》`等级6` 打出抽 1 代表路径可玩；《易》及 A 版本 `等级6` 法盾/游走代表路径可玩；狩猎征服/据守经验、其他等级条件、其他鼓舞效果、技能目标税和授予/静态法盾 deferred。 |
 | 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、3 条 remaining fixture | Partial：mana-only 回响可玩，待命/伏击 face-down/reaction battlefield play deferred。 |
 | 装备关键词：装配、灵便、百炼 | `CardEquipmentKeywordRules`、`CardEquipmentAttachmentProfile`、`P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags`、`P4EquipmentAttachmentProfileMapsTakeUpToRepresentativeAttachDetach`、5 条 no-attach fixture、2 条《取放自如》attach/detach fixture | Partial：P4.58 已覆盖《取放自如》武装贴附/卸除代表执行；装配费用、灵便自动贴附、百炼 optional attach、owner/controller deferred。 |
-| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon delegated to P2 representatives；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
+| 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors`、`P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests | Covered for registered templates and representative P2 bridges. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.59 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.60 once committed. |
 
 P4.9 新增内容：
 
@@ -803,12 +807,32 @@ Prompt-to-artifact completion audit：
 - `CoreRuleEngine.ResolveSpellshieldTargetTaxMana` 已按目标遍历并累计 `法盾` / `法盾N` 标签税值，本批次只补代表 fixture、负向测试和文档证据，不改主规则引擎路径。
 - 本批次没有实现技能目标税、授予/静态法盾、face-down/待命、伏击、战斗承伤、游走移动、完整装备装配/灵便/百炼或 P5/P6 批量迁移。
 
+## P4.60 Recycle Banish Boon Template Skeleton Slice
+
+本阶段先按 objective 做 completion audit：P4 仍不能完成，因为强攻/坚守/壁垒/后排战斗、游走移动、待命/伏击 face-down、技能目标税、完整装备装配/灵便/百炼、触发/替代大系统仍未覆盖。可继续安全推进的缺口是基础动作模板：`回收`、`放逐`、`增益` 此前只有 `CardBasicActionRules` profile/delegated 状态，尚未进入 P3 `BehaviorTemplateIds` / template registry。
+
+Prompt-to-artifact checklist：
+
+| Requirement | P4.60 evidence | Status |
+|---|---|---|
+| 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateIds.Recycle`、`BehaviorTemplateIds.Banish`、`BehaviorTemplateIds.Boon`，`RuleTextParsers` 解析 `回收`/`放逐`/`增益`，`BehaviorTemplateRegistry` 注册三个 skeleton route | Covered for skeleton only。 |
+| 不替换 CoreRuleEngine 主路径 | `BehaviorTemplatePrimitiveExecutor` 对三者仍返回 `delegated-to-p2`，状态写入继续由 P2 手写 `CoreRuleEngine` 行为完成 | Covered。 |
+| 规则证据与官网文本 | `OGN·156/298 暗中破坏`、`OGN·102/298 传送门大营救`、`OGN·053/298 秘奥义！慈悲度魂落` 已在 `docs/rules-evidence-index.md` 和 `docs/p2-rules-preflight.md` 有 RULE_AUDITED 行 | Covered。 |
+| Engine/catalog 测试 | `RuleTextParserExtractsMinimumP3Fields`、`BehaviorTemplateExecutorRoutesRegisteredTemplatesWithoutReplacingP2Rules`、`P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors`、`P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated` 覆盖 parser、registry、safe delegation 和 delegated primitive plan | Covered。 |
+| Conformance fixture | `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 继续回放 `p2-preflight-play-disposal-order-recycle-opponent-graveyard`、`p2-preflight-play-portalpal-rescue-banish-play-base`、`p2-preflight-play-secret-art-mercy-grant-boon` | Covered by existing audited fixtures。 |
+
+- 新增 template stats：`boon 66`（implemented 51 / manual 15 / unimplemented 0）、`recycle 63`（55 / 8 / 0）、`banish 11`（8 / 3 / 0）；`/catalog/p3-status` 仍为 schema valid `1009/1009`、status counts `implemented 785`、`manual-rule-required 211`、`unimplemented 13`。
+- `BehaviorSpecCatalogBuilder.SafeExistingTemplateMappings` 把这三个模板纳入“有 P2 手写 behavior 时可委托”集合，避免把已审计的 P2 路径误降级成 P3 unimplemented。
+- `CardBasicActionRules` 改为优先从 template ids 识别 `recycle` / `banish` / `boon`，再回退到 P2 behavior flag 和官方文本。
+- 本批次没有实现回收随机顺序之外的隐藏信息 UI、多玩家选择 prompt、放逐替代/来源放逐通用模型、全局增益额外加成、消耗增益费用或 P5/P6 触发替代系统。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
 
 - `draw`、`damage`、`destroy`、`stun`、`temp_might` 已有 P4.5 primitive plan。
 - 已由 P2 手写行为覆盖的 `move` / `recall` 代表路径仍保持 `delegated-to-p2`。
+- 已由 P2 手写行为覆盖的 `recycle` / `banish` / `boon` 在 P4.60 进入 P3/P4 template skeleton 和 safe delegation；primitive executor 仍不直接改状态。
 - 已由 P2 手写行为覆盖的《取放自如》武装贴附/卸除代表路径在 P4.58 进入 P4 evidence/profile，但不泛化成完整装备系统。
 - 目标：证明 P3 `BehaviorSpec` / template skeleton 可以安全定位到现有 `CardBehaviorDefinition`，并在 P4.5 继续保持 `CoreRuleEngine` 主路径不变。
 
@@ -837,7 +861,7 @@ Prompt-to-artifact completion audit：
 | P4.2 权限关键词最小模型 | Done | 100% | 迅捷/反应/急速 profile/timing model；`顺劈` spell-duel focus 可玩路径；反应/急速复用并锁定 P2 边界。 |
 | P4.3 生命周期/资源低风险小批 | Done | 100% | `瞬息` 当前控制者开始阶段到期摧毁；`预知`/`绝念`/法盾目标税后续另拆。 |
 | P4.4 互动关键词一小批 | Done | 100% | `回响` mana-only optional cost/repeat 显式模型；复杂回响、待命、伏击继续 deferred。 |
-| P4.5 基础动作 executor 小批测试 | Done | 100% | `draw`/`damage`/`destroy`/`stun`/`temp_might` primitive plan；`move`/`recall` 继续 delegated to P2 handwritten。 |
+| P4.5 基础动作 executor 小批测试 | Done | 100% | `draw`/`damage`/`destroy`/`stun`/`temp_might` primitive plan；`move`/`recall` 继续 delegated to P2 handwritten；P4.60 后 `recycle`/`banish`/`boon` 也进入 template skeleton 并 delegated to P2。 |
 | P4.6 完成审计与战斗关键词 profile | Done | 100% | 审计确认 P4 尚未完成；新增 `强攻`/`坚守`/`壁垒`/`后排`/`游走` profile，完整战斗执行继续 deferred。 |
 | P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；P4.12/P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29/P4.59 后法盾法术目标税、多目标法盾税聚合、《诺克萨斯新兵》鼓舞费用、《崔法利求战者》鼓舞自增益、《危险二人组》鼓舞目标临时战力、《垃圾场小霸王》鼓舞弃牌抽牌、《先锋队长》鼓舞创建随从、《踏苔蜥》《风行狐》《无极学徒》和《易》等级代表路径已接入，其余资源关键词分支继续 deferred。 |
 | P4.8 装备关键词 profile | Done | 100% | 新增 `装配`/`灵便`/`百炼` profile；贴附、费用、自动贴附和 owner/controller 执行继续 deferred。 |
@@ -892,9 +916,10 @@ Prompt-to-artifact completion audit：
 | P4.57 completion audit + 金克丝 A 急速弃牌分支 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《金克丝》A 版本 `HASTE_READY` fixture、profile/fixture 测试，并让 no-optional 打出弃牌 fixture 记录 `急速` / `强攻2` 标签；红色资源精确匹配和强攻战斗修正继续 deferred。 |
 | P4.58 completion audit + 装备贴附/卸除代表路径 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《取放自如》武装贴附/卸除 representative profile 和 P4 fixture 聚合测试，完整装配/灵便/百炼系统继续 deferred。 |
 | P4.59 completion audit + 法盾多目标税聚合 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《妖异狐火》同时选择 `法盾` 与 `法盾2` 敌方目标的费用聚合 fixture、正向 payload 测试和费用不足拒绝测试，技能目标税继续 deferred。 |
-| P4.60 next low-risk gap | Pending | 0% | 基于 P4.59 audit 继续选择低风险可验证小批次；优先从待命/伏击代表路径、基础动作 delegation、技能 command 前置模型或剩余可审计资源边界中选一项，仍不进入 P5/P6/P7。 |
+| P4.60 completion audit + 回收/放逐/增益模板骨架 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `recycle`/`banish`/`boon` BehaviorTemplateIds、parser/registry/safe delegation tests，状态写入继续委托 P2。 |
+| P4.61 next low-risk gap | Pending | 0% | 基于 P4.60 audit 继续选择低风险可验证小批次；优先从待命/伏击代表路径、技能 command 前置模型、基础动作 delegation 断言或剩余可审计资源边界中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `60/61 = 98.4%`。已完成 P4.1-P4.59：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税与多目标税聚合、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走移动、待命/伏击 face-down、技能目标税、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `61/62 = 98.4%`。已完成 P4.1-P4.60：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税与多目标税聚合、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走移动、待命/伏击 face-down、技能目标税、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -909,15 +934,15 @@ P4 当前整体进度：按当前 part 计 `60/61 = 98.4%`。已完成 P4.1-P4.5
 
 ## Latest Validation
 
-P4.59 已完成验证：
+P4.60 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1798/1798
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1726/1726
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，22/22
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4SpellshieldTaxAggregatesMultipleEnemySpellTargets|FullyQualifiedName~CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient|FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，21/21
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors|FullyQualifiedName~P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated|FullyQualifiedName~P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions|FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen|FullyQualifiedName~RuleTextParserExtractsMinimumP3Fields"`：pass，11/11
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.60：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.61：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：技能目标税、待命/伏击、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。

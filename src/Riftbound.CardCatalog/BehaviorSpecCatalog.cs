@@ -22,8 +22,11 @@ public static class BehaviorSpecCatalogBuilder
         BehaviorTemplateIds.Destroy,
         BehaviorTemplateIds.Move,
         BehaviorTemplateIds.Recall,
+        BehaviorTemplateIds.Recycle,
+        BehaviorTemplateIds.Banish,
         BehaviorTemplateIds.Stun,
-        BehaviorTemplateIds.TempMight
+        BehaviorTemplateIds.TempMight,
+        BehaviorTemplateIds.Boon
     };
 
     private static readonly HashSet<string> ManualRuleRequiredCategories = new(StringComparer.Ordinal)

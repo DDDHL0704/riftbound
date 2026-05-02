@@ -59,12 +59,18 @@ public static class CardBasicActionRules
             || !string.IsNullOrWhiteSpace(behavior?.StatusEffectId);
         var hasMove = HasTemplate(spec, BehaviorTemplateIds.Move) || HasMoveBehavior(behavior);
         var hasRecall = HasTemplate(spec, BehaviorTemplateIds.Recall) || HasRecallBehavior(behavior);
-        var hasRecycle = HasRecycleBehavior(behavior) || spec.OfficialText.Contains("回收", StringComparison.Ordinal);
-        var hasBanish = HasBanishBehavior(behavior) || spec.OfficialText.Contains("放逐", StringComparison.Ordinal);
+        var hasRecycle = HasTemplate(spec, BehaviorTemplateIds.Recycle)
+            || HasRecycleBehavior(behavior)
+            || spec.OfficialText.Contains("回收", StringComparison.Ordinal);
+        var hasBanish = HasTemplate(spec, BehaviorTemplateIds.Banish)
+            || HasBanishBehavior(behavior)
+            || spec.OfficialText.Contains("放逐", StringComparison.Ordinal);
         var hasTempMight = HasTemplate(spec, BehaviorTemplateIds.TempMight)
             || behavior?.PowerModifierAmount != 0
             || behavior?.SecondaryPowerModifierAmount != 0;
-        var hasBoon = HasBoonBehavior(behavior) || spec.OfficialText.Contains(CardObjectTags.Boon, StringComparison.Ordinal);
+        var hasBoon = HasTemplate(spec, BehaviorTemplateIds.Boon)
+            || HasBoonBehavior(behavior)
+            || spec.OfficialText.Contains(CardObjectTags.Boon, StringComparison.Ordinal);
         var hasExperience = HasTemplate(spec, BehaviorTemplateIds.GainExperience)
             || spec.OfficialText.Contains("经验", StringComparison.Ordinal);
         var hasDrawPrimitive = behavior?.DrawCount > 0 || behavior?.LevelDrawOnPlayCount > 0;

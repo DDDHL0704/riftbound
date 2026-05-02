@@ -488,8 +488,11 @@ public static class EffectPhraseParser
         AddIf(templateIds, text, BehaviorTemplateIds.Destroy, "摧毁");
         AddIf(templateIds, text, BehaviorTemplateIds.Move, "移动");
         AddIf(templateIds, text, BehaviorTemplateIds.Recall, "返回", "召回");
+        AddIf(templateIds, text, BehaviorTemplateIds.Recycle, "回收");
+        AddIf(templateIds, text, BehaviorTemplateIds.Banish, "放逐");
         AddIf(templateIds, text, BehaviorTemplateIds.Stun, "眩晕");
         AddIf(templateIds, text, BehaviorTemplateIds.TempMight, "{{S}}+", "{{S}}-", "战力");
+        AddIf(templateIds, text, BehaviorTemplateIds.Boon, "增益");
         AddIf(templateIds, text, BehaviorTemplateIds.GainExperience, "经验");
         AddIf(templateIds, text, BehaviorTemplateIds.Assemble, "装配", "百炼");
         AddIf(templateIds, text, BehaviorTemplateIds.Echo, "回响");
@@ -518,8 +521,11 @@ public static class EffectPhraseParser
             BehaviorTemplateIds.Destroy => ["摧毁"],
             BehaviorTemplateIds.Move => ["移动"],
             BehaviorTemplateIds.Recall => ["返回", "召回"],
+            BehaviorTemplateIds.Recycle => ["回收"],
+            BehaviorTemplateIds.Banish => ["放逐"],
             BehaviorTemplateIds.Stun => ["眩晕"],
             BehaviorTemplateIds.TempMight => ["{{S}}+", "{{S}}-", "战力"],
+            BehaviorTemplateIds.Boon => ["增益"],
             BehaviorTemplateIds.GainExperience => ["经验"],
             BehaviorTemplateIds.Assemble => ["装配", "百炼"],
             BehaviorTemplateIds.Echo => ["回响"],
