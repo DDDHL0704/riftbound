@@ -16749,6 +16749,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p2-preflight-play-prophets-omen-draw-stack.fixture.json")]
+    [InlineData("p2-preflight-play-incinerate-damage-stack.fixture.json")]
+    [InlineData("p2-preflight-play-vengeance-destroy-unit-stack.fixture.json")]
+    [InlineData("p2-preflight-play-rune-prison-stun-stack.fixture.json")]
+    [InlineData("p2-preflight-play-cleave-overwhelm-attacking-power.fixture.json")]
+    public async Task P4PrimitiveExecutorRepresentativeFixturesStayGreen(string fixtureFileName)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Theory]
     [InlineData("java-oracle-p1-pass.fixture.json")]
     [InlineData("java-oracle-p1-end-turn.fixture.json")]
     [InlineData("java-oracle-p1-duplicate-pass.fixture.json")]

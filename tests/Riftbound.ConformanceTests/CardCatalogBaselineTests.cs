@@ -254,6 +254,109 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var executor = new BehaviorTemplatePrimitiveExecutor();
+        var primitiveCandidates = new[]
+        {
+            new
+            {
+                CardNo = "SFD·087/221",
+                TemplateId = BehaviorTemplateIds.Draw,
+                Kind = BehaviorTemplatePrimitiveKinds.DrawCards,
+                Amount = 3,
+                TargetScope = "",
+                StatusEffectId = "",
+                ConditionKind = ""
+            },
+            new
+            {
+                CardNo = "OGS·003/024",
+                TemplateId = BehaviorTemplateIds.Damage,
+                Kind = BehaviorTemplatePrimitiveKinds.DealDamage,
+                Amount = 2,
+                TargetScope = CardTargetScopes.BattlefieldUnit,
+                StatusEffectId = "",
+                ConditionKind = CardDamageConditionKinds.None
+            },
+            new
+            {
+                CardNo = "OGN·229/298",
+                TemplateId = BehaviorTemplateIds.Destroy,
+                Kind = BehaviorTemplatePrimitiveKinds.DestroyTarget,
+                Amount = 0,
+                TargetScope = CardTargetScopes.AnyUnit,
+                StatusEffectId = "",
+                ConditionKind = ""
+            },
+            new
+            {
+                CardNo = "OGN·050/298",
+                TemplateId = BehaviorTemplateIds.Stun,
+                Kind = BehaviorTemplatePrimitiveKinds.ApplyStatusEffect,
+                Amount = 0,
+                TargetScope = CardTargetScopes.AnyUnit,
+                StatusEffectId = "STUNNED",
+                ConditionKind = ""
+            },
+            new
+            {
+                CardNo = "OGN·004/298",
+                TemplateId = BehaviorTemplateIds.TempMight,
+                Kind = BehaviorTemplatePrimitiveKinds.ModifyPowerUntilEndOfTurn,
+                Amount = 3,
+                TargetScope = CardTargetScopes.AnyUnit,
+                StatusEffectId = "",
+                ConditionKind = CardPowerModifierConditionKinds.TargetIsAttacking
+            }
+        };
+
+        foreach (var candidate in primitiveCandidates)
+        {
+            var spec = specs.Single(spec => string.Equals(spec.CardNo, candidate.CardNo, StringComparison.Ordinal));
+            var plan = executor.BuildPrimitivePlan(
+                spec,
+                new BehaviorTemplateExecutionContext("P1", $"P1-SOURCE-{candidate.CardNo}", candidate.CardNo, []));
+
+            Assert.True(
+                string.Equals(plan.Status, BehaviorTemplatePrimitivePlanStatuses.Ready, StringComparison.Ordinal),
+                $"{candidate.CardNo} produced primitive status '{plan.Status}': {plan.Reason}");
+            Assert.Contains("CoreRuleEngine remains", plan.Reason, StringComparison.Ordinal);
+            var primitive = Assert.Single(plan.Primitives);
+            Assert.Equal(candidate.TemplateId, primitive.TemplateId);
+            Assert.Equal(candidate.Kind, primitive.Kind);
+            Assert.Equal(candidate.Amount, primitive.Amount);
+            Assert.Equal(candidate.TargetScope, primitive.TargetScope);
+            Assert.Equal(candidate.StatusEffectId, primitive.StatusEffectId);
+            Assert.Equal(candidate.ConditionKind, primitive.ConditionKind);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, plan.DelegationPlan.Status);
+        }
+
+        var delegatedCandidates = new[]
+        {
+            new { CardNo = "OGN·188/298", TemplateId = BehaviorTemplateIds.Recall },
+            new { CardNo = "OGN·043/298", TemplateId = BehaviorTemplateIds.Move }
+        };
+        foreach (var candidate in delegatedCandidates)
+        {
+            var spec = specs.Single(spec => string.Equals(spec.CardNo, candidate.CardNo, StringComparison.Ordinal));
+            var plan = executor.BuildPrimitivePlan(
+                spec,
+                new BehaviorTemplateExecutionContext("P1", $"P1-SOURCE-{candidate.CardNo}", candidate.CardNo, []));
+
+            Assert.True(
+                string.Equals(plan.Status, BehaviorTemplatePrimitivePlanStatuses.DelegatedToP2, StringComparison.Ordinal),
+                $"{candidate.CardNo} produced primitive status '{plan.Status}': {plan.Reason}");
+            Assert.Contains($"Template '{candidate.TemplateId}' remains delegated", plan.Reason, StringComparison.Ordinal);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, plan.DelegationPlan.Status);
+            Assert.NotNull(plan.DelegationPlan.DelegatedBehavior);
+        }
+    }
+
+    [Fact]
     public async Task P4PermissionKeywordProfilesMapOfficialTextToRegistryFlags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
