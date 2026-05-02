@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-crimson-signet-treant-no-optional-haste",
-  "description": "Crimson Signet Treant enters as a Haste unit object without paying its Haste optional red additional cost.",
+  "fixtureId": "p4-play-crimson-signet-treant-haste-ready",
+  "description": "Crimson Signet Treant pays the P4.31 HASTE_READY optional cost and records the active-entry branch on resolution.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302389,
+  "seed": 2603304131,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-029/219 绯红印记树怪",
-      "note": "官方卡面：费用 4；单位；战力 4；急速，可选择额外支付 1 和红色让我以活跃状态进场；你征服此处时的征服效果额外触发一次；当我征服一处战场时，给予一名友方单位增益。当前 fixture 覆盖普通主阶段从手牌打出且不支付急速可选额外费用时的源单位入场和关键词标签记录；P4.31 fixture 覆盖 HASTE_READY 代表路径，征服额外触发和征服后增益路径暂缓。"
+      "note": "官方卡面：费用 4；单位；战力 4；急速，可选择额外支付 1 和红色让我以活跃状态进场；你征服此处时的征服效果额外触发一次；当我征服一处战场时，给予一名友方单位增益。本 P4.31 fixture 覆盖代表路径：在现有 mana/power 资源模型中用 HASTE_READY 支付额外 1 mana + 1 power，并在单位入场事件中记录已支付急速活跃分支；征服额外触发和征服后增益路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；征服和增益触发留待后续战斗/得分模型覆盖。"
+      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；本批次不进入征服额外触发、增益或完整战斗/得分系统。"
     }
   ],
-  "roomId": "p2-preflight-crimson-signet-treant-room",
+  "roomId": "p4-crimson-signet-treant-haste-ready-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302389,
-    "turnNumber": 388,
+    "seed": 2603304131,
+    "turnNumber": 4131,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 4, "power": 0 },
+      "P1": { "mana": 5, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-crimson-signet-treant-play",
+      "clientIntentId": "intent-p4-crimson-signet-treant-haste-ready-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-CRIMSON-SIGNET-TREANT",
         "cardNo": "UNL-029/219",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["HASTE_READY"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-crimson-signet-treant-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-crimson-signet-treant-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-crimson-signet-treant-haste-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-crimson-signet-treant-haste-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -87,7 +88,16 @@
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 4, "baseMana": 4 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 5,
+          "power": 1,
+          "baseMana": 4,
+          "optionalCosts": ["HASTE_READY"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -110,13 +120,15 @@
           "unitName": "绯红印记树怪",
           "destinationZone": "BASE",
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "急速"]
+          "tags": ["CARD_TYPE:UNIT", "急速"],
+          "isExhausted": false,
+          "hasteReadyOptionalCostPaid": true
         }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 388,
+      "turnNumber": 4131,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",

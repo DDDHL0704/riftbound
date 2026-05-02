@@ -466,6 +466,18 @@ public sealed class CardCatalogBaselineTests
             karinaVerazeProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, karinaVerazeProfile.HasteReadyManaCost);
         Assert.Equal(1, karinaVerazeProfile.HasteReadyPowerCost);
+
+        var crimsonSignetTreantSpec = specs.Single(spec => string.Equals(spec.CardNo, "UNL-029/219", StringComparison.Ordinal));
+        Assert.Contains(crimsonSignetTreantSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(crimsonSignetTreantSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-029/219", out var crimsonSignetTreantDefinition));
+        var crimsonSignetTreantProfile = CardPermissionKeywordRules.BuildProfile(crimsonSignetTreantDefinition);
+        Assert.True(crimsonSignetTreantProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            crimsonSignetTreantProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, crimsonSignetTreantProfile.HasteReadyManaCost);
+        Assert.Equal(1, crimsonSignetTreantProfile.HasteReadyPowerCost);
     }
 
     [Fact]
