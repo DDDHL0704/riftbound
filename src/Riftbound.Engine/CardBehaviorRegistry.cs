@@ -7490,6 +7490,16 @@ public static class CardBehaviorRegistry
             CanPlayDuringPriority: true,
             CounteredStackItemDestination: CardCounteredStackItemDestinationZones.Hand),
         new(
+            "UNL-190/219",
+            "夜阑谣",
+            2,
+            "NIGHTFALL_LULLABY_COUNTER_SPELL_NO_SPELL_LOCK",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true),
+        new(
             "SFD·135/221",
             "紧急召回",
             1,
