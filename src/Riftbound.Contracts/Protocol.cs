@@ -111,6 +111,11 @@ public sealed record MoveUnitCommand(
     string Destination = "",
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("MOVE_UNIT");
 
+public sealed record AssembleEquipmentCommand(
+    string SourceObjectId,
+    string TargetObjectId = "",
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ASSEMBLE_EQUIPMENT");
+
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
 

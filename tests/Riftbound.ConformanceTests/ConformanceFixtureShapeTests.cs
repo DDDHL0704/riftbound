@@ -337,6 +337,23 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesAssembleEquipmentPayload()
+    {
+        var command = Assert.IsType<AssembleEquipmentCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "ASSEMBLE_EQUIPMENT",
+              "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+              "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+              "optionalCosts": ["ASSEMBLE_RED"]
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-EQUIPMENT-LONG-SWORD", command.SourceObjectId);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", command.TargetObjectId);
+        Assert.Equal(new[] { "ASSEMBLE_RED" }, command.OptionalCosts);
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(

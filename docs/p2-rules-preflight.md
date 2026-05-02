@@ -2344,6 +2344,8 @@ P4 延展 3. 已完成：新增 `PLAY_CARD` 伏击目的地前置模型，服务
 
 P4 延展 4. 已完成：新增 `MOVE_UNIT` command 前置模型，服务端协议能解析 `sourceObjectId` / `origin` / `destination` / `optionalCosts`，但 `CoreRuleEngine` 在多战场位置、移动权限、游走合法性和移动触发模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`SFD·235/221 亚索` 这类“游走”文本仍暂缓真实跨战场移动和单回合移动次数得分。
 
+P4 延展 5. 已完成：新增 `ASSEMBLE_EQUIPMENT` command 前置模型，服务端协议能解析 `sourceObjectId` / `targetObjectId` / `optionalCosts`，但 `CoreRuleEngine` 在装配费用、灵便自动贴附、百炼 optional attach、owner/controller 与装备未激活文本模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`SFD·022/221 长剑` 这类“灵便/装配”文本仍暂缓真实装备贴附执行。
+
 ## 7. 暂缓项
 
 - 不实现完整打出卡牌流程。

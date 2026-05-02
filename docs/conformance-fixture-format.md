@@ -68,6 +68,7 @@ seed + initial setup + command log
 - `payload` 是局部匹配，只需要写本 fixture 关心的字段。
 - `PLAY_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.64 只为 `mode = "AMBUSH"` 锁定伏击战场目的地 envelope，Core 仍显式拒绝真实反应战场打出。
 - `MOVE_UNIT` payload 支持 `sourceObjectId`、`origin`、`destination` 和 `optionalCosts`；P4.65 只锁定游走/基础移动 command envelope，Core 仍显式拒绝真实跨战场移动。
+- `ASSEMBLE_EQUIPMENT` payload 支持 `sourceObjectId`、`targetObjectId` 和 `optionalCosts`；P4.66 只锁定装备装配 command envelope，Core 仍显式拒绝真实装配/贴附执行。
 
 现有 fixture 不在本格式文档逐条维护，避免每新增卡牌都同步长清单。需要查找样例时：
 
