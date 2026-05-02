@@ -634,6 +634,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, azirProfile.HasteReadyManaCost);
         Assert.Equal(1, azirProfile.HasteReadyPowerCost);
 
+        var azirAltASpec = specs.Single(spec => string.Equals(spec.CardNo, "SFD·177a/221", StringComparison.Ordinal));
+        Assert.Contains(azirAltASpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(azirAltASpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·177a/221", out var azirAltADefinition));
+        var azirAltAProfile = CardPermissionKeywordRules.BuildProfile(azirAltADefinition);
+        Assert.True(azirAltAProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            azirAltAProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, azirAltAProfile.HasteReadyManaCost);
+        Assert.Equal(1, azirAltAProfile.HasteReadyPowerCost);
+
         var kaisaSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·039/298", StringComparison.Ordinal));
         Assert.Contains(kaisaSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
         Assert.Contains(kaisaSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
