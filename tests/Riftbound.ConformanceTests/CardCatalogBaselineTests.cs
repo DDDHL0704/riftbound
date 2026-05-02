@@ -502,6 +502,18 @@ public sealed class CardCatalogBaselineTests
             ekkoProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, ekkoProfile.HasteReadyManaCost);
         Assert.Equal(1, ekkoProfile.HasteReadyPowerCost);
+
+        var armedAssaulterSpec = specs.Single(spec => string.Equals(spec.CardNo, "SFD·002/221", StringComparison.Ordinal));
+        Assert.Contains(armedAssaulterSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(armedAssaulterSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·002/221", out var armedAssaulterDefinition));
+        var armedAssaulterProfile = CardPermissionKeywordRules.BuildProfile(armedAssaulterDefinition);
+        Assert.True(armedAssaulterProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            armedAssaulterProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, armedAssaulterProfile.HasteReadyManaCost);
+        Assert.Equal(1, armedAssaulterProfile.HasteReadyPowerCost);
     }
 
     [Fact]

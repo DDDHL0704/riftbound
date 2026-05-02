@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-armed-assaulter-no-optional-haste",
-  "description": "Armed Assaulter enters as a Haste and Battle-hardened unit object without paying its Haste optional red additional cost or choosing its optional assembly.",
+  "fixtureId": "p4-play-armed-assaulter-haste-ready",
+  "description": "Armed Assaulter pays the P4.34 HASTE_READY optional cost and records the active-entry branch on resolution without choosing Battle-hardened assembly.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302393,
+  "seed": 2603304134,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·002/221 武装强袭者",
-      "note": "官方卡面：费用 6；单位；战力 6；急速，可选择额外支付 1 和红色让我以活跃状态进场；百炼，当你打出我时，可以选择为我装配你的一件武装且装配费用减少万能符能。当前 fixture 覆盖普通主阶段从手牌打出时不支付急速可选额外费用且不选择百炼装配的源单位入场和关键词标签记录；P4.34 另以 p4-play-armed-assaulter-haste-ready 覆盖 HASTE_READY 代表可选费用路径，百炼装配和武装贴附路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 6；急速，可选择额外支付 1 和红色让我以活跃状态进场；百炼，当你打出我时，可以选择为我装配你的一件武装且装配费用减少万能符能。本 P4.34 fixture 覆盖代表路径：在现有 mana/power 资源模型中用 HASTE_READY 支付额外 1 mana + 1 power，并在单位入场事件中记录已支付急速活跃分支；百炼装配和武装贴附路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；可选装配和装备贴附留待后续模型覆盖。"
+      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；本批次不进入装配、装备贴附或完整装备系统。"
     }
   ],
-  "roomId": "p2-preflight-armed-assaulter-room",
+  "roomId": "p4-armed-assaulter-haste-ready-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302393,
-    "turnNumber": 392,
+    "seed": 2603304134,
+    "turnNumber": 4134,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 6, "power": 0 },
+      "P1": { "mana": 7, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-armed-assaulter-play",
+      "clientIntentId": "intent-p4-armed-assaulter-haste-ready-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-ARMED-ASSAULTER",
         "cardNo": "SFD·002/221",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["HASTE_READY"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-armed-assaulter-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-armed-assaulter-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-armed-assaulter-haste-ready-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-armed-assaulter-haste-ready-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -87,7 +88,16 @@
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 6, "baseMana": 6 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 7,
+          "power": 1,
+          "baseMana": 6,
+          "optionalCosts": ["HASTE_READY"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -110,13 +120,15 @@
           "unitName": "武装强袭者",
           "destinationZone": "BASE",
           "power": 6,
-          "tags": ["CARD_TYPE:UNIT", "急速", "百炼"]
+          "tags": ["CARD_TYPE:UNIT", "急速", "百炼"],
+          "isExhausted": false,
+          "hasteReadyOptionalCostPaid": true
         }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 392,
+      "turnNumber": 4134,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",

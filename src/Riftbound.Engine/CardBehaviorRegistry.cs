@@ -2587,7 +2587,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 6,
-            SourceUnitTags: "急速|百炼"),
+            SourceUnitTags: "急速|百炼",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·131/221",
             "远古战狂",
