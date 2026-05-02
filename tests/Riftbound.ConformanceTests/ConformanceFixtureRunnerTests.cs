@@ -7630,6 +7630,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-unl-rengar-cat-static.fixture.json", "P1-UNIT-UNL-RENGAR", 6, "CARD_TYPE:UNIT|猫科")]
     [InlineData("p2-preflight-play-unl-rengar-alt-a-cat-static.fixture.json", "P1-UNIT-UNL-RENGAR-A", 6, "CARD_TYPE:UNIT|猫科")]
     [InlineData("p2-preflight-play-muddy-dredger-mechanical-static.fixture.json", "P1-UNIT-MUDDY-DREDGER", 1, "CARD_TYPE:UNIT|机械")]
+    [InlineData("p2-preflight-play-nidalee-cat-static.fixture.json", "P1-UNIT-NIDALEE", 4, "CARD_TYPE:UNIT|猫科")]
+    [InlineData("p2-preflight-play-evelynn-standby-back-row-static.fixture.json", "P1-UNIT-EVELYNN", 2, "CARD_TYPE:UNIT|后排|待命|恶魔")]
+    [InlineData("p2-preflight-play-pyke-standby-back-row-static.fixture.json", "P1-UNIT-UNL-145-PYKE", 3, "CARD_TYPE:UNIT|后排|待命")]
+    [InlineData("p2-preflight-play-pyke-alt-a-standby-back-row-static.fixture.json", "P1-UNIT-UNL-145A-PYKE", 3, "CARD_TYPE:UNIT|后排|待命")]
+    [InlineData("p2-preflight-play-poppy-no-experience-ambush-barrier-static.fixture.json", "P1-UNIT-UNL-178-POPPY", 5, "CARD_TYPE:UNIT|壁垒|约德尔人")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,
@@ -7863,6 +7868,11 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(5, "P1-UNIT-UNL-RENGAR", "UNL-120/219", "P1-BASE-UNL-RENGAR-TARGET-001")]
     [InlineData(5, "P1-UNIT-UNL-RENGAR-A", "UNL-120a/219", "P1-BASE-UNL-RENGAR-A-TARGET-001")]
     [InlineData(2, "P1-UNIT-MUDDY-DREDGER", "UNL-153/219", "P1-BASE-MUDDY-DREDGER-TARGET-001")]
+    [InlineData(3, "P1-UNIT-NIDALEE", "UNL-114/219", "P1-BASE-NIDALEE-TARGET-001")]
+    [InlineData(2, "P1-UNIT-EVELYNN", "UNL-141/219", "P1-BASE-EVELYNN-TARGET-001")]
+    [InlineData(3, "P1-UNIT-UNL-145-PYKE", "UNL-145/219", "P1-BASE-UNL-145-PYKE-TARGET-001")]
+    [InlineData(3, "P1-UNIT-UNL-145A-PYKE", "UNL-145a/219", "P1-BASE-UNL-145A-PYKE-TARGET-001")]
+    [InlineData(6, "P1-UNIT-UNL-178-POPPY", "UNL-178/219", "P1-BASE-UNL-178-POPPY-TARGET-001")]
     public Task CoreRuleEngineRejectsKeywordOnlySourceUnitWhenTargetsAreProvided(
         int mana,
         string sourceObjectId,
