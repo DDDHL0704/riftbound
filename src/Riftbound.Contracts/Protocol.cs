@@ -105,6 +105,14 @@ public sealed record HideCardCommand(
     string Destination = "",
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("HIDE_CARD");
 
+public sealed record RevealCardCommand(
+    string SourceObjectId,
+    string CardNo,
+    IReadOnlyList<string> TargetObjectIds,
+    string Mode = "",
+    IReadOnlyList<string>? OptionalCosts = null,
+    string Destination = "") : GameCommand("REVEAL_CARD");
+
 public sealed record MoveUnitCommand(
     string SourceObjectId,
     string Origin = "",

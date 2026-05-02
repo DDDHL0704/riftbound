@@ -39,6 +39,13 @@ public static class GameCommandJsonMapper
                 Text(cmd, "cardNo"),
                 Text(cmd, "destination"),
                 TextArray(cmd, "optionalCosts")),
+            "REVEAL_CARD" => new RevealCardCommand(
+                Text(cmd, "sourceObjectId"),
+                Text(cmd, "cardNo"),
+                TextArray(cmd, "targetObjectIds"),
+                Text(cmd, "mode"),
+                TextArray(cmd, "optionalCosts"),
+                Text(cmd, "destination")),
             "MOVE_UNIT" => new MoveUnitCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "origin"),

@@ -318,6 +318,29 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesRevealCardPayload()
+    {
+        var command = Assert.IsType<RevealCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "REVEAL_CARD",
+              "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
+              "cardNo": "OGN·121/298",
+              "targetObjectIds": ["P2-BATTLEFIELD-UNIT-001"],
+              "mode": "STANDBY_REACTION",
+              "optionalCosts": ["STANDBY_REVEAL_0"],
+              "destination": "STACK"
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-FACEDOWN-OGN-TEEMO", command.SourceObjectId);
+        Assert.Equal("OGN·121/298", command.CardNo);
+        Assert.Equal(new[] { "P2-BATTLEFIELD-UNIT-001" }, command.TargetObjectIds);
+        Assert.Equal("STANDBY_REACTION", command.Mode);
+        Assert.Equal(new[] { "STANDBY_REVEAL_0" }, command.OptionalCosts);
+        Assert.Equal("STACK", command.Destination);
+    }
+
+    [Fact]
     public void GameCommandMapperParsesMoveUnitPayload()
     {
         var command = Assert.IsType<MoveUnitCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""

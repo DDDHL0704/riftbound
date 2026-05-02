@@ -61,6 +61,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand));
         }
 
+        if (command is RevealCardCommand)
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "REVEAL_CARD is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand));
+        }
+
         if (command is MoveUnitCommand)
         {
             return ValueTask.FromResult(RejectWithCorePrompts(
