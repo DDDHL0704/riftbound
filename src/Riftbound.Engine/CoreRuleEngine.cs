@@ -101,7 +101,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             behavior.DamageAmountFromOptionalPowerCost ? plan.TotalPowerCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
-            plan.OptionalCosts);
+            plan.OptionalCosts,
+            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId));
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -236,7 +237,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
                     ["effectKind"] = stackItem.EffectKind,
                     ["mode"] = command.Mode,
-                    ["effectRepeatCount"] = stackItem.EffectRepeatCount
+                    ["effectRepeatCount"] = stackItem.EffectRepeatCount,
+                    ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
                 }));
 
         nextState = nextState with
@@ -2019,6 +2021,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0;
     }
 
+    private static bool ShouldGrantBoonToSourceUnit(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem)
+    {
+        if (!behavior.GrantsBoonToSourceUnit)
+        {
+            return false;
+        }
+
+        return behavior.SourceBoonConditionKind switch
+        {
+            CardSourceBoonConditionKinds.None => true,
+            CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn
+                => stackItem.PlayedAfterAnotherCardThisTurn,
+            _ => false
+        };
+    }
+
     private static bool EnemyUnitDestroyedThisTurn(MatchState state, string playerId)
     {
         return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
@@ -2346,7 +2366,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             events.Add(powerEvent);
         }
 
-        if (behavior.GrantsBoonToSourceUnit
+        if (ShouldGrantBoonToSourceUnit(behavior, stackItem)
             && cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitStateForBoon))
         {
             var nextSourceUnitState = ApplyBoon(

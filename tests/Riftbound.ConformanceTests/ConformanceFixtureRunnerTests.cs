@@ -16959,10 +16959,12 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-gluttonous-toadfrog-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-moss-stepper-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-noxian-recruit-no-encourage-trifarian-unit.fixture.json")]
+    [InlineData("p2-preflight-play-trifarian-gloryseeker-no-encourage-unit.fixture.json")]
     [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
+    [InlineData("p4-play-trifarian-gloryseeker-encourage-self-boon.fixture.json")]
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
@@ -17058,6 +17060,27 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             ["P1-EQUIPMENT-RAGE-SIGIL", "P1-UNIT-NOXIAN-RECRUIT"],
             result.FinalState.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
+    public async Task P4EncourageSelfBoonGrantsBoonAfterAnotherCardThisTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-trifarian-gloryseeker-encourage-self-boon.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-TRIFARIAN-GLORYSEEKER"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Boon, "崔法利"],
+            result.FinalState.CardObjects["P1-UNIT-TRIFARIAN-GLORYSEEKER"].Tags);
+        Assert.Contains("BOON_GRANTED", result.EventKinds);
     }
 
     [Fact]

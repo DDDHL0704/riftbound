@@ -150,7 +150,8 @@ public sealed record StackItemState
         IReadOnlyList<string>? targetObjectIds = null,
         int damageAmount = 0,
         int effectRepeatCount = 1,
-        IReadOnlyList<string>? optionalCosts = null)
+        IReadOnlyList<string>? optionalCosts = null,
+        bool playedAfterAnotherCardThisTurn = false)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -161,6 +162,7 @@ public sealed record StackItemState
         DamageAmount = Math.Max(0, damageAmount);
         EffectRepeatCount = Math.Max(1, effectRepeatCount);
         OptionalCosts = NormalizeList(optionalCosts);
+        PlayedAfterAnotherCardThisTurn = playedAfterAnotherCardThisTurn;
     }
 
     public string StackItemId { get; init; }
@@ -180,6 +182,8 @@ public sealed record StackItemState
     public int EffectRepeatCount { get; init; }
 
     public IReadOnlyList<string> OptionalCosts { get; init; }
+
+    public bool PlayedAfterAnotherCardThisTurn { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -483,7 +487,8 @@ public sealed record MatchState
                 item.TargetObjectIds,
                 item.DamageAmount,
                 item.EffectRepeatCount,
-                item.OptionalCosts))
+                item.OptionalCosts,
+                item.PlayedAfterAnotherCardThisTurn))
             .ToArray();
     }
 

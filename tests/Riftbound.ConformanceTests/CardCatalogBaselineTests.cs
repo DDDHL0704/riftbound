@@ -532,6 +532,14 @@ public sealed class CardCatalogBaselineTests
             noxianRecruitBehavior.CostReductionConditionKind);
         Assert.Equal(2, noxianRecruitBehavior.CostReductionMana);
 
+        var trifarianGloryseeker = BuildResourceProfile(specs, "OGN·217/298", CardResourceKeywordNames.Encourage);
+        Assert.True(trifarianGloryseeker.HasEncourage);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·217/298", out var trifarianGloryseekerBehavior));
+        Assert.True(trifarianGloryseekerBehavior.GrantsBoonToSourceUnit);
+        Assert.Equal(
+            CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn,
+            trifarianGloryseekerBehavior.SourceBoonConditionKind);
+
         var pluckyPoro = BuildResourceProfile(specs, "OGN·013/298", CardResourceKeywordNames.Spellshield);
         Assert.True(pluckyPoro.HasSpellshield);
         Assert.Equal(1, pluckyPoro.SpellshieldTax);
@@ -657,6 +665,11 @@ public sealed class CardCatalogBaselineTests
         var secretArtMercy = BuildBasicActionProfile(specs, "OGN·053/298");
         Assert.True(secretArtMercy.HasBoon);
         Assert.Contains(CardBasicActionNames.Boon, secretArtMercy.DelegatedP2Actions);
+
+        var trifarianGloryseeker = BuildBasicActionProfile(specs, "OGN·217/298");
+        Assert.True(trifarianGloryseeker.HasBoon);
+        Assert.Contains(CardBasicActionNames.Boon, trifarianGloryseeker.DelegatedP2Actions);
+        Assert.DoesNotContain(CardBasicActionNames.Boon, trifarianGloryseeker.DeferredActions);
 
         var shepherdsHeirloom = BuildBasicActionProfile(specs, "UNL-158/219");
         Assert.True(shepherdsHeirloom.HasExperience);

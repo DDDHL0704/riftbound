@@ -165,7 +165,8 @@ public sealed record CardBehaviorDefinition(
     int LevelExperienceThreshold = 0,
     int LevelSourceUnitPowerBonus = 0,
     string LevelSourceUnitTags = "",
-    int LevelDrawOnPlayCount = 0);
+    int LevelDrawOnPlayCount = 0,
+    string SourceBoonConditionKind = CardSourceBoonConditionKinds.None);
 
 public static class CardDamageConditionKinds
 {
@@ -256,6 +257,12 @@ public static class CardCostReductionConditionKinds
     public const string OpponentWithinThreeOfWinningScore = "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE";
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
+}
+
+public static class CardSourceBoonConditionKinds
+{
+    public const string None = "NONE";
+    public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
 }
 
 public static class CardPowerModifierConditionKinds
@@ -4726,12 +4733,14 @@ public static class CardBehaviorRegistry
             "OGN·217/298",
             "崔法利求战者",
             2,
-            "TRIFARIAN_GLORYSEEKER_NO_ENCOURAGE_PLAY_UNIT",
+            "TRIFARIAN_GLORYSEEKER_PLAY_UNIT_ENCOURAGE_SELF_BOON",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "崔法利"),
+            SourceUnitTags: "崔法利",
+            GrantsBoonToSourceUnit: true,
+            SourceBoonConditionKind: CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn),
         new(
             "UNL-025/219",
             "不死军团",
