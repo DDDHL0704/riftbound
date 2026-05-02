@@ -480,6 +480,16 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, mossStepperBehavior.LevelSourceUnitPowerBonus);
         Assert.Equal(CardObjectTags.Spellshield, mossStepperBehavior.LevelSourceUnitTags);
 
+        var windrunnerFox = BuildResourceProfile(specs, "UNL-075/219", CardResourceKeywordNames.Hunt, CardResourceKeywordNames.Level);
+        Assert.True(windrunnerFox.HasHunt);
+        Assert.Equal(2, windrunnerFox.HuntAmount);
+        Assert.True(windrunnerFox.HasLevel);
+        Assert.Equal([3], windrunnerFox.LevelThresholds);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-075/219", out var windrunnerFoxBehavior));
+        Assert.Equal(3, windrunnerFoxBehavior.LevelExperienceThreshold);
+        Assert.Equal(1, windrunnerFoxBehavior.LevelSourceUnitPowerBonus);
+        Assert.Equal("游走", windrunnerFoxBehavior.LevelSourceUnitTags);
+
         var noxianRecruit = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
         Assert.True(noxianRecruit.HasEncourage);
         Assert.Contains("deferred", noxianRecruit.Reason, StringComparison.OrdinalIgnoreCase);

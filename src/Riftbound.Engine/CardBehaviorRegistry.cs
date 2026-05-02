@@ -2951,7 +2951,10 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "犬形|狩猎2"),
+            SourceUnitTags: "犬形|狩猎2",
+            LevelExperienceThreshold: 3,
+            LevelSourceUnitPowerBonus: 1,
+            LevelSourceUnitTags: "游走"),
         new(
             "UNL-094/219",
             "晶手猎人",

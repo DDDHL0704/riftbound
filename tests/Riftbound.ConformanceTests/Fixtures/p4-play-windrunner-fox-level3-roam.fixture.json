@@ -1,35 +1,36 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-windrunner-fox-keyword-unit",
-  "description": "Windrunner Fox enters as a unit object with Dog and Hunt 2 tags.",
+  "fixtureId": "p4-play-windrunner-fox-level3-roam",
+  "description": "Windrunner Fox gets its level-3 power bonus and Roam when its controller has at least 3 experience.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302443,
+  "seed": 2603304116,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-075/219 风行狐",
-      "note": "官方卡面：费用 3；单位；战力 3；犬形属性；狩猎2；等级3以上时获得 +1 战力与游走。当前 fixture 覆盖未满足等级时普通主阶段打出后成为基地单位对象，并记录属性与关键词标签；等级3以上的 +1 战力与游走代表路径由 p4-play-windrunner-fox-level3-roam 覆盖。"
+      "note": "官方卡面：费用 3；单位；战力 3；犬形属性；狩猎2；等级3以上时获得 +1 战力与游走。当前 fixture 覆盖控制者拥有 3 经验时从手牌打出后成为 4 战力并获得游走的代表路径。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+      "note": "单位是游戏对象并可记录属性与关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；等级能力在控制者拥有不少于指定经验时生效。"
     }
   ],
-  "roomId": "p2-preflight-windrunner-fox-room",
+  "roomId": "p4-windrunner-fox-level3-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302443,
-    "turnNumber": 442,
+    "seed": 2603304116,
+    "turnNumber": 4116,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
+    "experience": { "P1": 3, "P2": 0 },
     "runePools": {
       "P1": { "mana": 3, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
@@ -63,7 +64,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-windrunner-fox-play",
+      "clientIntentId": "intent-p4-windrunner-fox-level3-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-WINDRUNNER-FOX",
@@ -71,8 +72,8 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-windrunner-fox-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-windrunner-fox-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-windrunner-fox-level3-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-windrunner-fox-level3-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -85,14 +86,32 @@
       "STACK_ITEM_RESOLVED",
       "UNIT_PLAYED_TO_BASE"
     ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-WINDRUNNER-FOX",
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "游走", "犬形", "狩猎2"]
+        }
+      }
+    ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 442,
+      "turnNumber": 4116,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "scores": { "P1": 0, "P2": 0 },
+      "experience": { "P1": 3, "P2": 0 },
       "runePools": {
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
@@ -108,8 +127,8 @@
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-WINDRUNNER-FOX": {
-          "power": 3,
-          "tags": ["CARD_TYPE:UNIT", "犬形", "狩猎2"],
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "游走", "犬形", "狩猎2"],
           "isExhausted": false
         }
       }

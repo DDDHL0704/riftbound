@@ -16896,6 +16896,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
+    [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -16927,6 +16928,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "犬形", "狩猎2"],
             result.FinalState.CardObjects["P1-UNIT-MOSS-STEPPER"].Tags);
+        Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
+    }
+
+    [Fact]
+    public async Task P4LevelThresholdAppliesWindrunnerFoxPowerAndRoamAtThreeExperience()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-windrunner-fox-level3-roam.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-WINDRUNNER-FOX"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, "游走", "犬形", "狩猎2"],
+            result.FinalState.CardObjects["P1-UNIT-WINDRUNNER-FOX"].Tags);
         Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
     }
 
