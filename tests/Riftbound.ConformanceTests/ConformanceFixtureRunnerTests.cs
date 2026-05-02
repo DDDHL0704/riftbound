@@ -17041,6 +17041,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
+    [InlineData("p4-play-unl-yi-level6-spellshield-roam.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -17093,6 +17094,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-UNIT-WUJI-APPRENTICE"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(6, result.FinalState.PlayerExperience["P1"]);
         Assert.Contains("CARD_DRAWN", result.EventKinds);
+    }
+
+    [Fact]
+    public async Task P4LevelThresholdAppliesYiSpellshieldAndRoamAtSixExperience()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-unl-yi-level6-spellshield-roam.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-UNL-YI-HUNT"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "游走", "狩猎2"],
+            result.FinalState.CardObjects["P1-UNIT-UNL-YI-HUNT"].Tags);
+        Assert.Equal(6, result.FinalState.PlayerExperience["P1"]);
     }
 
     [Fact]

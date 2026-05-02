@@ -1,35 +1,36 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-unl-yi-hunt-keyword-unit",
-  "description": "Yi enters as a unit object with a Hunt 2 tag.",
+  "fixtureId": "p4-play-unl-yi-level6-spellshield-roam",
+  "description": "UNL Yi gets Spellshield and Roam from its level-6 text when its controller has at least 6 experience.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302448,
+  "seed": 2603304128,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-113/219 易",
-      "note": "官方卡面：费用 4；英雄单位；战力 4；狩猎2；等级6以上时获得法盾和游走。当前 fixture 覆盖普通主阶段打出后成为基地单位对象，并记录关键词标签；P4.28 fixture 覆盖等级6以上的法盾与游走代表路径。"
+      "note": "官方卡面：费用 4；英雄单位；战力 4；狩猎2；等级6以上时获得法盾和游走。本 P4.28 fixture 覆盖控制者拥有 6 经验时从手牌打出后记录法盾与游走关键词的代表路径；狩猎征服/据守获得经验、法盾技能目标税和游走移动路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；等级能力在控制者拥有不少于指定经验时生效。"
     }
   ],
-  "roomId": "p2-preflight-unl-yi-hunt-room",
+  "roomId": "p4-unl-yi-level6-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302448,
-    "turnNumber": 447,
+    "seed": 2603304128,
+    "turnNumber": 4128,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
+    "experience": { "P1": 6, "P2": 0 },
     "runePools": {
       "P1": { "mana": 4, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
@@ -63,7 +64,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-unl-yi-hunt-play",
+      "clientIntentId": "intent-p4-unl-yi-level6-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-UNL-YI-HUNT",
@@ -71,8 +72,8 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-yi-hunt-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-yi-hunt-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p4-unl-yi-level6-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p4-unl-yi-level6-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -85,14 +86,32 @@
       "STACK_ITEM_RESOLVED",
       "UNIT_PLAYED_TO_BASE"
     ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      { "kind": "STACK_ITEM_ADDED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-UNL-YI-HUNT",
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "法盾", "游走", "狩猎2"]
+        }
+      }
+    ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 447,
+      "turnNumber": 4128,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "scores": { "P1": 0, "P2": 0 },
+      "experience": { "P1": 6, "P2": 0 },
       "runePools": {
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
@@ -109,7 +128,7 @@
       "cardObjects": {
         "P1-UNIT-UNL-YI-HUNT": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "狩猎2"],
+          "tags": ["CARD_TYPE:UNIT", "法盾", "游走", "狩猎2"],
           "isExhausted": false
         }
       }
