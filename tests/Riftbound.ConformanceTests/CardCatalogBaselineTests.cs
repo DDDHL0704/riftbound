@@ -490,6 +490,18 @@ public sealed class CardCatalogBaselineTests
             tastyFaerieProfile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, tastyFaerieProfile.HasteReadyManaCost);
         Assert.Equal(1, tastyFaerieProfile.HasteReadyPowerCost);
+
+        var ekkoSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·110/298", StringComparison.Ordinal));
+        Assert.Contains(ekkoSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(ekkoSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·110/298", out var ekkoDefinition));
+        var ekkoProfile = CardPermissionKeywordRules.BuildProfile(ekkoDefinition);
+        Assert.True(ekkoProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            ekkoProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, ekkoProfile.HasteReadyManaCost);
+        Assert.Equal(1, ekkoProfile.HasteReadyPowerCost);
     }
 
     [Fact]

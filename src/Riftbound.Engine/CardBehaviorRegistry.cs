@@ -2575,7 +2575,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "急速"),
+            SourceUnitTags: "急速",
+            HasteReadyManaCost: 1,
+            HasteReadyPowerCost: 1),
         new(
             "SFD·002/221",
             "武装强袭者",
