@@ -98,6 +98,12 @@ public sealed record ActivateAbilityCommand(
     IReadOnlyList<string> TargetObjectIds,
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ACTIVATE_ABILITY");
 
+public sealed record HideCardCommand(
+    string SourceObjectId,
+    string CardNo,
+    string Destination = "",
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("HIDE_CARD");
+
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);
 

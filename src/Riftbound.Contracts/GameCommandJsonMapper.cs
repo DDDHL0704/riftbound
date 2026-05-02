@@ -33,6 +33,11 @@ public static class GameCommandJsonMapper
                 Text(cmd, "abilityId"),
                 TextArray(cmd, "targetObjectIds"),
                 TextArray(cmd, "optionalCosts")),
+            "HIDE_CARD" => new HideCardCommand(
+                Text(cmd, "sourceObjectId"),
+                Text(cmd, "cardNo"),
+                Text(cmd, "destination"),
+                TextArray(cmd, "optionalCosts")),
             _ => new UnsupportedCommand(cmdType, cmd.Clone())
         };
     }

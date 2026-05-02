@@ -276,6 +276,25 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void GameCommandMapperParsesHideCardPayload()
+    {
+        var command = Assert.IsType<HideCardCommand>(GameCommandJsonMapper.Map(JsonDocument.Parse("""
+            {
+              "cmdType": "HIDE_CARD",
+              "sourceObjectId": "P1-HAND-OGN-TEEMO",
+              "cardNo": "OGN·121/298",
+              "destination": "STANDBY",
+              "optionalCosts": ["STANDBY_A"]
+            }
+            """).RootElement));
+
+        Assert.Equal("P1-HAND-OGN-TEEMO", command.SourceObjectId);
+        Assert.Equal("OGN·121/298", command.CardNo);
+        Assert.Equal("STANDBY", command.Destination);
+        Assert.Equal(new[] { "STANDBY_A" }, command.OptionalCosts);
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(

@@ -52,6 +52,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand));
         }
 
+        if (command is HideCardCommand)
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "HIDE_CARD is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand));
+        }
+
         if (command is PassPriorityCommand && CanPassPriority(state, intent.PlayerId))
         {
             return ValueTask.FromResult(ResolvePassPriority(state, intent));

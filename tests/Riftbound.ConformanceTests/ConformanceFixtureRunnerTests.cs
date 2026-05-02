@@ -18218,6 +18218,49 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandIsExplicitlyRejectedUntilStandbyHiddenInfoExists()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OGN-TEEMO"] = new(
+                    "P1-HAND-OGN-TEEMO",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-premodel", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("HIDE_CARD is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Hand);
+        Assert.False(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4SpellshieldTaxState(mana: 2);
