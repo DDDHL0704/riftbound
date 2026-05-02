@@ -6,12 +6,12 @@
 
 ## Snapshot
 
-- 当前 P2 功能基线：已覆盖 `UNL-131/219` 《遗弃》的反应时机反制法术并返回手牌路径，以及 `OGN·064/298` 《风之障壁》的反制法术进废牌堆路径；最新提交以 `git log -1 --oneline` 为准
+- 当前 P2 功能基线：已覆盖 `UNL-044/219` 《羽毛旋风》的反制法术模式、`UNL-131/219` 《遗弃》的反制法术并返回手牌路径，以及 `OGN·064/298` 《风之障壁》的反制法术进废牌堆路径；最新提交以 `git log -1 --oneline` 为准
 - 上一个 P2 功能基线：`OGN·109/298` 《蒙多医生》的废牌堆计数动态战力单位入场路径、`ARC-001/006` 至 `ARC-006/006` 的 ARC 官方英雄单位入场/标签静态代表路径、`UNL-194/219` 《黑影》的专属单位基地入场路径，以及 `UNL-196/219` 《小菊！》和 `OGS·018/024` 《提伯斯》的专属单位入场路径
-- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `1563/1563`
-- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `1515/1515`
-- 最小 card behavior registry：`770/811 = 94.9%`
-- P2 preflight 清单：已完成到 `805`，下一项是 `806. 按同能力族小批次迁移更多低复杂度官方卡牌`
+- 最近全量验证：`dotnet test Riftbound.slnx --no-restore` 通过 `1565/1565`
+- 最近 conformance runner 验证：`dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 `1517/1517`
+- 最小 card behavior registry：`771/811 = 95.1%`
+- P2 preflight 清单：已完成到 `806`，下一项是 `807. 按同能力族小批次迁移更多低复杂度官方卡牌`
 - 当前工作区预期：只剩未跟踪的 `riftbound-dotnet.sln`，不要提交它，除非用户明确要求
 
 ## Current Focus
@@ -48,6 +48,7 @@
 
 ## Latest Completed
 
+- `UNL-044/219` 《羽毛旋风》：当前 2P preflight 覆盖 `PLAY_CARD.mode = "COUNTER_SPELL"` 的反制法术模式；P2 在 P1 的《焚烧》位于结算链上时支付 4 点费用打出《羽毛旋风》，双方让过后以 `STACK_ITEM_COUNTERED` 无效化目标法术并将其源牌移入控制者废牌堆；战鹰模式已有 fixture 覆盖，单位源牌结算链项目由直接测试拒绝。
 - `UNL-131/219` 《遗弃》：当前 2P preflight 覆盖反应牌在优先权窗口打出、目标限定为结算链上的法术项目、双方让过后以 `STACK_ITEM_COUNTERED` 无效化目标法术并将被反制法术源牌返回其控制者手牌；单位源牌结算链项目由直接测试拒绝，洞察路径暂缓。
 - `OGN·109/298` 《蒙多医生》：当前 2P preflight 覆盖废牌堆计数动态战力单位入场路径；样例中 P1 废牌堆有 2 张牌，支付 8 点费用后进入控制者基地成为 8 战力 `CARD_TYPE:UNIT` 单位对象；回合开始阶段从废牌堆回收三张牌路径暂缓，带目标打出由直接测试拒绝。
 - `ARC-001/006` 《蔚》 / `ARC-002/006` 《凯特琳》 / `ARC-003/006` 《黑默丁格》 / `ARC-004/006` 《沃里克》 / `ARC-005/006` 《金克丝》 / `ARC-006/006` 《维克托》：当前 2P preflight 已覆盖 ARC 官方英雄单位普通主阶段从手牌打出后的单位入场/标签静态代表路径；《蔚》记录 `游走`，《黑默丁格》记录 `约德尔人`，《沃里克》记录 `犬形`，其余成为无额外标签单位对象；废牌堆回收/战力修正、战斗伤害顺序、横置伤害、横置技能复制、进攻触发、弃牌触发和单位摧毁监听打出随从路径暂缓，带目标打出由直接测试拒绝。

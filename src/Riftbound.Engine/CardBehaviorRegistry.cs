@@ -7548,6 +7548,17 @@ public static class CardBehaviorRegistry
             CreatedBaseUnitTokenName: "战鹰",
             CreatedBaseUnitTokenTags: CardObjectTags.Spellshield),
         new(
+            "UNL-044/219",
+            "羽毛旋风",
+            4,
+            "FEATHERSTORM_COUNTER_SPELL",
+            0,
+            1,
+            TargetScope: CardTargetScopes.StackSpell,
+            Mode: "COUNTER_SPELL",
+            CountersTargetStackSpell: true,
+            CanPlayDuringPriority: true),
+        new(
             "SFD·076/221",
             "产量激增",
             4,

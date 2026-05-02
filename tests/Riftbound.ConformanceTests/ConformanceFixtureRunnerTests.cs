@@ -9298,6 +9298,25 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysFeatherstormCounterSpell()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-featherstorm-counter-spell.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.StackItems);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-FEATHERSTORM-001"].Damage);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-SPELL-FEATHERSTORM"], result.FinalState.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with
@@ -9396,6 +9415,58 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
         Assert.Equal(["P2-SPELL-ABANDON"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsFeatherstormCounterAgainstUnitStackItem()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(4, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-FEATHERSTORM"]
+                }
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-UNIT-SCUTTLE",
+                    "P1",
+                    "P1-UNIT-SCUTTLE",
+                    "SCUTTLE_CRAB_PLAY_UNIT_DRAW_1",
+                    "UNL-053/219",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-featherstorm-counter-unit-stack-target", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-FEATHERSTORM",
+                "UNL-044/219",
+                ["STACK-1-P1-UNIT-SCUTTLE"],
+                Mode: "COUNTER_SPELL"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-SPELL-FEATHERSTORM"], result.State.PlayerZones["P2"].Hand);
         Assert.Equal(["STACK-1-P1-UNIT-SCUTTLE"], result.State.StackItems.Select(item => item.StackItemId));
     }
 
