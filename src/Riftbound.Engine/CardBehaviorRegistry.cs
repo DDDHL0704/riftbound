@@ -163,7 +163,8 @@ public sealed record CardBehaviorDefinition(
     int HasteReadyPowerCost = 0,
     int LevelExperienceThreshold = 0,
     int LevelSourceUnitPowerBonus = 0,
-    string LevelSourceUnitTags = "");
+    string LevelSourceUnitTags = "",
+    int LevelDrawOnPlayCount = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -2984,7 +2985,9 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "狩猎"),
+            SourceUnitTags: "狩猎",
+            LevelExperienceThreshold: 6,
+            LevelDrawOnPlayCount: 1),
         new(
             "UNL-102/219",
             "竞技场人气王",

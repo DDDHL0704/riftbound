@@ -2239,6 +2239,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 events);
         }
 
+        if (behavior.LevelDrawOnPlayCount > 0
+            && ControllerMeetsLevelExperienceThreshold(behavior, stackItem.ControllerId, playerExperience))
+        {
+            var drawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                playerScores,
+                stackItem.ControllerId,
+                behavior.LevelDrawOnPlayCount,
+                rngCursor,
+                events);
+            playerScores = drawApplication.PlayerScores;
+            winnerPlayerId = drawApplication.WinnerPlayerId;
+            rngCursor = drawApplication.RngCursor;
+        }
+
         if (behavior.RemovesDamageFromAllFriendlyBattlefieldUnits)
         {
             RemoveDamageFromFriendlyBattlefieldUnits(

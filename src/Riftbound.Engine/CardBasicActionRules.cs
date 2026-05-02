@@ -50,7 +50,9 @@ public static class CardBasicActionRules
     {
         ArgumentNullException.ThrowIfNull(spec);
 
-        var hasDraw = HasTemplate(spec, BehaviorTemplateIds.Draw) || behavior?.DrawCount > 0;
+        var hasDraw = HasTemplate(spec, BehaviorTemplateIds.Draw)
+            || behavior?.DrawCount > 0
+            || behavior?.LevelDrawOnPlayCount > 0;
         var hasDamage = HasTemplate(spec, BehaviorTemplateIds.Damage) || HasDamageBehavior(behavior);
         var hasDestroy = HasTemplate(spec, BehaviorTemplateIds.Destroy) || HasDestroyBehavior(behavior);
         var hasStun = HasTemplate(spec, BehaviorTemplateIds.Stun)
@@ -65,7 +67,7 @@ public static class CardBasicActionRules
         var hasBoon = HasBoonBehavior(behavior) || spec.OfficialText.Contains(CardObjectTags.Boon, StringComparison.Ordinal);
         var hasExperience = HasTemplate(spec, BehaviorTemplateIds.GainExperience)
             || spec.OfficialText.Contains("经验", StringComparison.Ordinal);
-        var hasDrawPrimitive = behavior?.DrawCount > 0;
+        var hasDrawPrimitive = behavior?.DrawCount > 0 || behavior?.LevelDrawOnPlayCount > 0;
         var hasDamagePrimitive = behavior?.DamageAmount > 0;
         var hasDestroyPrimitive = behavior?.DestroysTarget == true;
         var hasStunPrimitive = !string.IsNullOrWhiteSpace(behavior?.StatusEffectId);

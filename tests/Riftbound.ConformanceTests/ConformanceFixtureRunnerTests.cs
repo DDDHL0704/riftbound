@@ -16897,6 +16897,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
+    [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -16929,6 +16930,26 @@ public sealed class ConformanceFixtureRunnerTests
             [CardObjectTags.UnitCard, CardObjectTags.Spellshield, "犬形", "狩猎2"],
             result.FinalState.CardObjects["P1-UNIT-MOSS-STEPPER"].Tags);
         Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
+    }
+
+    [Fact]
+    public async Task P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-wuji-apprentice-level6-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-WUJI-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-UNIT-WUJI-APPRENTICE"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(6, result.FinalState.PlayerExperience["P1"]);
+        Assert.Contains("CARD_DRAWN", result.EventKinds);
     }
 
     [Fact]
@@ -17151,6 +17172,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-secret-art-mercy-grant-boon.fixture.json")]
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
+    [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(

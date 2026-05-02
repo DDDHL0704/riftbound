@@ -490,6 +490,15 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, windrunnerFoxBehavior.LevelSourceUnitPowerBonus);
         Assert.Equal("游走", windrunnerFoxBehavior.LevelSourceUnitTags);
 
+        var wujiApprentice = BuildResourceProfile(specs, "UNL-040/219", CardResourceKeywordNames.Hunt, CardResourceKeywordNames.Level);
+        Assert.True(wujiApprentice.HasHunt);
+        Assert.Equal(1, wujiApprentice.HuntAmount);
+        Assert.True(wujiApprentice.HasLevel);
+        Assert.Equal([6], wujiApprentice.LevelThresholds);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-040/219", out var wujiApprenticeBehavior));
+        Assert.Equal(6, wujiApprenticeBehavior.LevelExperienceThreshold);
+        Assert.Equal(1, wujiApprenticeBehavior.LevelDrawOnPlayCount);
+
         var noxianRecruit = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
         Assert.True(noxianRecruit.HasEncourage);
         Assert.Contains("deferred", noxianRecruit.Reason, StringComparison.OrdinalIgnoreCase);
@@ -635,6 +644,12 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(CardBasicActionNames.Experience, poppy.DelegatedP2Actions);
         Assert.DoesNotContain(CardBasicActionNames.Experience, poppy.DeferredActions);
         Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, poppy.Status);
+
+        var wujiApprentice = BuildBasicActionProfile(specs, "UNL-040/219");
+        Assert.True(wujiApprentice.HasDraw);
+        Assert.Contains(CardBasicActionNames.Draw, wujiApprentice.PrimitiveActions);
+        Assert.Contains(CardBasicActionNames.Experience, wujiApprentice.DeferredActions);
+        Assert.Equal(CardBasicActionProfileStatuses.MixedDeferred, wujiApprentice.Status);
 
         var sternSergeant = BuildBasicActionProfile(specs, "UNL-157/219");
         Assert.True(sternSergeant.HasExperience);
