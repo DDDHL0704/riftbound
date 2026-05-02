@@ -167,7 +167,8 @@ public sealed record CardBehaviorDefinition(
     string LevelSourceUnitTags = "",
     int LevelDrawOnPlayCount = 0,
     string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
-    string TargetCountConditionKind = CardTargetCountConditionKinds.None);
+    string TargetCountConditionKind = CardTargetCountConditionKinds.None,
+    string CreatedBaseUnitTokenConditionKind = CardTokenCreationConditionKinds.None);
 
 public static class CardDamageConditionKinds
 {
@@ -268,6 +269,12 @@ public static class CardSourceBoonConditionKinds
 }
 
 public static class CardTargetCountConditionKinds
+{
+    public const string None = "NONE";
+    public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
+}
+
+public static class CardTokenCreationConditionKinds
 {
     public const string None = "NONE";
     public const string PlayedAfterAnotherCardThisTurn = "PLAYED_AFTER_ANOTHER_CARD_THIS_TURN";
@@ -4782,12 +4789,17 @@ public static class CardBehaviorRegistry
             "OGN·218/298",
             "先锋队长",
             3,
-            "VANGUARD_CAPTAIN_NO_ENCOURAGE_ELITE_PLAY_UNIT",
+            "VANGUARD_CAPTAIN_PLAY_UNIT_ENCOURAGE_CREATE_TWO_MINIONS",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "精锐"),
+            SourceUnitTags: "精锐",
+            CreatedBaseUnitTokenCount: 2,
+            CreatedBaseUnitTokenPower: 1,
+            CreatedBaseUnitTokenName: "随从",
+            CreatedBaseUnitTokenTags: CardObjectTags.UnitCard,
+            CreatedBaseUnitTokenConditionKind: CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn),
         new(
             "OGN·243/298",
             "德莱厄斯",

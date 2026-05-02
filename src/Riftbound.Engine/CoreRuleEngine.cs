@@ -2070,6 +2070,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static bool ShouldCreateBaseUnitTokens(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem)
+    {
+        return behavior.CreatedBaseUnitTokenConditionKind switch
+        {
+            CardTokenCreationConditionKinds.None => true,
+            CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn
+                => stackItem.PlayedAfterAnotherCardThisTurn,
+            _ => false
+        };
+    }
+
     private static bool EnemyUnitDestroyedThisTurn(MatchState state, string playerId)
     {
         return state.DestroyedUnitOwnerIdsThisTurn.Any(ownerPlayerId =>
@@ -2939,7 +2952,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
         else if (behavior.CreatedBaseUnitTokenCount > 0
-            && !behavior.CreatedBaseUnitTokenCopiesFirstTarget)
+            && !behavior.CreatedBaseUnitTokenCopiesFirstTarget
+            && ShouldCreateBaseUnitTokens(behavior, stackItem))
         {
             CreateBaseUnitTokens(
                 playerZones,

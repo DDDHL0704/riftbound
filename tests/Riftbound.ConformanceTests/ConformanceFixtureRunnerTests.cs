@@ -16967,6 +16967,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
     [InlineData("p4-play-dangerous-duo-encourage-target-temp-might.fixture.json")]
     [InlineData("p4-play-junkyard-bully-encourage-discard-draw.fixture.json")]
+    [InlineData("p4-play-vanguard-captain-encourage-create-minions.fixture.json")]
     [InlineData("p4-play-trifarian-gloryseeker-encourage-self-boon.fixture.json")]
     [InlineData("p4-play-moss-stepper-level3-spellshield.fixture.json")]
     [InlineData("p4-play-windrunner-fox-level3-roam.fixture.json")]
@@ -17132,6 +17133,39 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.CardObjects["P1-UNIT-JUNKYARD-BULLY"].Tags);
         Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "CARD_DISCARDED", StringComparison.Ordinal)));
         Assert.Contains("CARD_DRAWN", result.EventKinds);
+    }
+
+    [Fact]
+    public async Task P4EncourageMinionCreationRequiresPriorCard()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-vanguard-captain-encourage-create-minions.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(2, result.FinalState.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal(
+            [
+                "P1-EQUIPMENT-RAGE-SIGIL",
+                "P1-UNIT-VANGUARD-CAPTAIN",
+                "P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001",
+                "P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"
+            ],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, "精锐"],
+            result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN"].Tags);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-001"].Tags);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-VANGUARD-CAPTAIN-TOKEN-002"].Tags);
+        Assert.Equal(2, result.EventKinds.Count(kind => string.Equals(kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
     }
 
     [Fact]

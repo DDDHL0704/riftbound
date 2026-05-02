@@ -557,6 +557,17 @@ public sealed class CardCatalogBaselineTests
             CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn,
             junkyardBullyBehavior.TargetCountConditionKind);
 
+        var vanguardCaptain = BuildResourceProfile(specs, "OGN·218/298", CardResourceKeywordNames.Encourage);
+        Assert.True(vanguardCaptain.HasEncourage);
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·218/298", out var vanguardCaptainBehavior));
+        Assert.Equal(2, vanguardCaptainBehavior.CreatedBaseUnitTokenCount);
+        Assert.Equal(1, vanguardCaptainBehavior.CreatedBaseUnitTokenPower);
+        Assert.Equal("随从", vanguardCaptainBehavior.CreatedBaseUnitTokenName);
+        Assert.Equal(CardObjectTags.UnitCard, vanguardCaptainBehavior.CreatedBaseUnitTokenTags);
+        Assert.Equal(
+            CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn,
+            vanguardCaptainBehavior.CreatedBaseUnitTokenConditionKind);
+
         var trifarianGloryseeker = BuildResourceProfile(specs, "OGN·217/298", CardResourceKeywordNames.Encourage);
         Assert.True(trifarianGloryseeker.HasEncourage);
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·217/298", out var trifarianGloryseekerBehavior));
