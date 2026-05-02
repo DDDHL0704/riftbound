@@ -515,6 +515,18 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, crimsonSignetTreantAltAProfile.HasteReadyManaCost);
         Assert.Equal(1, crimsonSignetTreantAltAProfile.HasteReadyPowerCost);
 
+        var nilahSpec = specs.Single(spec => string.Equals(spec.CardNo, "UNL-115/219", StringComparison.Ordinal));
+        Assert.Contains(nilahSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
+        Assert.Contains(nilahSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("UNL-115/219", out var nilahDefinition));
+        var nilahProfile = CardPermissionKeywordRules.BuildProfile(nilahDefinition);
+        Assert.True(nilahProfile.HasHaste);
+        Assert.Equal(
+            HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+            nilahProfile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, nilahProfile.HasteReadyManaCost);
+        Assert.Equal(1, nilahProfile.HasteReadyPowerCost);
+
         var kaisaSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·039/298", StringComparison.Ordinal));
         Assert.Contains(kaisaSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
         Assert.Contains(kaisaSpec.Cost.OptionalCosts, cost => cost.StartsWith("extra-pay", StringComparison.Ordinal));
