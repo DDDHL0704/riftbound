@@ -55,7 +55,7 @@ public static class CardPermissionKeywordRules
                 : HasteOptionalReadyBranchStatuses.NotApplicable,
             hasHaste
                 ? hasImplementedHasteReadyBranch
-                    ? "P4.13/P4.18/P4.20/P4.25/P4.26/P4.27 implement representative HASTE_READY optional costs through the current mana + power resource model and keep other Haste cards deferred."
+                    ? "P4.13/P4.18/P4.20/P4.25/P4.26/P4.27/P4.30 implement representative HASTE_READY optional costs through the current mana + power resource model and keep other Haste cards deferred."
                     : "P4.2 recognizes Haste in source unit tags and keeps the verified no-optional entry path; the extra-pay ready-entry branch is deferred until colored resource and ready-entry cost modeling."
                 : "Card does not expose the Haste keyword through the P2 source unit tag path.",
             hasImplementedHasteReadyBranch ? behavior.HasteReadyManaCost : 0,
