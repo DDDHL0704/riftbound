@@ -16759,6 +16759,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-miss-fortune-haste-ready.fixture.json")]
     [InlineData("p4-play-miss-fortune-alt-a-haste-ready.fixture.json")]
     [InlineData("p4-play-sivir-haste-ready.fixture.json")]
+    [InlineData("p4-play-sivir-alt-a-haste-ready.fixture.json")]
     [InlineData("p4-play-tasty-faerie-haste-ready.fixture.json")]
     [InlineData("p4-play-ekko-haste-ready.fixture.json")]
     [InlineData("p4-play-armed-assaulter-haste-ready.fixture.json")]
@@ -16797,6 +16798,28 @@ public sealed class ConformanceFixtureRunnerTests
 
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-sivir-haste-ready.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchPaysManaAndPowerForSivirAltA()
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·143a/221", out var hasteDefinition));
+        var profile = CardPermissionKeywordRules.BuildProfile(hasteDefinition);
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
+
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-sivir-alt-a-haste-ready.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
