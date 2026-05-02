@@ -18160,6 +18160,32 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p2-preflight-play-take-up-attach-weapon-draw.fixture.json", "P2-UNIT-TAKE-UP-001")]
+    [InlineData("p2-preflight-play-take-up-detach-weapon-draw.fixture.json", null)]
+    public async Task P4EquipmentAttachmentRepresentativeKeepsTakeUpAttachDetachFixturesGreen(
+        string fixtureFileName,
+        string? expectedAttachedToObjectId)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            expectedAttachedToObjectId,
+            result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].AttachedToObjectId);
+        Assert.Single(result.EventKinds, eventKind => string.Equals(
+            eventKind,
+            expectedAttachedToObjectId is null ? "EQUIPMENT_DETACHED" : "EQUIPMENT_ATTACHED",
+            StringComparison.Ordinal));
+    }
+
+    [Theory]
     [InlineData("p4-ephemeral-destroys-controlled-objects-turn-start.fixture.json")]
     [InlineData("p2-preflight-play-scrying-shell-equipment-predict-recycle.fixture.json")]
     [InlineData("p2-preflight-play-ogn-kogmaw-last-breath-static.fixture.json")]

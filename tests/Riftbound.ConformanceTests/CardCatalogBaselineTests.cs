@@ -1032,6 +1032,29 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4EquipmentAttachmentProfileMapsTakeUpToRepresentativeAttachDetach()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+
+        var takeUpSpec = specs.Single(spec => string.Equals(spec.CardNo, "SFD·011/221", StringComparison.Ordinal));
+        Assert.Contains(CardPermissionKeywordNames.Reaction, takeUpSpec.OfficialText, StringComparison.Ordinal);
+        Assert.Contains("武装", takeUpSpec.OfficialText, StringComparison.Ordinal);
+        Assert.Contains("贴附", takeUpSpec.OfficialText, StringComparison.Ordinal);
+        Assert.Contains("卸除", takeUpSpec.OfficialText, StringComparison.Ordinal);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·011/221", out var takeUpDefinition));
+        var profile = CardEquipmentKeywordRules.BuildAttachmentProfile(takeUpDefinition);
+
+        Assert.True(profile.CanAttachOrDetachWeapon);
+        Assert.Equal(1, profile.DrawCount);
+        Assert.Equal(EquipmentAttachmentProfileStatuses.ImplementedRepresentative, profile.Status);
+        Assert.Contains("P4.58", profile.Reason, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("deferred", profile.Reason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

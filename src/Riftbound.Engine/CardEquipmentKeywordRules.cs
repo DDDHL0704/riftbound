@@ -16,11 +16,23 @@ public static class EquipmentKeywordProfileStatuses
     public const string NotApplicable = "not-applicable";
 }
 
+public static class EquipmentAttachmentProfileStatuses
+{
+    public const string ImplementedRepresentative = "implemented-representative";
+    public const string NotApplicable = "not-applicable";
+}
+
 public sealed record CardEquipmentKeywordProfile(
     bool HasAssemble,
     bool HasAgile,
     bool HasTempered,
     bool HasWeapon,
+    string Status,
+    string Reason);
+
+public sealed record CardEquipmentAttachmentProfile(
+    bool CanAttachOrDetachWeapon,
+    int DrawCount,
     string Status,
     string Reason);
 
@@ -59,6 +71,26 @@ public static class CardEquipmentKeywordRules
             hasAnyEquipmentKeyword
                 ? "P4.8 recognizes equipment keyword surfaces from P3 BehaviorSpec and P2 source-object tags; attach/detach, assemble costs, agile reaction attachment, tempered optional attachment, and owner/controller execution remain deferred."
                 : "Card does not expose equipment keyword surfaces through P3 BehaviorSpec or the P2 source-object tag path.");
+    }
+
+    public static CardEquipmentAttachmentProfile BuildAttachmentProfile(CardBehaviorDefinition behavior)
+    {
+        ArgumentNullException.ThrowIfNull(behavior);
+
+        if (!behavior.AttachesOrDetachesSecondTargetEquipmentToFirstTarget)
+        {
+            return new CardEquipmentAttachmentProfile(
+                false,
+                0,
+                EquipmentAttachmentProfileStatuses.NotApplicable,
+                "Card does not expose the P4.58 attach/detach representative route.");
+        }
+
+        return new CardEquipmentAttachmentProfile(
+            true,
+            behavior.DrawCount,
+            EquipmentAttachmentProfileStatuses.ImplementedRepresentative,
+            "P4.58 verifies the existing Take Up attach/detach representative through P2 fixtures; assemble costs, Agile auto-attach, Tempered optional attachment, static equipment modifiers, and owner/controller changes remain deferred.");
     }
 
     private static bool HasKeyword(
