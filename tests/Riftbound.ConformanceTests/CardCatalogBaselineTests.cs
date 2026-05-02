@@ -47,11 +47,7 @@ public sealed class CardCatalogBaselineTests
             .OrderBy(value => value, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(
-            [
-                "OGN·115/298 光明未来 法术"
-            ],
-            uncoveredPlayableUnits);
+        Assert.Empty(uncoveredPlayableUnits);
 
         var uncoveredNonPlayableCategories = uncoveredUnits
             .Where(unit => !uncoveredPlayableUnits.Any(value => value.StartsWith(unit.RepresentativeNo, StringComparison.Ordinal)))

@@ -286,6 +286,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
             || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
             || !HasValidSacredJudgmentKeepTargets(state, command.SourceObjectId, behavior, targetObjectIds)
+            || !HasValidEachPlayerTopFiveUnitTargets(state, behavior, targetObjectIds)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
@@ -883,6 +884,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.OpponentHandCard => IsOpponentHandCard(state, playerId, objectId),
             CardTargetScopes.OpponentGraveyardCard => IsOpponentGraveyardCard(state, playerId, objectId),
             CardTargetScopes.OpponentMainDeckTopCard => IsOpponentMainDeckTopCard(state, playerId, objectId),
+            CardTargetScopes.AnyMainDeckTopFiveCard => IsAnyMainDeckTopCards(state, objectId, 5),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
             CardTargetScopes.StackSpell => IsStackSpellItem(state, objectId),
             CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
@@ -974,6 +976,41 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && string.Equals(entry.Value.MainDeck[0], objectId, StringComparison.Ordinal));
     }
 
+    private static bool IsAnyMainDeckTopCards(MatchState state, string objectId, int lookCount)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && lookCount > 0
+            && state.PlayerZones.Values.Any(zones =>
+                zones.MainDeck.Take(lookCount).Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool TryGetTopMainDeckOwner(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        int lookCount,
+        out string playerId)
+    {
+        playerId = string.Empty;
+        if (string.IsNullOrWhiteSpace(objectId)
+            || lookCount <= 0)
+        {
+            return false;
+        }
+
+        foreach (var (candidatePlayerId, zones) in playerZones)
+        {
+            if (zones.MainDeck
+                .Take(lookCount)
+                .Contains(objectId, StringComparer.Ordinal))
+            {
+                playerId = candidatePlayerId;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool IsMainDeckLookTargetAllowed(
         MatchState state,
         string playerId,
@@ -982,6 +1019,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior)
     {
         if (behavior.MainDeckLookCount <= 0)
+        {
+            return true;
+        }
+
+        if (behavior.PlaysEachPlayerTopFiveUnitToBase)
         {
             return true;
         }
@@ -1279,6 +1321,36 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return selectedObjectIds.Length == 2;
+    }
+
+    private static bool HasValidEachPlayerTopFiveUnitTargets(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!behavior.PlaysEachPlayerTopFiveUnitToBase)
+        {
+            return true;
+        }
+
+        var playerIds = SeatPlayerIds(state);
+        if (targetObjectIds.Count != playerIds.Length)
+        {
+            return false;
+        }
+
+        var selectedPlayerIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var targetObjectId in targetObjectIds)
+        {
+            if (!CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
+                || !TryGetTopMainDeckOwner(state.PlayerZones, targetObjectId, behavior.MainDeckLookCount, out var playerId)
+                || !selectedPlayerIds.Add(playerId))
+            {
+                return false;
+            }
+        }
+
+        return selectedPlayerIds.SetEquals(playerIds);
     }
 
     private static bool HasRequiredAnyTargetTag(
@@ -1903,15 +1975,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                                                 ? "opponent graveyard card"
                                                                                                 : string.Equals(targetScope, CardTargetScopes.OpponentMainDeckTopCard, StringComparison.Ordinal)
                                                                                                     ? "opponent main deck top card"
-                                                                                                    : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
-                                                                                                        ? "equipment"
-                                                                                                        : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
-                                                                                                            ? "spell on the stack"
-                                                                                                            : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
-                                                                                                                ? "unit and its controller's weapon"
-                                                                                                                : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
-                                                                                                                    ? "cards kept for Judgment Day"
-                                                                                                                    : "battlefield unit";
+                                                                                                    : string.Equals(targetScope, CardTargetScopes.AnyMainDeckTopFiveCard, StringComparison.Ordinal)
+                                                                                                        ? "main deck top five card"
+                                                                                                        : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
+                                                                                                            ? "equipment"
+                                                                                                            : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
+                                                                                                                ? "spell on the stack"
+                                                                                                                : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
+                                                                                                                    ? "unit and its controller's weapon"
+                                                                                                                    : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
+                                                                                                                        ? "cards kept for Judgment Day"
+                                                                                                                        : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -2196,6 +2270,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
                     }));
             }
+        }
+        else if (behavior.PlaysEachPlayerTopFiveUnitToBase)
+        {
+            var topDeckPlayResult = PlayEachPlayerTopFiveUnitsToBase(
+                state,
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId,
+                stackItem.TargetObjectIds,
+                behavior.MainDeckLookCount,
+                rngCursor);
+            events.AddRange(topDeckPlayResult.Events);
+            rngCursor = topDeckPlayResult.RngCursor;
+            drawCountOverride = 0;
         }
         else if (behavior.DrawsSelectedMainDeckTarget)
         {
@@ -5171,6 +5260,141 @@ public sealed class CoreRuleEngine : IRuleEngine
         return new RecycleResult(events, rngCursor);
     }
 
+    private static RecycleResult PlayEachPlayerTopFiveUnitsToBase(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string sourceObjectId,
+        IReadOnlyList<string> selectedObjectIds,
+        int lookCount,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (lookCount <= 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var selectedByPlayerId = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var selectedObjectId in selectedObjectIds)
+        {
+            if (TryGetTopMainDeckOwner(playerZones, selectedObjectId, lookCount, out var playerId))
+            {
+                selectedByPlayerId[playerId] = selectedObjectId;
+            }
+        }
+
+        foreach (var playerId in SeatPlayerIds(state))
+        {
+            if (!selectedByPlayerId.TryGetValue(playerId, out var selectedObjectId)
+                || !playerZones.TryGetValue(playerId, out var zones))
+            {
+                continue;
+            }
+
+            var viewedCardIds = zones.MainDeck.Take(lookCount).ToArray();
+            var unselectedCardIds = viewedCardIds
+                .Where(cardId => !string.Equals(cardId, selectedObjectId, StringComparison.Ordinal))
+                .ToArray();
+            var removedCardIds = viewedCardIds.ToHashSet(StringComparer.Ordinal);
+            var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
+                unselectedCardIds,
+                state.Seed,
+                rngCursor,
+                sourceObjectId);
+            if (unselectedCardIds.Length > 1)
+            {
+                rngCursor++;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                MainDeck = zones.MainDeck
+                    .Where(cardId => !removedCardIds.Contains(cardId))
+                    .Concat(randomizedRecycledCardIds)
+                    .ToArray()
+            };
+
+            if (randomizedRecycledCardIds.Count > 0)
+            {
+                events.Add(new GameEvent(
+                    "CARDS_RECYCLED",
+                    $"{playerId} 回收 {randomizedRecycledCardIds.Count} 张牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["sourceObjectId"] = sourceObjectId,
+                        ["cardIds"] = randomizedRecycledCardIds,
+                        ["count"] = randomizedRecycledCardIds.Count
+                    }));
+            }
+        }
+
+        foreach (var playerId in PlayerIdsStartingAfter(state, controllerId))
+        {
+            if (!selectedByPlayerId.TryGetValue(playerId, out var selectedObjectId)
+                || !TryPutSelectedMainDeckUnitToBase(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    selectedObjectId,
+                    out _))
+            {
+                continue;
+            }
+
+            events.Add(new GameEvent(
+                "UNIT_PLAYED_TO_BASE",
+                $"{playerId} 打出主牌堆选择的单位到基地",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = selectedObjectId,
+                    ["ownerPlayerId"] = playerId,
+                    ["playedByPlayerId"] = playerId,
+                    ["sourceZone"] = "MAIN_DECK",
+                    ["destinationZone"] = "BASE"
+                }));
+        }
+
+        return new RecycleResult(events, rngCursor);
+    }
+
+    private static bool TryPutSelectedMainDeckUnitToBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string targetObjectId,
+        out CardObjectState targetState)
+    {
+        targetState = cardObjects.TryGetValue(targetObjectId, out var existingTargetState)
+            ? existingTargetState
+            : new CardObjectState(targetObjectId);
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Base
+                : zones.Base.Concat([targetObjectId]).ToArray()
+        };
+
+        targetState = targetState with
+        {
+            Damage = 0,
+            Power = Math.Max(0, targetState.Power - targetState.UntilEndOfTurnPowerModifier),
+            UntilEndOfTurnEffects = [],
+            UntilEndOfTurnPowerModifier = 0,
+            IsExhausted = false
+        };
+        cardObjects[targetObjectId] = targetState;
+        return true;
+    }
+
     private static IReadOnlyList<string> MainDeckTargetObjectIds(
         IReadOnlyList<string> targetObjectIds,
         CardBehaviorDefinition behavior)
@@ -6586,6 +6810,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Concat(SeatPlayerIds(state).Where(playerId => !string.Equals(playerId, controllerId, StringComparison.Ordinal)))
             .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
             .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string[] PlayerIdsStartingAfter(MatchState state, string playerId)
+    {
+        var players = SeatPlayerIds(state);
+        if (players.Length == 0)
+        {
+            return [];
+        }
+
+        var playerIndex = Array.IndexOf(players, playerId);
+        if (playerIndex < 0)
+        {
+            return players;
+        }
+
+        return players
+            .Skip(playerIndex + 1)
+            .Concat(players.Take(playerIndex + 1))
             .ToArray();
     }
 

@@ -153,7 +153,8 @@ public sealed record CardBehaviorDefinition(
     bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false,
     bool GainsControlOfTargetStackSpell = false,
     bool RecyclesUnkeptSacredJudgmentCards = false,
-    bool PlaysOpponentTopMainDeckUnitToBase = false);
+    bool PlaysOpponentTopMainDeckUnitToBase = false,
+    bool PlaysEachPlayerTopFiveUnitToBase = false);
 
 public static class CardDamageConditionKinds
 {
@@ -191,6 +192,7 @@ public static class CardTargetScopes
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
     public const string OpponentGraveyardCard = "OPPONENT_GRAVEYARD_CARD";
     public const string OpponentMainDeckTopCard = "OPPONENT_MAIN_DECK_TOP_CARD";
+    public const string AnyMainDeckTopFiveCard = "ANY_MAIN_DECK_TOP_FIVE_CARD";
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
     public const string StackSpell = "STACK_SPELL";
@@ -7669,6 +7671,17 @@ public static class CardBehaviorRegistry
             TargetScope: CardTargetScopes.StackSpell,
             CanPlayDuringPriority: true,
             GainsControlOfTargetStackSpell: true),
+        new(
+            "OGN·115/298",
+            "光明未来",
+            5,
+            "BRIGHT_FUTURE_PLAY_EACH_PLAYER_TOP_FIVE_UNIT",
+            0,
+            2,
+            TargetScope: CardTargetScopes.AnyMainDeckTopFiveCard,
+            MainDeckLookCount: 5,
+            TargetRequiredTag: CardObjectTags.UnitCard,
+            PlaysEachPlayerTopFiveUnitToBase: true),
         new(
             "OGN·244/298",
             "圣裁之刻",

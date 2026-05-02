@@ -10289,6 +10289,115 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBrightFutureEachPlayerTopFiveUnit()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-bright-future-play-each-player-top-five-unit.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(
+            ["P1-BASE-UNIT-001", "P1-BRIGHT-FUTURE-CHOSEN-UNIT"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P2-BASE-UNIT-001", "P2-BRIGHT-FUTURE-CHOSEN-UNIT"],
+            result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(["P1-SPELL-BRIGHT-FUTURE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain("P1-BRIGHT-FUTURE-CHOSEN-UNIT", result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain("P2-BRIGHT-FUTURE-CHOSEN-UNIT", result.FinalState.PlayerZones["P2"].MainDeck);
+        Assert.Contains("P1-BRIGHT-FUTURE-UNSELECTED-001", result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P2-BRIGHT-FUTURE-UNSELECTED-004", result.FinalState.PlayerZones["P2"].MainDeck);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BRIGHT-FUTURE-CHOSEN-UNIT"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BRIGHT-FUTURE-CHOSEN-UNIT"].Damage);
+        Assert.Empty(result.FinalState.CardObjects["P1-BRIGHT-FUTURE-CHOSEN-UNIT"].UntilEndOfTurnEffects);
+        Assert.Empty(result.FinalState.CardObjects["P2-BRIGHT-FUTURE-CHOSEN-UNIT"].UntilEndOfTurnEffects);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsBrightFutureInvalidTopFiveSelections()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BRIGHT-FUTURE"],
+                    MainDeck =
+                    [
+                        "P1-BRIGHT-FUTURE-TOP-UNIT-001",
+                        "P1-BRIGHT-FUTURE-TOP-UNIT-002",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-003",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-004",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-005",
+                        "P1-BRIGHT-FUTURE-DECK-KEEP"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P2-BRIGHT-FUTURE-TOP-SPELL",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-002",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-003",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-004",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-005",
+                        "P2-BRIGHT-FUTURE-SIXTH-UNIT"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BRIGHT-FUTURE-TOP-UNIT-001"] = new(
+                    "P1-BRIGHT-FUTURE-TOP-UNIT-001",
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-BRIGHT-FUTURE-TOP-UNIT-002"] = new(
+                    "P1-BRIGHT-FUTURE-TOP-UNIT-002",
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-BRIGHT-FUTURE-TOP-SPELL"] = new(
+                    "P2-BRIGHT-FUTURE-TOP-SPELL",
+                    tags: [CardObjectTags.SpellCard]),
+                ["P2-BRIGHT-FUTURE-SIXTH-UNIT"] = new(
+                    "P2-BRIGHT-FUTURE-SIXTH-UNIT",
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        IReadOnlyList<string>[] invalidTargets =
+        [
+            ["P1-BRIGHT-FUTURE-TOP-UNIT-001", "P1-BRIGHT-FUTURE-TOP-UNIT-002"],
+            ["P1-BRIGHT-FUTURE-TOP-UNIT-001", "P2-BRIGHT-FUTURE-SIXTH-UNIT"],
+            ["P1-BRIGHT-FUTURE-TOP-UNIT-001", "P2-BRIGHT-FUTURE-TOP-SPELL"]
+        ];
+
+        foreach (var targetObjectIds in invalidTargets)
+        {
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent("intent-bright-future-invalid-target", "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-BRIGHT-FUTURE",
+                    "OGN·115/298",
+                    targetObjectIds),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Empty(result.Events);
+            Assert.Equal(0, result.State.Tick);
+            Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+            Assert.Equal(["P1-SPELL-BRIGHT-FUTURE"], result.State.PlayerZones["P1"].Hand);
+            Assert.Equal("P1-BRIGHT-FUTURE-TOP-UNIT-001", result.State.PlayerZones["P1"].MainDeck[0]);
+            Assert.Equal("P2-BRIGHT-FUTURE-TOP-SPELL", result.State.PlayerZones["P2"].MainDeck[0]);
+        }
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysJudgmentDayRecycleUnkept()
     {
         var fixture = await ConformanceFixture.LoadAsync(
