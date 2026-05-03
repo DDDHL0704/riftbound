@@ -17001,6 +17001,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4PunishmentIllegalEchoRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-punishment-illegal-echo-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(4, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-PUNISHMENT"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsPassPriorityOutsidePriorityWindow()
     {
         var state = new MatchState(
@@ -18273,6 +18294,7 @@ public sealed class ConformanceFixtureRunnerTests
     [Theory]
     [InlineData("p2-preflight-play-center-stage-echo-draw-stack.fixture.json")]
     [InlineData("p4-play-center-stage-echo-insufficient-mana-rejected.fixture.json")]
+    [InlineData("p4-play-punishment-illegal-echo-rejected.fixture.json")]
     [InlineData("p2-preflight-play-the-curtain-rises-echo-ready-unit.fixture.json")]
     [InlineData("p2-preflight-play-sandcraft-echo-create-two-sand-soldiers-base.fixture.json")]
     public async Task P4EchoKeywordKeepsExistingP2FixturesGreen(string fixtureFileName)
@@ -21089,6 +21111,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-hide-card-standby-free-without-permission-rejected.fixture.json")]
     [InlineData("p4-guerrilla-warfare-non-standby-target-rejected.fixture.json")]
     [InlineData("p4-play-center-stage-echo-insufficient-mana-rejected.fixture.json")]
+    [InlineData("p4-play-punishment-illegal-echo-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-base.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-punishment-illegal-echo-rejected",
+  "description": "P4 rejects Punishment when a non-Echo spell is played with the Echo optional cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304133,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-007/219 惩戒",
+      "note": "官方卡面：费用 2；迅捷；对战场上的一名单位造成 3 点伤害。如果该单位在本回合内被摧毁，则改为将其放逐。该卡没有回响；当前 fixture 携带 ECHO optional cost，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出法术需要目标合法、费用足够且只能支付该牌支持的额外费用；回响只适用于具有回响的牌。非回响法术携带 ECHO 时应在支付费用、入栈和伤害结算前拒绝。"
+    }
+  ],
+  "roomId": "p4-punishment-illegal-echo-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304133,
+    "turnNumber": 133,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-PUNISHMENT"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": ["P2-HAND-001"],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-001": {
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-punishment-illegal-echo-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-PUNISHMENT",
+        "cardNo": "UNL-007/219",
+        "targetObjectIds": ["P2-UNIT-001"],
+        "optionalCosts": ["ECHO"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 133,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 4, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-SPELL-PUNISHMENT"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": ["P2-HAND-001"],
+          "base": [],
+          "battlefields": ["P2-UNIT-001"],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-UNIT-001": {
+          "damage": 0,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
