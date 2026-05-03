@@ -3546,6 +3546,31 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4PoroSnaxTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-poro-snax-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(1, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-DRAW-PORO-SNAX-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-EQUIPMENT-PORO-SNAX"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-PORO-SNAX-TARGET-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-PORO-SNAX-TARGET-001"].Damage);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-PORO-SNAX-TARGET-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P2-PORO-SNAX-TARGET-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysShurelyasRequiemEquipmentReadyAll()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -21233,6 +21258,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-rocket-barrage-missing-mode-rejected.fixture.json")]
     [InlineData("p4-play-rocket-barrage-destroy-equipment-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-emergency-recall-unit-target-rejected.fixture.json")]
+    [InlineData("p4-play-poro-snax-target-rejected.fixture.json")]
     [InlineData("p4-play-firestorm-explicit-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-friendly-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-base-target-rejected.fixture.json")]
