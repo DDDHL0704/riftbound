@@ -627,7 +627,7 @@ public sealed record ResolutionResult(
                     ["power"] = 0
                 },
             ["zones"] = BuildZoneSnapshotView(zones, ownView),
-            ["objects"] = BuildObjectSnapshotView(state, VisibleObjectIds(zones, ownView))
+            ["objects"] = BuildObjectSnapshotView(state, VisibleObjectIds(zones, ownView), ownView)
         };
     }
 
@@ -686,18 +686,30 @@ public sealed record ResolutionResult(
             .ToArray();
     }
 
-    private static Dictionary<string, object?> BuildObjectSnapshotView(MatchState state, IReadOnlyList<string> visibleObjectIds)
+    private static Dictionary<string, object?> BuildObjectSnapshotView(
+        MatchState state,
+        IReadOnlyList<string> visibleObjectIds,
+        bool ownView)
     {
         return visibleObjectIds
             .Where(objectId => state.CardObjects.ContainsKey(objectId))
             .ToDictionary(
                 objectId => objectId,
-                objectId => (object?)BuildCardObjectSnapshotView(state.CardObjects[objectId]),
+                objectId => (object?)BuildCardObjectSnapshotView(state.CardObjects[objectId], ownView),
                 StringComparer.Ordinal);
     }
 
-    private static Dictionary<string, object?> BuildCardObjectSnapshotView(CardObjectState cardObject)
+    private static Dictionary<string, object?> BuildCardObjectSnapshotView(CardObjectState cardObject, bool ownView)
     {
+        if (cardObject.IsFaceDown && !ownView)
+        {
+            return new Dictionary<string, object?>
+            {
+                ["objectId"] = cardObject.ObjectId,
+                ["isFaceDown"] = true
+            };
+        }
+
         return new Dictionary<string, object?>
         {
             ["objectId"] = cardObject.ObjectId,

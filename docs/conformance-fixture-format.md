@@ -71,6 +71,7 @@ seed + initial setup + command log
 - `ASSEMBLE_EQUIPMENT` payload 支持 `sourceObjectId`、`targetObjectId` 和 `optionalCosts`；P4.66 只锁定装备装配 command envelope，Core 仍显式拒绝真实装配/贴附执行。
 - `DECLARE_BATTLE` payload 支持 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds` 和 `optionalCosts`；P4.67 只锁定战斗声明 command envelope，Core 仍显式拒绝真实开战/承伤执行。
 - `REVEAL_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.68 只锁定待命翻开/显露 command envelope，Core 仍显式拒绝真实隐藏信息和翻开打出执行。
+- Snapshot 对手视角下的正面朝下对象只暴露 `objectId` 与 `isFaceDown = true`；P4.69 不暴露其 `power`、`tags`、`manaCost` 等卡面/规则细节，拥有者视角仍保留完整对象信息。
 
 现有 fixture 不在本格式文档逐条维护，避免每新增卡牌都同步长清单。需要查找样例时：
 

@@ -465,6 +465,56 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void SnapshotsRedactOpponentFaceDownObjects()
+    {
+        var state = new MatchState(
+            "dev-room",
+            7,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty,
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Base = ["B-FACEDOWN-STANDBY-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["B-FACEDOWN-STANDBY-1"] = new(
+                    "B-FACEDOWN-STANDBY-1",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    manaCost: 1)
+            });
+
+        var aliceSnapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var aliceBobObjects = ObjectView(PlayerView(aliceSnapshot, "bob"));
+        var aliceHiddenObject = Assert.IsType<Dictionary<string, object?>>(aliceBobObjects["B-FACEDOWN-STANDBY-1"]);
+        Assert.Equal("B-FACEDOWN-STANDBY-1", Assert.IsType<string>(aliceHiddenObject["objectId"]));
+        Assert.True(Assert.IsType<bool>(aliceHiddenObject["isFaceDown"]));
+        Assert.DoesNotContain("power", aliceHiddenObject.Keys);
+        Assert.DoesNotContain("tags", aliceHiddenObject.Keys);
+        Assert.DoesNotContain("manaCost", aliceHiddenObject.Keys);
+
+        var bobSnapshot = ResolutionResult.BuildSnapshots(state)["bob"];
+        var bobObjects = ObjectView(PlayerView(bobSnapshot, "bob"));
+        var bobOwnObject = Assert.IsType<Dictionary<string, object?>>(bobObjects["B-FACEDOWN-STANDBY-1"]);
+        Assert.Equal(2, Assert.IsType<int>(bobOwnObject["power"]));
+        Assert.Contains(CardObjectTags.Standby, StringList(bobOwnObject["tags"]));
+        Assert.Equal(1, Assert.IsType<int>(bobOwnObject["manaCost"]));
+    }
+
+    [Fact]
     public async Task SeedScenarioCreatesPlayableDevelopmentState()
     {
         var session = new MatchSession("dev-room", new CoreRuleEngine());
