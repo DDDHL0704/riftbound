@@ -16757,6 +16757,29 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4SwitcherooDuplicateTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-switcheroo-duplicate-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-SWITCHEROO"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].Power);
+        Assert.Equal(5, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsModalSpellWhenModeIsMissing()
     {
         var state = PunishmentState(mana: 4) with
@@ -21020,6 +21043,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-bellows-breath-fourth-target-rejected.fixture.json")]
     [InlineData("p4-play-firestorm-explicit-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-friendly-target-rejected.fixture.json")]
+    [InlineData("p4-play-switcheroo-duplicate-target-rejected.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
