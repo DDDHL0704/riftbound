@@ -19952,6 +19952,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindowFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.True(result.FinalState.CardObjects["P1-FACEDOWN-OGN-TEEMO"].IsFaceDown);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task P4AmbushPlayCardModeIsExplicitlyRejectedUntilBattlefieldReactionPlayExists()
     {
         var state = PunishmentState(mana: 3) with
@@ -20261,6 +20282,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-guerrilla-warfare-free-standby-hide.fixture.json")]
     [InlineData("p4-reveal-card-standby-base.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
+    [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
     [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json")]
