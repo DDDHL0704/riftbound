@@ -1132,6 +1132,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4VoidAssaultTargetOrderRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-void-assault-target-order-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-VOID-ASSAULT"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-VOID-ASSAULT-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-VOID-ASSAULT-FIELD-KEEPER"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-VOID-ASSAULT-ENEMY-001"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-VOID-ASSAULT-FRIENDLY-001"].Damage);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-VOID-ASSAULT-FRIENDLY-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-VOID-ASSAULT-ENEMY-001"].Damage);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-VOID-ASSAULT-ENEMY-001"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -21756,6 +21783,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-marching-orders-enemy-base-target-rejected.fixture.json")]
     [InlineData("p4-play-duel-target-order-rejected.fixture.json")]
     [InlineData("p4-play-battle-command-target-order-rejected.fixture.json")]
+    [InlineData("p4-play-void-assault-target-order-rejected.fixture.json")]
     [InlineData("p4-play-firestorm-explicit-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-friendly-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-base-target-rejected.fixture.json")]
