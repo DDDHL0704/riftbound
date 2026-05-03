@@ -67,13 +67,14 @@ seed + initial setup + command log
 - `expected.events[]` 可以继续只写 `kind`，也可以按需补 `tick`、`sequence` 和 `payload`。
 - `payload` 是局部匹配，只需要写本 fixture 关心的字段。
 - `PLAY_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.64 只为 `mode = "AMBUSH"` 锁定伏击战场目的地 envelope，Core 仍显式拒绝真实反应战场打出。
-- `ACTIVATE_ABILITY` payload 支持 `sourceObjectId`、`abilityId`、`targetObjectIds` 和 `optionalCosts`；P4.73 只执行 `UNL-030/219 蔚` 的 `PAY_2_RED_DOUBLE_POWER` 无目标技能：支付 2 mana + 1 power，把技能加入结算链，双方让过后让来源本回合内战力翻倍。其他技能、带目标/可选费用技能、技能目标税、横置技能和装备技能仍暂缓。
+- `ACTIVATE_ABILITY` payload 支持 `sourceObjectId`、`abilityId`、`targetObjectIds` 和 `optionalCosts`；P4.73/P4.74 只执行 `UNL-030/219 蔚` 的 `PAY_2_RED_DOUBLE_POWER` 无目标技能：来源场上对象必须记录 `cardNo = "UNL-030/219"`，支付 2 mana + 1 power，把技能加入结算链，双方让过后让来源本回合内战力翻倍。其他技能、带目标/可选费用技能、技能目标税、横置技能和装备技能仍暂缓。
 - `MOVE_UNIT` payload 支持 `sourceObjectId`、`origin`、`destination` 和 `optionalCosts`；P4.65 只锁定游走/基础移动 command envelope，Core 仍显式拒绝真实跨战场移动。
 - `ASSEMBLE_EQUIPMENT` payload 支持 `sourceObjectId`、`targetObjectId` 和 `optionalCosts`；P4.66 只锁定装备装配 command envelope，Core 仍显式拒绝真实装配/贴附执行。
 - `DECLARE_BATTLE` payload 支持 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds` 和 `optionalCosts`；P4.67 只锁定战斗声明 command envelope，Core 仍显式拒绝真实开战/承伤执行。
 - `HIDE_CARD` payload 支持 `sourceObjectId`、`cardNo`、`destination` 和 `optionalCosts`；P4.70 执行 `destination = "STANDBY"` 且 `optionalCosts = ["STANDBY_A"]` 的待命单位手牌放置路径：支付 1 点费用、把来源牌移入控制者基地并设为 `isFaceDown = true`，公开事件不携带 `cardNo`、`power`、`tags` 或 `manaCost`。P4.72 额外支持《游击战》授予的 `FREE_STANDBY_HIDE:{playerId}` 本回合效果，允许同一路径使用 `optionalCosts = ["STANDBY_FREE"]` 并支付 0 点费用；待命翻开作为反应牌打出、触发和完整隐藏区仍暂缓。
 - `REVEAL_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.71 只执行 `mode = "STANDBY_REVEAL"`、`destination = "BASE"`、`optionalCosts = ["STANDBY_REVEAL_0"]` 且无目标的待命基地显露路径，把已有正面朝下对象翻为公开状态；`mode = "STANDBY_REACTION"` / `destination = "STACK"` 的真实反应打出仍显式拒绝。
 - Snapshot 对手视角下的正面朝下对象只暴露 `objectId` 与 `isFaceDown = true`；P4.69 不暴露其 `power`、`tags`、`manaCost` 等卡面/规则细节，拥有者视角仍保留完整对象信息。
+- `cardObjects[objectId].cardNo` 是可选对象身份字段；P4.74 起源牌打出、待命暗置和待命显露会保存该字段，fixture 可在 `initialState.cardObjects` 或 `expected.finalState.cardObjects` 中断言它。对手视角的正面朝下对象仍不会暴露 `cardNo`。
 
 现有 fixture 不在本格式文档逐条维护，避免每新增卡牌都同步长清单。需要查找样例时：
 

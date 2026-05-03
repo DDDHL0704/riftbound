@@ -363,6 +363,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (!string.Equals(sourceState.CardNo, ViCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Ability source does not expose Vi's P4 double-power ability.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < ViDoublePowerAbilityManaCost
             || currentPool.Power < ViDoublePowerAbilityPowerCost)
@@ -540,7 +548,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsExhausted = false,
             Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : existingState.Power,
             Tags = hiddenTags,
-            ManaCost = behavior.ManaCost
+            ManaCost = behavior.ManaCost,
+            CardNo = behavior.CardNo
         };
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = hiddenState;
@@ -686,7 +695,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsFaceDown = false,
             Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : sourceState.Power,
             Tags = revealedTags,
-            ManaCost = behavior.ManaCost
+            ManaCost = behavior.ManaCost,
+            CardNo = behavior.CardNo
         };
 
         var nextState = state with
@@ -5492,6 +5502,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var equipmentState = existingState with
         {
             IsExhausted = existingState.IsExhausted || behavior.SourceEquipmentIsExhausted,
+            CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.EquipmentCard])
                 .Concat(ParseDelimitedValues(behavior.SourceEquipmentTags))
@@ -5577,6 +5588,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Power = unitPower,
             IsExhausted = existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
+            CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
                 .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
