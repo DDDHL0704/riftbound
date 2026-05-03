@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-activate-vi-double-power-skill-source-not-field-rejected",
+  "description": "P4 rejects Vi's pay-2-and-red skill when the source is not in a field zone.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304088,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-030/219 蔚",
+      "note": "官方卡面：费用 4；英雄单位；战力 3；法盾；支付 2 和红色：让我本回合内战力翻倍；该技能只能从已在公开场上由玩家控制的来源激活。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "激活技能需要选择合法来源并支付费用；本 fixture 只覆盖来源仍在手牌时拒绝激活。"
+    }
+  ],
+  "roomId": "p4-activate-vi-source-not-field-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304088,
+    "turnNumber": 88,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 2, "power": 1 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-HAND-VI"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-HAND-VI": {
+        "cardNo": "UNL-030/219",
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT", "法盾"],
+        "manaCost": 4
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-vi-source-not-field-rejected",
+      "cmd": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "sourceObjectId": "P1-HAND-VI",
+        "abilityId": "PAY_2_RED_DOUBLE_POWER",
+        "targetObjectIds": [],
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 88,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 2, "power": 1 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-HAND-VI"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-HAND-VI": {
+          "cardNo": "UNL-030/219",
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT", "法盾"],
+          "manaCost": 4
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

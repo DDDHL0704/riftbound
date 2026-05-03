@@ -17698,6 +17698,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-play-then-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-opponent-source-rejected.fixture.json")]
+    [InlineData("p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-spellshield-tax.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-friendly-spellshield-no-tax.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-exhausted-source-rejected.fixture.json")]
@@ -18430,6 +18431,53 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenSourceIsNotField()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-VI"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-VI"] = new(
+                    "P1-HAND-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    cardNo: "UNL-030/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-vi-source-not-field", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-HAND-VI",
+                "PAY_2_RED_DOUBLE_POWER",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-VI"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.State.CardObjects["P1-HAND-VI"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -18482,6 +18530,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.Tick);
         Assert.Equal(new RunePool(2, 1), result.FinalState.RunePools["P1"]);
         Assert.Equal(3, result.FinalState.CardObjects["P2-UNIT-VI"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillSourceNotFieldFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 1), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-VI"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-HAND-VI"].Power);
         Assert.Empty(result.FinalState.StackItems);
     }
 
