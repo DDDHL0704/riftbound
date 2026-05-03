@@ -14753,6 +14753,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ZenithBladeFriendlyTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-zenith-blade-friendly-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-ZENITH-BLADE"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-FRIENDLY-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("STUNNED", result.FinalState.CardObjects["P1-FRIENDLY-UNIT-001"].UntilEndOfTurnEffects);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsHighwayRobberyAgainstFriendlyOrOffFieldUnit()
     {
         var state = PunishmentState(mana: 2) with
@@ -20740,6 +20761,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-punishment-base-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-kerplunk-non-attacking-target-rejected.fixture.json")]
     [InlineData("p4-play-zenith-blade-base-unit-target-rejected.fixture.json")]
+    [InlineData("p4-play-zenith-blade-friendly-target-rejected.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
