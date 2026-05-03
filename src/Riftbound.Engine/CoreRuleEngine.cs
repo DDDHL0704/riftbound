@@ -15,6 +15,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
+    private const string ViCardNo = "UNL-030/219";
+    private const string ViDoublePowerAbilityId = "PAY_2_RED_DOUBLE_POWER";
+    private const string ViDoublePowerAbilityEffectKind = "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN";
+    private const int ViDoublePowerAbilityManaCost = 2;
+    private const int ViDoublePowerAbilityPowerCost = 1;
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -54,12 +59,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolvePlayCard(state, intent, playCardCommand));
         }
 
-        if (command is ActivateAbilityCommand)
+        if (command is ActivateAbilityCommand activateAbilityCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
-                state,
-                "ACTIVATE_ABILITY is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand));
+            return ValueTask.FromResult(ResolveActivateAbility(state, intent, activateAbilityCommand));
         }
 
         if (command is HideCardCommand hideCardCommand)
@@ -307,6 +309,130 @@ public sealed class CoreRuleEngine : IRuleEngine
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
                 destroyedAdditionalCostOwnerIds)
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveActivateAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command)
+    {
+        if (!string.Equals(command.AbilityId, ViDoublePowerAbilityId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ACTIVATE_ABILITY is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ACTIVATE_ABILITY is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (command.TargetObjectIds.Count != 0
+            || NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Vi's P4 double-power ability does not accept targets or optional costs.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledFieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Ability source is not a controlled field unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < ViDoublePowerAbilityManaCost
+            || currentPool.Power < ViDoublePowerAbilityPowerCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Not enough resources to activate Vi's double-power ability.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            ViDoublePowerAbilityManaCost,
+            ViDoublePowerAbilityPowerCost);
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
+            intent.PlayerId,
+            command.SourceObjectId,
+            ViDoublePowerAbilityEffectKind,
+            ViCardNo,
+            [],
+            0,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活蔚的技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = ViDoublePowerAbilityEffectKind
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付蔚技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = ViDoublePowerAbilityManaCost,
+                    ["power"] = ViDoublePowerAbilityPowerCost,
+                    ["abilityId"] = command.AbilityId
+                }),
+            new(
+                "STACK_ITEM_ADDED",
+                "蔚的技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId
+                })
         };
 
         return new ResolutionResult(
@@ -2592,6 +2718,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
+        if (string.Equals(stackItem.EffectKind, ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveViDoublePowerAbilityStackItem(state, stackItem);
+        }
+
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
             || !HasValidResolvedTargetCount(behavior, stackItem))
         {
@@ -4425,6 +4556,50 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .ToArray(),
             extraTurnPlayerId,
             rngCursor);
+    }
+
+    private static StackResolutionResult ResolveViDoublePowerAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        if (cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
+        {
+            var appliedPowerDelta = sourceState.Power;
+            var nextSourceState = sourceState with
+            {
+                Power = sourceState.Power + appliedPowerDelta,
+                UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + appliedPowerDelta
+            };
+            cardObjects[stackItem.SourceObjectId] = nextSourceState;
+            events.Add(new GameEvent(
+                "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                "蔚令自身本回合内战力翻倍",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = stackItem.SourceObjectId,
+                    ["powerDelta"] = appliedPowerDelta,
+                    ["appliedPowerDelta"] = appliedPowerDelta,
+                    ["minimumPower"] = 0,
+                    ["resultingPower"] = nextSourceState.Power
+                }));
+        }
+
+        return new StackResolutionResult(
+            NormalizeZonesForSeats(state),
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            [],
+            null,
+            [],
+            null,
+            state.RngCursor);
     }
 
     private static StackItemState[] RemoveCounteredStackItems(

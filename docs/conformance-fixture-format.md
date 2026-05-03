@@ -67,6 +67,7 @@ seed + initial setup + command log
 - `expected.events[]` 可以继续只写 `kind`，也可以按需补 `tick`、`sequence` 和 `payload`。
 - `payload` 是局部匹配，只需要写本 fixture 关心的字段。
 - `PLAY_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.64 只为 `mode = "AMBUSH"` 锁定伏击战场目的地 envelope，Core 仍显式拒绝真实反应战场打出。
+- `ACTIVATE_ABILITY` payload 支持 `sourceObjectId`、`abilityId`、`targetObjectIds` 和 `optionalCosts`；P4.73 只执行 `UNL-030/219 蔚` 的 `PAY_2_RED_DOUBLE_POWER` 无目标技能：支付 2 mana + 1 power，把技能加入结算链，双方让过后让来源本回合内战力翻倍。其他技能、带目标/可选费用技能、技能目标税、横置技能和装备技能仍暂缓。
 - `MOVE_UNIT` payload 支持 `sourceObjectId`、`origin`、`destination` 和 `optionalCosts`；P4.65 只锁定游走/基础移动 command envelope，Core 仍显式拒绝真实跨战场移动。
 - `ASSEMBLE_EQUIPMENT` payload 支持 `sourceObjectId`、`targetObjectId` 和 `optionalCosts`；P4.66 只锁定装备装配 command envelope，Core 仍显式拒绝真实装配/贴附执行。
 - `DECLARE_BATTLE` payload 支持 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds` 和 `optionalCosts`；P4.67 只锁定战斗声明 command envelope，Core 仍显式拒绝真实开战/承伤执行。

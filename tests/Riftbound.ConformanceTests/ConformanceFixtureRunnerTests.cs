@@ -17695,6 +17695,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-unl-yi-alt-a-level6-spellshield-roam.fixture.json")]
     [InlineData("p4-play-spirit-fire-multiple-spellshield-tax.fixture.json")]
     [InlineData("p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json")]
+    [InlineData("p4-activate-vi-double-power-skill.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -18172,9 +18173,9 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4ActivateAbilityCommandIsExplicitlyRejectedUntilSkillStackExists()
+    public async Task P4ActivateAbilityCommandAddsViDoublePowerSkillToStack()
     {
-        var state = PunishmentState(mana: 3) with
+        var state = PunishmentState(mana: 2) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
@@ -18186,6 +18187,11 @@ public sealed class ConformanceFixtureRunnerTests
                 {
                     Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
                 }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
@@ -18205,18 +18211,135 @@ public sealed class ConformanceFixtureRunnerTests
             new ActivateAbilityCommand(
                 "P1-UNIT-VI",
                 "PAY_2_RED_DOUBLE_POWER",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("P1", stackItem.ControllerId);
+        Assert.Equal("P1-UNIT-VI", stackItem.SourceObjectId);
+        Assert.Equal("UNL-030/219", stackItem.CardNo);
+        Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", stackItem.EffectKind);
+        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillWithTargets()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield]),
+                ["P2-SPELLSHIELD-UNIT-001"] = new(
+                    "P2-SPELLSHIELD-UNIT-001",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-ability-target-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                "PAY_2_RED_DOUBLE_POWER",
                 ["P2-SPELLSHIELD-UNIT-001"]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("ACTIVATE_ABILITY is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-VI"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenPowerIsMissing()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-ability-missing-power", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                "PAY_2_RED_DOUBLE_POWER",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-vi-double-power-skill.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-VI"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-VI"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Fact]

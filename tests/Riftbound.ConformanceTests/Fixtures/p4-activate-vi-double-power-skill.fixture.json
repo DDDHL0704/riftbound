@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-activate-vi-double-power-skill",
+  "description": "P4 activates Vi's pay-2-and-red skill, puts it on the stack, and doubles Vi's power until end of turn.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304073,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-030/219 蔚",
+      "note": "官方卡面：费用 4；英雄单位；战力 3；法盾；支付 2 和红色：让我本回合内战力翻倍。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "激活技能需要支付费用并进入结算链；本 fixture 只覆盖无目标、自身本回合战力翻倍的最小技能栈路径，技能目标税、横置技能、装备技能和复杂目标仍暂缓。"
+    }
+  ],
+  "roomId": "p4-activate-vi-double-power-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304073,
+    "turnNumber": 73,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 2, "power": 1 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-UNIT-VI"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-UNIT-VI": {
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT", "法盾"],
+        "manaCost": 4
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-vi-activate-double-power",
+      "cmd": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "sourceObjectId": "P1-UNIT-VI",
+        "abilityId": "PAY_2_RED_DOUBLE_POWER",
+        "targetObjectIds": [],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-vi-ability-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-vi-ability-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "ABILITY_ACTIVATED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      {
+        "kind": "ABILITY_ACTIVATED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-VI",
+          "abilityId": "PAY_2_RED_DOUBLE_POWER",
+          "effectKind": "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "power": 1,
+          "abilityId": "PAY_2_RED_DOUBLE_POWER"
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-UNIT-VI-ABILITY",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-VI",
+          "cardNo": "UNL-030/219",
+          "targetObjectIds": [],
+          "effectKind": "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN",
+          "abilityId": "PAY_2_RED_DOUBLE_POWER"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-VI",
+          "targetObjectId": "P1-UNIT-VI",
+          "powerDelta": 3,
+          "appliedPowerDelta": 3,
+          "minimumPower": 0,
+          "resultingPower": 6
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 73,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-UNIT-VI"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": []
+        }
+      },
+      "cardObjects": {
+        "P1-UNIT-VI": {
+          "power": 6,
+          "untilEndOfTurnPowerModifier": 3,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "法盾"],
+          "manaCost": 4
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
