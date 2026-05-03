@@ -595,6 +595,31 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MarchingOrdersEnemyBaseTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-marching-orders-enemy-base-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-MARCHING-ORDERS"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-UNIT-MARCHING-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BASE-MARCHING-001"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-UNIT-MARCHING-001"].Damage);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-MARCHING-001"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BASE-MARCHING-001"].Damage);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-BASE-MARCHING-001"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsDuelWhenTargetsAreReversed()
     {
         var state = PunishmentState(mana: 2) with
@@ -21676,6 +21701,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-hextech-infused-bulwark-target-rejected.fixture.json")]
     [InlineData("p4-play-dorans-blade-target-rejected.fixture.json")]
     [InlineData("p4-play-dorans-ring-target-rejected.fixture.json")]
+    [InlineData("p4-play-marching-orders-enemy-base-target-rejected.fixture.json")]
     [InlineData("p4-play-firestorm-explicit-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-friendly-target-rejected.fixture.json")]
     [InlineData("p4-play-crescent-strike-base-target-rejected.fixture.json")]

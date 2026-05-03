@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-marching-orders-enemy-base-target-rejected",
+  "description": "P4 rejects Marching Orders when its enemy target is in a base instead of on a battlefield.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304154,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·114/221 行军号令",
+      "note": "官方卡面：费用 3；迅捷；回响 3；选择任意一名友方单位，和战场上的一名敌方单位。当前 fixture 选择敌方基地单位，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p62-p63 rule 428; p92-p105 keyword rules 800+",
+      "note": "法术需要合法目标并作为结算链项目结算；回响作为额外费用重复此法术效果；伤害记录到单位对象，伤害达到战力后按致命伤害摧毁。第二目标不在战场时应在支付费用、入栈和状态变化前拒绝。"
+    }
+  ],
+  "roomId": "p4-marching-orders-enemy-base-target-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304154,
+    "turnNumber": 154,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-MARCHING-ORDERS"],
+        "base": [],
+        "battlefields": ["P1-UNIT-MARCHING-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": ["P2-BASE-MARCHING-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-UNIT-MARCHING-001": {
+        "damage": 0,
+        "power": 4,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-BASE-MARCHING-001": {
+        "damage": 0,
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-marching-orders-enemy-base-target-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-MARCHING-ORDERS",
+        "cardNo": "SFD·114/221",
+        "targetObjectIds": ["P1-UNIT-MARCHING-001", "P2-BASE-MARCHING-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 154,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 3, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": ["P1-SPELL-MARCHING-ORDERS"],
+          "base": [],
+          "battlefields": ["P1-UNIT-MARCHING-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": ["P2-BASE-MARCHING-001"],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-UNIT-MARCHING-001": {
+          "damage": 0,
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-BASE-MARCHING-001": {
+          "damage": 0,
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
