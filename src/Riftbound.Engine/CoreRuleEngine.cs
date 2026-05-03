@@ -13,6 +13,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
     private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
+    private const string StandbyReactionMode = "STANDBY_REACTION";
+    private const string StandbyReactionDestination = "STACK";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string ViCardNo = "UNL-030/219";
@@ -620,17 +622,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         RevealCardCommand command)
     {
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "REVEAL_CARD is only available during the active player's open main window.",
-                ErrorCodes.PhaseNotAllowed);
-        }
-
         if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
         {
             return RejectWithCorePrompts(
@@ -654,16 +645,46 @@ public sealed class CoreRuleEngine : IRuleEngine
             : command.Destination.Trim();
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
-            || !string.Equals(destination, StandbyRevealDestination, StringComparison.Ordinal)
-            || targetObjectIds.Count != 0
-            || optionalCosts.Count != 1
-            || !string.Equals(optionalCosts[0], StandbyRevealOptionalCost, StringComparison.Ordinal))
+        var paysStandbyRevealCost = optionalCosts.Count == 1
+            && string.Equals(optionalCosts[0], StandbyRevealOptionalCost, StringComparison.Ordinal);
+        var revealsInBase = string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
+            && string.Equals(destination, StandbyRevealDestination, StringComparison.Ordinal)
+            && targetObjectIds.Count == 0
+            && paysStandbyRevealCost;
+        var playsReactionToStack = string.Equals(mode, StandbyReactionMode, StringComparison.Ordinal)
+            && string.Equals(destination, StandbyReactionDestination, StringComparison.Ordinal)
+            && targetObjectIds.Count == 0
+            && paysStandbyRevealCost;
+        if (!revealsInBase && !playsReactionToStack)
         {
             return RejectWithCorePrompts(
                 state,
                 $"Unsupported standby reveal mode for {behavior.DisplayName}.",
                 ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (revealsInBase
+            && (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+                || state.StackItems.Count > 0))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "REVEAL_CARD is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (playsReactionToStack
+            && (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+                || !string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+                || state.StackItems.Count == 0
+                || !string.Equals(state.PriorityPlayerId, intent.PlayerId, StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "REVEAL_CARD standby reactions require that player to hold priority on a pending stack.",
+                ErrorCodes.PhaseNotAllowed);
         }
 
         if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
@@ -672,6 +693,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             return RejectWithCorePrompts(
                 state,
                 "Source card is not face down.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceState.CardNo)
+            && !string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card identity does not match REVEAL_CARD cardNo.",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -693,18 +723,51 @@ public sealed class CoreRuleEngine : IRuleEngine
         cardObjects[command.SourceObjectId] = sourceState with
         {
             IsFaceDown = false,
+            IsAttacking = false,
+            IsDefending = false,
             Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : sourceState.Power,
             Tags = revealedTags,
             ManaCost = behavior.ManaCost,
             CardNo = behavior.CardNo
         };
 
+        IReadOnlyDictionary<string, PlayerZones> playerZones = state.PlayerZones;
+        StackItemState? stackItem = null;
+        if (playsReactionToStack)
+        {
+            var reactionPlayerZones = NormalizeZonesForSeats(state);
+            reactionPlayerZones[intent.PlayerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, command.SourceObjectId)
+            };
+            playerZones = reactionPlayerZones;
+            stackItem = new StackItemState(
+                $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
+                intent.PlayerId,
+                command.SourceObjectId,
+                behavior.EffectKind,
+                command.CardNo,
+                [],
+                behavior.DamageAmount,
+                1,
+                optionalCosts,
+                playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId));
+        }
+
         var nextState = state with
         {
             Tick = state.Tick + 1,
+            ActivePlayerId = playsReactionToStack ? intent.PlayerId : state.ActivePlayerId,
             CardObjects = cardObjects,
-            PriorityPlayerId = null,
-            PassedPriorityPlayerIds = []
+            PlayerZones = playerZones,
+            PriorityPlayerId = playsReactionToStack ? intent.PlayerId : null,
+            PassedPriorityPlayerIds = [],
+            StackItems = stackItem is null
+                ? state.StackItems
+                : state.StackItems.Concat([stackItem]).ToArray(),
+            PlayerCardsPlayedThisTurn = playsReactionToStack
+                ? IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId)
+                : state.PlayerCardsPlayedThisTurn
         };
         var events = new List<GameEvent>
         {
@@ -722,6 +785,49 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["isFaceDown"] = false
                 })
         };
+        if (stackItem is not null)
+        {
+            events.AddRange(
+            [
+                new GameEvent(
+                    "CARD_PLAYED",
+                    $"{intent.PlayerId} 将{behavior.DisplayName}当作反应牌打出",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["sourceObjectId"] = command.SourceObjectId,
+                        ["cardNo"] = command.CardNo,
+                        ["mode"] = mode,
+                        ["destination"] = destination
+                    }),
+                new GameEvent(
+                    "COST_PAID",
+                    $"{intent.PlayerId} 支付 0 点费用",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["mana"] = 0,
+                        ["power"] = 0,
+                        ["baseMana"] = 0,
+                        ["optionalCosts"] = optionalCosts.ToArray()
+                    }),
+                new GameEvent(
+                    "STACK_ITEM_ADDED",
+                    $"{behavior.DisplayName}加入结算链",
+                    new Dictionary<string, object?>
+                    {
+                        ["stackItemId"] = stackItem.StackItemId,
+                        ["controllerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["cardNo"] = stackItem.CardNo,
+                        ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                        ["effectKind"] = stackItem.EffectKind,
+                        ["mode"] = mode,
+                        ["effectRepeatCount"] = stackItem.EffectRepeatCount,
+                        ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
+                    })
+            ]);
+        }
 
         return new ResolutionResult(
             true,

@@ -18655,7 +18655,112 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4RevealCardCommandRejectsReactionPlayUntilStandbyStackExists()
+    public async Task P4RevealCardCommandPlaysStandbyReactionToStack()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO"] = new(
+                    "P1-FACEDOWN-OGN-TEEMO",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    manaCost: 2,
+                    cardNo: "OGN·121/298")
+            }
+        };
+
+        var engine = new CoreRuleEngine();
+        var result = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-reaction-stack", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-OGN-TEEMO",
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REACTION",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "STACK"),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Equal(1, result.State.PlayerCardsPlayedThisTurn["P1"]);
+
+        var revealedCard = result.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"];
+        Assert.False(revealedCard.IsFaceDown);
+        Assert.Equal(2, revealedCard.Power);
+        Assert.Equal(2, revealedCard.ManaCost);
+        Assert.Equal("OGN·121/298", revealedCard.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], revealedCard.Tags);
+
+        Assert.Equal(2, result.State.StackItems.Count);
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", result.State.StackItems[0].StackItemId);
+        var standbyStackItem = result.State.StackItems[1];
+        Assert.Equal("STACK-1-P1-FACEDOWN-OGN-TEEMO", standbyStackItem.StackItemId);
+        Assert.Equal("P1", standbyStackItem.ControllerId);
+        Assert.Equal("P1-FACEDOWN-OGN-TEEMO", standbyStackItem.SourceObjectId);
+        Assert.Equal("OGN_TEEMO_STANDBY_DEFEND_REVEAL_PLAY_UNIT", standbyStackItem.EffectKind);
+        Assert.Equal("OGN·121/298", standbyStackItem.CardNo);
+        Assert.Empty(standbyStackItem.TargetObjectIds);
+        Assert.Equal(["STANDBY_REVEAL_0"], standbyStackItem.OptionalCosts);
+
+        Assert.Equal(["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
+        var addedEvent = Assert.Single(result.Events, evt => string.Equals(evt.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal("STACK-1-P1-FACEDOWN-OGN-TEEMO", addedEvent.Payload["stackItemId"]);
+        Assert.Equal("STANDBY_REACTION", addedEvent.Payload["mode"]);
+
+        var p1PassResult = await engine.ResolveAsync(
+            result.State,
+            new PlayerIntent("intent-p4-reveal-card-reaction-stack-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1PassResult.Accepted);
+        Assert.Equal("P2", p1PassResult.State.PriorityPlayerId);
+        Assert.Equal(2, p1PassResult.State.StackItems.Count);
+
+        var p2PassResult = await engine.ResolveAsync(
+            p1PassResult.State,
+            new PlayerIntent("intent-p4-reveal-card-reaction-stack-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2PassResult.Accepted);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], p2PassResult.State.StackItems.Select(item => item.StackItemId));
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], p2PassResult.State.PlayerZones["P1"].Base);
+        Assert.False(p2PassResult.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"].IsFaceDown);
+        Assert.Equal("OGN·121/298", p2PassResult.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"].CardNo);
+        Assert.Equal(["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_PLAYED_TO_BASE"], p2PassResult.Events.Select(evt => evt.Kind));
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindow()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -18690,14 +18795,14 @@ public sealed class ConformanceFixtureRunnerTests
             new RevealCardCommand(
                 "P1-FACEDOWN-OGN-TEEMO",
                 "OGN·121/298",
-                ["P2-BATTLEFIELD-UNIT-001"],
+                [],
                 Mode: "STANDBY_REACTION",
                 OptionalCosts: ["STANDBY_REVEAL_0"],
                 Destination: "STACK"),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -19016,6 +19121,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-hide-card-standby-face-down.fixture.json")]
     [InlineData("p4-guerrilla-warfare-free-standby-hide.fixture.json")]
     [InlineData("p4-reveal-card-standby-base.fixture.json")]
+    [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
     [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json")]

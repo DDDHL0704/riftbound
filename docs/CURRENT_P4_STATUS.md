@@ -103,7 +103,8 @@
 - P4.72 提交：`47b03cd feat: add p4 guerrilla standby hide permission`
 - P4.73 提交：`92465f3 feat: add p4 vi activated skill`
 - P4.74 提交：`06e4a69 feat: add p4 card object identity`
-- P4.75 提交：本提交 `test: add p4 objective coverage audit`
+- P4.75 提交：`68c836a test: add p4 objective coverage audit`
+- P4.76 提交：本提交 `feat: add p4 standby reaction stack`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -196,7 +197,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；P4.15 已给《踏苔蜥》接入 `等级3` 入场 +1 战力与法盾代表路径，P4.16 已给《风行狐》接入 `等级3` 入场 +1 战力与游走代表路径，P4.17 已给《无极学徒》接入 `等级6` 打出抽 1 代表路径，P4.28 已给《易》接入 `等级6` 法盾/游走代表路径，P4.29 已给《易》A 版本接入 `等级6` 法盾/游走代表路径，其他等级条件仍 deferred。 |
 | 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；P4.14 已给《诺克萨斯新兵》接入本回合已打出其他卡牌记忆和费用 -2 代表路径，P4.21 已给《崔法利求战者》接入同回合鼓舞自增益代表路径，P4.22 已给《危险二人组》接入同回合鼓舞目标临时战力代表路径，P4.23 已给《垃圾场小霸王》接入同回合鼓舞弃 2 抽 2 代表路径，P4.24 已给《先锋队长》接入同回合鼓舞创建两名 1 战力随从代表路径，其他鼓舞分支仍 deferred。 |
 | 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的单目标税，P4.59 已用《妖异狐火》覆盖多目标法术对 `法盾` + `法盾2` 的费用聚合，P4.61 已用《秘奥义！慈悲度魂落》覆盖友方法盾目标 no-tax 边界；P4.62 已新增 `ACTIVATE_ABILITY` typed command，P4.73 已执行《蔚》无目标付费技能入栈/结算代表路径，P4.74 已要求来源对象 `cardNo` 匹配《蔚》；技能目标税执行、授予/静态法盾和更复杂 FAQ 细节仍 deferred。 |
-| 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；反应打出、待命触发、战场/完整隐藏区位置限制仍 deferred。 |
+| 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；P4.76 已接入 `STANDBY_REACTION` 优先权窗口无目标反应入栈代表路径；待命触发、战场/完整隐藏区位置限制和目标伤害仍 deferred。 |
 | 回响 | 22 | 2 | 0 | Medium | P4.4 已完成 mana-only optional cost/repeat 模型；复杂额外费用、授予回响和模式重复仍后续拆分。 |
 | 伏击 | 18 | 0 | 0 | High | P4.9 已识别 profile；P4.64 已新增 `PLAY_CARD mode=AMBUSH` + `destination` 前置模型并在 Core 显式拒绝；反应战场打出和战场目的地结算仍 deferred。 |
 | 装配 | 51 | 0 | 0 | High | P4.8 已识别 profile；P4.58 已审计并锁定《取放自如》贴附/卸除武装的代表执行路径；P4.66 已新增 `ASSEMBLE_EQUIPMENT` typed command 与 Core 显式拒绝前置模型；装配费用、装备未激活文本和自动贴附仍 deferred。 |
@@ -223,7 +224,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Resource keywords | `UNL-100/219 贪食魔沼蛙`：狩猎3；`UNL-047/219 踏苔蜥`：狩猎2、等级3；`UNL-075/219 风行狐`：狩猎2、等级3；`UNL-040/219 无极学徒`：狩猎、等级6；`UNL-113/219 易`：狩猎2、等级6；`UNL-113a/219 易`：狩猎2、等级6；`OGN·012/298 诺克萨斯新兵`：鼓舞费用；`OGN·016/298 危险二人组`：鼓舞目标临时战力；`OGN·020/298 垃圾场小霸王`：鼓舞弃 2 抽 2；`OGN·217/298 崔法利求战者`：鼓舞自增益；`OGN·218/298 先锋队长`：鼓舞创建两名随从；`OGN·013/298 呸呸魄罗`：法盾；`SFD·085/221 奥恩`：法盾2；`OGN·256/298 妖异狐火`：多目标法盾税代表法术；`OGN·053/298 秘奥义！慈悲度魂落`：友方法盾目标 no-tax 代表法术；`UNL-030/219 蔚`：法盾与“支付2和红色”激活技能文本。 | P2 已有 keyword-unit fixture 记录标签或 no-optional 分支；P4.12 新增 `p4-play-incinerate-spellshield-tax`；P4.14 新增 `p4-play-noxian-recruit-encourage-cost-reduction`；P4.15 新增 `p4-play-moss-stepper-level3-spellshield`；P4.16 新增 `p4-play-windrunner-fox-level3-roam`；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.21 新增 `p4-play-trifarian-gloryseeker-encourage-self-boon`；P4.22 新增 `p4-play-dangerous-duo-encourage-target-temp-might`；P4.23 新增 `p4-play-junkyard-bully-encourage-discard-draw`；P4.24 新增 `p4-play-vanguard-captain-encourage-create-minions`；P4.28 新增 `p4-play-unl-yi-level6-spellshield-roam`；P4.29 新增 `p4-play-unl-yi-alt-a-level6-spellshield-roam`；P4.59 新增 `p4-play-spirit-fire-multiple-spellshield-tax`；P4.61 新增 `p4-play-secret-art-mercy-friendly-spellshield-no-tax`；P4.62 新增 `GameCommandMapperParsesActivateAbilityPayload`；P4.73/P4.74 新增 `P4ActivateAbilityCommandAddsViDoublePowerSkillToStack` / `P4ActivateAbilityCommandRejectsViDoublePowerSkillWithTargets` / `P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenPowerIsMissing` / `P4ActivateAbilityCommandRejectsViDoublePowerSkillFromNonViSource` / `P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack` / `P4ActivateAbilityCommandUsesCardIdentityAfterViIsPlayed` / `p4-activate-vi-double-power-skill` / `p4-play-then-activate-vi-double-power-skill`。 | P4.7 已建立 resource keyword profile；P4.12 已执行法术选择敌方场上法盾对象的 mana 目标税；P4.14 已执行《诺克萨斯新兵》鼓舞费用 -2 代表路径；P4.15 已执行《踏苔蜥》`等级3` 入场 +1 与法盾代表路径；P4.16 已执行《风行狐》`等级3` 入场 +1 与游走代表路径；P4.17 已执行《无极学徒》`等级6` 打出抽 1 代表路径；P4.21 已执行《崔法利求战者》鼓舞自增益代表路径；P4.22 已执行《危险二人组》鼓舞目标临时战力代表路径；P4.23 已执行《垃圾场小霸王》鼓舞弃 2 抽 2 代表路径；P4.24 已执行《先锋队长》鼓舞创建两名 1 战力随从代表路径；P4.28 已执行《易》`等级6` 法盾/游走代表路径；P4.29 已执行《易》A 版本 `等级6` 法盾/游走代表路径；P4.59 已执行《妖异狐火》同时选择 `法盾` 与 `法盾2` 敌方场上单位时的目标税聚合；P4.61 已执行《秘奥义！慈悲度魂落》选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的友方目标边界；P4.73 已执行《蔚》`PAY_2_RED_DOUBLE_POWER` 无目标付费技能入栈并结算自身本回合战力翻倍，P4.74 已补场上对象 `cardNo` 身份校验并拒绝非《蔚》来源伪造 ability id；狩猎征服/据守经验、其他等级条件、其他鼓舞效果、技能目标税执行和授予/静态法盾仍 deferred。 |
 | Equipment keywords | `SFD·033/221 多兰之盾`：装配绿色；`SFD·022/221 长剑`：灵便、装配红色；`SFD·008/221 哨兵好手`：百炼；`SFD·085/221 奥恩`：法盾2、百炼；`SFD·011/221 取放自如`：选择一名单位和其控制者的一件武装，为该单位贴附或卸除该武装，抽一张牌。 | P2 已有装备打出和 no-optional 百炼 fixture，记录装备/武装/灵便/百炼标签；P4.58 复用 `p2-preflight-play-take-up-attach-weapon-draw` 与 `p2-preflight-play-take-up-detach-weapon-draw` 作为武装贴附/卸除代表执行证据；P4.66 新增 `P4AssembleEquipmentCommandIsExplicitlyRejectedUntilEquipmentSystemExists` / `GameCommandMapperParsesAssembleEquipmentPayload`。 | P4.8 已建立 equipment keyword profile；P4.58 已锁定《取放自如》贴附/卸除代表路径；P4.66 已建立 `ASSEMBLE_EQUIPMENT` command envelope 并显式拒绝执行；装配费用、灵便自动贴附、百炼 optional attach、owner/controller 和未激活文本仍 deferred。 |
 | Lifecycle remaining | `UNL-081/219 赐面守侍`：待命、瞬息；`UNL-161/219 占卜贝壳`：预知；`OGN·190/298 克格莫`：绝念。 | P4.3 瞬息 fixture；P2 已有预知回收/no-recycle fixture 与绝念静态 fixture。 | P4.9 已建立 lifecycle keyword profile；绝念 trigger queue 和广义预知授予仍 deferred。 |
-| Interaction remaining | `OGN·121/298 提莫`：待命；`OGN·199/298 控潮者`：待命；`OGN·264/298 游击战`：待命免费暗置权限；`UNL-021/219 阴森药剂师`：伏击；`UNL-176a/219 蔚`：伏击。 | P2 已有普通打出/静态 fixture；`回响` 已有 P4.4 mana-only 执行路径；P4.63 新增 `GameCommandMapperParsesHideCardPayload`；P4.64 新增 `P4AmbushPlayCardModeIsExplicitlyRejectedUntilBattlefieldReactionPlayExists` / `GameCommandMapperParsesAmbushPlayCardDestination`；P4.68 新增 `GameCommandMapperParsesRevealCardPayload`；P4.69 新增 `SnapshotsRedactOpponentFaceDownObjects`；P4.70 新增 `P4HideCardCommandPlacesStandbyCardFaceDown` / `P4HideCardCommandRejectsInsufficientStandbyCost` / `p4-hide-card-standby-face-down.fixture.json`；P4.71 新增 `P4RevealCardCommandRevealsStandbyCardInBase` / `P4RevealCardCommandRejectsReactionPlayUntilStandbyStackExists` / `p4-reveal-card-standby-base.fixture.json`；P4.72 新增 `P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission` / `P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission` / `p4-guerrilla-warfare-free-standby-hide.fixture.json`。 | P4.9 已建立 interaction keyword profile；P4.70 已执行 `HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_A"]` 最小待命正面朝下放置；P4.71 已执行 `REVEAL_CARD mode=STANDBY_REVEAL destination=BASE optionalCosts=["STANDBY_REVEAL_0"]` 基地显露；P4.72 已执行《游击战》授予 `FREE_STANDBY_HIDE:{playerId}` 后的 `HIDE_CARD optionalCosts=["STANDBY_FREE"]` 免费暗置；P4.64 已建立 `PLAY_CARD mode=AMBUSH` + `destination` envelope 并显式拒绝执行；待命反应打出/触发/完整隐藏区和伏击 reaction battlefield play 仍 deferred。 |
+| Interaction remaining | `OGN·121/298 提莫`：待命；`OGN·199/298 控潮者`：待命；`OGN·264/298 游击战`：待命免费暗置权限；`UNL-021/219 阴森药剂师`：伏击；`UNL-176a/219 蔚`：伏击。 | P2 已有普通打出/静态 fixture；`回响` 已有 P4.4 mana-only 执行路径；P4.63 新增 `GameCommandMapperParsesHideCardPayload`；P4.64 新增 `P4AmbushPlayCardModeIsExplicitlyRejectedUntilBattlefieldReactionPlayExists` / `GameCommandMapperParsesAmbushPlayCardDestination`；P4.68 新增 `GameCommandMapperParsesRevealCardPayload`；P4.69 新增 `SnapshotsRedactOpponentFaceDownObjects`；P4.70 新增 `P4HideCardCommandPlacesStandbyCardFaceDown` / `P4HideCardCommandRejectsInsufficientStandbyCost` / `p4-hide-card-standby-face-down.fixture.json`；P4.71 新增 `P4RevealCardCommandRevealsStandbyCardInBase` / `p4-reveal-card-standby-base.fixture.json`；P4.72 新增 `P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission` / `P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission` / `p4-guerrilla-warfare-free-standby-hide.fixture.json`；P4.76 新增 `P4RevealCardCommandPlaysStandbyReactionToStack` / `P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindow` / `p4-reveal-card-standby-reaction-stack.fixture.json`。 | P4.9 已建立 interaction keyword profile；P4.70 已执行 `HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_A"]` 最小待命正面朝下放置；P4.71 已执行 `REVEAL_CARD mode=STANDBY_REVEAL destination=BASE optionalCosts=["STANDBY_REVEAL_0"]` 基地显露；P4.72 已执行《游击战》授予 `FREE_STANDBY_HIDE:{playerId}` 后的 `HIDE_CARD optionalCosts=["STANDBY_FREE"]` 免费暗置；P4.76 已执行 `REVEAL_CARD mode=STANDBY_REACTION destination=STACK optionalCosts=["STANDBY_REVEAL_0"]` 的无目标反应入栈代表路径；P4.64 已建立 `PLAY_CARD mode=AMBUSH` + `destination` envelope 并显式拒绝执行；待命触发/完整隐藏区/目标伤害和伏击 reaction battlefield play 仍 deferred。 |
 | Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·156/298 暗中破坏`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验；`UNL-040/219 无极学徒`：等级打出抽牌；`UNL-157/219 严厉军士`：按友方场上单位获得经验。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.19 新增 `p4-play-stern-sergeant-dynamic-experience`；P4.60 新增 `recycle` / `banish` / `boon` template id、parser、registry 与 safe delegation tests。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；P4.17 已执行《无极学徒》等级 6 打出抽 1；P4.19 已执行《严厉军士》按友方场上单位数量获得经验；P4.60 已把回收/放逐/增益纳入 P3 template skeleton 并继续委托 P2 状态写入；经验消耗/激活技能、条件经验和复杂隐藏信息/多玩家选择仍 deferred。 |
 
 ## P4.2 Permission Keyword Batch
@@ -315,12 +316,12 @@ Prompt-to-artifact checklist：
 | 战斗关键词：强攻、坚守、壁垒、后排、游走 | `CardCombatKeywordRules`、`P4CombatKeywordProfilesMapOfficialTextToRegistryTags`、`P4MoveUnitCommandIsExplicitlyRejectedUntilRoamMovementExists`、`GameCommandMapperParsesMoveUnitPayload`、`P4DeclareBattleCommandIsExplicitlyRejectedUntilCombatSystemExists`、`GameCommandMapperParsesDeclareBattlePayload`、6 条 keyword-unit fixture | Partial：P4.65 已建立 `MOVE_UNIT` command envelope 且显式拒绝执行；P4.67 已建立 `DECLARE_BATTLE` command envelope 且显式拒绝执行；完整战斗伤害/承伤/游走真实移动 deferred。 |
 | 生命周期关键词：瞬息、绝念、预知 | `CardLifecycleKeywordRules`、`P4LifecycleKeywordProfilesMapOfficialTextToRegistryTags`、3 条 representative fixture | Partial：瞬息到期可玩，预知顶牌回收代表路径 delegated to P2，绝念 trigger queue deferred。 |
 | 资源关键词：狩猎、等级、鼓舞、法盾 | `CardResourceKeywordRules`、`P4ResourceKeywordProfilesMapOfficialTextToRegistryTags`、`P4SpellshieldTaxAddsManaForEnemySpellTarget`、`P4SpellshieldTaxAggregatesMultipleEnemySpellTargets`、`P4SpellshieldTaxDoesNotApplyToFriendlySpellTarget`、`GameCommandMapperParsesActivateAbilityPayload`、`P4ActivateAbilityCommandAddsViDoublePowerSkillToStack`、`P4ActivateAbilityCommandRejectsViDoublePowerSkillWithTargets`、`P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenPowerIsMissing`、`P4ActivateAbilityCommandRejectsViDoublePowerSkillFromNonViSource`、`P4ActivateAbilityCommandResolvesViDoublePowerSkillOnStack`、`P4ActivateAbilityCommandUsesCardIdentityAfterViIsPlayed`、`CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient`、`P4EncourageCostReductionPaysReducedManaAfterAnotherCardThisTurn`、`P4EncourageSelfBoonGrantsBoonAfterAnotherCardThisTurn`、`P4EncourageTargetTempMightRequiresPriorCardAndTarget`、`P4EncourageDiscardDrawRequiresPriorCardAndTwoHandTargets`、`P4EncourageMinionCreationRequiresPriorCard`、`P4LevelThresholdAppliesMossStepperPowerAndSpellshieldAtThreeExperience`、`P4LevelThresholdAppliesWindrunnerFoxPowerAndRoamAtThreeExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、`P4LevelThresholdAppliesYiSpellshieldAndRoamAtSixExperience`、`P4LevelThresholdAppliesYiAltASpellshieldAndRoamAtSixExperience`、`p4-play-incinerate-spellshield-tax`、`p4-play-spirit-fire-multiple-spellshield-tax`、`p4-play-secret-art-mercy-friendly-spellshield-no-tax`、`p4-activate-vi-double-power-skill`、`p4-play-then-activate-vi-double-power-skill`、`p4-play-noxian-recruit-encourage-cost-reduction`、`p4-play-trifarian-gloryseeker-encourage-self-boon`、`p4-play-dangerous-duo-encourage-target-temp-might`、`p4-play-junkyard-bully-encourage-discard-draw`、`p4-play-vanguard-captain-encourage-create-minions`、`p4-play-moss-stepper-level3-spellshield`、`p4-play-windrunner-fox-level3-roam`、`p4-play-wuji-apprentice-level6-draw`、`p4-play-unl-yi-level6-spellshield-roam`、`p4-play-unl-yi-alt-a-level6-spellshield-roam`、代表 fixture | Partial：法术选择敌方场上法盾对象的 mana 目标税可玩，P4.59 已覆盖同一法术同时选择 `法盾` 与 `法盾2` 敌方目标时的税值聚合，P4.61 已覆盖友方法术选择己方 `法盾` 目标时不缴税，P4.73/P4.74 已覆盖《蔚》无目标付费技能入栈、来源身份校验并结算自身本回合战力翻倍；《诺克萨斯新兵》鼓舞费用 -2 代表路径可玩；《崔法利求战者》鼓舞自增益代表路径可玩；《危险二人组》鼓舞目标临时战力代表路径可玩；《垃圾场小霸王》鼓舞弃 2 抽 2 代表路径可玩；《先锋队长》鼓舞创建两名 1 战力随从代表路径可玩；《踏苔蜥》`等级3` 入场 +1/法盾代表路径可玩；《风行狐》`等级3` 入场 +1/游走代表路径可玩；《无极学徒》`等级6` 打出抽 1 代表路径可玩；《易》及 A 版本 `等级6` 法盾/游走代表路径可玩；狩猎征服/据守经验、其他等级条件、其他鼓舞效果、技能目标税执行和授予/静态法盾 deferred。 |
-| 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、`P4HideCardCommandPlacesStandbyCardFaceDown`、`P4HideCardCommandRejectsInsufficientStandbyCost`、`P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission`、`P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission`、`GameCommandMapperParsesHideCardPayload`、`P4RevealCardCommandRevealsStandbyCardInBase`、`P4RevealCardCommandRejectsReactionPlayUntilStandbyStackExists`、`GameCommandMapperParsesRevealCardPayload`、`SnapshotsRedactOpponentFaceDownObjects`、`P4AmbushPlayCardModeIsExplicitlyRejectedUntilBattlefieldReactionPlayExists`、`GameCommandMapperParsesAmbushPlayCardDestination`、`p4-hide-card-standby-face-down`、`p4-guerrilla-warfare-free-standby-hide`、`p4-reveal-card-standby-base`、3 条 remaining fixture | Partial：mana-only 回响可玩，P4.70 已执行待命 `HIDE_CARD` + `STANDBY_A` 最小正面朝下放置，P4.71 已执行待命 `REVEAL_CARD` + `STANDBY_REVEAL_0` 基地显露，P4.72 已执行《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费待命暗置路径，P4.69 已补对手视角正面朝下对象 redaction，P4.64 已建立伏击 `PLAY_CARD mode=AMBUSH` + `destination` envelope 且显式拒绝执行，待命反应打出/触发/完整隐藏区与伏击 reaction battlefield play deferred。 |
+| 互动关键词：待命、回响、伏击 | `CardInteractionKeywordRules`、`P4InteractionKeywordProfilesMapOfficialTextToRegistryTags`、`P4EchoKeywordKeepsExistingP2FixturesGreen`、`P4HideCardCommandPlacesStandbyCardFaceDown`、`P4HideCardCommandRejectsInsufficientStandbyCost`、`P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission`、`P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission`、`GameCommandMapperParsesHideCardPayload`、`P4RevealCardCommandRevealsStandbyCardInBase`、`P4RevealCardCommandPlaysStandbyReactionToStack`、`P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindow`、`GameCommandMapperParsesRevealCardPayload`、`SnapshotsRedactOpponentFaceDownObjects`、`P4AmbushPlayCardModeIsExplicitlyRejectedUntilBattlefieldReactionPlayExists`、`GameCommandMapperParsesAmbushPlayCardDestination`、`p4-hide-card-standby-face-down`、`p4-guerrilla-warfare-free-standby-hide`、`p4-reveal-card-standby-base`、`p4-reveal-card-standby-reaction-stack`、3 条 remaining fixture | Partial：mana-only 回响可玩，P4.70 已执行待命 `HIDE_CARD` + `STANDBY_A` 最小正面朝下放置，P4.71 已执行待命 `REVEAL_CARD` + `STANDBY_REVEAL_0` 基地显露，P4.72 已执行《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费待命暗置路径，P4.76 已执行待命 `STANDBY_REACTION` / `STACK` 无目标反应入栈路径，P4.69 已补对手视角正面朝下对象 redaction，P4.64 已建立伏击 `PLAY_CARD mode=AMBUSH` + `destination` envelope 且显式拒绝执行，待命触发/完整隐藏区/目标伤害与伏击 reaction battlefield play deferred。 |
 | 装备关键词：装配、灵便、百炼 | `CardEquipmentKeywordRules`、`CardEquipmentAttachmentProfile`、`P4EquipmentKeywordProfilesMapOfficialTextToRegistryTags`、`P4EquipmentAttachmentProfileMapsTakeUpToRepresentativeAttachDetach`、`P4AssembleEquipmentCommandIsExplicitlyRejectedUntilEquipmentSystemExists`、`GameCommandMapperParsesAssembleEquipmentPayload`、5 条 no-attach fixture、2 条《取放自如》attach/detach fixture | Partial：P4.58 已覆盖《取放自如》武装贴附/卸除代表执行；P4.66 已建立 `ASSEMBLE_EQUIPMENT` command envelope 且显式拒绝执行；装配费用、灵便自动贴附、百炼 optional attach、owner/controller deferred。 |
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors`、`P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated`、`P4MoveUnitCommandIsExplicitlyRejectedUntilRoamMovementExists`、`GameCommandMapperParsesMoveUnitPayload`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.65 已建立显式 `MOVE_UNIT` command envelope 但仍拒绝执行；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.75 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.76 once committed. |
 
 P4.9 新增内容：
 
@@ -808,7 +809,7 @@ Prompt-to-artifact completion audit：
 | 战斗关键词 | P4.6 只有 profile；P4.65/P4.67 已建立移动与战斗声明 command envelope 并显式拒绝执行；完整强攻/坚守/壁垒/后排战斗承伤与游走移动仍是明确缺口。 |
 | 生命周期关键词 | 瞬息到期与预知代表路径有覆盖；绝念触发队列仍 deferred。 |
 | 资源关键词 | 法术目标法盾税、多个等级/鼓舞/经验代表路径已覆盖；P4.59 进一步锁定多目标法术对 `法盾` + `法盾2` 的税值聚合；P4.61 锁定友方法盾目标 no-tax 边界；P4.73 执行《蔚》无目标付费技能入栈/结算代表路径；P4.74 补场上对象 `cardNo` 身份校验，防止非《蔚》来源伪造 ability id；技能目标税、狩猎征服/据守经验、更多动态经验仍 deferred。 |
-| 互动关键词 | 回响 mana-only 已执行；P4.70 已执行待命 `HIDE_CARD` + `STANDBY_A` 最小正面朝下放置；P4.71 已执行待命 `REVEAL_CARD` + `STANDBY_REVEAL_0` 基地显露；P4.72 已执行《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费待命暗置；P4.69 已补对手视角正面朝下对象 redaction；待命反应打出/触发/完整隐藏区与伏击反应战场打出仍 deferred。 |
+| 互动关键词 | 回响 mana-only 已执行；P4.70 已执行待命 `HIDE_CARD` + `STANDBY_A` 最小正面朝下放置；P4.71 已执行待命 `REVEAL_CARD` + `STANDBY_REVEAL_0` 基地显露；P4.72 已执行《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费待命暗置；P4.76 已执行待命 `STANDBY_REACTION` / `STACK` 无目标反应入栈；P4.69 已补对手视角正面朝下对象 redaction；待命触发/完整隐藏区/目标伤害与伏击反应战场打出仍 deferred。 |
 | 装备关键词 | P4.58 覆盖《取放自如》武装贴附/卸除代表路径；P4.66 建立 `ASSEMBLE_EQUIPMENT` command envelope 且显式拒绝执行；装配/灵便/百炼的完整贴附、费用和未激活文本仍 deferred。 |
 | 基础动作模板 | draw/damage/destroy/stun/temp might primitive plan 已覆盖；move/recall/recycle/banish/boon/experience 的部分代表路径仍 delegated to P2 或小批次执行。 |
 
@@ -913,12 +914,12 @@ Prompt-to-artifact checklist：
 
 ## P4.68 Reveal Card Command Premodel
 
-本阶段继续 completion audit：P4 仍不能标记 goal complete。`待命` 已有 P4.63 `HIDE_CARD` 放置前置模型，但官方文本还要求之后可支付 0 将该正面朝下牌作为反应牌打出；P4.68 当时仍缺隐藏信息 snapshot、face-down 对象所有权视图和翻开结算模型，因此本批次只补 `REVEAL_CARD` command 前置模型。P4.71 后已在该 envelope 上接入基地显露，反应打出/目标结算仍 deferred。
+本阶段继续 completion audit：P4 仍不能标记 goal complete。`待命` 已有 P4.63 `HIDE_CARD` 放置前置模型，但官方文本还要求之后可支付 0 将该正面朝下牌作为反应牌打出；P4.68 当时仍缺隐藏信息 snapshot、face-down 对象所有权视图和翻开结算模型，因此本批次只补 `REVEAL_CARD` command 前置模型。P4.71 后已在该 envelope 上接入基地显露，P4.76 后已接入无目标反应入栈；目标结算、触发和完整隐藏区仍 deferred。
 
 - 新增 `RevealCardCommand`，payload 字段为 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`，为待命翻开/显露路径保留稳定协议 envelope。
 - `GameCommandJsonMapper` 现在能把 `cmdType = "REVEAL_CARD"` 解析为 typed command；新增 `GameCommandMapperParsesRevealCardPayload` 锁定协议字段。
 - P4.68 时 `CoreRuleEngine` 对 `RevealCardCommand` 显式返回 `UNSUPPORTED_COMMAND`，避免该 typed command 落入 `PlaceholderRuleEngine` 后被误接受；P4.71 后仅接受 `STANDBY_REVEAL` / `BASE` 最小显露，其余 reveal 变体继续拒绝。
-- P4.68 新增的拒绝测试已在 P4.71 替换为 `P4RevealCardCommandRevealsStandbyCardInBase` / `P4RevealCardCommandRejectsReactionPlayUntilStandbyStackExists`，继续用 `OGN·121/298 提莫` 的待命文本作为代表。
+- P4.68 新增的拒绝测试已在 P4.71/P4.76 替换为 `P4RevealCardCommandRevealsStandbyCardInBase` / `P4RevealCardCommandPlaysStandbyReactionToStack` / `P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindow`，继续用 `OGN·121/298 提莫` 的待命文本作为代表。
 - P4.68 本批次没有实现正面朝下放置、隐藏信息 snapshot、从正面朝下状态翻开打出、待命触发、目标结算、伏击共用隐藏信息或 P5/P6 批量迁移；P4.71 只补最小基地显露，其余仍 deferred。
 
 ## P4.69 Face-Down Snapshot Redaction
@@ -938,7 +939,7 @@ Prompt-to-artifact checklist：
 - 执行时支付 1 mana，把来源牌移入控制者基地，设置 `IsFaceDown = true`，并在 owner-visible 状态保留 `power`、`tags` 与 `manaCost` 供后续翻开/调试使用。
 - `CARD_HIDDEN` 公开事件只暴露 `playerId`、`sourceObjectId`、`destination`、`destinationZone` 和 `isFaceDown`，故意不携带 `cardNo`、`power`、`tags` 或 `manaCost`；P4.69 的 snapshot redaction 覆盖对手视角对象。
 - 新增 `P4HideCardCommandPlacesStandbyCardFaceDown`、`P4HideCardCommandRejectsInsufficientStandbyCost` 和 `p4-hide-card-standby-face-down.fixture.json`。
-- 本批次没有实现 `REVEAL_CARD` 执行、待命翻开作为反应牌打出、待命触发、`游击战` 免费布置权限、战场/隐藏区位置、装备/法术待命、伏击共用隐藏信息或 P5/P6 批量迁移。
+- 本批次没有实现 `REVEAL_CARD` 执行、待命触发、`游击战` 免费布置权限、战场/隐藏区位置、装备/法术待命、伏击共用隐藏信息或 P5/P6 批量迁移。
 
 ## P4.71 Standby Reveal Execution
 
@@ -947,18 +948,18 @@ Prompt-to-artifact checklist：
 - `CoreRuleEngine` 现在接受 `REVEAL_CARD mode=STANDBY_REVEAL destination=BASE optionalCosts=["STANDBY_REVEAL_0"]`，前提是主动玩家在 main/neutral open、来源牌位于控制者基地、对象 `IsFaceDown = true` 且带 `待命`。
 - 执行时不扣费用、不移动区域、不创建 stack item，只把 `IsFaceDown` 改为 `false`，并用 registry 补齐 owner/opponent 可见的战力、标签和费用。
 - `CARD_REVEALED` 公开事件携带 `cardNo`，因为对象已从隐藏状态转为公开；P4.69 的 snapshot redaction 不再适用于该对象，双方 snapshot 都能看到完整对象信息。
-- 新增 `P4RevealCardCommandRevealsStandbyCardInBase`、`P4RevealCardCommandRejectsReactionPlayUntilStandbyStackExists` 和 `p4-reveal-card-standby-base.fixture.json`。
-- 本批次没有实现 `STANDBY_REACTION` 打到 `STACK`、待命翻开作为反应牌打出、目标伤害/展示主牌堆、待命触发、`游击战` 免费布置权限、伏击共用隐藏信息或 P5/P6 批量迁移。
+- 新增 `P4RevealCardCommandRevealsStandbyCardInBase` 和 `p4-reveal-card-standby-base.fixture.json`；P4.76 后补充 `P4RevealCardCommandPlaysStandbyReactionToStack` 与反应入栈 fixture。
+- 本批次没有实现目标伤害/展示主牌堆、待命触发、`游击战` 免费布置权限、伏击共用隐藏信息或 P5/P6 批量迁移；P4.76 后已补无目标反应入栈。
 
 ## P4.72 Guerrilla Warfare Free Standby Hide Permission
 
-本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.70 已能安全暗置待命牌，P4.71 已能把基地正面朝下待命单位公开显露；本批次只把《游击战》的“本回合内可无视费用正面朝下布置待命卡牌”接到这条最小 `HIDE_CARD` 路径，不实现待命反应打出或触发。
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.70 已能安全暗置待命牌，P4.71 已能把基地正面朝下待命单位公开显露；本批次只把《游击战》的“本回合内可无视费用正面朝下布置待命卡牌”接到这条最小 `HIDE_CARD` 路径，不实现待命触发。
 
 - `OGN·264/298 游击战` 结算时，在原有“最多两张己方废牌堆待命牌返回手牌”后授予控制者 `FREE_STANDBY_HIDE:{playerId}` until-end-of-turn 全局效果，并发出 `STANDBY_HIDE_PERMISSION_GRANTED` 事件。
 - `CoreRuleEngine` 现在接受 `HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_FREE"]`，前提是主动玩家本回合拥有对应 `FREE_STANDBY_HIDE:{playerId}`；该路径支付 0 mana，并复用 P4.70 的正面朝下基地放置与隐藏信息事件边界。
 - 免费暗置权限不在暗置时消耗，随现有回合结束全局 until-end effects 清理；没有权限时 `STANDBY_FREE` 仍被显式拒绝，避免越权绕过 `STANDBY_A` 费用。
 - 新增 `P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission`、`P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission`、更新 `p2-preflight-play-guerrilla-warfare-return-standby-graveyard.fixture.json`，并新增 `p4-guerrilla-warfare-free-standby-hide.fixture.json`。
-- 本批次没有实现 `STANDBY_REACTION` 打到 `STACK`、待命翻开作为反应牌打出、待命触发、战场目的地、装备/法术待命、伏击共用隐藏信息或 P5/P6 批量迁移。
+- 本批次没有实现待命触发、战场目的地、装备/法术待命、伏击共用隐藏信息或 P5/P6 批量迁移；P4.76 后已补无目标反应入栈。
 
 ## P4.73 Vi Activated Skill Stack Slice
 
@@ -986,8 +987,17 @@ Prompt-to-artifact checklist：
 
 - 新增 `P4ObjectiveNamedSurfacesHaveRepresentativeCoverage`：读取官方卡表、FunctionalUnit、P3 `BehaviorSpec` 和 P2 `CardBehaviorDefinition`，逐项断言 33 个命名 surface 都有代表 profile、primitive、delegated P2 路径或小批次执行证据。
 - 覆盖清单包括：权限关键词 `迅捷`/`反应`/`急速`，战斗关键词 `强攻`/`坚守`/`壁垒`/`后排`/`游走`，生命周期关键词 `瞬息`/`绝念`/`预知`，资源关键词 `狩猎`/`等级`/`鼓舞`/`法盾`，互动关键词 `待命`/`回响`/`伏击`，装备关键词 `装配`/`灵便`/`百炼`，基础动作 `抽牌`/`伤害`/`摧毁`/`眩晕`/`移动`/`召回`/`回收`/`放逐`/`临时战力`/`增益`/`经验获得`/`经验消耗`。
-- 该测试不把 `recognized-deferred` 当作完成：它只证明 surface 已被 P3/P4 识别并有明确代表或 deferred 边界；完整战斗、游走移动、待命反应打出、伏击战场打出、技能目标税、完整装备系统和复杂触发仍是明确缺口。
+- 该测试不把 `recognized-deferred` 当作完成：它只证明 surface 已被 P3/P4 识别并有明确代表或 deferred 边界；完整战斗、游走移动、待命触发/完整隐藏区/目标伤害、伏击战场打出、技能目标税、完整装备系统和复杂触发仍是明确缺口。
 - 本批次不改 `CoreRuleEngine`、不新增可玩路径、不进入 P5/P6/P7；只补 baseline 审计测试与状态文档，防止后续 completion audit 漏掉目标中的显式条目。
+
+## P4.76 Standby Reaction Stack Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。`待命` 官方文本的“之后可支付 0 将其当作反应牌打出”已经具备 P4.70 正面朝下对象、P4.69 对手视角 redaction、P4.71 基地显露和 P4.74 `cardNo` 身份边界，因此本批次只接入最低风险的无目标反应入栈，不执行提莫的展示/伤害/回收触发。
+
+- `CoreRuleEngine` 现在接受 `REVEAL_CARD mode=STANDBY_REACTION destination=STACK optionalCosts=["STANDBY_REVEAL_0"]`，前提是玩家在 main/neutral closed 的结算链优先权窗口中持有 priority，结算链已有待结算项目，来源对象在该玩家基地、`IsFaceDown = true` 且 registry/source object 身份匹配待命单位。
+- 执行后来源对象翻为公开、写回官方 `cardNo`/战力/费用/标签、从基地移出，并以官方 behavior effect kind 加入结算链；事件顺序为 `CARD_REVEALED`、`CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，优先权仍归该控制者。
+- 新增 `P4RevealCardCommandPlaysStandbyReactionToStack`、`P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindow` 和 `p4-reveal-card-standby-reaction-stack.fixture.json`，并把该 fixture 加入 interaction keyword representative 聚合。
+- 本批次没有实现提莫展示主牌堆顶部五张、按待命牌数量伤害敌方单位、回收展示牌、防守/待命打出触发、战场/完整隐藏区、装备/法术待命、伏击共用隐藏信息或 P5/P6 批量迁移。
 
 ## Risk Layers
 
@@ -998,9 +1008,9 @@ Prompt-to-artifact checklist：
 - 已由 P2 手写行为覆盖的 `recycle` / `banish` / `boon` 在 P4.60 进入 P3/P4 template skeleton 和 safe delegation；primitive executor 仍不直接改状态。
 - 已由 P2 手写行为覆盖的《取放自如》武装贴附/卸除代表路径在 P4.58 进入 P4 evidence/profile，但不泛化成完整装备系统。
 - `ACTIVATE_ABILITY` 已有 P4.62 command envelope；P4.73 已执行《蔚》`PAY_2_RED_DOUBLE_POWER` 无目标付费技能入栈/结算代表路径，P4.74 已补来源对象 `cardNo` 身份校验；其他技能、目标/可选费用和技能目标税仍 deferred。
-- `HIDE_CARD` 已有 P4.63 command envelope；P4.70 已执行 `STANDBY_A` 最小正面朝下放置；P4.72 已执行《游击战》`STANDBY_FREE` 免费暗置代表路径，其他目的地、翻开和完整隐藏区仍 deferred。
-- `REVEAL_CARD` 已有 P4.68 command envelope；P4.71 已执行 `STANDBY_REVEAL` / `BASE` 最小显露，`STANDBY_REACTION` 打到 `STACK` 和目标结算仍 deferred。
-- Face-down snapshot redaction 已有 P4.69 对手视角防泄漏测试，并被 P4.70 最小待命放置复用；当前仍不创建完整隐藏区或执行待命反应打出。
+- `HIDE_CARD` 已有 P4.63 command envelope；P4.70 已执行 `STANDBY_A` 最小正面朝下放置；P4.72 已执行《游击战》`STANDBY_FREE` 免费暗置代表路径，其他目的地和完整隐藏区仍 deferred。
+- `REVEAL_CARD` 已有 P4.68 command envelope；P4.71 已执行 `STANDBY_REVEAL` / `BASE` 最小显露，P4.76 已执行 `STANDBY_REACTION` / `STACK` 无目标反应入栈；目标结算、触发和完整隐藏区仍 deferred。
+- Face-down snapshot redaction 已有 P4.69 对手视角防泄漏测试，并被 P4.70 最小待命放置复用；当前仍不创建完整隐藏区或执行待命触发/目标伤害。
 - `PLAY_CARD mode=AMBUSH` 已有 P4.64 `destination` envelope 与 Core 显式拒绝前置模型，可供后续伏击反应战场打出小批次复用；当前不把单位打出至战场。
 - `MOVE_UNIT` 已有 P4.65 command envelope 与 Core 显式拒绝前置模型，可供后续游走/基础移动小批次复用；当前不移动对象。
 - `ASSEMBLE_EQUIPMENT` 已有 P4.66 command envelope 与 Core 显式拒绝前置模型，可供后续装配/灵便/百炼小批次复用；当前不贴附装备。
@@ -1019,7 +1029,7 @@ Prompt-to-artifact checklist：
 
 - 强攻、坚守、壁垒、后排的完整战斗承伤/战力修正；P4.6 只完成 profile 识别
 - 游走的多战场合法移动和移动触发得分；P4.6 只完成 profile 识别
-- 待命反应打出/触发/完整隐藏区与伏击的 face-down/隐藏信息/反应翻开路径
+- 待命触发/完整隐藏区/目标伤害与伏击的 face-down/隐藏信息/反应翻开路径
 - 装配、灵便、百炼的费用、未激活文本、自动贴附和 owner/controller 边界；P4.58 只把《取放自如》武装贴附/卸除作为代表路径纳入 P4，不泛化完整装备系统
 - 绝念和其他离场触发队列
 
@@ -1098,14 +1108,15 @@ Prompt-to-artifact checklist：
 | P4.68 completion audit + 待命 REVEAL_CARD command 前置模型 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `RevealCardCommand`、JSON mapper 支持和安全协议边界，P4.71 后已在该 envelope 上接入 `STANDBY_REVEAL` 最小显露。 |
 | P4.69 completion audit + 正面朝下 snapshot redaction | Done | 100% | 审计确认 P4 仍不能标记 goal complete；对手视角的正面朝下对象只暴露 `objectId` / `isFaceDown`，不泄漏战力、标签或费用；拥有者视角仍可见完整状态。 |
 | P4.70 completion audit + 待命 HIDE_CARD 最小放置执行 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；`HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_A"]` 支付 1 mana、把待命单位手牌放到基地并设为正面朝下，事件和对手 snapshot 不泄漏卡面信息。 |
-| P4.71 completion audit + 待命 REVEAL_CARD 最小显露执行 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；`REVEAL_CARD mode=STANDBY_REVEAL destination=BASE optionalCosts=["STANDBY_REVEAL_0"]` 把基地正面朝下待命单位翻为公开，反应打出和目标结算仍 deferred。 |
-| P4.72 completion audit + 游击战免费待命暗置权限 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；《游击战》结算后授予 `FREE_STANDBY_HIDE:{playerId}` 本回合效果，`HIDE_CARD optionalCosts=["STANDBY_FREE"]` 在该效果存在时支付 0 点费用并复用最小待命暗置路径；待命反应打出/触发/完整隐藏区仍 deferred。 |
+| P4.71 completion audit + 待命 REVEAL_CARD 最小显露执行 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；`REVEAL_CARD mode=STANDBY_REVEAL destination=BASE optionalCosts=["STANDBY_REVEAL_0"]` 把基地正面朝下待命单位翻为公开，目标结算仍 deferred。 |
+| P4.72 completion audit + 游击战免费待命暗置权限 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；《游击战》结算后授予 `FREE_STANDBY_HIDE:{playerId}` 本回合效果，`HIDE_CARD optionalCosts=["STANDBY_FREE"]` 在该效果存在时支付 0 点费用并复用最小待命暗置路径；待命触发/完整隐藏区仍 deferred。 |
 | P4.73 completion audit + 蔚激活技能最小入栈执行 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《蔚》`PAY_2_RED_DOUBLE_POWER` 无目标付费技能入栈/结算 fixture、正向入栈测试、目标拒绝测试和资源不足拒绝测试，技能目标税/通用技能仍 deferred。 |
 | P4.74 completion audit + 场上对象 cardNo 身份边界 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `CardObjectState.CardNo`、fixture 读写/断言、打出/暗置/显露源牌身份保存，以及《蔚》技能非《蔚》来源拒绝和先打出后激活 fixture。 |
 | P4.75 completion audit + 目标覆盖审计测试 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `P4ObjectiveNamedSurfacesHaveRepresentativeCoverage`，把目标中 33 个显式关键词/基础动作 surface 映射到现有 profile、primitive、delegated P2 或代表执行证据。 |
-| P4.76 next low-risk gap | Pending | 0% | 基于 P4.75 audit 继续选择低风险可验证小批次；优先从技能目标税最小边界、待命触发前置、基础动作 delegation 断言或剩余可审计资源边界中选一项，仍不进入 P5/P6/P7。 |
+| P4.76 completion audit + 待命反应入栈执行 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `STANDBY_REACTION` / `STACK` 无目标 0 费用反应入栈路径、正向/拒绝 engine tests 和 `p4-reveal-card-standby-reaction-stack` fixture，待命触发/完整隐藏区/目标伤害仍 deferred。 |
+| P4.77 next low-risk gap | Pending | 0% | 基于 P4.76 audit 继续选择低风险可验证小批次；优先从技能目标税最小边界、待命触发前置、基础动作 delegation 断言或剩余可审计资源边界中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `76/77 = 98.7%`。已完成 P4.1-P4.75：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露和《游击战》`STANDBY_FREE` 免费暗置权限、`PLAY_CARD mode=AMBUSH` 目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命反应打出/触发/完整隐藏区、伏击真实反应战场打出、技能目标税执行、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `77/78 = 98.7%`。已完成 P4.1-P4.76：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈和《游击战》`STANDBY_FREE` 免费暗置权限、`PLAY_CARD mode=AMBUSH` 目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、技能目标税执行、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -1120,15 +1131,16 @@ P4 当前整体进度：按当前 part 计 `76/77 = 98.7%`。已完成 P4.1-P4.7
 
 ## Latest Validation
 
-P4.75 已完成验证：
+P4.76 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1830/1830
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1749/1749
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1832/1832
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1751/1751
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ObjectiveNamedSurfacesHaveRepresentativeCoverage"`：pass，1/1
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4RevealCardCommand"`：pass，3/3
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen"`：pass，7/7
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.76：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：技能目标税执行、待命反应打出/触发/完整隐藏区、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.77：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：技能目标税执行、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
