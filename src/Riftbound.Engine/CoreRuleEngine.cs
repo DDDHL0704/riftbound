@@ -22,6 +22,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ViDoublePowerAbilityEffectKind = "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN";
     private const int ViDoublePowerAbilityManaCost = 2;
     private const int ViDoublePowerAbilityPowerCost = 1;
+    private const string XerathCardNo = "UNL-026/219";
+    private const string XerathDamageAbilityId = "PAY_RED_EXHAUST_DAMAGE_3";
+    private const string XerathDamageAbilityEffectKind = "XERATH_PAY_RED_EXHAUST_DAMAGE_3";
+    private const int XerathDamageAbilityPowerCost = 1;
+    private const int XerathDamageAbilityDamageAmount = 3;
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -327,6 +332,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         ActivateAbilityCommand command)
     {
+        if (string.Equals(command.AbilityId, XerathDamageAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveXerathDamageAbility(state, intent, command);
+        }
+
         if (!string.Equals(command.AbilityId, ViDoublePowerAbilityId, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
@@ -442,6 +452,180 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveXerathDamageAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ACTIVATE_ABILITY is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Xerath's P4 damage ability does not accept optional costs.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (command.TargetObjectIds.Count != 1)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Xerath's P4 damage ability requires exactly one unit target.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!IsControlledBattlefieldObject(state, intent.PlayerId, command.SourceObjectId)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Xerath's P4 damage ability source must be a controlled battlefield unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, XerathCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Ability source does not expose Xerath's P4 damage ability.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Xerath's P4 damage ability source must be active.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var targetObjectId = command.TargetObjectIds[0];
+        if (!IsFieldObject(state.PlayerZones, targetObjectId)
+            || !CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Xerath's P4 damage ability target must be a field unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
+            state,
+            intent.PlayerId,
+            command.TargetObjectIds,
+            out var spellshieldTaxTargetObjectIds);
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < spellshieldTaxMana
+            || currentPool.Power < XerathDamageAbilityPowerCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Not enough resources to activate Xerath's damage ability.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            spellshieldTaxMana,
+            XerathDamageAbilityPowerCost);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true
+        };
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
+            intent.PlayerId,
+            command.SourceObjectId,
+            XerathDamageAbilityEffectKind,
+            XerathCardNo,
+            command.TargetObjectIds,
+            XerathDamageAbilityDamageAmount,
+            1,
+            []);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            CardObjects = cardObjects,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活泽拉斯的技能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["effectKind"] = XerathDamageAbilityEffectKind,
+                    ["targetObjectIds"] = command.TargetObjectIds.ToArray()
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付泽拉斯技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = spellshieldTaxMana,
+                    ["power"] = XerathDamageAbilityPowerCost,
+                    ["abilityId"] = command.AbilityId,
+                    ["spellshieldTaxMana"] = spellshieldTaxMana,
+                    ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                "泽拉斯横置支付技能费用",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["wasExhausted"] = sourceState.IsExhausted,
+                    ["isExhausted"] = true
+                }),
+            new(
+                "STACK_ITEM_ADDED",
+                "泽拉斯的技能加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["abilityId"] = command.AbilityId,
+                    ["damageAmount"] = stackItem.DamageAmount
                 })
         };
 
@@ -1915,6 +2099,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
+        return ResolveSpellshieldTargetTaxMana(
+            state,
+            playerId,
+            targetObjectIds,
+            out spellshieldTaxTargetObjectIds);
+    }
+
+    private static int ResolveSpellshieldTargetTaxMana(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> targetObjectIds,
+        out IReadOnlyList<string> spellshieldTaxTargetObjectIds)
+    {
+        spellshieldTaxTargetObjectIds = [];
+        if (targetObjectIds.Count == 0)
+        {
+            return 0;
+        }
+
         var taxedTargetObjectIds = new List<string>();
         var taxMana = 0;
         foreach (var targetObjectId in targetObjectIds)
@@ -2837,6 +3040,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(stackItem.EffectKind, ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
+        }
+
+        if (string.Equals(stackItem.EffectKind, XerathDamageAbilityEffectKind, StringComparison.Ordinal))
+        {
+            return ResolveXerathDamageAbilityStackItem(state, stackItem);
         }
 
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
@@ -4712,6 +4920,57 @@ public sealed class CoreRuleEngine : IRuleEngine
             null,
             events,
             [],
+            null,
+            [],
+            null,
+            state.RngCursor);
+    }
+
+    private static StackResolutionResult ResolveXerathDamageAbilityStackItem(
+        MatchState state,
+        StackItemState stackItem)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        var destroyedUnitOwnerIds = new List<string>();
+        var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var targetObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(targetObjectId)
+            && IsFieldObject(playerZones, targetObjectId)
+            && CardObjectHasTag(cardObjects, targetObjectId, CardObjectTags.UnitCard))
+        {
+            var damageAmount = stackItem.DamageAmount > 0
+                ? stackItem.DamageAmount
+                : XerathDamageAbilityDamageAmount;
+            var damageApplication = ApplyDamageToCardObject(
+                cardObjects,
+                targetObjectId,
+                damageAmount,
+                damageTriggeredDestroyTargetObjectIds);
+            events.Add(new GameEvent(
+                "DAMAGE_APPLIED",
+                "泽拉斯的技能造成 3 点伤害",
+                BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
+
+            var lethalCleanup = ApplyLethalDamageCleanup(
+                playerZones,
+                cardObjects,
+                stackItem,
+                damageTriggeredDestroyTargetObjectIds);
+            events.AddRange(lethalCleanup.Events);
+            destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
+        }
+
+        return new StackResolutionResult(
+            playerZones,
+            cardObjects,
+            state.PlayerScores,
+            NormalizeExperienceForSeats(state),
+            state.UntilEndOfTurnEffects,
+            null,
+            events,
+            destroyedUnitOwnerIds,
             null,
             [],
             null,
