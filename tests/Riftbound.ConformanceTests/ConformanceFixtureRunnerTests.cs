@@ -5546,6 +5546,28 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Fact]
+    public async Task P4ScryingShellPredictOutsideTopCardRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-scrying-shell-predict-outside-top-card-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-SCRYING-SHELL"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-SCRYING-SHELL-TOP-001", "P1-SCRYING-SHELL-SECOND-001"],
+            result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-unl-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-UNL-BABBLING-PORO", "P1-UNL-BABBLING-PORO-KEEP-001", "P1-UNL-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
     [InlineData("p2-preflight-play-babbling-poro-predict-recycle.fixture.json", "P1-UNIT-BABBLING-PORO", "P1-BABBLING-PORO-KEEP-001", "P1-BABBLING-PORO-RECYCLE-001", 2, "CARD_TYPE:UNIT|预知|魄罗")]
@@ -20366,6 +20388,7 @@ public sealed class ConformanceFixtureRunnerTests
     [Theory]
     [InlineData("p4-ephemeral-destroys-controlled-objects-turn-start.fixture.json")]
     [InlineData("p2-preflight-play-scrying-shell-equipment-predict-recycle.fixture.json")]
+    [InlineData("p4-scrying-shell-predict-outside-top-card-rejected.fixture.json")]
     [InlineData("p2-preflight-play-ogn-kogmaw-last-breath-static.fixture.json")]
     public async Task P4LifecycleKeywordProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
