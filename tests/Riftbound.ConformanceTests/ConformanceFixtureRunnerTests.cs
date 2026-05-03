@@ -20171,6 +20171,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-command-premodel-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Null(result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandIsExplicitlyRejectedUntilCombatSystemExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -20279,6 +20299,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sentinel-adept-no-optional-assemble.fixture.json")]
     [InlineData("p2-preflight-play-stout-poro-no-optional-assemble.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
+    [InlineData("p4-assemble-equipment-command-premodel-rejected.fixture.json")]
     public async Task P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(

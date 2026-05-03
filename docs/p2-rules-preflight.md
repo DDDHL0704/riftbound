@@ -2365,7 +2365,7 @@ P4 延展 3. 已完成：新增 `PLAY_CARD` 伏击目的地前置模型，服务
 
 P4 延展 4. 已完成：新增 `MOVE_UNIT` command 前置模型，服务端协议能解析 `sourceObjectId` / `origin` / `destination` / `optionalCosts`，但 `CoreRuleEngine` 在多战场位置、移动权限、游走合法性和移动触发模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；P4.98 已把该显式拒绝边界提升为 conformance fixture；`SFD·235/221 亚索` 这类“游走”文本仍暂缓真实跨战场移动和单回合移动次数得分。
 
-P4 延展 5. 已完成：新增 `ASSEMBLE_EQUIPMENT` command 前置模型，服务端协议能解析 `sourceObjectId` / `targetObjectId` / `optionalCosts`，但 `CoreRuleEngine` 在装配费用、灵便自动贴附、百炼 optional attach、owner/controller 与装备未激活文本模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`SFD·022/221 长剑` 这类“灵便/装配”文本仍暂缓真实装备贴附执行。
+P4 延展 5. 已完成：新增 `ASSEMBLE_EQUIPMENT` command 前置模型，服务端协议能解析 `sourceObjectId` / `targetObjectId` / `optionalCosts`，但 `CoreRuleEngine` 在装配费用、灵便自动贴附、百炼 optional attach、owner/controller 与装备未激活文本模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；P4.99 已把该显式拒绝边界提升为 conformance fixture；`SFD·022/221 长剑` 这类“灵便/装配”文本仍暂缓真实装备贴附执行。
 
 P4 延展 6. 已完成：新增 `DECLARE_BATTLE` command 前置模型，服务端协议能解析 `battlefieldId` / `attackerObjectIds` / `defenderObjectIds` / `optionalCosts`，但 `CoreRuleEngine` 在多战场位置、进攻/防守声明、强攻/坚守修正、壁垒/后排承伤顺序和战斗结算模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`OGS·007/024 盖伦` 与 `UNL-036/219 变异猫咪` 这类战斗关键词文本仍暂缓真实开战执行。
 
@@ -2428,6 +2428,8 @@ P4 延展 34. 已完成：新增待命 `HIDE_CARD` 免费暗置无权限拒绝 f
 P4 延展 35. 已完成：新增伏击 `PLAY_CARD` 前置模型拒绝 fixture。`PLAY_CARD mode=AMBUSH destination=BATTLEFIELD:P1-MAIN` 当前仍需要后续反应窗口、战场目的地合法性和单位打出至战场模型；在这些系统未完成前命令被显式拒绝，tick、事件、费用、手牌、战场和结算链均不改变。P4.97 同时把该 fixture 纳入互动关键词聚合回放。
 
 P4 延展 36. 已完成：新增游走 `MOVE_UNIT` 前置模型拒绝 fixture。`MOVE_UNIT origin=BATTLEFIELD:P1-LEFT destination=BATTLEFIELD:P1-RIGHT optionalCosts=["ROAM"]` 当前仍需要后续多战场位置、移动权限、游走合法性和移动触发模型；在这些系统未完成前命令被显式拒绝，tick、事件、费用、战场对象、战力和结算链均不改变。P4.98 同时把该 fixture 纳入战斗关键词和基础动作聚合回放。
+
+P4 延展 37. 已完成：新增装配 `ASSEMBLE_EQUIPMENT` 前置模型拒绝 fixture。`ASSEMBLE_EQUIPMENT sourceObjectId=P1-EQUIPMENT-LONG-SWORD targetObjectId=P1-UNIT-ASSEMBLE-TARGET optionalCosts=["ASSEMBLE_RED"]` 当前仍需要后续装配费用、灵便自动贴附、百炼 optional attach、owner/controller 和装备未激活文本模型；在这些系统未完成前命令被显式拒绝，tick、事件、费用、基地对象、`attachedToObjectId` 和结算链均不改变。P4.99 同时把该 fixture 纳入装备关键词聚合回放。
 
 ## 7. 暂缓项
 
