@@ -17706,6 +17706,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-activate-xerath-damage-skill-non-xerath-source-rejected.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-non-unit-target-rejected.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-source-not-battlefield-rejected.fixture.json")]
+    [InlineData("p4-activate-xerath-damage-skill-opponent-source-rejected.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -18937,6 +18938,57 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillFromOpponentSource()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-XERATH", "P2-UNIT-001"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-XERATH"] = new(
+                    "P2-UNIT-XERATH",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-026/219"),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-xerath-opponent-source", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P2-UNIT-XERATH",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
+        Assert.False(result.State.CardObjects["P2-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.State.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillWhenSpellshieldTaxManaIsMissing()
     {
         var state = PunishmentState(mana: 0) with
@@ -19162,6 +19214,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.Tick);
         Assert.Equal(new RunePool(1, 1), result.FinalState.RunePools["P1"]);
         Assert.False(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillOpponentSourceFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-xerath-damage-skill-opponent-source-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(1, 1), result.FinalState.RunePools["P1"]);
+        Assert.False(result.FinalState.CardObjects["P2-UNIT-XERATH"].IsExhausted);
         Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
         Assert.Empty(result.FinalState.StackItems);
     }
