@@ -12,7 +12,7 @@
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
-- P4 已进入高频关键词与基础卡牌小批次：P4.1-P4.86 已完成 template delegation/primitive plan、权限关键词代表时机、`瞬息` 到期、`回响` mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标/额外费用/非泽拉斯来源/非单位目标/来源不在战场/对手控制来源拒绝、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、待命 `STANDBY_REACTION` 入栈代表路径和《游击战》`STANDBY_FREE` 免费待命暗置代表路径、`PLAY_CARD` 伏击目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条 `HASTE_READY` 急速代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式目标 surface 的 baseline 覆盖审计；当前只接入已验证的小批次可玩路径，完整战斗、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼和复杂触发仍 deferred。
+- P4 已进入高频关键词与基础卡牌小批次：P4.1-P4.87 已完成 template delegation/primitive plan、权限关键词代表时机、`瞬息` 到期、`回响` mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径和对手控制来源拒绝、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标/额外费用/非泽拉斯来源/非单位目标/来源不在战场/对手控制来源拒绝、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、待命 `STANDBY_REACTION` 入栈代表路径和《游击战》`STANDBY_FREE` 免费待命暗置代表路径、`PLAY_CARD` 伏击目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条 `HASTE_READY` 急速代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式目标 surface 的 baseline 覆盖审计；当前只接入已验证的小批次可玩路径，完整战斗、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼和复杂触发仍 deferred。
 
 ## 新窗口接手
 
@@ -84,7 +84,7 @@ npm run dev
 
 核心计划文档：
 
-- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.86 完成状态和下一批计划。
+- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.87 完成状态和下一批计划。
 - `docs/CURRENT_P3_STATUS.md`：当前短交接，记录 P3 卡牌数据、BehaviorSpec、解析管线、模板骨架和验证状态。
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
 - `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。
