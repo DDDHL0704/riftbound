@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-existential-dread-friendly-attacking-target-rejected",
+  "description": "P4 rejects Existential Dread when the attacking target is friendly instead of enemy.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304121,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-134/219 存在焦虑",
+      "note": "官方卡面：费用 1；迅捷；回响2；眩晕一名正在进攻的敌方单位。如果它已经被眩晕，则改为让该单位返回其所属的手牌。当前 fixture 选择正在进攻的友方单位，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "法术结算和回响重复效果必须建立在合法目标上；目标不满足敌方单位要求时应在支付费用、入栈和状态变化前拒绝。"
+    }
+  ],
+  "roomId": "p4-existential-dread-friendly-attacking-target-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304121,
+    "turnNumber": 121,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-EXISTENTIAL-DREAD"],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BATTLEFIELD-UNIT-001": {
+        "damage": 0,
+        "power": 3,
+        "isAttacking": true,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-existential-dread-friendly-attacking-target-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-EXISTENTIAL-DREAD",
+        "cardNo": "UNL-134/219",
+        "targetObjectIds": ["P1-BATTLEFIELD-UNIT-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 121,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 1, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-SPELL-EXISTENTIAL-DREAD"],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-UNIT-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-BATTLEFIELD-UNIT-001": {
+          "damage": 0,
+          "power": 3,
+          "isAttacking": true,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

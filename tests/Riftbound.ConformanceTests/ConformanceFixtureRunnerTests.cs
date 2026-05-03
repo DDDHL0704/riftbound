@@ -15122,6 +15122,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ExistentialDreadFriendlyAttackingTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-existential-dread-friendly-attacking-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(1, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-EXISTENTIAL-DREAD"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].IsAttacking);
+        Assert.Empty(result.FinalState.CardObjects["P1-BATTLEFIELD-UNIT-001"].UntilEndOfTurnEffects);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsThunderingSkyWithoutEnoughReducedCost()
     {
         var state = PunishmentState(mana: 5) with
@@ -20815,6 +20837,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-premodel-rejected.fixture.json")]
+    [InlineData("p4-play-existential-dread-friendly-attacking-target-rejected.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
     [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json")]
