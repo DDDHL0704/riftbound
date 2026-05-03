@@ -71,7 +71,7 @@ seed + initial setup + command log
 - `ASSEMBLE_EQUIPMENT` payload 支持 `sourceObjectId`、`targetObjectId` 和 `optionalCosts`；P4.66 只锁定装备装配 command envelope，Core 仍显式拒绝真实装配/贴附执行。
 - `DECLARE_BATTLE` payload 支持 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds` 和 `optionalCosts`；P4.67 只锁定战斗声明 command envelope，Core 仍显式拒绝真实开战/承伤执行。
 - `HIDE_CARD` payload 支持 `sourceObjectId`、`cardNo`、`destination` 和 `optionalCosts`；P4.70 只执行 `destination = "STANDBY"` 且 `optionalCosts = ["STANDBY_A"]` 的待命单位手牌放置路径：支付 1 点费用、把来源牌移入控制者基地并设为 `isFaceDown = true`，公开事件不携带 `cardNo`、`power`、`tags` 或 `manaCost`。
-- `REVEAL_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.68 只锁定待命翻开/显露 command envelope，Core 仍显式拒绝真实隐藏信息和翻开打出执行。
+- `REVEAL_CARD` payload 支持 `sourceObjectId`、`cardNo`、`targetObjectIds`、`mode`、`optionalCosts` 和 `destination`；P4.71 只执行 `mode = "STANDBY_REVEAL"`、`destination = "BASE"`、`optionalCosts = ["STANDBY_REVEAL_0"]` 且无目标的待命基地显露路径，把已有正面朝下对象翻为公开状态；`mode = "STANDBY_REACTION"` / `destination = "STACK"` 的真实反应打出仍显式拒绝。
 - Snapshot 对手视角下的正面朝下对象只暴露 `objectId` 与 `isFaceDown = true`；P4.69 不暴露其 `power`、`tags`、`manaCost` 等卡面/规则细节，拥有者视角仍保留完整对象信息。
 
 现有 fixture 不在本格式文档逐条维护，避免每新增卡牌都同步长清单。需要查找样例时：

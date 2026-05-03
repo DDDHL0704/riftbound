@@ -9,6 +9,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
     private const int StandbyHideManaCost = 1;
+    private const string StandbyRevealMode = "STANDBY_REVEAL";
+    private const string StandbyRevealDestination = "BASE";
+    private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -61,12 +64,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveHideCard(state, intent, hideCardCommand));
         }
 
-        if (command is RevealCardCommand)
+        if (command is RevealCardCommand revealCardCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
-                state,
-                "REVEAL_CARD is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand));
+            return ValueTask.FromResult(ResolveRevealCard(state, intent, revealCardCommand));
         }
 
         if (command is MoveUnitCommand)
@@ -442,6 +442,122 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["destination"] = destination,
                     ["destinationZone"] = "BASE",
                     ["isFaceDown"] = true
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveRevealCard(
+        MatchState state,
+        PlayerIntent intent,
+        RevealCardCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "REVEAL_CARD is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Unsupported standby reveal card behavior: {command.CardNo}",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card is not in the player's base.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var mode = string.IsNullOrWhiteSpace(command.Mode) ? StandbyRevealMode : command.Mode.Trim();
+        var destination = string.IsNullOrWhiteSpace(command.Destination)
+            ? StandbyRevealDestination
+            : command.Destination.Trim();
+        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!string.Equals(mode, StandbyRevealMode, StringComparison.Ordinal)
+            || !string.Equals(destination, StandbyRevealDestination, StringComparison.Ordinal)
+            || targetObjectIds.Count != 0
+            || optionalCosts.Count != 1
+            || !string.Equals(optionalCosts[0], StandbyRevealOptionalCost, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Unsupported standby reveal mode for {behavior.DisplayName}.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.IsFaceDown)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card is not face down.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var revealedTags = sourceState.Tags
+            .Concat([CardObjectTags.UnitCard])
+            .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+        if (!revealedTags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} does not expose the Standby keyword for REVEAL_CARD.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsFaceDown = false,
+            Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : sourceState.Power,
+            Tags = revealedTags,
+            ManaCost = behavior.ManaCost
+        };
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            CardObjects = cardObjects,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "CARD_REVEALED",
+                $"{intent.PlayerId} 翻开一张待命牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = command.CardNo,
+                    ["mode"] = mode,
+                    ["destination"] = destination,
+                    ["optionalCosts"] = optionalCosts.ToArray(),
+                    ["isFaceDown"] = false
                 })
         };
 

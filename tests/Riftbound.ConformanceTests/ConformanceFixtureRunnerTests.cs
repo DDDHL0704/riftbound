@@ -18315,7 +18315,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4RevealCardCommandIsExplicitlyRejectedUntilStandbyRevealExists()
+    public async Task P4RevealCardCommandRevealsStandbyCardInBase()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -18346,7 +18346,80 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-p4-reveal-card-premodel", "P1", "REVEAL_CARD"),
+            new PlayerIntent("intent-p4-reveal-card-base", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-OGN-TEEMO",
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REVEAL",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "BASE"),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+        var revealedCard = result.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"];
+        Assert.False(revealedCard.IsFaceDown);
+        Assert.Equal(2, revealedCard.Power);
+        Assert.Equal(2, revealedCard.ManaCost);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], revealedCard.Tags);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Empty(result.State.StackItems);
+
+        var revealEvent = Assert.Single(result.Events);
+        Assert.Equal("CARD_REVEALED", revealEvent.Kind);
+        Assert.Equal("OGN·121/298", revealEvent.Payload["cardNo"]);
+        Assert.False(Assert.IsType<bool>(revealEvent.Payload["isFaceDown"]));
+
+        var p2Snapshot = result.Snapshots["P2"];
+        var p1ViewForP2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P1"]);
+        var p1ObjectsForP2 = Assert.IsType<Dictionary<string, object?>>(p1ViewForP2["objects"]);
+        var revealedObject = Assert.IsType<Dictionary<string, object?>>(p1ObjectsForP2["P1-FACEDOWN-OGN-TEEMO"]);
+        Assert.Equal(2, Assert.IsType<int>(revealedObject["power"]));
+        Assert.Equal(2, Assert.IsType<int>(revealedObject["manaCost"]));
+        Assert.False(Assert.IsType<bool>(revealedObject["isFaceDown"]));
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(revealedObject["tags"]));
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandRejectsReactionPlayUntilStandbyStackExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO"] = new(
+                    "P1-FACEDOWN-OGN-TEEMO",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"]),
+                ["P2-BATTLEFIELD-UNIT-001"] = new(
+                    "P2-BATTLEFIELD-UNIT-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-reaction-deferred", "P1", "REVEAL_CARD"),
             new RevealCardCommand(
                 "P1-FACEDOWN-OGN-TEEMO",
                 "OGN·121/298",
@@ -18357,8 +18430,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("REVEAL_CARD is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -18675,6 +18747,7 @@ public sealed class ConformanceFixtureRunnerTests
 
     [Theory]
     [InlineData("p4-hide-card-standby-face-down.fixture.json")]
+    [InlineData("p4-reveal-card-standby-base.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
     [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json")]
