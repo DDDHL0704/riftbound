@@ -17696,6 +17696,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-spirit-fire-multiple-spellshield-tax.fixture.json")]
     [InlineData("p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill.fixture.json")]
+    [InlineData("p4-activate-vi-double-power-skill-target-rejected.fixture.json")]
     [InlineData("p4-play-then-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-opponent-source-rejected.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json")]
@@ -18512,6 +18513,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("UNL-030/219", result.FinalState.CardObjects["P1-UNIT-VI"].CardNo);
         Assert.Equal(6, result.FinalState.CardObjects["P1-UNIT-VI"].Power);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-VI"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillTargetFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-vi-double-power-skill-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 1), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Fact]

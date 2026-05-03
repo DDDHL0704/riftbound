@@ -116,7 +116,8 @@
 - P4.85 提交：`0db3535 test: add p4 xerath source zone rejection`
 - P4.86 提交：`71bd409 test: add p4 xerath opponent source rejection`
 - P4.87 提交：`75a11c1 test: add p4 vi opponent source rejection`
-- P4.88 提交：本提交 `test: add p4 vi source zone rejection`
+- P4.88 提交：`413660e test: add p4 vi source zone rejection`
+- P4.89 提交：本提交 `test: add p4 vi target rejection fixture`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -257,6 +258,8 @@ P4.87 更新：Resource keywords 行在 P4.86 基础上追加 `P4ActivateAbility
 
 P4.88 更新：Resource keywords 行在 P4.87 基础上追加 `P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenSourceIsNotField`、`P4ActivateAbilityCommandRejectsViDoublePowerSkillSourceNotFieldFixture` 和 `p4-activate-vi-double-power-skill-source-not-field-rejected`，只锁定《蔚》技能来源仍在手牌、未进入场上时拒绝且不改状态；同时把该 fixture 加入 `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 聚合回放。
 
+P4.89 更新：Resource keywords 行在 P4.88 基础上追加 `P4ActivateAbilityCommandRejectsViDoublePowerSkillTargetFixture` 和 `p4-activate-vi-double-power-skill-target-rejected`，把已有直接测试覆盖的《蔚》无目标技能携带目标拒绝边界纳入 conformance fixture 和资源关键词聚合回放。
+
 ## P4.2 Permission Keyword Batch
 
 本阶段完成权限关键词的最小规则化模型，保持小批次接入：
@@ -351,7 +354,7 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors`、`P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated`、`P4MoveUnitCommandIsExplicitlyRejectedUntilRoamMovementExists`、`GameCommandMapperParsesMoveUnitPayload`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.65 已建立显式 `MOVE_UNIT` command envelope 但仍拒绝执行；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.88 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.89 once committed. |
 
 P4.80 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 锁定《泽拉斯》带目标技能缺少“一名单位”目标时拒绝且不改状态。
 
@@ -368,6 +371,8 @@ P4.85 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenSource
 P4.87 追加证据：`P4ActivateAbilityCommandRejectsViDoublePowerSkillFromOpponentSource`、`P4ActivateAbilityCommandRejectsViDoublePowerSkillOpponentSourceFixture` 和 `p4-activate-vi-double-power-skill-opponent-source-rejected.fixture.json` 锁定《蔚》技能来源由对手控制时拒绝且不改状态；同批次把该 fixture 纳入 `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 聚合回放。
 
 P4.88 追加证据：`P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenSourceIsNotField`、`P4ActivateAbilityCommandRejectsViDoublePowerSkillSourceNotFieldFixture` 和 `p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json` 锁定《蔚》技能来源不在场上时拒绝且不改状态；同批次把该 fixture 纳入 `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 聚合回放。
+
+P4.89 追加证据：`P4ActivateAbilityCommandRejectsViDoublePowerSkillTargetFixture` 和 `p4-activate-vi-double-power-skill-target-rejected.fixture.json` 锁定《蔚》无目标技能携带目标时拒绝且不改状态；同批次把该 fixture 纳入 `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 聚合回放。
 
 P4.9 新增内容：
 
@@ -1153,6 +1158,14 @@ Prompt-to-artifact checklist：
 - 新增 fixture `p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json` 和回放测试 `P4ActivateAbilityCommandRejectsViDoublePowerSkillSourceNotFieldFixture`，把该拒绝边界纳入 conformance 证据。
 - `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 现在实际回放《蔚》来源不在场上拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，也不扩展通用 skill registry。
 
+## P4.89 Vi Target Rejection Fixture Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.73 已有直接 engine 测试覆盖《蔚》无目标技能携带目标时拒绝，本批次只把该边界提升为可回放 fixture。
+
+- `ACTIVATE_ABILITY abilityId = PAY_2_RED_DOUBLE_POWER` 若携带任何目标，会返回 `INVALID_TARGET`，不推进 tick、不写事件、不支付资源、不修改来源或目标，也不创建 stack item。
+- 新增 fixture `p4-activate-vi-double-power-skill-target-rejected.fixture.json` 和回放测试 `P4ActivateAbilityCommandRejectsViDoublePowerSkillTargetFixture`，把无目标技能的目标拒绝边界纳入 conformance 证据。
+- `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 现在实际回放《蔚》带目标拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，也不扩展通用 skill registry。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -1280,9 +1293,10 @@ Prompt-to-artifact checklist：
 | P4.86 completion audit + 泽拉斯对手控制来源拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能来源由对手控制时拒绝且不推进 tick/事件/资源/横置/目标伤害/stack 的直接测试和 fixture，并把 P4.79-P4.86 拒绝 fixtures 纳入资源关键词聚合回放；仍不进入通用技能 registry。 |
 | P4.87 completion audit + 蔚对手控制来源拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《蔚》无目标付费技能来源由对手控制时拒绝且不推进 tick/事件/资源/战力/stack 的直接测试和 fixture，并把该 fixture 纳入资源关键词聚合回放；仍不进入通用技能 registry。 |
 | P4.88 completion audit + 蔚来源区域拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《蔚》无目标付费技能来源仍在手牌、未进入场上时拒绝且不推进 tick/事件/资源/战力/stack 的直接测试和 fixture，并把该 fixture 纳入资源关键词聚合回放；仍不进入通用技能 registry。 |
-| P4.89 next low-risk gap | Pending | 0% | 基于 P4.88 audit 继续选择低风险可验证小批次；优先从待命触发前置、基础动作 delegation 断言、剩余资源边界或更小的技能/法盾边界中选一项，仍不进入 P5/P6/P7。 |
+| P4.89 completion audit + 蔚带目标拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《蔚》无目标付费技能携带目标时拒绝且不推进 tick/事件/资源/战力/目标/stack 的 fixture，并把该 fixture 纳入资源关键词聚合回放；仍不进入通用技能 registry。 |
+| P4.90 next low-risk gap | Pending | 0% | 基于 P4.89 audit 继续选择低风险可验证小批次；优先从待命触发前置、基础动作 delegation 断言、剩余资源边界或更小的技能/法盾边界中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `89/90 = 98.9%`。已完成 P4.1-P4.88：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、对手控制来源拒绝与来源不在场上拒绝、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标/额外费用/非《泽拉斯》来源/非单位目标/来源不在战场拒绝、对手控制来源拒绝和 P4.79-P4.86 拒绝聚合回放、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈和《游击战》`STANDBY_FREE` 免费暗置权限、`PLAY_CARD mode=AMBUSH` 目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `90/91 = 98.9%`。已完成 P4.1-P4.89：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、带目标拒绝、对手控制来源拒绝与来源不在场上拒绝、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标/额外费用/非《泽拉斯》来源/非单位目标/来源不在战场拒绝、对手控制来源拒绝和 P4.79-P4.86 拒绝聚合回放、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈和《游击战》`STANDBY_FREE` 免费暗置权限、`PLAY_CARD mode=AMBUSH` 目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -1297,16 +1311,16 @@ P4 当前整体进度：按当前 part 计 `89/90 = 98.9%`。已完成 P4.1-P4.8
 
 ## Latest Validation
 
-P4.88 已完成验证：
+P4.89 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1869/1869
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1788/1788
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1871/1871
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1790/1790
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivateAbilityCommand"`：pass，31/31
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，34/34
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivateAbilityCommand"`：pass，32/32
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，35/35
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.89：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.90：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
