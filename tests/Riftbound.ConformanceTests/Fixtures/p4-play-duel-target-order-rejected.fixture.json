@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-duel-target-order-rejected",
+  "description": "P4 rejects Duel when its enemy and friendly targets are provided in the wrong order.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304155,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·128/298 决斗",
+      "note": "官方卡面：费用 2；迅捷；选择任意一名友方和一名敌方单位，让这两名单位相互以自身战力给对方造成伤害。当前 fixture 先提供敌方单位、再提供友方单位，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p62-p63 rule 428; p92-p105 keyword rules 800+",
+      "note": "伤害记录到单位对象；伤害达到战力后按致命伤害摧毁；法术需要合法目标并作为结算链项目结算；迅捷只影响可打出窗口，不改变卡面目标顺序。目标顺序不满足友方单位、敌方单位时应在支付费用、入栈和状态变化前拒绝。"
+    }
+  ],
+  "roomId": "p4-duel-target-order-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304155,
+    "turnNumber": 155,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-DUEL"],
+        "base": [],
+        "battlefields": ["P1-UNIT-DUEL-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-DUEL-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-UNIT-DUEL-001": {
+        "damage": 0,
+        "power": 4,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      },
+      "P2-UNIT-DUEL-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-duel-target-order-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-DUEL",
+        "cardNo": "OGN·128/298",
+        "targetObjectIds": ["P2-UNIT-DUEL-001", "P1-UNIT-DUEL-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 155,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 2, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": ["P1-SPELL-DUEL"],
+          "base": [],
+          "battlefields": ["P1-UNIT-DUEL-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-UNIT-DUEL-001"],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-UNIT-DUEL-001": {
+          "damage": 0,
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        },
+        "P2-UNIT-DUEL-001": {
+          "damage": 0,
+          "power": 2,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
