@@ -14969,6 +14969,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4LastBreathTargetOrderRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-last-breath-target-order-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-LAST-BREATH"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-FRIENDLY-LAST-BREATH-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.True(result.FinalState.CardObjects["P1-FRIENDLY-LAST-BREATH-001"].IsExhausted);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-LAST-BREATH-001"].Damage);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsConvergentMutationAgainstEnemyOrDuplicateTarget()
     {
         var state = PunishmentState(mana: 2) with
@@ -20785,6 +20807,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-zenith-blade-base-unit-target-rejected.fixture.json")]
     [InlineData("p4-play-zenith-blade-friendly-target-rejected.fixture.json")]
     [InlineData("p4-play-last-breath-enemy-base-target-rejected.fixture.json")]
+    [InlineData("p4-play-last-breath-target-order-rejected.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
