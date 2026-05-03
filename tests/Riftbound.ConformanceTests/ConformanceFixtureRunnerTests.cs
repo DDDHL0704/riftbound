@@ -3116,6 +3116,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4GuerrillaWarfareNonStandbyTargetRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-guerrilla-warfare-non-standby-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-GUERRILLA-WARFARE"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GRAVE-NON-STANDBY-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCallOfTheShadowsGiveEphemeralDraw()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -20409,6 +20429,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-hide-card-standby-insufficient-cost-rejected.fixture.json")]
     [InlineData("p4-guerrilla-warfare-free-standby-hide.fixture.json")]
     [InlineData("p4-hide-card-standby-free-without-permission-rejected.fixture.json")]
+    [InlineData("p4-guerrilla-warfare-non-standby-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-base.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]
