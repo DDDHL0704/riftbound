@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-activate-xerath-damage-skill-missing-target-rejected",
+  "description": "P4 rejects Xerath's red-and-exhaust damage skill when no unit target is provided.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304080,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-026/219 泽拉斯",
+      "note": "官方卡面：费用 5；英雄单位；战力 5；支付红色并横置：对一名单位造成 3 点伤害；自身必须位于战场中才能使用此技能。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356",
+      "note": "激活技能需要按文本选择合法目标并支付费用；本 fixture 只覆盖未提供“一名单位”目标时拒绝激活。"
+    }
+  ],
+  "roomId": "p4-activate-xerath-missing-target-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304080,
+    "turnNumber": 80,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 1 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-UNIT-XERATH"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-UNIT-XERATH": {
+        "cardNo": "UNL-026/219",
+        "power": 5,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"],
+        "manaCost": 5
+      },
+      "P2-UNIT-001": {
+        "power": 5,
+        "damage": 0,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-xerath-missing-target-rejected",
+      "cmd": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "sourceObjectId": "P1-UNIT-XERATH",
+        "abilityId": "PAY_RED_EXHAUST_DAMAGE_3",
+        "targetObjectIds": [],
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 80,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 1 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-UNIT-XERATH"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-UNIT-001"],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-UNIT-XERATH": {
+          "cardNo": "UNL-026/219",
+          "power": 5,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"],
+          "manaCost": 5
+        },
+        "P2-UNIT-001": {
+          "power": 5,
+          "damage": 0,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
