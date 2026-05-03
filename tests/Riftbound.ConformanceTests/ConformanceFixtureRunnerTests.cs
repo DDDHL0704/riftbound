@@ -19720,6 +19720,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermissionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-hide-card-standby-free-without-permission-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandRevealsStandbyCardInBase()
     {
         var state = PunishmentState(mana: 0) with
@@ -20280,6 +20300,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-hide-card-standby-face-down.fixture.json")]
     [InlineData("p4-hide-card-standby-insufficient-cost-rejected.fixture.json")]
     [InlineData("p4-guerrilla-warfare-free-standby-hide.fixture.json")]
+    [InlineData("p4-hide-card-standby-free-without-permission-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-base.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]

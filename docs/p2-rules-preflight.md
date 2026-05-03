@@ -2375,7 +2375,7 @@ P4 延展 8. 已完成：新增对手正面朝下对象 snapshot redaction，服
 
 P4 延展 9. 已完成：新增待命 `HIDE_CARD` 最小正面朝下放置执行路径，以 `OGN·121/298 提莫` 为代表验证 P1 在己方 main/neutral open 且来源牌位于手牌时支付 1 点费用，将带 `待命` 标签的单位源牌移入控制者基地并设为 `IsFaceDown = true`；`CARD_HIDDEN` 公开事件不暴露 `cardNo` / `power` / `tags` / `manaCost`，对手 snapshot 继续只见 `objectId` 与 `isFaceDown`。P4.94 补同一路径费用不足拒绝 fixture，验证 mana 为 0 时命令被拒绝且 tick、事件、手牌、基地和结算链均不改变。本批次不实现 `REVEAL_CARD`、待命触发、战场目的地、装备/法术待命或完整隐藏区；P4.76 后已补无目标反应入栈。
 
-P4 延展 11. 已完成：新增《游击战》免费待命暗置权限执行切片。`OGN·264/298 游击战` 结算时在原有“最多两张待命牌从己方废牌堆返回手牌”后授予控制者 `FREE_STANDBY_HIDE:{playerId}` until-end-of-turn 效果；`HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_FREE"]` 在该效果存在时支付 0 点费用并复用 P4.70 的正面朝下基地放置和隐藏信息事件边界。权限到回合结束随全局 until-end effects 清理；待命翻开反应/触发/完整隐藏区仍暂缓。
+P4 延展 11. 已完成：新增《游击战》免费待命暗置权限执行切片。`OGN·264/298 游击战` 结算时在原有“最多两张待命牌从己方废牌堆返回手牌”后授予控制者 `FREE_STANDBY_HIDE:{playerId}` until-end-of-turn 效果；`HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_FREE"]` 在该效果存在时支付 0 点费用并复用 P4.70 的正面朝下基地放置和隐藏信息事件边界。P4.96 补没有该权限时 `STANDBY_FREE` 拒绝，避免绕过 `STANDBY_A` 费用；权限到回合结束随全局 until-end effects 清理；待命翻开反应/触发/完整隐藏区仍暂缓。
 
 P4 延展 10. 已完成：新增待命 `REVEAL_CARD` 最小基地显露执行路径，以 `OGN·121/298 提莫` 为代表验证已有正面朝下待命单位在控制者基地中支付 0 显露为公开状态，保留战力、标签和费用，公开 `CARD_REVEALED` 事件携带 `cardNo`，对手 snapshot 也可见完整对象信息。目标伤害、防守/待命触发、伏击共用隐藏信息和完整隐藏区仍暂缓。
 
@@ -2422,6 +2422,8 @@ P4 延展 31. 已完成：新增《泽拉斯》技能法盾目标税费用不足
 P4 延展 32. 已完成：新增待命 `HIDE_CARD` 费用不足拒绝 fixture。`HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_A"]` 需要支付 1 mana；P1 没有 mana 时命令被拒绝，tick、事件、手牌、基地和结算链均不改变，也不会创建正面朝下对象。P4.94 同时把该 fixture 纳入互动关键词聚合回放。
 
 P4 延展 33. 已完成：新增待命 `REVEAL_CARD` 反应入栈无优先权窗口拒绝 fixture。`REVEAL_CARD mode=STANDBY_REACTION destination=STACK optionalCosts=["STANDBY_REVEAL_0"]` 只能在控制者持有优先权且结算链存在待结算项目时执行；P1 处于 main/neutral open 时命令被拒绝，tick、事件、正面朝下状态、战场对象伤害和结算链均不改变。P4.95 同时把该 fixture 纳入互动关键词聚合回放。
+
+P4 延展 34. 已完成：新增待命 `HIDE_CARD` 免费暗置无权限拒绝 fixture。`HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_FREE"]` 需要《游击战》授予的 `FREE_STANDBY_HIDE:{playerId}` 本回合效果；没有该权限时命令被拒绝，tick、事件、手牌、基地和结算链均不改变，也不会创建正面朝下对象。P4.96 同时把该 fixture 纳入互动关键词聚合回放。
 
 ## 7. 暂缓项
 
