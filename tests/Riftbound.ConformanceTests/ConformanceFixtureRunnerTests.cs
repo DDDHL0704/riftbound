@@ -17661,6 +17661,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-declare-battle-command-premodel-rejected.fixture.json")]
     public async Task P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -20242,6 +20243,28 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].Power);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-command-premodel-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.False(result.FinalState.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Fact]
