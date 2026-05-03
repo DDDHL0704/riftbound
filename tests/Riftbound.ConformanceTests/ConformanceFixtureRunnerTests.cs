@@ -7049,6 +7049,31 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-OGN-POWER-SIGIL-BASE-UNIT-001");
 
     [Fact]
+    public async Task P4OgnPowerSigilTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-ogn-power-sigil-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-OGN-POWER-SIGIL-MAIN-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-EQUIPMENT-OGN-POWER-SIGIL"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-OGN-POWER-SIGIL-BASE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-OGN-POWER-SIGIL-BASE-UNIT-001"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-OGN-POWER-SIGIL-BASE-UNIT-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-OGN-POWER-SIGIL-BASE-UNIT-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public Task CoreRuleEnginePlaysOgnDiscordSigilEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-ogn-discord-sigil-equipment.fixture.json",
@@ -23160,6 +23185,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-ogn-rage-sigil-target-rejected.fixture.json")]
     [InlineData("p4-play-ogn-focus-sigil-target-rejected.fixture.json")]
     [InlineData("p4-play-ogn-insight-sigil-target-rejected.fixture.json")]
+    [InlineData("p4-play-ogn-power-sigil-target-rejected.fixture.json")]
     [InlineData("p4-play-marching-orders-enemy-base-target-rejected.fixture.json")]
     [InlineData("p4-play-duel-target-order-rejected.fixture.json")]
     [InlineData("p4-play-battle-command-target-order-rejected.fixture.json")]
