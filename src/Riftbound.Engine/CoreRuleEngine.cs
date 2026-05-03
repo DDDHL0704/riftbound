@@ -6,6 +6,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 {
     private const int WinningScore = 8;
     private const string AmbushPlayMode = "AMBUSH";
+    private const string StandbyHideDestination = "STANDBY";
+    private const string StandbyHideOptionalCost = "STANDBY_A";
+    private const int StandbyHideManaCost = 1;
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -53,12 +56,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand));
         }
 
-        if (command is HideCardCommand)
+        if (command is HideCardCommand hideCardCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
-                state,
-                "HIDE_CARD is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand));
+            return ValueTask.FromResult(ResolveHideCard(state, intent, hideCardCommand));
         }
 
         if (command is RevealCardCommand)
@@ -304,6 +304,145 @@ public sealed class CoreRuleEngine : IRuleEngine
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
                 destroyedAdditionalCostOwnerIds)
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveHideCard(
+        MatchState state,
+        PlayerIntent intent,
+        HideCardCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "HIDE_CARD is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out var behavior))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Unsupported standby card behavior: {command.CardNo}",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card is not in the player's hand.",
+                ErrorCodes.CardNotInHand);
+        }
+
+        var destination = string.IsNullOrWhiteSpace(command.Destination)
+            ? StandbyHideDestination
+            : command.Destination.Trim();
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!string.Equals(destination, StandbyHideDestination, StringComparison.Ordinal)
+            || optionalCosts.Count != 1
+            || !string.Equals(optionalCosts[0], StandbyHideOptionalCost, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Unsupported standby hide cost for {behavior.DisplayName}.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var existingState = state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            ? sourceState
+            : new CardObjectState(command.SourceObjectId);
+        var hiddenTags = existingState.Tags
+            .Concat([CardObjectTags.UnitCard])
+            .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+        if (!hiddenTags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} does not expose the Standby keyword for HIDE_CARD.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < StandbyHideManaCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Not enough mana to hide {behavior.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = PayRuneCosts(state, intent.PlayerId, StandbyHideManaCost, 0);
+        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
+        var nextZones = playerZones[intent.PlayerId];
+        playerZones[intent.PlayerId] = nextZones with
+        {
+            Base = nextZones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
+                ? nextZones.Base
+                : nextZones.Base.Concat([command.SourceObjectId]).ToArray()
+        };
+
+        var hiddenState = existingState with
+        {
+            IsFaceDown = true,
+            IsAttacking = false,
+            IsDefending = false,
+            IsExhausted = false,
+            Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : existingState.Power,
+            Tags = hiddenTags,
+            ManaCost = behavior.ManaCost
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = hiddenState;
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付 {StandbyHideManaCost} 点费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = StandbyHideManaCost,
+                    ["power"] = 0,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                }),
+            new(
+                "CARD_HIDDEN",
+                $"{intent.PlayerId} 正面朝下放置一张待命牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["destination"] = destination,
+                    ["destinationZone"] = "BASE",
+                    ["isFaceDown"] = true
+                })
         };
 
         return new ResolutionResult(

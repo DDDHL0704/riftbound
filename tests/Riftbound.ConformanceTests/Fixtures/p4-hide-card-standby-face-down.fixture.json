@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-hide-card-standby-face-down",
+  "description": "P4 hides OGN 121 Teemo face down via Standby without revealing card details to public events.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304070,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·121/298 提莫",
+      "note": "官方卡面：待命（支付 A 正面朝下放置此牌，之后可支付 0 将其当作反应牌打出）。本 fixture 只覆盖支付 A 正面朝下放置；翻开、作为反应牌打出、防守/待命触发展示主牌堆与伤害仍暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "待命关键词使用正面朝下对象；P4 当前以基地对象承载最小隐藏信息状态，公开事件不暴露卡号、战力、标签或费用。"
+    }
+  ],
+  "roomId": "p4-hide-card-standby-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304070,
+    "turnNumber": 70,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-HAND-OGN-TEEMO"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-hide-card-standby-face-down",
+      "cmd": {
+        "cmdType": "HIDE_CARD",
+        "sourceObjectId": "P1-HAND-OGN-TEEMO",
+        "cardNo": "OGN·121/298",
+        "destination": "STANDBY",
+        "optionalCosts": ["STANDBY_A"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": ["COST_PAID", "CARD_HIDDEN"],
+    "events": [
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "power": 0,
+          "optionalCosts": ["STANDBY_A"]
+        }
+      },
+      {
+        "kind": "CARD_HIDDEN",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-HAND-OGN-TEEMO",
+          "destination": "STANDBY",
+          "destinationZone": "BASE",
+          "isFaceDown": true
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 70,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-HAND-OGN-TEEMO"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-HAND-OGN-TEEMO": {
+          "power": 2,
+          "isFaceDown": true,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
+          "manaCost": 2
+        }
+      }
+    }
+  }
+}

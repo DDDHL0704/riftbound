@@ -18218,7 +18218,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4HideCardCommandIsExplicitlyRejectedUntilStandbyHiddenInfoExists()
+    public async Task P4HideCardCommandPlacesStandbyCardFaceDown()
     {
         var state = PunishmentState(mana: 1) with
         {
@@ -18241,7 +18241,63 @@ public sealed class ConformanceFixtureRunnerTests
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-p4-hide-card-premodel", "P1", "HIDE_CARD"),
+            new PlayerIntent("intent-p4-hide-card-face-down", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        var hiddenCard = result.State.CardObjects["P1-HAND-OGN-TEEMO"];
+        Assert.True(hiddenCard.IsFaceDown);
+        Assert.Equal(2, hiddenCard.Power);
+        Assert.Equal(2, hiddenCard.ManaCost);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], hiddenCard.Tags);
+        Assert.Empty(result.State.StackItems);
+
+        Assert.Equal(["COST_PAID", "CARD_HIDDEN"], result.Events.Select(evt => evt.Kind));
+        var hiddenEvent = Assert.Single(result.Events, evt => string.Equals(evt.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.DoesNotContain("cardNo", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain("power", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain("tags", hiddenEvent.Payload.Keys);
+        Assert.DoesNotContain("manaCost", hiddenEvent.Payload.Keys);
+
+        var p2Snapshot = result.Snapshots["P2"];
+        var p1ViewForP2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P1"]);
+        var p1ObjectsForP2 = Assert.IsType<Dictionary<string, object?>>(p1ViewForP2["objects"]);
+        var redactedObject = Assert.IsType<Dictionary<string, object?>>(p1ObjectsForP2["P1-HAND-OGN-TEEMO"]);
+        Assert.Equal("P1-HAND-OGN-TEEMO", Assert.IsType<string>(redactedObject["objectId"]));
+        Assert.True(Assert.IsType<bool>(redactedObject["isFaceDown"]));
+        Assert.DoesNotContain("power", redactedObject.Keys);
+        Assert.DoesNotContain("tags", redactedObject.Keys);
+        Assert.DoesNotContain("manaCost", redactedObject.Keys);
+    }
+
+    [Fact]
+    public async Task P4HideCardCommandRejectsInsufficientStandbyCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-insufficient-cost", "P1", "HIDE_CARD"),
             new HideCardCommand(
                 "P1-HAND-OGN-TEEMO",
                 "OGN·121/298",
@@ -18250,14 +18306,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("HIDE_CARD is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Hand);
-        Assert.False(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
-        Assert.Empty(result.State.StackItems);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
     }
 
     [Fact]
@@ -18620,6 +18674,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p4-hide-card-standby-face-down.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
     [InlineData("p2-preflight-play-vi-alt-a-ambush-attack-stun-static.fixture.json")]
