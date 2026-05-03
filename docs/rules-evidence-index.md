@@ -86,7 +86,7 @@
 | `p2-preflight-fepr-resolves-latest-keeps-remaining-stack` | `RULE_AUDITED` | `CORE-260330` p35 rule 340.4 | 已验证最新项目结算后若结算链仍不为空且无待处理项目，则新的最新项目控制者获得优先行动权。 |
 | `p2-preflight-spell-duel-pass-focus-closes-window` | `RULE_AUDITED` | `CORE-260330` p35-p36 rules 341-348；`JFAQ-251023` p4-p5 questions 3.1-3.3 | 已验证法术对决中当前焦点玩家让过后焦点传递，所有玩家让过焦点后关闭法术对决并回到普通主阶段。 |
 | `p2-preflight-play-punishment-damage-stack` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p39-p42 rules 355-356；p33-p35 rules 327-340 | 已验证官方法术《惩戒》支付 2 点费用、选择战场单位目标、加入结算链、双方让过后造成 3 点伤害，并施加本回合若被摧毁则改为放逐的替代效果。 |
-| `CoreRuleEngineRejectsPunishmentAgainstBaseUnit` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p39-p42 rules 355-356 | 已验证官方法术《惩戒》的官网卡面限定为“战场上的一名单位”，不能指定基地单位。 |
+| `p4-play-punishment-base-unit-target-rejected` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p14-p15 rules 142-143；p33-p35 rules 327-340；p39-p42 rules 355-356 | 已验证官方法术《惩戒》选择基地单位、违反卡面“战场上的一名单位”目标要求时拒绝：不推进 tick、不写事件、不支付费用、不移动手牌、不伤害目标、不创建结算链。 |
 | `p2-preflight-punishment-lethal-damage-banishes-unit` | `RULE_AUDITED` | `CATALOG` UNL-007/219；`CORE-260330` p14-p15 rules 142-143；p31-p33 rules 323-324；p62-p63 rule 428 | 已验证官方法术《惩戒》对 3 战力战场单位造成 3 点伤害后，目标因替代效果改为放逐而非移入废牌堆。 |
 | `p2-preflight-punishment-banishes-if-destroyed-later` | `RULE_AUDITED` | `CATALOG` UNL-007/219、OGN·229/298；`CORE-260330` p39-p42 rules 355-356；p31-p33 rules 323-324；p62-p63 rule 428 | 已验证《惩戒》建立的本回合替代效果可覆盖稍后由《复仇》造成的摧毁，将目标改为放逐且不计入本回合摧毁记忆。 |
 | `p2-preflight-shattered-fire-draws-after-lethal-damage` | `RULE_AUDITED` | `CATALOG` OGN·005/298；`CORE-260330` p14-p15 rules 142-143；p39-p42 rules 355-356；p57 rule 413.4；p62-p63 rule 428 | 已验证官方法术《碎裂之火》对战场单位造成 3 点伤害，若该单位被此法术摧毁，则控制者抽 1 张牌。 |
