@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-heart-of-ice-target-rejected",
+  "description": "P4 rejects Heart of Ice when an explicit target is provided for its zero-target play path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304146,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·052/221 玄冰之心",
+      "note": "官方卡面：费用 3；装备；横置后让一名单位本回合内战力 +3。当前 fixture 覆盖从手牌打出时不应携带目标。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "装备与单位是游戏对象，可位于公开区域；打出卡牌需要目标合法、费用足够，并作为结算链项目在双方让过后结算。《玄冰之心》的手牌打出路径为 0 目标，提供显式目标时应在支付费用、入栈和成为装备对象前拒绝。"
+    }
+  ],
+  "roomId": "p4-heart-of-ice-target-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304146,
+    "turnNumber": 146,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002", "P1-RUNE-003"],
+        "hand": ["P1-EQUIPMENT-HEART-OF-ICE"],
+        "base": ["P1-HEART-OF-ICE-BASE-UNIT-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-HEART-OF-ICE-BASE-UNIT-001": {
+        "damage": 0,
+        "power": 0,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-heart-of-ice-target-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-EQUIPMENT-HEART-OF-ICE",
+        "cardNo": "SFD·052/221",
+        "targetObjectIds": ["P1-HEART-OF-ICE-BASE-UNIT-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 146,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 3, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": ["P1-EQUIPMENT-HEART-OF-ICE"],
+          "base": ["P1-HEART-OF-ICE-BASE-UNIT-001"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-HEART-OF-ICE-BASE-UNIT-001": {
+          "damage": 0,
+          "power": 0,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
