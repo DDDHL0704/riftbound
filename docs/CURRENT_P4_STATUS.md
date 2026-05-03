@@ -108,7 +108,8 @@
 - P4.77 提交：`ebf0cbc feat: add p4 xerath skill target tax`
 - P4.78 提交：`70d66fe test: add p4 xerath friendly spellshield no tax`
 - P4.79 提交：`2cc41dc test: add p4 xerath exhausted source rejection`
-- P4.80 提交：本提交 `test: add p4 xerath missing target rejection`
+- P4.80 提交：`39f9f35 test: add p4 xerath missing target rejection`
+- P4.81 提交：本提交 `test: add p4 xerath target count rejection`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -200,7 +201,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 狩猎 | 14 | 0 | 0 | Medium/High | P4.7 已识别 profile 和数值；P4.10 只覆盖固定打出获得经验，征服/据守事件经验仍 deferred。 |
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；P4.15 已给《踏苔蜥》接入 `等级3` 入场 +1 战力与法盾代表路径，P4.16 已给《风行狐》接入 `等级3` 入场 +1 战力与游走代表路径，P4.17 已给《无极学徒》接入 `等级6` 打出抽 1 代表路径，P4.28 已给《易》接入 `等级6` 法盾/游走代表路径，P4.29 已给《易》A 版本接入 `等级6` 法盾/游走代表路径，其他等级条件仍 deferred。 |
 | 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；P4.14 已给《诺克萨斯新兵》接入本回合已打出其他卡牌记忆和费用 -2 代表路径，P4.21 已给《崔法利求战者》接入同回合鼓舞自增益代表路径，P4.22 已给《危险二人组》接入同回合鼓舞目标临时战力代表路径，P4.23 已给《垃圾场小霸王》接入同回合鼓舞弃 2 抽 2 代表路径，P4.24 已给《先锋队长》接入同回合鼓舞创建两名 1 战力随从代表路径，其他鼓舞分支仍 deferred。 |
-| 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的单目标税，P4.59 已用《妖异狐火》覆盖多目标法术对 `法盾` + `法盾2` 的费用聚合，P4.61 已用《秘奥义！慈悲度魂落》覆盖友方法盾目标 no-tax 边界；P4.62 已新增 `ACTIVATE_ABILITY` typed command，P4.73 已执行《蔚》无目标付费技能入栈/结算代表路径，P4.74 已要求来源对象 `cardNo` 匹配《蔚》，P4.77 已执行《泽拉斯》带目标技能对敌方 `法盾` 单位的目标税 + 横置 + 3 点伤害代表路径，P4.78 已补同一技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的 no-tax 边界，P4.79 已补同一技能来源已横置时的拒绝边界，P4.80 已补同一技能缺少目标时的拒绝边界；授予/静态法盾、更多带目标技能和更复杂 FAQ 细节仍 deferred。 |
+| 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的单目标税，P4.59 已用《妖异狐火》覆盖多目标法术对 `法盾` + `法盾2` 的费用聚合，P4.61 已用《秘奥义！慈悲度魂落》覆盖友方法盾目标 no-tax 边界；P4.62 已新增 `ACTIVATE_ABILITY` typed command，P4.73 已执行《蔚》无目标付费技能入栈/结算代表路径，P4.74 已要求来源对象 `cardNo` 匹配《蔚》，P4.77 已执行《泽拉斯》带目标技能对敌方 `法盾` 单位的目标税 + 横置 + 3 点伤害代表路径，P4.78 已补同一技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的 no-tax 边界，P4.79 已补同一技能来源已横置时的拒绝边界，P4.80 已补同一技能缺少目标时的拒绝边界，P4.81 已补同一技能提供两个目标时的拒绝边界；授予/静态法盾、更多带目标技能和更复杂 FAQ 细节仍 deferred。 |
 | 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；P4.76 已接入 `STANDBY_REACTION` 优先权窗口无目标反应入栈代表路径；待命触发、战场/完整隐藏区位置限制和目标伤害仍 deferred。 |
 | 回响 | 22 | 2 | 0 | Medium | P4.4 已完成 mana-only optional cost/repeat 模型；复杂额外费用、授予回响和模式重复仍后续拆分。 |
 | 伏击 | 18 | 0 | 0 | High | P4.9 已识别 profile；P4.64 已新增 `PLAY_CARD mode=AMBUSH` + `destination` 前置模型并在 Core 显式拒绝；反应战场打出和战场目的地结算仍 deferred。 |
@@ -232,6 +233,8 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Basic action remaining | `UNL-103/219 处置命令`：回收；`OGN·156/298 暗中破坏`：回收；`OGN·102/298 传送门大营救`：放逐并重新打出；`OGN·053/298 秘奥义！慈悲度魂落`：增益；`UNL-158/219 牧人的传家宝`：经验；`UNL-040/219 无极学徒`：等级打出抽牌；`UNL-157/219 严厉军士`：按友方场上单位获得经验。 | P2 已有回收/放逐/增益代表路径；P4.10 新增固定打出获得经验 fixture；P4.17 新增 `p4-play-wuji-apprentice-level6-draw`；P4.19 新增 `p4-play-stern-sergeant-dynamic-experience`；P4.60 新增 `recycle` / `banish` / `boon` template id、parser、registry 与 safe delegation tests。 | P4.10 已执行 `UNL-092/219`、`UNL-034/219`、`UNL-158/219` 的固定获得经验；P4.17 已执行《无极学徒》等级 6 打出抽 1；P4.19 已执行《严厉军士》按友方场上单位数量获得经验；P4.60 已把回收/放逐/增益纳入 P3 template skeleton 并继续委托 P2 状态写入；经验消耗/激活技能、条件经验和复杂隐藏信息/多玩家选择仍 deferred。 |
 
 P4.80 更新：Resource keywords 行在 P4.79 基础上追加 `P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected`，只锁定《泽拉斯》缺少“一名单位”目标时拒绝且不改状态。
+
+P4.81 更新：Resource keywords 行在 P4.80 基础上追加 `P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTooManyTargetsAreProvided`、`P4ActivateAbilityCommandRejectsXerathDamageSkillTooManyTargetsFixture` 和 `p4-activate-xerath-damage-skill-too-many-targets-rejected`，只锁定《泽拉斯》提供两个目标时拒绝且不改状态。
 
 ## P4.2 Permission Keyword Batch
 
@@ -292,10 +295,10 @@ P4.80 更新：Resource keywords 行在 P4.79 基础上追加 `P4ActivateAbility
 
 - 新增 `CardResourceKeywordRules` 与 `CardResourceKeywordProfile`，从 P3 `BehaviorSpec` 官方文本和 P2 source object tags 识别 `狩猎`、`等级`、`鼓舞`、`法盾`。
 - `狩猎` / `法盾` 支持无数字默认 `1`，以及 `狩猎3`、`法盾2` 等数值后缀；`等级` 解析 `等级3>`、`等级6>` 等阈值列表。
-- profile status 为 `recognized-deferred`：只表示 P3 parser、官方文本和 P2 registry/tag 已对齐；P4.12 已把法术选择敌方场上对象的法盾目标税接入费用计划，P4.59 已补多目标法术对 `法盾` 与 `法盾2` 的税值聚合，P4.61 已补友方法盾目标 no-tax 边界，P4.62 已补 `ACTIVATE_ABILITY` command 前置模型，P4.73 已补《蔚》无目标付费技能入栈/结算代表路径，P4.74 已补场上对象 `cardNo` 身份校验，P4.77 已补《泽拉斯》带目标技能对敌方法盾单位的目标税、横置和伤害结算代表路径，P4.78 已补同一技能选择己方法盾单位时不缴目标税的边界，P4.79 已补同一技能来源已横置时拒绝且不改状态的边界，P4.80 已补同一技能缺少目标时拒绝且不改状态的边界，P4.14 已把《诺克萨斯新兵》本回合已打出其他卡牌的鼓舞费用减免接入费用计划，P4.15 已把《踏苔蜥》`等级3` 入场 +1 战力与法盾接入单位入场计划，P4.16 已把《风行狐》`等级3` 入场 +1 战力与游走接入单位入场计划，P4.17 已把《无极学徒》`等级6` 打出抽 1 接入单位结算计划，P4.21 已把《崔法利求战者》同回合鼓舞自增益接入单位结算计划，P4.22 已把《危险二人组》同回合鼓舞目标临时战力接入结算计划，P4.23 已把《垃圾场小霸王》同回合鼓舞弃 2 抽 2 接入结算计划，P4.24 已把《先锋队长》同回合鼓舞创建两名 1 战力随从接入结算计划，P4.28/P4.29 已把《易》及 A 版本 `等级6` 法盾/游走接入单位入场计划，但经验获得/消耗、其他等级条件、其他鼓舞效果、更多技能目标税执行和授予/静态法盾仍未完整执行。
+- profile status 为 `recognized-deferred`：只表示 P3 parser、官方文本和 P2 registry/tag 已对齐；P4.12 已把法术选择敌方场上对象的法盾目标税接入费用计划，P4.59 已补多目标法术对 `法盾` 与 `法盾2` 的税值聚合，P4.61 已补友方法盾目标 no-tax 边界，P4.62 已补 `ACTIVATE_ABILITY` command 前置模型，P4.73 已补《蔚》无目标付费技能入栈/结算代表路径，P4.74 已补场上对象 `cardNo` 身份校验，P4.77 已补《泽拉斯》带目标技能对敌方法盾单位的目标税、横置和伤害结算代表路径，P4.78 已补同一技能选择己方法盾单位时不缴目标税的边界，P4.79 已补同一技能来源已横置时拒绝且不改状态的边界，P4.80 已补同一技能缺少目标时拒绝且不改状态的边界，P4.81 已补同一技能提供两个目标时拒绝且不改状态的边界，P4.14 已把《诺克萨斯新兵》本回合已打出其他卡牌的鼓舞费用减免接入费用计划，P4.15 已把《踏苔蜥》`等级3` 入场 +1 战力与法盾接入单位入场计划，P4.16 已把《风行狐》`等级3` 入场 +1 战力与游走接入单位入场计划，P4.17 已把《无极学徒》`等级6` 打出抽 1 接入单位结算计划，P4.21 已把《崔法利求战者》同回合鼓舞自增益接入单位结算计划，P4.22 已把《危险二人组》同回合鼓舞目标临时战力接入结算计划，P4.23 已把《垃圾场小霸王》同回合鼓舞弃 2 抽 2 接入结算计划，P4.24 已把《先锋队长》同回合鼓舞创建两名 1 战力随从接入结算计划，P4.28/P4.29 已把《易》及 A 版本 `等级6` 法盾/游走接入单位入场计划，但经验获得/消耗、其他等级条件、其他鼓舞效果、更多技能目标税执行和授予/静态法盾仍未完整执行。
 - 代表卡验证：`UNL-100/219 贪食魔沼蛙`、`UNL-047/219 踏苔蜥`、`UNL-075/219 风行狐`、`UNL-040/219 无极学徒`、`UNL-113/219 易`、`UNL-113a/219 易`、`OGN·012/298 诺克萨斯新兵`、`OGN·016/298 危险二人组`、`OGN·020/298 垃圾场小霸王`、`OGN·217/298 崔法利求战者`、`OGN·218/298 先锋队长`、`OGN·013/298 呸呸魄罗`、`SFD·085/221 奥恩`。
-- 新增 `P4ResourceKeywordProfilesMapOfficialTextToRegistryTags` 锁定官方卡面文本到 profile；`P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 复用已审计 fixture 保持 P2 入场/标签/no-optional 路径绿色，并在 P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29/P4.59/P4.61/P4.62/P4.73/P4.74/P4.77/P4.78/P4.79/P4.80 纳入鼓舞费用减免、自增益、目标临时战力、弃牌抽牌、随从创建、等级入场/抽牌/标签、多目标法盾税、友方法术目标 no-tax、技能 command envelope、《蔚》无目标付费技能执行、场上对象 `cardNo` 身份校验、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝和缺目标拒绝证据。
-- P4.7 当时没有实现法盾目标税支付、每次被选为目标的 FAQ 细节、狩猎征服/据守经验获得、经验消耗、等级阈值动态生效、鼓舞本回合记忆或相关触发；P4.12 随后只补法术目标税的单目标代表执行切片，P4.59 随后只补《妖异狐火》多目标法盾税聚合切片，P4.61 随后只补《秘奥义！慈悲度魂落》友方法盾目标 no-tax 边界，P4.62 随后只补技能激活 command 前置模型，P4.73 随后只补《蔚》无目标付费技能代表执行切片，P4.74 随后只补场上对象 `cardNo` 身份校验，P4.77 随后只补《泽拉斯》单目标技能税、横置和 3 点伤害代表执行切片，P4.78 随后只补同一《泽拉斯》技能选择己方法盾单位时不缴目标税的边界，P4.79 随后只补同一《泽拉斯》技能来源已横置时拒绝且不改状态的边界，P4.80 随后只补同一《泽拉斯》技能缺少目标时拒绝且不改状态的边界，P4.14 随后只补《诺克萨斯新兵》鼓舞费用减免代表执行切片，P4.15 随后只补《踏苔蜥》`等级3` 入场 +1/法盾代表执行切片，P4.16 随后只补《风行狐》`等级3` 入场 +1/游走代表执行切片，P4.17 随后只补《无极学徒》`等级6` 打出抽 1 代表执行切片，P4.21 随后只补《崔法利求战者》鼓舞自增益代表执行切片，P4.22 随后只补《危险二人组》鼓舞目标临时战力代表执行切片，P4.23 随后只补《垃圾场小霸王》鼓舞弃 2 抽 2 代表执行切片，P4.24 随后只补《先锋队长》鼓舞创建随从代表执行切片，P4.28/P4.29 随后只补《易》及 A 版本 `等级6` 法盾/游走代表执行切片。
+- 新增 `P4ResourceKeywordProfilesMapOfficialTextToRegistryTags` 锁定官方卡面文本到 profile；`P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 复用已审计 fixture 保持 P2 入场/标签/no-optional 路径绿色，并在 P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29/P4.59/P4.61/P4.62/P4.73/P4.74/P4.77/P4.78/P4.79/P4.80/P4.81 纳入鼓舞费用减免、自增益、目标临时战力、弃牌抽牌、随从创建、等级入场/抽牌/标签、多目标法盾税、友方法术目标 no-tax、技能 command envelope、《蔚》无目标付费技能执行、场上对象 `cardNo` 身份校验、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标拒绝和多目标拒绝证据。
+- P4.7 当时没有实现法盾目标税支付、每次被选为目标的 FAQ 细节、狩猎征服/据守经验获得、经验消耗、等级阈值动态生效、鼓舞本回合记忆或相关触发；P4.12 随后只补法术目标税的单目标代表执行切片，P4.59 随后只补《妖异狐火》多目标法盾税聚合切片，P4.61 随后只补《秘奥义！慈悲度魂落》友方法盾目标 no-tax 边界，P4.62 随后只补技能激活 command 前置模型，P4.73 随后只补《蔚》无目标付费技能代表执行切片，P4.74 随后只补场上对象 `cardNo` 身份校验，P4.77 随后只补《泽拉斯》单目标技能税、横置和 3 点伤害代表执行切片，P4.78 随后只补同一《泽拉斯》技能选择己方法盾单位时不缴目标税的边界，P4.79 随后只补同一《泽拉斯》技能来源已横置时拒绝且不改状态的边界，P4.80 随后只补同一《泽拉斯》技能缺少目标时拒绝且不改状态的边界，P4.81 随后只补同一《泽拉斯》技能提供两个目标时拒绝且不改状态的边界，P4.14 随后只补《诺克萨斯新兵》鼓舞费用减免代表执行切片，P4.15 随后只补《踏苔蜥》`等级3` 入场 +1/法盾代表执行切片，P4.16 随后只补《风行狐》`等级3` 入场 +1/游走代表执行切片，P4.17 随后只补《无极学徒》`等级6` 打出抽 1 代表执行切片，P4.21 随后只补《崔法利求战者》鼓舞自增益代表执行切片，P4.22 随后只补《危险二人组》鼓舞目标临时战力代表执行切片，P4.23 随后只补《垃圾场小霸王》鼓舞弃 2 抽 2 代表执行切片，P4.24 随后只补《先锋队长》鼓舞创建随从代表执行切片，P4.28/P4.29 随后只补《易》及 A 版本 `等级6` 法盾/游走代表执行切片。
 
 ## P4.8 Equipment Keyword Profile
 
@@ -327,9 +330,11 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors`、`P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated`、`P4MoveUnitCommandIsExplicitlyRejectedUntilRoamMovementExists`、`GameCommandMapperParsesMoveUnitPayload`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.65 已建立显式 `MOVE_UNIT` command envelope 但仍拒绝执行；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.80 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.81 once committed. |
 
 P4.80 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 锁定《泽拉斯》带目标技能缺少“一名单位”目标时拒绝且不改状态。
+
+P4.81 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTooManyTargetsAreProvided`、`P4ActivateAbilityCommandRejectsXerathDamageSkillTooManyTargetsFixture` 和 `p4-activate-xerath-damage-skill-too-many-targets-rejected.fixture.json` 锁定同一技能提供两个目标时拒绝且不改状态。
 
 P4.9 新增内容：
 
@@ -816,7 +821,7 @@ Prompt-to-artifact completion audit：
 | 权限关键词 | 迅捷/反应 profile 和代表时机已覆盖；急速 34/34 代表 `HASTE_READY` 费用已覆盖，但彩色资源精确匹配和若干活跃联动仍 deferred。 |
 | 战斗关键词 | P4.6 只有 profile；P4.65/P4.67 已建立移动与战斗声明 command envelope 并显式拒绝执行；完整强攻/坚守/壁垒/后排战斗承伤与游走移动仍是明确缺口。 |
 | 生命周期关键词 | 瞬息到期与预知代表路径有覆盖；绝念触发队列仍 deferred。 |
-| 资源关键词 | 法术目标法盾税、多个等级/鼓舞/经验代表路径已覆盖；P4.59 进一步锁定多目标法术对 `法盾` + `法盾2` 的税值聚合；P4.61 锁定友方法盾目标 no-tax 边界；P4.73 执行《蔚》无目标付费技能入栈/结算代表路径；P4.74 补场上对象 `cardNo` 身份校验，防止非《蔚》来源伪造 ability id；P4.77 执行《泽拉斯》带目标技能的敌方法盾税、横置和 3 点伤害代表路径；P4.78 补同一技能己方法盾目标 no-tax 边界；P4.79 补同一技能已横置来源拒绝边界；P4.80 补同一技能缺少目标拒绝边界；更多技能目标税、狩猎征服/据守经验、更多动态经验仍 deferred。 |
+| 资源关键词 | 法术目标法盾税、多个等级/鼓舞/经验代表路径已覆盖；P4.59 进一步锁定多目标法术对 `法盾` + `法盾2` 的税值聚合；P4.61 锁定友方法盾目标 no-tax 边界；P4.73 执行《蔚》无目标付费技能入栈/结算代表路径；P4.74 补场上对象 `cardNo` 身份校验，防止非《蔚》来源伪造 ability id；P4.77 执行《泽拉斯》带目标技能的敌方法盾税、横置和 3 点伤害代表路径；P4.78 补同一技能己方法盾目标 no-tax 边界；P4.79 补同一技能已横置来源拒绝边界；P4.80 补同一技能缺少目标拒绝边界；P4.81 补同一技能多目标拒绝边界；更多技能目标税、狩猎征服/据守经验、更多动态经验仍 deferred。 |
 | 互动关键词 | 回响 mana-only 已执行；P4.70 已执行待命 `HIDE_CARD` + `STANDBY_A` 最小正面朝下放置；P4.71 已执行待命 `REVEAL_CARD` + `STANDBY_REVEAL_0` 基地显露；P4.72 已执行《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费待命暗置；P4.76 已执行待命 `STANDBY_REACTION` / `STACK` 无目标反应入栈；P4.69 已补对手视角正面朝下对象 redaction；待命触发/完整隐藏区/目标伤害与伏击反应战场打出仍 deferred。 |
 | 装备关键词 | P4.58 覆盖《取放自如》武装贴附/卸除代表路径；P4.66 建立 `ASSEMBLE_EQUIPMENT` command envelope 且显式拒绝执行；装配/灵便/百炼的完整贴附、费用和未激活文本仍 deferred。 |
 | 基础动作模板 | draw/damage/destroy/stun/temp might primitive plan 已覆盖；move/recall/recycle/banish/boon/experience 的部分代表路径仍 delegated to P2 或小批次执行。 |
@@ -1043,6 +1048,15 @@ Prompt-to-artifact checklist：
 - 新增 fixture `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 和回放测试 `P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture`，把该拒绝边界纳入 conformance 证据。
 - 本批次没有改变 `CoreRuleEngine` 主实现，只为现有 exactly-one target 校验补规则证据；通用 skill registry、更多 ability id、装备技能、可选费用技能和复杂伤害/替代边界仍 deferred。
 
+## P4.81 Xerath Too Many Targets Rejection Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.80 已锁定缺目标拒绝；本批次只补 exactly-one target 校验的另一侧，避免提供多个目标时绕过官方“一名单位”限制。
+
+- `ACTIVATE_ABILITY abilityId = PAY_RED_EXHAUST_DAMAGE_3` 提供两个目标时会返回 `INVALID_TARGET`，不推进 tick、不写事件、不支付资源、不横置来源、不伤害目标，也不创建 stack item。
+- 新增直接 engine 测试 `P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTooManyTargetsAreProvided`，验证资源池、来源活跃状态、两个目标伤害和结算链保持不变。
+- 新增 fixture `p4-activate-xerath-damage-skill-too-many-targets-rejected.fixture.json` 和回放测试 `P4ActivateAbilityCommandRejectsXerathDamageSkillTooManyTargetsFixture`，把该拒绝边界纳入 conformance 证据。
+- 本批次没有改变 `CoreRuleEngine` 主实现，只为现有 exactly-one target 校验补规则证据；通用 skill registry、更多 ability id、装备技能、可选费用技能和复杂伤害/替代边界仍 deferred。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -1051,7 +1065,7 @@ Prompt-to-artifact checklist：
 - 已由 P2 手写行为覆盖的 `move` / `recall` 代表路径仍保持 `delegated-to-p2`。
 - 已由 P2 手写行为覆盖的 `recycle` / `banish` / `boon` 在 P4.60 进入 P3/P4 template skeleton 和 safe delegation；primitive executor 仍不直接改状态。
 - 已由 P2 手写行为覆盖的《取放自如》武装贴附/卸除代表路径在 P4.58 进入 P4 evidence/profile，但不泛化成完整装备系统。
-- `ACTIVATE_ABILITY` 已有 P4.62 command envelope；P4.73 已执行《蔚》`PAY_2_RED_DOUBLE_POWER` 无目标付费技能入栈/结算代表路径，P4.74 已补来源对象 `cardNo` 身份校验，P4.77 已执行《泽拉斯》`PAY_RED_EXHAUST_DAMAGE_3` 单目标技能敌方法盾税代表路径，P4.78 已补同一技能己方法盾目标 no-tax 边界，P4.79 已补同一技能来源已横置时拒绝且不改状态的边界，P4.80 已补同一技能缺少目标时拒绝且不改状态的边界；通用技能 registry、更多目标/可选费用技能和装备技能仍 deferred。
+- `ACTIVATE_ABILITY` 已有 P4.62 command envelope；P4.73 已执行《蔚》`PAY_2_RED_DOUBLE_POWER` 无目标付费技能入栈/结算代表路径，P4.74 已补来源对象 `cardNo` 身份校验，P4.77 已执行《泽拉斯》`PAY_RED_EXHAUST_DAMAGE_3` 单目标技能敌方法盾税代表路径，P4.78 已补同一技能己方法盾目标 no-tax 边界，P4.79 已补同一技能来源已横置时拒绝且不改状态的边界，P4.80 已补同一技能缺少目标时拒绝且不改状态的边界，P4.81 已补同一技能提供两个目标时拒绝且不改状态的边界；通用技能 registry、更多目标/可选费用技能和装备技能仍 deferred。
 - `HIDE_CARD` 已有 P4.63 command envelope；P4.70 已执行 `STANDBY_A` 最小正面朝下放置；P4.72 已执行《游击战》`STANDBY_FREE` 免费暗置代表路径，其他目的地和完整隐藏区仍 deferred。
 - `REVEAL_CARD` 已有 P4.68 command envelope；P4.71 已执行 `STANDBY_REVEAL` / `BASE` 最小显露，P4.76 已执行 `STANDBY_REACTION` / `STACK` 无目标反应入栈；目标结算、触发和完整隐藏区仍 deferred。
 - Face-down snapshot redaction 已有 P4.69 对手视角防泄漏测试，并被 P4.70 最小待命放置复用；当前仍不创建完整隐藏区或执行待命触发/目标伤害。
@@ -1066,7 +1080,7 @@ Prompt-to-artifact checklist：
 - 迅捷、反应；急速的《灼焰飞龙》`HASTE_READY` 代表路径已由 P4.13 接入，《小鲨鱼》`HASTE_READY` 第二代表路径已由 P4.18 接入，《军团后卫》`HASTE_READY` 第三代表路径已由 P4.20 接入，《金克丝》`HASTE_READY` 第三十三代表路径已由 P4.56 接入，《金克丝》A 版本 `HASTE_READY` 第三十四代表路径已由 P4.57 接入，《树根先生》`HASTE_READY` 第四代表路径已由 P4.25 接入，《机械迷》`HASTE_READY` 第五代表路径已由 P4.26 接入，《琢珥鱼》`HASTE_READY` 第六代表路径已由 P4.27 接入，《卡银娜·薇蕊泽》`HASTE_READY` 第七代表路径已由 P4.30 接入，《绯红印记树怪》`HASTE_READY` 第八代表路径已由 P4.31 接入，《绯红印记树怪》A 版本 `HASTE_READY` 第二十一代表路径已由 P4.44 接入，《尼菈》`HASTE_READY` 第二十二代表路径已由 P4.45 接入，《雷恩加尔》`HASTE_READY` 第二十三代表路径已由 P4.46 接入，《雷恩加尔》A 版本 `HASTE_READY` 第二十四代表路径已由 P4.47 接入，《厄运小姐》`HASTE_READY` 第二十五代表路径已由 P4.48 接入，《厄运小姐》A 版本 `HASTE_READY` 第二十六代表路径已由 P4.49 接入，《希维尔》`HASTE_READY` 第二十七代表路径已由 P4.50 接入，《希维尔》A 版本 `HASTE_READY` 第二十八代表路径已由 P4.51 接入，《莉莉娅》`HASTE_READY` 第二十九代表路径已由 P4.52 接入，《莉莉娅》A 版本 `HASTE_READY` 第三十代表路径已由 P4.53 接入，《阿兹尔》`HASTE_READY` 第三十一代表路径已由 P4.54 接入，《阿兹尔》A 版本 `HASTE_READY` 第三十二代表路径已由 P4.55 接入，《美味仙灵》`HASTE_READY` 第九代表路径已由 P4.32 接入，《艾克》`HASTE_READY` 第十代表路径已由 P4.33 接入，《武装强袭者》`HASTE_READY` 第十一代表路径已由 P4.34 接入，《远古战狂》`HASTE_READY` 第十二代表路径已由 P4.35 接入，《海妖猎手》`HASTE_READY` 第十三代表路径已由 P4.36 接入，《李青》`HASTE_READY` 第十四代表路径已由 P4.37 接入，《李青》A 版本 `HASTE_READY` 第十五代表路径已由 P4.38 接入，《千尾监视者》`HASTE_READY` 第十六代表路径已由 P4.39 接入，《卡莎》`HASTE_READY` 第十七代表路径已由 P4.40 接入，《雷克塞》`HASTE_READY` 第十八代表路径已由 P4.41 接入，《雷克塞》A 版本 `HASTE_READY` 第十九代表路径已由 P4.42 接入，《卡莎》A 版本 `HASTE_READY` 第二十代表路径已由 P4.43 接入，其他急速牌的彩色资源/活跃进场仍需后续小批次
 - 瞬息到期、预知最小回收分支
 - 回响复杂额外费用、授予回响和模式重复分支
-- 法盾目标税的最小支付校验已由 P4.12 覆盖法术选择敌方场上对象；P4.59 已覆盖同一法术同时选择 `法盾` 与 `法盾2` 敌方目标时的费用聚合；P4.61 已覆盖友方法术选择己方 `法盾` 目标时不产生目标税；P4.62 已补激活技能 command 前置模型，P4.73 已执行《蔚》无目标付费技能 stack/结算代表路径，P4.74 已补来源对象 `cardNo` 身份校验，P4.77 已执行《泽拉斯》单目标技能对敌方法盾单位的目标税代表路径，P4.78 已补同一技能选择己方法盾单位时不产生目标税，P4.79 已补同一技能来源已横置时拒绝且不改状态，P4.80 已补同一技能缺少目标时拒绝且不改状态；更多技能目标税、授予/静态法盾和完整 FAQ 细节仍需后续小批次
+- 法盾目标税的最小支付校验已由 P4.12 覆盖法术选择敌方场上对象；P4.59 已覆盖同一法术同时选择 `法盾` 与 `法盾2` 敌方目标时的费用聚合；P4.61 已覆盖友方法术选择己方 `法盾` 目标时不产生目标税；P4.62 已补激活技能 command 前置模型，P4.73 已执行《蔚》无目标付费技能 stack/结算代表路径，P4.74 已补来源对象 `cardNo` 身份校验，P4.77 已执行《泽拉斯》单目标技能对敌方法盾单位的目标税代表路径，P4.78 已补同一技能选择己方法盾单位时不产生目标税，P4.79 已补同一技能来源已横置时拒绝且不改状态，P4.80 已补同一技能缺少目标时拒绝且不改状态，P4.81 已补同一技能提供两个目标时拒绝且不改状态；更多技能目标税、授予/静态法盾和完整 FAQ 细节仍需后续小批次
 - 固定数值“打出时获得经验”已由 P4.10 接入；固定经验额外费用减费已由 P4.11 接入；《诺克萨斯新兵》鼓舞费用减免已由 P4.14 接入；《踏苔蜥》`等级3` 入场 +1/法盾已由 P4.15 接入；《风行狐》`等级3` 入场 +1/游走已由 P4.16 接入；《无极学徒》`等级6` 打出抽 1 已由 P4.17 接入；《易》`等级6` 法盾/游走已由 P4.28 接入，《易》A 版本 `等级6` 法盾/游走已由 P4.29 接入；《严厉军士》按友方场上单位数量获得经验已由 P4.19 接入；《崔法利求战者》鼓舞自增益已由 P4.21 接入；《危险二人组》鼓舞目标临时战力已由 P4.22 接入；《垃圾场小霸王》鼓舞弃 2 抽 2 已由 P4.23 接入；《先锋队长》鼓舞创建随从已由 P4.24 接入；经验激活技能、经验改变效果/目标范围、其他动态经验、其他等级分支、其他鼓舞效果仍需后续小批次
 
 高风险，暂不进入 P4.1：
@@ -1088,12 +1102,12 @@ Prompt-to-artifact checklist：
 | P4.4 互动关键词一小批 | Done | 100% | `回响` mana-only optional cost/repeat 显式模型；复杂回响、待命、伏击继续 deferred。 |
 | P4.5 基础动作 executor 小批测试 | Done | 100% | `draw`/`damage`/`destroy`/`stun`/`temp_might` primitive plan；`move`/`recall` 继续 delegated to P2 handwritten；P4.60 后 `recycle`/`banish`/`boon` 也进入 template skeleton 并 delegated to P2。 |
 | P4.6 完成审计与战斗关键词 profile | Done | 100% | 审计确认 P4 尚未完成；新增 `强攻`/`坚守`/`壁垒`/`后排`/`游走` profile，完整战斗执行继续 deferred。 |
-| P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；P4.12/P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29/P4.59/P4.61/P4.62/P4.77/P4.78/P4.79/P4.80 后法盾法术目标税、多目标法盾税聚合、友方目标 no-tax、`ACTIVATE_ABILITY` 前置模型、《泽拉斯》技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝与缺目标拒绝边界、《诺克萨斯新兵》鼓舞费用、《崔法利求战者》鼓舞自增益、《危险二人组》鼓舞目标临时战力、《垃圾场小霸王》鼓舞弃牌抽牌、《先锋队长》鼓舞创建随从、《踏苔蜥》《风行狐》《无极学徒》和《易》等级代表路径已接入，其余资源关键词分支继续 deferred。 |
+| P4.7 资源关键词 profile | Done | 100% | 新增 `狩猎`/`等级`/`鼓舞`/`法盾` profile；P4.12/P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29/P4.59/P4.61/P4.62/P4.77/P4.78/P4.79/P4.80/P4.81 后法盾法术目标税、多目标法盾税聚合、友方目标 no-tax、`ACTIVATE_ABILITY` 前置模型、《泽拉斯》技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标拒绝与多目标拒绝边界、《诺克萨斯新兵》鼓舞费用、《崔法利求战者》鼓舞自增益、《危险二人组》鼓舞目标临时战力、《垃圾场小霸王》鼓舞弃牌抽牌、《先锋队长》鼓舞创建随从、《踏苔蜥》《风行狐》《无极学徒》和《易》等级代表路径已接入，其余资源关键词分支继续 deferred。 |
 | P4.8 装备关键词 profile | Done | 100% | 新增 `装配`/`灵便`/`百炼` profile；贴附、费用、自动贴附和 owner/controller 执行继续 deferred。 |
 | P4.9 完成审计与剩余 profile 收口 | Done | 100% | 新增 lifecycle/interaction/basic-action profile，明确 P4 goal 尚未完全达成的 deferred 能力。 |
 | P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；P4.19 已补《严厉军士》动态计数经验，其他动态经验与经验消耗继续 deferred。 |
 | P4.11 经验额外费用减费执行切片 | Done | 100% | 新增 `SPEND_EXPERIENCE:n` optional cost、波比代表 fixture 和经验不足拒绝测试；改变效果/目标的经验费用继续 deferred。 |
-| P4.12 法盾目标税执行切片 | Done | 100% | 新增 `spellshieldTaxMana` 费用计划、`法盾`/`法盾N` 标签税值复用、代表 fixture 和费用不足拒绝测试；P4.59 已补多目标聚合，P4.61 已补友方法术目标 no-tax 边界，P4.62 已补技能 command 前置模型，P4.77 已补《泽拉斯》带目标技能敌方法盾税代表路径，P4.78 已补同一技能己方法盾 no-tax 边界，P4.79 已补同一技能已横置来源拒绝边界，P4.80 已补同一技能缺目标拒绝边界；更多技能目标税、授予/FAQ 全细节继续 deferred。 |
+| P4.12 法盾目标税执行切片 | Done | 100% | 新增 `spellshieldTaxMana` 费用计划、`法盾`/`法盾N` 标签税值复用、代表 fixture 和费用不足拒绝测试；P4.59 已补多目标聚合，P4.61 已补友方法术目标 no-tax 边界，P4.62 已补技能 command 前置模型，P4.77 已补《泽拉斯》带目标技能敌方法盾税代表路径，P4.78 已补同一技能己方法盾 no-tax 边界，P4.79 已补同一技能已横置来源拒绝边界，P4.80 已补同一技能缺目标拒绝边界，P4.81 已补同一技能多目标拒绝边界；更多技能目标税、授予/FAQ 全细节继续 deferred。 |
 | P4.13 急速活跃可选费用切片 | Done | 100% | 新增 `HASTE_READY` 代表 optional cost、《灼焰飞龙》fixture 和 power 不足拒绝测试；其他急速牌彩色资源/授予/战场联动继续 deferred。 |
 | P4.14 鼓舞费用减免执行切片 | Done | 100% | 新增同回合已打出卡牌记忆、《诺克萨斯新兵》费用 -2 代表 fixture、无先前打牌记忆费用不足拒绝测试和回合结束清空测试；其他鼓舞效果继续 deferred。 |
 | P4.15 等级入场修正执行切片 | Done | 100% | 新增 `LevelExperienceThreshold` 源单位入场修正、《踏苔蜥》`等级3` +1/法盾 fixture；其他等级费用/效果/技能分支继续 deferred。 |
@@ -1158,13 +1172,14 @@ Prompt-to-artifact checklist：
 | P4.74 completion audit + 场上对象 cardNo 身份边界 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `CardObjectState.CardNo`、fixture 读写/断言、打出/暗置/显露源牌身份保存，以及《蔚》技能非《蔚》来源拒绝和先打出后激活 fixture。 |
 | P4.75 completion audit + 目标覆盖审计测试 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `P4ObjectiveNamedSurfacesHaveRepresentativeCoverage`，把目标中 33 个显式关键词/基础动作 surface 映射到现有 profile、primitive、delegated P2 或代表执行证据。 |
 | P4.76 completion audit + 待命反应入栈执行 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `STANDBY_REACTION` / `STACK` 无目标 0 费用反应入栈路径、正向/拒绝 engine tests 和 `p4-reveal-card-standby-reaction-stack` fixture，待命触发/完整隐藏区/目标伤害仍 deferred。 |
-| P4.77 completion audit + 泽拉斯技能目标税 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》`PAY_RED_EXHAUST_DAMAGE_3` 带目标技能入栈/横置/法盾目标税/3 点伤害 fixture、正向入栈测试和费用不足拒绝测试，P4.78 已补己方法盾 no-tax 边界，P4.79 已补已横置来源拒绝边界，P4.80 已补缺目标拒绝边界，通用技能 registry 和更多技能目标税仍 deferred。 |
-| P4.78 completion audit + 泽拉斯友方法盾 no-tax | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的入栈/结算 fixture 和直接测试，P4.79 已补已横置来源拒绝边界，P4.80 已补缺目标拒绝边界，仍只覆盖已验证边界。 |
-| P4.79 completion audit + 泽拉斯已横置来源拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能来源已横置时拒绝且不推进 tick/事件/资源/stack 的直接测试和 fixture，P4.80 已补缺目标拒绝边界，仍不进入通用技能 registry。 |
-| P4.80 completion audit + 泽拉斯缺目标拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能缺少“一名单位”目标时拒绝且不推进 tick/事件/资源/横置/stack 的直接测试和 fixture，仍不进入通用技能 registry。 |
-| P4.81 next low-risk gap | Pending | 0% | 基于 P4.80 audit 继续选择低风险可验证小批次；优先从待命触发前置、基础动作 delegation 断言、剩余资源边界或更小的技能/法盾边界中选一项，仍不进入 P5/P6/P7。 |
+| P4.77 completion audit + 泽拉斯技能目标税 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》`PAY_RED_EXHAUST_DAMAGE_3` 带目标技能入栈/横置/法盾目标税/3 点伤害 fixture、正向入栈测试和费用不足拒绝测试，P4.78 已补己方法盾 no-tax 边界，P4.79 已补已横置来源拒绝边界，P4.80 已补缺目标拒绝边界，P4.81 已补多目标拒绝边界，通用技能 registry 和更多技能目标税仍 deferred。 |
+| P4.78 completion audit + 泽拉斯友方法盾 no-tax | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的入栈/结算 fixture 和直接测试，P4.79 已补已横置来源拒绝边界，P4.80 已补缺目标拒绝边界，P4.81 已补多目标拒绝边界，仍只覆盖已验证边界。 |
+| P4.79 completion audit + 泽拉斯已横置来源拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能来源已横置时拒绝且不推进 tick/事件/资源/stack 的直接测试和 fixture，P4.80 已补缺目标拒绝边界，P4.81 已补多目标拒绝边界，仍不进入通用技能 registry。 |
+| P4.80 completion audit + 泽拉斯缺目标拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能缺少“一名单位”目标时拒绝且不推进 tick/事件/资源/横置/stack 的直接测试和 fixture，P4.81 已补多目标拒绝边界，仍不进入通用技能 registry。 |
+| P4.81 completion audit + 泽拉斯多目标拒绝 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《泽拉斯》同一带目标技能提供两个目标时拒绝且不推进 tick/事件/资源/横置/目标伤害/stack 的直接测试和 fixture，仍不进入通用技能 registry。 |
+| P4.82 next low-risk gap | Pending | 0% | 基于 P4.81 audit 继续选择低风险可验证小批次；优先从待命触发前置、基础动作 delegation 断言、剩余资源边界或更小的技能/法盾边界中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `81/82 = 98.8%`。已完成 P4.1-P4.80：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标拒绝、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈和《游击战》`STANDBY_FREE` 免费暗置权限、`PLAY_CARD mode=AMBUSH` 目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `82/83 = 98.8%`。已完成 P4.1-P4.81：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、《泽拉斯》带目标技能敌方法盾税、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标拒绝、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈和《游击战》`STANDBY_FREE` 免费暗置权限、`PLAY_CARD mode=AMBUSH` 目的地前置模型、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -1179,16 +1194,16 @@ P4 当前整体进度：按当前 part 计 `81/82 = 98.8%`。已完成 P4.1-P4.8
 
 ## Latest Validation
 
-P4.80 已完成验证：
+P4.81 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1843/1843
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1762/1762
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1845/1845
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1764/1764
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivateAbilityCommand"`：pass，15/15
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivateAbilityCommand"`：pass，17/17
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，24/24
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.81：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.82：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。

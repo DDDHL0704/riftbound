@@ -18647,6 +18647,72 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTooManyTargetsAreProvided()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-XERATH"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P2-UNIT-001",
+                        "P2-UNIT-002"
+                    ]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new(
+                    "P1-UNIT-XERATH",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-026/219"),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-UNIT-002"] = new(
+                    "P2-UNIT-002",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-xerath-too-many-targets", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                [
+                    "P2-UNIT-001",
+                    "P2-UNIT-002"
+                ]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.False(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.State.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P2-UNIT-002"].Damage);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillWhenSpellshieldTaxManaIsMissing()
     {
         var state = PunishmentState(mana: 0) with
@@ -18772,6 +18838,27 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 1), result.FinalState.RunePools["P1"]);
         Assert.False(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillTooManyTargetsFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-xerath-damage-skill-too-many-targets-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 1), result.FinalState.RunePools["P1"]);
+        Assert.False(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-002"].Damage);
         Assert.Empty(result.FinalState.StackItems);
     }
 
