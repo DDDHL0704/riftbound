@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-blood-money-target-power-too-high-rejected",
+  "description": "P4 rejects Blood Money when the battlefield unit target has power above two.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304112,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·162/221 血钱",
+      "note": "官方卡面：费用 2；摧毁战场上一个不高于 2 战力的单位。若它是敌方单位，打出 1 个休眠金币；若是友方单位，打出 2 个休眠金币。当前 fixture 选择 3 战力战场单位，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p62-p63 rule 428; p89 rules 718-719",
+      "note": "打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算；摧毁会将场上单位移入拥有者废牌堆，金币是休眠装备指示物。目标战力超过卡面上限时应在支付费用、入栈和状态变化前拒绝。"
+    }
+  ],
+  "roomId": "p4-blood-money-target-power-too-high-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304112,
+    "turnNumber": 112,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-BLOOD-MONEY"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001": {
+        "damage": 0,
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-blood-money-target-power-too-high-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-BLOOD-MONEY",
+        "cardNo": "SFD·162/221",
+        "targetObjectIds": ["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 112,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 2, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-SPELL-BLOOD-MONEY"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001"],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-BATTLEFIELD-BLOOD-MONEY-LARGE-001": {
+          "damage": 0,
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
