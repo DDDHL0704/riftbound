@@ -6542,6 +6542,31 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-SFUR-SONG-BASE-UNIT-001");
 
     [Fact]
+    public async Task P4SfurSongTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-sfur-song-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SFUR-SONG-MAIN-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-EQUIPMENT-SFUR-SONG"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-SFUR-SONG-BASE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-SFUR-SONG-BASE-UNIT-001"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-SFUR-SONG-BASE-UNIT-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-SFUR-SONG-BASE-UNIT-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public Task CoreRuleEnginePlaysZDriveEquipment() =>
         AssertSimpleEquipmentFixtureAsync(
             "p2-preflight-play-z-drive-equipment.fixture.json",
@@ -22822,6 +22847,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-scarlet-rose-target-rejected.fixture.json")]
     [InlineData("p4-play-reversal-shard-target-rejected.fixture.json")]
     [InlineData("p4-play-assembly-rack-target-rejected.fixture.json")]
+    [InlineData("p4-play-sfur-song-target-rejected.fixture.json")]
     [InlineData("p4-play-marching-orders-enemy-base-target-rejected.fixture.json")]
     [InlineData("p4-play-duel-target-order-rejected.fixture.json")]
     [InlineData("p4-play-battle-command-target-order-rejected.fixture.json")]
