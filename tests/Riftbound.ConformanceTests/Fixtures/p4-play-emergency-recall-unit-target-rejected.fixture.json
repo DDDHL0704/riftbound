@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-emergency-recall-unit-target-rejected",
+  "description": "P4 rejects Emergency Recall when the target is a unit instead of an equipment object.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304136,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·135/221 紧急召回",
+      "note": "官方卡面：费用 1；迅捷；让一件装备返回其所属的手牌。当前 fixture 选择单位目标，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p33-p35 rules 327-340; p39-p42 rules 355-356",
+      "note": "装备和单位是不同对象类型；打出法术需要目标合法、费用足够，并作为结算链项目在双方让过后结算。指定单位目标时应在支付费用、入栈和返回手牌前拒绝。"
+    }
+  ],
+  "roomId": "p4-emergency-recall-unit-target-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304136,
+    "turnNumber": 136,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-EMERGENCY-RECALL"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": ["P2-BASE-EMERGENCY-RECALL-UNIT-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-BASE-EMERGENCY-RECALL-UNIT-001": {
+        "damage": 0,
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-emergency-recall-unit-target-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-EMERGENCY-RECALL",
+        "cardNo": "SFD·135/221",
+        "targetObjectIds": ["P2-BASE-EMERGENCY-RECALL-UNIT-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 136,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 1, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-SPELL-EMERGENCY-RECALL"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": ["P2-BASE-EMERGENCY-RECALL-UNIT-001"],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-BASE-EMERGENCY-RECALL-UNIT-001": {
+          "damage": 0,
+          "power": 2,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
