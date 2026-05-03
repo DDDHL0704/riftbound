@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-incinerate-spellshield-tax-insufficient-rejected",
+  "description": "P4 rejects Incinerate against an enemy Spellshield field unit when the target tax cannot be paid.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304104,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGS·003/024 焚烧; OGN·013/298 呸呸魄罗",
+      "note": "官方卡面：《焚烧》费用 2，迅捷，对战场上的一名单位造成 2 点伤害；《呸呸魄罗》费用 2，单位，战力 2，法盾。当前 fixture 覆盖《焚烧》选择敌方法盾单位但只有基础 2 mana、无法支付额外 1 点法盾目标税时拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出法术需要目标合法、费用足够；法盾要求对手以法术或技能选择该对象为目标时额外支付 A。目标税无法支付时拒绝打出，不应产生事件、费用支付、入栈或状态变化。"
+    }
+  ],
+  "roomId": "p4-incinerate-spellshield-tax-insufficient-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304104,
+    "turnNumber": 104,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-SPELL-INCINERATE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-SPELLSHIELD-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-SPELLSHIELD-UNIT-001": {
+        "damage": 0,
+        "tags": ["CARD_TYPE:UNIT", "法盾"],
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-incinerate-spellshield-tax-insufficient-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-INCINERATE",
+        "cardNo": "OGS·003/024",
+        "targetObjectIds": ["P2-SPELLSHIELD-UNIT-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 104,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 2, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-SPELL-INCINERATE"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-SPELLSHIELD-UNIT-001"],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-SPELLSHIELD-UNIT-001": {
+          "damage": 0,
+          "tags": ["CARD_TYPE:UNIT", "法盾"],
+          "untilEndOfTurnEffects": []
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

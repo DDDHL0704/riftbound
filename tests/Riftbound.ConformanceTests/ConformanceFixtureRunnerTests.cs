@@ -17747,6 +17747,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-play-incinerate-spellshield-tax.fixture.json")]
+    [InlineData("p4-play-incinerate-spellshield-tax-insufficient-rejected.fixture.json")]
     [InlineData("p4-play-noxian-recruit-encourage-cost-reduction.fixture.json")]
     [InlineData("p4-play-dangerous-duo-encourage-target-temp-might.fixture.json")]
     [InlineData("p4-play-junkyard-bully-encourage-discard-draw.fixture.json")]
@@ -20350,6 +20351,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-INCINERATE"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4IncinerateSpellshieldTaxInsufficientFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-incinerate-spellshield-tax-insufficient-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-INCINERATE"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Fact]
