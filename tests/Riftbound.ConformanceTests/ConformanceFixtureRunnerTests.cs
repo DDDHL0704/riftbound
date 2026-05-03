@@ -11659,6 +11659,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.StackItems);
     }
 
+    [Fact]
+    public async Task P4HiddenTrackerTargetRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-hidden-tracker-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(4, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-HIDDEN-TRACKER-MAIN-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-UNIT-HIDDEN-TRACKER"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BASE-HIDDEN-TRACKER-TARGET-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-HIDDEN-TRACKER-TARGET-001"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-HIDDEN-TRACKER-TARGET-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-BASE-HIDDEN-TRACKER-TARGET-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-plucky-poro-keyword-unit.fixture.json", "P1-UNIT-PLUCKY-PORO", 2, "CARD_TYPE:UNIT|法盾|魄罗")]
     [InlineData("p2-preflight-play-mighty-poro-keyword-unit.fixture.json", "P1-UNIT-MIGHTY-PORO", 2, "CARD_TYPE:UNIT|坚守|魄罗")]
@@ -24445,6 +24470,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-sharpshooter-pirate-target-rejected.fixture.json")]
     [InlineData("p4-play-dune-drake-target-rejected.fixture.json")]
     [InlineData("p4-play-ember-monk-target-rejected.fixture.json")]
+    [InlineData("p4-play-hidden-tracker-target-rejected.fixture.json")]
     [InlineData("p4-play-marching-orders-enemy-base-target-rejected.fixture.json")]
     [InlineData("p4-play-duel-target-order-rejected.fixture.json")]
     [InlineData("p4-play-battle-command-target-order-rejected.fixture.json")]
