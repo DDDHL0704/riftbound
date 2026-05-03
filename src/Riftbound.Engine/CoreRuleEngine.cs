@@ -8,10 +8,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AmbushPlayMode = "AMBUSH";
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
+    private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
     private const int StandbyHideManaCost = 1;
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
     private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
+    private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
+    private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -352,9 +355,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? StandbyHideDestination
             : command.Destination.Trim();
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var usesStandardStandbyHideCost = optionalCosts.Count == 1
+            && string.Equals(optionalCosts[0], StandbyHideOptionalCost, StringComparison.Ordinal);
+        var usesFreeStandbyHideCost = optionalCosts.Count == 1
+            && string.Equals(optionalCosts[0], StandbyHideFreeOptionalCost, StringComparison.Ordinal)
+            && HasFreeStandbyHidePermission(state, intent.PlayerId);
         if (!string.Equals(destination, StandbyHideDestination, StringComparison.Ordinal)
-            || optionalCosts.Count != 1
-            || !string.Equals(optionalCosts[0], StandbyHideOptionalCost, StringComparison.Ordinal))
+            || (!usesStandardStandbyHideCost && !usesFreeStandbyHideCost))
         {
             return RejectWithCorePrompts(
                 state,
@@ -380,7 +387,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < StandbyHideManaCost)
+        var standbyHideManaCost = usesFreeStandbyHideCost ? 0 : StandbyHideManaCost;
+        if (currentPool.Mana < standbyHideManaCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -388,7 +396,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = PayRuneCosts(state, intent.PlayerId, StandbyHideManaCost, 0);
+        var runePools = PayRuneCosts(state, intent.PlayerId, standbyHideManaCost, 0);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
         var nextZones = playerZones[intent.PlayerId];
         playerZones[intent.PlayerId] = nextZones with
@@ -420,18 +428,24 @@ public sealed class CoreRuleEngine : IRuleEngine
             PriorityPlayerId = null,
             PassedPriorityPlayerIds = []
         };
+        var costPaidPayload = new Dictionary<string, object?>
+        {
+            ["playerId"] = intent.PlayerId,
+            ["mana"] = standbyHideManaCost,
+            ["power"] = 0,
+            ["optionalCosts"] = optionalCosts.ToArray()
+        };
+        if (usesFreeStandbyHideCost)
+        {
+            costPaidPayload["standbyHideCostWaived"] = true;
+        }
+
         var events = new List<GameEvent>
         {
             new(
                 "COST_PAID",
-                $"{intent.PlayerId} 支付 {StandbyHideManaCost} 点费用",
-                new Dictionary<string, object?>
-                {
-                    ["playerId"] = intent.PlayerId,
-                    ["mana"] = StandbyHideManaCost,
-                    ["power"] = 0,
-                    ["optionalCosts"] = optionalCosts.ToArray()
-                }),
+                $"{intent.PlayerId} 支付 {standbyHideManaCost} 点费用",
+                costPaidPayload),
             new(
                 "CARD_HIDDEN",
                 $"{intent.PlayerId} 正面朝下放置一张待命牌",
@@ -452,6 +466,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool HasFreeStandbyHidePermission(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            FreeStandbyHideEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static string FreeStandbyHideEffectId(string playerId)
+    {
+        return $"{FreeStandbyHideEffectPrefix}{playerId}";
     }
 
     private static ResolutionResult ResolveRevealCard(
@@ -3346,6 +3372,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["destinationZone"] = "HAND"
                 }));
             }
+
+            if (ShouldGrantFreeStandbyHidePermission(behavior))
+            {
+                var effectId = FreeStandbyHideEffectId(stackItem.ControllerId);
+                untilEndOfTurnEffects = untilEndOfTurnEffects
+                    .Append(effectId)
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                    .ToList();
+                events.Add(new GameEvent(
+                    "STANDBY_HIDE_PERMISSION_GRANTED",
+                    $"{behavior.DisplayName}允许本回合免费正面朝下布置待命牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["effectId"] = effectId,
+                        ["optionalCost"] = StandbyHideFreeOptionalCost
+                    }));
+            }
         }
         else if (behavior.PlaysGraveyardTargetToBase)
         {
@@ -5789,6 +5835,14 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return !behavior.PlaysSourceToBaseAsUnit
             && !behavior.PlaysSourceToBaseAsEquipment;
+    }
+
+    private static bool ShouldGrantFreeStandbyHidePermission(CardBehaviorDefinition behavior)
+    {
+        return string.Equals(
+            behavior.EffectKind,
+            GuerrillaWarfareEffectKind,
+            StringComparison.Ordinal);
     }
 
     private static bool ShouldApplyBanishPlayToTarget(CardBehaviorDefinition behavior, int targetIndex)

@@ -3072,6 +3072,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-GRAVE-NON-STANDBY-001", "P1-SPELL-GUERRILLA-WARFARE"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal([CardObjectTags.Standby], result.FinalState.CardObjects["P1-GRAVE-STANDBY-001"].Tags);
         Assert.Equal([CardObjectTags.Standby], result.FinalState.CardObjects["P1-GRAVE-STANDBY-002"].Tags);
+        Assert.Equal(["FREE_STANDBY_HIDE:P1"], result.FinalState.UntilEndOfTurnEffects);
+        Assert.Single(result.Events, evt => string.Equals(evt.Kind, "STANDBY_HIDE_PERMISSION_GRANTED", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -18315,6 +18317,81 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            UntilEndOfTurnEffects = ["FREE_STANDBY_HIDE:P1"]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-free-standby", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_FREE"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["FREE_STANDBY_HIDE:P1"], result.State.UntilEndOfTurnEffects);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
+        Assert.Equal(["COST_PAID", "CARD_HIDDEN"], result.Events.Select(evt => evt.Kind));
+
+        var costEvent = Assert.Single(result.Events, evt => string.Equals(evt.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(0, Assert.IsType<int>(costEvent.Payload["mana"]));
+        Assert.True(Assert.IsType<bool>(costEvent.Payload["standbyHideCostWaived"]));
+    }
+
+    [Fact]
+    public async Task P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-free-standby-rejected", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_FREE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-OGN-TEEMO"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandRevealsStandbyCardInBase()
     {
         var state = PunishmentState(mana: 0) with
@@ -18747,6 +18824,7 @@ public sealed class ConformanceFixtureRunnerTests
 
     [Theory]
     [InlineData("p4-hide-card-standby-face-down.fixture.json")]
+    [InlineData("p4-guerrilla-warfare-free-standby-hide.fixture.json")]
     [InlineData("p4-reveal-card-standby-base.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]

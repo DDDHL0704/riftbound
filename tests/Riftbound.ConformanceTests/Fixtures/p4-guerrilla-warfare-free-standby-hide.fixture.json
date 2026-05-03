@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-guerrilla-warfare-free-standby-hide",
+  "description": "P4 resolves Guerrilla Warfare into a turn-long free Standby hide permission and uses it to place Teemo face down without mana.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304072,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·264/298 游击战",
+      "note": "官方卡面：费用 2；让最多两张待命卡牌从废牌堆里返回你的手牌；本回合内可无视费用正面朝下布置待命卡牌。"
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·121/298 提莫",
+      "note": "官方卡面：待命（支付 A 正面朝下放置此牌，之后可支付 0 将其当作反应牌打出）。本 fixture 只覆盖游击战授予的无视费用暗置；翻开作为反应牌打出仍暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "待命关键词使用正面朝下对象；游击战的本回合 permission 只替代暗置费用，不替代待命反应打出、待命触发或完整隐藏区规则。"
+    }
+  ],
+  "roomId": "p4-guerrilla-standby-hide-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304072,
+    "turnNumber": 72,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-GUERRILLA-WARFARE", "P1-HAND-OGN-TEEMO"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-guerrilla-warfare-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+        "cardNo": "OGN·264/298",
+        "targetObjectIds": [],
+        "optionalCosts": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-guerrilla-warfare-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-guerrilla-warfare-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-guerrilla-warfare-free-hide",
+      "cmd": {
+        "cmdType": "HIDE_CARD",
+        "sourceObjectId": "P1-HAND-OGN-TEEMO",
+        "cardNo": "OGN·121/298",
+        "destination": "STANDBY",
+        "optionalCosts": ["STANDBY_FREE"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 4,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "STANDBY_HIDE_PERMISSION_GRANTED",
+      "COST_PAID",
+      "CARD_HIDDEN"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "baseMana": 2,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+          "cardNo": "OGN·264/298",
+          "targetObjectIds": [],
+          "effectKind": "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "STANDBY_HIDE_PERMISSION_GRANTED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+          "effectId": "FREE_STANDBY_HIDE:P1",
+          "optionalCost": "STANDBY_FREE"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 0,
+          "optionalCosts": ["STANDBY_FREE"],
+          "standbyHideCostWaived": true
+        }
+      },
+      {
+        "kind": "CARD_HIDDEN",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-HAND-OGN-TEEMO",
+          "destination": "STANDBY",
+          "destinationZone": "BASE",
+          "isFaceDown": true
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 72,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-HAND-OGN-TEEMO"],
+          "graveyard": ["P1-SPELL-GUERRILLA-WARFARE"]
+        },
+        "P2": {
+          "hand": [],
+          "base": []
+        }
+      },
+      "cardObjects": {
+        "P1-HAND-OGN-TEEMO": {
+          "power": 2,
+          "isFaceDown": true,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
+          "manaCost": 2
+        }
+      },
+      "stackItems": [],
+      "untilEndOfTurnEffects": ["FREE_STANDBY_HIDE:P1"]
+    }
+  }
+}

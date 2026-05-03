@@ -21,8 +21,8 @@
     },
     {
       "source": "manual-scope-note",
-      "locator": "P2 low-complexity preflight",
-      "note": "当前 fixture 覆盖从己方废牌堆选择 0-2 张带待命标签的牌返回手牌；无视费用正面朝下布置待命牌的本回合权限暂缓到待命布置模型。"
+      "locator": "P2 low-complexity preflight; P4.72 standby hide permission bridge",
+      "note": "当前 fixture 覆盖从己方废牌堆选择 0-2 张带待命标签的牌返回手牌，并在 P4.72 验证游击战结算后授予本回合 FREE_STANDBY_HIDE 权限；实际免费暗置由 p4-guerrilla-warfare-free-standby-hide 覆盖。"
     }
   ],
   "roomId": "p2-preflight-guerrilla-warfare-room",
@@ -114,7 +114,8 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "CARD_RETURNED_TO_HAND",
-      "CARD_RETURNED_TO_HAND"
+      "CARD_RETURNED_TO_HAND",
+      "STANDBY_HIDE_PERMISSION_GRANTED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -167,6 +168,17 @@
           "sourceZone": "GRAVEYARD",
           "destinationZone": "HAND"
         }
+      },
+      {
+        "kind": "STANDBY_HIDE_PERMISSION_GRANTED",
+        "tick": 3,
+        "sequence": 9,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-SPELL-GUERRILLA-WARFARE",
+          "effectId": "FREE_STANDBY_HIDE:P1",
+          "optionalCost": "STANDBY_FREE"
+        }
       }
     ],
     "promptActions": {
@@ -204,7 +216,8 @@
         "P1-GRAVE-NON-STANDBY-001": { "tags": ["CARD_TYPE:UNIT"] },
         "P2-GRAVE-STANDBY-001": { "tags": ["待命"] }
       },
-      "stackItems": []
+      "stackItems": [],
+      "untilEndOfTurnEffects": ["FREE_STANDBY_HIDE:P1"]
     },
     "prompts": {
       "P1": { "actionable": true, "actions": ["END_TURN"] },
