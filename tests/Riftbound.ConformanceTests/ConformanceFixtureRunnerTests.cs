@@ -17660,6 +17660,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-mutant-kitten-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json")]
+    [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
     public async Task P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -20105,6 +20106,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-command-premodel-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandIsExplicitlyRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -20347,6 +20368,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-portalpal-rescue-banish-play-base.fixture.json")]
     [InlineData("p2-preflight-play-secret-art-mercy-grant-boon.fixture.json")]
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
+    [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]
