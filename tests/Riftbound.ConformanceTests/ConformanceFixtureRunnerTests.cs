@@ -17698,6 +17698,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-play-then-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-spellshield-tax.fixture.json")]
+    [InlineData("p4-activate-xerath-damage-skill-friendly-spellshield-no-tax.fixture.json")]
     public async Task P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -18479,6 +18480,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandDoesNotTaxXerathDamageSkillForFriendlySpellshieldTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-UNIT-XERATH",
+                        "P1-SPELLSHIELD-UNIT-001"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new(
+                    "P1-UNIT-XERATH",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-026/219"),
+                ["P1-SPELLSHIELD-UNIT-001"] = new(
+                    "P1-SPELLSHIELD-UNIT-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-xerath-friendly-spellshield-no-tax", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                ["P1-SPELLSHIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("P1-SPELLSHIELD-UNIT-001", Assert.Single(stackItem.TargetObjectIds));
+        Assert.Equal("XERATH_PAY_RED_EXHAUST_DAMAGE_3", stackItem.EffectKind);
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
+        Assert.Equal(0, costPaidEvent.Payload["mana"]);
+        Assert.Equal(1, costPaidEvent.Payload["power"]);
+        Assert.Equal(0, costPaidEvent.Payload["spellshieldTaxMana"]);
+        Assert.Empty(Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillWhenSpellshieldTaxManaIsMissing()
     {
         var state = PunishmentState(mana: 0) with
@@ -18546,6 +18607,25 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.True(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
         Assert.Equal(3, result.FinalState.CardObjects["P2-SPELLSHIELD-UNIT-001"].Damage);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandResolvesXerathDamageSkillWithoutTaxForFriendlySpellshield()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-xerath-damage-skill-friendly-spellshield-no-tax.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.True(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-SPELLSHIELD-UNIT-001"].Damage);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Empty(result.FinalState.StackItems);
     }
