@@ -17699,6 +17699,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-activate-vi-double-power-skill-target-rejected.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-optional-cost-rejected.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-power-missing-rejected.fixture.json")]
+    [InlineData("p4-activate-vi-double-power-skill-non-vi-source-rejected.fixture.json")]
     [InlineData("p4-play-then-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-opponent-source-rejected.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json")]
@@ -18622,6 +18623,26 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-VI"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-VI"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillNonViSourceFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-vi-double-power-skill-non-vi-source-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(2, 1), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-PORO"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-PORO"].Power);
         Assert.Empty(result.FinalState.StackItems);
     }
 

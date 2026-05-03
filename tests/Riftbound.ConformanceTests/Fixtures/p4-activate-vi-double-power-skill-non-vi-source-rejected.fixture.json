@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-activate-vi-double-power-skill-non-vi-source-rejected",
+  "description": "P4 rejects Vi's pay-2-and-red skill when the source object is not Vi.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304092,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-030/219 蔚; OGN·013/298 呸呸魄罗",
+      "note": "官方卡面：《蔚》拥有支付 2 和红色令自身本回合内战力翻倍的技能；《呸呸魄罗》只有法盾单位文本，不能伪造《蔚》的 ability id。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "激活技能需要来源对象拥有对应技能文本；本 fixture 只覆盖非《蔚》来源伪造同一 ability id 时拒绝激活。"
+    }
+  ],
+  "roomId": "p4-activate-vi-non-vi-source-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304092,
+    "turnNumber": 92,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 2, "power": 1 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-UNIT-PORO"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-UNIT-PORO": {
+        "cardNo": "OGN·013/298",
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT", "法盾"],
+        "manaCost": 2
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-vi-non-vi-source-rejected",
+      "cmd": {
+        "cmdType": "ACTIVATE_ABILITY",
+        "sourceObjectId": "P1-UNIT-PORO",
+        "abilityId": "PAY_2_RED_DOUBLE_POWER",
+        "targetObjectIds": [],
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 92,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 2, "power": 1 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-UNIT-PORO"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-UNIT-PORO": {
+          "cardNo": "OGN·013/298",
+          "power": 2,
+          "tags": ["CARD_TYPE:UNIT", "法盾"],
+          "manaCost": 2
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
