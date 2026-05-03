@@ -132,7 +132,8 @@
 - P4.101 提交：`f5de73d test: add p4 predict rejection fixture`
 - P4.102 提交：`40b5b22 test: add p4 guerrilla rejection fixture`
 - P4.103 提交：`c063203 test: add p4 haste rejection fixture`
-- P4.104 提交：本提交 `test: add p4 spellshield rejection fixture`
+- P4.104 提交：`e41bce0 test: add p4 spellshield rejection fixture`
+- P4.105 提交：本提交 `test: add p4 spellshield multi rejection fixture`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -305,6 +306,8 @@ P4.103 更新：Permission keywords 行在 P4.102 基础上追加 `P4HasteOption
 
 P4.104 更新：Resource keywords 行在 P4.103 基础上追加 `P4IncinerateSpellshieldTaxInsufficientFixture` 和 `p4-play-incinerate-spellshield-tax-insufficient-rejected.fixture.json`，把已有直接测试覆盖的《焚烧》选择敌方 `法盾` 单位但无法支付目标税的拒绝边界纳入 conformance fixture 和资源关键词聚合回放。
 
+P4.105 更新：Resource keywords 行在 P4.104 基础上追加 `P4MultipleSpellshieldTaxInsufficientFixture` 和 `p4-play-spirit-fire-multiple-spellshield-tax-insufficient-rejected.fixture.json`，把已有直接测试覆盖的《妖异狐火》同时选择敌方 `法盾` 与 `法盾2` 单位但无法支付聚合目标税的拒绝边界纳入 conformance fixture 和资源关键词聚合回放。
+
 ## P4.2 Permission Keyword Batch
 
 本阶段完成权限关键词的最小规则化模型，保持小批次接入：
@@ -399,7 +402,7 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesCoverPrimitiveDelegatedAndDeferredActions`、`P4BridgeDelegatesLowRiskTemplatesToExistingP2Behaviors`、`P4PrimitiveExecutorBuildsBasicActionPlansAndLeavesComplexRoutesDelegated`、`P4MoveUnitCommandIsExplicitlyRejectedUntilRoamMovementExists`、`P4MoveUnitCommandRejectionFixture`、`GameCommandMapperParsesMoveUnitPayload`、`p4-move-unit-command-premodel-rejected`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.65 已建立显式 `MOVE_UNIT` command envelope 但仍拒绝执行，P4.98 已补同一路径 fixture 并纳入基础动作聚合；固定打出获得经验、固定经验额外费用减费、《无极学徒》等级条件抽牌和《严厉军士》动态友方场上单位计数经验可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.104 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.105 once committed. |
 
 P4.80 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 锁定《泽拉斯》带目标技能缺少“一名单位”目标时拒绝且不改状态。
 
@@ -921,7 +924,7 @@ Prompt-to-artifact completion audit：
 
 - 代表牌选择 `OGN·256/298 妖异狐火`：官方文本允许选择一处战场中任意数量且总战力不高于 4 的单位，已有 P2 手写路径会在双方让过后摧毁目标，适合验证多目标费用聚合而不扩张规则系统。
 - 新增 fixture `p4-play-spirit-fire-multiple-spellshield-tax.fixture.json`：P1 以 6 mana 打出《妖异狐火》，同时选择敌方 `法盾` 2 战力单位和 `法盾2` 2 战力单位，费用事件记录基础 3 mana + `spellshieldTaxMana: 3`，结算后两个目标都进入 P2 废牌堆。
-- 新增 `P4SpellshieldTaxAggregatesMultipleEnemySpellTargets` 和 `CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient`：前者锁定 fixture 结果和 `COST_PAID` payload，后者验证只有 5 mana 时不能支付基础 3 + 法盾税 3，状态保持不变。
+- 新增 `P4SpellshieldTaxAggregatesMultipleEnemySpellTargets` 和 `CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient`：前者锁定 fixture 结果和 `COST_PAID` payload，后者验证只有 5 mana 时不能支付基础 3 + 法盾税 3，状态保持不变；P4.105 已把同一边界提升为 `p4-play-spirit-fire-multiple-spellshield-tax-insufficient-rejected.fixture.json`。
 - `CoreRuleEngine.ResolveSpellshieldTargetTaxMana` 已按目标遍历并累计 `法盾` / `法盾N` 标签税值，本批次只补代表 fixture、负向测试和文档证据，不改主规则引擎路径。
 - 本批次没有实现技能目标税、授予/静态法盾、face-down/待命、伏击、战斗承伤、游走移动、完整装备装配/灵便/百炼或 P5/P6 批量迁移。
 
@@ -1341,6 +1344,14 @@ Prompt-to-artifact checklist：
 - 新增 fixture `p4-play-incinerate-spellshield-tax-insufficient-rejected.fixture.json` 和回放测试 `P4IncinerateSpellshieldTaxInsufficientFixture`，把《焚烧》敌方法盾目标税费用不足拒绝边界纳入 conformance 证据。
 - `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 现在实际回放该法盾拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，也不进入更多技能目标税、授予/静态法盾或完整 FAQ 细节。
 
+## P4.105 Spirit Fire Multiple Spellshield Tax Insufficient Rejection Fixture Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖《妖异狐火》同时选择敌方 `法盾` 与 `法盾2` 单位但无法支付聚合目标税时拒绝；本批次只把该费用边界提升为可回放 fixture。
+
+- `PLAY_CARD sourceObjectId=P1-SPELL-SPIRIT-FIRE cardNo=OGN·256/298 targetObjectIds=["P2-SPIRIT-FIRE-SPELLSHIELD-001","P2-SPIRIT-FIRE-SPELLSHIELD2-001"]` 当前需要基础 3 mana 加 3 mana 法盾目标税；P1 只有 5 mana 时返回 `INSUFFICIENT_COST`，不推进 tick、不写事件、不移动手牌、不改变符文池/目标区域/目标伤害，也不创建 stack item。
+- 新增 fixture `p4-play-spirit-fire-multiple-spellshield-tax-insufficient-rejected.fixture.json` 和回放测试 `P4MultipleSpellshieldTaxInsufficientFixture`，把《妖异狐火》多目标法盾税费用不足拒绝边界纳入 conformance 证据。
+- `P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 现在实际回放该多目标法盾拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，也不进入更多技能目标税、授予/静态法盾或完整 FAQ 细节。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -1392,7 +1403,7 @@ Prompt-to-artifact checklist：
 | P4.9 完成审计与剩余 profile 收口 | Done | 100% | 新增 lifecycle/interaction/basic-action profile，明确 P4 goal 尚未完全达成的 deferred 能力。 |
 | P4.10 固定获得经验执行切片 | Done | 100% | 新增玩家经验状态、固定 `GainExperienceOnPlay` 执行和 3 条代表 fixture；P4.19 已补《严厉军士》动态计数经验，其他动态经验与经验消耗继续 deferred。 |
 | P4.11 经验额外费用减费执行切片 | Done | 100% | 新增 `SPEND_EXPERIENCE:n` optional cost、波比代表 fixture 和经验不足拒绝测试；改变效果/目标的经验费用继续 deferred。 |
-| P4.12 法盾目标税执行切片 | Done | 100% | 新增 `spellshieldTaxMana` 费用计划、`法盾`/`法盾N` 标签税值复用、代表 fixture 和费用不足拒绝测试；P4.104 已把《焚烧》敌方法盾目标税费用不足边界提升为 conformance fixture；P4.59 已补多目标聚合，P4.61 已补友方法术目标 no-tax 边界，P4.62 已补技能 command 前置模型，P4.77 已补《泽拉斯》带目标技能敌方法盾税代表路径，P4.93 已补同一技能敌方法盾目标税 mana 不足拒绝 fixture，P4.78 已补同一技能己方法盾 no-tax 边界，P4.79 已补同一技能已横置来源拒绝边界，P4.80 已补同一技能缺目标拒绝边界，P4.81 已补同一技能多目标拒绝边界，P4.82 已补同一技能额外费用拒绝边界，P4.83 已补非《泽拉斯》来源伪造同一 ability id 的拒绝边界，P4.84 已补同一技能非单位目标拒绝边界，P4.85 已补同一技能来源不在战场拒绝边界，P4.86 已补同一技能对手控制来源拒绝边界，P4.93 已补同一技能敌方法盾目标税费用不足拒绝 fixture，并聚合回放拒绝 fixtures；更多技能目标税、授予/FAQ 全细节继续 deferred。 |
+| P4.12 法盾目标税执行切片 | Done | 100% | 新增 `spellshieldTaxMana` 费用计划、`法盾`/`法盾N` 标签税值复用、代表 fixture 和费用不足拒绝测试；P4.104 已把《焚烧》敌方法盾目标税费用不足边界提升为 conformance fixture；P4.59 已补多目标聚合，P4.105 已把《妖异狐火》多目标法盾税费用不足边界提升为 conformance fixture；P4.61 已补友方法术目标 no-tax 边界，P4.62 已补技能 command 前置模型，P4.77 已补《泽拉斯》带目标技能敌方法盾税代表路径，P4.93 已补同一技能敌方法盾目标税 mana 不足拒绝 fixture，P4.78 已补同一技能己方法盾 no-tax 边界，P4.79 已补同一技能已横置来源拒绝边界，P4.80 已补同一技能缺目标拒绝边界，P4.81 已补同一技能多目标拒绝边界，P4.82 已补同一技能额外费用拒绝边界，P4.83 已补非《泽拉斯》来源伪造同一 ability id 的拒绝边界，P4.84 已补同一技能非单位目标拒绝边界，P4.85 已补同一技能来源不在战场拒绝边界，P4.86 已补同一技能对手控制来源拒绝边界，P4.93 已补同一技能敌方法盾目标税费用不足拒绝 fixture，并聚合回放拒绝 fixtures；更多技能目标税、授予/FAQ 全细节继续 deferred。 |
 | P4.13 急速活跃可选费用切片 | Done | 100% | 新增 `HASTE_READY` 代表 optional cost、《灼焰飞龙》fixture 和 power 不足拒绝测试；P4.103 已把该拒绝边界提升为 conformance fixture；其他急速牌彩色资源/授予/战场联动继续 deferred。 |
 | P4.14 鼓舞费用减免执行切片 | Done | 100% | 新增同回合已打出卡牌记忆、《诺克萨斯新兵》费用 -2 代表 fixture、无先前打牌记忆费用不足拒绝测试和回合结束清空测试；其他鼓舞效果继续 deferred。 |
 | P4.15 等级入场修正执行切片 | Done | 100% | 新增 `LevelExperienceThreshold` 源单位入场修正、《踏苔蜥》`等级3` +1/法盾 fixture；其他等级费用/效果/技能分支继续 deferred。 |
@@ -1485,9 +1496,10 @@ Prompt-to-artifact checklist：
 | P4.102 completion audit + 游击战非待命目标拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《游击战》选择己方废牌堆非 `待命` 目标时拒绝且不推进 tick/事件/费用/手牌/废牌堆/stack 的 fixture，并把该 fixture 纳入互动关键词聚合回放；仍不进入完整隐藏区或待命触发。 |
 | P4.103 completion audit + 急速 power 不足拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《灼焰飞龙》`HASTE_READY` 缺少 power 费用时拒绝且不推进 tick/事件/符文池/手牌/stack 的 fixture，并把该 fixture 纳入权限关键词聚合回放；仍不进入彩色资源精确匹配或战场联动。 |
 | P4.104 completion audit + 焚烧法盾税费用不足 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《焚烧》选择敌方 `法盾` 单位但无法支付目标税时拒绝且不推进 tick/事件/符文池/手牌/目标伤害/stack 的 fixture，并把该 fixture 纳入资源关键词聚合回放；仍不进入更多技能目标税或授予/静态法盾。 |
-| P4.105 next low-risk gap | Pending | 0% | 基于 P4.104 audit 继续选择低风险可验证小批次；优先从剩余待命/伏击边界、技能边界、更多法盾边界或文档中仍可 fixture 化的拒绝边界中选一项，仍不进入 P5/P6/P7。 |
+| P4.105 completion audit + 妖异狐火多目标法盾税费用不足 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增《妖异狐火》同时选择敌方 `法盾` 与 `法盾2` 单位但无法支付聚合目标税时拒绝且不推进 tick/事件/符文池/手牌/目标区域/stack 的 fixture，并把该 fixture 纳入资源关键词聚合回放；仍不进入更多技能目标税或授予/静态法盾。 |
+| P4.106 next low-risk gap | Pending | 0% | 基于 P4.105 audit 继续选择低风险可验证小批次；优先从剩余待命/伏击边界、技能边界、更多法盾边界或文档中仍可 fixture 化的拒绝边界中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `105/106 = 99.1%`。已完成 P4.1-P4.104：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、法盾法术目标税费用不足拒绝、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、带目标/额外费用/费用不足/非《蔚》来源拒绝、对手控制来源拒绝与来源不在场上拒绝、《泽拉斯》带目标技能敌方法盾税、法盾税费用不足拒绝、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标/额外费用/非《泽拉斯》来源/非单位目标/来源不在战场拒绝、对手控制来源拒绝和 P4.79-P4.86/P4.93 拒绝聚合回放、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、费用不足拒绝及《游击战》`STANDBY_FREE` 免费暗置/无权限/非待命废牌堆目标拒绝、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈及无优先权窗口拒绝、`PLAY_CARD mode=AMBUSH` 目的地前置模型及显式拒绝 fixture、`MOVE_UNIT` 游走/基础移动前置拒绝 fixture、`ASSEMBLE_EQUIPMENT` 装备装配前置拒绝 fixture、`DECLARE_BATTLE` 战斗声明前置拒绝 fixture、`预知` 非顶部牌目标拒绝 fixture、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径及 power 不足拒绝 fixture、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `106/107 = 99.1%`。已完成 P4.1-P4.105：template delegation/primitive plan、权限关键词代表时机、瞬息到期、回响 mana-only、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾法术目标税、法盾法术目标税费用不足拒绝、多目标法盾税聚合费用不足拒绝、多目标税聚合与友方目标 no-tax 边界、`ACTIVATE_ABILITY` / `HIDE_CARD` / `REVEAL_CARD` / `MOVE_UNIT` / `ASSEMBLE_EQUIPMENT` / `DECLARE_BATTLE` command 前置模型、《蔚》无目标付费技能入栈/结算代表路径、带目标/额外费用/费用不足/非《蔚》来源拒绝、对手控制来源拒绝与来源不在场上拒绝、《泽拉斯》带目标技能敌方法盾税、法盾税费用不足拒绝、己方法盾 no-tax、已横置来源拒绝、缺目标/多目标/额外费用/非《泽拉斯》来源/非单位目标/来源不在战场拒绝、对手控制来源拒绝和 P4.79-P4.86/P4.93 拒绝聚合回放、横置和伤害代表路径、场上对象 `cardNo` 身份边界、对手正面朝下对象 snapshot redaction、待命 `HIDE_CARD` 最小正面朝下放置、费用不足拒绝及《游击战》`STANDBY_FREE` 免费暗置/无权限/非待命废牌堆目标拒绝、`REVEAL_CARD` 基地显露、`STANDBY_REACTION` 无目标反应入栈及无优先权窗口拒绝、`PLAY_CARD mode=AMBUSH` 目的地前置模型及显式拒绝 fixture、`MOVE_UNIT` 游走/基础移动前置拒绝 fixture、`ASSEMBLE_EQUIPMENT` 装备装配前置拒绝 fixture、`DECLARE_BATTLE` 战斗声明前置拒绝 fixture、`预知` 非顶部牌目标拒绝 fixture、回收/放逐/增益 template skeleton、多条等级/鼓舞代表路径、34 条急速 `HASTE_READY` 代表路径及 power 不足拒绝 fixture、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式 P4 目标 surface 的 baseline 覆盖审计测试。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、游走真实移动、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -1502,16 +1514,16 @@ P4 当前整体进度：按当前 part 计 `105/106 = 99.1%`。已完成 P4.1-P4
 
 ## Latest Validation
 
-P4.104 已完成验证：
+P4.105 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1903/1903
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1822/1822
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，1905/1905
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，1824/1824
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4IncinerateSpellshieldTaxInsufficientFixture"`：pass，1/1
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，40/40
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MultipleSpellshieldTaxInsufficientFixture"`：pass，1/1
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，41/41
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.105：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.106：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、游走真实移动、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。

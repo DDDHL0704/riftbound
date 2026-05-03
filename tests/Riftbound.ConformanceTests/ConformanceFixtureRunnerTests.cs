@@ -17759,6 +17759,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-unl-yi-level6-spellshield-roam.fixture.json")]
     [InlineData("p4-play-unl-yi-alt-a-level6-spellshield-roam.fixture.json")]
     [InlineData("p4-play-spirit-fire-multiple-spellshield-tax.fixture.json")]
+    [InlineData("p4-play-spirit-fire-multiple-spellshield-tax-insufficient-rejected.fixture.json")]
     [InlineData("p4-play-secret-art-mercy-friendly-spellshield-no-tax.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-target-rejected.fixture.json")]
@@ -20397,6 +20398,28 @@ public sealed class ConformanceFixtureRunnerTests
             ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001"],
             result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MultipleSpellshieldTaxInsufficientFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-spirit-fire-multiple-spellshield-tax-insufficient-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(5, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P2-SPIRIT-FIRE-SPELLSHIELD-001", "P2-SPIRIT-FIRE-SPELLSHIELD2-001", "P2-SPIRIT-FIRE-KEEPER-001"],
+            result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Theory]
