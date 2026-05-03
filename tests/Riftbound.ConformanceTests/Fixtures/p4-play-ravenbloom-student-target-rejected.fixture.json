@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-ravenbloom-student-target-rejected",
+  "description": "P4 rejects Ravenbloom Student when an explicit target is provided for its zero-target play path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304254,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·103/298 拉文布鲁姆学生",
+      "note": "官方卡面：费用 2；单位；基础战力 2；每当你打出一张法术牌时，让我本回合内 +1 战力。当前 fixture 覆盖普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；法术打出触发本回合战力修正路径暂缓。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
+      "note": "单位是游戏对象；打出卡牌需要目标合法、费用足够、加入结算链并在双方让过后结算。OGN·103《拉文布鲁姆学生》的当前手牌打出路径为 0 目标，提供显式目标时应在支付费用、入栈和成为单位对象前拒绝。"
+    }
+  ],
+  "roomId": "p4-ravenbloom-student-target-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304254,
+    "turnNumber": 254,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 2, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-RAVENBLOOM-STUDENT-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-RAVENBLOOM-STUDENT"],
+        "base": ["P1-BASE-RAVENBLOOM-STUDENT-TARGET-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-BASE-RAVENBLOOM-STUDENT-TARGET-001": {
+        "damage": 0,
+        "power": 0,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-ravenbloom-student-target-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-RAVENBLOOM-STUDENT",
+        "cardNo": "OGN·103/298",
+        "targetObjectIds": ["P1-BASE-RAVENBLOOM-STUDENT-TARGET-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 254,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 2, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-RAVENBLOOM-STUDENT-MAIN-001"],
+          "hand": ["P1-UNIT-RAVENBLOOM-STUDENT"],
+          "base": ["P1-BASE-RAVENBLOOM-STUDENT-TARGET-001"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P1-BASE-RAVENBLOOM-STUDENT-TARGET-001": {
+          "damage": 0,
+          "power": 0,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
