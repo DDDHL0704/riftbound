@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-thundering-sky-insufficient-reduced-cost-rejected",
+  "description": "P4 rejects Thundering Sky when the player cannot pay the reduced mana cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304122,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·014/298 霹天雳地",
+      "note": "官方卡面：费用 8；迅捷；将我的法力费用减去你所控制单位中的最高战力值，即为打出我所需的法力；对战场上的一名单位造成5点伤害。当前 fixture 没有足够法力支付所需费用，应拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4",
+      "note": "法术打出需要先满足费用并建立结算链；伤害在结算时记录到目标对象。费用不足时应在支付费用、入栈和状态变化前拒绝。"
+    }
+  ],
+  "roomId": "p4-thundering-sky-insufficient-reduced-cost-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304122,
+    "turnNumber": 122,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 5, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-THUNDERING-SKY"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-001": {
+        "damage": 0,
+        "power": 6,
+        "untilEndOfTurnEffects": [],
+        "untilEndOfTurnPowerModifier": 0
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-thundering-sky-insufficient-reduced-cost-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-THUNDERING-SKY",
+        "cardNo": "OGN·014/298",
+        "targetObjectIds": ["P2-UNIT-001"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 122,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 5, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-SPELL-THUNDERING-SKY"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-UNIT-001"],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-UNIT-001": {
+          "damage": 0,
+          "power": 6,
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
