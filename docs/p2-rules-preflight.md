@@ -2361,7 +2361,7 @@ P4 延展 1. 已完成：新增 `ACTIVATE_ABILITY` command 前置模型，服务
 
 P4 延展 2. 已完成：新增 `HIDE_CARD` command 前置模型，服务端协议能解析 `sourceObjectId` / `cardNo` / `destination` / `optionalCosts`；P4.70 已在此 envelope 上接入 `destination = STANDBY` 且 `optionalCosts = ["STANDBY_A"]` 的最小正面朝下放置路径，P4.94 已把同一路径费用不足拒绝边界纳入 conformance fixture，其余待命隐藏区、翻开打出、触发和位置限制仍暂缓。
 
-P4 延展 3. 已完成：新增 `PLAY_CARD` 伏击目的地前置模型，服务端协议能解析 `sourceObjectId` / `cardNo` / `targetObjectIds` / `mode` / `optionalCosts` / `destination`，但 `CoreRuleEngine` 在反应窗口、战场目的地合法性和单位打出至战场模型完成前对 `mode = "AMBUSH"` 显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`UNL-021/219 阴森药剂师` 这类“伏击”文本仍暂缓真实反应战场打出。
+P4 延展 3. 已完成：新增 `PLAY_CARD` 伏击目的地前置模型，服务端协议能解析 `sourceObjectId` / `cardNo` / `targetObjectIds` / `mode` / `optionalCosts` / `destination`，但 `CoreRuleEngine` 在反应窗口、战场目的地合法性和单位打出至战场模型完成前对 `mode = "AMBUSH"` 显式返回 `UNSUPPORTED_COMMAND` 且不改状态；P4.97 已把该显式拒绝边界提升为 conformance fixture；`UNL-021/219 阴森药剂师` 这类“伏击”文本仍暂缓真实反应战场打出。
 
 P4 延展 4. 已完成：新增 `MOVE_UNIT` command 前置模型，服务端协议能解析 `sourceObjectId` / `origin` / `destination` / `optionalCosts`，但 `CoreRuleEngine` 在多战场位置、移动权限、游走合法性和移动触发模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；`SFD·235/221 亚索` 这类“游走”文本仍暂缓真实跨战场移动和单回合移动次数得分。
 
@@ -2424,6 +2424,8 @@ P4 延展 32. 已完成：新增待命 `HIDE_CARD` 费用不足拒绝 fixture。
 P4 延展 33. 已完成：新增待命 `REVEAL_CARD` 反应入栈无优先权窗口拒绝 fixture。`REVEAL_CARD mode=STANDBY_REACTION destination=STACK optionalCosts=["STANDBY_REVEAL_0"]` 只能在控制者持有优先权且结算链存在待结算项目时执行；P1 处于 main/neutral open 时命令被拒绝，tick、事件、正面朝下状态、战场对象伤害和结算链均不改变。P4.95 同时把该 fixture 纳入互动关键词聚合回放。
 
 P4 延展 34. 已完成：新增待命 `HIDE_CARD` 免费暗置无权限拒绝 fixture。`HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_FREE"]` 需要《游击战》授予的 `FREE_STANDBY_HIDE:{playerId}` 本回合效果；没有该权限时命令被拒绝，tick、事件、手牌、基地和结算链均不改变，也不会创建正面朝下对象。P4.96 同时把该 fixture 纳入互动关键词聚合回放。
+
+P4 延展 35. 已完成：新增伏击 `PLAY_CARD` 前置模型拒绝 fixture。`PLAY_CARD mode=AMBUSH destination=BATTLEFIELD:P1-MAIN` 当前仍需要后续反应窗口、战场目的地合法性和单位打出至战场模型；在这些系统未完成前命令被显式拒绝，tick、事件、费用、手牌、战场和结算链均不改变。P4.97 同时把该 fixture 纳入互动关键词聚合回放。
 
 ## 7. 暂缓项
 
