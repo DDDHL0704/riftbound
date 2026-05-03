@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-blazing-drake-haste-ready-insufficient-power-rejected",
+  "description": "P4 rejects Blazing Drake HASTE_READY when the player lacks the power cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304103,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·001/298 灼焰飞龙",
+      "note": "官方卡面：费用 5；单位；战力 5；龙属性；急速，可选择额外支付 1 和红色让我以活跃状态进场。本 fixture 覆盖选择 HASTE_READY 但缺少 power 费用时拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "打出卡牌并支付可选额外费用需要费用可支付；缺少急速活跃分支的 power 费用时不能支付、不能入栈，也不能移动手牌。"
+    }
+  ],
+  "roomId": "p4-blazing-drake-haste-ready-insufficient-power-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304103,
+    "turnNumber": 103,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 6, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-UNIT-BLAZING-DRAKE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-blazing-drake-haste-ready-insufficient-power",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-BLAZING-DRAKE",
+        "cardNo": "OGN·001/298",
+        "targetObjectIds": [],
+        "optionalCosts": ["HASTE_READY"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 103,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 6, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-UNIT-BLAZING-DRAKE"],
+          "base": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": []
+        }
+      },
+      "cardObjects": {},
+      "stackItems": []
+    }
+  }
+}

@@ -16789,6 +16789,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-wind-wall-counter-spell.fixture.json")]
     [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json")]
     [InlineData("p2-preflight-play-baby-shark-no-optional-haste.fixture.json")]
+    [InlineData("p4-play-blazing-drake-haste-ready-insufficient-power-rejected.fixture.json")]
     [InlineData("p4-play-baby-shark-haste-ready.fixture.json")]
     [InlineData("p4-play-legion-rearguard-haste-ready.fixture.json")]
     [InlineData("p4-play-mr-root-haste-ready.fixture.json")]
@@ -17626,6 +17627,25 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(6, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-UNIT-BLAZING-DRAKE"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchRejectsInsufficientPowerFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-blazing-drake-haste-ready-insufficient-power-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(6, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-BLAZING-DRAKE"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Fact]
