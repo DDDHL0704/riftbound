@@ -17704,6 +17704,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-activate-vi-double-power-skill-opponent-source-rejected.fixture.json")]
     [InlineData("p4-activate-vi-double-power-skill-source-not-field-rejected.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-spellshield-tax.fixture.json")]
+    [InlineData("p4-activate-xerath-damage-skill-spellshield-tax-insufficient-rejected.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-friendly-spellshield-no-tax.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-exhausted-source-rejected.fixture.json")]
     [InlineData("p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json")]
@@ -19323,6 +19324,28 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
         Assert.Equal(3, result.FinalState.CardObjects["P2-SPELLSHIELD-UNIT-001"].Damage);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillSpellshieldTaxInsufficientFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-activate-xerath-damage-skill-spellshield-tax-insufficient-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 1), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-XERATH"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.False(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-SPELLSHIELD-UNIT-001"].Damage);
         Assert.Empty(result.FinalState.StackItems);
     }
 
