@@ -15238,6 +15238,29 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MindAndBalanceInsufficientUnreducedCostRejectedFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-mind-and-balance-insufficient-unreduced-cost-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(1, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-DRAW-001"], result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-RUNE-001"], result.FinalState.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(["P1-SPELL-MIND-AND-BALANCE"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsHuntTheWeakWhenTargetPowerIsTooHigh()
     {
         var state = PunishmentState(mana: 2) with
@@ -20902,6 +20925,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-play-convergent-mutation-enemy-target-rejected.fixture.json")]
     [InlineData("p4-play-convergent-mutation-duplicate-target-rejected.fixture.json")]
     [InlineData("p4-play-thundering-sky-insufficient-reduced-cost-rejected.fixture.json")]
+    [InlineData("p4-play-mind-and-balance-insufficient-unreduced-cost-rejected.fixture.json")]
     public async Task P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(

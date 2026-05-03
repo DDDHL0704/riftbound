@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-play-mind-and-balance-insufficient-unreduced-cost-rejected",
+  "description": "P4 rejects Mind and Balance when the opponent is not close enough to victory for the cost reduction and the player cannot pay the unreduced mana cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304123,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·047/298 御衡守念",
+      "note": "官方卡面：费用 3；迅捷；如果对手得分距离胜利得分不超过 3 分，则此法术费用减少 2；抽一张牌，然后召出一枚休眠的符文。当前 fixture 中对手距离胜利得分超过 3 分且 P1 只有 1 点法力，应按未降低费用拒绝。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p20 rules 164-167; p39-p42 rules 355-356; p57 rule 413.4",
+      "note": "打出法术需要先满足费用并建立结算链；抽牌与召出符文在法术结算时按卡面顺序执行。费用不足时应在支付费用、入栈、抽牌和召出符文前拒绝。"
+    }
+  ],
+  "roomId": "p4-mind-and-balance-insufficient-unreduced-cost-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304123,
+    "turnNumber": 123,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 4
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-DRAW-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-MIND-AND-BALANCE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {}
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-mind-and-balance-insufficient-unreduced-cost-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-MIND-AND-BALANCE",
+        "cardNo": "OGN·047/298",
+        "targetObjectIds": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 123,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 4
+      },
+      "runePools": {
+        "P1": { "mana": 1, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-DRAW-001"],
+          "runeDeck": ["P1-RUNE-001"],
+          "hand": ["P1-SPELL-MIND-AND-BALANCE"],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {},
+      "stackItems": []
+    }
+  }
+}
