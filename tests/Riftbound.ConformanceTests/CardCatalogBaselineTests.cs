@@ -1209,6 +1209,167 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P4ObjectiveNamedSurfacesHaveRepresentativeCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var covered = new HashSet<string>(StringComparer.Ordinal);
+
+        void Cover(string key, bool condition)
+        {
+            Assert.True(condition, $"{key} does not have a P4 representative coverage artifact.");
+            Assert.True(covered.Add(key), $"Duplicate P4 coverage key: {key}");
+        }
+
+        CardPermissionKeywordProfile PermissionProfile(string cardNo)
+        {
+            Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+            return CardPermissionKeywordRules.BuildProfile(definition);
+        }
+
+        var swift = PermissionProfile("OGN·004/298");
+        Cover("permission:迅捷", swift.HasSwift);
+        var reaction = PermissionProfile("OGN·064/298");
+        Cover("permission:反应", reaction.HasReaction);
+        var haste = PermissionProfile("OGN·001/298");
+        Cover(
+            "permission:急速",
+            haste.HasHaste
+                && string.Equals(
+                    haste.HasteOptionalReadyBranchStatus,
+                    HasteOptionalReadyBranchStatuses.ImplementedRepresentative,
+                    StringComparison.Ordinal));
+
+        var assault = BuildCombatProfile(specs, "OGN·210/298", CardCombatKeywordNames.Assault);
+        Cover("combat:强攻", assault.HasAssault && assault.AssaultAmount > 0);
+        var steadfast = BuildCombatProfile(specs, "OGN·052/298", CardCombatKeywordNames.Steadfast);
+        Cover("combat:坚守", steadfast.HasSteadfast && steadfast.SteadfastAmount > 0);
+        var bulwark = BuildCombatProfile(specs, "UNL-036/219", CardCombatKeywordNames.Bulwark);
+        Cover("combat:壁垒", bulwark.HasBulwark);
+        var backRow = BuildCombatProfile(specs, "UNL-090/219", CardCombatKeywordNames.BackRow);
+        Cover("combat:后排", backRow.HasBackRow);
+        var roam = BuildCombatProfile(specs, "SFD·096/221", CardCombatKeywordNames.Roam);
+        Cover("combat:游走", roam.HasRoam);
+
+        var ephemeral = BuildLifecycleProfile(specs, "UNL-081/219", CardLifecycleKeywordNames.Ephemeral);
+        Cover(
+            "lifecycle:瞬息",
+            ephemeral.HasEphemeral
+                && string.Equals(ephemeral.Status, LifecycleKeywordProfileStatuses.Implemented, StringComparison.Ordinal));
+        var lastBreath = BuildLifecycleProfile(specs, "OGN·190/298", CardLifecycleKeywordNames.LastBreath);
+        Cover(
+            "lifecycle:绝念",
+            lastBreath.HasLastBreath
+                && string.Equals(lastBreath.Status, LifecycleKeywordProfileStatuses.RecognizedDeferred, StringComparison.Ordinal));
+        var predict = BuildLifecycleProfile(specs, "UNL-161/219", CardLifecycleKeywordNames.Predict);
+        Cover(
+            "lifecycle:预知",
+            predict.HasPredict
+                && string.Equals(predict.Status, LifecycleKeywordProfileStatuses.RecognizedDelegated, StringComparison.Ordinal));
+
+        var hunt = BuildResourceProfile(specs, "UNL-100/219", CardResourceKeywordNames.Hunt);
+        Cover("resource:狩猎", hunt.HasHunt && hunt.HuntAmount > 0);
+        var level = BuildResourceProfile(specs, "UNL-047/219", CardResourceKeywordNames.Level);
+        Cover("resource:等级", level.HasLevel && level.LevelThresholds.Count > 0);
+        var encourage = BuildResourceProfile(specs, "OGN·012/298", CardResourceKeywordNames.Encourage);
+        Cover("resource:鼓舞", encourage.HasEncourage);
+        var spellshield = BuildResourceProfile(specs, "OGN·013/298", CardResourceKeywordNames.Spellshield);
+        Cover("resource:法盾", spellshield.HasSpellshield && spellshield.SpellshieldTax == 1);
+
+        var standby = BuildInteractionProfile(specs, "OGN·121/298", CardInteractionKeywordNames.Standby);
+        Cover("interaction:待命", standby.HasStandby);
+        var echo = BuildInteractionProfile(specs, "UNL-061/219", CardInteractionKeywordNames.Echo);
+        Cover(
+            "interaction:回响",
+            echo.HasEcho
+                && string.Equals(echo.Status, InteractionKeywordProfileStatuses.Implemented, StringComparison.Ordinal));
+        var ambush = BuildInteractionProfile(specs, "UNL-021/219", CardInteractionKeywordNames.Ambush);
+        Cover("interaction:伏击", ambush.HasAmbush);
+
+        var assemble = BuildEquipmentProfile(specs, "SFD·033/221", CardEquipmentKeywordNames.Assemble);
+        Cover("equipment:装配", assemble.HasAssemble);
+        var agile = BuildEquipmentProfile(
+            specs,
+            "SFD·022/221",
+            CardEquipmentKeywordNames.Agile,
+            CardEquipmentKeywordNames.Assemble);
+        Cover("equipment:灵便", agile.HasAgile);
+        var tempered = BuildEquipmentProfile(specs, "SFD·008/221", CardEquipmentKeywordNames.Tempered);
+        Cover("equipment:百炼", tempered.HasTempered);
+
+        var draw = BuildBasicActionProfile(specs, "SFD·087/221");
+        Cover("basic:抽牌", draw.PrimitiveActions.Contains(CardBasicActionNames.Draw, StringComparer.Ordinal));
+        var damage = BuildBasicActionProfile(specs, "OGS·003/024");
+        Cover("basic:伤害", damage.PrimitiveActions.Contains(CardBasicActionNames.Damage, StringComparer.Ordinal));
+        var destroy = BuildBasicActionProfile(specs, "OGN·229/298");
+        Cover("basic:摧毁", destroy.PrimitiveActions.Contains(CardBasicActionNames.Destroy, StringComparer.Ordinal));
+        var stun = BuildBasicActionProfile(specs, "OGN·050/298");
+        Cover("basic:眩晕", stun.PrimitiveActions.Contains(CardBasicActionNames.Stun, StringComparer.Ordinal));
+        var tempMight = BuildBasicActionProfile(specs, "OGN·004/298");
+        Cover("basic:临时战力", tempMight.PrimitiveActions.Contains(CardBasicActionNames.TempMight, StringComparer.Ordinal));
+        var move = BuildBasicActionProfile(specs, "OGN·043/298");
+        Cover("basic:移动", move.DelegatedP2Actions.Contains(CardBasicActionNames.Move, StringComparer.Ordinal));
+        var recall = BuildBasicActionProfile(specs, "OGN·188/298");
+        Cover("basic:召回", recall.DelegatedP2Actions.Contains(CardBasicActionNames.Recall, StringComparer.Ordinal));
+        var recycle = BuildBasicActionProfile(specs, "OGN·156/298");
+        Cover("basic:回收", recycle.DelegatedP2Actions.Contains(CardBasicActionNames.Recycle, StringComparer.Ordinal));
+        var banish = BuildBasicActionProfile(specs, "OGN·102/298");
+        Cover("basic:放逐", banish.DelegatedP2Actions.Contains(CardBasicActionNames.Banish, StringComparer.Ordinal));
+        var boon = BuildBasicActionProfile(specs, "OGN·053/298");
+        Cover("basic:增益", boon.DelegatedP2Actions.Contains(CardBasicActionNames.Boon, StringComparer.Ordinal));
+        var experienceGain = BuildBasicActionProfile(specs, "UNL-158/219");
+        Cover(
+            "basic:经验获得",
+            experienceGain.DelegatedP2Actions.Contains(CardBasicActionNames.Experience, StringComparer.Ordinal));
+        var experienceSpend = BuildBasicActionProfile(specs, "UNL-178/219");
+        Cover(
+            "basic:经验消耗",
+            experienceSpend.DelegatedP2Actions.Contains(CardBasicActionNames.Experience, StringComparer.Ordinal));
+
+        var expected = new[]
+        {
+            "permission:迅捷",
+            "permission:反应",
+            "permission:急速",
+            "combat:强攻",
+            "combat:坚守",
+            "combat:壁垒",
+            "combat:后排",
+            "combat:游走",
+            "lifecycle:瞬息",
+            "lifecycle:绝念",
+            "lifecycle:预知",
+            "resource:狩猎",
+            "resource:等级",
+            "resource:鼓舞",
+            "resource:法盾",
+            "interaction:待命",
+            "interaction:回响",
+            "interaction:伏击",
+            "equipment:装配",
+            "equipment:灵便",
+            "equipment:百炼",
+            "basic:抽牌",
+            "basic:伤害",
+            "basic:摧毁",
+            "basic:眩晕",
+            "basic:移动",
+            "basic:召回",
+            "basic:回收",
+            "basic:放逐",
+            "basic:临时战力",
+            "basic:增益",
+            "basic:经验获得",
+            "basic:经验消耗"
+        };
+
+        Assert.Equal(
+            expected.OrderBy(key => key, StringComparer.Ordinal).ToArray(),
+            covered.OrderBy(key => key, StringComparer.Ordinal).ToArray());
+    }
+
+    [Fact]
     public async Task UncoveredPlayableFunctionalUnitsAreKnownComplexP2ScopeBlocks()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
