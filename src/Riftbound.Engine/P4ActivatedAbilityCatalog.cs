@@ -14,6 +14,16 @@ public sealed record P4ActivatedAbilityDefinition(
     bool AppliesSpellshieldTargetTax,
     string Reason);
 
+public sealed record P4DeferredActivatedAbilitySurface(
+    string AbilityId,
+    string SourceCardNo,
+    string DisplayName,
+    string OfficialTextAnchorKey,
+    bool RequiresBattlefieldSource,
+    bool IsTargetBearing,
+    bool EnemySpellshieldTaxRisk,
+    string Reason);
+
 public static class P4ActivatedAbilityCatalog
 {
     public const string ViCardNo = "UNL-030/219";
@@ -58,9 +68,72 @@ public static class P4ActivatedAbilityCatalog
             "P4.389 keeps Xerath's verified one-target damage skill and spellshield target tax behind a registry entry.")
     ];
 
+    private static readonly P4DeferredActivatedAbilitySurface[] DeferredSurfaces =
+    [
+        new(
+            "DEFERRED_TAP_REACTION_GAIN_1_MANA",
+            "UNL-093/219",
+            "Dragon Soul Sage reaction resource skill",
+            "dragon-soul-sage-reaction-resource",
+            RequiresBattlefieldSource: true,
+            IsTargetBearing: false,
+            EnemySpellshieldTaxRisk: false,
+            "P4.391 keeps reaction-speed resource abilities deferred until the priority/resource reaction model is complete."),
+        new(
+            "DEFERRED_TAP_CREATE_TWO_SPELLSHIELD_WARHAWKS",
+            "UNL-160/219",
+            "Fluft Poro Warhawk skill",
+            "fluft-poro-warhawk-token",
+            RequiresBattlefieldSource: true,
+            IsTargetBearing: false,
+            EnemySpellshieldTaxRisk: false,
+            "P4.391 keeps token creation with Spellshield deferred until token and battlefield-only skill execution are complete."),
+        new(
+            "DEFERRED_PAY_1_BLUE_DRAW_1",
+            "SFD·088/221",
+            "Renata Glasc draw skill",
+            "renata-glasc-draw",
+            RequiresBattlefieldSource: true,
+            IsTargetBearing: false,
+            EnemySpellshieldTaxRisk: false,
+            "P4.391 keeps color-specific activated draw abilities deferred until colored resource costs are modeled."),
+        new(
+            "DEFERRED_PAY_4_BLUE4_EXHAUST_SCORE_1",
+            "SFD·088/221",
+            "Renata Glasc score skill",
+            "renata-glasc-score",
+            RequiresBattlefieldSource: true,
+            IsTargetBearing: false,
+            EnemySpellshieldTaxRisk: false,
+            "P4.391 keeps activated scoring abilities deferred until scoring and color-specific costs are modeled."),
+        new(
+            "DEFERRED_EXPERIENCE_EXHAUST_READY_UNIT",
+            "UNL-109/219",
+            "Crimson Rose ready-unit skill",
+            "crimson-rose-ready-unit",
+            RequiresBattlefieldSource: true,
+            IsTargetBearing: true,
+            EnemySpellshieldTaxRisk: true,
+            "P4.391 keeps target-bearing activated skills deferred until experience costs and skill target taxes are generalized."),
+        new(
+            "DEFERRED_SWIFT_PAY_1_A_EXHAUST_STUN_ATTACKER",
+            "UNL-194/219",
+            "Shadow swift stun skill",
+            "shadow-swift-stun-attacker",
+            RequiresBattlefieldSource: true,
+            IsTargetBearing: true,
+            EnemySpellshieldTaxRisk: true,
+            "P4.391 keeps combat-window target skills deferred until swift timing, battlefield locality, stun, and skill target taxes are generalized.")
+    ];
+
     public static IReadOnlyList<P4ActivatedAbilityDefinition> GetAll()
     {
         return Definitions;
+    }
+
+    public static IReadOnlyList<P4DeferredActivatedAbilitySurface> GetDeferredSurfaces()
+    {
+        return DeferredSurfaces;
     }
 
     public static bool TryGetByAbilityId(
