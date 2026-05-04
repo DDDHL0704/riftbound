@@ -15,6 +15,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
     private const string StandbyReactionMode = "STANDBY_REACTION";
     private const string StandbyReactionDestination = "STACK";
+    private const string MoveUnitBaseZone = "BASE";
+    private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string ViCardNo = "UNL-030/219";
@@ -81,12 +83,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveRevealCard(state, intent, revealCardCommand));
         }
 
-        if (command is MoveUnitCommand)
+        if (command is MoveUnitCommand moveUnitCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
-                state,
-                "MOVE_UNIT is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand));
+            return ValueTask.FromResult(ResolveMoveUnit(state, intent, moveUnitCommand));
         }
 
         if (command is AssembleEquipmentCommand)
@@ -799,6 +798,119 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string FreeStandbyHideEffectId(string playerId)
     {
         return $"{FreeStandbyHideEffectPrefix}{playerId}";
+    }
+
+    private static ResolutionResult ResolveMoveUnit(
+        MatchState state,
+        PlayerIntent intent,
+        MoveUnitCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!TryNormalizeMoveUnitZone(command.Origin, out var originZone, out var originUsesPreciseLocation)
+            || !TryNormalizeMoveUnitZone(command.Destination, out var destinationZone, out var destinationUsesPreciseLocation))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT requires BASE or BATTLEFIELD origin and destination zones.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (originUsesPreciseLocation || destinationUsesPreciseLocation)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT precise battlefield locations are not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (optionalCosts.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT optional costs are not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        if (string.Equals(originZone, destinationZone, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT requires a different destination zone.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        if (sourceLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, originZone, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source unit is not controlled by the player in the requested origin zone.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || sourceState.IsFaceDown
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must be a face-up unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
+        AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            PassedPriorityPlayerIds = []
+        };
+
+        var eventKind = string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            ? "UNIT_MOVED_TO_BATTLEFIELD"
+            : "UNIT_MOVED_TO_BASE";
+        var eventDescription = string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            ? $"{intent.PlayerId} 将单位移动到战场"
+            : $"{intent.PlayerId} 将单位移动到基地";
+        var events = new List<GameEvent>
+        {
+            new(
+                eventKind,
+                eventDescription,
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["originZone"] = originZone,
+                    ["destinationZone"] = destinationZone,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
     }
 
     private static ResolutionResult ResolveRevealCard(
@@ -1642,6 +1754,38 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsAmbushPlayMode(string? mode)
     {
         return string.Equals(mode?.Trim(), AmbushPlayMode, StringComparison.Ordinal);
+    }
+
+    private static bool TryNormalizeMoveUnitZone(
+        string value,
+        out string zone,
+        out bool usesPreciseLocation)
+    {
+        zone = string.Empty;
+        usesPreciseLocation = false;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var normalized = value.Trim().ToUpperInvariant();
+        if (string.Equals(normalized, MoveUnitBaseZone, StringComparison.Ordinal)
+            || string.Equals(normalized, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            zone = normalized;
+            return true;
+        }
+
+        if (normalized.StartsWith(MoveUnitBaseZone + ":", StringComparison.Ordinal)
+            || normalized.StartsWith(MoveUnitBattlefieldZone + ":", StringComparison.Ordinal))
+        {
+            zone = normalized[..normalized.IndexOf(':', StringComparison.Ordinal)];
+            usesPreciseLocation = true;
+            return true;
+        }
+
+        return false;
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)
