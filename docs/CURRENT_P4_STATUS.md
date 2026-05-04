@@ -397,7 +397,8 @@
 - P4.366 提交：`4129dfe test: add p4 declare battle current player defender rejection`
 - P4.367 提交：`6c5c500 test: add p4 declare battle duplicate attacker rejection`
 - P4.368 提交：`ac43f2f test: add p4 declare battle duplicate defender rejection`
-- P4.369 提交：本提交 `test: add p4 declare battle attacker defender overlap rejection`
+- P4.369 提交：`5e1bc3c test: add p4 declare battle overlap rejection`
+- P4.370 提交：本提交 `test: add p4 declare battle non active player rejection`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -478,10 +479,10 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 迅捷 | 82 | 0 | 0 | Medium | P4.2 候选；需把普通回合/法术对决时机从卡牌特例提升为关键词模型。 |
 | 反应 | 136 | 14 | 2 | Medium/High | P4.2 候选；P2 已有 `CanPlayDuringPriority`，但符文/装备/指示物反应需分域。 |
 | 急速 | 34 | 0 | 0 | Medium | P4.2 已识别 profile；P4.13 已给《灼焰飞龙》接入 `HASTE_READY` 代表可选费用，P4.103 已补同一路径缺少 power 费用拒绝 fixture；P4.18 已给《小鲨鱼》接入第二条 `HASTE_READY` 代表可选费用，P4.20 已给《军团后卫》接入第三条 `HASTE_READY` 代表可选费用，P4.25 已给《树根先生》接入第四条 `HASTE_READY` 代表可选费用，P4.26 已给《机械迷》接入第五条 `HASTE_READY` 代表可选费用，P4.27 已给《琢珥鱼》接入第六条 `HASTE_READY` 代表可选费用，P4.30 已给《卡银娜·薇蕊泽》接入第七条 `HASTE_READY` 代表可选费用，P4.31 已给《绯红印记树怪》接入第八条 `HASTE_READY` 代表可选费用，P4.44 已给《绯红印记树怪》A 版本接入第二十一条 `HASTE_READY` 代表可选费用，P4.45 已给《尼菈》接入第二十二条 `HASTE_READY` 代表可选费用，P4.46 已给《雷恩加尔》接入第二十三条 `HASTE_READY` 代表可选费用，P4.47 已给《雷恩加尔》A 版本接入第二十四条 `HASTE_READY` 代表可选费用，P4.48 已给《厄运小姐》接入第二十五条 `HASTE_READY` 代表可选费用，P4.49 已给《厄运小姐》A 版本接入第二十六条 `HASTE_READY` 代表可选费用，P4.50 已给《希维尔》接入第二十七条 `HASTE_READY` 代表可选费用，P4.51 已给《希维尔》A 版本接入第二十八条 `HASTE_READY` 代表可选费用，P4.52 已给《莉莉娅》接入第二十九条 `HASTE_READY` 代表可选费用，P4.53 已给《莉莉娅》A 版本接入第三十条 `HASTE_READY` 代表可选费用，P4.54 已给《阿兹尔》接入第三十一条 `HASTE_READY` 代表可选费用，P4.55 已给《阿兹尔》A 版本接入第三十二条 `HASTE_READY` 代表可选费用，P4.56 已给《金克丝》接入第三十三条 `HASTE_READY` 代表可选费用，P4.57 已给《金克丝》A 版本接入第三十四条 `HASTE_READY` 代表可选费用，P4.32 已给《美味仙灵》接入第九条 `HASTE_READY` 代表可选费用，P4.33 已给《艾克》接入第十条 `HASTE_READY` 代表可选费用，P4.34 已给《武装强袭者》接入第十一条 `HASTE_READY` 代表可选费用，P4.35 已给《远古战狂》接入第十二条 `HASTE_READY` 代表可选费用，P4.36 已给《海妖猎手》接入第十三条 `HASTE_READY` 代表可选费用，P4.37 已给《李青》接入第十四条 `HASTE_READY` 代表可选费用，P4.38 已给《李青》A 版本接入第十五条 `HASTE_READY` 代表可选费用，P4.39 已给《千尾监视者》接入第十六条 `HASTE_READY` 代表可选费用，P4.40 已给《卡莎》接入第十七条 `HASTE_READY` 代表可选费用，P4.41 已给《雷克塞》接入第十八条 `HASTE_READY` 代表可选费用，P4.42 已给《雷克塞》A 版本接入第十九条 `HASTE_READY` 代表可选费用，P4.43 已给《卡莎》A 版本接入第二十条 `HASTE_READY` 代表可选费用，其他急速彩色资源精确匹配/活跃分支仍 deferred。 |
-| 强攻 | 37 | 2 | 0 | High | P4.6 已识别 profile 和数值；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.369 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者和攻防列表交叉拒绝 fixture；完整进攻战力修正仍 deferred。 |
-| 坚守 | 24 | 4 | 0 | High | P4.6 已识别 profile 和数值；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.369 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者和攻防列表交叉拒绝 fixture；完整防守战力修正仍 deferred。 |
-| 壁垒 | 26 | 0 | 0 | High | P4.6 已识别 profile；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.369 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者和攻防列表交叉拒绝 fixture；完整承伤顺序和同优先级选择仍 deferred。 |
-| 后排 | 6 | 0 | 0 | High | P4.6 已识别 profile；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.369 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者和攻防列表交叉拒绝 fixture；完整承伤顺序仍 deferred。 |
+| 强攻 | 37 | 2 | 0 | High | P4.6 已识别 profile 和数值；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.370 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉和非主动玩家声明战斗拒绝 fixture；完整进攻战力修正仍 deferred。 |
+| 坚守 | 24 | 4 | 0 | High | P4.6 已识别 profile 和数值；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.370 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉和非主动玩家声明战斗拒绝 fixture；完整防守战力修正仍 deferred。 |
+| 壁垒 | 26 | 0 | 0 | High | P4.6 已识别 profile；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.370 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉和非主动玩家声明战斗拒绝 fixture；完整承伤顺序和同优先级选择仍 deferred。 |
+| 后排 | 6 | 0 | 0 | High | P4.6 已识别 profile；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；P4.332 已补同一路径优先权窗口拒绝 fixture；P4.350/P4.351/P4.352 已补空攻击者、空防守者和缺少战场 id 拒绝 fixture；P4.361-P4.370 已补战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉和非主动玩家声明战斗拒绝 fixture；完整承伤顺序仍 deferred。 |
 | 游走 | 38 | 4 | 0 | Medium/High | P4.6 已识别 profile；P4.65 已新增 `MOVE_UNIT` typed command；P4.98 已补精确战场/`ROAM` 前置拒绝 fixture；P4.300/P4.301 只接入 coarse `BASE`/`BATTLEFIELD` 友方单位双向移动，P4.302-P4.311 补来源控制者、来源实际区域、手牌来源、正面性、单位类型、不同目的地区域、主动玩家开放主阶段窗口、stack 非空优先权窗口、`ROAM` optional cost 和 `HAND` 等 unsupported zone 边界，P4.333 补战斗中来源拒绝，P4.334 补带贴附装备来源拒绝，P4.328/P4.329 补无 `ROAM` 精确战场目的地/来源拒绝边界，真实跨战场游走仍需要多战场目的地、移动权限和移动触发。 |
 | 瞬息 | 21 | 7 | 2 | Medium | P4.3 候选；P2 已记录标签，缺“控制者下个回合开始、得分前摧毁”。 |
 | 绝念 | 25 | 0 | 0 | High | P4.9 已识别 profile；离场触发队列和摧毁来源时序仍 deferred。 |
@@ -607,6 +608,8 @@ P4.367 更新：Combat keywords 行在 P4.366 基础上追加 `P4DeclareBattleCo
 P4.368 更新：Combat keywords 行在 P4.367 基础上追加 `P4DeclareBattleCommandWithDuplicateDefenderIsRejectedUntilCombatSystemExists`、`P4DeclareBattleCommandDuplicateDefenderRejectionFixture` 和 `p4-declare-battle-duplicate-defender-rejected.fixture.json`，把战斗 `DECLARE_BATTLE` 同一防守者对象在 `defenderObjectIds` 中重复出现时当前仍显式拒绝且不设置攻防状态、不改变战力、不移动对象、不创建结算链的边界纳入 direct engine 测试、conformance fixture 和战斗关键词聚合回放。
 
 P4.369 更新：Combat keywords 行在 P4.368 基础上追加 `P4DeclareBattleCommandWithAttackerAlsoDefenderIsRejectedUntilCombatSystemExists`、`P4DeclareBattleCommandAttackerDefenderOverlapRejectionFixture` 和 `p4-declare-battle-attacker-defender-overlap-rejected.fixture.json`，把战斗 `DECLARE_BATTLE` 同一对象同时出现在 `attackerObjectIds` 与 `defenderObjectIds` 中时当前仍显式拒绝且不设置攻防状态、不改变战力、不移动对象、不创建结算链的边界纳入 direct engine 测试、conformance fixture 和战斗关键词聚合回放。
+
+P4.370 更新：Combat keywords 行在 P4.369 基础上追加 `P4DeclareBattleCommandByNonActivePlayerIsRejectedUntilCombatSystemExists`、`P4DeclareBattleCommandNonActivePlayerRejectionFixture` 和 `p4-declare-battle-non-active-player-rejected.fixture.json`，把非主动玩家尝试声明战斗时当前仍显式拒绝且不设置攻防状态、不改变战力、不移动对象、不创建结算链的边界纳入 direct engine 测试、conformance fixture 和战斗关键词聚合回放。
 
 P4.101 更新：Lifecycle remaining 行在 P4.100 基础上追加 `P4ScryingShellPredictOutsideTopCardRejectionFixture` 和 `p4-scrying-shell-predict-outside-top-card-rejected.fixture.json`，把已有直接测试覆盖的《占卜贝壳》`预知` 非顶部牌目标拒绝边界纳入 conformance fixture 和生命周期关键词聚合回放。
 
@@ -1194,7 +1197,7 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen`、`P4MoveUnitCommandRejectionFixture`、`P4MoveUnitCommandPreciseDestinationRejectionFixture`、`P4MoveUnitCommandPreciseOriginRejectionFixture`、`P4MoveUnitCommandCombatantSourceRejectionFixture`、`P4MoveUnitCommandAttachedEquipmentSourceRejectionFixture`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、P4.106-P4.299 target/cost/order rejection fixtures、`p4-move-unit-precise-destination-rejected`、`p4-move-unit-precise-origin-rejected`、`p4-move-unit-combatant-source-rejected`、`p4-move-unit-attached-equipment-source-rejected`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.328/P4.329/P4.333/P4.334 已补 `MOVE_UNIT` 无 `ROAM` 精确战场目的地/来源、战斗中来源和带贴附装备来源拒绝 fixture 并纳入基础动作聚合；P4.187-P4.299 的 199 条目标/费用/顺序拒绝 fixtures 均纳入基础动作聚合。固定/动态经验、经验费用和《无极学徒》等级条件抽牌代表路径可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.369 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.370 once committed. |
 
 P4.80 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 锁定《泽拉斯》带目标技能缺少“一名单位”目标时拒绝且不改状态。
 
@@ -1703,7 +1706,7 @@ Prompt-to-artifact completion audit：
 | Requirement | P4.58 decision |
 |---|---|
 | 权限关键词 | 迅捷/反应 profile 和代表时机已覆盖；急速 34/34 代表 `HASTE_READY` 费用已覆盖，但彩色资源精确匹配和若干活跃联动仍 deferred。 |
-| 战斗关键词 | P4.6 只有 profile；P4.65/P4.67 已建立移动与战斗声明 command envelope 并显式拒绝执行；P4.98/P4.100/P4.332/P4.333/P4.350/P4.351/P4.352/P4.361/P4.362/P4.363/P4.364/P4.365/P4.366/P4.367/P4.368/P4.369 已分别把 `MOVE_UNIT`、`DECLARE_BATTLE` 普通窗口、`DECLARE_BATTLE` 优先权窗口、战斗中来源移动、空攻击者、空防守者、缺少战场 id、战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者和攻防列表交叉拒绝边界纳入 fixture；完整强攻/坚守/壁垒/后排战斗承伤与游走移动仍是明确缺口。 |
+| 战斗关键词 | P4.6 只有 profile；P4.65/P4.67 已建立移动与战斗声明 command envelope 并显式拒绝执行；P4.98/P4.100/P4.332/P4.333/P4.350/P4.351/P4.352/P4.361/P4.362/P4.363/P4.364/P4.365/P4.366/P4.367/P4.368/P4.369/P4.370 已分别把 `MOVE_UNIT`、`DECLARE_BATTLE` 普通窗口、`DECLARE_BATTLE` 优先权窗口、战斗中来源移动、空攻击者、空防守者、缺少战场 id、战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉和非主动玩家声明战斗拒绝边界纳入 fixture；完整强攻/坚守/壁垒/后排战斗承伤与游走移动仍是明确缺口。 |
 | 生命周期关键词 | 瞬息到期、预知代表路径与预知非顶部目标拒绝 fixture 有覆盖；绝念触发队列仍 deferred。 |
 | 资源关键词 | 法术目标法盾税、多个等级/鼓舞/经验代表路径已覆盖；P4.59 进一步锁定多目标法术对 `法盾` + `法盾2` 的税值聚合；P4.61 锁定友方法盾目标 no-tax 边界；P4.73 执行《蔚》无目标付费技能入栈/结算代表路径；P4.74 补场上对象 `cardNo` 身份校验，防止非《蔚》来源伪造 ability id；P4.77 执行《泽拉斯》带目标技能的敌方法盾税、横置和 3 点伤害代表路径；P4.78 补同一技能己方法盾目标 no-tax 边界；P4.79 补同一技能已横置来源拒绝边界；P4.80 补同一技能缺少目标拒绝边界；P4.81 补同一技能多目标拒绝边界；P4.82 补同一技能额外费用拒绝边界；P4.83 补同一技能非《泽拉斯》来源拒绝边界；P4.84 补同一技能非单位目标拒绝边界；P4.85 补同一技能来源不在战场拒绝边界；P4.86 补对手控制来源拒绝边界；P4.93 补敌方法盾目标税费用不足拒绝边界，并把 P4.79-P4.86/P4.93 拒绝 fixtures 纳入资源关键词聚合回放；更多技能目标税、狩猎征服/据守经验、更多动态经验仍 deferred。 |
 | 互动关键词 | 回响 mana-only 已执行；P4.70 已执行待命 `HIDE_CARD` + `STANDBY_A` 最小正面朝下放置；P4.94 已把同一路径费用不足拒绝边界纳入 fixture；P4.312 已把同一路径来源不在手牌拒绝边界纳入 fixture；P4.313 已把同一路径目的地不支持拒绝边界纳入 fixture；P4.314 已把同一路径非待命费用名拒绝边界纳入 fixture；P4.315 已把同一路径行动窗口拒绝边界纳入 fixture；P4.316 已把同一路径 stack 非空拒绝边界纳入 fixture；P4.317 已把同一路径来源 `cardNo` 身份不匹配拒绝边界纳入 fixture；P4.72 已执行《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费待命暗置；P4.96 已把 `STANDBY_FREE` 无权限拒绝边界纳入 fixture；P4.71 已执行待命 `REVEAL_CARD` + `STANDBY_REVEAL_0` 基地显露；P4.318 已把显露路径来源 `cardNo` 身份不匹配拒绝边界纳入 fixture；P4.76 已执行待命 `STANDBY_REACTION` / `STACK` 无目标反应入栈；P4.95 已把无优先权窗口拒绝边界纳入 fixture；P4.69 已补对手视角正面朝下对象 redaction；P4.97 已把伏击 `PLAY_CARD mode=AMBUSH` 前置拒绝边界纳入 fixture；待命触发/完整隐藏区/目标伤害与伏击反应战场打出仍 deferred。 |
@@ -2338,6 +2341,16 @@ Prompt-to-artifact checklist：
 - 新增 direct engine 测试 `P4DeclareBattleCommandWithAttackerAlsoDefenderIsRejectedUntilCombatSystemExists`，锁定错误码、错误信息、双方 battlefields、攻防状态、战力和 stack 均保持原样。
 - 新增 fixture `p4-declare-battle-attacker-defender-overlap-rejected.fixture.json` 和回放测试 `P4DeclareBattleCommandAttackerDefenderOverlapRejectionFixture`，把《盖伦》战斗声明攻防列表交叉拒绝边界纳入 conformance 证据。
 - `P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 现在实际回放该 attacker-defender-overlap rejection fixture；本批次不进入完整战斗系统。
+
+## P4.370 Declare Battle Non Active Player Rejection Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.370 补非主动玩家声明战斗边界，避免完整战斗系统完成前由非当前行动玩家设置任何攻防状态。
+
+- `DECLARE_BATTLE battlefieldId=BATTLEFIELD:P2-MAIN attackerObjectIds=["P2-BATTLEFIELD-MUTANT-KITTEN"] defenderObjectIds=["P1-BATTLEFIELD-GAREN"] optionalCosts=["COMBAT_ASSIGNMENT"]` 当前返回 `UNSUPPORTED_COMMAND`，不推进 tick、不写事件、不设置 `IsAttacking` / `IsDefending`、不改变战力、不移动对象、不创建 stack item。
+- `CoreRuleEngine.ResolveAsync` 本批次没有实现新分支；它继续在 `DECLARE_BATTLE` 入口处显式拒绝，主动玩家检查、多战场位置、进攻/防守声明、强攻/坚守修正、壁垒/后排承伤顺序和战斗结算模型仍 deferred。
+- 新增 direct engine 测试 `P4DeclareBattleCommandByNonActivePlayerIsRejectedUntilCombatSystemExists`，锁定错误码、错误信息、双方 battlefields、攻防状态、战力和 stack 均保持原样。
+- 新增 fixture `p4-declare-battle-non-active-player-rejected.fixture.json` 和回放测试 `P4DeclareBattleCommandNonActivePlayerRejectionFixture`，把《盖伦》/《变异猫咪》非主动玩家声明战斗拒绝边界纳入 conformance 证据。
+- `P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen` 现在实际回放该 non-active-player rejection fixture；本批次不进入完整战斗系统。
 
 ## P4.101 Predict Outside Top Card Rejection Fixture Slice
 
@@ -4386,7 +4399,7 @@ Prompt-to-artifact checklist：
 - `PLAY_CARD mode=AMBUSH` 已有 P4.64 `destination` envelope 与 Core 显式拒绝前置模型，P4.97 已补无目标 conformance fixture，P4.325 已补带目标拒绝 fixture，P4.326 已补 BASE 目的地拒绝 fixture，P4.327 已补优先权窗口拒绝 fixture，P4.335 已补来源不在手牌拒绝 fixture，P4.336 已补来源 `cardNo` 身份不匹配拒绝 fixture，P4.337 已补 unsupported optional cost 拒绝 fixture，可供后续伏击反应战场打出小批次复用；当前不把单位打出至战场，也不执行目标结算。
 - `MOVE_UNIT` 已有 P4.65 command envelope；P4.98 已补精确战场/`ROAM` 前置拒绝 fixture；P4.300/P4.301 已接入 coarse `BASE`/`BATTLEFIELD` 友方单位双向移动，P4.302-P4.311 已锁定对手来源、手牌来源、来源区域不匹配、面朝下来源、非单位来源、同区域目的地、错误行动窗口、stack 非空优先权窗口、optional cost 和 unsupported zone 拒绝，P4.333 已锁定战斗中来源拒绝，P4.334 已锁定带贴附装备来源拒绝，P4.328/P4.329 已锁定无 `ROAM` 精确战场目的地/来源拒绝，可供后续游走/基础移动小批次复用。
 - `ASSEMBLE_EQUIPMENT` 已有 P4.66 command envelope 与 Core 显式拒绝前置模型，P4.99/P4.330/P4.331/P4.353/P4.354/P4.355/P4.356/P4.357/P4.358/P4.359/P4.360 已补普通窗口、优先权窗口、已贴附来源、缺少目标、缺少来源、手牌来源、对手来源、非装备来源、非单位目标、unsupported optional cost 和缺少装配费用 conformance fixtures，可供后续装配/灵便/百炼小批次复用；当前不贴附装备。
-- `DECLARE_BATTLE` 已有 P4.67 command envelope 与 Core 显式拒绝前置模型，P4.100/P4.332/P4.350/P4.351/P4.352/P4.361/P4.362/P4.363/P4.364 已补普通窗口、优先权窗口、空攻击者、空防守者列表、缺少战场 id、unsupported optional cost、缺少战斗费用、攻击者非战场来源和防守者非战场来源 conformance fixtures，可供后续强攻/坚守/壁垒/后排战斗小批次复用；当前不开战。
+- `DECLARE_BATTLE` 已有 P4.67 command envelope 与 Core 显式拒绝前置模型，P4.100/P4.332/P4.350/P4.351/P4.352/P4.361/P4.362/P4.363/P4.364/P4.365/P4.366/P4.367/P4.368/P4.369/P4.370 已补普通窗口、优先权窗口、空攻击者、空防守者列表、缺少战场 id、unsupported optional cost、缺少战斗费用、攻击者非战场来源、防守者非战场来源、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉和非主动玩家声明战斗拒绝 conformance fixtures，可供后续强攻/坚守/壁垒/后排战斗小批次复用；当前不开战。
 - 目标：证明 P3 `BehaviorSpec` / template skeleton 可以安全定位到现有 `CardBehaviorDefinition`，并在 P4.5 继续保持 `CoreRuleEngine` 主路径不变。
 
 中风险，需要小模型后再接入可玩路径：
@@ -4779,9 +4792,10 @@ Prompt-to-artifact checklist：
 | P4.367 completion audit + DECLARE_BATTLE 重复攻击者拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增同一攻击者不能在战斗声明攻击者列表中重复出现的 direct engine 测试和 conformance fixture，并纳入战斗关键词聚合回放。 |
 | P4.368 completion audit + DECLARE_BATTLE 重复防守者拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增同一防守者不能在战斗声明防守者列表中重复出现的 direct engine 测试和 conformance fixture，并纳入战斗关键词聚合回放。 |
 | P4.369 completion audit + DECLARE_BATTLE 攻防列表交叉拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增同一对象不能同时作为攻击者和防守者的 direct engine 测试和 conformance fixture，并纳入战斗关键词聚合回放。 |
-| P4.370 next low-risk gap | Pending | 0% | 基于 P4.369 audit 继续选择低风险可验证小批次；优先从待命边界、技能边界、更多法盾边界、装备边界、战斗/移动边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
+| P4.370 completion audit + DECLARE_BATTLE 非主动玩家拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增非主动玩家不能声明战斗的 direct engine 测试和 conformance fixture，并纳入战斗关键词聚合回放。 |
+| P4.371 next low-risk gap | Pending | 0% | 基于 P4.370 audit 继续选择低风险可验证小批次；优先从待命边界、技能边界、更多法盾边界、装备边界、战斗/移动边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `370/371 = 99.7%`。已完成 P4.1-P4.369：在 P4.368 全部内容基础上，P4.369 新增 `DECLARE_BATTLE` attacker/defender overlap rejection fixture，锁定完整战斗模型完成前同一对象不能同时出现在攻击者和防守者列表中；拒绝时不推进 tick、不写事件、不设置攻防状态、不改变战力、不移动对象、不创建结算链。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、装备随动/完整装配、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、完整灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `371/372 = 99.7%`。已完成 P4.1-P4.370：在 P4.369 全部内容基础上，P4.370 新增 `DECLARE_BATTLE` non-active-player rejection fixture，锁定完整战斗模型完成前非主动玩家不能声明战斗；拒绝时不推进 tick、不写事件、不设置攻防状态、不改变战力、不移动对象、不创建结算链。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、装备随动/完整装配、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、完整灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -4796,17 +4810,17 @@ P4 当前整体进度：按当前 part 计 `370/371 = 99.7%`。已完成 P4.1-P4
 
 ## Latest Validation
 
-P4.369 已完成验证：
+P4.370 已完成验证：
 
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-declare-battle-attacker-defender-overlap-rejected.fixture.json`：pass
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-declare-battle-non-active-player-rejected.fixture.json`：pass
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings / 0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2507/2507
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2426/2426
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2510/2510
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2429/2429
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DeclareBattleCommand"`：pass，28/28
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，22/22
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DeclareBattleCommand"`：pass，30/30
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，23/23
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.370：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.371：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
