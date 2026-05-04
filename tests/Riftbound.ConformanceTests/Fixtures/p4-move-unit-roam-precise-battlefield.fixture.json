@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p4-move-unit-command-premodel-rejected",
-  "description": "P4 rejects precise battlefield MOVE_UNIT when the ROAM optional cost is missing.",
+  "fixtureId": "p4-move-unit-roam-precise-battlefield",
+  "description": "P4 MOVE_UNIT accepts a narrow precise battlefield-to-battlefield roam representative path.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603304098,
+  "seed": 2603304384,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·235/221 亚索",
-      "note": "官方卡面含有游走和单回合第三次移动得分文本；本 fixture 只覆盖精确战场移动缺少 ROAM 支付项时，MOVE_UNIT 不会被误接受。"
+      "note": "官方卡面含有游走和单回合第三次移动得分文本；本 fixture 只覆盖 P4.384 当前接入的带 ROAM 支付项、来源拥有游走权限、同一玩家两个精确战场间移动代表路径。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "P4.384 只接入带 ROAM 且来源拥有游走权限的精确战场间代表移动；缺少 ROAM 支付项时仍显式拒绝且不写事件、不移动对象、不改变战力、不加入结算链。"
+      "note": "战场属于公开区域，单位可以移动；P4.384 暂不引入持久在线多战场坐标、移动次数计数或移动触发，只记录精确 origin/destination 规则事件并保持现有粗粒度 battlefields 列表。"
     }
   ],
-  "roomId": "p4-move-unit-command-premodel-rejected-room",
+  "roomId": "p4-move-unit-roam-precise-battlefield-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603304098,
-    "turnNumber": 98,
+    "seed": 2603304384,
+    "turnNumber": 384,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -71,25 +71,41 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p4-move-unit-command-premodel-rejected",
+      "clientIntentId": "intent-p4-move-unit-roam-precise-battlefield",
       "cmd": {
         "cmdType": "MOVE_UNIT",
         "sourceObjectId": "P1-BATTLEFIELD-SFD-YASUO",
         "origin": "BATTLEFIELD:P1-LEFT",
         "destination": "BATTLEFIELD:P1-RIGHT",
-        "optionalCosts": []
+        "optionalCosts": ["ROAM"]
       }
     }
   ],
   "expected": {
-    "finalTick": 0,
-    "eventKinds": [],
+    "finalTick": 1,
+    "eventKinds": ["UNIT_MOVED_TO_BATTLEFIELD"],
+    "events": [
+      {
+        "kind": "UNIT_MOVED_TO_BATTLEFIELD",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-BATTLEFIELD-SFD-YASUO",
+          "targetObjectId": "P1-BATTLEFIELD-SFD-YASUO",
+          "originZone": "BATTLEFIELD",
+          "destinationZone": "BATTLEFIELD",
+          "origin": "BATTLEFIELD:P1-LEFT",
+          "destination": "BATTLEFIELD:P1-RIGHT",
+          "movementKeyword": "游走",
+          "optionalCosts": ["ROAM"]
+        }
+      }
+    ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 98,
+      "turnNumber": 384,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",

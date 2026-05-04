@@ -411,7 +411,8 @@
 - P4.380 提交：`db21550 docs: add p4 final completion audit`
 - P4.381 提交：`7ac2c35 feat: add p4 minimal declare battle path`
 - P4.382 提交：`88302fa feat: add p4 combat damage representative`
-- P4.383 提交：本提交 `feat: add p4 battle assignment keywords`
+- P4.383 提交：`279b6a3 feat: add p4 battle assignment keywords`
+- P4.384 提交：本提交 `feat: add p4 precise roam movement`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -1236,7 +1237,7 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen`、`P4MoveUnitCommandRejectionFixture`、`P4MoveUnitCommandPreciseDestinationRejectionFixture`、`P4MoveUnitCommandPreciseOriginRejectionFixture`、`P4MoveUnitCommandCombatantSourceRejectionFixture`、`P4MoveUnitCommandAttachedEquipmentSourceRejectionFixture`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、P4.106-P4.299 target/cost/order rejection fixtures、`p4-move-unit-precise-destination-rejected`、`p4-move-unit-precise-origin-rejected`、`p4-move-unit-combatant-source-rejected`、`p4-move-unit-attached-equipment-source-rejected`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.328/P4.329/P4.333/P4.334 已补 `MOVE_UNIT` 无 `ROAM` 精确战场目的地/来源、战斗中来源和带贴附装备来源拒绝 fixture 并纳入基础动作聚合；P4.187-P4.299 的 199 条目标/费用/顺序拒绝 fixtures 均纳入基础动作聚合。固定/动态经验、经验费用和《无极学徒》等级条件抽牌代表路径可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.379 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.384 once committed. |
 
 P4.80 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 锁定《泽拉斯》带目标技能缺少“一名单位”目标时拒绝且不改状态。
 
@@ -4977,8 +4978,19 @@ Prompt-to-artifact checklist：
 | P4.381 minimal DECLARE_BATTLE accepted path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `DECLARE_BATTLE` 单攻击者/单防守者代表路径，设置攻防状态并写入 `BATTLE_DECLARED`，复杂声明与战斗结算继续 deferred。 |
 | P4.382 combat damage representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；升级 `DECLARE_BATTLE` 单攻单防代表路径，应用强攻/坚守数值战斗伤害和致命清理，壁垒/后排/得分继续 deferred。 |
 | P4.383 bulwark/back-row assignment representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `DECLARE_BATTLE` 单攻双防代表路径，按 `壁垒` 优先、`后排` 延后分配进攻伤害并做致命清理，普通多防守者选择和得分继续 deferred。 |
+| P4.384 precise roam movement representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `MOVE_UNIT` 带 `ROAM` 且来源拥有 `游走` 权限的精确战场间 accepted 代表路径，记录精确 origin/destination，持久多战场坐标、移动次数和移动触发继续 deferred。 |
 
-P4 当前整体进度：按 P4.383 审计后预计 `383/392 = 97.7%`。已完成 P4.1-P4.383：在 P4.382 全部内容基础上，P4.383 将低风险 `DECLARE_BATTLE` 单攻双防代表路径升级为 `壁垒` 优先、`后排` 延后的战斗伤害分配和致命清理。当前仍不能标记 P4 goal complete：真实跨战场游走、狩猎/战斗/移动触发经验、待命触发/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、装备关键词最小代表与 P5 边界、以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `9` 批。
+P4 当前整体进度：按 P4.384 审计后预计 `384/392 = 98.0%`。已完成 P4.1-P4.384：在 P4.383 全部内容基础上，P4.384 将 `MOVE_UNIT` 精确战场间 `ROAM` 代表路径接入可玩执行，并保留缺少 `ROAM` 的精确战场移动拒绝边界。当前仍不能标记 P4 goal complete：狩猎/战斗/移动触发经验、待命触发/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、装备关键词最小代表与 P5 边界、以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `8` 批。
+
+## P4.384 Precise Roam Slice
+
+本批次只接入一个低风险精确游走代表路径，不引入完整多战场状态模型：
+
+- `CoreRuleEngine.ResolveMoveUnit` 在普通主阶段开放窗口、stack 为空时，接受 `origin=BATTLEFIELD:P1-LEFT`、`destination=BATTLEFIELD:P1-RIGHT`、`optionalCosts=["ROAM"]` 这一类同玩家精确战场间移动。
+- 来源必须已经在命令玩家 `Battlefields` 粗粒度区域中，必须是正面单位，不能处于进攻/防守状态，不能带已贴附装备，并且必须拥有 `游走` tag 或本回合 `ROAM` 临时权限。
+- accepted 路径推进 1 tick，写 `UNIT_MOVED_TO_BATTLEFIELD`，payload 记录 `origin`、`destination`、`movementKeyword="游走"` 和 `optionalCosts=["ROAM"]`；由于当前 state 仍没有持久在线战场坐标，`PlayerZones.Battlefields` 列表保持不变。
+- `p4-move-unit-command-premodel-rejected.fixture.json` 调整为缺少 `ROAM` 的精确战场间移动拒绝边界；新增 `p4-move-unit-roam-precise-battlefield.fixture.json` 作为 accepted conformance 代表，并纳入战斗关键词与基础动作聚合回放。
+- 本批次仍不实现移动次数计数、第三次移动得分、移动触发、战斗中移动、装备随动、跨控制者移动或持久多战场 occupancy。
 
 ## Validation Gate
 
@@ -4993,17 +5005,19 @@ P4 当前整体进度：按 P4.383 审计后预计 `383/392 = 97.7%`。已完成
 
 ## Latest Validation
 
-P4.383 已完成验证：
+P4.384 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warning / 0 error
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2540/2540
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2459/2459
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2544/2544
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2463/2463
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DeclareBattleCommand"`：pass，40/40
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，28/28
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-declare-battle-bulwark-back-row-assignment.fixture.json`：pass
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommand"`：pass，36/36
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，29/29
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：pass，216/216
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-command-premodel-rejected.fixture.json`：pass
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-roam-precise-battlefield.fixture.json`：pass
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.384：优先做真实游走或狩猎/战斗触发经验切片，继续限制在单代表 fixture 范围内。预计 P4 还需要约 `9` 批：真实游走、狩猎/经验触发、待命触发/目标伤害、伏击真实反应打出、通用 skill registry/技能目标税、装备关键词最小代表/P5 边界，以及最后 E2E/文档/全量验证收口。
+进入 P4.385：优先做狩猎/战斗/移动触发经验切片，继续限制在单代表 fixture 范围内。预计 P4 还需要约 `8` 批：狩猎/经验触发、待命触发/目标伤害、伏击真实反应打出、通用 skill registry/技能目标税、装备关键词最小代表/P5 边界，以及最后 E2E/文档/全量验证收口。

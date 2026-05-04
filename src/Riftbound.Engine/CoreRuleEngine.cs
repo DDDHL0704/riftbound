@@ -17,6 +17,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyReactionDestination = "STACK";
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
+    private const string MoveUnitRoamOptionalCost = "ROAM";
+    private const string MoveUnitRoamKeyword = "游走";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -833,15 +835,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
         if (originUsesPreciseLocation || destinationUsesPreciseLocation)
         {
-            return RejectWithCorePrompts(
+            return ResolvePreciseRoamMoveUnit(
                 state,
-                "MOVE_UNIT precise battlefield locations are not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand);
+                intent,
+                command,
+                originZone,
+                destinationZone,
+                originUsesPreciseLocation,
+                destinationUsesPreciseLocation,
+                optionalCosts);
         }
 
-        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
         if (optionalCosts.Count != 0)
         {
             return RejectWithCorePrompts(
@@ -927,6 +934,127 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = command.SourceObjectId,
                     ["originZone"] = originZone,
                     ["destinationZone"] = destinationZone,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolvePreciseRoamMoveUnit(
+        MatchState state,
+        PlayerIntent intent,
+        MoveUnitCommand command,
+        string originZone,
+        string destinationZone,
+        bool originUsesPreciseLocation,
+        bool destinationUsesPreciseLocation,
+        IReadOnlyList<string> optionalCosts)
+    {
+        var isPreciseBattlefieldRoam =
+            originUsesPreciseLocation
+            && destinationUsesPreciseLocation
+            && string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(destinationZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && optionalCosts.Count == 1
+            && string.Equals(optionalCosts[0], MoveUnitRoamOptionalCost, StringComparison.Ordinal);
+        if (!isPreciseBattlefieldRoam)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT precise battlefield locations are not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var originLocation = NormalizeMoveUnitLocation(command.Origin);
+        var destinationLocation = NormalizeMoveUnitLocation(command.Destination);
+        if (!MoveUnitPreciseBattlefieldBelongsToPlayer(originLocation, intent.PlayerId)
+            || !MoveUnitPreciseBattlefieldBelongsToPlayer(destinationLocation, intent.PlayerId)
+            || string.Equals(originLocation, destinationLocation, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT precise roam requires two different friendly battlefields.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        if (sourceLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source unit is not controlled by the player in the requested origin zone.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || sourceState.IsFaceDown
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must be a face-up unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!HasRoamPermission(sourceState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT precise battlefield movement requires roam permission.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (sourceState.IsAttacking || sourceState.IsDefending)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must not be in combat.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (state.CardObjects.Values.Any(cardObject => string.Equals(
+            cardObject.AttachedToObjectId,
+            command.SourceObjectId,
+            StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT attached equipment movement is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            PassedPriorityPlayerIds = []
+        };
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "UNIT_MOVED_TO_BATTLEFIELD",
+                $"{intent.PlayerId} 使用游走在战场间移动单位",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.SourceObjectId,
+                    ["originZone"] = MoveUnitBattlefieldZone,
+                    ["destinationZone"] = MoveUnitBattlefieldZone,
+                    ["origin"] = originLocation,
+                    ["destination"] = destinationLocation,
+                    ["movementKeyword"] = MoveUnitRoamKeyword,
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
@@ -2193,6 +2321,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static string NormalizeMoveUnitLocation(string value)
+    {
+        return value.Trim().ToUpperInvariant();
+    }
+
+    private static bool MoveUnitPreciseBattlefieldBelongsToPlayer(string location, string playerId)
+    {
+        return location.StartsWith(
+            $"{MoveUnitBattlefieldZone}:{playerId}-",
+            StringComparison.Ordinal);
+    }
+
+    private static bool HasRoamPermission(CardObjectState sourceState)
+    {
+        return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
+            || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)

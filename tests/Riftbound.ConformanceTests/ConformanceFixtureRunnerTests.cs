@@ -22499,6 +22499,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-move-unit-roam-precise-battlefield.fixture.json")]
     [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
     [InlineData("p4-declare-battle-single-combatants.fixture.json")]
     [InlineData("p4-declare-battle-bulwark-back-row-assignment.fixture.json")]
@@ -28280,7 +28281,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsUntilRoamMovementExists()
+    public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsWithoutRoamCost()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -28308,7 +28309,7 @@ public sealed class ConformanceFixtureRunnerTests
                 "P1-BATTLEFIELD-SFD-YASUO",
                 "BATTLEFIELD:P1-LEFT",
                 "BATTLEFIELD:P1-RIGHT",
-                ["ROAM"]),
+                []),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -28319,6 +28320,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandMovesRoamUnitBetweenPreciseBattlefields()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-SFD-YASUO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SFD-YASUO"] = new(
+                    "P1-BATTLEFIELD-SFD-YASUO",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "游走"],
+                    cardNo: "SFD·235/221")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-roam-precise", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BATTLEFIELD-SFD-YASUO",
+                "BATTLEFIELD:P1-LEFT",
+                "BATTLEFIELD:P1-RIGHT",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var evt = Assert.Single(result.Events);
+        Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", evt.Kind);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -28441,6 +28487,27 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandRoamPreciseBattlefieldFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-roam-precise-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -31642,6 +31709,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-secret-art-mercy-grant-boon.fixture.json")]
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-move-unit-roam-precise-battlefield.fixture.json")]
     [InlineData("p4-move-unit-precise-destination-rejected.fixture.json")]
     [InlineData("p4-move-unit-precise-origin-rejected.fixture.json")]
     [InlineData("p4-move-unit-base-to-battlefield.fixture.json")]
