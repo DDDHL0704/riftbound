@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-declare-battle-opponent-attacker-rejected",
+  "description": "P4 rejects DECLARE_BATTLE when the command player tries to declare an opponent-controlled unit as an attacker.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304365,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGS·007/024 盖伦；UNL-036/219 变异猫咪；UNL-090/219 乐芙兰",
+      "note": "代表战斗关键词含强攻、坚守、壁垒和后排；本 fixture 只覆盖 P4 当前尚未实现开战/承伤系统时，当前玩家不会把对手控制的单位误声明为攻击者。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "开战需要多战场位置、进攻/防守声明、强攻/坚守修正、壁垒/后排承伤顺序和战斗结算模型；这些系统未完成前，对手控制的单位不应由当前玩家设置为攻击中。"
+    }
+  ],
+  "roomId": "p4-declare-battle-opponent-attacker-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304365,
+    "turnNumber": 365,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-GAREN"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-BATTLEFIELD-GAREN": {
+        "cardNo": "OGS·007/024",
+        "power": 5,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]
+      },
+      "P2-BATTLEFIELD-MUTANT-KITTEN": {
+        "cardNo": "UNL-036/219",
+        "power": 1,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-declare-battle-opponent-attacker-rejected",
+      "cmd": {
+        "cmdType": "DECLARE_BATTLE",
+        "battlefieldId": "BATTLEFIELD:P1-MAIN",
+        "attackerObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "defenderObjectIds": ["P1-BATTLEFIELD-GAREN"],
+        "optionalCosts": ["COMBAT_ASSIGNMENT"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 365,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-GAREN"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+        }
+      },
+      "cardObjects": {
+        "P1-BATTLEFIELD-GAREN": {
+          "cardNo": "OGS·007/024",
+          "power": 5,
+          "isAttacking": false,
+          "isDefending": false,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]
+        },
+        "P2-BATTLEFIELD-MUTANT-KITTEN": {
+          "cardNo": "UNL-036/219",
+          "power": 1,
+          "isAttacking": false,
+          "isDefending": false,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
