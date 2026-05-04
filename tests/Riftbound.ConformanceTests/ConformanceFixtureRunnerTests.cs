@@ -26744,6 +26744,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectsPreciseBattlefieldDestinationWithoutRoamCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-MOVE-UNIT-PRECISE-DESTINATION-001"],
+                    Battlefields = ["P1-MOVE-FIELD-KEEPER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-UNIT-PRECISE-DESTINATION-001"] = new(
+                    "P1-MOVE-UNIT-PRECISE-DESTINATION-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-MOVE-FIELD-KEEPER"] = new(
+                    "P1-MOVE-FIELD-KEEPER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-precise-destination", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-PRECISE-DESTINATION-001",
+                "BASE",
+                "BATTLEFIELD:P1-MAIN",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT precise battlefield locations are not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-MOVE-UNIT-PRECISE-DESTINATION-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-MOVE-FIELD-KEEPER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.State.CardObjects["P1-MOVE-UNIT-PRECISE-DESTINATION-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.State.CardObjects["P1-MOVE-UNIT-PRECISE-DESTINATION-001"].Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -26760,6 +26810,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandPreciseDestinationRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-precise-destination-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-MOVE-UNIT-PRECISE-DESTINATION-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-MOVE-FIELD-KEEPER"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-PRECISE-DESTINATION-001"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard],
+            result.FinalState.CardObjects["P1-MOVE-UNIT-PRECISE-DESTINATION-001"].Tags);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -27382,6 +27456,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-secret-art-mercy-grant-boon.fixture.json")]
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-move-unit-precise-destination-rejected.fixture.json")]
     [InlineData("p4-move-unit-base-to-battlefield.fixture.json")]
     [InlineData("p4-move-unit-battlefield-to-base.fixture.json")]
     [InlineData("p4-move-unit-opponent-source-rejected.fixture.json")]

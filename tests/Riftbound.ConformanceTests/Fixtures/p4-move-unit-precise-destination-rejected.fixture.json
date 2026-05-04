@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-move-unit-precise-destination-rejected",
+  "description": "P4 MOVE_UNIT rejects precise battlefield destinations until multi-battlefield movement is modeled.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304328,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-101/219 战斗号令",
+      "note": "官方卡面为基础移动代表；本 fixture 只覆盖当前 MOVE_UNIT coarse 执行路径不能选择 BATTLEFIELD:P1-MAIN 等精确战场目的地。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "note": "P4.328 锁定精确目的地边界：当前 coarse MOVE_UNIT 只接受 BASE 与 BATTLEFIELD，不接入具体战场位置。拒绝时不推进 tick、不写事件、不移动对象、不改变战力、不创建结算链。"
+    }
+  ],
+  "roomId": "p4-move-unit-precise-destination-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304328,
+    "turnNumber": 328,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-MOVE-UNIT-PRECISE-DESTINATION-001"],
+        "battlefields": ["P1-MOVE-FIELD-KEEPER"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-MOVE-UNIT-PRECISE-DESTINATION-001": {
+        "power": 4,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P1-MOVE-FIELD-KEEPER": {
+        "power": 2,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-move-unit-precise-destination-rejected",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-MOVE-UNIT-PRECISE-DESTINATION-001",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:P1-MAIN",
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 328,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-MOVE-UNIT-PRECISE-DESTINATION-001"],
+          "battlefields": ["P1-MOVE-FIELD-KEEPER"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-MOVE-UNIT-PRECISE-DESTINATION-001": {
+          "power": 4,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P1-MOVE-FIELD-KEEPER": {
+          "power": 2,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
