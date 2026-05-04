@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p4-declare-battle-command-premodel-rejected",
-  "description": "P4 rejects DECLARE_BATTLE until combat assignment and damage are implemented.",
+  "fixtureId": "p4-declare-battle-single-combatants",
+  "description": "P4 declares one attacking unit and one defending unit for the minimum combat representative path.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603304100,
+  "seed": 2603304381,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGS·007/024 盖伦；UNL-036/219 变异猫咪；UNL-090/219 乐芙兰",
-      "note": "代表战斗关键词含强攻、坚守、壁垒和后排；本 fixture 只覆盖 P4 当前尚未实现开战/承伤系统时，DECLARE_BATTLE 不会被误接受。"
+      "note": "代表战斗关键词含强攻、坚守、壁垒和后排；本 fixture 先把合法单攻单防的战斗声明状态接入可玩路径，后续批次再扩展承伤顺序和战斗伤害。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "开战需要多战场位置、进攻/防守声明、强攻/坚守修正、壁垒/后排承伤顺序和战斗结算模型；这些系统未完成前，命令应显式拒绝且不设置攻防状态、不改变战力、不加入结算链。"
+      "note": "开战需要声明进攻/防守对象；P4.381 只覆盖粗粒度单战场、单攻击者、单防守者的攻防状态建立，仍不处理强攻/坚守修正、壁垒/后排承伤顺序或致命伤害清理。"
     }
   ],
-  "roomId": "p4-declare-battle-command-premodel-rejected-room",
+  "roomId": "p4-declare-battle-single-combatants-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603304100,
-    "turnNumber": 100,
+    "seed": 2603304381,
+    "turnNumber": 381,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -80,7 +80,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p4-declare-battle-command-premodel-rejected",
+      "clientIntentId": "intent-p4-declare-battle-single-combatants",
       "cmd": {
         "cmdType": "DECLARE_BATTLE",
         "battlefieldId": "BATTLEFIELD:P1-MAIN",
@@ -91,14 +91,28 @@
     }
   ],
   "expected": {
-    "finalTick": 0,
-    "eventKinds": [],
+    "finalTick": 1,
+    "eventKinds": ["BATTLE_DECLARED"],
+    "events": [
+      {
+        "kind": "BATTLE_DECLARED",
+        "tick": 1,
+        "sequence": 1,
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "attackerObjectIds": ["P1-BATTLEFIELD-GAREN"],
+          "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+          "optionalCosts": ["COMBAT_ASSIGNMENT"]
+        }
+      }
+    ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 100,
+      "turnNumber": 381,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -124,7 +138,7 @@
         "P1-BATTLEFIELD-GAREN": {
           "cardNo": "OGS·007/024",
           "power": 5,
-          "isAttacking": false,
+          "isAttacking": true,
           "isDefending": false,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]
@@ -133,7 +147,7 @@
           "cardNo": "UNL-036/219",
           "power": 1,
           "isAttacking": false,
-          "isDefending": false,
+          "isDefending": true,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
         }

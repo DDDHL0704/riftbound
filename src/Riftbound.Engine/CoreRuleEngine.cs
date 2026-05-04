@@ -17,6 +17,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyReactionDestination = "STACK";
     private const string MoveUnitBaseZone = "BASE";
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
+    private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
+    private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string ViCardNo = "UNL-030/219";
@@ -96,12 +98,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand));
         }
 
-        if (command is DeclareBattleCommand)
+        if (command is DeclareBattleCommand declareBattleCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
-                state,
-                "DECLARE_BATTLE is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand));
+            return ValueTask.FromResult(ResolveDeclareBattle(state, intent, declareBattleCommand));
         }
 
         if (command is PassPriorityCommand && CanPassPriority(state, intent.PlayerId))
@@ -939,6 +938,141 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveDeclareBattle(
+        MatchState state,
+        PlayerIntent intent,
+        DeclareBattleCommand command)
+    {
+        if (!TryBuildMinimalDeclareBattle(
+                state,
+                intent,
+                command,
+                out var attackerObjectId,
+                out var defenderObjectId,
+                out var optionalCosts))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "DECLARE_BATTLE is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var attackerState = cardObjects[attackerObjectId];
+        var defenderState = cardObjects[defenderObjectId];
+        cardObjects[attackerObjectId] = attackerState with
+        {
+            IsAttacking = true,
+            IsDefending = false
+        };
+        cardObjects[defenderObjectId] = defenderState with
+        {
+            IsAttacking = false,
+            IsDefending = true
+        };
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            CardObjects = cardObjects,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "BATTLE_DECLARED",
+                $"{intent.PlayerId} 声明战斗",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldId"] = command.BattlefieldId,
+                    ["attackerObjectIds"] = new[] { attackerObjectId },
+                    ["defenderObjectIds"] = new[] { defenderObjectId },
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryBuildMinimalDeclareBattle(
+        MatchState state,
+        PlayerIntent intent,
+        DeclareBattleCommand command,
+        out string attackerObjectId,
+        out string defenderObjectId,
+        out IReadOnlyList<string> optionalCosts)
+    {
+        attackerObjectId = string.Empty;
+        defenderObjectId = string.Empty;
+        optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return false;
+        }
+
+        if (!string.Equals(
+                command.BattlefieldId?.Trim(),
+                $"{DeclareBattleBattlefieldPrefix}{intent.PlayerId}-MAIN",
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (optionalCosts.Count != 1
+            || !string.Equals(optionalCosts[0], DeclareBattleOptionalCost, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var attackerObjectIds = NormalizeTargetObjectIds(command.AttackerObjectIds ?? []);
+        var defenderObjectIds = NormalizeTargetObjectIds(command.DefenderObjectIds ?? []);
+        if (attackerObjectIds.Count != 1
+            || defenderObjectIds.Count != 1
+            || string.Equals(attackerObjectIds[0], defenderObjectIds[0], StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        attackerObjectId = attackerObjectIds[0];
+        defenderObjectId = defenderObjectIds[0];
+
+        var attackerLocation = FindFieldObjectLocation(state.PlayerZones, attackerObjectId);
+        var defenderLocation = FindFieldObjectLocation(state.PlayerZones, defenderObjectId);
+        if (attackerLocation is null
+            || defenderLocation is null
+            || !string.Equals(attackerLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || string.Equals(defenderLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(attackerLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || !string.Equals(defenderLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return state.CardObjects.TryGetValue(attackerObjectId, out var attackerState)
+            && state.CardObjects.TryGetValue(defenderObjectId, out var defenderState)
+            && IsReadyFaceUpUnitForMinimalBattle(attackerState)
+            && IsReadyFaceUpUnitForMinimalBattle(defenderState);
+    }
+
+    private static bool IsReadyFaceUpUnitForMinimalBattle(CardObjectState cardObject)
+    {
+        return !cardObject.IsFaceDown
+            && !cardObject.IsAttacking
+            && !cardObject.IsDefending
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
     private static ResolutionResult ResolveRevealCard(

@@ -22500,7 +22500,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
     [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
-    [InlineData("p4-declare-battle-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-declare-battle-single-combatants.fixture.json")]
     [InlineData("p4-declare-battle-empty-attackers-rejected.fixture.json")]
     [InlineData("p4-declare-battle-empty-defenders-rejected.fixture.json")]
     [InlineData("p4-declare-battle-missing-battlefield-rejected.fixture.json")]
@@ -29717,7 +29717,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4DeclareBattleCommandIsExplicitlyRejectedUntilCombatSystemExists()
+    public async Task P4DeclareBattleCommandDeclaresSingleCombatantsForRepresentativePath()
     {
         var state = PunishmentState(mana: 0) with
         {
@@ -29755,16 +29755,21 @@ public sealed class ConformanceFixtureRunnerTests
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var battleEvent = Assert.Single(result.Events);
+        Assert.Equal("BATTLE_DECLARED", battleEvent.Kind);
+        Assert.Equal("P1", battleEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", battleEvent.Payload["battlefieldId"]);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], Assert.IsType<string[]>(battleEvent.Payload["attackerObjectIds"]));
+        Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(battleEvent.Payload["defenderObjectIds"]));
+        Assert.Equal(["COMBAT_ASSIGNMENT"], Assert.IsType<string[]>(battleEvent.Payload["optionalCosts"]));
+        Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Battlefields);
-        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
-        Assert.False(result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.True(result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].Power);
         Assert.Empty(result.State.StackItems);
@@ -30763,10 +30768,10 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4DeclareBattleCommandRejectionFixture()
+    public async Task P4DeclareBattleCommandSingleCombatantsFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-command-premodel-rejected.fixture.json"),
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-single-combatants.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
@@ -30775,12 +30780,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Battlefields);
-        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
-        Assert.False(result.FinalState.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
+        Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.True(result.FinalState.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
         Assert.Empty(result.FinalState.StackItems);
     }
 
