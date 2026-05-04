@@ -959,6 +959,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
+        var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var attackerState = cardObjects[attackerObjectId];
         var defenderState = cardObjects[defenderObjectId];
@@ -973,11 +975,72 @@ public sealed class CoreRuleEngine : IRuleEngine
             IsDefending = true
         };
 
+        var combatEvents = new List<GameEvent>();
+        var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var attackerCombatPower = ResolveBattleCombatPower(attackerState, true, out var assaultBonus);
+        var defenderCombatPower = ResolveBattleCombatPower(defenderState, false, out var steadfastBonus);
+        var attackerDamageApplication = ApplyDamageToCardObject(
+            cardObjects,
+            defenderObjectId,
+            attackerCombatPower,
+            damageTriggeredDestroyTargetObjectIds);
+        combatEvents.Add(new GameEvent(
+            "DAMAGE_APPLIED",
+            "战斗中进攻单位造成伤害",
+            BuildCombatDamagePayload(
+                attackerObjectId,
+                defenderObjectId,
+                attackerDamageApplication,
+                battlefieldId,
+                "ATTACKER",
+                attackerState.Power,
+                assaultBonus,
+                attackerCombatPower,
+                CardCombatKeywordNames.Assault)));
+
+        var defenderDamageApplication = ApplyDamageToCardObject(
+            cardObjects,
+            attackerObjectId,
+            defenderCombatPower,
+            damageTriggeredDestroyTargetObjectIds);
+        combatEvents.Add(new GameEvent(
+            "DAMAGE_APPLIED",
+            "战斗中防守单位造成伤害",
+            BuildCombatDamagePayload(
+                defenderObjectId,
+                attackerObjectId,
+                defenderDamageApplication,
+                battlefieldId,
+                "DEFENDER",
+                defenderState.Power,
+                steadfastBonus,
+                defenderCombatPower,
+                CardCombatKeywordNames.Steadfast)));
+
+        var combatStackItem = new StackItemState(
+            stackItemId: $"declare-battle-{state.Tick + 1}",
+            controllerId: intent.PlayerId,
+            sourceObjectId: attackerObjectId,
+            effectKind: "DECLARE_BATTLE_COMBAT_DAMAGE",
+            cardNo: attackerState.CardNo,
+            targetObjectIds: [attackerObjectId, defenderObjectId],
+            optionalCosts: optionalCosts);
+        var lethalCleanup = ApplyLethalDamageCleanup(
+            playerZones,
+            cardObjects,
+            combatStackItem,
+            damageTriggeredDestroyTargetObjectIds);
+        combatEvents.AddRange(lethalCleanup.Events);
+
         var nextState = state with
         {
             Tick = state.Tick + 1,
+            PlayerZones = playerZones,
             CardObjects = cardObjects,
-            PassedPriorityPlayerIds = []
+            PassedPriorityPlayerIds = [],
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
+                state.DestroyedUnitOwnerIdsThisTurn,
+                lethalCleanup.DestroyedUnitOwnerIds)
         };
         var events = new List<GameEvent>
         {
@@ -987,12 +1050,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["battlefieldId"] = command.BattlefieldId,
+                    ["battlefieldId"] = battlefieldId,
                     ["attackerObjectIds"] = new[] { attackerObjectId },
                     ["defenderObjectIds"] = new[] { defenderObjectId },
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
+        events.AddRange(combatEvents);
 
         return new ResolutionResult(
             true,
@@ -1065,6 +1129,62 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.CardObjects.TryGetValue(defenderObjectId, out var defenderState)
             && IsReadyFaceUpUnitForMinimalBattle(attackerState)
             && IsReadyFaceUpUnitForMinimalBattle(defenderState);
+    }
+
+    private static int ResolveBattleCombatPower(
+        CardObjectState cardObject,
+        bool isAttacking,
+        out int keywordBonus)
+    {
+        keywordBonus = CombatKeywordAmount(
+            cardObject.Tags,
+            isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast);
+        return Math.Max(0, cardObject.Power + keywordBonus);
+    }
+
+    private static int CombatKeywordAmount(
+        IReadOnlyList<string> tags,
+        string keyword)
+    {
+        var exactMatchFound = false;
+        foreach (var tag in tags)
+        {
+            if (string.Equals(tag, keyword, StringComparison.Ordinal))
+            {
+                exactMatchFound = true;
+                continue;
+            }
+
+            if (tag.StartsWith(keyword, StringComparison.Ordinal)
+                && int.TryParse(tag[keyword.Length..], out var amount)
+                && amount > 0)
+            {
+                return amount;
+            }
+        }
+
+        return exactMatchFound ? 1 : 0;
+    }
+
+    private static Dictionary<string, object?> BuildCombatDamagePayload(
+        string sourceObjectId,
+        string targetObjectId,
+        DamageApplicationResult damageApplication,
+        string battlefieldId,
+        string combatRole,
+        int basePower,
+        int keywordBonus,
+        int combatPower,
+        string keyword)
+    {
+        var payload = BuildDamagePayload(sourceObjectId, targetObjectId, damageApplication);
+        payload["battlefieldId"] = battlefieldId;
+        payload["combatRole"] = combatRole;
+        payload["basePower"] = basePower;
+        payload["keyword"] = keyword;
+        payload["keywordBonus"] = keywordBonus;
+        payload["combatPower"] = combatPower;
+        return payload;
     }
 
     private static bool IsReadyFaceUpUnitForMinimalBattle(CardObjectState cardObject)

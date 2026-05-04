@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-declare-battle-single-combatants",
-  "description": "P4 declares one attacking unit and one defending unit for the minimum combat representative path.",
+  "description": "P4 declares one attacking unit and one defending unit, then applies minimum combat damage with Assault and Steadfast bonuses.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603304381,
+  "seed": 2603304382,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGS·007/024 盖伦；UNL-036/219 变异猫咪；UNL-090/219 乐芙兰",
-      "note": "代表战斗关键词含强攻、坚守、壁垒和后排；本 fixture 先把合法单攻单防的战斗声明状态接入可玩路径，后续批次再扩展承伤顺序和战斗伤害。"
+      "note": "代表战斗关键词含强攻、坚守、壁垒和后排；本 fixture 把合法单攻单防的战斗声明、强攻/坚守数值伤害和致命伤害清理接入可玩路径，壁垒/后排承伤顺序仍后续扩展。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "开战需要声明进攻/防守对象；P4.381 只覆盖粗粒度单战场、单攻击者、单防守者的攻防状态建立，仍不处理强攻/坚守修正、壁垒/后排承伤顺序或致命伤害清理。"
+      "note": "开战需要声明进攻/防守对象并处理战斗伤害；P4.382 只覆盖粗粒度单战场、单攻击者、单防守者、强攻/坚守数值修正和致命伤害清理，仍不处理壁垒/后排承伤顺序、多攻防对象或得分。"
     }
   ],
   "roomId": "p4-declare-battle-single-combatants-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603304381,
-    "turnNumber": 381,
+    "seed": 2603304382,
+    "turnNumber": 382,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -92,7 +92,12 @@
   ],
   "expected": {
     "finalTick": 1,
-    "eventKinds": ["BATTLE_DECLARED"],
+    "eventKinds": [
+      "BATTLE_DECLARED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_DESTROYED"
+    ],
     "events": [
       {
         "kind": "BATTLE_DECLARED",
@@ -105,6 +110,51 @@
           "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
           "optionalCosts": ["COMBAT_ASSIGNMENT"]
         }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-GAREN",
+          "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "ATTACKER",
+          "basePower": 5,
+          "keyword": "强攻",
+          "keywordBonus": 2,
+          "combatPower": 7,
+          "damage": 7
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "sourceObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "targetObjectId": "P1-BATTLEFIELD-GAREN",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "DEFENDER",
+          "basePower": 1,
+          "keyword": "坚守",
+          "keywordBonus": 2,
+          "combatPower": 3,
+          "damage": 3
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 4,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-GAREN",
+          "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "destinationZone": "GRAVEYARD",
+          "reason": "LETHAL_DAMAGE"
+        }
       }
     ],
     "promptActions": {
@@ -112,7 +162,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 381,
+      "turnNumber": 382,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -131,25 +181,19 @@
         "P2": {
           "hand": [],
           "base": [],
-          "battlefields": ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+          "battlefields": [],
+          "graveyard": ["P2-BATTLEFIELD-MUTANT-KITTEN"]
         }
       },
       "cardObjects": {
         "P1-BATTLEFIELD-GAREN": {
           "cardNo": "OGS·007/024",
+          "damage": 3,
           "power": 5,
           "isAttacking": true,
           "isDefending": false,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]
-        },
-        "P2-BATTLEFIELD-MUTANT-KITTEN": {
-          "cardNo": "UNL-036/219",
-          "power": 1,
-          "isAttacking": false,
-          "isDefending": true,
-          "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
         }
       },
       "stackItems": []
