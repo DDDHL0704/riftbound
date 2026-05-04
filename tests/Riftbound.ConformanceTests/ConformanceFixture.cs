@@ -117,6 +117,10 @@ public sealed record ConformanceCardObjectState
     public string? AttachedToObjectId { get; init; }
 
     public string? CardNo { get; init; }
+
+    public string? OwnerId { get; init; }
+
+    public string? ControllerId { get; init; }
 }
 
 public sealed record ConformanceStackItemState(
@@ -398,7 +402,9 @@ public static class ConformanceFixtureRunner
                     entry.Value.Tags,
                     entry.Value.ManaCost ?? 0,
                     entry.Value.AttachedToObjectId,
-                    entry.Value.CardNo),
+                    entry.Value.CardNo,
+                    entry.Value.OwnerId,
+                    entry.Value.ControllerId),
                 StringComparer.Ordinal);
     }
 
@@ -714,6 +720,8 @@ public static class ConformanceFixtureRunner
                 expectedObject.AttachedToObjectId,
                 actualObject.AttachedToObjectId);
             AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.cardNo", expectedObject.CardNo, actualObject.CardNo);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.ownerId", expectedObject.OwnerId, actualObject.OwnerId);
+            AddMismatch(mismatches, $"finalState.cardObjects.{objectId}.controllerId", expectedObject.ControllerId, actualObject.ControllerId);
         }
     }
 

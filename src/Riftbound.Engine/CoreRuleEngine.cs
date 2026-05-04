@@ -530,10 +530,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var runePools = PayRuneCosts(state, intent.PlayerId, 0, LongSwordAssemblePowerCost);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        cardObjects[command.SourceObjectId] = equipmentState with
+        var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
+        var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
+        cardObjects[command.SourceObjectId] = equipmentWithIdentity with
         {
             AttachedToObjectId = command.TargetObjectId
         };
+        cardObjects[command.TargetObjectId] = targetWithIdentity;
 
         var nextState = state with
         {
@@ -566,9 +569,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["equipmentObjectId"] = command.SourceObjectId,
                     ["unitObjectId"] = command.TargetObjectId,
                     ["controllerId"] = intent.PlayerId,
+                    ["ownerId"] = intent.PlayerId,
                     ["attachedToObjectId"] = command.TargetObjectId,
-                    ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentState.CardNo) ? LongSwordCardNo : equipmentState.CardNo,
-                    ["targetPower"] = targetState.Power,
+                    ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentWithIdentity.CardNo) ? LongSwordCardNo : equipmentWithIdentity.CardNo,
+                    ["targetPower"] = targetWithIdentity.Power,
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
@@ -604,7 +608,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (optionalCosts.Count != 1
             || !string.Equals(optionalCosts[0], LongSwordAssembleOptionalCost, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(command.SourceObjectId)
-            || string.IsNullOrWhiteSpace(command.TargetObjectId))
+            || string.IsNullOrWhiteSpace(command.TargetObjectId)
+            || string.Equals(command.SourceObjectId, command.TargetObjectId, StringComparison.Ordinal))
         {
             return false;
         }
@@ -618,7 +623,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !knownEquipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || !knownEquipmentState.Tags.Contains("武装", StringComparer.Ordinal)
             || !knownEquipmentState.Tags.Contains("灵便", StringComparer.Ordinal)
-            || !string.IsNullOrWhiteSpace(knownEquipmentState.AttachedToObjectId))
+            || !string.IsNullOrWhiteSpace(knownEquipmentState.AttachedToObjectId)
+            || !FieldIdentityMatchesZone(knownEquipmentState, sourceLocation.Value.PlayerId))
         {
             return false;
         }
@@ -634,7 +640,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !string.Equals(targetLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(command.TargetObjectId, out var knownTargetState)
             || knownTargetState.IsFaceDown
-            || !knownTargetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            || !knownTargetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !FieldIdentityMatchesZone(knownTargetState, targetLocation.Value.PlayerId))
         {
             return false;
         }
@@ -642,6 +649,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         equipmentState = knownEquipmentState;
         targetState = knownTargetState;
         return true;
+    }
+
+    private static CardObjectState WithFieldIdentityDefaults(CardObjectState cardObject, string playerId)
+    {
+        return cardObject with
+        {
+            OwnerId = string.IsNullOrWhiteSpace(cardObject.OwnerId) ? playerId : cardObject.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(cardObject.ControllerId) ? playerId : cardObject.ControllerId
+        };
+    }
+
+    private static bool FieldIdentityMatchesZone(CardObjectState cardObject, string playerId)
+    {
+        return (string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal))
+            && (string.IsNullOrWhiteSpace(cardObject.ControllerId)
+                || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal));
     }
 
     private static ResolutionResult ResolveActivateAbility(

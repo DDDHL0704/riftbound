@@ -73,7 +73,9 @@ public sealed record CardObjectState
         IReadOnlyList<string>? tags = null,
         int manaCost = 0,
         string? attachedToObjectId = null,
-        string? cardNo = null)
+        string? cardNo = null,
+        string? ownerId = null,
+        string? controllerId = null)
     {
         ObjectId = string.IsNullOrWhiteSpace(objectId) ? string.Empty : objectId.Trim();
         Damage = Math.Max(0, damage);
@@ -88,6 +90,8 @@ public sealed record CardObjectState
         ManaCost = Math.Max(0, manaCost);
         AttachedToObjectId = NormalizeOptionalText(attachedToObjectId);
         CardNo = NormalizeOptionalText(cardNo);
+        OwnerId = NormalizeOptionalText(ownerId);
+        ControllerId = NormalizeOptionalText(controllerId);
     }
 
     public string ObjectId { get; init; }
@@ -115,6 +119,10 @@ public sealed record CardObjectState
     public string? AttachedToObjectId { get; init; }
 
     public string? CardNo { get; init; }
+
+    public string? OwnerId { get; init; }
+
+    public string? ControllerId { get; init; }
 
     private static IReadOnlyList<string> NormalizeEffects(IReadOnlyList<string>? effectIds)
     {
@@ -480,7 +488,9 @@ public sealed record MatchState
             state.Tags,
             state.ManaCost,
             state.AttachedToObjectId,
-            state.CardNo);
+            state.CardNo,
+            state.OwnerId,
+            state.ControllerId);
     }
 
     private static IReadOnlyList<StackItemState> NormalizeStackItems(IReadOnlyList<StackItemState>? stackItems)
@@ -744,7 +754,9 @@ public sealed record ResolutionResult(
             ["tags"] = cardObject.Tags,
             ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects,
             ["manaCost"] = cardObject.ManaCost,
-            ["attachedToObjectId"] = cardObject.AttachedToObjectId
+            ["attachedToObjectId"] = cardObject.AttachedToObjectId,
+            ["ownerId"] = cardObject.OwnerId,
+            ["controllerId"] = cardObject.ControllerId
         };
     }
 

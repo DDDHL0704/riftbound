@@ -59,9 +59,9 @@ Out of scope:
 
 ## Current Engine Model Audit
 
-- `CardObjectState` currently stores `AttachedToObjectId`, tags, damage, power, temporary modifiers, face state, combat flags, exhaustion, mana cost, and card number.
-- `CardObjectState` does not yet store explicit `OwnerId` or `ControllerId`.
-- Object ownership and control are currently inferred from the `PlayerZones` collection that contains the object id.
+- `CardObjectState` currently stores `AttachedToObjectId`, optional `OwnerId` / `ControllerId`, tags, damage, power, temporary modifiers, face state, combat flags, exhaustion, mana cost, and card number.
+- P5.1 added optional explicit object identity fields. Existing objects may still rely on the legacy `PlayerZones` location inference until each mutation path is migrated.
+- Object ownership and control are still inferred from the `PlayerZones` collection for legacy paths that do not populate `OwnerId` / `ControllerId`.
 - `StackItemState` already stores `ControllerId`, so stack control can diverge from source-card zone ownership for existing representative paths.
 - Equipment can be attached by setting `AttachedToObjectId`, but P4 keeps attached equipment in its controller's base list for the Long Sword representative path.
 - Movement currently rejects source units with attached equipment. This is the intended P4 zero-side-effect boundary before P5 equipment following.
@@ -148,8 +148,8 @@ Until a P5 slice implements and validates a path, the following must remain reje
 
 | Batch | Status | Target |
 | --- | --- | --- |
-| P5.0 | In progress | Audit/status file only; no engine behavior changes. |
-| P5.1 | Pending | Equipment state invariant tests for owner/controller/attached boundaries with minimal model changes. |
+| P5.0 | Done | Audit/status file only; no engine behavior changes. |
+| P5.1 | Done | Equipment state invariant tests for owner/controller/attached boundaries with minimal model changes. |
 | P5.2 | Pending | Equipment attach/detach/follow/leave representative paths using `长剑` and `取放自如`. |
 | P5.3 | Pending | Control owner/controller separation and end-turn return using `恶意收购`. |
 | P5.4 | Pending | Trigger queue skeleton with one low-risk on-play or enter-field representative. |
@@ -158,7 +158,25 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.7 | Pending | Continuous effect/layer and end-turn cleanup slice. |
 | P5.8 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after this audit file lands: `P5 1/9 planned batches = 11.1%`; remaining planned batches: `8`.
+Current progress after P5.1 lands: `P5 2/9 planned batches = 22.2%`; remaining planned batches: `7`.
+
+## P5.1 Delivered
+
+- Added optional `ownerId` / `controllerId` fields to `CardObjectState`.
+- Exposed visible object `ownerId` / `controllerId` in snapshots while preserving face-down redaction.
+- Extended conformance fixture parsing and partial expected-state comparison for object identity fields.
+- Locked the verified Long Sword assemble path so declared identity must match the current field controller before attachment.
+- Added a zero-side-effect rejection for an equipment source whose declared controller conflicts with its current field zone.
+- Added `p5-equipment-state-assemble-long-sword-owner-controller.fixture.json` for official Long Sword text plus owner/controller/attachment evidence.
+- Kept the scope intentionally narrow: no generic equipment following, generic assemble cost matrix, agile auto-attach, Forge, or control expiry was added in P5.1.
+
+P5.1 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2566/2566`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2485/2485`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 
 ## Validation Policy
 

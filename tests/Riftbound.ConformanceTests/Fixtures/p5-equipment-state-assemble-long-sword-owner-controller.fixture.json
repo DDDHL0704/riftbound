@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p5-equipment-state-assemble-long-sword-owner-controller",
+  "description": "P5.1 locks explicit owner/controller identity while Long Sword attaches through the verified ASSEMBLE_EQUIPMENT representative path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603305001,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·022/221 长剑",
+      "note": "官方卡面含有灵便和装配红色文本；P5.1 在 P4.388 已验证最小装配路径上补充装备对象的 ownerId/controllerId/attachedToObjectId 不变量。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p22-p26 rules 179,187-189; p89 rules 718-719",
+      "note": "对象拥有者/控制者和装备贴附关系是独立规则面；本 fixture 只锁定同一控制者基地中长剑贴附友方单位时，owner/controller 不因 attachedToObjectId 写入而丢失。"
+    }
+  ],
+  "roomId": "p5-equipment-state-assemble-long-sword-owner-controller-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603305001,
+    "turnNumber": 501,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 1 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-EQUIPMENT-LONG-SWORD": {
+        "cardNo": "SFD·022/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "power": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+        "manaCost": 1
+      },
+      "P1-UNIT-ASSEMBLE-TARGET": {
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "power": 3,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p5-equipment-state-assemble-long-sword-owner-controller",
+      "cmd": {
+        "cmdType": "ASSEMBLE_EQUIPMENT",
+        "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+        "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+        "optionalCosts": ["ASSEMBLE_RED"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": ["COST_PAID", "EQUIPMENT_ATTACHED"],
+    "events": [
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 1,
+          "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+          "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+          "optionalCosts": ["ASSEMBLE_RED"]
+        }
+      },
+      {
+        "kind": "EQUIPMENT_ATTACHED",
+        "payload": {
+          "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+          "equipmentObjectId": "P1-EQUIPMENT-LONG-SWORD",
+          "unitObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "attachedToObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+          "equipmentCardNo": "SFD·022/221",
+          "targetPower": 3,
+          "optionalCosts": ["ASSEMBLE_RED"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 501,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-EQUIPMENT-LONG-SWORD": {
+          "cardNo": "SFD·022/221",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "power": 0,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+          "manaCost": 1,
+          "attachedToObjectId": "P1-UNIT-ASSEMBLE-TARGET"
+        },
+        "P1-UNIT-ASSEMBLE-TARGET": {
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "power": 3,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
