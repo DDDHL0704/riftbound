@@ -14086,6 +14086,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineCleansTriggerPowerAndPreventionAtEndTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p5-end-turn-cleans-trigger-power-and-prevention.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.UntilEndOfTurnEffects);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-TEEMO"].Power);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-UNIT-TEEMO"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsStandFirmWithTargets()
     {
         var state = PunishmentState(mana: 1) with

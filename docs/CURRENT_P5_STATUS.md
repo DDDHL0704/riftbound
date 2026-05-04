@@ -155,10 +155,10 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.4 | Done | Trigger queue skeleton with one low-risk on-play or enter-field representative. |
 | P5.5 | Done | Last Breath or leave-field trigger slice without broad trigger migration. |
 | P5.6 | Done | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
-| P5.7 | Pending | Continuous effect/layer and end-turn cleanup slice. |
+| P5.7 | Done | Continuous effect/layer and end-turn cleanup slice. |
 | P5.8 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after P5.6 lands: `P5 7/9 planned batches = 77.8%`; remaining planned batches: `2`.
+Current progress after P5.7 lands: `P5 8/9 planned batches = 88.9%`; remaining planned batches: `1`.
 
 ## P5.1 Delivered
 
@@ -264,6 +264,23 @@ P5.6 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 
+## P5.7 Delivered
+
+- Added a continuous-effect cleanup representative that combines two P5 surfaces: Teemo's trigger-created temporary power modifier and Stand Firm's global spell/skill-damage prevention.
+- Added `p5-end-turn-cleans-trigger-power-and-prevention.fixture.json`, starting from a verified in-turn state and ending the turn.
+- The fixture locks simultaneous expiry of global `untilEndOfTurnEffects` and object `untilEndOfTurnPowerModifier`, with `UNTIL_END_OF_TURN_EXPIRED`, `POWER_MODIFIER_EXPIRED`, and `CLEANUP_REPEATED`.
+- Confirmed the Teemo object remains on the field, power returns from `4` to `1`, and `untilEndOfTurnPowerModifier` returns to `0`.
+- Kept static equipment power layers, keyword-grant layers from equipment, source-leaves recalculation, and cross-layer dependency ordering deferred.
+
+P5.7 validation:
+
+- Narrow preflight: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineCleansTriggerPowerAndPreventionAtEndTurn"` passed `1/1`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2573/2573`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2492/2492`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+
 ## Validation Policy
 
 Each batch must keep prior P2/P2.5/P3/P4 suites green. `dotnet` commands must be run through:
@@ -284,4 +301,4 @@ Required gates for P5 completion:
 
 ## Next Step
 
-Proceed to P5.7. Keep the continuous-effect slice focused on end-turn cleanup/layer boundaries already represented by temporary power and prevention effects.
+Proceed to P5.8 completion audit. Re-run required validation, verify P5 deferred boundaries are explicit, and prepare final status documentation before marking the goal complete.
