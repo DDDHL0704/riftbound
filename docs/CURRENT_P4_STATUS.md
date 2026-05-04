@@ -329,7 +329,8 @@
 - P4.298 提交：`ba9b3d0 test: add p4 sfd 180 fiora target fixture`
 - P4.299 提交：`5810678 test: add p4 sfd 180a fiora target fixture`
 - P4.300 提交：`ffb90f5 feat: add p4 coarse move unit command`
-- P4.301 提交：本提交 `test: add p4 reverse move unit fixture`
+- P4.301 提交：`349ca23 test: add p4 reverse move unit fixture`
+- P4.302 提交：本提交 `test: add p4 move unit source rejection`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -895,6 +896,8 @@ P4.299 更新：Basic action 行在 P4.298 基础上追加 `P4Sfd180aFioraTarget
 P4.300 更新：Move / Basic action 行在 P4.299 基础上追加 `P4MoveUnitCommandMovesFriendlyBaseUnitToBattlefieldInCoarseModel`、`P4MoveUnitCommandBaseToBattlefieldFixture` 和 `p4-move-unit-base-to-battlefield.fixture.json`，把 `MOVE_UNIT origin=BASE destination=BATTLEFIELD` 的友方单位粗粒度区域移动接入 Core 可玩路径；`BATTLEFIELD:P1-LEFT` / `ROAM` 精确游走路径仍由 P4.98 fixture 拒绝保护。
 
 P4.301 更新：Move / Basic action 行在 P4.300 基础上追加 `P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel`、`P4MoveUnitCommandBattlefieldToBaseFixture` 和 `p4-move-unit-battlefield-to-base.fixture.json`，把 `MOVE_UNIT origin=BATTLEFIELD destination=BASE` 的友方单位粗粒度反向移动纳入 direct engine 测试、conformance fixture 和基础动作聚合回放。
+
+P4.302 更新：Move / Basic action 行在 P4.301 基础上追加 `P4MoveUnitCommandRejectsOpponentControlledSource`、`P4MoveUnitCommandOpponentSourceRejectionFixture` 和 `p4-move-unit-opponent-source-rejected.fixture.json`，把 `MOVE_UNIT` 来源必须由当前玩家控制的边界纳入 direct engine 测试、conformance fixture 和基础动作聚合回放。
 
 ## P4.2 Permission Keyword Batch
 
@@ -3498,6 +3501,15 @@ Prompt-to-artifact checklist：
 - 新增 fixture `p4-move-unit-battlefield-to-base.fixture.json` 和回放测试 `P4MoveUnitCommandBattlefieldToBaseFixture`，把 `OGN·173/298 驭风而行` 的“移动一名友方单位”文本作为基础移动证据纳入 conformance。
 - `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 reverse movement fixture；精确战场/`ROAM` 游走路径仍由 P4.98 fixture 拒绝保护。
 
+## P4.302 Move Unit Opponent Source Rejection Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.300/P4.301 已接入 coarse 区域双向移动；本批次只锁定来源控制者边界，避免可玩 `MOVE_UNIT` 路径误移动对手对象。
+
+- `MOVE_UNIT sourceObjectId=P2-MOVE-UNIT-BATTLEFIELD-001 origin=BATTLEFIELD destination=BASE optionalCosts=[]` 由 P1 发起时，因来源对象由 P2 控制而返回 `INVALID_TARGET`，不推进 tick、不写事件、不移动对象、不改变战力、不创建 stack item。
+- 新增 direct engine 测试 `P4MoveUnitCommandRejectsOpponentControlledSource`，锁定错误码和错误信息 `Source unit is not controlled by the player in the requested origin zone.`。
+- 新增 fixture `p4-move-unit-opponent-source-rejected.fixture.json` 和回放测试 `P4MoveUnitCommandOpponentSourceRejectionFixture`，把 `UNL-101/219 战斗号令` “你控制的一名单位”文本作为来源控制边界证据。
+- `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 opponent-source rejection fixture；精确战场/`ROAM` 游走路径和移动触发仍 deferred。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -3839,9 +3851,10 @@ Prompt-to-artifact checklist：
 | P4.299 completion audit + SFD·180a 菲奥娜异画 A 普通打出带目标拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 SFD·180a《菲奥娜》异画 A 普通手牌打出带目标时拒绝且不推进 tick/事件/符文池/手牌/主牌堆/基地目标/stack、不入场单位的 fixture，并把该 fixture 纳入基础动作聚合回放。 |
 | P4.300 completion audit + coarse MOVE_UNIT 基地到战场执行切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `MOVE_UNIT origin=BASE destination=BATTLEFIELD` 友方单位粗粒度区域移动路径、direct engine 测试和 conformance fixture，并继续拒绝精确战场/`ROAM` 游走路径。 |
 | P4.301 completion audit + coarse MOVE_UNIT 战场到基地 fixture 切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `MOVE_UNIT origin=BATTLEFIELD destination=BASE` 友方单位粗粒度反向移动 direct engine 测试和 conformance fixture，并纳入基础动作聚合回放。 |
-| P4.302 next low-risk gap | Pending | 0% | 基于 P4.301 audit 继续选择低风险可验证小批次；优先从 coarse 移动非法来源/窗口边界、待命/伏击边界、技能边界、更多法盾边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
+| P4.302 completion audit + MOVE_UNIT 对手来源拒绝 fixture 切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 P1 不能移动 P2 控制来源对象的 direct engine 测试和 conformance fixture，并纳入基础动作聚合回放。 |
+| P4.303 next low-risk gap | Pending | 0% | 基于 P4.302 audit 继续选择低风险可验证小批次；优先从 coarse 移动窗口/非单位/face-down 边界、待命/伏击边界、技能边界、更多法盾边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `302/303 = 99.7%`。已完成 P4.1-P4.301：在 P4.300 全部内容基础上，P4.301 新增 coarse `MOVE_UNIT` 友方单位 `BATTLEFIELD` -> `BASE` 反向移动 direct engine 测试和 conformance fixture。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `303/304 = 99.7%`。已完成 P4.1-P4.302：在 P4.301 全部内容基础上，P4.302 新增 `MOVE_UNIT` 对手控制来源拒绝 direct engine 测试和 conformance fixture。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -3856,17 +3869,17 @@ P4 当前整体进度：按当前 part 计 `302/303 = 99.7%`。已完成 P4.1-P4
 
 ## Latest Validation
 
-P4.301 已完成验证：
+P4.302 已完成验证：
 
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-battlefield-to-base.fixture.json`：pass
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-opponent-source-rejected.fixture.json`：pass
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2301/2301
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2220/2220
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2304/2304
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2223/2223
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommand"`：pass，6/6
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：pass，201/201
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommand"`：pass，8/8
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：pass，202/202
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.302：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.303：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
