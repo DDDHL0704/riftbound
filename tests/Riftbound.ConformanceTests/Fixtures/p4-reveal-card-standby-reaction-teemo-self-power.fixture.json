@@ -21,7 +21,10 @@
     }
   ],
   "roomId": "p4-reveal-card-standby-reaction-teemo-self-power-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603304386,
     "turnNumber": 386,
@@ -31,17 +34,32 @@
     "timingState": "NEUTRAL_CLOSED",
     "priorityPlayerId": "P1",
     "passedPriorityPlayerIds": [],
-    "scores": { "P1": 0, "P2": 0 },
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
     "runePools": {
-      "P1": { "mana": 0, "power": 0 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 0,
+        "power": 0
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001"
+        ],
         "hand": [],
-        "base": ["P1-FACEDOWN-OGN-TEEMO-PURPLE"],
+        "base": [
+          "P1-FACEDOWN-OGN-TEEMO-PURPLE"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
@@ -49,8 +67,12 @@
         "championZone": []
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001"
+        ],
         "hand": [],
         "base": [],
         "battlefields": [],
@@ -64,7 +86,11 @@
       "P1-FACEDOWN-OGN-TEEMO-PURPLE": {
         "power": 1,
         "isFaceDown": true,
-        "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
+        "tags": [
+          "CARD_TYPE:UNIT",
+          "待命",
+          "约德尔人"
+        ],
         "manaCost": 2,
         "cardNo": "OGN·197/298"
       }
@@ -91,19 +117,25 @@
         "cardNo": "OGN·197/298",
         "targetObjectIds": [],
         "mode": "STANDBY_REACTION",
-        "optionalCosts": ["STANDBY_REVEAL_0"],
+        "optionalCosts": [
+          "STANDBY_REVEAL_0"
+        ],
         "destination": "STACK"
       }
     },
     {
       "playerId": "P1",
       "clientIntentId": "intent-p4-reveal-card-standby-reaction-teemo-p1-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     },
     {
       "playerId": "P2",
       "clientIntentId": "intent-p4-reveal-card-standby-reaction-teemo-p2-pass",
-      "cmd": { "cmdType": "PASS_PRIORITY" }
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
     }
   ],
   "expected": {
@@ -117,6 +149,8 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_QUEUED",
+      "TRIGGER_RESOLVED",
       "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
@@ -128,7 +162,9 @@
           "cardNo": "OGN·197/298",
           "mode": "STANDBY_REACTION",
           "destination": "STACK",
-          "optionalCosts": ["STANDBY_REVEAL_0"],
+          "optionalCosts": [
+            "STANDBY_REVEAL_0"
+          ],
           "isFaceDown": false
         }
       },
@@ -149,7 +185,9 @@
           "mana": 0,
           "power": 0,
           "baseMana": 0,
-          "optionalCosts": ["STANDBY_REVEAL_0"]
+          "optionalCosts": [
+            "STANDBY_REVEAL_0"
+          ]
         }
       },
       {
@@ -166,8 +204,20 @@
           "playedAfterAnotherCardThisTurn": false
         }
       },
-      { "kind": "PRIORITY_PASSED", "payload": { "playerId": "P1", "priorityPlayerId": "P1" } },
-      { "kind": "PRIORITY_PASSED", "payload": { "playerId": "P2", "priorityPlayerId": "P2" } },
+      {
+        "kind": "PRIORITY_PASSED",
+        "payload": {
+          "playerId": "P1",
+          "priorityPlayerId": "P1"
+        }
+      },
+      {
+        "kind": "PRIORITY_PASSED",
+        "payload": {
+          "playerId": "P2",
+          "priorityPlayerId": "P2"
+        }
+      },
       {
         "kind": "STACK_ITEM_RESOLVED",
         "payload": {
@@ -186,8 +236,18 @@
           "unitName": "提莫",
           "destinationZone": "BASE",
           "power": 1,
-          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"]
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "待命",
+            "约德尔人"
+          ]
         }
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGER_RESOLVED"
       },
       {
         "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
@@ -202,8 +262,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["WAIT"],
-      "P2": ["PASS_PRIORITY"]
+      "P1": [
+        "WAIT"
+      ],
+      "P2": [
+        "PASS_PRIORITY"
+      ]
     },
     "finalState": {
       "turnNumber": 386,
@@ -213,15 +277,26 @@
       "timingState": "NEUTRAL_CLOSED",
       "priorityPlayerId": "P2",
       "passedPriorityPlayerIds": [],
-      "scores": { "P1": 0, "P2": 0 },
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "base": ["P1-FACEDOWN-OGN-TEEMO-PURPLE"],
+          "base": [
+            "P1-FACEDOWN-OGN-TEEMO-PURPLE"
+          ],
           "graveyard": []
         },
         "P2": {
@@ -247,7 +322,11 @@
           "untilEndOfTurnPowerModifier": 3,
           "isFaceDown": false,
           "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
+          "tags": [
+            "CARD_TYPE:UNIT",
+            "待命",
+            "约德尔人"
+          ],
           "manaCost": 2,
           "cardNo": "OGN·197/298"
         }
@@ -256,11 +335,15 @@
     "prompts": {
       "P1": {
         "actionable": false,
-        "actions": ["WAIT"]
+        "actions": [
+          "WAIT"
+        ]
       },
       "P2": {
         "actionable": true,
-        "actions": ["PASS_PRIORITY"]
+        "actions": [
+          "PASS_PRIORITY"
+        ]
       }
     }
   }

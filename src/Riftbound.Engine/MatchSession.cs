@@ -215,6 +215,39 @@ public sealed record StackItemState
     }
 }
 
+public sealed record TriggerQueueItemState
+{
+    [JsonConstructor]
+    public TriggerQueueItemState(
+        string? triggerId = null,
+        string? controllerId = null,
+        string? sourceObjectId = null,
+        string? effectKind = null,
+        string? triggeredByEventKind = null)
+    {
+        TriggerId = Normalize(triggerId);
+        ControllerId = Normalize(controllerId);
+        SourceObjectId = Normalize(sourceObjectId);
+        EffectKind = Normalize(effectKind);
+        TriggeredByEventKind = Normalize(triggeredByEventKind);
+    }
+
+    public string TriggerId { get; init; }
+
+    public string ControllerId { get; init; }
+
+    public string SourceObjectId { get; init; }
+
+    public string EffectKind { get; init; }
+
+    public string TriggeredByEventKind { get; init; }
+
+    private static string Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+}
+
 public sealed record MatchState
 {
     public MatchState(
@@ -255,7 +288,8 @@ public sealed record MatchState
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
         string? extraTurnPlayerId = null,
         IReadOnlyDictionary<string, int>? playerExperience = null,
-        IReadOnlyDictionary<string, int>? playerCardsPlayedThisTurn = null)
+        IReadOnlyDictionary<string, int>? playerCardsPlayedThisTurn = null,
+        IReadOnlyList<TriggerQueueItemState>? triggerQueue = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -286,6 +320,7 @@ public sealed record MatchState
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
         StackItems = NormalizeStackItems(stackItems);
+        TriggerQueue = NormalizeTriggerQueue(triggerQueue);
         FocusPlayerId = NormalizeOptionalText(focusPlayerId);
         PassedFocusPlayerIds = NormalizeTextList(passedFocusPlayerIds);
         WinnerPlayerId = NormalizeOptionalText(winnerPlayerId);
@@ -333,6 +368,8 @@ public sealed record MatchState
     public IReadOnlyList<string> PassedPriorityPlayerIds { get; init; }
 
     public IReadOnlyList<StackItemState> StackItems { get; init; }
+
+    public IReadOnlyList<TriggerQueueItemState> TriggerQueue { get; init; }
 
     public string? FocusPlayerId { get; init; }
 
@@ -512,6 +549,19 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<TriggerQueueItemState> NormalizeTriggerQueue(IReadOnlyList<TriggerQueueItemState>? triggerQueue)
+    {
+        return (triggerQueue ?? [])
+            .Where(item => !string.IsNullOrWhiteSpace(item.TriggerId))
+            .Select(item => new TriggerQueueItemState(
+                item.TriggerId,
+                item.ControllerId,
+                item.SourceObjectId,
+                item.EffectKind,
+                item.TriggeredByEventKind))
+            .ToArray();
+    }
+
     private static string? NormalizeOptionalText(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -594,6 +644,7 @@ public sealed record ResolutionResult(
                     ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
                     ["winnerPlayerId"] = state.WinnerPlayerId,
                     ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
+                    ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                     ["seed"] = state.Seed,
                     ["rngCursor"] = state.RngCursor,
                     ["roomStatus"] = state.Status,
@@ -621,6 +672,18 @@ public sealed record ResolutionResult(
         }
 
         return view;
+    }
+
+    private static Dictionary<string, object?> BuildTriggerQueueItemSnapshotView(TriggerQueueItemState item)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["triggerId"] = item.TriggerId,
+            ["controllerId"] = item.ControllerId,
+            ["sourceObjectId"] = item.SourceObjectId,
+            ["effectKind"] = item.EffectKind,
+            ["triggeredByEventKind"] = item.TriggeredByEventKind
+        };
     }
 
     private static Dictionary<string, object?> BuildPlayerSnapshotView(

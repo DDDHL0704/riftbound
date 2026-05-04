@@ -693,6 +693,55 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
+    {
+        return behavior.AppliesPowerModifierToSourceUnit
+            && behavior.PowerModifierAmount != 0
+            && behavior.EffectKind.Contains("TEEMO", StringComparison.Ordinal)
+            && behavior.EffectKind.Contains("PLAY_UNIT_SELF_POWER_PLUS_3", StringComparison.Ordinal);
+    }
+
+    private static TriggerQueueItemState BuildOnPlayTriggerQueueItem(
+        StackItemState stackItem,
+        CardBehaviorDefinition behavior)
+    {
+        return new TriggerQueueItemState(
+            $"TRIGGER-{stackItem.StackItemId}-{behavior.EffectKind}",
+            stackItem.ControllerId,
+            stackItem.SourceObjectId,
+            behavior.EffectKind,
+            "UNIT_PLAYED_TO_BASE");
+    }
+
+    private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
+    {
+        return new GameEvent(
+            "TRIGGER_QUEUED",
+            "触发能力加入队列",
+            new Dictionary<string, object?>
+            {
+                ["triggerId"] = trigger.TriggerId,
+                ["controllerId"] = trigger.ControllerId,
+                ["sourceObjectId"] = trigger.SourceObjectId,
+                ["effectKind"] = trigger.EffectKind,
+                ["triggeredByEventKind"] = trigger.TriggeredByEventKind
+            });
+    }
+
+    private static GameEvent BuildTriggerResolvedEvent(TriggerQueueItemState trigger)
+    {
+        return new GameEvent(
+            "TRIGGER_RESOLVED",
+            "触发能力结算",
+            new Dictionary<string, object?>
+            {
+                ["triggerId"] = trigger.TriggerId,
+                ["controllerId"] = trigger.ControllerId,
+                ["sourceObjectId"] = trigger.SourceObjectId,
+                ["effectKind"] = trigger.EffectKind
+            });
+    }
+
     private static ResolutionResult ResolveActivateAbility(
         MatchState state,
         PlayerIntent intent,
@@ -4430,6 +4479,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             && behavior.PowerModifierAmount != 0
             && cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState))
         {
+            if (IsQueuedOnPlaySourcePowerTrigger(behavior))
+            {
+                var trigger = BuildOnPlayTriggerQueueItem(stackItem, behavior);
+                events.Add(BuildTriggerQueuedEvent(trigger));
+                events.Add(BuildTriggerResolvedEvent(trigger));
+            }
+
             var modifiedSourceUnitState = ApplyPowerModifier(
                 sourceUnitState,
                 behavior,

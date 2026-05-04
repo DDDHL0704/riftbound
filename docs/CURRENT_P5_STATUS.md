@@ -152,13 +152,13 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.1 | Done | Equipment state invariant tests for owner/controller/attached boundaries with minimal model changes. |
 | P5.2 | Done | Equipment attach/detach/follow/leave representative paths using `长剑` and `取放自如`. |
 | P5.3 | Done | Control owner/controller separation and end-turn return using `恶意收购`. |
-| P5.4 | Pending | Trigger queue skeleton with one low-risk on-play or enter-field representative. |
+| P5.4 | Done | Trigger queue skeleton with one low-risk on-play or enter-field representative. |
 | P5.5 | Pending | Last Breath or leave-field trigger slice without broad trigger migration. |
 | P5.6 | Pending | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
 | P5.7 | Pending | Continuous effect/layer and end-turn cleanup slice. |
 | P5.8 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after P5.3 lands: `P5 4/9 planned batches = 44.4%`; remaining planned batches: `5`.
+Current progress after P5.4 lands: `P5 5/9 planned batches = 55.6%`; remaining planned batches: `4`.
 
 ## P5.1 Delivered
 
@@ -207,6 +207,23 @@ P5.2 validation:
 - Kept standby reveal, battle/conquest branch choice, control of attached equipment, and broader control-to-base expiry deferred.
 
 P5.3 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2570/2570`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2489/2489`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+
+## P5.4 Delivered
+
+- Added `TriggerQueueItemState` and a public `MatchState.TriggerQueue` / snapshot `triggerQueue` shape.
+- Added a narrow queued-trigger representative for Teemo-style “when you play me, I get +3 this turn”.
+- The representative writes `TRIGGER_QUEUED`, immediately resolves the trigger in the current safe stack-resolution boundary, writes `TRIGGER_RESOLVED`, then applies the existing power modifier.
+- Updated hand-play Teemo fixtures and the standby-reaction Teemo fixture to include trigger queue events.
+- Added direct assertions that the queue is empty after resolution.
+- Kept optional trigger ordering, priority choices, attack/defense/move/conquer/score triggers, and generalized trigger windows deferred.
+
+P5.4 validation:
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2570/2570`.

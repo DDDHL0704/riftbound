@@ -13733,6 +13733,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(4, result.FinalState.CardObjects[sourceObjectId].Power);
         Assert.Equal(3, result.FinalState.CardObjects[sourceObjectId].UntilEndOfTurnPowerModifier);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], result.FinalState.CardObjects[sourceObjectId].Tags);
+        Assert.Empty(result.FinalState.TriggerQueue);
+        Assert.Contains("TRIGGER_QUEUED", result.EventKinds);
+        Assert.Contains("TRIGGER_RESOLVED", result.EventKinds);
     }
 
     [Theory]
@@ -27104,7 +27107,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["STACK-0-P2-SPELL-PROBE"], p2PassResult.State.StackItems.Select(item => item.StackItemId));
         Assert.Equal(["P1-FACEDOWN-OGN-TEEMO-PURPLE"], p2PassResult.State.PlayerZones["P1"].Base);
         Assert.Equal(
-            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_PLAYED_TO_BASE", "POWER_MODIFIED_UNTIL_END_OF_TURN"],
+            [
+                "PRIORITY_PASSED",
+                "STACK_ITEM_RESOLVED",
+                "UNIT_PLAYED_TO_BASE",
+                "TRIGGER_QUEUED",
+                "TRIGGER_RESOLVED",
+                "POWER_MODIFIED_UNTIL_END_OF_TURN"
+            ],
             p2PassResult.Events.Select(evt => evt.Kind));
 
         var teemo = p2PassResult.State.CardObjects["P1-FACEDOWN-OGN-TEEMO-PURPLE"];
