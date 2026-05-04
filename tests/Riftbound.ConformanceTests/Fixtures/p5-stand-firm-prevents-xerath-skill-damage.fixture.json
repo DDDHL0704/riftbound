@@ -1,30 +1,35 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-stand-firm-prevent-spell-damage-this-turn",
-  "description": "Stand Firm is played during priority and prevents spell damage from resolving later in the same turn.",
+  "fixtureId": "p5-stand-firm-prevents-xerath-skill-damage",
+  "description": "P5.6 Stand Firm prevents damage from Xerath's activated skill in the same turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302812,
+  "seed": 2603305601,
   "rulesEvidence": [
     {
-      "source": "official/card-catalog.zh-CN.json",
-      "locator": "OGN·145/298 坚毅不倒; OGS·003/024 焚烧",
-      "note": "官方卡面：《坚毅不倒》费用 1；反应；无效化本回合内所有法术或技能的伤害。《焚烧》用于提供同回合后续 2 点法术伤害。当前 fixture 覆盖法术伤害路径；P5.6 另以 p5-stand-firm-prevents-xerath-skill-damage 覆盖独立技能结算链伤害路径。"
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·145/298 坚毅不倒",
+      "note": "官方卡面：费用 1；反应；无效化本回合内所有法术或技能的伤害。"
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-026/219 泽拉斯",
+      "note": "官方卡面：支付红色并横置，对一名单位造成 3 点伤害；P4 已验证该技能作为结算链项目造成技能伤害。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
-      "note": "反应牌可在优先权窗口中打出；法术需要支付费用并作为结算链项目在双方让过后结算；本回合内效果持续到回合结束清理；被无效化的伤害不记录在单位对象上。"
+      "locator": "p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "反应牌可在优先权窗口打出；激活技能进入结算链；本回合内防止效果在后续技能伤害结算时替代伤害记录。"
     }
   ],
-  "roomId": "p2-preflight-stand-firm-room",
+  "roomId": "p5-stand-firm-xerath-skill-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302812,
-    "turnNumber": 812,
+    "seed": 2603305601,
+    "turnNumber": 561,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,37 +39,48 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 0, "power": 1 },
       "P2": { "mana": 1, "power": 0 }
     },
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-INCINERATE"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["P1-UNIT-XERATH"],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [],
+        "championZone": []
       },
       "P2": {
         "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "runeDeck": ["P2-RUNE-001"],
         "hand": ["P2-SPELL-STAND-FIRM"],
         "base": [],
-        "battlefields": ["P2-UNIT-STAND-FIRM-001"],
+        "battlefields": ["P2-UNIT-STAND-FIRM-SKILL-001"],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [],
+        "championZone": []
       }
     },
     "cardObjects": {
-      "P2-UNIT-STAND-FIRM-001": {
-        "damage": 0,
+      "P1-UNIT-XERATH": {
+        "cardNo": "UNL-026/219",
+        "ownerId": "P1",
+        "controllerId": "P1",
         "power": 5,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"],
+        "manaCost": 5
+      },
+      "P2-UNIT-STAND-FIRM-SKILL-001": {
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "power": 5,
+        "damage": 0,
         "tags": ["CARD_TYPE:UNIT"]
       }
     }
@@ -72,24 +88,25 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-stand-firm-incinerate-play",
+      "clientIntentId": "intent-p5-xerath-activate-damage",
       "cmd": {
-        "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-SPELL-INCINERATE",
-        "cardNo": "OGS·003/024",
-        "targetObjectIds": ["P2-UNIT-STAND-FIRM-001"]
+        "cmdType": "ACTIVATE_ABILITY",
+        "sourceObjectId": "P1-UNIT-XERATH",
+        "abilityId": "PAY_RED_EXHAUST_DAMAGE_3",
+        "targetObjectIds": ["P2-UNIT-STAND-FIRM-SKILL-001"],
+        "optionalCosts": []
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-stand-firm-incinerate-p1-pass",
+      "clientIntentId": "intent-p5-xerath-ability-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-stand-firm-play",
+      "clientIntentId": "intent-p5-stand-firm-skill-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P2-SPELL-STAND-FIRM",
@@ -99,28 +116,28 @@
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-stand-firm-p2-pass",
+      "clientIntentId": "intent-p5-stand-firm-skill-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-stand-firm-p1-pass",
+      "clientIntentId": "intent-p5-stand-firm-skill-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-stand-firm-incinerate-second-p1-pass",
+      "clientIntentId": "intent-p5-xerath-second-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-stand-firm-incinerate-second-p2-pass",
+      "clientIntentId": "intent-p5-xerath-second-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -129,8 +146,9 @@
   "expected": {
     "finalTick": 7,
     "eventKinds": [
-      "CARD_PLAYED",
+      "ABILITY_ACTIVATED",
       "COST_PAID",
+      "UNIT_EXHAUSTED",
       "STACK_ITEM_ADDED",
       "PRIORITY_PASSED",
       "CARD_PLAYED",
@@ -146,24 +164,45 @@
       "DAMAGE_APPLIED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "ABILITY_ACTIVATED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-XERATH",
+          "abilityId": "PAY_RED_EXHAUST_DAMAGE_3",
+          "effectKind": "XERATH_PAY_RED_EXHAUST_DAMAGE_3",
+          "targetObjectIds": ["P2-UNIT-STAND-FIRM-SKILL-001"]
+        }
+      },
       {
         "kind": "COST_PAID",
         "payload": {
           "playerId": "P1",
-          "mana": 2,
-          "baseMana": 2
+          "mana": 0,
+          "power": 1,
+          "abilityId": "PAY_RED_EXHAUST_DAMAGE_3"
+        }
+      },
+      {
+        "kind": "UNIT_EXHAUSTED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-XERATH",
+          "targetObjectId": "P1-UNIT-XERATH",
+          "wasExhausted": false,
+          "isExhausted": true
         }
       },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
-          "stackItemId": "STACK-1-P1-SPELL-INCINERATE",
+          "stackItemId": "STACK-1-P1-UNIT-XERATH-ABILITY",
           "controllerId": "P1",
-          "sourceObjectId": "P1-SPELL-INCINERATE",
-          "cardNo": "OGS·003/024",
-          "targetObjectIds": ["P2-UNIT-STAND-FIRM-001"],
-          "effectKind": "INCINERATE_DAMAGE_2"
+          "sourceObjectId": "P1-UNIT-XERATH",
+          "cardNo": "UNL-026/219",
+          "targetObjectIds": ["P2-UNIT-STAND-FIRM-SKILL-001"],
+          "effectKind": "XERATH_PAY_RED_EXHAUST_DAMAGE_3",
+          "abilityId": "PAY_RED_EXHAUST_DAMAGE_3",
+          "damageAmount": 3
         }
       },
       { "kind": "PRIORITY_PASSED" },
@@ -211,19 +250,19 @@
       {
         "kind": "STACK_ITEM_RESOLVED",
         "payload": {
-          "stackItemId": "STACK-1-P1-SPELL-INCINERATE",
+          "stackItemId": "STACK-1-P1-UNIT-XERATH-ABILITY",
           "controllerId": "P1",
-          "sourceObjectId": "P1-SPELL-INCINERATE",
-          "effectKind": "INCINERATE_DAMAGE_2"
+          "sourceObjectId": "P1-UNIT-XERATH",
+          "effectKind": "XERATH_PAY_RED_EXHAUST_DAMAGE_3"
         }
       },
       {
         "kind": "DAMAGE_APPLIED",
         "payload": {
-          "sourceObjectId": "P1-SPELL-INCINERATE",
-          "targetObjectId": "P2-UNIT-STAND-FIRM-001",
+          "sourceObjectId": "P1-UNIT-XERATH",
+          "targetObjectId": "P2-UNIT-STAND-FIRM-SKILL-001",
           "damage": 0,
-          "preventedDamage": 2,
+          "preventedDamage": 3,
           "preventionEffectId": "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN"
         }
       }
@@ -233,7 +272,7 @@
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 812,
+      "turnNumber": 561,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -249,20 +288,32 @@
       "players": {
         "P1": {
           "hand": [],
-          "graveyard": ["P1-SPELL-INCINERATE"]
+          "battlefields": ["P1-UNIT-XERATH"],
+          "graveyard": []
         },
         "P2": {
           "hand": [],
-          "battlefields": ["P2-UNIT-STAND-FIRM-001"],
+          "battlefields": ["P2-UNIT-STAND-FIRM-SKILL-001"],
           "graveyard": ["P2-SPELL-STAND-FIRM"]
         }
       },
       "stackItems": [],
       "untilEndOfTurnEffects": ["PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN"],
       "cardObjects": {
-        "P2-UNIT-STAND-FIRM-001": {
-          "damage": 0,
+        "P1-UNIT-XERATH": {
+          "cardNo": "UNL-026/219",
+          "ownerId": "P1",
+          "controllerId": "P1",
           "power": 5,
+          "isExhausted": true,
+          "tags": ["CARD_TYPE:UNIT"],
+          "manaCost": 5
+        },
+        "P2-UNIT-STAND-FIRM-SKILL-001": {
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "power": 5,
+          "damage": 0,
           "tags": ["CARD_TYPE:UNIT"]
         }
       }

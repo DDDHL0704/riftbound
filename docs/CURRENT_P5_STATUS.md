@@ -154,11 +154,11 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.3 | Done | Control owner/controller separation and end-turn return using `恶意收购`. |
 | P5.4 | Done | Trigger queue skeleton with one low-risk on-play or enter-field representative. |
 | P5.5 | Done | Last Breath or leave-field trigger slice without broad trigger migration. |
-| P5.6 | Pending | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
+| P5.6 | Done | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
 | P5.7 | Pending | Continuous effect/layer and end-turn cleanup slice. |
 | P5.8 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after P5.5 lands: `P5 6/9 planned batches = 66.7%`; remaining planned batches: `3`.
+Current progress after P5.6 lands: `P5 7/9 planned batches = 77.8%`; remaining planned batches: `2`.
 
 ## P5.1 Delivered
 
@@ -248,6 +248,22 @@ P5.5 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 
+## P5.6 Delivered
+
+- Extended `OGN·145/298 坚毅不倒` from its existing spell-damage representative to the P4-verified Xerath activated-skill damage representative.
+- `ResolveXerathDamageAbilityStackItem` now applies `PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN` when present, writes `DAMAGE_APPLIED` with `damage: 0`, `preventedDamage`, and `preventionEffectId`, and leaves the target undamaged.
+- Added `p5-stand-firm-prevents-xerath-skill-damage.fixture.json`, covering the priority sequence where Xerath's skill is on the stack, Stand Firm is played as a reaction, Stand Firm resolves first, then the skill damage is prevented.
+- Kept multiple replacement ordering, retargeting, replacement choice prompts, non-damage skill effects, and general replacement/prevention queues deferred.
+
+P5.6 validation:
+
+- Narrow preflight: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysStandFirmAndPreventsXerathSkillDamageThisTurn"` passed `1/1`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2572/2572`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2491/2491`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+
 ## Validation Policy
 
 Each batch must keep prior P2/P2.5/P3/P4 suites green. `dotnet` commands must be run through:
@@ -268,4 +284,4 @@ Required gates for P5 completion:
 
 ## Next Step
 
-Proceed to P5.6. Keep the replacement/prevention slice narrow, preferring `坚毅不倒` and already-verified prevention paths before adding any general replacement ordering model.
+Proceed to P5.7. Keep the continuous-effect slice focused on end-turn cleanup/layer boundaries already represented by temporary power and prevention effects.

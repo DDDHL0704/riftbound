@@ -6277,11 +6277,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             var damageAmount = stackItem.DamageAmount > 0
                 ? stackItem.DamageAmount
                 : P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount;
+            var preventDamage = state.UntilEndOfTurnEffects.Contains(
+                PreventSpellAndSkillDamageThisTurnEffectId,
+                StringComparer.Ordinal);
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 targetObjectId,
                 damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
+                damageTriggeredDestroyTargetObjectIds,
+                preventDamage,
+                PreventSpellAndSkillDamageThisTurnEffectId);
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 "泽拉斯的技能造成 3 点伤害",

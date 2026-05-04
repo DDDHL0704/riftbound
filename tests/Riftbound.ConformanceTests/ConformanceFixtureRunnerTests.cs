@@ -14066,6 +14066,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysStandFirmAndPreventsXerathSkillDamageThisTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p5-stand-firm-prevents-xerath-skill-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.CardObjects["P2-UNIT-STAND-FIRM-SKILL-001"].Damage);
+        Assert.True(result.FinalState.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Contains(
+            "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN",
+            result.FinalState.UntilEndOfTurnEffects);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsStandFirmWithTargets()
     {
         var state = PunishmentState(mana: 1) with
