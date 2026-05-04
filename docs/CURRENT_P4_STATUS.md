@@ -407,7 +407,8 @@
 - P4.376 提交：`2dea7e0 test: add p4 assemble equipment unknown source rejection`
 - P4.377 提交：`f3b49e5 test: add p4 ambush unknown source rejection`
 - P4.378 提交：`4444856 test: add p4 ambush opponent hand source rejection`
-- P4.379 提交：本提交 `test: add p4 ambush non ambush source rejection`
+- P4.379 提交：`ded8f8a test: add p4 ambush non ambush source rejection`
+- P4.380 提交：本提交 `docs: add p4 final completion audit`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -2468,6 +2469,15 @@ Prompt-to-artifact checklist：
 - 新增 direct engine 测试 `P4AmbushPlayCardModeNonAmbushHandSourceIsRejectedUntilBattlefieldReactionPlayExists`，锁定错误码、错误信息、手牌、战场、来源身份、无 `伏击` 标签和 stack 均保持原样。
 - 新增 fixture `p4-ambush-play-card-non-ambush-source-rejected.fixture.json` 和回放测试 `P4AmbushPlayCardModeNonAmbushHandSourceRejectionFixture`，把 `OGN·010/298 军团后卫` 的官方急速文本和缺少伏击文本作为非伏击来源拒绝证据。
 - `P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 non-ambush-source rejection fixture；本批次不进入伏击真实反应战场打出，也不改变 `CoreRuleEngine` 的 P4 伏击显式拒绝主路径。
+
+## P4.380 Final Completion Audit Slice
+
+本阶段做最终 prompt-to-artifact 审计和文档一致性收口。结论：P4.380 不能标记 active goal complete；P4 已覆盖所有显式目标 surface 的代表证据，但仍有一组 P4 blocker 不是单纯 P5/P6/P7 延后项。
+
+- 已覆盖证据：`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` 锁定 33 个 P4 命名 surface；`CardCatalogBaselineTests` 继续覆盖 P3 BehaviorSpec / parser / official text baseline；`ConformanceFixtureRunnerTests` 继续回放 P4 代表执行路径和显式拒绝边界；P4.379 后 full test 仍保持 2537/2537。
+- 当前仍是 P4 blocker：`DECLARE_BATTLE` 仍整体显式拒绝，强攻/坚守/壁垒/后排还没有战斗结算中的数值与承伤行为；`MOVE_UNIT` 只支持 coarse `BASE` / `BATTLEFIELD`，真实跨战场/精确战场游走仍拒绝；`狩猎` 的征服/据守经验触发、战斗/移动触发经验、待命触发/目标伤害、伏击真实反应战场打出、通用 skill registry/更多技能目标税仍未进入可玩路径。
+- 符合后续阶段边界的 deferred：完整装备 owner/controller、装备随动、未激活文本、灵便自动贴附、百炼 optional attach、绝念/离场触发队列和复杂全卡牌分支主要落入 P5/P6；但 P4 仍需要在不展开 P5 大系统的前提下补最小关键词代表路径或明确的 delta 记录。
+- 预计剩余批次：以当前小批次节奏估算还需约 `12` 批完成 P4 goal：战斗最小声明/结算 2 批、真实游走移动 1 批、狩猎/经验触发 1 批、待命触发/目标伤害 1 批、伏击真实反应打出 1 批、skill registry/技能目标税 1 批、装备关键词最小代表与 P5 边界 2 批、最后规则证据/SignalR 或等价 E2E/全量验证/文档提交 3 批。
 
 ## P4.101 Predict Outside Top Card Rejection Fixture Slice
 
@@ -4919,9 +4929,9 @@ Prompt-to-artifact checklist：
 | P4.377 completion audit + AMBUSH 未知来源拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增未知 sourceObjectId 不能执行伏击模式打出的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
 | P4.378 completion audit + AMBUSH 对手手牌来源拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增对手手牌 sourceObjectId 不能执行伏击模式打出的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
 | P4.379 completion audit + AMBUSH 非伏击手牌来源拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增已知非伏击手牌单位不能执行伏击模式打出的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
-| P4.380 final completion audit + validation closeout | Pending | 0% | 基于 P4.379 audit 做最终 prompt-to-artifact 覆盖审计、文档一致性检查和全量验证；只有所有显式 P4 交付都被真实证据覆盖后才能标记 goal complete。 |
+| P4.380 final completion audit + validation closeout | Done | 100% | 审计确认 P4 已覆盖 33 个命名 surface 的代表证据，但仍不能标记 goal complete；记录剩余 P4 blocker、预计剩余约 12 批，并同步 README/验证状态。 |
 
-P4 当前整体进度：按当前 part 计 `380/381 = 99.7%`。已完成 P4.1-P4.379：在 P4.378 全部内容基础上，P4.379 新增 `PLAY_CARD mode=AMBUSH` non-ambush-source rejection fixture，锁定真实伏击反应战场打出完成前已知没有 `伏击` 权限的手牌单位不能被命令玩家当作伏击来源；拒绝时不推进 tick、不写事件、不支付费用、不移动手牌对象、不改变战场、不创建结算链。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、装备随动/完整装配、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、完整灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按 P4.380 审计后预计 `380/392 = 96.9%`。已完成 P4.1-P4.380：在 P4.379 全部内容基础上，P4.380 完成最终 prompt-to-artifact 审计、文档一致性检查和剩余批次估算。当前仍不能标记 P4 goal complete：`DECLARE_BATTLE` 战斗结算、强攻/坚守/壁垒/后排实战行为、真实跨战场游走、狩猎/战斗/移动触发经验、待命触发/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、装备关键词最小代表与 P5 边界、以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `12` 批。
 
 ## Validation Gate
 
@@ -4936,17 +4946,15 @@ P4 当前整体进度：按当前 part 计 `380/381 = 99.7%`。已完成 P4.1-P4
 
 ## Latest Validation
 
-P4.379 已完成验证：
+P4.380 已完成验证：
 
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-ambush-play-card-non-ambush-source-rejected.fixture.json`：pass
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warning / 0 error
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2537/2537
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2456/2456
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AmbushPlayCardMode"`：pass，20/20
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen"`：pass，49/49
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ObjectiveNamedSurfacesHaveRepresentativeCoverage"`：pass，1/1
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.380：做最终 completion audit、文档一致性检查和全量验证收口。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项；P4.380 需要逐项判断这些 deferred 是否符合 P4 边界或仍需拆出下一阶段。
+进入 P4.381：优先做最小战斗声明/结算切片，而不是继续补拒绝 fixture。预计 P4 还需要约 `12` 批：战斗最小声明/结算、真实游走、狩猎/经验触发、待命触发/目标伤害、伏击真实反应打出、通用 skill registry/技能目标税、装备关键词最小代表/P5 边界，以及最后 E2E/文档/全量验证收口。
