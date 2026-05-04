@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-assemble-equipment-opponent-source-rejected",
+  "description": "P4 rejects ASSEMBLE_EQUIPMENT when the equipment source belongs to the opponent until the equipment attachment system is implemented.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304356,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·022/221 长剑",
+      "note": "官方卡面含有灵便和装配红色文本；本 fixture 只覆盖 P4 当前尚未实现装备装配/贴附系统时，对手基地中的装备来源不会被 P1 的 ASSEMBLE_EQUIPMENT 误接受。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p89 rules 718-719; p92-p105 keyword rules 800+",
+      "note": "装配和灵便需要合法装备来源、来源控制者、装备费用、自动贴附、owner/controller 和未激活文本模型；这些系统未完成前，命令应显式拒绝且不支付费用、不移动任一玩家基地对象、不设置 attachedToObjectId、不加入结算链。"
+    }
+  ],
+  "roomId": "p4-assemble-equipment-opponent-source-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304356,
+    "turnNumber": 356,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-UNIT-ASSEMBLE-TARGET"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": ["P2-EQUIPMENT-LONG-SWORD"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P2-EQUIPMENT-LONG-SWORD": {
+        "cardNo": "SFD·022/221",
+        "power": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+        "manaCost": 1
+      },
+      "P1-UNIT-ASSEMBLE-TARGET": {
+        "power": 3,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-assemble-equipment-opponent-source-rejected",
+      "cmd": {
+        "cmdType": "ASSEMBLE_EQUIPMENT",
+        "sourceObjectId": "P2-EQUIPMENT-LONG-SWORD",
+        "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+        "optionalCosts": ["ASSEMBLE_RED"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 356,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-UNIT-ASSEMBLE-TARGET"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": ["P2-EQUIPMENT-LONG-SWORD"],
+          "battlefields": [],
+          "graveyard": []
+        }
+      },
+      "cardObjects": {
+        "P2-EQUIPMENT-LONG-SWORD": {
+          "cardNo": "SFD·022/221",
+          "power": 0,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+          "manaCost": 1
+        },
+        "P1-UNIT-ASSEMBLE-TARGET": {
+          "power": 3,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

@@ -28875,6 +28875,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandWithOpponentSourceIsRejectedUntilEquipmentSystemExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-EQUIPMENT-LONG-SWORD"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-EQUIPMENT-LONG-SWORD"] = new(
+                    "P2-EQUIPMENT-LONG-SWORD",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-opponent-source", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P2-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ASSEMBLE_EQUIPMENT is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-EQUIPMENT-LONG-SWORD"], result.State.PlayerZones["P2"].Base);
+        Assert.Null(result.State.CardObjects["P2-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(3, result.State.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -29001,6 +29051,28 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-HAND-LONG-SWORD"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Null(result.FinalState.CardObjects["P1-HAND-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4AssembleEquipmentCommandOpponentSourceRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-opponent-source-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-EQUIPMENT-LONG-SWORD"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Null(result.FinalState.CardObjects["P2-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].Power);
         Assert.Empty(result.FinalState.StackItems);
     }
@@ -29509,6 +29581,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-assemble-equipment-missing-target-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-missing-source-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-hand-source-rejected.fixture.json")]
+    [InlineData("p4-assemble-equipment-opponent-source-rejected.fixture.json")]
     [InlineData("p4-move-unit-attached-equipment-source-rejected.fixture.json")]
     public async Task P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen(string fixtureFileName)
     {
