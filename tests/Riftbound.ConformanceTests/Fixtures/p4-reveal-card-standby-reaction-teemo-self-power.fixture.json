@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-reveal-card-standby-reaction-teemo-self-power",
+  "description": "P4 reveals the purple Teemo from Standby as a zero-cost reaction, resolves it from the stack, and applies its on-play self +3 power trigger.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304386,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·197/298 提莫",
+      "note": "官方卡面：待命（支付 A 正面朝下放置此牌，之后可支付 0 将其当作反应牌打出）。当你打出我时，让我本回合内战力 +3。本 fixture 覆盖已有正面朝下待命提莫在优先权窗口作为反应牌打出，并在结算时进入基地与应用自身 +3。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "待命关键词允许正面朝下对象之后支付 0 当作反应牌打出；打出卡牌加入结算链，双方让过后结算其普通打出效果。P4.386 只验证无目标反应牌结算到既有 source-unit-to-base 与临时战力路径。"
+    }
+  ],
+  "roomId": "p4-reveal-card-standby-reaction-teemo-self-power-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304386,
+    "turnNumber": 386,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P1",
+    "passedPriorityPlayerIds": [],
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-FACEDOWN-OGN-TEEMO-PURPLE"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-FACEDOWN-OGN-TEEMO-PURPLE": {
+        "power": 1,
+        "isFaceDown": true,
+        "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
+        "manaCost": 2,
+        "cardNo": "OGN·197/298"
+      }
+    },
+    "stackItems": [
+      {
+        "stackItemId": "STACK-0-P2-SPELL-PROBE",
+        "controllerId": "P2",
+        "sourceObjectId": "P2-SPELL-PROBE",
+        "effectKind": "PENDING_TEST_SPELL",
+        "cardNo": "TEST-000",
+        "targetObjectIds": [],
+        "damageAmount": 0
+      }
+    ]
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-reveal-card-standby-reaction-teemo-self-power",
+      "cmd": {
+        "cmdType": "REVEAL_CARD",
+        "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+        "cardNo": "OGN·197/298",
+        "targetObjectIds": [],
+        "mode": "STANDBY_REACTION",
+        "optionalCosts": ["STANDBY_REVEAL_0"],
+        "destination": "STACK"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-reveal-card-standby-reaction-teemo-p1-pass",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-reveal-card-standby-reaction-teemo-p2-pass",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_REVEALED",
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
+    ],
+    "events": [
+      {
+        "kind": "CARD_REVEALED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "cardNo": "OGN·197/298",
+          "mode": "STANDBY_REACTION",
+          "destination": "STACK",
+          "optionalCosts": ["STANDBY_REVEAL_0"],
+          "isFaceDown": false
+        }
+      },
+      {
+        "kind": "CARD_PLAYED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "cardNo": "OGN·197/298",
+          "mode": "STANDBY_REACTION",
+          "destination": "STACK"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 0,
+          "baseMana": 0,
+          "optionalCosts": ["STANDBY_REVEAL_0"]
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "cardNo": "OGN·197/298",
+          "targetObjectIds": [],
+          "effectKind": "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3",
+          "mode": "STANDBY_REACTION",
+          "effectRepeatCount": 1,
+          "playedAfterAnotherCardThisTurn": false
+        }
+      },
+      { "kind": "PRIORITY_PASSED", "payload": { "playerId": "P1", "priorityPlayerId": "P1" } },
+      { "kind": "PRIORITY_PASSED", "payload": { "playerId": "P2", "priorityPlayerId": "P2" } },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "effectKind": "TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3"
+        }
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "unitObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "unitName": "提莫",
+          "destinationZone": "BASE",
+          "power": 1,
+          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"]
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "targetObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+          "powerDelta": 3,
+          "appliedPowerDelta": 3,
+          "minimumPower": 0,
+          "resultingPower": 4
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["PASS_PRIORITY"]
+    },
+    "finalState": {
+      "turnNumber": 386,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P2",
+      "passedPriorityPlayerIds": [],
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-FACEDOWN-OGN-TEEMO-PURPLE"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "stackItems": [
+        {
+          "stackItemId": "STACK-0-P2-SPELL-PROBE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-PROBE",
+          "effectKind": "PENDING_TEST_SPELL",
+          "cardNo": "TEST-000",
+          "targetObjectIds": [],
+          "damageAmount": 0
+        }
+      ],
+      "cardObjects": {
+        "P1-FACEDOWN-OGN-TEEMO-PURPLE": {
+          "power": 4,
+          "untilEndOfTurnPowerModifier": 3,
+          "isFaceDown": false,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],
+          "manaCost": 2,
+          "cardNo": "OGN·197/298"
+        }
+      }
+    },
+    "prompts": {
+      "P1": {
+        "actionable": false,
+        "actions": ["WAIT"]
+      },
+      "P2": {
+        "actionable": true,
+        "actions": ["PASS_PRIORITY"]
+      }
+    }
+  }
+}

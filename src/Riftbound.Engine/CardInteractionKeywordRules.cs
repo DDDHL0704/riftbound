@@ -72,7 +72,7 @@ public static class CardInteractionKeywordRules
                 InteractionKeywordProfileStatuses.Implemented =>
                     "P4.4 implements mana-only Echo through the existing P2 optional cost repeat path.",
                 InteractionKeywordProfileStatuses.RecognizedDeferred =>
-                    "P4.9 recognizes interaction keyword surfaces; Standby face-down, Ambush reaction battlefield play, and complex Echo costs remain deferred unless a separate P2 path covers the ordinary play effect.",
+                    "P4.9 recognizes interaction keyword surfaces; P4.70/P4.71/P4.76/P4.386 cover narrow Standby hide/reveal/reaction and one reaction resolution trigger, while Standby target damage, Ambush reaction battlefield play, and complex Echo costs remain deferred unless a separate P2 path covers the ordinary play effect.",
                 _ =>
                     hasAnyInteractionKeyword
                         ? "Interaction keyword surface is recognized but has no P4 execution status."

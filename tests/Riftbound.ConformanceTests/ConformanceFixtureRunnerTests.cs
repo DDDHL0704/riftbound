@@ -26785,6 +26785,124 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4RevealCardCommandResolvesStandbyReactionTeemoSelfPowerPlusThree()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-OGN-TEEMO-PURPLE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO-PURPLE"] = new(
+                    "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+                    isFaceDown: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    manaCost: 2,
+                    cardNo: "OGN·197/298")
+            }
+        };
+
+        var engine = new CoreRuleEngine();
+        var revealResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-reaction-teemo-self-power", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+                "OGN·197/298",
+                [],
+                Mode: "STANDBY_REACTION",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "STACK"),
+            CancellationToken.None);
+
+        Assert.True(revealResult.Accepted);
+        Assert.Equal(["CARD_REVEALED", "CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], revealResult.Events.Select(evt => evt.Kind));
+        Assert.Empty(revealResult.State.PlayerZones["P1"].Base);
+        Assert.Equal(2, revealResult.State.StackItems.Count);
+        var standbyStackItem = revealResult.State.StackItems[1];
+        Assert.Equal("STACK-1-P1-FACEDOWN-OGN-TEEMO-PURPLE", standbyStackItem.StackItemId);
+        Assert.Equal("TEEMO_PLAY_UNIT_SELF_POWER_PLUS_3", standbyStackItem.EffectKind);
+        Assert.Equal("OGN·197/298", standbyStackItem.CardNo);
+
+        var p1PassResult = await engine.ResolveAsync(
+            revealResult.State,
+            new PlayerIntent("intent-p4-reveal-card-reaction-teemo-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p1PassResult.Accepted);
+        Assert.Equal("P2", p1PassResult.State.PriorityPlayerId);
+
+        var p2PassResult = await engine.ResolveAsync(
+            p1PassResult.State,
+            new PlayerIntent("intent-p4-reveal-card-reaction-teemo-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2PassResult.Accepted);
+        Assert.Equal(3, p2PassResult.State.Tick);
+        Assert.Equal(TimingStates.NeutralClosed, p2PassResult.State.TimingState);
+        Assert.Equal("P2", p2PassResult.State.ActivePlayerId);
+        Assert.Equal("P2", p2PassResult.State.PriorityPlayerId);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], p2PassResult.State.StackItems.Select(item => item.StackItemId));
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO-PURPLE"], p2PassResult.State.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "UNIT_PLAYED_TO_BASE", "POWER_MODIFIED_UNTIL_END_OF_TURN"],
+            p2PassResult.Events.Select(evt => evt.Kind));
+
+        var teemo = p2PassResult.State.CardObjects["P1-FACEDOWN-OGN-TEEMO-PURPLE"];
+        Assert.False(teemo.IsFaceDown);
+        Assert.Equal(4, teemo.Power);
+        Assert.Equal(3, teemo.UntilEndOfTurnPowerModifier);
+        Assert.Equal(2, teemo.ManaCost);
+        Assert.Equal("OGN·197/298", teemo.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], teemo.Tags);
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandStandbyReactionTeemoSelfPowerFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-reaction-teemo-self-power.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.Tick);
+        Assert.Equal(TimingStates.NeutralClosed, result.FinalState.TimingState);
+        Assert.Equal("P2", result.FinalState.PriorityPlayerId);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], result.FinalState.StackItems.Select(item => item.StackItemId));
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO-PURPLE"], result.FinalState.PlayerZones["P1"].Base);
+        var teemo = result.FinalState.CardObjects["P1-FACEDOWN-OGN-TEEMO-PURPLE"];
+        Assert.False(teemo.IsFaceDown);
+        Assert.Equal(4, teemo.Power);
+        Assert.Equal(3, teemo.UntilEndOfTurnPowerModifier);
+        Assert.Equal("OGN·197/298", teemo.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], teemo.Tags);
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandRejectsReactionPlayWithoutPriorityWindow()
     {
         var state = PunishmentState(mana: 0) with
@@ -31821,6 +31939,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-reveal-card-standby-unsupported-destination-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
+    [InlineData("p4-reveal-card-standby-reaction-teemo-self-power.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-premodel-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-target-rejected.fixture.json")]
