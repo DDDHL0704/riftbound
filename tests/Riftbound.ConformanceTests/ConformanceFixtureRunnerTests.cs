@@ -1729,9 +1729,36 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-HOSTILE-TAKEOVER-TARGET"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.False(result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].IsExhausted);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].OwnerId);
+        Assert.Equal("P1", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].ControllerId);
+        Assert.Contains(
+            "RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2",
+            result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].UntilEndOfTurnEffects);
         Assert.Contains(
             "UNIT_CONTROL_GAINED",
             result.EventKinds);
+    }
+
+    [Fact]
+    public async Task P5HostileTakeoverReturnsControlAndRecallsAtEndTurn()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p5-hostile-takeover-end-turn-return-recall.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Contains("P2-HOSTILE-TAKEOVER-TARGET", result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].OwnerId);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].ControllerId);
+        Assert.Empty(result.FinalState.CardObjects["P2-HOSTILE-TAKEOVER-TARGET"].UntilEndOfTurnEffects);
+        Assert.Contains("UNIT_CONTROL_RETURNED", result.EventKinds);
+        Assert.Contains("UNIT_RECALLED_TO_OWNER_BASE", result.EventKinds);
     }
 
     [Fact]

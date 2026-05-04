@@ -35,6 +35,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
     private const string DestroyOnNextDamageThisTurnEffectId = "DESTROY_ON_NEXT_DAMAGE_THIS_TURN";
+    private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
     private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
     private const string DestroyFriendlyPowerfulUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_POWERFUL_UNIT:";
@@ -672,6 +673,24 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal)
             && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static string BuildReturnControlToOwnerAtTurnEndEffectId(string ownerId)
+    {
+        return $"{ReturnControlToOwnerAtTurnEndEffectPrefix}{ownerId}";
+    }
+
+    private static IReadOnlyList<string> AddUntilEndOfTurnEffect(
+        IReadOnlyList<string> existingEffectIds,
+        string effectId)
+    {
+        return existingEffectIds
+            .Concat([effectId])
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static ResolutionResult ResolveActivateAbility(
@@ -2589,8 +2608,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.Seats.ContainsKey(state.ExtraTurnPlayerId)
             ? state.ExtraTurnPlayerId
             : NextPlayerId(state);
-        var cleanupResult = ApplyTurnEndCleanup(state);
-        var nextTurnState = state with
+        var controlReturnResult = ReturnTemporaryControlAtEndTurn(state);
+        var cleanupState = state with
+        {
+            PlayerZones = controlReturnResult.PlayerZones,
+            CardObjects = controlReturnResult.CardObjects
+        };
+        var cleanupResult = ApplyTurnEndCleanup(cleanupState);
+        var nextTurnState = cleanupState with
         {
             TurnNumber = state.TurnNumber + 1,
             ActivePlayerId = nextPlayerId,
@@ -2598,6 +2623,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
             RunePools = ClearRunePools(state),
+            PlayerZones = controlReturnResult.PlayerZones,
             CardObjects = cleanupResult.CardObjects,
             UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
             DestroyedUnitOwnerIdsThisTurn = [],
@@ -2605,7 +2631,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ExtraTurnPlayerId = null
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
-        var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult)
+        var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult, controlReturnResult.Events)
             .Concat(turnStartResult.Events)
             .ToArray();
 
@@ -5845,6 +5871,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                             {
                                 ["sourceObjectId"] = stackItem.SourceObjectId,
                                 ["targetObjectId"] = targetObjectId,
+                                ["ownerId"] = controlledTargetState.OwnerId,
                                 ["controllerId"] = stackItem.ControllerId,
                                 ["previousControllerId"] = previousControllerId,
                                 ["destinationZone"] = "BASE",
@@ -5869,10 +5896,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                             {
                                 ["sourceObjectId"] = stackItem.SourceObjectId,
                                 ["targetObjectId"] = targetObjectId,
+                                ["ownerId"] = battleControlledTargetState.OwnerId,
                                 ["controllerId"] = stackItem.ControllerId,
                                 ["previousControllerId"] = previousBattlefieldControllerId,
                                 ["destinationZone"] = "BATTLEFIELD",
-                                ["isExhausted"] = battleControlledTargetState.IsExhausted
+                                ["isExhausted"] = battleControlledTargetState.IsExhausted,
+                                ["returnEffectId"] = BuildReturnControlToOwnerAtTurnEndEffectId(battleControlledTargetState.OwnerId ?? previousBattlefieldControllerId)
                             }));
                         continue;
                     }
@@ -8599,6 +8628,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
             };
+            var ownerId = string.IsNullOrWhiteSpace(controlledTargetState.OwnerId)
+                ? playerId
+                : controlledTargetState.OwnerId;
             var controllerZones = playerZones[controllerId];
             playerZones[controllerId] = controllerZones with
             {
@@ -8608,6 +8640,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             };
             controlledTargetState = controlledTargetState with
             {
+                OwnerId = ownerId,
+                ControllerId = controllerId,
                 IsExhausted = controlledTargetState.IsExhausted || isExhausted
             };
             cardObjects[targetObjectId] = controlledTargetState;
@@ -8786,12 +8820,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
             };
+            var ownerId = string.IsNullOrWhiteSpace(controlledTargetState.OwnerId)
+                ? playerId
+                : controlledTargetState.OwnerId;
             var controllerZones = playerZones[controllerId];
             playerZones[controllerId] = controllerZones with
             {
                 Battlefields = controllerZones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
                     ? controllerZones.Battlefields
                     : controllerZones.Battlefields.Concat([targetObjectId]).ToArray()
+            };
+            controlledTargetState = controlledTargetState with
+            {
+                OwnerId = ownerId,
+                ControllerId = controllerId,
+                UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(
+                    controlledTargetState.UntilEndOfTurnEffects,
+                    BuildReturnControlToOwnerAtTurnEndEffectId(ownerId))
             };
             cardObjects[targetObjectId] = controlledTargetState;
             previousControllerId = playerId;
@@ -9424,6 +9469,75 @@ public sealed class CoreRuleEngine : IRuleEngine
         return currentPlayerId;
     }
 
+    private static TemporaryControlReturnResult ReturnTemporaryControlAtEndTurn(MatchState state)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var events = new List<GameEvent>();
+        foreach (var (objectId, objectState) in state.CardObjects)
+        {
+            var returnEffectId = objectState.UntilEndOfTurnEffects.FirstOrDefault(effectId =>
+                !string.IsNullOrWhiteSpace(effectId)
+                && effectId.StartsWith(ReturnControlToOwnerAtTurnEndEffectPrefix, StringComparison.Ordinal));
+            if (string.IsNullOrWhiteSpace(returnEffectId))
+            {
+                continue;
+            }
+
+            var ownerPlayerId = returnEffectId[ReturnControlToOwnerAtTurnEndEffectPrefix.Length..].Trim();
+            if (string.IsNullOrWhiteSpace(ownerPlayerId)
+                || !playerZones.ContainsKey(ownerPlayerId))
+            {
+                continue;
+            }
+
+            var currentLocation = FindFieldObjectLocation(playerZones, objectId);
+            if (currentLocation is null)
+            {
+                continue;
+            }
+
+            RemoveFieldObjectFromLocation(
+                playerZones,
+                currentLocation.Value.PlayerId,
+                currentLocation.Value.Zone,
+                objectId);
+            AddFieldObjectToLocation(playerZones, ownerPlayerId, MoveUnitBaseZone, objectId);
+
+            cardObjects[objectId] = objectState with
+            {
+                OwnerId = string.IsNullOrWhiteSpace(objectState.OwnerId) ? ownerPlayerId : objectState.OwnerId,
+                ControllerId = ownerPlayerId,
+                UntilEndOfTurnEffects = objectState.UntilEndOfTurnEffects
+                    .Where(effectId => !string.Equals(effectId, returnEffectId, StringComparison.Ordinal))
+                    .ToArray()
+            };
+            events.Add(new GameEvent(
+                "UNIT_CONTROL_RETURNED",
+                $"{ownerPlayerId} 取回单位控制权",
+                new Dictionary<string, object?>
+                {
+                    ["targetObjectId"] = objectId,
+                    ["ownerId"] = ownerPlayerId,
+                    ["controllerId"] = ownerPlayerId,
+                    ["previousControllerId"] = currentLocation.Value.PlayerId
+                }));
+            events.Add(new GameEvent(
+                "UNIT_RECALLED_TO_OWNER_BASE",
+                $"{ownerPlayerId} 将单位召回基地",
+                new Dictionary<string, object?>
+                {
+                    ["targetObjectId"] = objectId,
+                    ["ownerId"] = ownerPlayerId,
+                    ["controllerId"] = ownerPlayerId,
+                    ["originZone"] = currentLocation.Value.Zone,
+                    ["destinationZone"] = MoveUnitBaseZone
+                }));
+        }
+
+        return new TemporaryControlReturnResult(playerZones, cardObjects, events);
+    }
+
     private static CleanupResult ApplyTurnEndCleanup(MatchState state)
     {
         var damagedObjectIds = new List<string>();
@@ -9695,7 +9809,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         string playerId,
         string nextTurnPlayerId,
-        CleanupResult cleanupResult)
+        CleanupResult cleanupResult,
+        IReadOnlyList<GameEvent> cleanupEvents)
     {
         List<GameEvent> events =
         [
@@ -9716,6 +9831,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["phase"] = state.Phase
                 })
         ];
+
+        events.AddRange(cleanupEvents);
 
         if (cleanupResult.DamagedObjectIds.Count > 0)
         {
@@ -9959,6 +10076,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedObjectIds,
         IReadOnlyList<string> DestroyedUnitOwnerIds);
+
+    private sealed record TemporaryControlReturnResult(
+        IReadOnlyDictionary<string, PlayerZones> PlayerZones,
+        IReadOnlyDictionary<string, CardObjectState> CardObjects,
+        IReadOnlyList<GameEvent> Events);
 
     private sealed record CleanupResult(
         IReadOnlyDictionary<string, CardObjectState> CardObjects,

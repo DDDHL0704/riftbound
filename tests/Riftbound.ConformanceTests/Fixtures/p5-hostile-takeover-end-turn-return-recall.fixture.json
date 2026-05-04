@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p5-hostile-takeover-end-turn-return-recall",
+  "description": "P5.3 returns a temporarily controlled Hostile Takeover unit to its owner and recalls it at end turn.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603305301,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·202/221 恶意收购",
+      "note": "官方卡面：获得战场上一名敌方单位的控制权并让其变为活跃状态；回合结束时，失去该单位的控制权，然后将它召回。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p22-p26 rules 179,187-189; p29-p31 rules 316.1-317.3",
+      "note": "对象 owner/controller 可分离；本 fixture 锁定 temporary control 在回合结束时归还给 owner，并把单位召回 owner 的基地。"
+    },
+    {
+      "source": "《符文战场》裁定与常见问题_260114.pdf",
+      "locator": "p21",
+      "note": "FAQ 对《恶意收购》相关控制权场景作出专门裁定；本 fixture 覆盖 P5.3 的回合结束归还与召回代表路径。"
+    }
+  ],
+  "roomId": "p5-hostile-takeover-end-turn-return-recall-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603305301,
+    "turnNumber": 1,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 1 },
+      "P2": { "mana": 0, "power": 1 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-HOSTILE-TAKEOVER-TARGET"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-HOSTILE-TAKEOVER-TARGET": {
+        "ownerId": "P2",
+        "controllerId": "P1",
+        "damage": 0,
+        "power": 4,
+        "tags": ["CARD_TYPE:UNIT"],
+        "isExhausted": false,
+        "untilEndOfTurnEffects": ["RETURN_CONTROL_TO_OWNER_AT_TURN_END:P2"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p5-hostile-takeover-end-turn-return-recall",
+      "cmd": {
+        "cmdType": "END_TURN"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "TURN_END_DECLARED",
+      "TURN_END_CLEANUP_STARTED",
+      "UNIT_CONTROL_RETURNED",
+      "UNIT_RECALLED_TO_OWNER_BASE",
+      "RUNE_POOL_CLEARED",
+      "TURN_PLAYER_ADVANCED",
+      "TURN_START_BEGAN",
+      "RUNES_CALLED",
+      "CARD_DRAWN",
+      "RUNE_POOL_CLEARED",
+      "MAIN_PHASE_BEGAN"
+    ],
+    "events": [
+      { "kind": "TURN_END_DECLARED" },
+      { "kind": "TURN_END_CLEANUP_STARTED" },
+      {
+        "kind": "UNIT_CONTROL_RETURNED",
+        "payload": {
+          "targetObjectId": "P2-HOSTILE-TAKEOVER-TARGET",
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "previousControllerId": "P1"
+        }
+      },
+      {
+        "kind": "UNIT_RECALLED_TO_OWNER_BASE",
+        "payload": {
+          "targetObjectId": "P2-HOSTILE-TAKEOVER-TARGET",
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "originZone": "BATTLEFIELD",
+          "destinationZone": "BASE"
+        }
+      },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "TURN_PLAYER_ADVANCED" },
+      { "kind": "TURN_START_BEGAN" },
+      { "kind": "RUNES_CALLED" },
+      { "kind": "CARD_DRAWN" },
+      { "kind": "RUNE_POOL_CLEARED" },
+      { "kind": "MAIN_PHASE_BEGAN" }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["END_TURN"]
+    },
+    "finalState": {
+      "turnNumber": 2,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P2",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "battlefields": []
+        },
+        "P2": {
+          "hand": ["P2-MAIN-001"],
+          "base": ["P2-HOSTILE-TAKEOVER-TARGET", "P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P2-HOSTILE-TAKEOVER-TARGET": {
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "damage": 0,
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT"],
+          "isExhausted": false,
+          "untilEndOfTurnEffects": []
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["END_TURN"] }
+    }
+  }
+}
