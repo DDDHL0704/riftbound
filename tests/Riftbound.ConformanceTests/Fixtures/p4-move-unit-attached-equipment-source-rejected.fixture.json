@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-move-unit-attached-equipment-source-rejected",
+  "description": "P4 MOVE_UNIT rejects moving a unit with attached equipment until equipment movement is modeled.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304334,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·173/298 驭风而行；SFD·022/221 长剑；SFD·011/221 取放自如",
+      "note": "官方卡面分别代表友方单位移动、装备/武装和贴附/卸除代表路径；本 fixture 只覆盖 P4 当前 coarse MOVE_UNIT 不能移动已有装备贴附的来源单位。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p89 rules 718-719; p92-p105 keyword rules 800+",
+      "note": "装备贴附移动需要和装备未激活文本、贴附层级、owner/controller、战场位置和移动触发一起建模；这些系统未完成前，MOVE_UNIT 应显式拒绝带已贴附装备的来源，且不移动单位、不改写 attachedToObjectId。"
+    }
+  ],
+  "roomId": "p4-move-unit-attached-equipment-source-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304334,
+    "turnNumber": 334,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-MOVE-UNIT-ATTACHED-001": {
+        "power": 4,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P1-MOVE-EQUIPMENT-ATTACHED-001": {
+        "cardNo": "SFD·022/221",
+        "power": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+        "attachedToObjectId": "P1-MOVE-UNIT-ATTACHED-001"
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-move-unit-attached-equipment-source-rejected",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD",
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 334,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-MOVE-UNIT-ATTACHED-001": {
+          "power": 4,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P1-MOVE-EQUIPMENT-ATTACHED-001": {
+          "cardNo": "SFD·022/221",
+          "power": 0,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+          "attachedToObjectId": "P1-MOVE-UNIT-ATTACHED-001"
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

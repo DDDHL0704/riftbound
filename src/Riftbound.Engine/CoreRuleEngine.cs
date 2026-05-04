@@ -888,6 +888,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (state.CardObjects.Values.Any(cardObject => string.Equals(
+            cardObject.AttachedToObjectId,
+            command.SourceObjectId,
+            StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT attached equipment movement is not implemented in P4 yet.",
+                ErrorCodes.UnsupportedCommand);
+        }
+
         var playerZones = NormalizeZonesForSeats(state);
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
