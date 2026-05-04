@@ -12,8 +12,8 @@
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
-- P4 已进入高频关键词与基础卡牌小批次：P4.1-P4.391 已完成 template delegation/primitive plan、权限关键词代表时机、`瞬息` 到期、`回响` mana-only 与费用不足/非法回响拒绝、战斗/资源/装备/生命周期/互动/basic-action profile、固定/动态经验、经验费用、法盾目标税和多目标聚合、待命最小隐藏/显露/反应入栈及反应结算触发代表路径、来源/来源身份/显露身份/来源区域/来源正面性/目标分支/目的地/费用名/暗置、显露与反应缺失支付项/反应 unsupported optional cost/反应目的地/反应来源身份/反应来源区域/反应来源正面性/行动窗口/结算链窗口/对手手牌来源/已知非待命牌暗置、显露与反应入栈拒绝、待命目标伤害 deferred 审计、技能代表路径、技能 deferred surface 审计、34 条 `HASTE_READY` 代表路径、大量目标/费用/顺序拒绝 fixture、`MOVE_UNIT` coarse `BASE` / `BATTLEFIELD` 双向友方单位移动、对手来源/手牌来源/来源区域不匹配/面朝下来源/非单位来源/战斗中来源/带贴附装备来源/同区域目的地/行动窗口/结算链窗口/额外费用/非法区域拒绝、缺少 `ROAM` 精确战场移动拒绝、带 `ROAM` 且来源有 `游走` 的精确战场间代表移动、装备/伏击前置拒绝与装备/伏击优先权窗口拒绝边界、伏击来源不在手牌、未知来源、对手手牌来源、非伏击手牌来源、来源 `cardNo` 不匹配和携带 unsupported optional cost 拒绝边界、官网《阴森药剂师》无目标伏击反应打出到有己方单位的战场并结算入战场代表路径、装备已贴附来源、缺少装配目标、未知装配目标、缺少装配来源、未知装配来源、手牌装配来源、对手装配来源、非装备装配来源、非单位装配目标、装配 unsupported optional cost 和缺少装配费用拒绝边界、P4.388《长剑》最小 `ASSEMBLE_EQUIPMENT` 装配贴附代表路径、战斗声明优先权窗口、空攻击者/空防守者、缺少战场 id、未知战场 id、战斗声明 unsupported optional cost、缺少战斗费用、攻击者非战场、防守者非战场、对手控制攻击者、当前玩家控制防守者、重复攻击者、重复防守者、攻防列表交叉、非主动玩家声明战斗、非主阶段声明战斗和未知攻防对象声明战斗拒绝边界、P4.381/P4.382 最小单攻单防 `DECLARE_BATTLE` 声明与强攻/坚守战斗伤害代表路径、P4.383 壁垒优先/后排延后的两防守者承伤代表路径、P4.385 狩猎征服经验代表路径、P4.58《取放自如》武装贴附/卸除代表路径，以及 P4.75 对 33 个显式目标 surface 的 baseline 覆盖审计；当前只接入已验证的小批次可玩路径，完整多战场持久在线坐标、移动次数/移动触发、完整多单位承伤选择、完整战场占领/据守/得分、待命目标伤害执行/完整隐藏区、广义伏击目标/多卡路径、未登记技能执行/通用技能 registry、完整装备系统/灵便自动贴附/百炼和复杂触发仍 deferred。
-- P4.391 activated ability deferred surface 审计切片已完成：新增 `P4DeferredActivatedAbilitySurface` 清单，审计《龙魂贤者》《绵绵魄罗》《烈娜塔·戈拉斯克》《猩红玫瑰》《黑影》等未登记技能的官网文本和风险；direct engine 测试锁定这些 ability id 仍不进入 `ACTIVATE_ABILITY` 可玩路径，不支付资源、不横置来源、不伤害/修改目标、不创建结算链。P4 仍不能标记 goal complete；预计还需约 1 批做最终 E2E/文档/全量验证收口。
+- P4 高频关键词与基础卡牌已完成：P4.1-P4.392 已按风险分层小批次覆盖权限、战斗、生命周期、资源、互动、装备关键词和基础动作模板；只把已验证代表路径接入可玩路径，并用 direct engine/conformance/Room 测试锁定未实现 surface 的零副作用拒绝边界。
+- P4.392 final completion audit 已完成：`docs/CURRENT_P4_STATUS.md` 记录最终 prompt-to-artifact checklist、全量验证、`GameHubJoinTests` 等价 E2E、P5/P6/P7 deferred 范围和工作区边界。下一阶段是 P5 装备/控制权/触发/替换系统；不要在没有新 goal 或明确指令时进入 P5/P6/P7。
 
 ## 新窗口接手
 
@@ -85,7 +85,7 @@ npm run dev
 
 核心计划文档：
 
-- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.391 完成状态、剩余 blocker 和下一批计划。
+- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.392 完成状态、最终验证和下一阶段边界。
 - `docs/CURRENT_P3_STATUS.md`：当前短交接，记录 P3 卡牌数据、BehaviorSpec、解析管线、模板骨架和验证状态。
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
 - `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。

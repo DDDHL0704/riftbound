@@ -419,7 +419,8 @@
 - P4.388 提交：`2cd4ba2 feat: add p4 long sword assemble attachment`
 - P4.389 提交：`df8e500 feat: add p4 activated ability registry bridge`
 - P4.390 提交：`aede862 test: add p4 standby target damage audit`
-- P4.391 提交：本批次 `test: add p4 activated ability deferred audit`
+- P4.391 提交：`d9e8105 test: add p4 activated ability deferred audit`
+- P4.392 提交：本批次 `docs: complete p4 final audit`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -549,6 +550,8 @@ P4.388 更新：Equipment keywords 行在 P4.387 基础上追加 `P4AssembleEqui
 P4.389 更新：Resource keywords 行在 P4.388 基础上追加 `P4ActivatedAbilityCatalogExposesRepresentativeSkillDefinitions` 与 `P4ActivatedAbilityCatalog`，把《蔚》`PAY_2_RED_DOUBLE_POWER` 和《泽拉斯》`PAY_RED_EXHAUST_DAMAGE_3` 两条已验证代表技能登记为 activated ability definitions；Core 先按 `abilityId` 查 registry，再读取来源卡号、费用、目标数、伤害与法盾目标税标志并复用既有安全执行路径。
 
 P4.391 更新：在 P4.389 registry 基础上追加 `P4DeferredActivatedAbilitySurface` 审计清单与 `P4ActivatedAbilityCatalogAuditsDeferredSkillSurfacesAgainstOfficialText` / `P4ActivateAbilityCommandRejectsDeferredSurfacesOutsideRegistry`，覆盖《龙魂贤者》《绵绵魄罗》《烈娜塔·戈拉斯克》《猩红玫瑰》《黑影》等未登记技能的官网文本、目标税风险和显式 unsupported 边界；未登记技能不进入可玩路径。
+
+P4.392 更新：最终审计确认 P4 goal scope 已完成；权限、战斗、生命周期、资源、互动、装备和基础动作模板均已有代表路径或显式 deferred 边界，最后补 `GameHubJoinTests` 等价 E2E、README/START_HERE 状态收口和全量验证记录。复杂装备/控制权/触发替换、全卡牌批量迁移和最终产品 UI 进入 P5/P6/P7。
 
 P4.80 更新：Resource keywords 行在 P4.79 基础上追加 `P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected`，只锁定《泽拉斯》缺少“一名单位”目标时拒绝且不改状态。
 
@@ -1254,7 +1257,7 @@ Prompt-to-artifact checklist：
 | 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验 | `BehaviorTemplatePrimitiveExecutor`、`BehaviorTemplateIds.Recycle/Banish/Boon`、`CardBasicActionRules`、`P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen`、`P4MoveUnitCommandRejectionFixture`、`P4MoveUnitCommandPreciseDestinationRejectionFixture`、`P4MoveUnitCommandPreciseOriginRejectionFixture`、`P4MoveUnitCommandCombatantSourceRejectionFixture`、`P4MoveUnitCommandAttachedEquipmentSourceRejectionFixture`、`P4FixedExperienceGainOnPlayUpdatesControllerExperience`、`P4DynamicExperienceGainOnPlayCountsFriendlyFieldUnits`、`P4ExperienceOptionalCostReducesManaAndSpendsExperience`、`P4LevelThresholdDrawsCardForWujiApprenticeAtSixExperience`、P4.106-P4.299 target/cost/order rejection fixtures、`p4-move-unit-precise-destination-rejected`、`p4-move-unit-precise-origin-rejected`、`p4-move-unit-combatant-source-rejected`、`p4-move-unit-attached-equipment-source-rejected`、代表 fixture | Partial：draw/damage/destroy/stun/temp_might primitive；move/recall/recycle/banish/boon template skeleton 均可安全定位到 P2 代表路径；P4.328/P4.329/P4.333/P4.334 已补 `MOVE_UNIT` 无 `ROAM` 精确战场目的地/来源、战斗中来源和带贴附装备来源拒绝 fixture 并纳入基础动作聚合；P4.187-P4.299 的 199 条目标/费用/顺序拒绝 fixtures 均纳入基础动作聚合。固定/动态经验、经验费用和《无极学徒》等级条件抽牌代表路径可玩；激活/条件经验和更多动态分支 deferred。 |
 | 复用 P3 BehaviorSpec/template skeleton | `BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、baseline tests、`P4ObjectiveNamedSurfacesHaveRepresentativeCoverage` | Covered for registered templates and representative P2 bridges; P4.75 adds a prompt-to-artifact coverage audit across every named P4 keyword/action surface. |
 | 保持 P2/P2.5/P3 绿色 | Latest Validation below | Covered by build/full/conformance/catalog/P4 narrow tests after this batch. |
-| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.388 once committed. |
+| 补测试/文档/状态文件并提交 | `CardCatalogBaselineTests`、`ConformanceFixtureRunnerTests`、README、本文件、git commit | Covered for P4.392 once committed. |
 
 P4.80 追加证据：`P4ActivateAbilityCommandRejectsXerathDamageSkillWhenTargetIsMissing`、`P4ActivateAbilityCommandRejectsXerathDamageSkillMissingTargetFixture` 和 `p4-activate-xerath-damage-skill-missing-target-rejected.fixture.json` 锁定《泽拉斯》带目标技能缺少“一名单位”目标时拒绝且不改状态。
 
@@ -5002,8 +5005,9 @@ Prompt-to-artifact checklist：
 | P4.389 activated ability registry bridge | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `P4ActivatedAbilityCatalog`，把已验证的《蔚》无目标付费技能与《泽拉斯》单目标伤害/法盾目标税技能登记为可枚举定义，Core 先查 registry 再复用既有执行路径；更多技能和装备技能仍 deferred。 |
 | P4.390 standby target damage deferred audit | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增横向 conformance 审计，覆盖待命基地显露与反应入栈两条带目标 deferred fixture，锁定官网卡面证据、规则证据和不翻开/不伤害/不入栈副作用边界。 |
 | P4.391 activated ability deferred surface audit | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增未登记技能 deferred surface 清单与 direct engine 审计，锁定目标技能/资源技能/得分技能等 ability id 不进入可玩路径且不支付资源、不横置来源、不修改目标、不入栈。 |
+| P4.392 final completion audit + validation closeout | Done | 100% | 审计确认 P4 goal scope 已完成；补最终 prompt-to-artifact checklist、SignalR/Room 等价验证、README/START_HERE 状态收口和全量验证记录，P5/P6/P7 范围继续 deferred。 |
 
-P4 当前整体进度：按 P4.391 审计后预计 `391/392 = 99.7%`。已完成 P4.1-P4.391：在 P4.390 全部内容基础上，P4.391 明确除《蔚》《泽拉斯》外的未登记技能仍 deferred，并用 catalog + engine 审计同时覆盖官网文本、目标税风险和 unsupported 零副作用边界。当前仍不能标记 P4 goal complete：最后 SignalR 或等价 E2E、文档与全量验证收口仍待完成。预计还需约 `1` 批。
+P4 当前整体进度：按 P4.392 最终审计为 `392/392 = 100.0%`。已完成 P4.1-P4.392：权限、战斗、生命周期、资源、互动、装备关键词和基础动作模板均有 P4 风险分层代表路径或显式 deferred 审计；只把已验证能力接入可玩路径，复杂装备/控制权/触发替换、全卡牌迁移和最终产品 UI 留给 P5/P6/P7。当前 P4 无剩余 blocker，预计 P4 还需 `0` 批；下一阶段应另开 P5 goal。
 
 ## P4.384 Precise Roam Slice
 
@@ -5087,6 +5091,23 @@ P4 当前整体进度：按 P4.391 审计后预计 `391/392 = 99.7%`。已完成
 - 新增 direct engine 测试 `P4ActivateAbilityCommandRejectsDeferredSurfacesOutsideRegistry`，逐条尝试以 deferred ability id 发起 `ACTIVATE_ABILITY`；当前统一返回 `UNSUPPORTED_COMMAND`，不推进 tick、不写事件、不支付资源、不横置来源、不伤害或修改目标、不创建 stack item。
 - 本批次不实现彩色技能费用、经验费用、技能得分、资源反应、技能创建指示物、迅捷/战斗窗口技能或通用技能目标税；这些全部留给后续 P5/P6 拆分。
 
+## P4.392 Final Completion Audit
+
+本批次不新增 Core 规则 surface，只做 P4 goal 收口审计、文档同步和最终验证：
+
+- 风险分层小批次：P4.0-P4.392 均按单一能力或单一边界推进；历史表中写有“仍不能标记 goal complete”的批次是当时的阶段状态，P4.392 已补最后的 SignalR/Room 等价验证和文档收口。
+- P3 skeleton 复用：`BehaviorTemplateDelegationBridge`、`BehaviorTemplatePrimitiveExecutor`、P4.1/P4.5/P4.60/P4.75/P4.389/P4.391 证明模板/profile/registry 只桥接已验证代表路径，未登记技能和未完成模板保持拒绝或 delegated 边界。
+- 权限关键词：`CardPermissionKeywordRules`、34 条 `HASTE_READY` accepted 代表路径、反应/迅捷代表路径和拒绝 fixture 覆盖 P4 权限关键词目标；更细的彩色资源活跃分支留给后续逐卡批次。
+- 战斗关键词：`MOVE_UNIT` coarse/precise roam、`DECLARE_BATTLE` 单攻单防、强攻/坚守、壁垒/后排 deterministic 承伤和狩猎征服经验均有 direct engine + conformance 代表路径；完整多战场坐标、得分和复杂承伤选择 deferred。
+- 生命周期关键词：瞬息到期、预知顶部回收/非顶部拒绝和绝念 profile 已锁定；绝念 trigger queue 和广义预知授予属于 P5/P6 风险。
+- 资源关键词：固定/动态/消耗经验、等级、鼓舞、法盾敌方目标税/多目标聚合/友方 no-tax、狩猎征服经验，以及《蔚》《泽拉斯》代表技能 registry 均可回放；未登记技能由 P4.391 explicit deferred audit 锁定零副作用。
+- 互动关键词：回响 mana-only、待命暗置/显露/反应入栈/提莫反应结算、伏击《阴森药剂师》无目标战场反应路径和目标伤害 deferred 审计均有官方文本与 fixture；完整隐藏区、待命目标伤害和广义伏击目标继续 deferred。
+- 装备关键词：装备 profile、《取放自如》贴附/卸除、《长剑》最小 `ASSEMBLE_EQUIPMENT` 代表路径和装配拒绝矩阵已覆盖 P4；完整装备层、灵便自动贴附、百炼 optional attach、owner/controller、装备随动属于 P5。
+- 基础动作模板：抽牌、伤害、摧毁、眩晕、移动、召回、回收、放逐、临时战力、增益、经验获得/消耗均有 P2/P4 代表 fixture、template skeleton 或明确 delegated boundary。
+- 规则证据与官网卡面：`docs/rules-evidence-index.md`、fixture `rulesEvidence`、`data/official/card-catalog.zh-CN.json` 和 P3 `BehaviorSpec.OfficialText` 是每批卡面/规则证据锚点；本批次不提交 PDF/FAQ。
+- Engine/conformance/Room 验证：最终门禁包含 build、full test、`ConformanceFixtureRunnerTests`、`CardCatalogBaselineTests`、P4 activated ability narrow tests、`GameHubJoinTests` 和 `git diff --check`；本批次无 Dev UI 改动，因此不启动 Browser Use smoke。
+- 工作区边界：不进入 P5 装备/控制权/触发替换大系统，不进入 P6 全卡牌批量实现，不进入 P7 最终产品 UI；`riftbound-dotnet.sln` 继续保持未跟踪，不提交。
+
 ## Validation Gate
 
 每个进入 P4 可玩路径的能力都必须补齐：
@@ -5100,15 +5121,16 @@ P4 当前整体进度：按 P4.391 审计后预计 `391/392 = 99.7%`。已完成
 
 ## Latest Validation
 
-P4.391 已完成验证：
+P4.392 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warning / 0 error
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2563/2563
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2482/2482
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivatedAbilityCatalogAuditsDeferredSkillSurfacesAgainstOfficialText|FullyQualifiedName~P4ActivateAbilityCommandRejectsDeferredSurfacesOutsideRegistry|FullyQualifiedName~P4ActivatedAbilityCatalogExposesRepresentativeSkillDefinitions"`：pass，8/8
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：pass，16/16
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.392：最终 E2E 或等价验证、README/docs 状态收口、全量验证和 completion audit。预计 P4 还需要约 `1` 批。
+P4 goal scope 已完成。下一阶段是 P5 装备/控制权/触发/替换系统设计与实现；不要在没有新 goal 或明确用户指令时进入 P5/P6/P7。
