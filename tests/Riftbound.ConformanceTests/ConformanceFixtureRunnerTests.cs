@@ -27198,7 +27198,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4AmbushPlayCardModeInPriorityWindowIsRejectedUntilBattlefieldReactionPlayExists()
+    public async Task P4AmbushPlayCardModeInPriorityWindowPlaysGloomyApothecaryToBattlefield()
     {
         var state = PunishmentState(mana: 3) with
         {
@@ -27248,21 +27248,27 @@ public sealed class ConformanceFixtureRunnerTests
                 Destination: "BATTLEFIELD:P1-MAIN"),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Null(result.ErrorMessage);
+        Assert.Equal(["CARD_PLAYED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(1, result.State.Tick);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
         Assert.Equal("P1", result.State.PriorityPlayerId);
-        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
-        Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
-        var stackItem = Assert.Single(result.State.StackItems);
-        Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
-        Assert.Equal("P2", stackItem.ControllerId);
-        Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
+        Assert.Equal(2, result.State.StackItems.Count);
+        var probeStackItem = result.State.StackItems[0];
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", probeStackItem.StackItemId);
+        Assert.Equal("P2", probeStackItem.ControllerId);
+        Assert.Equal("PENDING_TEST_SPELL", probeStackItem.EffectKind);
+        var ambushStackItem = result.State.StackItems[1];
+        Assert.Equal("STACK-1-P1-HAND-UNL-GLOOMY-APOTHECARY", ambushStackItem.StackItemId);
+        Assert.Equal("P1", ambushStackItem.ControllerId);
+        Assert.Equal("GLOOMY_APOTHECARY_PLAY_UNIT_OPTIONAL_RETURN_FRIENDLY_BATTLEFIELD", ambushStackItem.EffectKind);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", ambushStackItem.Destination);
     }
 
     [Fact]
@@ -27284,11 +27290,40 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
-        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
         var stackItem = Assert.Single(result.FinalState.StackItems);
         Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
         Assert.Equal("P2", stackItem.ControllerId);
         Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
+    }
+
+    [Fact]
+    public async Task P4AmbushPlayCardModeGloomyApothecaryBattlefieldFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-ambush-play-card-gloomy-apothecary-battlefield.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
+            result.FinalState.PlayerZones["P1"].Battlefields);
+        var source = result.FinalState.CardObjects["P1-HAND-UNL-GLOOMY-APOTHECARY"];
+        Assert.Equal("UNL-021/219", source.CardNo);
+        Assert.Equal(3, source.Power);
+        Assert.Equal([CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush], source.Tags);
+        var remainingStackItem = Assert.Single(result.FinalState.StackItems);
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", remainingStackItem.StackItemId);
+        Assert.Equal("P2", result.FinalState.PriorityPlayerId);
     }
 
     [Fact]
@@ -31945,6 +31980,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-ambush-play-card-target-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-base-destination-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-priority-window-rejected.fixture.json")]
+    [InlineData("p4-ambush-play-card-gloomy-apothecary-battlefield.fixture.json")]
     [InlineData("p4-ambush-play-card-source-outside-hand-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-unknown-source-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-opponent-hand-source-rejected.fixture.json")]

@@ -126,7 +126,8 @@ public sealed record ConformanceStackItemState(
     string? EffectKind = null,
     string? CardNo = null,
     IReadOnlyList<string>? TargetObjectIds = null,
-    int? DamageAmount = null);
+    int? DamageAmount = null,
+    string? Destination = null);
 
 public sealed record ConformanceExpected(
     long FinalTick,
@@ -411,7 +412,8 @@ public static class ConformanceFixtureRunner
                 item.EffectKind,
                 item.CardNo,
                 item.TargetObjectIds,
-                item.DamageAmount ?? 0))
+                damageAmount: item.DamageAmount ?? 0,
+                destination: item.Destination))
             .ToArray();
     }
 
@@ -737,6 +739,7 @@ public static class ConformanceFixtureRunner
             AddMismatch(mismatches, $"finalState.stackItems[{i}].cardNo", expectedItem.CardNo, actualItem.CardNo);
             CompareSequence(mismatches, $"finalState.stackItems[{i}].targetObjectIds", expectedItem.TargetObjectIds, actualItem.TargetObjectIds);
             AddMismatch(mismatches, $"finalState.stackItems[{i}].damageAmount", expectedItem.DamageAmount, actualItem.DamageAmount);
+            AddMismatch(mismatches, $"finalState.stackItems[{i}].destination", expectedItem.Destination, actualItem.Destination);
         }
     }
 

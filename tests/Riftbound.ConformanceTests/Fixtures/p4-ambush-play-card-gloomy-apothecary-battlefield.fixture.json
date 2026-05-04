@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-ambush-play-card-gloomy-apothecary-battlefield",
+  "description": "P4 plays Gloomy Apothecary from hand with Ambush during a priority window, resolves it from the stack, and puts it onto the controller battlefield.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304387,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-021/219 阴森药剂师",
+      "note": "官方卡面：费用 3；单位；战力 3；伏击（你可以选择将我作为反应牌，打出到有己方单位的战场）。当你打出我时，你可以选择让一名战场上的友方单位返回其所属的手牌。本 fixture 只覆盖无目标伏击打出与结算进战场；可选回手分支仍由普通打出 fixture 覆盖。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+",
+      "note": "伏击允许符合条件的手牌来源在有待结算项目且玩家持有优先权时作为反应牌打出到有己方单位的战场；卡牌先加入结算链，双方让过后结算并进入目标战场。P4.387 使用 coarse battlefield zone 中已有正面友方单位作为目的地合法性的最小代理。"
+    }
+  ],
+  "roomId": "p4-ambush-play-card-gloomy-apothecary-battlefield-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304387,
+    "turnNumber": 387,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P1",
+    "passedPriorityPlayerIds": [],
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-HAND-UNL-GLOOMY-APOTHECARY": {
+        "cardNo": "UNL-021/219",
+        "power": 3,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "伏击"],
+        "manaCost": 3
+      },
+      "P1-BATTLEFIELD-FRIENDLY-001": {
+        "power": 2,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    },
+    "stackItems": [
+      {
+        "stackItemId": "STACK-0-P2-SPELL-PROBE",
+        "controllerId": "P2",
+        "sourceObjectId": "P2-SPELL-PROBE",
+        "effectKind": "PENDING_TEST_SPELL",
+        "cardNo": "TEST-000",
+        "targetObjectIds": [],
+        "damageAmount": 0
+      }
+    ]
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-ambush-play-card-gloomy-apothecary-battlefield",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+        "cardNo": "UNL-021/219",
+        "targetObjectIds": [],
+        "mode": "AMBUSH",
+        "optionalCosts": [],
+        "destination": "BATTLEFIELD:P1-MAIN"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-ambush-play-card-gloomy-apothecary-p1-pass",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p4-ambush-play-card-gloomy-apothecary-p2-pass",
+      "cmd": { "cmdType": "PASS_PRIORITY" }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BATTLEFIELD"
+    ],
+    "events": [
+      {
+        "kind": "CARD_PLAYED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "cardNo": "UNL-021/219",
+          "mode": "AMBUSH",
+          "destination": "BATTLEFIELD:P1-MAIN"
+        }
+      },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "power": 0,
+          "experience": 0,
+          "baseMana": 3,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "cardNo": "UNL-021/219",
+          "targetObjectIds": [],
+          "effectKind": "GLOOMY_APOTHECARY_PLAY_UNIT_OPTIONAL_RETURN_FRIENDLY_BATTLEFIELD",
+          "mode": "AMBUSH",
+          "destination": "BATTLEFIELD:P1-MAIN",
+          "effectRepeatCount": 1,
+          "playedAfterAnotherCardThisTurn": false
+        }
+      },
+      { "kind": "PRIORITY_PASSED", "payload": { "playerId": "P1", "priorityPlayerId": "P1" } },
+      { "kind": "PRIORITY_PASSED", "payload": { "playerId": "P2", "priorityPlayerId": "P2" } },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "payload": {
+          "stackItemId": "STACK-1-P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "controllerId": "P1",
+          "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "effectKind": "GLOOMY_APOTHECARY_PLAY_UNIT_OPTIONAL_RETURN_FRIENDLY_BATTLEFIELD"
+        }
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BATTLEFIELD",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "unitObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+          "unitName": "阴森药剂师",
+          "destinationZone": "BATTLEFIELD",
+          "destination": "BATTLEFIELD:P1-MAIN",
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT", "伏击"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["WAIT"],
+      "P2": ["PASS_PRIORITY"]
+    },
+    "finalState": {
+      "turnNumber": 387,
+      "activePlayerId": "P2",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P2",
+      "passedPriorityPlayerIds": [],
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "stackItems": [
+        {
+          "stackItemId": "STACK-0-P2-SPELL-PROBE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-PROBE",
+          "effectKind": "PENDING_TEST_SPELL",
+          "cardNo": "TEST-000",
+          "targetObjectIds": [],
+          "damageAmount": 0
+        }
+      ],
+      "cardObjects": {
+        "P1-HAND-UNL-GLOOMY-APOTHECARY": {
+          "cardNo": "UNL-021/219",
+          "power": 3,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "伏击"],
+          "manaCost": 3
+        },
+        "P1-BATTLEFIELD-FRIENDLY-001": {
+          "power": 2,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      }
+    },
+    "prompts": {
+      "P1": {
+        "actionable": false,
+        "actions": ["WAIT"]
+      },
+      "P2": {
+        "actionable": true,
+        "actions": ["PASS_PRIORITY"]
+      }
+    }
+  }
+}

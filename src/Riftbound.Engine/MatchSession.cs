@@ -155,7 +155,8 @@ public sealed record StackItemState
         int damageAmount = 0,
         int effectRepeatCount = 1,
         IReadOnlyList<string>? optionalCosts = null,
-        bool playedAfterAnotherCardThisTurn = false)
+        bool playedAfterAnotherCardThisTurn = false,
+        string? destination = null)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -167,6 +168,7 @@ public sealed record StackItemState
         EffectRepeatCount = Math.Max(1, effectRepeatCount);
         OptionalCosts = NormalizeList(optionalCosts);
         PlayedAfterAnotherCardThisTurn = playedAfterAnotherCardThisTurn;
+        Destination = Normalize(destination);
     }
 
     public string StackItemId { get; init; }
@@ -188,6 +190,8 @@ public sealed record StackItemState
     public IReadOnlyList<string> OptionalCosts { get; init; }
 
     public bool PlayedAfterAnotherCardThisTurn { get; init; }
+
+    public string Destination { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -493,7 +497,8 @@ public sealed record MatchState
                 item.DamageAmount,
                 item.EffectRepeatCount,
                 item.OptionalCosts,
-                item.PlayedAfterAnotherCardThisTurn))
+                item.PlayedAfterAnotherCardThisTurn,
+                item.Destination))
             .ToArray();
     }
 
@@ -567,16 +572,7 @@ public sealed record ResolutionResult(
                 state.ActivePlayerId,
                 players,
                 BuildLaneSnapshotView(state),
-                state.StackItems.Select(item => (object?)new Dictionary<string, object?>
-                {
-                    ["stackItemId"] = item.StackItemId,
-                    ["controllerId"] = item.ControllerId,
-                    ["sourceObjectId"] = item.SourceObjectId,
-                    ["effectKind"] = item.EffectKind,
-                    ["cardNo"] = item.CardNo,
-                    ["targetObjectIds"] = item.TargetObjectIds,
-                    ["damageAmount"] = item.DamageAmount
-                }).ToArray(),
+                state.StackItems.Select(item => (object?)BuildStackItemSnapshotView(item)).ToArray(),
                 new Dictionary<string, object?>
                 {
                     ["phase"] = state.Phase,
@@ -595,6 +591,26 @@ public sealed record ResolutionResult(
                 },
                 state.TimingState);
         });
+    }
+
+    private static Dictionary<string, object?> BuildStackItemSnapshotView(StackItemState item)
+    {
+        var view = new Dictionary<string, object?>
+        {
+            ["stackItemId"] = item.StackItemId,
+            ["controllerId"] = item.ControllerId,
+            ["sourceObjectId"] = item.SourceObjectId,
+            ["effectKind"] = item.EffectKind,
+            ["cardNo"] = item.CardNo,
+            ["targetObjectIds"] = item.TargetObjectIds,
+            ["damageAmount"] = item.DamageAmount
+        };
+        if (!string.IsNullOrWhiteSpace(item.Destination))
+        {
+            view["destination"] = item.Destination;
+        }
+
+        return view;
     }
 
     private static Dictionary<string, object?> BuildPlayerSnapshotView(

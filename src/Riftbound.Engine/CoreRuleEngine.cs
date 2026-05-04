@@ -6,6 +6,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 {
     private const int WinningScore = 8;
     private const string AmbushPlayMode = "AMBUSH";
+    private const string AmbushUnsupportedMessage = "PLAY_CARD mode AMBUSH is not implemented in P4 yet.";
+    private const string GloomyApothecaryCardNo = "UNL-021/219";
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
     private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
@@ -143,10 +145,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         if (IsAmbushPlayMode(command.Mode))
         {
-            return RejectWithCorePrompts(
-                state,
-                "PLAY_CARD mode AMBUSH is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand);
+            return ResolveAmbushPlayCard(state, intent, command);
         }
 
         if (!TryBuildPlayCardPlan(state, intent, command, out var plan, out var rejection))
@@ -325,6 +324,195 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveAmbushPlayCard(
+        MatchState state,
+        PlayerIntent intent,
+        PlayCardCommand command)
+    {
+        if (!TryBuildMinimalAmbushPlayCardPlan(
+                state,
+                intent,
+                command,
+                out var behavior,
+                out var zones,
+                out var sourceState,
+                out var destination))
+        {
+            return RejectWithCorePrompts(
+                state,
+                AmbushUnsupportedMessage,
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < behavior.ManaCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Not enough mana to play {behavior.DisplayName} with Ambush.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = PayRuneCosts(state, intent.PlayerId, behavior.ManaCost, 0);
+        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            CardNo = string.IsNullOrWhiteSpace(sourceState.CardNo) ? behavior.CardNo : sourceState.CardNo,
+            ManaCost = behavior.ManaCost,
+            Power = behavior.SourceUnitPower > 0 ? behavior.SourceUnitPower : sourceState.Power
+        };
+
+        var stackItem = new StackItemState(
+            $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            behavior.EffectKind,
+            command.CardNo,
+            [],
+            behavior.DamageAmount,
+            1,
+            [],
+            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
+            destination: destination);
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            TimingState = TimingStates.NeutralClosed,
+            RunePools = runePools,
+            PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            PriorityPlayerId = intent.PlayerId,
+            PassedPriorityPlayerIds = [],
+            StackItems = state.StackItems.Concat([stackItem]).ToArray()
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "CARD_PLAYED",
+                $"{intent.PlayerId} 以伏击打出{behavior.DisplayName}",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = command.CardNo,
+                    ["mode"] = command.Mode,
+                    ["destination"] = destination
+                }),
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付 {behavior.ManaCost} 点费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = behavior.ManaCost,
+                    ["power"] = 0,
+                    ["experience"] = 0,
+                    ["baseMana"] = behavior.ManaCost,
+                    ["optionalCosts"] = Array.Empty<string>()
+                }),
+            new(
+                "STACK_ITEM_ADDED",
+                $"{behavior.DisplayName}加入结算链",
+                new Dictionary<string, object?>
+                {
+                    ["stackItemId"] = stackItem.StackItemId,
+                    ["controllerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["cardNo"] = stackItem.CardNo,
+                    ["targetObjectIds"] = stackItem.TargetObjectIds.ToArray(),
+                    ["effectKind"] = stackItem.EffectKind,
+                    ["mode"] = command.Mode,
+                    ["destination"] = destination,
+                    ["effectRepeatCount"] = stackItem.EffectRepeatCount,
+                    ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryBuildMinimalAmbushPlayCardPlan(
+        MatchState state,
+        PlayerIntent intent,
+        PlayCardCommand command,
+        out CardBehaviorDefinition behavior,
+        out PlayerZones zones,
+        out CardObjectState sourceState,
+        out string destination)
+    {
+        behavior = default!;
+        zones = PlayerZones.Empty;
+        sourceState = default!;
+        destination = string.IsNullOrWhiteSpace(command.Destination) ? string.Empty : command.Destination.Trim();
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            || state.StackItems.Count == 0
+            || !string.Equals(state.PriorityPlayerId, intent.PlayerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!string.Equals(
+                destination,
+                $"{MoveUnitBattlefieldZone}:{intent.PlayerId}-MAIN",
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (targetObjectIds.Count != 0 || optionalCosts.Count != 0)
+        {
+            return false;
+        }
+
+        if (!string.Equals(command.CardNo, GloomyApothecaryCardNo, StringComparison.Ordinal)
+            || !CardBehaviorRegistry.TryGetByCardNo(command.CardNo, out behavior)
+            || !behavior.PlaysSourceToBaseAsUnit
+            || !HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds))
+        {
+            return false;
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var playerZones)
+            || !playerZones.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var knownSourceState))
+        {
+            return false;
+        }
+
+        zones = playerZones;
+        sourceState = knownSourceState;
+        if (!string.IsNullOrWhiteSpace(sourceState.CardNo)
+            && !string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return sourceState.Tags.Contains(CardInteractionKeywordNames.Ambush, StringComparer.Ordinal)
+            && HasFriendlyBattlefieldUnitForAmbush(state, intent.PlayerId);
+    }
+
+    private static bool HasFriendlyBattlefieldUnitForAmbush(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal));
     }
 
     private static ResolutionResult ResolveActivateAbility(
@@ -2319,6 +2507,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(mode?.Trim(), AmbushPlayMode, StringComparison.Ordinal);
     }
 
+    private static bool IsStackItemBattlefieldDestination(StackItemState stackItem)
+    {
+        return stackItem.Destination.StartsWith(
+            $"{MoveUnitBattlefieldZone}:",
+            StringComparison.Ordinal);
+    }
+
     private static bool TryNormalizeMoveUnitZone(
         string value,
         out string zone,
@@ -3824,13 +4019,26 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (behavior.PlaysSourceToBaseAsUnit)
         {
-            PlaySourceUnitToBase(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                state.PlayerExperience,
-                events);
+            if (IsStackItemBattlefieldDestination(stackItem))
+            {
+                PlaySourceUnitToBattlefield(
+                    playerZones,
+                    cardObjects,
+                    behavior,
+                    stackItem,
+                    state.PlayerExperience,
+                    events);
+            }
+            else
+            {
+                PlaySourceUnitToBase(
+                    playerZones,
+                    cardObjects,
+                    behavior,
+                    stackItem,
+                    state.PlayerExperience,
+                    events);
+            }
         }
 
         if (behavior.GainExperienceOnPlay > 0)
@@ -6706,6 +6914,68 @@ public sealed class CoreRuleEngine : IRuleEngine
             hasteReadyOptionalCostPaid)));
     }
 
+    private static void PlaySourceUnitToBattlefield(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        IReadOnlyDictionary<string, int> playerExperience,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        {
+            return;
+        }
+
+        var existingState = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            ? sourceState
+            : new CardObjectState(stackItem.SourceObjectId);
+        var baseUnitPower = behavior.SourceUnitPower > 0
+            ? behavior.SourceUnitPower
+            : existingState.Power;
+        var unitPower = behavior.AddsControllerGraveyardCountToSourceUnitPower
+            ? baseUnitPower + zones.Graveyard.Count
+            : baseUnitPower;
+        var levelApplies = ControllerMeetsLevelExperienceThreshold(
+            behavior,
+            stackItem.ControllerId,
+            playerExperience);
+        if (levelApplies)
+        {
+            unitPower += behavior.LevelSourceUnitPowerBonus;
+        }
+
+        var unitState = existingState with
+        {
+            Power = unitPower,
+            IsExhausted = existingState.IsExhausted || behavior.SourceUnitIsExhausted,
+            CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
+            Tags = existingState.Tags
+                .Concat([CardObjectTags.UnitCard])
+                .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
+                .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+        };
+        cardObjects[stackItem.SourceObjectId] = unitState;
+
+        playerZones[stackItem.ControllerId] = zones with
+        {
+            Battlefields = zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+                ? zones.Battlefields
+                : zones.Battlefields.Concat([stackItem.SourceObjectId]).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "UNIT_PLAYED_TO_BATTLEFIELD",
+            $"{behavior.DisplayName}打出单位到战场",
+            CreateUnitPlayedToBattlefieldPayload(
+                stackItem,
+                behavior,
+                unitState)));
+    }
+
     private static bool ControllerMeetsLevelExperienceThreshold(
         CardBehaviorDefinition behavior,
         string playerId,
@@ -6741,6 +7011,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             payload["isExhausted"] = unitState.IsExhausted;
             payload["hasteReadyOptionalCostPaid"] = true;
+        }
+
+        return payload;
+    }
+
+    private static Dictionary<string, object?> CreateUnitPlayedToBattlefieldPayload(
+        StackItemState stackItem,
+        CardBehaviorDefinition behavior,
+        CardObjectState unitState)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["playerId"] = stackItem.ControllerId,
+            ["sourceObjectId"] = stackItem.SourceObjectId,
+            ["unitObjectId"] = stackItem.SourceObjectId,
+            ["unitName"] = behavior.DisplayName,
+            ["destinationZone"] = "BATTLEFIELD",
+            ["destination"] = stackItem.Destination,
+            ["power"] = unitState.Power,
+            ["tags"] = unitState.Tags.ToArray()
+        };
+        if (unitState.IsExhausted)
+        {
+            payload["isExhausted"] = true;
         }
 
         return payload;

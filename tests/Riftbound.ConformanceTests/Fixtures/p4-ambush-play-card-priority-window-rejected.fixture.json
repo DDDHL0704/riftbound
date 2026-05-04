@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p4-ambush-play-card-priority-window-rejected",
-  "description": "P4 rejects PLAY_CARD mode AMBUSH even in a priority window until battlefield reaction play is implemented.",
+  "description": "P4 rejects PLAY_CARD mode AMBUSH in a priority window when the destination has no friendly battlefield unit.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,12 +12,12 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-021/219 阴森药剂师",
-      "note": "官方卡面含有伏击文本；本 fixture 只覆盖 P4 当前即使处于优先权窗口且已有待结算项目，也不能在伏击真实反应战场打出模型完成前接受 mode=AMBUSH。"
+      "note": "官方卡面含有伏击文本；本 fixture 覆盖 P4.387 伏击最小路径之外的边界：即使处于优先权窗口且已有待结算项目，也不能打出到没有己方单位的战场。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+",
-      "note": "伏击需要反应窗口、战场目的地合法性和单位打出至战场模型；这些系统未完成前，优先权窗口中的伏击命令应显式拒绝且不支付费用、不移出手牌、不改基地/战场、不加入或改变结算链。"
+      "note": "伏击文本要求打出到有己方单位的战场；当前 coarse 战场模型以控制者 battlefield zone 中至少一个正面单位作为最小代理，否则命令应显式拒绝且不支付费用、不移出手牌、不改基地/战场、不加入或改变结算链。"
     }
   ],
   "roomId": "p4-ambush-play-card-priority-window-rejected-room",
@@ -42,7 +42,7 @@
         "runeDeck": ["P1-RUNE-001"],
         "hand": ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
         "base": [],
-        "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+        "battlefields": [],
         "graveyard": [],
         "banished": [],
         "legendZone": [],
@@ -67,11 +67,6 @@
         "isExhausted": false,
         "tags": ["CARD_TYPE:UNIT", "伏击"],
         "manaCost": 3
-      },
-      "P1-BATTLEFIELD-FRIENDLY-001": {
-        "power": 2,
-        "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT"]
       }
     },
     "stackItems": [
@@ -124,7 +119,7 @@
         "P1": {
           "hand": ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
           "base": [],
-          "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+          "battlefields": [],
           "graveyard": []
         },
         "P2": {
@@ -140,11 +135,6 @@
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT", "伏击"],
           "manaCost": 3
-        },
-        "P1-BATTLEFIELD-FRIENDLY-001": {
-          "power": 2,
-          "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT"]
         }
       },
       "stackItems": [
