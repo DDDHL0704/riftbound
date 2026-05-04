@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-declare-battle-bulwark-back-row-assignment",
+  "description": "P4 assigns combat damage to Bulwark before Back Row in the minimum two-defender representative path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304383,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·158/298 沃利贝尔；UNL-036/219 变异猫咪；UNL-090/219 乐芙兰",
+      "note": "官方卡面分别提供高战力攻击者、坚守2/壁垒防守者和后排防守者；本 fixture 覆盖 P4.383 最小两防守者承伤顺序代表路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p31-p35 rules 318-340; p92-p105 rules 814-826",
+      "note": "壁垒要求先于同控制者非壁垒单位分配致命伤害，后排要求同控制者非后排单位先被分配致命伤害；本 fixture 只覆盖单攻击者、两防守者、壁垒优先与后排延后的 deterministic 分配，完整多单位选择仍后续扩展。"
+    }
+  ],
+  "roomId": "p4-declare-battle-bulwark-back-row-assignment-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304383,
+    "turnNumber": 383,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-VOLIBEAR"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-BATTLEFIELD-VOLIBEAR": {
+        "cardNo": "OGN·158/298",
+        "power": 10,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "坚守3", "壁垒"]
+      },
+      "P2-BATTLEFIELD-LEBLANC": {
+        "cardNo": "UNL-090/219",
+        "power": 4,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "后排"]
+      },
+      "P2-BATTLEFIELD-MUTANT-KITTEN": {
+        "cardNo": "UNL-036/219",
+        "power": 1,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-declare-battle-bulwark-back-row-assignment",
+      "cmd": {
+        "cmdType": "DECLARE_BATTLE",
+        "battlefieldId": "BATTLEFIELD:P1-MAIN",
+        "attackerObjectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
+        "defenderObjectIds": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "optionalCosts": ["COMBAT_ASSIGNMENT"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "BATTLE_DECLARED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_DESTROYED",
+      "UNIT_DESTROYED"
+    ],
+    "events": [
+      {
+        "kind": "BATTLE_DECLARED",
+        "tick": 1,
+        "sequence": 1,
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "attackerObjectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
+          "defenderObjectIds": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+          "optionalCosts": ["COMBAT_ASSIGNMENT"]
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "ATTACKER",
+          "assignmentIndex": 1,
+          "assignmentRole": "BULWARK_FIRST",
+          "basePower": 10,
+          "keyword": "强攻",
+          "keywordBonus": 0,
+          "combatPower": 10,
+          "damage": 3
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "targetObjectId": "P2-BATTLEFIELD-LEBLANC",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "ATTACKER",
+          "assignmentIndex": 2,
+          "assignmentRole": "BACK_ROW_LAST",
+          "basePower": 10,
+          "keyword": "强攻",
+          "keywordBonus": 0,
+          "combatPower": 10,
+          "damage": 7
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 4,
+        "payload": {
+          "sourceObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "targetObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "DEFENDER",
+          "basePower": 1,
+          "keyword": "坚守",
+          "keywordBonus": 2,
+          "combatPower": 3,
+          "damage": 3
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 5,
+        "payload": {
+          "sourceObjectId": "P2-BATTLEFIELD-LEBLANC",
+          "targetObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "DEFENDER",
+          "basePower": 4,
+          "keyword": "坚守",
+          "keywordBonus": 0,
+          "combatPower": 4,
+          "damage": 4
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 6,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "targetObjectId": "P2-BATTLEFIELD-LEBLANC",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "destinationZone": "GRAVEYARD",
+          "reason": "LETHAL_DAMAGE"
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 7,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-VOLIBEAR",
+          "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "destinationZone": "GRAVEYARD",
+          "reason": "LETHAL_DAMAGE"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 383,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-VOLIBEAR"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"]
+        }
+      },
+      "cardObjects": {
+        "P1-BATTLEFIELD-VOLIBEAR": {
+          "cardNo": "OGN·158/298",
+          "damage": 7,
+          "power": 10,
+          "isAttacking": true,
+          "isDefending": false,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "坚守3", "壁垒"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

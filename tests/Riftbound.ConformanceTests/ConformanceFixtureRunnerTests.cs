@@ -22501,6 +22501,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
     [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
     [InlineData("p4-declare-battle-single-combatants.fixture.json")]
+    [InlineData("p4-declare-battle-bulwark-back-row-assignment.fixture.json")]
     [InlineData("p4-declare-battle-empty-attackers-rejected.fixture.json")]
     [InlineData("p4-declare-battle-empty-defenders-rejected.fixture.json")]
     [InlineData("p4-declare-battle-missing-battlefield-rejected.fixture.json")]
@@ -29816,6 +29817,148 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandAssignsDamageToBulwarkBeforeBackRowForRepresentativePath()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-VOLIBEAR"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-VOLIBEAR"] = new(
+                    "P1-BATTLEFIELD-VOLIBEAR",
+                    power: 10,
+                    tags: [CardObjectTags.UnitCard, "坚守3", "壁垒"],
+                    cardNo: "OGN·158/298"),
+                ["P2-BATTLEFIELD-LEBLANC"] = new(
+                    "P2-BATTLEFIELD-LEBLANC",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "后排"],
+                    cardNo: "UNL-090/219"),
+                ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
+                    "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
+                    cardNo: "UNL-036/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-bulwark-back-row", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-VOLIBEAR"],
+                ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Collection(
+            result.Events,
+            battleEvent =>
+            {
+                Assert.Equal("BATTLE_DECLARED", battleEvent.Kind);
+                Assert.Equal("P1", battleEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", battleEvent.Payload["battlefieldId"]);
+                Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], Assert.IsType<string[]>(battleEvent.Payload["attackerObjectIds"]));
+                Assert.Equal(
+                    ["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+                    Assert.IsType<string[]>(battleEvent.Payload["defenderObjectIds"]));
+                Assert.Equal(["COMBAT_ASSIGNMENT"], Assert.IsType<string[]>(battleEvent.Payload["optionalCosts"]));
+            },
+            bulwarkDamageEvent =>
+            {
+                Assert.Equal("DAMAGE_APPLIED", bulwarkDamageEvent.Kind);
+                Assert.Equal("P1-BATTLEFIELD-VOLIBEAR", bulwarkDamageEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P2-BATTLEFIELD-MUTANT-KITTEN", bulwarkDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("ATTACKER", bulwarkDamageEvent.Payload["combatRole"]);
+                Assert.Equal("BULWARK_FIRST", bulwarkDamageEvent.Payload["assignmentRole"]);
+                Assert.Equal(1, bulwarkDamageEvent.Payload["assignmentIndex"]);
+                Assert.Equal(10, bulwarkDamageEvent.Payload["basePower"]);
+                Assert.Equal(0, bulwarkDamageEvent.Payload["keywordBonus"]);
+                Assert.Equal(10, bulwarkDamageEvent.Payload["combatPower"]);
+                Assert.Equal(3, bulwarkDamageEvent.Payload["damage"]);
+            },
+            backRowDamageEvent =>
+            {
+                Assert.Equal("DAMAGE_APPLIED", backRowDamageEvent.Kind);
+                Assert.Equal("P1-BATTLEFIELD-VOLIBEAR", backRowDamageEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P2-BATTLEFIELD-LEBLANC", backRowDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("ATTACKER", backRowDamageEvent.Payload["combatRole"]);
+                Assert.Equal("BACK_ROW_LAST", backRowDamageEvent.Payload["assignmentRole"]);
+                Assert.Equal(2, backRowDamageEvent.Payload["assignmentIndex"]);
+                Assert.Equal(10, backRowDamageEvent.Payload["basePower"]);
+                Assert.Equal(0, backRowDamageEvent.Payload["keywordBonus"]);
+                Assert.Equal(10, backRowDamageEvent.Payload["combatPower"]);
+                Assert.Equal(7, backRowDamageEvent.Payload["damage"]);
+            },
+            bulwarkDefenderDamageEvent =>
+            {
+                Assert.Equal("DAMAGE_APPLIED", bulwarkDefenderDamageEvent.Kind);
+                Assert.Equal("P2-BATTLEFIELD-MUTANT-KITTEN", bulwarkDefenderDamageEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P1-BATTLEFIELD-VOLIBEAR", bulwarkDefenderDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("DEFENDER", bulwarkDefenderDamageEvent.Payload["combatRole"]);
+                Assert.Equal(1, bulwarkDefenderDamageEvent.Payload["basePower"]);
+                Assert.Equal(2, bulwarkDefenderDamageEvent.Payload["keywordBonus"]);
+                Assert.Equal(3, bulwarkDefenderDamageEvent.Payload["combatPower"]);
+                Assert.Equal(3, bulwarkDefenderDamageEvent.Payload["damage"]);
+            },
+            backRowDefenderDamageEvent =>
+            {
+                Assert.Equal("DAMAGE_APPLIED", backRowDefenderDamageEvent.Kind);
+                Assert.Equal("P2-BATTLEFIELD-LEBLANC", backRowDefenderDamageEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P1-BATTLEFIELD-VOLIBEAR", backRowDefenderDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("DEFENDER", backRowDefenderDamageEvent.Payload["combatRole"]);
+                Assert.Equal(4, backRowDefenderDamageEvent.Payload["basePower"]);
+                Assert.Equal(0, backRowDefenderDamageEvent.Payload["keywordBonus"]);
+                Assert.Equal(4, backRowDefenderDamageEvent.Payload["combatPower"]);
+                Assert.Equal(4, backRowDefenderDamageEvent.Payload["damage"]);
+            },
+            leblancDestroyedEvent =>
+            {
+                Assert.Equal("UNIT_DESTROYED", leblancDestroyedEvent.Kind);
+                Assert.Equal("P1-BATTLEFIELD-VOLIBEAR", leblancDestroyedEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P2-BATTLEFIELD-LEBLANC", leblancDestroyedEvent.Payload["targetObjectId"]);
+                Assert.Equal("P2", leblancDestroyedEvent.Payload["ownerPlayerId"]);
+                Assert.Equal("P1", leblancDestroyedEvent.Payload["destroyedByPlayerId"]);
+                Assert.Equal("GRAVEYARD", leblancDestroyedEvent.Payload["destinationZone"]);
+                Assert.Equal("LETHAL_DAMAGE", leblancDestroyedEvent.Payload["reason"]);
+            },
+            mutantKittenDestroyedEvent =>
+            {
+                Assert.Equal("UNIT_DESTROYED", mutantKittenDestroyedEvent.Kind);
+                Assert.Equal("P1-BATTLEFIELD-VOLIBEAR", mutantKittenDestroyedEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P2-BATTLEFIELD-MUTANT-KITTEN", mutantKittenDestroyedEvent.Payload["targetObjectId"]);
+                Assert.Equal("P2", mutantKittenDestroyedEvent.Payload["ownerPlayerId"]);
+                Assert.Equal("P1", mutantKittenDestroyedEvent.Payload["destroyedByPlayerId"]);
+                Assert.Equal("GRAVEYARD", mutantKittenDestroyedEvent.Payload["destinationZone"]);
+                Assert.Equal("LETHAL_DAMAGE", mutantKittenDestroyedEvent.Payload["reason"]);
+            });
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
+        Assert.Equal(7, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandInPriorityWindowIsRejectedUntilCombatSystemExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -30827,6 +30970,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandBulwarkBackRowAssignmentFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-bulwark-back-row-assignment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.Equal(7, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
     }
