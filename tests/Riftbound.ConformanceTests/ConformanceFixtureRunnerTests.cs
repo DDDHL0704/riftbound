@@ -22503,6 +22503,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-declare-battle-command-premodel-rejected.fixture.json")]
     [InlineData("p4-declare-battle-empty-attackers-rejected.fixture.json")]
     [InlineData("p4-declare-battle-empty-defenders-rejected.fixture.json")]
+    [InlineData("p4-declare-battle-missing-battlefield-rejected.fixture.json")]
     [InlineData("p4-declare-battle-priority-window-rejected.fixture.json")]
     public async Task P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
     {
@@ -29045,6 +29046,60 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandWithMissingBattlefieldIsRejectedUntilCombatSystemExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GAREN"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-GAREN"] = new(
+                    "P1-BATTLEFIELD-GAREN",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
+                ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
+                    "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-missing-battlefield", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "",
+                ["P1-BATTLEFIELD-GAREN"],
+                ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.False(result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
+        Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
+        Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -29093,6 +29148,28 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-empty-defenders-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.False(result.FinalState.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandMissingBattlefieldRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-missing-battlefield-rejected.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
