@@ -27229,6 +27229,68 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandInPriorityWindowIsRejectedUntilEquipmentSystemExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-priority-window", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ASSEMBLE_EQUIPMENT is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
+        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
+        Assert.Equal("P2", stackItem.ControllerId);
+        Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -27246,6 +27308,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
         Assert.Null(result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
         Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4AssembleEquipmentCommandPriorityWindowRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-priority-window-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal("NEUTRAL_CLOSED", result.FinalState.TimingState);
+        Assert.Equal("P1", result.FinalState.PriorityPlayerId);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Null(result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        var stackItem = Assert.Single(result.FinalState.StackItems);
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
+        Assert.Equal("P2", stackItem.ControllerId);
+        Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
     }
 
     [Fact]
@@ -27422,6 +27508,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-stout-poro-no-optional-assemble.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-assemble-equipment-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-assemble-equipment-priority-window-rejected.fixture.json")]
     public async Task P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
