@@ -25,6 +25,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LongSwordCardNo = "SFD·022/221";
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
     private const int LongSwordAssemblePowerCost = 1;
+    private const string WatchfulSentinelCardNo = "OGN·096/298";
+    private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -711,6 +713,37 @@ public sealed class CoreRuleEngine : IRuleEngine
             stackItem.SourceObjectId,
             behavior.EffectKind,
             "UNIT_PLAYED_TO_BASE");
+    }
+
+    private static string? ResolveWatchfulSentinelLastBreathDrawPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, WatchfulSentinelCardNo, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static TriggerQueueItemState BuildLastBreathTriggerQueueItem(
+        StackItemState stackItem,
+        string sourceObjectId,
+        string controllerId,
+        string effectKind)
+    {
+        return new TriggerQueueItemState(
+            $"TRIGGER-{stackItem.StackItemId}-{sourceObjectId}-{effectKind}",
+            controllerId,
+            sourceObjectId,
+            effectKind,
+            "UNIT_DESTROYED");
     }
 
     private static GameEvent BuildTriggerQueuedEvent(TriggerQueueItemState trigger)
@@ -5800,6 +5833,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                             if (removalResult.WasUnit)
                             {
                                 destroyedUnitOwnerIds.Add(removalResult.OwnerPlayerId);
+                            }
+
+                            var lastBreathDrawPlayerId = ResolveWatchfulSentinelLastBreathDrawPlayerId(
+                                targetState,
+                                removalResult);
+                            if (lastBreathDrawPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    lastBreathDrawPlayerId,
+                                    WatchfulSentinelLastBreathDrawEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+
+                                var drawApplication = ApplyDrawToPlayer(
+                                    state,
+                                    playerZones,
+                                    playerScores,
+                                    lastBreathDrawPlayerId,
+                                    1,
+                                    rngCursor,
+                                    events);
+                                playerScores = drawApplication.PlayerScores;
+                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                                rngCursor = drawApplication.RngCursor;
                             }
 
                             var conditionalEquipmentTokenCount = ConditionalEquipmentTokenCountForDestroyedUnit(

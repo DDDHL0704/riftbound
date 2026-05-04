@@ -87,7 +87,7 @@ Triggers:
 
 - P4.386 standby/reaction representative paths provide controlled low-risk entry points.
 - P4.384 and P4.385 movement, hunt, battle, conquest, and score representatives provide event surfaces for future trigger queue expansion.
-- Last Breath and leave-field triggers remain deferred until P5.5.
+- Last Breath and leave-field triggers remain deferred except for the P5.5 Watchful Sentinel draw representative.
 
 Replacement/prevention:
 
@@ -153,12 +153,12 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.2 | Done | Equipment attach/detach/follow/leave representative paths using `长剑` and `取放自如`. |
 | P5.3 | Done | Control owner/controller separation and end-turn return using `恶意收购`. |
 | P5.4 | Done | Trigger queue skeleton with one low-risk on-play or enter-field representative. |
-| P5.5 | Pending | Last Breath or leave-field trigger slice without broad trigger migration. |
+| P5.5 | Done | Last Breath or leave-field trigger slice without broad trigger migration. |
 | P5.6 | Pending | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
 | P5.7 | Pending | Continuous effect/layer and end-turn cleanup slice. |
 | P5.8 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after P5.4 lands: `P5 5/9 planned batches = 55.6%`; remaining planned batches: `4`.
+Current progress after P5.5 lands: `P5 6/9 planned batches = 66.7%`; remaining planned batches: `3`.
 
 ## P5.1 Delivered
 
@@ -231,6 +231,23 @@ P5.4 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 
+## P5.5 Delivered
+
+- Added a narrow Last Breath representative for `OGN·096/298 警觉的哨兵`: when it is destroyed into graveyard from an explicit unit object, its controller queues and resolves `WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1`.
+- Reused the P5.4 trigger event shape: `TRIGGER_QUEUED`, `TRIGGER_RESOLVED`, then the existing `CARD_DRAWN` draw application.
+- Added `p5-last-breath-watchful-sentinel-draw-on-destroy.fixture.json`, using `OGN·229/298 复仇` as the already-verified destroy representative.
+- Added direct assertions that the destroyed Sentinel leaves `CardObjects`, the controller draws exactly one card, and the trigger queue is empty after resolution.
+- Kept conditional Last Breath, optional trigger ordering, trigger choices, lethal-cleanup triggers, battle triggers, and generic leave-field/equipment leave triggers deferred.
+
+P5.5 validation:
+
+- Narrow preflight: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineQueuesWatchfulSentinelLastBreathDrawWhenDestroyed"` passed `1/1`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2571/2571`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2490/2490`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+
 ## Validation Policy
 
 Each batch must keep prior P2/P2.5/P3/P4 suites green. `dotnet` commands must be run through:
@@ -251,4 +268,4 @@ Required gates for P5 completion:
 
 ## Next Step
 
-Proceed to P5.1. Keep the first implementation slice narrow: lock equipment state invariants around owner/controller/attached identity and existing zero-side-effect boundaries before broad engine migration.
+Proceed to P5.6. Keep the replacement/prevention slice narrow, preferring `坚毅不倒` and already-verified prevention paths before adding any general replacement ordering model.

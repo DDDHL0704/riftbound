@@ -16089,6 +16089,26 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineQueuesWatchfulSentinelLastBreathDrawWhenDestroyed()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p5-last-breath-watchful-sentinel-draw-on-destroy.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-WATCHFUL-SENTINEL-001", result.FinalState.CardObjects.Keys);
+        Assert.Equal(["P2-LAST-BREATH-DRAW-001"], result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Contains(result.Events, ev => string.Equals(ev.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, ev => string.Equals(ev.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.Empty(result.FinalState.TriggerQueue);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysWellspringOfHatredDestroyBattlefieldUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·096/298 警觉的哨兵",
-      "note": "官方卡面：费用 2；单位；战力 1；绝念时抽一张牌。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；绝念抽牌触发暂缓。"
+      "note": "官方卡面：费用 2；单位；战力 1；绝念时抽一张牌。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；P5.5 另以 p5-last-breath-watchful-sentinel-draw-on-destroy 覆盖被摧毁后的绝念抽牌代表路径。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
