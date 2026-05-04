@@ -668,6 +668,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal));
     }
 
+    private static bool FieldIdentityExplicitlyMatchesZone(CardObjectState cardObject, string playerId)
+    {
+        return string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal)
+            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+    }
+
     private static ResolutionResult ResolveActivateAbility(
         MatchState state,
         PlayerIntent intent,
@@ -1241,10 +1247,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (state.CardObjects.Values.Any(cardObject => string.Equals(
-            cardObject.AttachedToObjectId,
-            command.SourceObjectId,
-            StringComparison.Ordinal)))
+        var attachedEquipmentObjectIds = AttachedEquipmentObjectIds(state.CardObjects, command.SourceObjectId);
+        if (attachedEquipmentObjectIds.Count > 0
+            && !CanMoveExplicitAttachedEquipmentWithHost(
+                state.PlayerZones,
+                state.CardObjects,
+                intent.PlayerId,
+                sourceState,
+                attachedEquipmentObjectIds))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1255,6 +1265,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
+        var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
+            playerZones,
+            attachedEquipmentObjectIds,
+            intent.PlayerId,
+            command.SourceObjectId,
+            destinationZone);
 
         var nextState = state with
         {
@@ -1284,6 +1300,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
+        events.AddRange(attachedEquipmentMoves);
 
         return new ResolutionResult(
             true,
@@ -1292,6 +1309,87 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static IReadOnlyList<string> AttachedEquipmentObjectIds(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string hostObjectId)
+    {
+        return cardObjects
+            .Where(entry => string.Equals(
+                entry.Value.AttachedToObjectId,
+                hostObjectId,
+                StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool CanMoveExplicitAttachedEquipmentWithHost(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardObjectState hostState,
+        IReadOnlyList<string> attachedEquipmentObjectIds)
+    {
+        if (!FieldIdentityExplicitlyMatchesZone(hostState, playerId))
+        {
+            return false;
+        }
+
+        foreach (var equipmentObjectId in attachedEquipmentObjectIds)
+        {
+            var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
+            if (equipmentLocation is null
+                || !string.Equals(equipmentLocation.Value.PlayerId, playerId, StringComparison.Ordinal)
+                || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+                || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || !FieldIdentityExplicitlyMatchesZone(equipmentState, playerId))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static IReadOnlyList<GameEvent> MoveAttachedEquipmentWithHost(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyList<string> attachedEquipmentObjectIds,
+        string playerId,
+        string hostObjectId,
+        string destinationZone)
+    {
+        var events = new List<GameEvent>();
+        foreach (var equipmentObjectId in attachedEquipmentObjectIds)
+        {
+            var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
+            if (equipmentLocation is null)
+            {
+                continue;
+            }
+
+            RemoveFieldObjectFromLocation(
+                playerZones,
+                equipmentLocation.Value.PlayerId,
+                equipmentLocation.Value.Zone,
+                equipmentObjectId);
+            AddFieldObjectToLocation(playerZones, playerId, destinationZone, equipmentObjectId);
+            events.Add(new GameEvent(
+                "EQUIPMENT_MOVED_WITH_UNIT",
+                $"{playerId} 的装备随单位移动",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["unitObjectId"] = hostObjectId,
+                    ["equipmentObjectId"] = equipmentObjectId,
+                    ["originZone"] = equipmentLocation.Value.Zone,
+                    ["destinationZone"] = destinationZone,
+                    ["attachedToObjectId"] = hostObjectId
+                }));
+        }
+
+        return events;
     }
 
     private static ResolutionResult ResolvePreciseRoamMoveUnit(
@@ -6472,12 +6570,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         var equipmentObjectId = stackItem.TargetObjectIds[1];
         if (!IsFieldObject(playerZones, unitObjectId)
             || !IsFieldObject(playerZones, equipmentObjectId)
+            || !cardObjects.TryGetValue(unitObjectId, out var unitState)
             || !cardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
             || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
             || !TryGetFieldControllerId(playerZones, unitObjectId, out var unitControllerId)
             || !TryGetFieldControllerId(playerZones, equipmentObjectId, out var equipmentControllerId)
-            || !string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal))
+            || !string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal)
+            || !FieldIdentityMatchesZone(unitState, unitControllerId)
+            || !FieldIdentityMatchesZone(equipmentState, equipmentControllerId))
         {
             return false;
         }
@@ -6496,7 +6597,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = stackItem.SourceObjectId,
                     ["unitObjectId"] = unitObjectId,
                     ["equipmentObjectId"] = equipmentObjectId,
-                    ["controllerId"] = unitControllerId
+                    ["controllerId"] = unitControllerId,
+                    ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? unitControllerId : equipmentState.OwnerId
                 });
             return true;
         }
@@ -6519,6 +6621,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["unitObjectId"] = unitObjectId,
                 ["equipmentObjectId"] = equipmentObjectId,
                 ["controllerId"] = unitControllerId,
+                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? unitControllerId : equipmentState.OwnerId,
                 ["attachedToObjectId"] = unitObjectId
             });
         return true;

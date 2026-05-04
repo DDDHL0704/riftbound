@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p5-move-unit-attached-equipment-follows-host",
+  "description": "P5.2 moves an explicitly owned and controlled Long Sword with its attached host unit from base to battlefield.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603305201,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·022/221 长剑; SFD·011/221 取放自如",
+      "note": "《长剑》提供已验证装备/武装/灵便代表对象；《取放自如》提供贴附关系代表文本。本 fixture 只覆盖 P5.2 显式 owner/controller 均匹配时，已贴附装备随宿主单位从基地移动到战场。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p22-p26 rules 179,187-189; p39-p42 rules 355-356; p89 rules 718-719",
+      "note": "对象拥有者/控制者、场上移动和装备贴附必须同时保持一致；本 fixture 锁定 host movement 时 ownerId/controllerId/attachedToObjectId 不丢失，且装备公开区域随宿主更新。"
+    }
+  ],
+  "roomId": "p5-move-unit-attached-equipment-follows-host-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603305201,
+    "turnNumber": 521,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-MOVE-UNIT-ATTACHED-001": {
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "power": 4,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P1-MOVE-EQUIPMENT-ATTACHED-001": {
+        "cardNo": "SFD·022/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "power": 0,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+        "attachedToObjectId": "P1-MOVE-UNIT-ATTACHED-001"
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p5-move-unit-attached-equipment-follows-host",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD",
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": ["UNIT_MOVED_TO_BATTLEFIELD", "EQUIPMENT_MOVED_WITH_UNIT"],
+    "events": [
+      {
+        "kind": "UNIT_MOVED_TO_BATTLEFIELD",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+          "targetObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+          "originZone": "BASE",
+          "destinationZone": "BATTLEFIELD",
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "EQUIPMENT_MOVED_WITH_UNIT",
+        "payload": {
+          "playerId": "P1",
+          "unitObjectId": "P1-MOVE-UNIT-ATTACHED-001",
+          "equipmentObjectId": "P1-MOVE-EQUIPMENT-ATTACHED-001",
+          "originZone": "BASE",
+          "destinationZone": "BATTLEFIELD",
+          "attachedToObjectId": "P1-MOVE-UNIT-ATTACHED-001"
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 521,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-MOVE-UNIT-ATTACHED-001": {
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "power": 4,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P1-MOVE-EQUIPMENT-ATTACHED-001": {
+          "cardNo": "SFD·022/221",
+          "ownerId": "P1",
+          "controllerId": "P1",
+          "power": 0,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+          "attachedToObjectId": "P1-MOVE-UNIT-ATTACHED-001"
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

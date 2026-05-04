@@ -14327,6 +14327,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal("P2-UNIT-TAKE-UP-001", result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].AttachedToObjectId);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].OwnerId);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].ControllerId);
         Assert.Equal(["P2-DRAW-TAKE-UP-001"], result.FinalState.PlayerZones["P2"].Hand);
         Assert.Equal(["P2-SPELL-TAKE-UP"], result.FinalState.PlayerZones["P2"].Graveyard);
     }
@@ -14345,6 +14347,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Null(result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].AttachedToObjectId);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].OwnerId);
+        Assert.Equal("P2", result.FinalState.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].ControllerId);
         Assert.Equal(["P2-DRAW-TAKE-UP-DETACH-001"], result.FinalState.PlayerZones["P2"].Hand);
         Assert.Equal(["P2-SPELL-TAKE-UP-DETACH"], result.FinalState.PlayerZones["P2"].Graveyard);
     }
@@ -28645,6 +28649,118 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P5MoveUnitCommandMovesExplicitAttachedEquipmentWithHostToBattlefield()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-UNIT-ATTACHED-001"] = new(
+                    "P1-MOVE-UNIT-ATTACHED-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MOVE-EQUIPMENT-ATTACHED-001"] = new(
+                    "P1-MOVE-EQUIPMENT-ATTACHED-001",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    attachedToObjectId: "P1-MOVE-UNIT-ATTACHED-001",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p5-move-unit-attached-equipment-to-battlefield", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-ATTACHED-001",
+                "BASE",
+                "BATTLEFIELD",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["UNIT_MOVED_TO_BATTLEFIELD", "EQUIPMENT_MOVED_WITH_UNIT"], result.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+            result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(
+            "P1-MOVE-UNIT-ATTACHED-001",
+            result.State.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].AttachedToObjectId);
+        Assert.Equal("P1", result.State.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].OwnerId);
+        Assert.Equal("P1", result.State.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].ControllerId);
+
+        var followEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_MOVED_WITH_UNIT", StringComparison.Ordinal));
+        Assert.Equal("P1-MOVE-UNIT-ATTACHED-001", followEvent.Payload["unitObjectId"]);
+        Assert.Equal("P1-MOVE-EQUIPMENT-ATTACHED-001", followEvent.Payload["equipmentObjectId"]);
+        Assert.Equal("BASE", followEvent.Payload["originZone"]);
+        Assert.Equal("BATTLEFIELD", followEvent.Payload["destinationZone"]);
+    }
+
+    [Fact]
+    public async Task P5MoveUnitCommandMovesExplicitAttachedEquipmentWithHostToBase()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-UNIT-ATTACHED-001"] = new(
+                    "P1-MOVE-UNIT-ATTACHED-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MOVE-EQUIPMENT-ATTACHED-001"] = new(
+                    "P1-MOVE-EQUIPMENT-ATTACHED-001",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    attachedToObjectId: "P1-MOVE-UNIT-ATTACHED-001",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p5-move-unit-attached-equipment-to-base", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-ATTACHED-001",
+                "BATTLEFIELD",
+                "BASE",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["UNIT_MOVED_TO_BASE", "EQUIPMENT_MOVED_WITH_UNIT"], result.Events.Select(gameEvent => gameEvent.Kind));
+        Assert.Equal(
+            ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+            result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(
+            "P1-MOVE-UNIT-ATTACHED-001",
+            result.State.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsWithoutRoamCost()
     {
         var state = PunishmentState(mana: 0) with
@@ -29240,6 +29356,31 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-MOVE-UNIT-ATTACHED-001",
             result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].AttachedToObjectId);
         Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P5MoveUnitCommandAttachedEquipmentFollowsHostFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p5-move-unit-attached-equipment-follows-host.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P1-MOVE-UNIT-ATTACHED-001", "P1-MOVE-EQUIPMENT-ATTACHED-001"],
+            result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(
+            "P1-MOVE-UNIT-ATTACHED-001",
+            result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].AttachedToObjectId);
+        Assert.Equal("P1", result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].OwnerId);
+        Assert.Equal("P1", result.FinalState.CardObjects["P1-MOVE-EQUIPMENT-ATTACHED-001"].ControllerId);
     }
 
     [Fact]
