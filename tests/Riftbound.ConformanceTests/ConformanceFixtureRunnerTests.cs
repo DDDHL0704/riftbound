@@ -25181,6 +25181,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectsOutsideActivePlayerOpenMainWindow()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-MOVE-UNIT-WINDOW-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-UNIT-WINDOW-001"] = new(
+                    "P1-MOVE-UNIT-WINDOW-001",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-window", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-WINDOW-001",
+                "BASE",
+                "BATTLEFIELD",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT is only available during the active player's open main window.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Equal(["P1-MOVE-UNIT-WINDOW-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.State.CardObjects["P1-MOVE-UNIT-WINDOW-001"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsUntilRoamMovementExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -25375,6 +25420,28 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-SAME-ZONE-001"].Power);
         Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-MOVE-UNIT-SAME-ZONE-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandWindowRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-window-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal("P2", result.FinalState.ActivePlayerId);
+        Assert.Equal(["P1-MOVE-UNIT-WINDOW-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-WINDOW-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-MOVE-UNIT-WINDOW-001"].Tags);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -25718,6 +25785,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-move-unit-face-down-source-rejected.fixture.json")]
     [InlineData("p4-move-unit-non-unit-source-rejected.fixture.json")]
     [InlineData("p4-move-unit-same-zone-destination-rejected.fixture.json")]
+    [InlineData("p4-move-unit-window-rejected.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]
