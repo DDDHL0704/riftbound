@@ -365,7 +365,8 @@
 - P4.334 提交：`90e9e89 test: add p4 move unit attached equipment rejection`
 - P4.335 提交：`6bc3824 test: add p4 ambush source zone rejection`
 - P4.336 提交：`6eeabcf test: add p4 ambush card identity rejection`
-- P4.337 提交：本提交 `test: add p4 ambush optional cost rejection`
+- P4.337 提交：`b8e61ff test: add p4 ambush optional cost rejection`
+- P4.338 提交：本提交 `test: add p4 standby opponent source rejection`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -458,7 +459,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；P4.15 已给《踏苔蜥》接入 `等级3` 入场 +1 战力与法盾代表路径，P4.16 已给《风行狐》接入 `等级3` 入场 +1 战力与游走代表路径，P4.17 已给《无极学徒》接入 `等级6` 打出抽 1 代表路径，P4.28 已给《易》接入 `等级6` 法盾/游走代表路径，P4.29 已给《易》A 版本接入 `等级6` 法盾/游走代表路径，其他等级条件仍 deferred。 |
 | 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；P4.14 已给《诺克萨斯新兵》接入本回合已打出其他卡牌记忆和费用 -2 代表路径，P4.21 已给《崔法利求战者》接入同回合鼓舞自增益代表路径，P4.22 已给《危险二人组》接入同回合鼓舞目标临时战力代表路径，P4.23 已给《垃圾场小霸王》接入同回合鼓舞弃 2 抽 2 代表路径，P4.24 已给《先锋队长》接入同回合鼓舞创建两名 1 战力随从代表路径，其他鼓舞分支仍 deferred。 |
 | 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的单目标税，P4.59 已用《妖异狐火》覆盖多目标法术对 `法盾` + `法盾2` 的费用聚合，P4.61 已用《秘奥义！慈悲度魂落》覆盖友方法盾目标 no-tax 边界；P4.62 已新增 `ACTIVATE_ABILITY` typed command，P4.73 已执行《蔚》无目标付费技能入栈/结算代表路径，P4.74 已要求来源对象 `cardNo` 匹配《蔚》，P4.77 已执行《泽拉斯》带目标技能对敌方 `法盾` 单位的目标税 + 横置 + 3 点伤害代表路径，P4.93 已补同一技能敌方法盾目标税 mana 不足时的拒绝 fixture，P4.78 已补同一技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的 no-tax 边界，P4.79 已补同一技能来源已横置时的拒绝边界，P4.80 已补同一技能缺少目标时的拒绝边界，P4.81 已补同一技能提供两个目标时的拒绝边界，P4.82 已补同一技能携带未支持 optional cost 时的拒绝边界，P4.83 已补非《泽拉斯》来源伪造同一 ability id 时的拒绝边界，P4.84 已补同一技能选择装备等非单位目标时的拒绝边界，P4.85 已补同一技能来源不在战场时的拒绝边界，P4.86 已补同一技能来源由对手控制时的拒绝边界，并把 P4.79-P4.86/P4.93 拒绝 fixtures 纳入资源关键词聚合回放；授予/静态法盾、更多带目标技能和更复杂 FAQ 细节仍 deferred。 |
-| 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.94 已补同一路径费用不足拒绝 fixture；P4.312 已补同一路径来源不在手牌拒绝 fixture；P4.313 已补同一路径目的地不支持拒绝 fixture；P4.314 已补同一路径费用名不支持拒绝 fixture；P4.315 已补同一路径行动窗口拒绝 fixture；P4.316 已补同一路径 stack 非空拒绝 fixture；P4.317 已补同一路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.318 已补显露路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.319 已补显露路径来源不在玩家基地拒绝 fixture；P4.320 已补显露路径来源已公开拒绝 fixture；P4.321 已补显露路径带目标拒绝 fixture；P4.322 已补显露路径费用名不支持拒绝 fixture；P4.323 已补显露路径目的地不支持拒绝 fixture；P4.324 已补反应入栈带目标拒绝 fixture；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；P4.96 已补 `STANDBY_FREE` 无权限拒绝 fixture；P4.102 已补《游击战》非待命废牌堆目标拒绝 fixture；P4.76 已接入 `STANDBY_REACTION` 优先权窗口无目标反应入栈代表路径；P4.95 已补同一路径无优先权窗口拒绝 fixture；待命触发、战场/完整隐藏区位置限制和目标伤害仍 deferred。 |
+| 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.94 已补同一路径费用不足拒绝 fixture；P4.312 已补同一路径来源不在手牌拒绝 fixture；P4.338 已补同一路径来源在对手手牌拒绝 fixture；P4.313 已补同一路径目的地不支持拒绝 fixture；P4.314 已补同一路径费用名不支持拒绝 fixture；P4.315 已补同一路径行动窗口拒绝 fixture；P4.316 已补同一路径 stack 非空拒绝 fixture；P4.317 已补同一路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.318 已补显露路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.319 已补显露路径来源不在玩家基地拒绝 fixture；P4.320 已补显露路径来源已公开拒绝 fixture；P4.321 已补显露路径带目标拒绝 fixture；P4.322 已补显露路径费用名不支持拒绝 fixture；P4.323 已补显露路径目的地不支持拒绝 fixture；P4.324 已补反应入栈带目标拒绝 fixture；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；P4.96 已补 `STANDBY_FREE` 无权限拒绝 fixture；P4.102 已补《游击战》非待命废牌堆目标拒绝 fixture；P4.76 已接入 `STANDBY_REACTION` 优先权窗口无目标反应入栈代表路径；P4.95 已补同一路径无优先权窗口拒绝 fixture；待命触发、战场/完整隐藏区位置限制和目标伤害仍 deferred。 |
 | 回响 | 22 | 2 | 0 | Medium | P4.4 已完成 mana-only optional cost/repeat 模型；复杂额外费用、授予回响和模式重复仍后续拆分。 |
 | 伏击 | 18 | 0 | 0 | High | P4.9 已识别 profile；P4.64 已新增 `PLAY_CARD mode=AMBUSH` + `destination` 前置模型并在 Core 显式拒绝；P4.97 已把无目标显式拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.325 已把带目标显式拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.326 已把 `destination=BASE` 拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.327 已把优先权窗口拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.335 已把来源不在手牌拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.336 已把来源 `cardNo` 身份不匹配拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.337 已把 unsupported optional cost 拒绝边界纳入 conformance fixture 和互动关键词聚合回放；反应战场打出、目标结算和战场目的地结算仍 deferred。 |
 | 装配 | 51 | 0 | 0 | High | P4.8 已识别 profile；P4.58 已审计并锁定《取放自如》贴附/卸除武装的代表执行路径；P4.66 已新增 `ASSEMBLE_EQUIPMENT` typed command 与 Core 显式拒绝前置模型；P4.99 已补同一路径拒绝 fixture；P4.330 已补同一路径优先权窗口拒绝 fixture；P4.331 已补已贴附来源拒绝 fixture；P4.334 已补移动带贴附装备来源拒绝 fixture；装配费用、装备未激活文本和自动贴附仍 deferred。 |
@@ -967,6 +968,8 @@ P4.335 更新：Interaction remaining 行在 P4.327 基础上追加 `P4AmbushPla
 P4.336 更新：Interaction remaining 行在 P4.335 基础上追加 `P4AmbushPlayCardModeSourceCardNoMismatchIsRejectedUntilBattlefieldReactionPlayExists`、`P4AmbushPlayCardModeSourceCardNoMismatchRejectionFixture` 和 `p4-ambush-play-card-cardno-mismatch-rejected.fixture.json`，把伏击 `PLAY_CARD mode=AMBUSH` 当前已知来源对象 `cardNo` 与命令 `cardNo` 不一致时显式拒绝且不移动手牌、不支付费用的边界纳入 direct engine 测试、conformance fixture 和互动关键词聚合回放。
 
 P4.337 更新：Interaction remaining 行在 P4.336 基础上追加 `P4AmbushPlayCardModeWithOptionalCostIsRejectedUntilBattlefieldReactionPlayExists`、`P4AmbushPlayCardModeOptionalCostRejectionFixture` 和 `p4-ambush-play-card-optional-cost-rejected.fixture.json`，把伏击 `PLAY_CARD mode=AMBUSH` 当前携带 unsupported optional cost 名称时显式拒绝且不支付费用、不移动手牌的边界纳入 direct engine 测试、conformance fixture 和互动关键词聚合回放。
+
+P4.338 更新：Interaction remaining 行在 P4.337 基础上追加 `P4HideCardCommandRejectsOpponentHandSource`、`P4HideCardCommandOpponentHandSourceRejectionFixture` 和 `p4-hide-card-standby-opponent-hand-source-rejected.fixture.json`，把待命 `HIDE_CARD destination=STANDBY optionalCosts=["STANDBY_A"]` 当前来源对象位于对手手牌时拒绝且不移动任一手牌对象、不支付费用的边界纳入 direct engine 测试、conformance fixture 和互动关键词聚合回放。
 
 P4.328 更新：Move / Combat / Basic action 行在 P4.311 基础上追加 `P4MoveUnitCommandRejectsPreciseBattlefieldDestinationWithoutRoamCost`、`P4MoveUnitCommandPreciseDestinationRejectionFixture` 和 `p4-move-unit-precise-destination-rejected.fixture.json`，把 `MOVE_UNIT origin=BASE destination=BATTLEFIELD:P1-MAIN optionalCosts=[]` 当前仍拒绝的精确战场目的地边界纳入 direct engine 测试、conformance fixture 和基础动作聚合回放。
 
@@ -3788,6 +3791,16 @@ Prompt-to-artifact checklist：
 - 新增 fixture `p4-hide-card-standby-source-outside-hand-rejected.fixture.json` 和回放测试 `P4HideCardCommandSourceOutsideHandRejectionFixture`，把 `OGN·121/298 提莫` 的待命文本作为来源区域边界证据。
 - `P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 source-outside-hand rejection fixture；待命触发、目标伤害、战场/完整隐藏区和伏击共用隐藏信息仍 deferred。
 
+## P4.338 Standby Hide Opponent Hand Source Rejection Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.312 已锁定待命暗置来源不能是已经在基地中的对象；本批次补对手手牌来源边界，确保当前 `HIDE_CARD` 只从命令玩家自己的手牌读取待命来源，不泄漏或移动对手隐藏区对象。
+
+- `HIDE_CARD sourceObjectId=P2-HAND-OGN-TEEMO cardNo=OGN·121/298 destination=STANDBY optionalCosts=["STANDBY_A"]` 在来源对象位于 P2 手牌、命令玩家为 P1 时返回 `CARD_NOT_IN_HAND`，不推进 tick、不写事件、不支付费用、不移动任一手牌对象、不创建 stack item。
+- `CoreRuleEngine.ResolveHideCard` 本批次没有新增执行分支；它继续复用“来源必须在命令玩家手牌”的检查，待命触发、战场/完整隐藏区和目标伤害仍 deferred。
+- 新增 direct engine 测试 `P4HideCardCommandRejectsOpponentHandSource`，锁定错误码和错误信息 `Source card is not in the player's hand.`，并确认 P1/P2 hand/base、rune pool、来源正面状态、战力/标签/`cardNo` 和 stack 均保持原样。
+- 新增 fixture `p4-hide-card-standby-opponent-hand-source-rejected.fixture.json` 和回放测试 `P4HideCardCommandOpponentHandSourceRejectionFixture`，把 `OGN·121/298 提莫` 的待命文本作为命令玩家手牌归属边界证据。
+- `P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 opponent-hand-source rejection fixture；待命触发、目标伤害、战场/完整隐藏区和伏击共用隐藏信息仍 deferred。
+
 ## P4.313 Standby Hide Unsupported Destination Rejection Slice
 
 本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.70/P4.312 已锁定待命 `HIDE_CARD` 的最小暗置路径、费用不足和来源区域边界；本批次只锁定当前 P4 command envelope 只能用 `destination=STANDBY` 表达待命暗置。
@@ -3963,7 +3976,7 @@ Prompt-to-artifact checklist：
 - 已由 P2 手写行为覆盖的 `recycle` / `banish` / `boon` 在 P4.60 进入 P3/P4 template skeleton 和 safe delegation；primitive executor 仍不直接改状态。
 - 已由 P2 手写行为覆盖的《取放自如》武装贴附/卸除代表路径在 P4.58 进入 P4 evidence/profile，但不泛化成完整装备系统。
 - `ACTIVATE_ABILITY` 已有 P4.62 command envelope；P4.73 已执行《蔚》`PAY_2_RED_DOUBLE_POWER` 无目标付费技能入栈/结算代表路径，P4.74 已补来源对象 `cardNo` 身份校验，P4.87-P4.92 已补同一技能的对手控制来源、来源不在场上、携带目标、携带未支持 optional cost、费用不足和非《蔚》来源拒绝边界并纳入资源关键词聚合回放；P4.77 已执行《泽拉斯》`PAY_RED_EXHAUST_DAMAGE_3` 单目标技能敌方法盾税代表路径，P4.93 已补同一技能敌方法盾目标税 mana 不足拒绝 fixture，P4.78 已补同一技能己方法盾目标 no-tax 边界，P4.79 已补同一技能来源已横置时拒绝且不改状态的边界，P4.80 已补同一技能缺少目标时拒绝且不改状态的边界，P4.81 已补同一技能提供两个目标时拒绝且不改状态的边界，P4.82 已补同一技能携带未支持 optional cost 时拒绝且不改状态的边界，P4.83 已补非《泽拉斯》来源伪造同一 ability id 时拒绝且不改状态的边界，P4.84 已补同一技能选择非单位目标时拒绝且不改状态的边界，P4.85 已补同一技能来源不在战场时拒绝且不改状态，P4.86 已补同一技能来源由对手控制时拒绝且不改状态的边界，并把 P4.79-P4.86/P4.93 拒绝 fixtures 纳入资源关键词聚合回放；通用技能 registry、更多目标/可选费用技能和装备技能仍 deferred。
-- `HIDE_CARD` 已有 P4.63 command envelope；P4.70 已执行 `STANDBY_A` 最小正面朝下放置；P4.94 已补同一路径费用不足拒绝 fixture；P4.312 已补同一路径来源不在手牌拒绝 fixture；P4.313 已补同一路径目的地不支持拒绝 fixture；P4.314 已补同一路径非待命费用名拒绝 fixture；P4.315 已补同一路径行动窗口拒绝 fixture；P4.316 已补同一路径 stack 非空拒绝 fixture；P4.317 已补同一路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.72 已执行《游击战》`STANDBY_FREE` 免费暗置代表路径，P4.96 已补 `STANDBY_FREE` 无权限拒绝 fixture，其他目的地和完整隐藏区仍 deferred。
+- `HIDE_CARD` 已有 P4.63 command envelope；P4.70 已执行 `STANDBY_A` 最小正面朝下放置；P4.94 已补同一路径费用不足拒绝 fixture；P4.312 已补同一路径来源不在手牌拒绝 fixture；P4.338 已补同一路径来源在对手手牌拒绝 fixture；P4.313 已补同一路径目的地不支持拒绝 fixture；P4.314 已补同一路径非待命费用名拒绝 fixture；P4.315 已补同一路径行动窗口拒绝 fixture；P4.316 已补同一路径 stack 非空拒绝 fixture；P4.317 已补同一路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.72 已执行《游击战》`STANDBY_FREE` 免费暗置代表路径，P4.96 已补 `STANDBY_FREE` 无权限拒绝 fixture，其他目的地和完整隐藏区仍 deferred。
 - 《游击战》P2 返回废牌堆待命牌路径已由 `p2-preflight-play-guerrilla-warfare-return-standby-graveyard` 覆盖；P4.102 已补非待命废牌堆目标拒绝 fixture，目标伤害、待命触发和完整隐藏区仍 deferred。
 - `REVEAL_CARD` 已有 P4.68 command envelope；P4.71 已执行 `STANDBY_REVEAL` / `BASE` 最小显露，P4.76 已执行 `STANDBY_REACTION` / `STACK` 无目标反应入栈，P4.95 已补同一路径无优先权窗口拒绝 fixture，P4.318 已补已知来源 `cardNo` 身份不匹配拒绝 fixture，P4.319 已补来源不在命令玩家基地拒绝 fixture，P4.320 已补来源已公开拒绝 fixture，P4.321 已补带目标拒绝 fixture，P4.322 已补 unsupported optional cost 拒绝 fixture，P4.323 已补 unsupported destination 拒绝 fixture，P4.324 已补反应入栈带目标拒绝 fixture；目标结算、触发和完整隐藏区仍 deferred。
 - Face-down snapshot redaction 已有 P4.69 对手视角防泄漏测试，并被 P4.70 最小待命放置复用；当前仍不创建完整隐藏区或执行待命触发/目标伤害。
@@ -4331,9 +4344,10 @@ Prompt-to-artifact checklist：
 | P4.335 completion audit + 伏击来源不在手牌拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `PLAY_CARD mode=AMBUSH` 来源对象已在基地、不在手牌时当前拒绝的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
 | P4.336 completion audit + 伏击来源 `cardNo` 身份不匹配拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `PLAY_CARD mode=AMBUSH` 已知来源对象 `cardNo` 与命令 `cardNo` 不一致时当前拒绝的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
 | P4.337 completion audit + 伏击 unsupported optional cost 拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `PLAY_CARD mode=AMBUSH optionalCosts=["ECHO"]` 当前拒绝的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
-| P4.338 next low-risk gap | Pending | 0% | 基于 P4.337 audit 继续选择低风险可验证小批次；优先从待命边界、技能边界、更多法盾边界、装备边界、战斗/移动边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
+| P4.338 completion audit + 待命对手手牌来源拒绝 fixture | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 P1 不能用 P2 手牌对象作为 `HIDE_CARD / STANDBY_A` 来源的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
+| P4.339 next low-risk gap | Pending | 0% | 基于 P4.338 audit 继续选择低风险可验证小批次；优先从待命边界、技能边界、更多法盾边界、装备边界、战斗/移动边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `338/339 = 99.7%`。已完成 P4.1-P4.337：在 P4.336 全部内容基础上，P4.337 新增 `PLAY_CARD mode=AMBUSH optionalCosts=["ECHO"]` rejection fixture，锁定当前伏击前置模型不能携带其他费用名退化为普通 hand play 或回响费用路径；拒绝时不推进 tick、不写事件、不支付费用、不移动手牌、不改变战场、不创建结算链项目。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、装备随动/完整装配、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、完整灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `339/340 = 99.7%`。已完成 P4.1-P4.338：在 P4.337 全部内容基础上，P4.338 新增 `HIDE_CARD / STANDBY_A` opponent-hand-source rejection fixture，锁定当前待命暗置只能读取命令玩家自己的手牌来源；拒绝时不推进 tick、不写事件、不支付费用、不移动任一手牌对象、不创建结算链项目。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、装备随动/完整装配、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、完整灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -4348,17 +4362,17 @@ P4 当前整体进度：按当前 part 计 `338/339 = 99.7%`。已完成 P4.1-P4
 
 ## Latest Validation
 
-P4.337 已完成验证：
+P4.338 已完成验证：
 
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-ambush-play-card-optional-cost-rejected.fixture.json`：pass
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-hide-card-standby-opponent-hand-source-rejected.fixture.json`：pass
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2411/2411
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2330/2330
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2414/2414
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2333/2333
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AmbushPlayCardMode"`：pass，14/14
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen"`：pass，34/34
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4HideCardCommand"`：pass，20/20
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4InteractionKeywordProfilesKeepExistingRepresentativeFixturesGreen"`：pass，35/35
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.338：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.339：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
