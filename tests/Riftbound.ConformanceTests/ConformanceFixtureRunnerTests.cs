@@ -25045,6 +25045,54 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectsFaceDownSource()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-STANDBY-MOVE-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-STANDBY-MOVE-001"] = new(
+                    "P1-FACEDOWN-STANDBY-MOVE-001",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-face-down-source", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-FACEDOWN-STANDBY-MOVE-001",
+                "BASE",
+                "BATTLEFIELD",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT source must be a face-up unit.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-FACEDOWN-STANDBY-MOVE-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.True(result.State.CardObjects["P1-FACEDOWN-STANDBY-MOVE-001"].IsFaceDown);
+        Assert.Equal(2, result.State.CardObjects["P1-FACEDOWN-STANDBY-MOVE-001"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Standby],
+            result.State.CardObjects["P1-FACEDOWN-STANDBY-MOVE-001"].Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsUntilRoamMovementExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -25171,6 +25219,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P2-MOVE-UNIT-BATTLEFIELD-001"], result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(3, result.FinalState.CardObjects["P2-MOVE-UNIT-BATTLEFIELD-001"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandFaceDownSourceRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-face-down-source-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(["P1-FACEDOWN-STANDBY-MOVE-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.True(result.FinalState.CardObjects["P1-FACEDOWN-STANDBY-MOVE-001"].IsFaceDown);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-FACEDOWN-STANDBY-MOVE-001"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardObjectTags.Standby],
+            result.FinalState.CardObjects["P1-FACEDOWN-STANDBY-MOVE-001"].Tags);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -25511,6 +25583,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-move-unit-base-to-battlefield.fixture.json")]
     [InlineData("p4-move-unit-battlefield-to-base.fixture.json")]
     [InlineData("p4-move-unit-opponent-source-rejected.fixture.json")]
+    [InlineData("p4-move-unit-face-down-source-rejected.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]

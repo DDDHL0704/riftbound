@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-move-unit-face-down-source-rejected",
+  "description": "P4 MOVE_UNIT rejects a face-down standby source so hidden cards cannot be moved through the public coarse move path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304303,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·121/298 提莫",
+      "note": "官方卡面待命文本说明该牌可正面朝下放置；本 fixture 只覆盖 MOVE_UNIT 公开移动路径不能把正面朝下待命来源当作正面单位移动。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "P4.303 锁定隐藏信息与来源正面性边界：MOVE_UNIT 来源必须是当前玩家控制的正面单位。拒绝时不推进 tick、不写事件、不移动对象、不改变战力、不创建结算链。"
+    }
+  ],
+  "roomId": "p4-move-unit-face-down-source-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304303,
+    "turnNumber": 303,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-FACEDOWN-STANDBY-MOVE-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-FACEDOWN-STANDBY-MOVE-001": {
+        "power": 2,
+        "isFaceDown": true,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "待命"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-move-unit-face-down-source-rejected",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-FACEDOWN-STANDBY-MOVE-001",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD",
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 303,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-FACEDOWN-STANDBY-MOVE-001"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-FACEDOWN-STANDBY-MOVE-001": {
+          "power": 2,
+          "isFaceDown": true,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "待命"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

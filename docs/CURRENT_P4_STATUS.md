@@ -330,7 +330,8 @@
 - P4.299 提交：`5810678 test: add p4 sfd 180a fiora target fixture`
 - P4.300 提交：`ffb90f5 feat: add p4 coarse move unit command`
 - P4.301 提交：`349ca23 test: add p4 reverse move unit fixture`
-- P4.302 提交：本提交 `test: add p4 move unit source rejection`
+- P4.302 提交：`e284e77 test: add p4 move unit source rejection`
+- P4.303 提交：本提交 `test: add p4 move unit face-down rejection`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -389,7 +390,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 |---|---:|---:|---:|---:|---|---|
 | `temp_might` | 292 | 255 | 36 | 1 | Low/Medium | P4.5 已有 primitive plan；真实状态写入仍由 P2 `POWER_MODIFIED_UNTIL_END_OF_TURN` 与清理负责。 |
 | `damage` | 148 | 141 | 7 | 0 | Low/Medium | P4.5 已有基础固定伤害 primitive plan；动态伤害和替代效果继续委托 P2。 |
-| `move` | 136 | 116 | 19 | 1 | Medium | P4.300/P4.301 已接入 `MOVE_UNIT` 在当前 coarse `BASE`/`BATTLEFIELD` 区域模型中的友方单位双向移动；P4.98 仍锁定精确战场/`ROAM` 前置拒绝 fixture；精确多战场/游走/此处目的地仍需后续模型。 |
+| `move` | 136 | 116 | 19 | 1 | Medium | P4.300/P4.301 已接入 `MOVE_UNIT` 在当前 coarse `BASE`/`BATTLEFIELD` 区域模型中的友方单位双向移动；P4.302/P4.303 已锁定对手来源与面朝下来源拒绝；P4.98 仍锁定精确战场/`ROAM` 前置拒绝 fixture；精确多战场/游走/此处目的地仍需后续模型。 |
 | `draw` | 131 | 105 | 26 | 0 | Low | P4.5 已有固定抽牌 primitive plan；抽牌与燃尽状态写入仍由 P2 覆盖。 |
 | `destroy` | 127 | 115 | 8 | 4 | Low/Medium | P4.5 已有单目标摧毁 primitive plan；替代/触发导致的摧毁仍分层处理。 |
 | `boon` | 66 | 51 | 15 | 0 | Medium | P4.60 已注册为 P3/P4 template skeleton，并验证《秘奥义！慈悲度魂落》可安全委托到 P2 增益代表路径；全局增益加成、消耗增益和触发增益仍 deferred。 |
@@ -415,7 +416,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 坚守 | 24 | 4 | 0 | High | P4.6 已识别 profile 和数值；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；完整防守战力修正仍 deferred。 |
 | 壁垒 | 26 | 0 | 0 | High | P4.6 已识别 profile；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；完整承伤顺序和同优先级选择仍 deferred。 |
 | 后排 | 6 | 0 | 0 | High | P4.6 已识别 profile；P4.67 已新增 `DECLARE_BATTLE` typed command 与 Core 显式拒绝前置模型；P4.100 已补同一路径拒绝 fixture；完整承伤顺序仍 deferred。 |
-| 游走 | 38 | 4 | 0 | Medium/High | P4.6 已识别 profile；P4.65 已新增 `MOVE_UNIT` typed command；P4.98 已补精确战场/`ROAM` 前置拒绝 fixture；P4.300/P4.301 只接入 coarse `BASE`/`BATTLEFIELD` 友方单位双向移动，真实跨战场游走仍需要多战场目的地、移动权限和移动触发。 |
+| 游走 | 38 | 4 | 0 | Medium/High | P4.6 已识别 profile；P4.65 已新增 `MOVE_UNIT` typed command；P4.98 已补精确战场/`ROAM` 前置拒绝 fixture；P4.300/P4.301 只接入 coarse `BASE`/`BATTLEFIELD` 友方单位双向移动，P4.302/P4.303 补来源控制者与正面性边界，真实跨战场游走仍需要多战场目的地、移动权限和移动触发。 |
 | 瞬息 | 21 | 7 | 2 | Medium | P4.3 候选；P2 已记录标签，缺“控制者下个回合开始、得分前摧毁”。 |
 | 绝念 | 25 | 0 | 0 | High | P4.9 已识别 profile；离场触发队列和摧毁来源时序仍 deferred。 |
 | 预知 | 12 | 0 | 0 | Medium | P4.9 已识别 profile，并标注已审计顶牌回收/不回收代表路径 delegated to P2；P4.101 已把《占卜贝壳》选择非顶部牌的拒绝边界纳入 fixture；广义授予与隐藏信息仍 deferred。 |
@@ -441,7 +442,7 @@ P4.0 选出下一批最小代表，不代表已完成规则执行。
 | Destroy | `OGN·229/298 复仇`：摧毁一名单位。 | `p2-preflight-play-vengeance-destroy-unit-stack`；已有摧毁/放逐替代代表路径。 | P4.5 已生成 destroy target primitive plan；替代/触发另拆。 |
 | Stun | `OGN·050/298 符文禁锢`：眩晕一名单位。 | `p2-preflight-play-rune-prison-stun-stack` 与 end-turn expiry fixture。 | P4.5 已生成 `STUNNED` primitive plan；状态写入和到期仍由 P2。 |
 | Temp might | `OGN·004/298 顺劈`：让一名单位本回合内获得强攻 3。 | `p2-preflight-play-cleave-overwhelm-attacking-power`；P2 已有 `POWER_MODIFIED_UNTIL_END_OF_TURN` 和清理。 | P4.5 已生成 until-end-of-turn power primitive plan；完整战斗强攻仍另拆。 |
-| Move | `UNL-101/219 战斗号令`：将你控制的一名单位移动至你控制的一处战场；`OGN·173/298 驭风而行`：移动一名友方单位；`OGN·043/298 魅惑妖术` / `OGN·168/298 战或逃`：将战场单位移动到基地；`SFD·235/221 亚索`：游走、单回合第三次移动得分。 | P2 已有 `UNIT_MOVED_TO_BASE` / `UNIT_MOVED_TO_BATTLEFIELD` 原语；P4.65 新增 `MoveUnitCommand` / `GameCommandMapperParsesMoveUnitPayload`；P4.98 新增 `P4MoveUnitCommandRejectionFixture` / `p4-move-unit-command-premodel-rejected.fixture.json`；P4.300 新增 `P4MoveUnitCommandMovesFriendlyBaseUnitToBattlefieldInCoarseModel` / `P4MoveUnitCommandBaseToBattlefieldFixture` / `p4-move-unit-base-to-battlefield.fixture.json`；P4.301 新增 `P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel` / `P4MoveUnitCommandBattlefieldToBaseFixture` / `p4-move-unit-battlefield-to-base.fixture.json`。 | P4.300/P4.301 已在 Core 接入 coarse `BASE` / `BATTLEFIELD` 友方单位双向移动并保留精确战场/`ROAM` 拒绝；多战场目的地、游走权限、移动次数和移动触发后续建模。 |
+| Move | `UNL-101/219 战斗号令`：将你控制的一名单位移动至你控制的一处战场；`OGN·173/298 驭风而行`：移动一名友方单位；`OGN·043/298 魅惑妖术` / `OGN·168/298 战或逃`：将战场单位移动到基地；`SFD·235/221 亚索`：游走、单回合第三次移动得分；`OGN·121/298 提莫`：待命正面朝下来源边界。 | P2 已有 `UNIT_MOVED_TO_BASE` / `UNIT_MOVED_TO_BATTLEFIELD` 原语；P4.65 新增 `MoveUnitCommand` / `GameCommandMapperParsesMoveUnitPayload`；P4.98 新增 `P4MoveUnitCommandRejectionFixture` / `p4-move-unit-command-premodel-rejected.fixture.json`；P4.300 新增 `P4MoveUnitCommandMovesFriendlyBaseUnitToBattlefieldInCoarseModel` / `P4MoveUnitCommandBaseToBattlefieldFixture` / `p4-move-unit-base-to-battlefield.fixture.json`；P4.301 新增 `P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel` / `P4MoveUnitCommandBattlefieldToBaseFixture` / `p4-move-unit-battlefield-to-base.fixture.json`；P4.302 新增 `P4MoveUnitCommandRejectsOpponentControlledSource` / `P4MoveUnitCommandOpponentSourceRejectionFixture` / `p4-move-unit-opponent-source-rejected.fixture.json`；P4.303 新增 `P4MoveUnitCommandRejectsFaceDownSource` / `P4MoveUnitCommandFaceDownSourceRejectionFixture` / `p4-move-unit-face-down-source-rejected.fixture.json`。 | P4.300/P4.301 已在 Core 接入 coarse `BASE` / `BATTLEFIELD` 友方单位双向移动并保留精确战场/`ROAM` 拒绝；P4.302/P4.303 已锁定来源必须由当前玩家控制且为正面单位；多战场目的地、游走权限、移动次数和移动触发后续建模。 |
 | Recall | `OGN·188/298 祖安保镖`：让战场单位返回所属者手牌。 | P2 已有 `UNIT_RETURNED_TO_HAND` / `EQUIPMENT_RETURNED_TO_HAND`。 | P4.5 明确继续 `delegated-to-p2`；隐藏/控制权边界另拆。 |
 | Echo | `SFD·031/221 点沙成兵` / `UNL-061/219 台前作秀`：回响 2，重复法术效果。 | P2 已有 `ECHO` optional cost 和 repeat count 样例。 | P4.4 已把 mana-only 回响接入显式 profile/helper；复杂费用与授予回响继续 deferred。 |
 | Ephemeral | `UNL-149/219 蒙面侍者` / `OGN·094/298 精灵召唤`：瞬息会在控制者开始阶段开始时摧毁。 | P2 已记录 `瞬息` 标签；P4.3 新增 turn-start 到期摧毁 fixture。 | 已完成最小到期路径；绝念/贴附/战斗触发另拆。 |
@@ -898,6 +899,8 @@ P4.300 更新：Move / Basic action 行在 P4.299 基础上追加 `P4MoveUnitCom
 P4.301 更新：Move / Basic action 行在 P4.300 基础上追加 `P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel`、`P4MoveUnitCommandBattlefieldToBaseFixture` 和 `p4-move-unit-battlefield-to-base.fixture.json`，把 `MOVE_UNIT origin=BATTLEFIELD destination=BASE` 的友方单位粗粒度反向移动纳入 direct engine 测试、conformance fixture 和基础动作聚合回放。
 
 P4.302 更新：Move / Basic action 行在 P4.301 基础上追加 `P4MoveUnitCommandRejectsOpponentControlledSource`、`P4MoveUnitCommandOpponentSourceRejectionFixture` 和 `p4-move-unit-opponent-source-rejected.fixture.json`，把 `MOVE_UNIT` 来源必须由当前玩家控制的边界纳入 direct engine 测试、conformance fixture 和基础动作聚合回放。
+
+P4.303 更新：Move / Basic action 行在 P4.302 基础上追加 `P4MoveUnitCommandRejectsFaceDownSource`、`P4MoveUnitCommandFaceDownSourceRejectionFixture` 和 `p4-move-unit-face-down-source-rejected.fixture.json`，把 `MOVE_UNIT` 来源必须为正面单位的隐藏信息边界纳入 direct engine 测试、conformance fixture 和基础动作聚合回放。
 
 ## P4.2 Permission Keyword Batch
 
@@ -1590,6 +1593,7 @@ Prompt-to-artifact checklist：
 - P4.98 新增 `P4MoveUnitCommandRejectionFixture` 和 `p4-move-unit-command-premodel-rejected.fixture.json`，把精确战场/`ROAM` 显式拒绝边界纳入 conformance fixture、战斗关键词聚合和基础动作聚合回放。
 - P4.300 新增 `P4MoveUnitCommandMovesFriendlyBaseUnitToBattlefieldInCoarseModel`、`P4MoveUnitCommandBaseToBattlefieldFixture` 和 `p4-move-unit-base-to-battlefield.fixture.json`，验证友方基地单位移动到战场会推进 tick、写 `UNIT_MOVED_TO_BATTLEFIELD`，并保持符文池/对象战力/stack 不变。
 - P4.301 新增 `P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel`、`P4MoveUnitCommandBattlefieldToBaseFixture` 和 `p4-move-unit-battlefield-to-base.fixture.json`，验证友方战场单位移动到基地会推进 tick、写 `UNIT_MOVED_TO_BASE`，并保持符文池/对象战力/横置状态/stack 不变。
+- P4.302/P4.303 新增 `P4MoveUnitCommandRejectsOpponentControlledSource` / `P4MoveUnitCommandRejectsFaceDownSource` 及对应 fixtures，验证 `MOVE_UNIT` 不能移动对手控制来源或正面朝下来源，拒绝时保持 tick、事件、对象位置、战力和 stack 不变。
 - 本批次没有实现多战场位置、游走跨战场合法性、移动触发、单回合移动次数得分、战斗中移动或 P5/P6 批量迁移。
 
 ## P4.66 Assemble Equipment Command Premodel
@@ -3510,6 +3514,15 @@ Prompt-to-artifact checklist：
 - 新增 fixture `p4-move-unit-opponent-source-rejected.fixture.json` 和回放测试 `P4MoveUnitCommandOpponentSourceRejectionFixture`，把 `UNL-101/219 战斗号令` “你控制的一名单位”文本作为来源控制边界证据。
 - `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 opponent-source rejection fixture；精确战场/`ROAM` 游走路径和移动触发仍 deferred。
 
+## P4.303 Move Unit Face-Down Source Rejection Slice
+
+本阶段继续 completion audit：P4 仍不能标记 goal complete。P4.300/P4.301 已接入 coarse 区域双向移动，P4.302 已锁定来源控制者；本批次只锁定来源正面性与隐藏信息边界，避免 `MOVE_UNIT` 公开移动路径误移动待命等正面朝下对象。
+
+- `MOVE_UNIT sourceObjectId=P1-FACEDOWN-STANDBY-MOVE-001 origin=BASE destination=BATTLEFIELD optionalCosts=[]` 由 P1 发起时，因来源对象仍为 `IsFaceDown = true` 而返回 `INVALID_TARGET`，不推进 tick、不写事件、不移动对象、不翻开隐藏信息、不改变战力、不创建 stack item。
+- 新增 direct engine 测试 `P4MoveUnitCommandRejectsFaceDownSource`，锁定错误码和错误信息 `MOVE_UNIT source must be a face-up unit.`。
+- 新增 fixture `p4-move-unit-face-down-source-rejected.fixture.json` 和回放测试 `P4MoveUnitCommandFaceDownSourceRejectionFixture`，把 `OGN·121/298 提莫` 的待命正面朝下文本作为隐藏信息边界证据。
+- `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 face-down-source rejection fixture；精确战场/`ROAM` 游走路径、移动触发和完整隐藏区仍 deferred。
+
 ## Risk Layers
 
 低风险，可先做桥接和只读验证：
@@ -3524,7 +3537,7 @@ Prompt-to-artifact checklist：
 - `REVEAL_CARD` 已有 P4.68 command envelope；P4.71 已执行 `STANDBY_REVEAL` / `BASE` 最小显露，P4.76 已执行 `STANDBY_REACTION` / `STACK` 无目标反应入栈，P4.95 已补同一路径无优先权窗口拒绝 fixture；目标结算、触发和完整隐藏区仍 deferred。
 - Face-down snapshot redaction 已有 P4.69 对手视角防泄漏测试，并被 P4.70 最小待命放置复用；当前仍不创建完整隐藏区或执行待命触发/目标伤害。
 - `PLAY_CARD mode=AMBUSH` 已有 P4.64 `destination` envelope 与 Core 显式拒绝前置模型，P4.97 已补同一路径 conformance fixture，可供后续伏击反应战场打出小批次复用；当前不把单位打出至战场。
-- `MOVE_UNIT` 已有 P4.65 command envelope；P4.98 已补精确战场/`ROAM` 前置拒绝 fixture；P4.300/P4.301 已接入 coarse `BASE`/`BATTLEFIELD` 友方单位双向移动，可供后续游走/基础移动小批次复用。
+- `MOVE_UNIT` 已有 P4.65 command envelope；P4.98 已补精确战场/`ROAM` 前置拒绝 fixture；P4.300/P4.301 已接入 coarse `BASE`/`BATTLEFIELD` 友方单位双向移动，P4.302/P4.303 已锁定对手来源和面朝下来源拒绝，可供后续游走/基础移动小批次复用。
 - `ASSEMBLE_EQUIPMENT` 已有 P4.66 command envelope 与 Core 显式拒绝前置模型，P4.99 已补同一路径 conformance fixture，可供后续装配/灵便/百炼小批次复用；当前不贴附装备。
 - `DECLARE_BATTLE` 已有 P4.67 command envelope 与 Core 显式拒绝前置模型，P4.100 已补同一路径 conformance fixture，可供后续强攻/坚守/壁垒/后排战斗小批次复用；当前不开战。
 - 目标：证明 P3 `BehaviorSpec` / template skeleton 可以安全定位到现有 `CardBehaviorDefinition`，并在 P4.5 继续保持 `CoreRuleEngine` 主路径不变。
@@ -3852,9 +3865,10 @@ Prompt-to-artifact checklist：
 | P4.300 completion audit + coarse MOVE_UNIT 基地到战场执行切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `MOVE_UNIT origin=BASE destination=BATTLEFIELD` 友方单位粗粒度区域移动路径、direct engine 测试和 conformance fixture，并继续拒绝精确战场/`ROAM` 游走路径。 |
 | P4.301 completion audit + coarse MOVE_UNIT 战场到基地 fixture 切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `MOVE_UNIT origin=BATTLEFIELD destination=BASE` 友方单位粗粒度反向移动 direct engine 测试和 conformance fixture，并纳入基础动作聚合回放。 |
 | P4.302 completion audit + MOVE_UNIT 对手来源拒绝 fixture 切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 P1 不能移动 P2 控制来源对象的 direct engine 测试和 conformance fixture，并纳入基础动作聚合回放。 |
-| P4.303 next low-risk gap | Pending | 0% | 基于 P4.302 audit 继续选择低风险可验证小批次；优先从 coarse 移动窗口/非单位/face-down 边界、待命/伏击边界、技能边界、更多法盾边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
+| P4.303 completion audit + MOVE_UNIT 面朝下来源拒绝 fixture 切片 | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 P1 不能移动正面朝下待命来源对象的 direct engine 测试和 conformance fixture，并纳入基础动作聚合回放。 |
+| P4.304 next low-risk gap | Pending | 0% | 基于 P4.303 audit 继续选择低风险可验证小批次；优先从 coarse 移动窗口/非单位/同区域边界、待命/伏击边界、技能边界、更多法盾边界或基础动作目标合法性中选一项，仍不进入 P5/P6/P7。 |
 
-P4 当前整体进度：按当前 part 计 `303/304 = 99.7%`。已完成 P4.1-P4.302：在 P4.301 全部内容基础上，P4.302 新增 `MOVE_UNIT` 对手控制来源拒绝 direct engine 测试和 conformance fixture。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
+P4 当前整体进度：按当前 part 计 `304/305 = 99.7%`。已完成 P4.1-P4.303：在 P4.302 全部内容基础上，P4.303 新增 `MOVE_UNIT` 面朝下来源拒绝 direct engine 测试和 conformance fixture。当前仍不能标记 P4 goal complete：战斗承伤/强攻修正、真实跨战场游走、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、更多技能目标税/通用技能 registry、完整装备装配/灵便/百炼、战斗/移动触发经验和若干复杂卡牌分支仍 deferred。
 
 ## Validation Gate
 
@@ -3869,17 +3883,17 @@ P4 当前整体进度：按当前 part 计 `303/304 = 99.7%`。已完成 P4.1-P4
 
 ## Latest Validation
 
-P4.302 已完成验证：
+P4.303 已完成验证：
 
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-opponent-source-rejected.fixture.json`：pass
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-face-down-source-rejected.fixture.json`：pass
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warnings，0 errors
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2304/2304
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2223/2223
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2307/2307
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2226/2226
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommand"`：pass，8/8
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：pass，202/202
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommand"`：pass，10/10
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：pass，203/203
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.303：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
+进入 P4.304：继续基于 completion audit 选择一个低风险、可验证的小批次。当前不能标记 P4 goal complete：更多技能目标税/通用 skill registry、待命触发/完整隐藏区/目标伤害、伏击真实反应战场打出、真实跨战场游走、完整战斗、完整装备装配/灵便/百炼、战斗/移动触发经验、《不死军团》废牌堆打出、德莱厄斯活跃/光环和其他急速牌彩色资源/活跃分支等仍有明确 deferred 项。
