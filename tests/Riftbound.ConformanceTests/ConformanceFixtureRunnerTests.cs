@@ -24585,6 +24585,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandRejectsKnownNonStandbyCard()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNL-ARENA-COUNCILOR"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNL-ARENA-COUNCILOR"] = new(
+                    "P1-HAND-UNL-ARENA-COUNCILOR",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "约德尔人"],
+                    manaCost: 5,
+                    cardNo: "UNL-001/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-known-non-standby", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-UNL-ARENA-COUNCILOR",
+                "UNL-001/219",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("竞技场理事 does not expose the Standby keyword for HIDE_CARD.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNL-ARENA-COUNCILOR"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].IsFaceDown);
+        Assert.Equal(3, result.State.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].Power);
+        Assert.Equal(5, result.State.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].ManaCost);
+        Assert.Equal("UNL-001/219", result.State.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, "约德尔人"], result.State.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4HideCardCommandSourceOutsideHandRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -24630,6 +24680,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, result.FinalState.CardObjects["P2-HAND-OGN-TEEMO"].Power);
         Assert.Equal("OGN·121/298", result.FinalState.CardObjects["P2-HAND-OGN-TEEMO"].CardNo);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"], result.FinalState.CardObjects["P2-HAND-OGN-TEEMO"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4HideCardCommandKnownNonStandbyCardRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-hide-card-known-non-standby-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(1, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNL-ARENA-COUNCILOR"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.False(result.FinalState.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].IsFaceDown);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].Power);
+        Assert.Equal(5, result.FinalState.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].ManaCost);
+        Assert.Equal("UNL-001/219", result.FinalState.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, "约德尔人"], result.FinalState.CardObjects["P1-HAND-UNL-ARENA-COUNCILOR"].Tags);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -28215,6 +28290,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-hide-card-standby-insufficient-cost-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-source-outside-hand-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-opponent-hand-source-rejected.fixture.json")]
+    [InlineData("p4-hide-card-known-non-standby-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-unsupported-destination-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-unsupported-optional-cost-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-window-rejected.fixture.json")]
