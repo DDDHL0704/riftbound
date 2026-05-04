@@ -13,21 +13,22 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
 - P4 高频关键词与基础卡牌已完成：P4.1-P4.392 已按风险分层小批次覆盖权限、战斗、生命周期、资源、互动、装备关键词和基础动作模板；只把已验证代表路径接入可玩路径，并用 direct engine/conformance/Room 测试锁定未实现 surface 的零副作用拒绝边界。
-- P4.392 final completion audit 已完成：`docs/CURRENT_P4_STATUS.md` 记录最终 prompt-to-artifact checklist、全量验证、`GameHubJoinTests` 等价 E2E、P5/P6/P7 deferred 范围和工作区边界。下一阶段是 P5 装备/控制权/触发/替换系统；不要在没有新 goal 或明确指令时进入 P5/P6/P7。
+- P5 装备/控制权/触发/替换系统已完成代表范围：装备身份/贴附/随动/宿主离场清理、临时控制权归还、触发队列代表、绝念代表、防止法术/技能伤害、持续效果清理均有 conformance 覆盖；详见 `docs/CURRENT_P5_STATUS.md`。下一阶段是 P6 全卡牌批量实现；不要在没有新 goal 或明确指令时进入 P6/P7。
 
 ## 新窗口接手
 
 如果在新的 Codex 窗口继续开发，先读：
 
-1. `docs/CURRENT_P4_STATUS.md`
-2. `docs/CURRENT_P3_STATUS.md`
-3. `docs/CURRENT_P2_STATUS.md`
-4. `docs/CURRENT_P2_5_STATUS.md`
-5. 本 `README.md`（如果不是从这里进入）
-6. `docs/rules-evidence-index.md` 中目标卡牌对应行
-7. `docs/conformance-fixture-format.md` 中 fixture schema 规则
+1. `docs/CURRENT_P5_STATUS.md`
+2. `docs/CURRENT_P4_STATUS.md`
+3. `docs/CURRENT_P3_STATUS.md`
+4. `docs/CURRENT_P2_STATUS.md`
+5. `docs/CURRENT_P2_5_STATUS.md`
+6. 本 `README.md`（如果不是从这里进入）
+7. `docs/rules-evidence-index.md` 中目标卡牌对应行
+8. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
-`docs/CURRENT_P4_STATUS.md` 是当前短交接入口；`docs/CURRENT_P3_STATUS.md`、`docs/CURRENT_P2_STATUS.md` 和 `docs/CURRENT_P2_5_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁，默认按需读取。更完整的计划/审计文档也按需读取，避免每次新窗口加载重复长清单。
+`docs/CURRENT_P5_STATUS.md` 是当前短交接入口；`docs/CURRENT_P4_STATUS.md`、`docs/CURRENT_P3_STATUS.md`、`docs/CURRENT_P2_STATUS.md` 和 `docs/CURRENT_P2_5_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁，默认按需读取。更完整的计划/审计文档也按需读取，避免每次新窗口加载重复长清单。
 
 ## 推荐本地准备
 

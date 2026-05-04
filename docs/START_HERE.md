@@ -82,11 +82,11 @@
 
 ## 5. 立即开发顺序
 
-当前完成阶段是 P4 高频关键词与基础卡牌。下一阶段应另开 P5 装备/控制权/触发/替换系统 goal；在没有新 goal 或明确用户指令前，不要继续进入 P5/P6/P7。
+当前完成阶段是 P5 装备/控制权/触发/替换系统代表范围。下一阶段应另开 P6 全卡牌批量实现 goal；在没有新 goal 或明确用户指令前，不要继续进入 P6/P7。
 
 每个新增能力必须补齐 registry 或 template/profile 绑定、fixture、`rulesEvidence`、conformance/engine 测试、`docs/rules-evidence-index.md` 和当前阶段状态文件。长摘要文档只做短状态维护，不再粘贴完整已覆盖卡牌清单。
 
-P4 已完成但这些边界仍保持：不要开始最终产品级 UI、一次性全卡牌迁移、复杂 AI、移动端适配、多实例房间热迁移；P5 装备/控制权/触发替换大系统需要单独计划和验收门禁。
+P5 已完成但这些边界仍保持：不要开始最终产品级 UI、一次性全卡牌迁移、复杂 AI、移动端适配、多实例房间热迁移；P6 全卡牌批量实现需要单独计划和验收门禁。
 
 ## 6. 阶段验收门禁
 
@@ -138,8 +138,8 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 
 ```text
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
-先读取 docs/CURRENT_P4_STATUS.md、docs/CURRENT_P3_STATUS.md、docs/CURRENT_P2_STATUS.md、docs/CURRENT_P2_5_STATUS.md 和 README.md；需要迁移具体卡牌或关键词时，再读取 docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。只有遇到项目边界、资料优先级或验收门禁问题时，再读取 docs/START_HERE.md。
+先读取 docs/CURRENT_P5_STATUS.md、docs/CURRENT_P4_STATUS.md、docs/CURRENT_P3_STATUS.md、docs/CURRENT_P2_STATUS.md、docs/CURRENT_P2_5_STATUS.md 和 README.md；需要迁移具体卡牌或关键词时，再读取 docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。只有遇到项目边界、资料优先级或验收门禁问题时，再读取 docs/START_HERE.md。
 目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
-P4 高频关键词与基础卡牌已完成：如继续开发，请先创建/确认新的 P5 goal，再进入装备/控制权/触发/替换系统；不要一次性全卡牌迁移。
-不要重做最终 UI，不要进入 P6/P7，不要提交规则 PDF/FAQ，不要回退现有改动。
+P5 装备/控制权/触发/替换系统代表范围已完成：如继续开发，请先创建/确认新的 P6 goal，再进入全卡牌批量实现；不要一次性扩张到最终 UI 或 P7。
+不要重做最终 UI，不要在没有明确 P6 goal 时进入 P6/P7，不要提交规则 PDF/FAQ，不要回退现有改动。
 ```

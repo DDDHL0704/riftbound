@@ -157,9 +157,9 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.6 | Done | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
 | P5.7 | Done | Continuous effect/layer and end-turn cleanup slice. |
 | P5.8 | Done | Host-leaves equipment detach boundary for explicit attached equipment. |
-| P5.9 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
+| P5.9 | Done | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after P5.8 lands: `P5 9/10 planned batches = 90.0%`; remaining planned batches: `1`.
+Current progress after P5.9 lands: `P5 10/10 planned batches = 100.0%`; remaining planned batches: `0`.
 
 ## P5.1 Delivered
 
@@ -299,6 +299,40 @@ P5.8 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 
+## P5.9 Completion Audit
+
+P5 completion status: complete for the P5 representative scope. P5 deliberately did not batch-migrate all cards and did not enter P6/P7.
+
+Completed representative capabilities:
+
+- Equipment: explicit `ownerId` / `controllerId` / `attachedToObjectId`, Long Sword assemble identity, Take Up attach/detach identity preservation, attached equipment following explicit host movement, and host-destroyed detach cleanup.
+- Control: Hostile Takeover battlefield control gain preserves owner, changes controller, schedules end-turn return, returns control to owner, and recalls the unit to owner base.
+- Trigger queue: public `TriggerQueueItemState` / snapshot shape, Teemo on-play queued trigger, standby-reaction Teemo queued trigger, and Watchful Sentinel Last Breath queued/resolved draw.
+- Replacement/prevention: Stand Firm global spell/skill damage prevention covers both spell damage and Xerath activated-skill damage; existing prevent-next-damage and banish-if-destroyed representatives remain green.
+- Continuous effects: trigger-created temporary power modifier and global prevention effect expire together at end-turn cleanup.
+- Minimal E2E: `GameHubJoinTests` remains green after all P5 batches; no Dev UI/P7 work was introduced.
+
+Explicit deferred boundaries after P5:
+
+- No P6 full-card migration; only verified representative paths are playable.
+- Generic assemble color/cost matrix, agile auto-attach, Forge optional attach, inactive/active equipment text, and equipment destination choice after host leaves remain deferred.
+- Generic control expiry beyond the verified Hostile Takeover path, control of attached equipment, and control-zone edge cases remain deferred.
+- Generic trigger ordering, optional trigger prompts, attack/defense/move/conquer/score triggers, and simultaneous trigger ordering remain deferred.
+- Multiple replacement ordering, retargeting, replacement choice prompts, non-damage skill prevention/replacement, and general replacement queues remain deferred.
+- Equipment static power/keyword layers, source-leaves recalculation, and cross-layer dependency ordering remain deferred.
+
+P5 commits:
+
+- `e09d4c3 docs: start p5 audit`
+- `ba719a6 feat: lock p5 equipment identity invariants`
+- `02031cc feat: move attached equipment with host`
+- `4eb09f1 feat: return hostile takeover control at end turn`
+- `f710939 feat: queue teemo on-play trigger`
+- `4ef58e0 feat: queue watchful sentinel last breath`
+- `fb1e240 feat: prevent xerath skill damage`
+- `4d82abd test: lock p5 continuous cleanup`
+- `c27a2d5 feat: detach equipment when host leaves`
+
 ## Validation Policy
 
 Each batch must keep prior P2/P2.5/P3/P4 suites green. `dotnet` commands must be run through:
@@ -317,6 +351,15 @@ Required gates for P5 completion:
 - `git diff --check`
 - After each batch commit, `git status --short` should show only `?? riftbound-dotnet.sln`.
 
+## Final P5 Validation
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2574/2574`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2493/2493`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Proceed to P5.9 completion audit. Re-run required validation, verify P5 deferred boundaries are explicit, and prepare final status documentation before marking the goal complete.
+P5 is complete. Do not enter P6 full-card batch migration, P7 final product UI, or commit `riftbound-dotnet.sln` unless the user explicitly starts the next goal.

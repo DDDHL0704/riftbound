@@ -384,6 +384,8 @@ flowchart LR
 
 ## 11. P5：装备、控制权、触发和替换
 
+状态：P5 representative scope complete as of 2026-05-05；完整批次、验证记录和 deferred 边界见 `docs/CURRENT_P5_STATUS.md`。
+
 目标：
 
 完成最容易造成规则偏差的中高风险底层能力。
