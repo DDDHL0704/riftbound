@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p4-assemble-equipment-command-premodel-rejected",
-  "description": "P4 rejects ASSEMBLE_EQUIPMENT until the equipment attachment system is implemented.",
+  "fixtureId": "p4-assemble-equipment-long-sword-attach",
+  "description": "P4 attaches Long Sword to a friendly unit through the minimal ASSEMBLE_EQUIPMENT representative path.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603304099,
+  "seed": 2603304388,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·022/221 长剑",
-      "note": "官方卡面含有灵便和装配红色文本；本 fixture 只覆盖 P4 当前尚未实现装备装配/贴附系统时，ASSEMBLE_EQUIPMENT 不会被误接受。"
+      "note": "官方卡面含有灵便和装配红色文本；本 fixture 只覆盖 P4.388 当前已验证的最小装配路径：基地中未贴附的长剑支付红色装配费用，贴附到当前玩家控制的一名公开单位。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p39-p42 rules 355-356; p89 rules 718-719; p92-p105 keyword rules 800+",
-      "note": "装配和灵便需要装备费用、自动贴附、owner/controller 和未激活文本模型；这些系统未完成前，命令应显式拒绝且不支付费用、不移动装备、不设置 attachedToObjectId、不加入结算链。"
+      "note": "装配会让装备贴附到单位上；P4.388 仅用当前 rune pool 的 1 power 表达长剑的红色装配费用，并写入 attachedToObjectId。灵便打出自动贴附、通用装配费用、owner/controller、装备随动和未激活文本模型仍 deferred。"
     }
   ],
-  "roomId": "p4-assemble-equipment-command-premodel-rejected-room",
+  "roomId": "p4-assemble-equipment-long-sword-attach-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603304099,
-    "turnNumber": 99,
+    "seed": 2603304388,
+    "turnNumber": 388,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 0, "power": 0 },
+      "P1": { "mana": 0, "power": 1 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -76,7 +76,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p4-assemble-equipment-command-premodel-rejected",
+      "clientIntentId": "intent-p4-assemble-equipment-long-sword-attach",
       "cmd": {
         "cmdType": "ASSEMBLE_EQUIPMENT",
         "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
@@ -86,14 +86,40 @@
     }
   ],
   "expected": {
-    "finalTick": 0,
-    "eventKinds": [],
+    "finalTick": 1,
+    "eventKinds": ["COST_PAID", "EQUIPMENT_ATTACHED"],
+    "events": [
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 1,
+          "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+          "targetObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+          "optionalCosts": ["ASSEMBLE_RED"]
+        }
+      },
+      {
+        "kind": "EQUIPMENT_ATTACHED",
+        "payload": {
+          "sourceObjectId": "P1-EQUIPMENT-LONG-SWORD",
+          "equipmentObjectId": "P1-EQUIPMENT-LONG-SWORD",
+          "unitObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+          "controllerId": "P1",
+          "attachedToObjectId": "P1-UNIT-ASSEMBLE-TARGET",
+          "equipmentCardNo": "SFD·022/221",
+          "targetPower": 3,
+          "optionalCosts": ["ASSEMBLE_RED"]
+        }
+      }
+    ],
     "promptActions": {
       "P1": ["END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {
-      "turnNumber": 99,
+      "turnNumber": 388,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -121,7 +147,8 @@
           "power": 0,
           "isExhausted": false,
           "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
-          "manaCost": 1
+          "manaCost": 1,
+          "attachedToObjectId": "P1-UNIT-ASSEMBLE-TARGET"
         },
         "P1-UNIT-ASSEMBLE-TARGET": {
           "power": 3,

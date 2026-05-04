@@ -2499,7 +2499,7 @@ P4 延展 3. 已完成：新增 `PLAY_CARD` 伏击目的地前置模型，服务
 
 P4 延展 4. 已完成：新增 `MOVE_UNIT` command 前置模型，服务端协议能解析 `sourceObjectId` / `origin` / `destination` / `optionalCosts`，但 `CoreRuleEngine` 在多战场位置、移动权限、游走合法性和移动触发模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；P4.98 已把该显式拒绝边界提升为 conformance fixture；`SFD·235/221 亚索` 这类“游走”文本仍暂缓真实跨战场移动和单回合移动次数得分。
 
-P4 延展 5. 已完成：新增 `ASSEMBLE_EQUIPMENT` command 前置模型，服务端协议能解析 `sourceObjectId` / `targetObjectId` / `optionalCosts`，但 `CoreRuleEngine` 在装配费用、灵便自动贴附、百炼 optional attach、owner/controller 与装备未激活文本模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；P4.99 已把该显式拒绝边界提升为 conformance fixture；`SFD·022/221 长剑` 这类“灵便/装配”文本仍暂缓真实装备贴附执行。
+P4 延展 5. 已完成：新增 `ASSEMBLE_EQUIPMENT` command 前置模型，服务端协议能解析 `sourceObjectId` / `targetObjectId` / `optionalCosts`；P4.388 已接入 `SFD·022/221 长剑` 最小装配贴附代表路径：当前玩家基地中的公开、未贴附 `CARD_TYPE:EQUIPMENT` / `武装` / `灵便` 对象，可在普通主阶段开放窗口通过 `optionalCosts=["ASSEMBLE_RED"]` 支付 1 power 并贴附到当前玩家控制的一名公开单位，写入 `attachedToObjectId` 与 `EQUIPMENT_ATTACHED`。灵便反应打出自动贴附、通用装配颜色/费用、百炼 optional attach、owner/controller、装备随动和未激活文本仍暂缓。
 
 P4 延展 6. 已完成：新增 `DECLARE_BATTLE` command 前置模型，服务端协议能解析 `battlefieldId` / `attackerObjectIds` / `defenderObjectIds` / `optionalCosts`，但 `CoreRuleEngine` 在多战场位置、进攻/防守声明、强攻/坚守修正、壁垒/后排承伤顺序和战斗结算模型完成前显式返回 `UNSUPPORTED_COMMAND` 且不改状态；P4.100 已把该显式拒绝边界提升为 conformance fixture；`OGS·007/024 盖伦` 与 `UNL-036/219 变异猫咪` 这类战斗关键词文本仍暂缓真实开战执行。
 

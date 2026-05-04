@@ -29034,10 +29034,15 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4AssembleEquipmentCommandIsExplicitlyRejectedUntilEquipmentSystemExists()
+    public async Task P4AssembleEquipmentCommandAttachesLongSwordToFriendlyUnit()
     {
         var state = PunishmentState(mana: 0) with
         {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
@@ -29050,6 +29055,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-EQUIPMENT-LONG-SWORD"] = new(
                     "P1-EQUIPMENT-LONG-SWORD",
+                    cardNo: "SFD·022/221",
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
@@ -29067,15 +29073,26 @@ public sealed class ConformanceFixtureRunnerTests
                 ["ASSEMBLE_RED"]),
             CancellationToken.None);
 
-        Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("ASSEMBLE_EQUIPMENT is not implemented in P4 yet.", result.ErrorMessage);
-        Assert.Empty(result.Events);
-        Assert.Equal(0, result.State.Tick);
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
-        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
         Assert.Empty(result.State.StackItems);
+
+        var costPaidEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(0, costPaidEvent.Payload["mana"]);
+        Assert.Equal(1, costPaidEvent.Payload["power"]);
+        Assert.Equal(["ASSEMBLE_RED"], Assert.IsType<string[]>(costPaidEvent.Payload["optionalCosts"]));
+
+        var attachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+        Assert.Equal("P1-EQUIPMENT-LONG-SWORD", attachedEvent.Payload["equipmentObjectId"]);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachedEvent.Payload["unitObjectId"]);
+        Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachedEvent.Payload["attachedToObjectId"]);
     }
 
     [Fact]
@@ -29656,10 +29673,10 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public async Task P4AssembleEquipmentCommandRejectionFixture()
+    public async Task P4AssembleEquipmentCommandLongSwordAttachFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-command-premodel-rejected.fixture.json"),
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-long-sword-attach.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
@@ -29668,10 +29685,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(1, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"], result.FinalState.PlayerZones["P1"].Base);
-        Assert.Null(result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -31866,7 +31885,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sentinel-adept-no-optional-assemble.fixture.json")]
     [InlineData("p2-preflight-play-stout-poro-no-optional-assemble.fixture.json")]
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
-    [InlineData("p4-assemble-equipment-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-assemble-equipment-long-sword-attach.fixture.json")]
     [InlineData("p4-assemble-equipment-priority-window-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-already-attached-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-missing-target-rejected.fixture.json")]

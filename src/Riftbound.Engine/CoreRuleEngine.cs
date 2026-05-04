@@ -21,6 +21,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitRoamOptionalCost = "ROAM";
     private const string MoveUnitRoamKeyword = "游走";
+    private const string AssembleEquipmentUnsupportedMessage = "ASSEMBLE_EQUIPMENT is not implemented in P4 yet.";
+    private const string LongSwordCardNo = "SFD·022/221";
+    private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
+    private const int LongSwordAssemblePowerCost = 1;
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -94,12 +98,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveMoveUnit(state, intent, moveUnitCommand));
         }
 
-        if (command is AssembleEquipmentCommand)
+        if (command is AssembleEquipmentCommand assembleEquipmentCommand)
         {
-            return ValueTask.FromResult(RejectWithCorePrompts(
-                state,
-                "ASSEMBLE_EQUIPMENT is not implemented in P4 yet.",
-                ErrorCodes.UnsupportedCommand));
+            return ValueTask.FromResult(ResolveAssembleEquipment(state, intent, assembleEquipmentCommand));
         }
 
         if (command is DeclareBattleCommand declareBattleCommand)
@@ -513,6 +514,144 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && !cardObject.IsFaceDown
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal));
+    }
+
+    private static ResolutionResult ResolveAssembleEquipment(
+        MatchState state,
+        PlayerIntent intent,
+        AssembleEquipmentCommand command)
+    {
+        if (!TryBuildMinimalAssembleEquipmentPlan(state, intent, command, out var equipmentState, out var targetState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                AssembleEquipmentUnsupportedMessage,
+                ErrorCodes.UnsupportedCommand);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Power < LongSwordAssemblePowerCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Not enough resources to assemble Long Sword.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var runePools = PayRuneCosts(state, intent.PlayerId, 0, LongSwordAssemblePowerCost);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = equipmentState with
+        {
+            AttachedToObjectId = command.TargetObjectId
+        };
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            CardObjects = cardObjects,
+            PassedPriorityPlayerIds = []
+        };
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        var events = new List<GameEvent>
+        {
+            new(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付长剑装配费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["mana"] = 0,
+                    ["power"] = LongSwordAssemblePowerCost,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["targetObjectId"] = command.TargetObjectId,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                }),
+            new(
+                "EQUIPMENT_ATTACHED",
+                $"{intent.PlayerId} 装配长剑",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["equipmentObjectId"] = command.SourceObjectId,
+                    ["unitObjectId"] = command.TargetObjectId,
+                    ["controllerId"] = intent.PlayerId,
+                    ["attachedToObjectId"] = command.TargetObjectId,
+                    ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentState.CardNo) ? LongSwordCardNo : equipmentState.CardNo,
+                    ["targetPower"] = targetState.Power,
+                    ["optionalCosts"] = optionalCosts.ToArray()
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryBuildMinimalAssembleEquipmentPlan(
+        MatchState state,
+        PlayerIntent intent,
+        AssembleEquipmentCommand command,
+        out CardObjectState equipmentState,
+        out CardObjectState targetState)
+    {
+        equipmentState = default!;
+        targetState = default!;
+
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return false;
+        }
+
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (optionalCosts.Count != 1
+            || !string.Equals(optionalCosts[0], LongSwordAssembleOptionalCost, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(command.SourceObjectId)
+            || string.IsNullOrWhiteSpace(command.TargetObjectId))
+        {
+            return false;
+        }
+
+        var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
+        if (sourceLocation is null
+            || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(sourceLocation.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var knownEquipmentState)
+            || knownEquipmentState.IsFaceDown
+            || !knownEquipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !knownEquipmentState.Tags.Contains("武装", StringComparer.Ordinal)
+            || !knownEquipmentState.Tags.Contains("灵便", StringComparer.Ordinal)
+            || !string.IsNullOrWhiteSpace(knownEquipmentState.AttachedToObjectId))
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(knownEquipmentState.CardNo)
+            && !string.Equals(knownEquipmentState.CardNo, LongSwordCardNo, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var targetLocation = FindFieldObjectLocation(state.PlayerZones, command.TargetObjectId);
+        if (targetLocation is null
+            || !string.Equals(targetLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !state.CardObjects.TryGetValue(command.TargetObjectId, out var knownTargetState)
+            || knownTargetState.IsFaceDown
+            || !knownTargetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        equipmentState = knownEquipmentState;
+        targetState = knownTargetState;
+        return true;
     }
 
     private static ResolutionResult ResolveActivateAbility(
