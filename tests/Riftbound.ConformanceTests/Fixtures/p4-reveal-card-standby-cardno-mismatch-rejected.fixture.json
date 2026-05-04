@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-reveal-card-standby-cardno-mismatch-rejected",
+  "description": "P4 rejects Standby reveal when REVEAL_CARD cardNo does not match the known face-down source card identity.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304318,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·199/298 控潮者；OGN·121/298 提莫",
+      "note": "两张牌均有待命文本；本 fixture 只覆盖 P4 当前 REVEAL_CARD 显露入口不能把已知为控潮者的正面朝下对象伪装成提莫。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "P4.318 锁定待命显露来源身份边界：当正面朝下来源对象已有 cardNo 时，命令 cardNo 必须匹配；拒绝时不翻开对象、不移动对象、不创建结算链。"
+    }
+  ],
+  "roomId": "p4-reveal-card-standby-cardno-mismatch-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304318,
+    "turnNumber": 318,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-FACEDOWN-OGN-TIDE-CALLER"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-FACEDOWN-OGN-TIDE-CALLER": {
+        "cardNo": "OGN·199/298",
+        "power": 2,
+        "manaCost": 2,
+        "isExhausted": false,
+        "isFaceDown": true,
+        "tags": ["CARD_TYPE:UNIT", "待命"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-reveal-card-standby-cardno-mismatch-rejected",
+      "cmd": {
+        "cmdType": "REVEAL_CARD",
+        "sourceObjectId": "P1-FACEDOWN-OGN-TIDE-CALLER",
+        "cardNo": "OGN·121/298",
+        "targetObjectIds": [],
+        "mode": "STANDBY_REVEAL",
+        "optionalCosts": ["STANDBY_REVEAL_0"],
+        "destination": "BASE"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 318,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-FACEDOWN-OGN-TIDE-CALLER"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": []
+        }
+      },
+      "cardObjects": {
+        "P1-FACEDOWN-OGN-TIDE-CALLER": {
+          "cardNo": "OGN·199/298",
+          "power": 2,
+          "manaCost": 2,
+          "isExhausted": false,
+          "isFaceDown": true,
+          "tags": ["CARD_TYPE:UNIT", "待命"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
