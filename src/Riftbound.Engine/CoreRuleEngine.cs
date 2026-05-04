@@ -8389,10 +8389,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     false,
                     true,
                     wasEquipment,
-                    wasUnit);
+                    wasUnit,
+                    []);
                 return true;
             }
 
+            var detachedEquipmentObjectIds = DetachEquipmentFromRemovedHost(cardObjects, targetObjectId);
             playerZones[playerId] = zones with
             {
                 Base = RemoveFromZone(zones.Base, targetObjectId),
@@ -8411,11 +8413,36 @@ public sealed class CoreRuleEngine : IRuleEngine
                 shouldBanish,
                 false,
                 wasEquipment,
-                wasUnit);
+                wasUnit,
+                detachedEquipmentObjectIds);
             return true;
         }
 
         return false;
+    }
+
+    private static IReadOnlyList<string> DetachEquipmentFromRemovedHost(
+        Dictionary<string, CardObjectState> cardObjects,
+        string hostObjectId)
+    {
+        var attachedEquipmentObjectIds = cardObjects
+            .Where(entry => string.Equals(
+                entry.Value.AttachedToObjectId,
+                hostObjectId,
+                StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var equipmentObjectId in attachedEquipmentObjectIds)
+        {
+            cardObjects[equipmentObjectId] = cardObjects[equipmentObjectId] with
+            {
+                AttachedToObjectId = null
+            };
+        }
+
+        return attachedEquipmentObjectIds;
     }
 
     private static GameEvent BuildFieldRemovalEvent(
@@ -8441,6 +8468,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (removalResult.WasBanished)
         {
             payload["replacementEffectId"] = BanishIfDestroyedThisTurnEffectId;
+        }
+
+        if (removalResult.DetachedEquipmentObjectIds.Count > 0)
+        {
+            payload["detachedEquipmentObjectIds"] = removalResult.DetachedEquipmentObjectIds.ToArray();
         }
 
         if (removalResult.WasRecalledToBase)
@@ -10185,11 +10217,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool WasBanished,
         bool WasRecalledToBase,
         bool WasEquipment,
-        bool WasUnit)
+        bool WasUnit,
+        IReadOnlyList<string> DetachedEquipmentObjectIds)
     {
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 
-        public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false);
+        public static FieldRemovalResult Empty { get; } = new(string.Empty, string.Empty, false, false, false, false, []);
     }
 
     private sealed record LethalDamageCleanupResult(

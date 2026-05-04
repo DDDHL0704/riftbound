@@ -156,9 +156,10 @@ Until a P5 slice implements and validates a path, the following must remain reje
 | P5.5 | Done | Last Breath or leave-field trigger slice without broad trigger migration. |
 | P5.6 | Done | Replacement/prevention slice using `坚毅不倒` and existing prevention representatives. |
 | P5.7 | Done | Continuous effect/layer and end-turn cleanup slice. |
-| P5.8 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
+| P5.8 | Done | Host-leaves equipment detach boundary for explicit attached equipment. |
+| P5.9 | Pending | Completion audit, full validation, docs sync, and final P5 status update. |
 
-Current progress after P5.7 lands: `P5 8/9 planned batches = 88.9%`; remaining planned batches: `1`.
+Current progress after P5.8 lands: `P5 9/10 planned batches = 90.0%`; remaining planned batches: `1`.
 
 ## P5.1 Delivered
 
@@ -186,7 +187,7 @@ P5.1 validation:
 - Added direct engine tests for attached Long Sword moving with its host from base to battlefield and from battlefield to base.
 - Added `p5-move-unit-attached-equipment-follows-host.fixture.json`.
 - Upgraded the existing `取放自如` attach/detach conformance fixtures to compare unit/equipment `ownerId` / `controllerId`, proving attach and detach preserve explicit identity.
-- Kept precise battlefield roaming, generic equipment movement, agile auto-attach, Forge, inactive text, and destructive host-leaves handling deferred.
+- Kept precise battlefield roaming, generic equipment movement, agile auto-attach, Forge, inactive text, and broader host-leaves zone-choice handling deferred; P5.8 covers the explicit host-destroyed detach invariant.
 
 P5.2 validation:
 
@@ -281,6 +282,23 @@ P5.7 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 
+## P5.8 Delivered
+
+- Added host-leaves cleanup for explicit attached equipment: when a unit is destroyed or banished through `TryDestroyTarget`, any equipment whose `attachedToObjectId` points to that host is detached before the host object is removed.
+- Added `detachedEquipmentObjectIds` to the field-removal event payload when detach cleanup occurs.
+- Added `p5-equipment-detaches-when-host-destroyed.fixture.json`, using `复仇` to destroy a unit that has an explicitly owned/controlled Long Sword attached.
+- Confirmed the host leaves `CardObjects`, the equipment remains a public field object, and its `attachedToObjectId` is cleared instead of pointing at a removed object.
+- Kept equipment destination choice after host leaves, attached equipment with incomplete identity, and source-leaves continuous layer recalculation deferred.
+
+P5.8 validation:
+
+- Narrow preflight: `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineDetachesEquipmentWhenHostUnitIsDestroyed"` passed `1/1`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2574/2574`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2493/2493`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `23/23`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+
 ## Validation Policy
 
 Each batch must keep prior P2/P2.5/P3/P4 suites green. `dotnet` commands must be run through:
@@ -301,4 +319,4 @@ Required gates for P5 completion:
 
 ## Next Step
 
-Proceed to P5.8 completion audit. Re-run required validation, verify P5 deferred boundaries are explicit, and prepare final status documentation before marking the goal complete.
+Proceed to P5.9 completion audit. Re-run required validation, verify P5 deferred boundaries are explicit, and prepare final status documentation before marking the goal complete.

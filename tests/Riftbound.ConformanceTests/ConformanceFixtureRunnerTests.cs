@@ -16147,6 +16147,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineDetachesEquipmentWhenHostUnitIsDestroyed()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p5-equipment-detaches-when-host-destroyed.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.DoesNotContain("P2-HOST-LEAVE-UNIT", result.FinalState.CardObjects.Keys);
+        Assert.Contains("P2-HOST-LEAVE-LONG-SWORD", result.FinalState.CardObjects.Keys);
+        Assert.Null(result.FinalState.CardObjects["P2-HOST-LEAVE-LONG-SWORD"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysWellspringOfHatredDestroyBattlefieldUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p5-equipment-detaches-when-host-destroyed",
+  "description": "P5.8 clears attachedToObjectId from explicit equipment when its host unit is destroyed.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603305801,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "SFD·022/221 长剑",
+      "note": "官方卡面为已验证的武装装备代表；P5.1/P5.2 已锁定其 owner/controller/attachedToObjectId 与随宿主移动代表路径。"
+    },
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·229/298 复仇",
+      "note": "官方卡面：费用 4；摧毁一名单位；本 fixture 用它作为已验证的宿主离场代表。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p22-p26 rules 179,187-189; p39-p42 rules 355-356; p89 rules 718-719",
+      "note": "对象拥有者/控制者、场上对象离场和装备贴附关系必须保持一致；本 fixture 锁定宿主离场后装备不能继续指向已离场对象。"
+    }
+  ],
+  "roomId": "p5-equipment-detaches-when-host-destroyed-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603305801,
+    "turnNumber": 581,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 4, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-SPELL-VENGEANCE"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-HOST-LEAVE-UNIT", "P2-HOST-LEAVE-LONG-SWORD"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P2-HOST-LEAVE-UNIT": {
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "power": 3,
+        "damage": 0,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-HOST-LEAVE-LONG-SWORD": {
+        "cardNo": "SFD·022/221",
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "power": 0,
+        "damage": 0,
+        "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+        "manaCost": 1,
+        "attachedToObjectId": "P2-HOST-LEAVE-UNIT"
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p5-equipment-host-leaves-vengeance-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-VENGEANCE",
+        "cardNo": "OGN·229/298",
+        "targetObjectIds": ["P2-HOST-LEAVE-UNIT"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p5-equipment-host-leaves-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p5-equipment-host-leaves-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_DESTROYED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-VENGEANCE",
+          "cardNo": "OGN·229/298",
+          "targetObjectIds": ["P2-HOST-LEAVE-UNIT"],
+          "effectKind": "VENGEANCE_DESTROY_UNIT"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_DESTROYED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-VENGEANCE",
+          "targetObjectId": "P2-HOST-LEAVE-UNIT",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "destinationZone": "GRAVEYARD",
+          "detachedEquipmentObjectIds": ["P2-HOST-LEAVE-LONG-SWORD"]
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 581,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-VENGEANCE"]
+        },
+        "P2": {
+          "battlefields": ["P2-HOST-LEAVE-LONG-SWORD"],
+          "graveyard": ["P2-HOST-LEAVE-UNIT"]
+        }
+      },
+      "cardObjects": {
+        "P2-HOST-LEAVE-LONG-SWORD": {
+          "cardNo": "SFD·022/221",
+          "ownerId": "P2",
+          "controllerId": "P2",
+          "power": 0,
+          "damage": 0,
+          "tags": ["CARD_TYPE:EQUIPMENT", "武装", "灵便"],
+          "manaCost": 1
+        }
+      },
+      "stackItems": []
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
