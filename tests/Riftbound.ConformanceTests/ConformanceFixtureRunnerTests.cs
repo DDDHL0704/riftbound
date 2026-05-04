@@ -25559,6 +25559,96 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4RevealCardCommandRejectsReactionTargetsUntilStandbyDamageExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO"] = new(
+                    "P1-FACEDOWN-OGN-TEEMO",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    manaCost: 2,
+                    cardNo: "OGN·121/298"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new(
+                    "P2-BATTLEFIELD-UNIT-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-reaction-target-rejected", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-OGN-TEEMO",
+                "OGN·121/298",
+                ["P2-BATTLEFIELD-UNIT-001"],
+                Mode: "STANDBY_REACTION",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "STACK"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.True(result.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"].IsFaceDown);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandReactionTargetRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-reaction-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.True(result.FinalState.CardObjects["P1-FACEDOWN-OGN-TEEMO"].IsFaceDown);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], result.FinalState.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandPlaysStandbyReactionToStack()
     {
         var state = PunishmentState(mana: 0) with
@@ -27016,6 +27106,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-reveal-card-standby-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-unsupported-optional-cost-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-unsupported-destination-rejected.fixture.json")]
+    [InlineData("p4-reveal-card-standby-reaction-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-without-priority-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-premodel-rejected.fixture.json")]
