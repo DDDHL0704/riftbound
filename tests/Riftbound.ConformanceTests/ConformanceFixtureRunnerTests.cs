@@ -24952,6 +24952,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandMovesFriendlyBattlefieldUnitToBaseInCoarseModel()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-MOVE-BASE-KEEPER"],
+                    Battlefields = ["P1-MOVE-UNIT-BATTLEFIELD-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-BASE-KEEPER"] = new(
+                    "P1-MOVE-BASE-KEEPER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-MOVE-UNIT-BATTLEFIELD-001"] = new(
+                    "P1-MOVE-UNIT-BATTLEFIELD-001",
+                    power: 3,
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-coarse-base", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-BATTLEFIELD-001",
+                "BATTLEFIELD",
+                "BASE",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(["UNIT_MOVED_TO_BASE"], result.Events.Select(evt => evt.Kind).ToArray());
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-MOVE-BASE-KEEPER", "P1-MOVE-UNIT-BATTLEFIELD-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.State.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].Power);
+        Assert.True(result.State.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].IsExhausted);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsUntilRoamMovementExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -25034,6 +25084,30 @@ public sealed class ConformanceFixtureRunnerTests
             ["P1-MOVE-FIELD-KEEPER", "P1-MOVE-UNIT-BASE-001"],
             result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-BASE-001"].Power);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandBattlefieldToBaseFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-battlefield-to-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-MOVE-BASE-KEEPER", "P1-MOVE-UNIT-BATTLEFIELD-001"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].Power);
+        Assert.True(result.FinalState.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].IsExhausted);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -25372,6 +25446,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-shepherds-heirloom-weapon-equipment.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
     [InlineData("p4-move-unit-base-to-battlefield.fixture.json")]
+    [InlineData("p4-move-unit-battlefield-to-base.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]
