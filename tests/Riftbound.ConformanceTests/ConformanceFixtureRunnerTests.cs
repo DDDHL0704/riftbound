@@ -24849,6 +24849,78 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandRejectsSourceCardNoMismatch()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TIDE-CALLER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OGN-TIDE-CALLER"] = new(
+                    "P1-HAND-OGN-TIDE-CALLER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    cardNo: "OGN·199/298")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-cardno-mismatch", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TIDE-CALLER",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("Source card identity does not match HIDE_CARD cardNo.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-OGN-TIDE-CALLER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects["P1-HAND-OGN-TIDE-CALLER"].IsFaceDown);
+        Assert.Equal(2, result.State.CardObjects["P1-HAND-OGN-TIDE-CALLER"].Power);
+        Assert.Equal("OGN·199/298", result.State.CardObjects["P1-HAND-OGN-TIDE-CALLER"].CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], result.State.CardObjects["P1-HAND-OGN-TIDE-CALLER"].Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4HideCardCommandSourceCardNoMismatchRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-hide-card-standby-cardno-mismatch-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(1, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-OGN-TIDE-CALLER"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.False(result.FinalState.CardObjects["P1-HAND-OGN-TIDE-CALLER"].IsFaceDown);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-HAND-OGN-TIDE-CALLER"].Power);
+        Assert.Equal("OGN·199/298", result.FinalState.CardObjects["P1-HAND-OGN-TIDE-CALLER"].CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], result.FinalState.CardObjects["P1-HAND-OGN-TIDE-CALLER"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task P4HideCardCommandUsesGuerrillaWarfareFreeStandbyPermission()
     {
         var state = PunishmentState(mana: 0) with
@@ -26461,6 +26533,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-hide-card-standby-unsupported-optional-cost-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-window-rejected.fixture.json")]
     [InlineData("p4-hide-card-standby-pending-stack-rejected.fixture.json")]
+    [InlineData("p4-hide-card-standby-cardno-mismatch-rejected.fixture.json")]
     [InlineData("p4-guerrilla-warfare-free-standby-hide.fixture.json")]
     [InlineData("p4-hide-card-standby-free-without-permission-rejected.fixture.json")]
     [InlineData("p4-guerrilla-warfare-non-standby-target-rejected.fixture.json")]

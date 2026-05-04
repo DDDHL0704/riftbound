@@ -691,6 +691,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         var existingState = state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             ? sourceState
             : new CardObjectState(command.SourceObjectId);
+        if (!string.IsNullOrWhiteSpace(existingState.CardNo)
+            && !string.Equals(existingState.CardNo, behavior.CardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card identity does not match HIDE_CARD cardNo.",
+                ErrorCodes.InvalidTarget);
+        }
+
         var hiddenTags = existingState.Tags
             .Concat([CardObjectTags.UnitCard])
             .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
