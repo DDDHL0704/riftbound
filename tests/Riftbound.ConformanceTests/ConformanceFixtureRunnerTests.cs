@@ -27291,6 +27291,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandWithAlreadyAttachedSourceIsRejectedUntilEquipmentSystemExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-EQUIPMENT-LONG-SWORD",
+                        "P1-UNIT-ASSEMBLE-OLD-TARGET",
+                        "P1-UNIT-ASSEMBLE-TARGET"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    attachedToObjectId: "P1-UNIT-ASSEMBLE-OLD-TARGET"),
+                ["P1-UNIT-ASSEMBLE-OLD-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-OLD-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-already-attached", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ASSEMBLE_EQUIPMENT is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(
+            ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-OLD-TARGET", "P1-UNIT-ASSEMBLE-TARGET"],
+            result.State.PlayerZones["P1"].Base);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-OLD-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(2, result.State.CardObjects["P1-UNIT-ASSEMBLE-OLD-TARGET"].Power);
+        Assert.Equal(3, result.State.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -27332,6 +27392,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
         Assert.Equal("P2", stackItem.ControllerId);
         Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
+    }
+
+    [Fact]
+    public async Task P4AssembleEquipmentCommandAlreadyAttachedSourceRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-already-attached-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(
+            ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-OLD-TARGET", "P1-UNIT-ASSEMBLE-TARGET"],
+            result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-OLD-TARGET",
+            result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-ASSEMBLE-OLD-TARGET"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-ASSEMBLE-TARGET"].Power);
+        Assert.Empty(result.FinalState.StackItems);
     }
 
     [Fact]
@@ -27509,6 +27594,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-sfd-ornn-no-optional-assemble-spellshield2.fixture.json")]
     [InlineData("p4-assemble-equipment-command-premodel-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-priority-window-rejected.fixture.json")]
+    [InlineData("p4-assemble-equipment-already-attached-rejected.fixture.json")]
     public async Task P4EquipmentKeywordProfilesKeepExistingNoAttachFixturesGreen(string fixtureFileName)
     {
         var fixture = await ConformanceFixture.LoadAsync(
