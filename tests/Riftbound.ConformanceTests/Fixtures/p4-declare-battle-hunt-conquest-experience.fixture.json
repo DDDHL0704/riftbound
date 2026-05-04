@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-declare-battle-hunt-conquest-experience",
+  "description": "P4 grants Hunt experience when a surviving attacking unit clears the declared defenders in the minimum conquest representative path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304385,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-100/219 贪食魔沼蛙；UNL-036/219 变异猫咪",
+      "note": "《贪食魔沼蛙》官方卡面为 5 费、5 战力、狩猎3，狩猎3文本为当其征服或据守一处战场时获得3经验；《变异猫咪》提供低战力坚守2/壁垒防守者。本 fixture 只覆盖攻击者存活且声明防守者全被致命伤害清理的最小征服代表。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "核心规则定义战斗声明、战斗伤害与关键词；P4.385 只把已接受 DECLARE_BATTLE 中的清场结果映射为狩猎征服经验，不处理完整战场占领、据守、得分或多攻防选择。"
+    }
+  ],
+  "roomId": "p4-declare-battle-hunt-conquest-experience-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304385,
+    "turnNumber": 385,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG": {
+        "cardNo": "UNL-100/219",
+        "power": 5,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "狩猎3"]
+      },
+      "P2-BATTLEFIELD-MUTANT-KITTEN": {
+        "cardNo": "UNL-036/219",
+        "power": 1,
+        "isAttacking": false,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "坚守2", "壁垒", "猫科"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-declare-battle-hunt-conquest-experience",
+      "cmd": {
+        "cmdType": "DECLARE_BATTLE",
+        "battlefieldId": "BATTLEFIELD:P1-MAIN",
+        "attackerObjectIds": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+        "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+        "optionalCosts": ["COMBAT_ASSIGNMENT"]
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 1,
+    "eventKinds": [
+      "BATTLE_DECLARED",
+      "DAMAGE_APPLIED",
+      "DAMAGE_APPLIED",
+      "UNIT_DESTROYED",
+      "BATTLEFIELD_CONQUERED",
+      "EXPERIENCE_GAINED"
+    ],
+    "events": [
+      {
+        "kind": "BATTLE_DECLARED",
+        "tick": 1,
+        "sequence": 1,
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "attackerObjectIds": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+          "defenderObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+          "optionalCosts": ["COMBAT_ASSIGNMENT"]
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 2,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "ATTACKER",
+          "basePower": 5,
+          "keyword": "强攻",
+          "keywordBonus": 0,
+          "combatPower": 5,
+          "damage": 5
+        }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "tick": 1,
+        "sequence": 3,
+        "payload": {
+          "sourceObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "targetObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "combatRole": "DEFENDER",
+          "basePower": 1,
+          "keyword": "坚守",
+          "keywordBonus": 2,
+          "combatPower": 3,
+          "damage": 3
+        }
+      },
+      {
+        "kind": "UNIT_DESTROYED",
+        "tick": 1,
+        "sequence": 4,
+        "payload": {
+          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "targetObjectId": "P2-BATTLEFIELD-MUTANT-KITTEN",
+          "ownerPlayerId": "P2",
+          "destroyedByPlayerId": "P1",
+          "destinationZone": "GRAVEYARD",
+          "reason": "LETHAL_DAMAGE"
+        }
+      },
+      {
+        "kind": "BATTLEFIELD_CONQUERED",
+        "tick": 1,
+        "sequence": 5,
+        "payload": {
+          "playerId": "P1",
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "defeatedObjectIds": ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+          "huntAmount": 3
+        }
+      },
+      {
+        "kind": "EXPERIENCE_GAINED",
+        "tick": 1,
+        "sequence": 6,
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+          "cardNo": "UNL-100/219",
+          "amount": 3,
+          "totalExperience": 3
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 385,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "experience": {
+        "P1": 3,
+        "P2": 0
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": [],
+          "graveyard": ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+        }
+      },
+      "cardObjects": {
+        "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG": {
+          "cardNo": "UNL-100/219",
+          "damage": 3,
+          "power": 5,
+          "isAttacking": true,
+          "isDefending": false,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "狩猎3"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

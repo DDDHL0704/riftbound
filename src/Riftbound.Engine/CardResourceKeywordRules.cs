@@ -77,7 +77,7 @@ public static class CardResourceKeywordRules
                 ? ResourceKeywordProfileStatuses.RecognizedDeferred
                 : ResourceKeywordProfileStatuses.NotApplicable,
             hasAnyResourceKeyword
-                ? "P4.7 recognizes resource keyword surfaces from P3 BehaviorSpec and P2 tags; P4.12/P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29 cover narrow spellshield target tax, encourage cost-reduction/self-boon/target temporary might/discard-draw/minion creation, and level-threshold unit/draw/tag representatives while broader experience, level, encourage, and spellshield branches remain deferred unless covered by a separate P2 path."
+                ? "P4.7 recognizes resource keyword surfaces from P3 BehaviorSpec and P2 tags; P4.12/P4.14/P4.15/P4.16/P4.17/P4.21/P4.22/P4.23/P4.24/P4.28/P4.29/P4.385 cover narrow spellshield target tax, encourage cost-reduction/self-boon/target temporary might/discard-draw/minion creation, level-threshold unit/draw/tag representatives, and Hunt conquest experience while broader experience, level, encourage, and spellshield branches remain deferred unless covered by a separate P2 path."
                 : "Card does not expose resource keywords through P3 BehaviorSpec or the P2 source-object tag path.");
     }
 
@@ -86,6 +86,13 @@ public static class CardResourceKeywordRules
         ArgumentNullException.ThrowIfNull(tags);
 
         return KeywordAmount(tags, CardResourceKeywordNames.Spellshield);
+    }
+
+    public static int HuntAmountFromTags(IReadOnlyList<string> tags)
+    {
+        ArgumentNullException.ThrowIfNull(tags);
+
+        return KeywordAmount(tags, CardResourceKeywordNames.Hunt);
     }
 
     private static bool HasKeyword(

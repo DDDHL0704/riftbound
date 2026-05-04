@@ -22503,6 +22503,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
     [InlineData("p4-declare-battle-single-combatants.fixture.json")]
     [InlineData("p4-declare-battle-bulwark-back-row-assignment.fixture.json")]
+    [InlineData("p4-declare-battle-hunt-conquest-experience.fixture.json")]
     [InlineData("p4-declare-battle-empty-attackers-rejected.fixture.json")]
     [InlineData("p4-declare-battle-empty-defenders-rejected.fixture.json")]
     [InlineData("p4-declare-battle-missing-battlefield-rejected.fixture.json")]
@@ -22537,6 +22538,7 @@ public sealed class ConformanceFixtureRunnerTests
 
     [Theory]
     [InlineData("p2-preflight-play-gluttonous-toadfrog-keyword-unit.fixture.json")]
+    [InlineData("p4-declare-battle-hunt-conquest-experience.fixture.json")]
     [InlineData("p2-preflight-play-moss-stepper-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-noxian-recruit-no-encourage-trifarian-unit.fixture.json")]
     [InlineData("p2-preflight-play-dangerous-duo-no-encourage-mechanical-unit.fixture.json")]
@@ -29884,6 +29886,126 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandGrantsHuntExperienceWhenAttackerConquersBattlefield()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-MUTANT-KITTEN"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"] = new(
+                    "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "狩猎3"],
+                    cardNo: "UNL-100/219"),
+                ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
+                    "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
+                    cardNo: "UNL-036/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-hunt-conquest-experience", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+                ["P2-BATTLEFIELD-MUTANT-KITTEN"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Collection(
+            result.Events,
+            battleEvent =>
+            {
+                Assert.Equal("BATTLE_DECLARED", battleEvent.Kind);
+                Assert.Equal("P1", battleEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", battleEvent.Payload["battlefieldId"]);
+                Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], Assert.IsType<string[]>(battleEvent.Payload["attackerObjectIds"]));
+                Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(battleEvent.Payload["defenderObjectIds"]));
+                Assert.Equal(["COMBAT_ASSIGNMENT"], Assert.IsType<string[]>(battleEvent.Payload["optionalCosts"]));
+            },
+            attackerDamageEvent =>
+            {
+                Assert.Equal("DAMAGE_APPLIED", attackerDamageEvent.Kind);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", attackerDamageEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P2-BATTLEFIELD-MUTANT-KITTEN", attackerDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("ATTACKER", attackerDamageEvent.Payload["combatRole"]);
+                Assert.Equal("强攻", attackerDamageEvent.Payload["keyword"]);
+                Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
+                Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+                Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
+                Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
+            },
+            defenderDamageEvent =>
+            {
+                Assert.Equal("DAMAGE_APPLIED", defenderDamageEvent.Kind);
+                Assert.Equal("P2-BATTLEFIELD-MUTANT-KITTEN", defenderDamageEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", defenderDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("DEFENDER", defenderDamageEvent.Payload["combatRole"]);
+                Assert.Equal("坚守", defenderDamageEvent.Payload["keyword"]);
+                Assert.Equal(1, defenderDamageEvent.Payload["basePower"]);
+                Assert.Equal(2, defenderDamageEvent.Payload["keywordBonus"]);
+                Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+                Assert.Equal(3, defenderDamageEvent.Payload["damage"]);
+            },
+            destroyedEvent =>
+            {
+                Assert.Equal("UNIT_DESTROYED", destroyedEvent.Kind);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", destroyedEvent.Payload["sourceObjectId"]);
+                Assert.Equal("P2-BATTLEFIELD-MUTANT-KITTEN", destroyedEvent.Payload["targetObjectId"]);
+                Assert.Equal("P2", destroyedEvent.Payload["ownerPlayerId"]);
+                Assert.Equal("P1", destroyedEvent.Payload["destroyedByPlayerId"]);
+                Assert.Equal("GRAVEYARD", destroyedEvent.Payload["destinationZone"]);
+                Assert.Equal("LETHAL_DAMAGE", destroyedEvent.Payload["reason"]);
+            },
+            conqueredEvent =>
+            {
+                Assert.Equal("BATTLEFIELD_CONQUERED", conqueredEvent.Kind);
+                Assert.Equal("P1", conqueredEvent.Payload["playerId"]);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", conqueredEvent.Payload["battlefieldId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", conqueredEvent.Payload["sourceObjectId"]);
+                Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], Assert.IsType<string[]>(conqueredEvent.Payload["defeatedObjectIds"]));
+                Assert.Equal(3, conqueredEvent.Payload["huntAmount"]);
+            },
+            experienceEvent =>
+            {
+                Assert.Equal("EXPERIENCE_GAINED", experienceEvent.Kind);
+                Assert.Equal("P1", experienceEvent.Payload["playerId"]);
+                Assert.Equal("P1-BATTLEFIELD-GLUTTONOUS-TOADFROG", experienceEvent.Payload["sourceObjectId"]);
+                Assert.Equal("UNL-100/219", experienceEvent.Payload["cardNo"]);
+                Assert.Equal(3, experienceEvent.Payload["amount"]);
+                Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
+            });
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.Equal(0, result.State.PlayerExperience["P2"]);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
+        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
+        Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Power);
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandAssignsDamageToBulwarkBeforeBackRowForRepresentativePath()
     {
         var state = PunishmentState(mana: 0) with
@@ -31061,6 +31183,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.Equal(7, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandHuntConquestExperienceFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-declare-battle-hunt-conquest-experience.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(1, result.FinalState.Tick);
+        Assert.Equal(3, result.FinalState.PlayerExperience["P1"]);
+        Assert.Equal(0, result.FinalState.PlayerExperience["P2"]);
+        Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
+        Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
     }

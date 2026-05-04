@@ -412,7 +412,8 @@
 - P4.381 提交：`7ac2c35 feat: add p4 minimal declare battle path`
 - P4.382 提交：`88302fa feat: add p4 combat damage representative`
 - P4.383 提交：`279b6a3 feat: add p4 battle assignment keywords`
-- P4.384 提交：本提交 `feat: add p4 precise roam movement`
+- P4.384 提交：`81b67e4 feat: add p4 precise roam movement`
+- P4.385 提交：本提交 `feat: add p4 hunt conquest experience`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -477,7 +478,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | `boon` | 66 | 51 | 15 | 0 | Medium | P4.60 已注册为 P3/P4 template skeleton，并验证《秘奥义！慈悲度魂落》可安全委托到 P2 增益代表路径；全局增益加成、消耗增益和触发增益仍 deferred。 |
 | `recycle` | 63 | 55 | 8 | 0 | Medium | P4.60 已注册为 P3/P4 template skeleton，并验证《暗中破坏》/已有回收 fixture 可安全委托到 P2；隐藏信息、多玩家选择和触发回收仍 deferred。 |
 | `assemble` | 55 | 53 | 2 | 0 | High | P4.58 已把《取放自如》武装贴附/卸除作为 P2 手写代表路径纳入 P4 证据；P4.66 已新增 `ASSEMBLE_EQUIPMENT` command envelope 与 Core 显式拒绝前置模型；P4.99 已补 `ASSEMBLE_EQUIPMENT` 前置拒绝 fixture；P4.330 已补优先权窗口/stack 非空拒绝 fixture；P4.331 已补已贴附来源拒绝 fixture；P4.353/P4.375/P4.354/P4.376 已补缺少目标、未知目标、缺少来源和未知来源拒绝 fixture；P4.355-P4.360 已补手牌来源、对手来源、非装备来源、非单位目标、unsupported optional cost 和缺少装配费用拒绝 fixture；装配费用、owner/controller、灵便自动贴附、百炼 optional attach 仍属高风险边界。 |
-| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”；P4.11 已接入固定经验额外费用减费代表路径；P4.19 已接入《严厉军士》按友方场上单位数量获得经验代表路径；经验激活技能和等级/装配联动仍 deferred。 |
+| `gain_experience` | 51 | 43 | 8 | 0 | Medium/High | P4.10 已接入固定数值“打出时获得经验”；P4.11 已接入固定经验额外费用减费代表路径；P4.19 已接入《严厉军士》按友方场上单位数量获得经验代表路径；P4.385 已接入《贪食魔沼蛙》`狩猎3` 在最小征服代表战斗后的经验获得；经验激活技能、完整据守/得分和等级/装配联动仍 deferred。 |
 | `recall` | 49 | 39 | 10 | 0 | Medium | 当前只桥接/委托 P2；召回到基地/手牌已有 P2 原语，精确时序分层。 |
 | `stun` | 33 | 30 | 3 | 0 | Low | P4.5 已有 `STUNNED` primitive plan；P3 parser 的眩晕 reminder damage 噪声不会阻断该 primitive。 |
 | `echo` | 24 | 22 | 2 | 0 | Medium | P4.4 已将 mana-only `ECHO` optional cost/repeat 抽成互动关键词模型；有色/弃牌/授予回响仍延后。 |
@@ -501,7 +502,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 瞬息 | 21 | 7 | 2 | Medium | P4.3 候选；P2 已记录标签，缺“控制者下个回合开始、得分前摧毁”。 |
 | 绝念 | 25 | 0 | 0 | High | P4.9 已识别 profile；离场触发队列和摧毁来源时序仍 deferred。 |
 | 预知 | 12 | 0 | 0 | Medium | P4.9 已识别 profile，并标注已审计顶牌回收/不回收代表路径 delegated to P2；P4.101 已把《占卜贝壳》选择非顶部牌的拒绝边界纳入 fixture；广义授予与隐藏信息仍 deferred。 |
-| 狩猎 | 14 | 0 | 0 | Medium/High | P4.7 已识别 profile 和数值；P4.10 只覆盖固定打出获得经验，征服/据守事件经验仍 deferred。 |
+| 狩猎 | 14 | 0 | 0 | Medium/High | P4.7 已识别 profile 和数值；P4.10 覆盖固定打出获得经验；P4.385 在已接受的最小 `DECLARE_BATTLE` 中，若 `狩猎N` 攻击者存活并清空全部声明防守者，则写入 `BATTLEFIELD_CONQUERED` 与 `EXPERIENCE_GAINED` 并增加经验。完整战场占领、据守、得分、多攻防选择和其他狩猎触发仍 deferred。 |
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；P4.15 已给《踏苔蜥》接入 `等级3` 入场 +1 战力与法盾代表路径，P4.16 已给《风行狐》接入 `等级3` 入场 +1 战力与游走代表路径，P4.17 已给《无极学徒》接入 `等级6` 打出抽 1 代表路径，P4.28 已给《易》接入 `等级6` 法盾/游走代表路径，P4.29 已给《易》A 版本接入 `等级6` 法盾/游走代表路径，其他等级条件仍 deferred。 |
 | 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；P4.14 已给《诺克萨斯新兵》接入本回合已打出其他卡牌记忆和费用 -2 代表路径，P4.21 已给《崔法利求战者》接入同回合鼓舞自增益代表路径，P4.22 已给《危险二人组》接入同回合鼓舞目标临时战力代表路径，P4.23 已给《垃圾场小霸王》接入同回合鼓舞弃 2 抽 2 代表路径，P4.24 已给《先锋队长》接入同回合鼓舞创建两名 1 战力随从代表路径，其他鼓舞分支仍 deferred。 |
 | 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的单目标税，P4.59 已用《妖异狐火》覆盖多目标法术对 `法盾` + `法盾2` 的费用聚合，P4.61 已用《秘奥义！慈悲度魂落》覆盖友方法盾目标 no-tax 边界；P4.62 已新增 `ACTIVATE_ABILITY` typed command，P4.73 已执行《蔚》无目标付费技能入栈/结算代表路径，P4.74 已要求来源对象 `cardNo` 匹配《蔚》，P4.77 已执行《泽拉斯》带目标技能对敌方 `法盾` 单位的目标税 + 横置 + 3 点伤害代表路径，P4.93 已补同一技能敌方法盾目标税 mana 不足时的拒绝 fixture，P4.78 已补同一技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的 no-tax 边界，P4.79 已补同一技能来源已横置时的拒绝边界，P4.80 已补同一技能缺少目标时的拒绝边界，P4.81 已补同一技能提供两个目标时的拒绝边界，P4.82 已补同一技能携带未支持 optional cost 时的拒绝边界，P4.83 已补非《泽拉斯》来源伪造同一 ability id 时的拒绝边界，P4.84 已补同一技能选择装备等非单位目标时的拒绝边界，P4.85 已补同一技能来源不在战场时的拒绝边界，P4.86 已补同一技能来源由对手控制时的拒绝边界，并把 P4.79-P4.86/P4.93 拒绝 fixtures 纳入资源关键词聚合回放；授予/静态法盾、更多带目标技能和更复杂 FAQ 细节仍 deferred。 |
@@ -4979,8 +4980,9 @@ Prompt-to-artifact checklist：
 | P4.382 combat damage representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；升级 `DECLARE_BATTLE` 单攻单防代表路径，应用强攻/坚守数值战斗伤害和致命清理，壁垒/后排/得分继续 deferred。 |
 | P4.383 bulwark/back-row assignment representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `DECLARE_BATTLE` 单攻双防代表路径，按 `壁垒` 优先、`后排` 延后分配进攻伤害并做致命清理，普通多防守者选择和得分继续 deferred。 |
 | P4.384 precise roam movement representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `MOVE_UNIT` 带 `ROAM` 且来源拥有 `游走` 权限的精确战场间 accepted 代表路径，记录精确 origin/destination，持久多战场坐标、移动次数和移动触发继续 deferred。 |
+| P4.385 hunt conquest experience representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `DECLARE_BATTLE` 中 `狩猎N` 攻击者存活并清空声明防守者时获得经验的代表路径，完整战场占领、据守、得分和多攻防选择继续 deferred。 |
 
-P4 当前整体进度：按 P4.384 审计后预计 `384/392 = 98.0%`。已完成 P4.1-P4.384：在 P4.383 全部内容基础上，P4.384 将 `MOVE_UNIT` 精确战场间 `ROAM` 代表路径接入可玩执行，并保留缺少 `ROAM` 的精确战场移动拒绝边界。当前仍不能标记 P4 goal complete：狩猎/战斗/移动触发经验、待命触发/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、装备关键词最小代表与 P5 边界、以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `8` 批。
+P4 当前整体进度：按 P4.385 审计后预计 `385/392 = 98.2%`。已完成 P4.1-P4.385：在 P4.384 全部内容基础上，P4.385 将 `狩猎N` 最小征服经验代表路径接入可玩执行，并保留完整战场占领、据守、得分和多攻防选择为 deferred。当前仍不能标记 P4 goal complete：待命触发/目标伤害、伏击真实反应战场打出、更多技能目标税/通用 skill registry、装备关键词最小代表与 P5 边界、以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `7` 批。
 
 ## P4.384 Precise Roam Slice
 
@@ -4991,6 +4993,16 @@ P4 当前整体进度：按 P4.384 审计后预计 `384/392 = 98.0%`。已完成
 - accepted 路径推进 1 tick，写 `UNIT_MOVED_TO_BATTLEFIELD`，payload 记录 `origin`、`destination`、`movementKeyword="游走"` 和 `optionalCosts=["ROAM"]`；由于当前 state 仍没有持久在线战场坐标，`PlayerZones.Battlefields` 列表保持不变。
 - `p4-move-unit-command-premodel-rejected.fixture.json` 调整为缺少 `ROAM` 的精确战场间移动拒绝边界；新增 `p4-move-unit-roam-precise-battlefield.fixture.json` 作为 accepted conformance 代表，并纳入战斗关键词与基础动作聚合回放。
 - 本批次仍不实现移动次数计数、第三次移动得分、移动触发、战斗中移动、装备随动、跨控制者移动或持久多战场 occupancy。
+
+## P4.385 Hunt Conquest Experience Slice
+
+本批次只接入一个低风险狩猎经验代表路径，不引入完整战场占领/据守系统：
+
+- `CoreRuleEngine.ResolveDeclareBattle` 在已接受的最小 `DECLARE_BATTLE` 结算后读取攻击者 `狩猎` / `狩猎N` 标签数值。
+- 若攻击者仍为场上单位、全部声明防守者均因本次战斗致命伤害被清理，则写入 `BATTLEFIELD_CONQUERED`，再通过既有 `GainExperience` 路径写入 `EXPERIENCE_GAINED` 并更新 `PlayerExperience`。
+- 新增 direct engine 测试 `P4DeclareBattleCommandGrantsHuntExperienceWhenAttackerConquersBattlefield`，使用官网《贪食魔沼蛙》`UNL-100/219` 的 `狩猎3` 文本作为代表。
+- 新增 `p4-declare-battle-hunt-conquest-experience.fixture.json`，并纳入战斗关键词与资源关键词聚合回放。
+- 本批次仍不实现完整战场 occupancy、据守触发、战场得分、多攻击者、多普通防守者选择、同优先级承伤选择或移动触发经验。
 
 ## Validation Gate
 
@@ -5005,19 +5017,18 @@ P4 当前整体进度：按 P4.384 审计后预计 `384/392 = 98.0%`。已完成
 
 ## Latest Validation
 
-P4.384 已完成验证：
+P4.385 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warning / 0 error
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2544/2544
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2463/2463
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2548/2548
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2467/2467
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommand"`：pass，36/36
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，29/29
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen"`：pass，216/216
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-command-premodel-rejected.fixture.json`：pass
-- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-move-unit-roam-precise-battlefield.fixture.json`：pass
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DeclareBattleCommand"`：pass，42/42
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，30/30
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ResourceKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：pass，42/42
+- `jq empty tests/Riftbound.ConformanceTests/Fixtures/p4-declare-battle-hunt-conquest-experience.fixture.json`：pass
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.385：优先做狩猎/战斗/移动触发经验切片，继续限制在单代表 fixture 范围内。预计 P4 还需要约 `8` 批：狩猎/经验触发、待命触发/目标伤害、伏击真实反应打出、通用 skill registry/技能目标税、装备关键词最小代表/P5 边界，以及最后 E2E/文档/全量验证收口。
+进入 P4.386：优先在待命触发/目标伤害、伏击真实反应战场打出、通用 skill registry/技能目标税或装备关键词最小代表中选择一个最低风险单 fixture 切片。预计 P4 还需要约 `7` 批：待命触发/目标伤害、伏击真实反应打出、通用 skill registry/技能目标税、装备关键词最小代表/P5 边界，以及最后 E2E/文档/全量验证收口。

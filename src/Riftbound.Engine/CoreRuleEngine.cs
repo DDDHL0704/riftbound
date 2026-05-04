@@ -1095,6 +1095,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             defenderObjectId => defenderObjectId,
             defenderObjectId => cardObjects[defenderObjectId],
             StringComparer.Ordinal);
+        var huntAmount = CardResourceKeywordRules.HuntAmountFromTags(attackerState.Tags);
         cardObjects[attackerObjectId] = attackerState with
         {
             IsAttacking = true,
@@ -1198,11 +1199,38 @@ public sealed class CoreRuleEngine : IRuleEngine
             damageTriggeredDestroyTargetObjectIds);
         combatEvents.AddRange(lethalCleanup.Events);
 
+        var playerExperience = state.PlayerExperience;
+        if (huntAmount > 0
+            && defenderObjectIds.All(defenderObjectId => lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
+            && cardObjects.TryGetValue(attackerObjectId, out var survivingAttackerState)
+            && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && IsObjectOnField(playerZones, attackerObjectId))
+        {
+            combatEvents.Add(new GameEvent(
+                "BATTLEFIELD_CONQUERED",
+                $"{intent.PlayerId} 征服战场",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["sourceObjectId"] = attackerObjectId,
+                    ["defeatedObjectIds"] = defenderObjectIds.ToArray(),
+                    ["huntAmount"] = huntAmount
+                }));
+            playerExperience = GainExperience(
+                NormalizeExperienceForSeats(state),
+                intent.PlayerId,
+                huntAmount,
+                combatStackItem,
+                combatEvents);
+        }
+
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
+            PlayerExperience = playerExperience,
             PassedPriorityPlayerIds = [],
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
