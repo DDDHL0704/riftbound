@@ -27243,6 +27243,74 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AmbushPlayCardModeUnknownSourceIsRejectedUntilBattlefieldReactionPlayExists()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-ambush-play-card-unknown-source-rejected", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-HAND-UNL-GLOOMY-APOTHECARY-MISSING",
+                "UNL-021/219",
+                [],
+                Mode: "AMBUSH",
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-HAND-UNL-GLOOMY-APOTHECARY-MISSING"));
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4AmbushPlayCardModeUnknownSourceRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-ambush-play-card-unknown-source-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P1-HAND-UNL-GLOOMY-APOTHECARY-MISSING"));
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
     public async Task P4AmbushPlayCardModeSourceCardNoMismatchIsRejectedUntilBattlefieldReactionPlayExists()
     {
         var state = PunishmentState(mana: 5) with
@@ -31179,6 +31247,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-ambush-play-card-base-destination-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-priority-window-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-source-outside-hand-rejected.fixture.json")]
+    [InlineData("p4-ambush-play-card-unknown-source-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-cardno-mismatch-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-optional-cost-rejected.fixture.json")]
     [InlineData("p4-play-existential-dread-friendly-attacking-target-rejected.fixture.json")]
