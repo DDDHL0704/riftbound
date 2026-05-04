@@ -25676,10 +25676,88 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4RevealCardCommandRejectsMissingRevealCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-OGN-TEEMO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO"] = new(
+                    "P1-FACEDOWN-OGN-TEEMO",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    manaCost: 2,
+                    cardNo: "OGN·121/298")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-missing-cost-rejected", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-OGN-TEEMO",
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REVEAL",
+                OptionalCosts: [],
+                Destination: "BASE"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.State.PlayerZones["P1"].Base);
+        var source = result.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal(2, source.Power);
+        Assert.Equal(2, source.ManaCost);
+        Assert.Equal("OGN·121/298", source.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], source.Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandUnsupportedOptionalCostRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-unsupported-optional-cost-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.FinalState.PlayerZones["P1"].Base);
+        var source = result.FinalState.CardObjects["P1-FACEDOWN-OGN-TEEMO"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal(2, source.Power);
+        Assert.Equal(2, source.ManaCost);
+        Assert.Equal("OGN·121/298", source.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], source.Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandMissingRevealCostRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-missing-cost-rejected.fixture.json"),
             CancellationToken.None);
 
         var result = await ConformanceFixtureRunner.RunAsync(
@@ -28377,6 +28455,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-reveal-card-standby-source-not-face-down-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-unsupported-optional-cost-rejected.fixture.json")]
+    [InlineData("p4-reveal-card-standby-missing-cost-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-unsupported-destination-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]

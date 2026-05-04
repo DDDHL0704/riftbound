@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-reveal-card-standby-missing-cost-rejected",
+  "description": "P4 rejects Standby reveal when REVEAL_CARD omits the required reveal cost.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304341,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·121/298 提莫",
+      "note": "官方卡面：待命（支付 A 正面朝下放置此牌，之后可支付 0 将其当作反应牌打出）。本 fixture 只覆盖 P4 当前 REVEAL_CARD 显露入口必须显式携带 STANDBY_REVEAL_0。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "P4.341 锁定待命显露费用存在性边界：当前只允许待命 0 费显露/反应入栈，不允许省略该费用项。拒绝时不翻开对象、不支付费用、不创建结算链。"
+    }
+  ],
+  "roomId": "p4-reveal-card-standby-missing-cost-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304341,
+    "turnNumber": 341,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-FACEDOWN-OGN-TEEMO"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-FACEDOWN-OGN-TEEMO": {
+        "cardNo": "OGN·121/298",
+        "power": 2,
+        "manaCost": 2,
+        "isExhausted": false,
+        "isFaceDown": true,
+        "tags": ["CARD_TYPE:UNIT", "待命"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-reveal-card-standby-missing-cost-rejected",
+      "cmd": {
+        "cmdType": "REVEAL_CARD",
+        "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO",
+        "cardNo": "OGN·121/298",
+        "targetObjectIds": [],
+        "mode": "STANDBY_REVEAL",
+        "optionalCosts": [],
+        "destination": "BASE"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 341,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-FACEDOWN-OGN-TEEMO"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-FACEDOWN-OGN-TEEMO": {
+          "cardNo": "OGN·121/298",
+          "power": 2,
+          "manaCost": 2,
+          "isExhausted": false,
+          "isFaceDown": true,
+          "tags": ["CARD_TYPE:UNIT", "待命"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
