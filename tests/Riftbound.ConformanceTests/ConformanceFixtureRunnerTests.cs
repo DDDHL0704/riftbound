@@ -22499,6 +22499,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-leblanc-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-laurent-bladeguard-keyword-unit.fixture.json")]
     [InlineData("p4-move-unit-command-premodel-rejected.fixture.json")]
+    [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
     [InlineData("p4-declare-battle-command-premodel-rejected.fixture.json")]
     [InlineData("p4-declare-battle-priority-window-rejected.fixture.json")]
     public async Task P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen(string fixtureFileName)
@@ -26702,6 +26703,62 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectsCombatantSourceUntilCombatMovementExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-MOVE-UNIT-COMBATANT-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-MOVE-UNIT-DEFENDER-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-UNIT-COMBATANT-001"] = new(
+                    "P1-MOVE-UNIT-COMBATANT-001",
+                    isAttacking: true,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-MOVE-UNIT-DEFENDER-001"] = new(
+                    "P2-MOVE-UNIT-DEFENDER-001",
+                    isDefending: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "壁垒"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-combatant-source", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-COMBATANT-001",
+                "BATTLEFIELD",
+                "BASE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT source must not be in combat.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-MOVE-UNIT-COMBATANT-001"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-MOVE-UNIT-DEFENDER-001"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.True(result.State.CardObjects["P1-MOVE-UNIT-COMBATANT-001"].IsAttacking);
+        Assert.True(result.State.CardObjects["P2-MOVE-UNIT-DEFENDER-001"].IsDefending);
+        Assert.Equal(4, result.State.CardObjects["P1-MOVE-UNIT-COMBATANT-001"].Power);
+        Assert.Equal(3, result.State.CardObjects["P2-MOVE-UNIT-DEFENDER-001"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldLocationsUntilRoamMovementExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -27181,6 +27238,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-HAND-001"].Power);
         Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-MOVE-UNIT-HAND-001"].Tags);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandCombatantSourceRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-move-unit-combatant-source-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-MOVE-UNIT-COMBATANT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-MOVE-UNIT-DEFENDER-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.True(result.FinalState.CardObjects["P1-MOVE-UNIT-COMBATANT-001"].IsAttacking);
+        Assert.True(result.FinalState.CardObjects["P2-MOVE-UNIT-DEFENDER-001"].IsDefending);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-MOVE-UNIT-COMBATANT-001"].Power);
+        Assert.Equal(3, result.FinalState.CardObjects["P2-MOVE-UNIT-DEFENDER-001"].Power);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -27818,6 +27899,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-move-unit-unsupported-zone-rejected.fixture.json")]
     [InlineData("p4-move-unit-origin-mismatch-rejected.fixture.json")]
     [InlineData("p4-move-unit-hand-source-rejected.fixture.json")]
+    [InlineData("p4-move-unit-combatant-source-rejected.fixture.json")]
     [InlineData("p4-play-poppy-spend-experience-reduce-cost.fixture.json")]
     [InlineData("p4-play-wuji-apprentice-level6-draw.fixture.json")]
     [InlineData("p4-play-stern-sergeant-dynamic-experience.fixture.json")]

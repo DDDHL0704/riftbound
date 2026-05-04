@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-move-unit-combatant-source-rejected",
+  "description": "P4 MOVE_UNIT rejects attempts to move a unit that is already marked as attacking or defending until combat movement is modeled.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304333,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·173/298 驭风而行；UNL-036/219 变异猫咪",
+      "note": "官方卡面分别代表友方单位移动和战斗关键词/承伤状态；本 fixture 只覆盖 P4 当前 coarse MOVE_UNIT 不能移动已经处于战斗状态的来源对象。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
+      "note": "战斗中单位移动需要和进攻/防守声明、战斗清理、战斗伤害及多战场位置模型一起处理；这些系统未完成前，MOVE_UNIT 应显式拒绝已处于战斗状态的来源，且不清除攻防状态或移动对象。"
+    }
+  ],
+  "roomId": "p4-move-unit-combatant-source-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304333,
+    "turnNumber": 333,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P1-MOVE-UNIT-COMBATANT-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-MOVE-UNIT-DEFENDER-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-MOVE-UNIT-COMBATANT-001": {
+        "power": 4,
+        "isAttacking": true,
+        "isDefending": false,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      },
+      "P2-MOVE-UNIT-DEFENDER-001": {
+        "cardNo": "UNL-036/219",
+        "power": 3,
+        "isAttacking": false,
+        "isDefending": true,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "壁垒"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-move-unit-combatant-source-rejected",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-MOVE-UNIT-COMBATANT-001",
+        "origin": "BATTLEFIELD",
+        "destination": "BASE",
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 333,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P1-MOVE-UNIT-COMBATANT-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": ["P2-MOVE-UNIT-DEFENDER-001"]
+        }
+      },
+      "cardObjects": {
+        "P1-MOVE-UNIT-COMBATANT-001": {
+          "power": 4,
+          "isAttacking": true,
+          "isDefending": false,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        },
+        "P2-MOVE-UNIT-DEFENDER-001": {
+          "cardNo": "UNL-036/219",
+          "power": 3,
+          "isAttacking": false,
+          "isDefending": true,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "壁垒"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}

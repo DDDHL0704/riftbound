@@ -880,6 +880,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (sourceState.IsAttacking || sourceState.IsDefending)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must not be in combat.",
+                ErrorCodes.InvalidTarget);
+        }
+
         var playerZones = NormalizeZonesForSeats(state);
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
