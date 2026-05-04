@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-ambush-play-card-priority-window-rejected",
+  "description": "P4 rejects PLAY_CARD mode AMBUSH even in a priority window until battlefield reaction play is implemented.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304327,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-021/219 阴森药剂师",
+      "note": "官方卡面含有伏击文本；本 fixture 只覆盖 P4 当前即使处于优先权窗口且已有待结算项目，也不能在伏击真实反应战场打出模型完成前接受 mode=AMBUSH。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+",
+      "note": "伏击需要反应窗口、战场目的地合法性和单位打出至战场模型；这些系统未完成前，优先权窗口中的伏击命令应显式拒绝且不支付费用、不移出手牌、不改基地/战场、不加入或改变结算链。"
+    }
+  ],
+  "roomId": "p4-ambush-play-card-priority-window-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304327,
+    "turnNumber": 327,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P1",
+    "passedPriorityPlayerIds": [],
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 3, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-HAND-UNL-GLOOMY-APOTHECARY": {
+        "cardNo": "UNL-021/219",
+        "power": 3,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "伏击"],
+        "manaCost": 3
+      },
+      "P1-BATTLEFIELD-FRIENDLY-001": {
+        "power": 2,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    },
+    "stackItems": [
+      {
+        "stackItemId": "STACK-0-P2-SPELL-PROBE",
+        "controllerId": "P2",
+        "sourceObjectId": "P2-SPELL-PROBE",
+        "effectKind": "PENDING_TEST_SPELL",
+        "cardNo": "TEST-000",
+        "targetObjectIds": [],
+        "damageAmount": 0
+      }
+    ]
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-ambush-play-card-priority-window-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+        "cardNo": "UNL-021/219",
+        "targetObjectIds": [],
+        "mode": "AMBUSH",
+        "optionalCosts": [],
+        "destination": "BATTLEFIELD:P1-MAIN"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["PASS_PRIORITY"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 327,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P1",
+      "passedPriorityPlayerIds": [],
+      "runePools": {
+        "P1": { "mana": 3, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-HAND-UNL-GLOOMY-APOTHECARY": {
+          "cardNo": "UNL-021/219",
+          "power": 3,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "伏击"],
+          "manaCost": 3
+        },
+        "P1-BATTLEFIELD-FRIENDLY-001": {
+          "power": 2,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": [
+        {
+          "stackItemId": "STACK-0-P2-SPELL-PROBE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-PROBE",
+          "effectKind": "PENDING_TEST_SPELL",
+          "cardNo": "TEST-000",
+          "targetObjectIds": [],
+          "damageAmount": 0
+        }
+      ]
+    }
+  }
+}

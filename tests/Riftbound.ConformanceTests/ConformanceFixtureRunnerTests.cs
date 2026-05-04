@@ -26049,6 +26049,100 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AmbushPlayCardModeInPriorityWindowIsRejectedUntilBattlefieldReactionPlayExists()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+                    Battlefields = ["P1-BATTLEFIELD-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNL-GLOOMY-APOTHECARY"] = new(
+                    "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush]),
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-ambush-play-card-priority-window-rejected", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                "UNL-021/219",
+                [],
+                Mode: "AMBUSH",
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.State.PlayerZones["P1"].Battlefields);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
+        Assert.Equal("P2", stackItem.ControllerId);
+        Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
+    }
+
+    [Fact]
+    public async Task P4AmbushPlayCardModePriorityWindowRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-ambush-play-card-priority-window-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal("NEUTRAL_CLOSED", result.FinalState.TimingState);
+        Assert.Equal("P1", result.FinalState.PriorityPlayerId);
+        Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BATTLEFIELD-FRIENDLY-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        var stackItem = Assert.Single(result.FinalState.StackItems);
+        Assert.Equal("STACK-0-P2-SPELL-PROBE", stackItem.StackItemId);
+        Assert.Equal("P2", stackItem.ControllerId);
+        Assert.Equal("PENDING_TEST_SPELL", stackItem.EffectKind);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandMovesFriendlyBaseUnitToBattlefieldInCoarseModel()
     {
         var state = PunishmentState(mana: 0) with
@@ -27263,6 +27357,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-ambush-play-card-premodel-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-target-rejected.fixture.json")]
     [InlineData("p4-ambush-play-card-base-destination-rejected.fixture.json")]
+    [InlineData("p4-ambush-play-card-priority-window-rejected.fixture.json")]
     [InlineData("p4-play-existential-dread-friendly-attacking-target-rejected.fixture.json")]
     [InlineData("p2-preflight-play-pakaa-cub-keyword-unit.fixture.json")]
     [InlineData("p2-preflight-play-gloomy-apothecary-return-friendly-battlefield.fixture.json")]
