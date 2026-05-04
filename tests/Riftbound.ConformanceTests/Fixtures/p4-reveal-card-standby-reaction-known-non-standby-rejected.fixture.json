@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-reveal-card-standby-reaction-known-non-standby-rejected",
+  "description": "P4 rejects Standby reaction reveal when the known source card behavior does not expose the Standby keyword.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304343,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-001/219 竞技场理事",
+      "note": "官方卡面：我以活跃状态进场；横置技能让一名单位本回合内 S+3。该牌没有待命关键词，本 fixture 只覆盖已知非待命牌不能进入 REVEAL_CARD / STANDBY_REACTION / STANDBY_REVEAL_0 反应入栈路径。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p20 rules 164-167; p39-p42 rules 355-356; p57 rule 413.4; p92-p105 keyword rules 800+",
+      "note": "P4.343 锁定待命反应关键词资格边界：优先权窗口中，命令 cardNo 对应的已知牌面仍必须暴露待命关键词，非待命牌拒绝反应入栈。拒绝时不推进 tick、不写事件、不翻开对象、不移动基地对象、不支付费用、不创建新的结算链项目。"
+    }
+  ],
+  "roomId": "p4-reveal-card-standby-reaction-known-non-standby-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304343,
+    "turnNumber": 343,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P1",
+    "passedPriorityPlayerIds": [],
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-FACEDOWN-UNL-ARENA-COUNCILOR"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-FACEDOWN-UNL-ARENA-COUNCILOR": {
+        "cardNo": "UNL-001/219",
+        "power": 3,
+        "manaCost": 5,
+        "isExhausted": false,
+        "isFaceDown": true,
+        "tags": ["CARD_TYPE:UNIT", "约德尔人"]
+      }
+    },
+    "stackItems": [
+      {
+        "stackItemId": "STACK-0-P2-SPELL-PROBE",
+        "controllerId": "P2",
+        "sourceObjectId": "P2-SPELL-PROBE",
+        "effectKind": "PENDING_TEST_SPELL",
+        "cardNo": "TEST-000",
+        "targetObjectIds": [],
+        "damageAmount": 0
+      }
+    ]
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-reveal-card-standby-reaction-known-non-standby-rejected",
+      "cmd": {
+        "cmdType": "REVEAL_CARD",
+        "sourceObjectId": "P1-FACEDOWN-UNL-ARENA-COUNCILOR",
+        "cardNo": "UNL-001/219",
+        "targetObjectIds": [],
+        "mode": "STANDBY_REACTION",
+        "optionalCosts": ["STANDBY_REVEAL_0"],
+        "destination": "STACK"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["PASS_PRIORITY"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 343,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P1",
+      "passedPriorityPlayerIds": [],
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-FACEDOWN-UNL-ARENA-COUNCILOR"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-FACEDOWN-UNL-ARENA-COUNCILOR": {
+          "cardNo": "UNL-001/219",
+          "power": 3,
+          "manaCost": 5,
+          "isExhausted": false,
+          "isFaceDown": true,
+          "tags": ["CARD_TYPE:UNIT", "约德尔人"]
+        }
+      },
+      "stackItems": [
+        {
+          "stackItemId": "STACK-0-P2-SPELL-PROBE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-PROBE",
+          "effectKind": "PENDING_TEST_SPELL",
+          "cardNo": "TEST-000",
+          "targetObjectIds": [],
+          "damageAmount": 0
+        }
+      ]
+    }
+  }
+}

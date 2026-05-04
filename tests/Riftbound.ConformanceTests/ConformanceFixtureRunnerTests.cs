@@ -25857,6 +25857,96 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4RevealCardCommandRejectsReactionKnownNonStandbyCard()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-UNL-ARENA-COUNCILOR"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-UNL-ARENA-COUNCILOR"] = new(
+                    "P1-FACEDOWN-UNL-ARENA-COUNCILOR",
+                    isFaceDown: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "约德尔人"],
+                    manaCost: 5,
+                    cardNo: "UNL-001/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-reaction-known-non-standby", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-UNL-ARENA-COUNCILOR",
+                "UNL-001/219",
+                [],
+                Mode: "STANDBY_REACTION",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "STACK"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("竞技场理事 does not expose the Standby keyword for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-UNL-ARENA-COUNCILOR"], result.State.PlayerZones["P1"].Base);
+        var source = result.State.CardObjects["P1-FACEDOWN-UNL-ARENA-COUNCILOR"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal(3, source.Power);
+        Assert.Equal(5, source.ManaCost);
+        Assert.Equal("UNL-001/219", source.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, "约德尔人"], source.Tags);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], result.State.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandReactionKnownNonStandbyCardRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-reveal-card-standby-reaction-known-non-standby-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-UNL-ARENA-COUNCILOR"], result.FinalState.PlayerZones["P1"].Base);
+        var source = result.FinalState.CardObjects["P1-FACEDOWN-UNL-ARENA-COUNCILOR"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal(3, source.Power);
+        Assert.Equal(5, source.ManaCost);
+        Assert.Equal("UNL-001/219", source.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, "约德尔人"], source.Tags);
+        Assert.Equal(["STACK-0-P2-SPELL-PROBE"], result.FinalState.StackItems.Select(item => item.StackItemId));
+    }
+
+    [Fact]
     public async Task P4RevealCardCommandRejectsUnsupportedDestination()
     {
         var state = PunishmentState(mana: 0) with
@@ -28535,6 +28625,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-reveal-card-standby-unsupported-optional-cost-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-missing-cost-rejected.fixture.json")]
     [InlineData("p4-reveal-card-known-non-standby-rejected.fixture.json")]
+    [InlineData("p4-reveal-card-standby-reaction-known-non-standby-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-unsupported-destination-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-target-rejected.fixture.json")]
     [InlineData("p4-reveal-card-standby-reaction-stack.fixture.json")]
