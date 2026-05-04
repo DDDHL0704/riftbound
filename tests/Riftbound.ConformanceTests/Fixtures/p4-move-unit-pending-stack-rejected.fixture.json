@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-move-unit-pending-stack-rejected",
+  "description": "P4 MOVE_UNIT rejects movement while a stack item is pending and priority is open.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304310,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-101/219 战斗号令",
+      "note": "官方卡面为基础移动代表；本 fixture 只覆盖 MOVE_UNIT 不能在结算链待处理的优先权窗口中执行。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "note": "P4.310 锁定行动窗口边界：当前 coarse MOVE_UNIT 只能在主动玩家主阶段开放窗口执行，不能在 stack 非空的优先权窗口中移动。拒绝时不推进 tick、不写事件、不移动对象、不改变战力、不改变结算链。"
+    }
+  ],
+  "roomId": "p4-move-unit-pending-stack-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304310,
+    "turnNumber": 310,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_CLOSED",
+    "priorityPlayerId": "P1",
+    "passedPriorityPlayerIds": [],
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 0, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": [],
+        "base": ["P1-MOVE-UNIT-STACK-001"],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-MOVE-UNIT-STACK-001": {
+        "power": 4,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    },
+    "stackItems": [
+      {
+        "stackItemId": "STACK-0-P2-SPELL-PROBE",
+        "controllerId": "P2",
+        "sourceObjectId": "P2-SPELL-PROBE",
+        "effectKind": "PENDING_TEST_SPELL",
+        "cardNo": "TEST-000",
+        "targetObjectIds": [],
+        "damageAmount": 0
+      }
+    ]
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-move-unit-pending-stack-rejected",
+      "cmd": {
+        "cmdType": "MOVE_UNIT",
+        "sourceObjectId": "P1-MOVE-UNIT-STACK-001",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD",
+        "optionalCosts": []
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["PASS_PRIORITY"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 310,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_CLOSED",
+      "priorityPlayerId": "P1",
+      "passedPriorityPlayerIds": [],
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "base": ["P1-MOVE-UNIT-STACK-001"],
+          "battlefields": [],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-MOVE-UNIT-STACK-001": {
+          "power": 4,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": [
+        {
+          "stackItemId": "STACK-0-P2-SPELL-PROBE",
+          "controllerId": "P2",
+          "sourceObjectId": "P2-SPELL-PROBE",
+          "effectKind": "PENDING_TEST_SPELL",
+          "cardNo": "TEST-000",
+          "targetObjectIds": [],
+          "damageAmount": 0
+        }
+      ]
+    }
+  }
+}
