@@ -28799,6 +28799,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4AssembleEquipmentCommandWithUnknownTargetIsRejectedUntilEquipmentSystemExists()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LONG-SWORD"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-unknown-target", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-ASSEMBLE-MISSING",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ASSEMBLE_EQUIPMENT is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD"], result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-UNIT-ASSEMBLE-MISSING"));
+        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandWithMissingSourceIsRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with
@@ -29212,6 +29254,27 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.Tick);
         Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Null(result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Empty(result.FinalState.StackItems);
+    }
+
+    [Fact]
+    public async Task P4AssembleEquipmentCommandUnknownTargetRejectionFixture()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-assemble-equipment-unknown-target-rejected.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.False(result.FinalState.CardObjects.ContainsKey("P1-UNIT-ASSEMBLE-MISSING"));
         Assert.Null(result.FinalState.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
         Assert.Empty(result.FinalState.StackItems);
     }
@@ -30942,6 +31005,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p4-assemble-equipment-priority-window-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-already-attached-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-missing-target-rejected.fixture.json")]
+    [InlineData("p4-assemble-equipment-unknown-target-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-missing-source-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-hand-source-rejected.fixture.json")]
     [InlineData("p4-assemble-equipment-opponent-source-rejected.fixture.json")]
