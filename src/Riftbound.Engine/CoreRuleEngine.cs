@@ -29,16 +29,6 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
-    private const string ViCardNo = "UNL-030/219";
-    private const string ViDoublePowerAbilityId = "PAY_2_RED_DOUBLE_POWER";
-    private const string ViDoublePowerAbilityEffectKind = "VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN";
-    private const int ViDoublePowerAbilityManaCost = 2;
-    private const int ViDoublePowerAbilityPowerCost = 1;
-    private const string XerathCardNo = "UNL-026/219";
-    private const string XerathDamageAbilityId = "PAY_RED_EXHAUST_DAMAGE_3";
-    private const string XerathDamageAbilityEffectKind = "XERATH_PAY_RED_EXHAUST_DAMAGE_3";
-    private const int XerathDamageAbilityPowerCost = 1;
-    private const int XerathDamageAbilityDamageAmount = 3;
     private const string BanishIfDestroyedThisTurnEffectId = "BANISH_IF_DESTROYED_THIS_TURN";
     private const string RecallToBaseExhaustedIfDestroyedThisTurnEffectId = "RECALL_TO_BASE_EXHAUSTED_IF_DESTROYED_THIS_TURN";
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
@@ -659,17 +649,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         ActivateAbilityCommand command)
     {
-        if (string.Equals(command.AbilityId, XerathDamageAbilityId, StringComparison.Ordinal))
-        {
-            return ResolveXerathDamageAbility(state, intent, command);
-        }
-
-        if (!string.Equals(command.AbilityId, ViDoublePowerAbilityId, StringComparison.Ordinal))
+        if (!P4ActivatedAbilityCatalog.TryGetByAbilityId(command.AbilityId, out var ability))
         {
             return RejectWithCorePrompts(
                 state,
                 "ACTIVATE_ABILITY is not implemented in P4 yet.",
                 ErrorCodes.UnsupportedCommand);
+        }
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveXerathDamageAbility(state, intent, command, ability);
         }
 
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
@@ -702,7 +692,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!string.Equals(sourceState.CardNo, ViCardNo, StringComparison.Ordinal))
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
@@ -711,8 +701,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < ViDoublePowerAbilityManaCost
-            || currentPool.Power < ViDoublePowerAbilityPowerCost)
+        if (currentPool.Mana < ability.ManaCost
+            || currentPool.Power < ability.PowerCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -723,14 +713,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var runePools = PayRuneCosts(
             state,
             intent.PlayerId,
-            ViDoublePowerAbilityManaCost,
-            ViDoublePowerAbilityPowerCost);
+            ability.ManaCost,
+            ability.PowerCost);
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
             command.SourceObjectId,
-            ViDoublePowerAbilityEffectKind,
-            ViCardNo,
+            ability.EffectKind,
+            ability.SourceCardNo,
             [],
             0,
             1,
@@ -755,7 +745,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["abilityId"] = command.AbilityId,
-                    ["effectKind"] = ViDoublePowerAbilityEffectKind
+                    ["effectKind"] = ability.EffectKind
                 }),
             new(
                 "COST_PAID",
@@ -763,8 +753,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["mana"] = ViDoublePowerAbilityManaCost,
-                    ["power"] = ViDoublePowerAbilityPowerCost,
+                    ["mana"] = ability.ManaCost,
+                    ["power"] = ability.PowerCost,
                     ["abilityId"] = command.AbilityId
                 }),
             new(
@@ -794,7 +784,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static ResolutionResult ResolveXerathDamageAbility(
         MatchState state,
         PlayerIntent intent,
-        ActivateAbilityCommand command)
+        ActivateAbilityCommand command,
+        P4ActivatedAbilityDefinition ability)
     {
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
@@ -815,7 +806,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (command.TargetObjectIds.Count != 1)
+        if (command.TargetObjectIds.Count != ability.RequiredTargetCount)
         {
             return RejectWithCorePrompts(
                 state,
@@ -833,7 +824,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!string.Equals(sourceState.CardNo, XerathCardNo, StringComparison.Ordinal))
+        if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
@@ -859,14 +850,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
-            state,
-            intent.PlayerId,
-            command.TargetObjectIds,
-            out var spellshieldTaxTargetObjectIds);
+        IReadOnlyList<string> spellshieldTaxTargetObjectIds = [];
+        var spellshieldTaxMana = 0;
+        if (ability.AppliesSpellshieldTargetTax)
+        {
+            spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
+                state,
+                intent.PlayerId,
+                command.TargetObjectIds,
+                out spellshieldTaxTargetObjectIds);
+        }
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < spellshieldTaxMana
-            || currentPool.Power < XerathDamageAbilityPowerCost)
+            || currentPool.Power < ability.PowerCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -878,7 +874,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             state,
             intent.PlayerId,
             spellshieldTaxMana,
-            XerathDamageAbilityPowerCost);
+            ability.PowerCost);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = sourceState with
         {
@@ -888,10 +884,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}-ABILITY",
             intent.PlayerId,
             command.SourceObjectId,
-            XerathDamageAbilityEffectKind,
-            XerathCardNo,
+            ability.EffectKind,
+            ability.SourceCardNo,
             command.TargetObjectIds,
-            XerathDamageAbilityDamageAmount,
+            ability.DamageAmount,
             1,
             []);
         var nextState = state with
@@ -915,7 +911,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["abilityId"] = command.AbilityId,
-                    ["effectKind"] = XerathDamageAbilityEffectKind,
+                    ["effectKind"] = ability.EffectKind,
                     ["targetObjectIds"] = command.TargetObjectIds.ToArray()
                 }),
             new(
@@ -925,7 +921,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = spellshieldTaxMana,
-                    ["power"] = XerathDamageAbilityPowerCost,
+                    ["power"] = ability.PowerCost,
                     ["abilityId"] = command.AbilityId,
                     ["spellshieldTaxMana"] = spellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = spellshieldTaxTargetObjectIds.ToArray()
@@ -4096,12 +4092,12 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
     {
-        if (string.Equals(stackItem.EffectKind, ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.ViDoublePowerAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveViDoublePowerAbilityStackItem(state, stackItem);
         }
 
-        if (string.Equals(stackItem.EffectKind, XerathDamageAbilityEffectKind, StringComparison.Ordinal))
+        if (string.Equals(stackItem.EffectKind, P4ActivatedAbilityCatalog.XerathDamageAbilityEffectKind, StringComparison.Ordinal))
         {
             return ResolveXerathDamageAbilityStackItem(state, stackItem);
         }
@@ -6014,7 +6010,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var damageAmount = stackItem.DamageAmount > 0
                 ? stackItem.DamageAmount
-                : XerathDamageAbilityDamageAmount;
+                : P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount;
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 targetObjectId,

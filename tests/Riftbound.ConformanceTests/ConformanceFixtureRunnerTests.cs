@@ -23056,6 +23056,43 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public void P4ActivatedAbilityCatalogExposesRepresentativeSkillDefinitions()
+    {
+        Assert.True(P4ActivatedAbilityCatalog.GetAll().Count >= 2);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            "PAY_2_RED_DOUBLE_POWER",
+            out var viDefinition));
+        Assert.Equal("UNL-030/219", viDefinition.SourceCardNo);
+        Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", viDefinition.EffectKind);
+        Assert.Equal(2, viDefinition.ManaCost);
+        Assert.Equal(1, viDefinition.PowerCost);
+        Assert.Equal(0, viDefinition.RequiredTargetCount);
+        Assert.False(viDefinition.RequiresBattlefieldSource);
+        Assert.False(viDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(0, viDefinition.DamageAmount);
+        Assert.False(viDefinition.AppliesSpellshieldTargetTax);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByAbilityId(
+            "PAY_RED_EXHAUST_DAMAGE_3",
+            out var xerathDefinition));
+        Assert.Equal("UNL-026/219", xerathDefinition.SourceCardNo);
+        Assert.Equal("XERATH_PAY_RED_EXHAUST_DAMAGE_3", xerathDefinition.EffectKind);
+        Assert.Equal(0, xerathDefinition.ManaCost);
+        Assert.Equal(1, xerathDefinition.PowerCost);
+        Assert.Equal(1, xerathDefinition.RequiredTargetCount);
+        Assert.True(xerathDefinition.RequiresBattlefieldSource);
+        Assert.True(xerathDefinition.ExhaustsSourceAsCost);
+        Assert.Equal(3, xerathDefinition.DamageAmount);
+        Assert.True(xerathDefinition.AppliesSpellshieldTargetTax);
+
+        Assert.True(P4ActivatedAbilityCatalog.TryGetByEffectKind(
+            "XERATH_PAY_RED_EXHAUST_DAMAGE_3",
+            out var effectDefinition));
+        Assert.Equal(xerathDefinition, effectDefinition);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandAddsViDoublePowerSkillToStack()
     {
         var state = PunishmentState(mana: 2) with
