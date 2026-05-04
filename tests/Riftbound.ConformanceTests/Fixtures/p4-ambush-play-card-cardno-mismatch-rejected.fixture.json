@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p4-ambush-play-card-cardno-mismatch-rejected",
+  "description": "P4 rejects PLAY_CARD mode AMBUSH when the command cardNo does not match the known source object cardNo until battlefield reaction play is implemented.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603304336,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "UNL-021/219 阴森药剂师；UNL-176/219 蔚",
+      "note": "两张官方卡面均含有伏击文本；本 fixture 只覆盖 P4 当前尚未实现反应战场打出时，不能把已知为《蔚》的手牌来源对象用《阴森药剂师》的 cardNo 作为 mode=AMBUSH PLAY_CARD 接受。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p20 rules 164-167; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "伏击需要反应窗口、手牌来源身份、战场目的地合法性和单位打出至战场模型；这些系统未完成前，来源身份不匹配的伏击命令应显式拒绝且不支付费用、不移动手牌、不改战场、不加入结算链。"
+    }
+  ],
+  "roomId": "p4-ambush-play-card-cardno-mismatch-rejected-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603304336,
+    "turnNumber": 336,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 5, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001"],
+        "hand": ["P1-HAND-UNL-VI"],
+        "base": [],
+        "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "cardObjects": {
+      "P1-HAND-UNL-VI": {
+        "cardNo": "UNL-176/219",
+        "power": 5,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT", "伏击"],
+        "manaCost": 5
+      },
+      "P1-BATTLEFIELD-FRIENDLY-001": {
+        "power": 2,
+        "isExhausted": false,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p4-ambush-play-card-cardno-mismatch-rejected",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-HAND-UNL-VI",
+        "cardNo": "UNL-021/219",
+        "targetObjectIds": [],
+        "mode": "AMBUSH",
+        "optionalCosts": [],
+        "destination": "BATTLEFIELD:P1-MAIN"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 0,
+    "eventKinds": [],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 336,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "runePools": {
+        "P1": { "mana": 5, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": ["P1-HAND-UNL-VI"],
+          "base": [],
+          "battlefields": ["P1-BATTLEFIELD-FRIENDLY-001"],
+          "graveyard": []
+        },
+        "P2": {
+          "hand": [],
+          "base": [],
+          "battlefields": []
+        }
+      },
+      "cardObjects": {
+        "P1-HAND-UNL-VI": {
+          "cardNo": "UNL-176/219",
+          "power": 5,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT", "伏击"],
+          "manaCost": 5
+        },
+        "P1-BATTLEFIELD-FRIENDLY-001": {
+          "power": 2,
+          "isExhausted": false,
+          "tags": ["CARD_TYPE:UNIT"]
+        }
+      },
+      "stackItems": []
+    }
+  }
+}
