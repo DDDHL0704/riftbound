@@ -26716,6 +26716,60 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["STACK-0-P2-SPELL-PROBE"], result.FinalState.StackItems.Select(item => item.StackItemId));
     }
 
+    [Theory]
+    [InlineData(
+        "p4-reveal-card-standby-target-rejected.fixture.json",
+        "p4-reveal-card-standby-target-rejected",
+        "P4.321",
+        "")]
+    [InlineData(
+        "p4-reveal-card-standby-reaction-target-rejected.fixture.json",
+        "p4-reveal-card-standby-reaction-target-rejected",
+        "P4.324",
+        "STACK-0-P2-SPELL-PROBE")]
+    public async Task P4StandbyTargetDamageDeferredFixturesCoverRevealAndReactionBranches(
+        string fixtureFileName,
+        string expectedFixtureId,
+        string expectedAuditMarker,
+        string expectedStackItemId)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        Assert.Equal(expectedFixtureId, fixture.FixtureId);
+        Assert.Equal("RULE_AUDITED", fixture.AuditStatus);
+        Assert.False(fixture.RequiresRuleAudit);
+        Assert.Contains(fixture.RulesEvidence ?? [], evidence =>
+            string.Equals(evidence.Source, "data/official/card-catalog.zh-CN.json", StringComparison.Ordinal)
+            && string.Equals(evidence.Locator, "OGN·121/298 提莫", StringComparison.Ordinal));
+        Assert.Contains(fixture.RulesEvidence ?? [], evidence =>
+            evidence.Note.Contains(expectedAuditMarker, StringComparison.Ordinal)
+            && evidence.Note.Contains("不伤害目标", StringComparison.Ordinal));
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(0, result.FinalState.Tick);
+        Assert.Empty(result.EventKinds);
+        Assert.Equal(["P1-FACEDOWN-OGN-TEEMO"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        var source = result.FinalState.CardObjects["P1-FACEDOWN-OGN-TEEMO"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal(2, source.Power);
+        Assert.Equal(2, source.ManaCost);
+        Assert.Equal("OGN·121/298", source.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], source.Tags);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
+        IReadOnlyList<string> expectedStackItemIds = string.IsNullOrWhiteSpace(expectedStackItemId)
+            ? Array.Empty<string>()
+            : [expectedStackItemId];
+        Assert.Equal(expectedStackItemIds, result.FinalState.StackItems.Select(item => item.StackItemId));
+    }
+
     [Fact]
     public async Task P4RevealCardCommandPlaysStandbyReactionToStack()
     {

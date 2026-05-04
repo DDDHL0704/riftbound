@@ -417,7 +417,8 @@
 - P4.386 提交：`1958ac7 feat: add p4 standby reaction resolution`
 - P4.387 提交：`865532d feat: add p4 ambush battlefield reaction`
 - P4.388 提交：`2cd4ba2 feat: add p4 long sword assemble attachment`
-- P4.389 提交：本提交 `feat: add p4 activated ability registry bridge`
+- P4.389 提交：`df8e500 feat: add p4 activated ability registry bridge`
+- P4.390 提交：本批次 `test: add p4 standby target damage audit`
 - 官方快照：`data/official/card-catalog.zh-CN.json`
 - 快照日期：`2026-04-27`
 - 官方条目：`1009`
@@ -510,7 +511,7 @@ curl -s http://127.0.0.1:5091/catalog/behavior-specs
 | 等级 | 15 | 3 | 0 | Medium/High | P4.7 已识别 profile 和阈值；P4.15 已给《踏苔蜥》接入 `等级3` 入场 +1 战力与法盾代表路径，P4.16 已给《风行狐》接入 `等级3` 入场 +1 战力与游走代表路径，P4.17 已给《无极学徒》接入 `等级6` 打出抽 1 代表路径，P4.28 已给《易》接入 `等级6` 法盾/游走代表路径，P4.29 已给《易》A 版本接入 `等级6` 法盾/游走代表路径，其他等级条件仍 deferred。 |
 | 鼓舞 | 12 | 3 | 0 | Medium | P4.7 已识别 profile；P4.14 已给《诺克萨斯新兵》接入本回合已打出其他卡牌记忆和费用 -2 代表路径，P4.21 已给《崔法利求战者》接入同回合鼓舞自增益代表路径，P4.22 已给《危险二人组》接入同回合鼓舞目标临时战力代表路径，P4.23 已给《垃圾场小霸王》接入同回合鼓舞弃 2 抽 2 代表路径，P4.24 已给《先锋队长》接入同回合鼓舞创建两名 1 战力随从代表路径，其他鼓舞分支仍 deferred。 |
 | 法盾 | 47 | 1 | 1 | Medium/High | P4.7 已识别 profile 和税值；P4.12 已接入法术选择敌方场上对象的单目标税，P4.59 已用《妖异狐火》覆盖多目标法术对 `法盾` + `法盾2` 的费用聚合，P4.61 已用《秘奥义！慈悲度魂落》覆盖友方法盾目标 no-tax 边界；P4.62 已新增 `ACTIVATE_ABILITY` typed command，P4.73 已执行《蔚》无目标付费技能入栈/结算代表路径，P4.74 已要求来源对象 `cardNo` 匹配《蔚》，P4.77 已执行《泽拉斯》带目标技能对敌方 `法盾` 单位的目标税 + 横置 + 3 点伤害代表路径，P4.93 已补同一技能敌方法盾目标税 mana 不足时的拒绝 fixture，P4.78 已补同一技能选择己方 `法盾` 单位时 `spellshieldTaxMana = 0` 的 no-tax 边界，P4.79 已补同一技能来源已横置时的拒绝边界，P4.80 已补同一技能缺少目标时的拒绝边界，P4.81 已补同一技能提供两个目标时的拒绝边界，P4.82 已补同一技能携带未支持 optional cost 时的拒绝边界，P4.83 已补非《泽拉斯》来源伪造同一 ability id 时的拒绝边界，P4.84 已补同一技能选择装备等非单位目标时的拒绝边界，P4.85 已补同一技能来源不在战场时的拒绝边界，P4.86 已补同一技能来源由对手控制时的拒绝边界，并把 P4.79-P4.86/P4.93 拒绝 fixtures 纳入资源关键词聚合回放；授予/静态法盾、更多带目标技能和更复杂 FAQ 细节仍 deferred。 |
-| 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.94 已补同一路径费用不足拒绝 fixture；P4.312 已补同一路径来源不在手牌拒绝 fixture；P4.338 已补同一路径来源在对手手牌拒绝 fixture；P4.339 已补已知非待命牌拒绝 fixture；P4.313 已补同一路径目的地不支持拒绝 fixture；P4.314 已补同一路径费用名不支持拒绝 fixture；P4.340 已补缺少待命支付项拒绝 fixture；P4.315 已补同一路径行动窗口拒绝 fixture；P4.316 已补同一路径 stack 非空拒绝 fixture；P4.317 已补同一路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.318 已补显露路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.348 已补反应入栈路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.319 已补显露路径来源不在玩家基地拒绝 fixture；P4.320 已补显露路径来源已公开拒绝 fixture；P4.347 已补反应入栈路径来源不在玩家基地拒绝 fixture；P4.346 已补反应入栈路径来源已公开拒绝 fixture；P4.321 已补显露路径带目标拒绝 fixture；P4.322 已补显露路径费用名不支持拒绝 fixture；P4.341 已补显露路径缺少支付项拒绝 fixture；P4.342 已补显露路径已知非待命牌拒绝 fixture；P4.343 已补反应入栈路径已知非待命牌拒绝 fixture；P4.344 已补反应入栈路径缺少支付项拒绝 fixture；P4.345 已补反应入栈路径 unsupported optional cost 拒绝 fixture；P4.323 已补显露路径目的地不支持拒绝 fixture；P4.349 已补反应入栈路径目的地不支持拒绝 fixture；P4.324 已补反应入栈带目标拒绝 fixture；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；P4.96 已补 `STANDBY_FREE` 无权限拒绝 fixture；P4.102 已补《游击战》非待命废牌堆目标拒绝 fixture；P4.76 已接入 `STANDBY_REACTION` 优先权窗口无目标反应入栈代表路径；P4.95 已补同一路径无优先权窗口拒绝 fixture；P4.386 已验证《提莫》待命反应入栈后结算并触发自身本回合 +3 的代表路径；待命目标伤害、战场/完整隐藏区位置限制和其他待命触发仍 deferred。 |
+| 待命 | 47 | 7 | 0 | High | P4.9 已识别 profile；P4.63 已新增 `HIDE_CARD` typed command；P4.68 已新增 `REVEAL_CARD` typed command；P4.69 已补对手视角正面朝下对象 snapshot redaction；P4.70 已接入 `STANDBY_A` 最小正面朝下放置代表路径；P4.94 已补同一路径费用不足拒绝 fixture；P4.312 已补同一路径来源不在手牌拒绝 fixture；P4.338 已补同一路径来源在对手手牌拒绝 fixture；P4.339 已补已知非待命牌拒绝 fixture；P4.313 已补同一路径目的地不支持拒绝 fixture；P4.314 已补同一路径费用名不支持拒绝 fixture；P4.340 已补缺少待命支付项拒绝 fixture；P4.315 已补同一路径行动窗口拒绝 fixture；P4.316 已补同一路径 stack 非空拒绝 fixture；P4.317 已补同一路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.71 已接入 `STANDBY_REVEAL` 基地显露代表路径；P4.318 已补显露路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.348 已补反应入栈路径来源 `cardNo` 身份不匹配拒绝 fixture；P4.319 已补显露路径来源不在玩家基地拒绝 fixture；P4.320 已补显露路径来源已公开拒绝 fixture；P4.347 已补反应入栈路径来源不在玩家基地拒绝 fixture；P4.346 已补反应入栈路径来源已公开拒绝 fixture；P4.321 已补显露路径带目标拒绝 fixture；P4.322 已补显露路径费用名不支持拒绝 fixture；P4.341 已补显露路径缺少支付项拒绝 fixture；P4.342 已补显露路径已知非待命牌拒绝 fixture；P4.343 已补反应入栈路径已知非待命牌拒绝 fixture；P4.344 已补反应入栈路径缺少支付项拒绝 fixture；P4.345 已补反应入栈路径 unsupported optional cost 拒绝 fixture；P4.323 已补显露路径目的地不支持拒绝 fixture；P4.349 已补反应入栈路径目的地不支持拒绝 fixture；P4.324 已补反应入栈带目标拒绝 fixture；P4.390 已横向审计显露/反应入栈两条带目标 deferred fixture，锁定不推进 tick、不写事件、不翻开对象、不伤害目标、不新增结算链项目；P4.72 已接入《游击战》`FREE_STANDBY_HIDE` / `STANDBY_FREE` 免费暗置代表路径；P4.96 已补 `STANDBY_FREE` 无权限拒绝 fixture；P4.102 已补《游击战》非待命废牌堆目标拒绝 fixture；P4.76 已接入 `STANDBY_REACTION` 优先权窗口无目标反应入栈代表路径；P4.95 已补同一路径无优先权窗口拒绝 fixture；P4.386 已验证《提莫》待命反应入栈后结算并触发自身本回合 +3 的代表路径；待命目标伤害执行、战场/完整隐藏区位置限制和其他待命触发仍 deferred。 |
 | 回响 | 22 | 2 | 0 | Medium | P4.4 已完成 mana-only optional cost/repeat 模型；复杂额外费用、授予回响和模式重复仍后续拆分。 |
 | 伏击 | 18 | 0 | 0 | High | P4.9 已识别 profile；P4.64 已新增 `PLAY_CARD mode=AMBUSH` + `destination` 前置模型；P4.97/P4.325/P4.326/P4.327/P4.335/P4.377/P4.378/P4.379/P4.336/P4.337 已把无目标前置、带目标、`BASE` 目的地、无己方战场单位、来源不在手牌、未知来源、对手手牌来源、非伏击来源、来源 `cardNo` 不匹配和 unsupported optional cost 拒绝边界纳入 conformance fixture 和互动关键词聚合回放；P4.387 已把官网《阴森药剂师》无目标伏击在优先权窗口从手牌支付 3、入栈、双方让过后进入控制者战场的代表路径接入 Core，并通过 `p4-ambush-play-card-gloomy-apothecary-battlefield.fixture.json` 覆盖；可选回手目标、其他伏击牌、完整多战场目的地和隐藏信息仍 deferred。 |
 | 装配 | 51 | 0 | 0 | High | P4.8 已识别 profile；P4.58 已审计并锁定《取放自如》贴附/卸除武装的代表执行路径；P4.66 已新增 `ASSEMBLE_EQUIPMENT` typed command 与 Core 显式拒绝前置模型；P4.99-P4.360/P4.375/P4.376 已补普通窗口、优先权窗口、已贴附来源、缺少/未知目标、缺少/未知来源、手牌来源、对手来源、非装备来源、非单位目标、unsupported optional cost 和缺少装配费用拒绝 fixture；P4.388 已接入《长剑》最小 `ASSEMBLE_RED` 装配 accepted 路径；P4.334 已补移动带贴附装备来源拒绝 fixture；通用装配费用、装备未激活文本和自动贴附仍 deferred。 |
@@ -4996,8 +4997,9 @@ Prompt-to-artifact checklist：
 | P4.387 ambush battlefield reaction representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增官网《阴森药剂师》无目标 `PLAY_CARD / AMBUSH` 在优先权窗口入栈、支付 3、双方让过后进入控制者战场的 direct engine 测试和 conformance fixture，并纳入互动关键词聚合回放。 |
 | P4.388 Long Sword assemble attachment representative path | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增官网《长剑》最小 `ASSEMBLE_EQUIPMENT / ASSEMBLE_RED` 装配路径，支付 1 power 并把基地未贴附武装写入 `attachedToObjectId`，通用装配/灵便自动贴附/百炼/P5 装备系统继续 deferred。 |
 | P4.389 activated ability registry bridge | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增 `P4ActivatedAbilityCatalog`，把已验证的《蔚》无目标付费技能与《泽拉斯》单目标伤害/法盾目标税技能登记为可枚举定义，Core 先查 registry 再复用既有执行路径；更多技能和装备技能仍 deferred。 |
+| P4.390 standby target damage deferred audit | Done | 100% | 审计确认 P4 仍不能标记 goal complete；新增横向 conformance 审计，覆盖待命基地显露与反应入栈两条带目标 deferred fixture，锁定官网卡面证据、规则证据和不翻开/不伤害/不入栈副作用边界。 |
 
-P4 当前整体进度：按 P4.389 审计后预计 `389/392 = 99.2%`。已完成 P4.1-P4.389：在 P4.388 全部内容基础上，P4.389 新增 `P4ActivatedAbilityCatalog`，把《蔚》无目标付费技能与《泽拉斯》单目标伤害技能统一登记到 activated ability registry，并让 Core 先查 registry 再复用既有执行路径。当前仍不能标记 P4 goal complete：待命目标伤害或明确 deferred、除已登记代表外的更多技能目标税，以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `3` 批。
+P4 当前整体进度：按 P4.390 审计后预计 `390/392 = 99.5%`。已完成 P4.1-P4.390：在 P4.389 全部内容基础上，P4.390 明确待命目标伤害执行仍 deferred，并用横向审计测试同时覆盖 `STANDBY_REVEAL` / `BASE` 与 `STANDBY_REACTION` / `STACK` 两条带目标拒绝 fixture 的规则证据和零副作用边界。当前仍不能标记 P4 goal complete：除已登记代表外的更多技能目标税审计/代表，以及最后 SignalR 或等价 E2E/全量验证文档收口仍待完成。预计还需约 `2` 批。
 
 ## P4.384 Precise Roam Slice
 
@@ -5061,6 +5063,16 @@ P4 当前整体进度：按 P4.389 审计后预计 `389/392 = 99.2%`。已完成
 - 新增 direct test `P4ActivatedAbilityCatalogExposesRepresentativeSkillDefinitions`，锁定两个代表技能的来源卡号、费用、目标数、横置费用、伤害数值和法盾目标税标志。
 - 本批次不新增其他技能、不进入装备技能、不处理经验激活技能或 P5 触发/替换系统；更多技能目标税仍只允许后续逐个代表卡小批次接入。
 
+## P4.390 Standby Target Damage Deferred Audit Slice
+
+本批次只做待命目标伤害的显式 deferred 审计，不新增隐藏区、展示/回收或目标伤害执行：
+
+- 复用官网《提莫》`OGN·121/298` 待命文本作为代表卡面证据，继续锁定 `REVEAL_CARD` 的目标分支必须在真实待命目标伤害系统完成前拒绝。
+- 新增横向 conformance 审计 `P4StandbyTargetDamageDeferredFixturesCoverRevealAndReactionBranches`，同时回放 `p4-reveal-card-standby-target-rejected.fixture.json` 与 `p4-reveal-card-standby-reaction-target-rejected.fixture.json`。
+- 审计断言两条 fixture 均为 `RULE_AUDITED`、保留官网卡表与规则证据，并在执行后保持 `finalTick = 0`、无事件、来源仍正面朝下、目标伤害仍为 0。
+- 对 `STANDBY_REACTION` / `STACK` 分支额外锁定既有 pending stack item 不变且不会新增待命 stack item；对 `STANDBY_REVEAL` / `BASE` 分支锁定 stack 为空。
+- `CoreRuleEngine.ResolveRevealCard` 本批次不新增执行分支；待命目标伤害执行、完整隐藏区和更复杂待命触发继续 deferred。
+
 ## Validation Gate
 
 每个进入 P4 可玩路径的能力都必须补齐：
@@ -5074,15 +5086,15 @@ P4 当前整体进度：按 P4.389 审计后预计 `389/392 = 99.2%`。已完成
 
 ## Latest Validation
 
-P4.389 已完成验证：
+P4.390 已完成验证：
 
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：pass，0 warning / 0 error
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2554/2554
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2473/2473
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：pass，2556/2556
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`：pass，2475/2475
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`：pass，23/23
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivatedAbility|FullyQualifiedName~P4ActivateAbilityCommand"`：pass，38/38
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4StandbyTargetDamageDeferredFixturesCoverRevealAndReactionBranches|FullyQualifiedName~P4RevealCardCommandTargetRejectionFixture|FullyQualifiedName~P4RevealCardCommandReactionTargetRejectionFixture"`：pass，4/4
 - `git diff --check`：pass
 
 ## Next Step
 
-进入 P4.390：优先处理待命目标伤害明确 deferred，或挑一个不扩展隐藏区模型的低风险目标伤害拒绝/审计切片。预计 P4 还需要约 `3` 批：待命目标伤害或明确 deferred、除《蔚》《泽拉斯》外的更多技能目标税审计/代表，以及最后 E2E/文档/全量验证收口。
+进入 P4.391：优先处理除《蔚》《泽拉斯》外的更多技能目标税审计/代表，或明确它们在 P4 末尾前保持 deferred 的证据边界。预计 P4 还需要约 `2` 批：更多技能目标税审计/代表，以及最后 SignalR 或等价 E2E/文档/全量验证收口。
