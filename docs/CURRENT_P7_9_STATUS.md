@@ -147,7 +147,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.1 | Done | Backward-compatible structured `ActionPrompt` contract design and first DTO/test slice. | Build + prompt serialization tests. |
 | P7.9.2 | Done | Product operation shell: hide dev tools by default, click-to-source/target scaffolding, action summary. | Frontend build + Browser smoke. |
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
-| P7.9.4 | Planned | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
+| P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Planned | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Planned | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
@@ -196,8 +196,8 @@ Final P7.9 gate:
 ## Current Progress
 
 - P7.9.0 status: done.
-- Overall P7.9 progress: `4/13 top-level batches = 30.8%`.
-- Estimated remaining top-level batches: `9`.
+- Overall P7.9 progress: `5/13 top-level batches = 38.5%`.
+- Estimated remaining top-level batches: `8`.
 
 ## P7.9.0 Delivered
 
@@ -274,3 +274,23 @@ P7.9.3 validation:
   - Room ID: `p7-1777959880566`
   - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `join-both` -> `ready-both` -> open dev tools -> `seed-basic-play`
   - UI summary: `服务端候选` showed `PLAY_CARD` with source `P1-UNIT-MIGHTY-FAERIE`, destinations `基地`/`己方主战场`, modes, and optional costs; debug prompt JSON included `sources`, `destinations`, and `optionalCosts`.
+
+## P7.9.4 Delivered
+
+- Wired structured prompt choices into the product operation builders:
+  - `PLAY_CARD` source, destination, mode, target, and optional-cost chips
+  - `MOVE_UNIT` source and destination chips
+  - `ASSEMBLE_EQUIPMENT` equipment source, host target, and cost chips
+  - `DECLARE_BATTLE` battlefield, attacker, defender, and cost chips
+- Added stable `data-testid` values for prompt choice chips so Browser smoke can target repeated labels reliably.
+- Kept all chips as intent-draft helpers; final legality still comes from server submission.
+
+P7.9.4 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-1777960124126`
+  - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `join-both` -> `ready-both` -> open dev tools -> `seed-basic-play` -> click `play-source-choice-P1-UNIT-MIGHTY-FAERIE` -> click `play-destination-choice-BASE` -> click `cost-echo` -> clear optional cost -> submit `PLAY_CARD`
+  - UI summary: source field became `P1-UNIT-MIGHTY-FAERIE`, destination field became `BASE`, optional cost field became `ECHO` before clearing, and event log included `CARD_PLAYED`, `COST_PAID`, and `STACK_ITEM_ADDED`.

@@ -1294,6 +1294,16 @@ function CommandWorkbench({
   const canDeclareBattle = promptIsActionable && promptActions.includes("DECLARE_BATTLE");
   const selectedTargets = parseList(playDraft.targetObjectIds);
   const selectedOptionalCosts = parseList(playDraft.optionalCosts);
+  const playCandidate = candidateFor(promptCandidates, "PLAY_CARD");
+  const moveCandidate = candidateFor(promptCandidates, "MOVE_UNIT");
+  const assembleCandidate = candidateFor(promptCandidates, "ASSEMBLE_EQUIPMENT");
+  const battleCandidate = candidateFor(promptCandidates, "DECLARE_BATTLE");
+  const playTargetChoices: ActionPromptChoiceDto[] = playCandidate?.targets?.length
+    ? playCandidate.targets
+    : visibleObjectIds.map((objectId): ActionPromptChoiceDto => ({ id: objectId, label: objectId }));
+  const playOptionalCostChoices: ActionPromptChoiceDto[] = playCandidate?.optionalCosts?.length
+    ? playCandidate.optionalCosts
+    : ["ECHO", "STANDBY_REVEAL_0", "ROAM", "SPEND_POWER:1"].map((cost): ActionPromptChoiceDto => ({ id: cost, label: cost }));
 
   function togglePlayTarget(objectId: string) {
     const next = selectedTargets.includes(objectId)
@@ -1306,6 +1316,15 @@ function CommandWorkbench({
     if (!selectedOptionalCosts.includes(cost)) {
       onPlayDraft({ ...playDraft, optionalCosts: [...selectedOptionalCosts, cost].join(", ") });
     }
+  }
+
+  function setPlaySource(choice: ActionPromptChoiceDto) {
+    const object = findObject(snapshot, choice.id);
+    onPlayDraft({
+      ...playDraft,
+      sourceObjectId: choice.id,
+      cardNo: object?.cardNo ?? playDraft.cardNo
+    });
   }
 
   return (
@@ -1413,18 +1432,22 @@ function CommandWorkbench({
             />
           </label>
         </div>
+        <ChoiceChipRow title="服务端来源" testIdPrefix="play-source-choice" choices={playCandidate?.sources} onPick={setPlaySource} />
+        <ChoiceChipRow title="服务端目的地" testIdPrefix="play-destination-choice" choices={playCandidate?.destinations} onPick={(choice) => onPlayDraft({ ...playDraft, destination: choice.id })} />
+        <ChoiceChipRow title="服务端模式" testIdPrefix="play-mode-choice" choices={playCandidate?.modes} onPick={(choice) => onPlayDraft({ ...playDraft, mode: choice.id })} />
         <div className="target-palette">
-          {visibleObjectIds.map((objectId) => (
+          {playTargetChoices.map((choice) => (
             <button
-              className={selectedTargets.includes(objectId) ? "selected" : ""}
-              data-testid={`target-${objectId}`}
+              className={selectedTargets.includes(choice.id) ? "selected" : ""}
+              data-testid={`target-${choice.id}`}
               type="button"
-              key={objectId}
+              key={choice.id}
               onClick={() => {
-                togglePlayTarget(objectId);
+                togglePlayTarget(choice.id);
               }}
+              title={choice.reason}
             >
-              {objectId}
+              {choice.label}
             </button>
           ))}
         </div>
@@ -1440,15 +1463,16 @@ function CommandWorkbench({
           </button>
         </div>
         <div className="cost-palette">
-          {["ECHO", "ASSEMBLE_RED", "COMBAT_ASSIGNMENT", "STANDBY_REVEAL_0", "ROAM", "SPEND_POWER:1"].map((cost) => (
+          {playOptionalCostChoices.map((cost) => (
             <button
-              className={selectedOptionalCosts.includes(cost) ? "selected" : ""}
-              data-testid={`cost-${cost.toLowerCase().replaceAll(":", "-")}`}
-              key={cost}
-              onClick={() => addOptionalCost(cost)}
+              className={selectedOptionalCosts.includes(cost.id) ? "selected" : ""}
+              data-testid={`cost-${cost.id.toLowerCase().replaceAll(":", "-")}`}
+              key={cost.id}
+              onClick={() => addOptionalCost(cost.id)}
+              title={cost.reason}
               type="button"
             >
-              {cost}
+              {cost.label}
             </button>
           ))}
         </div>
@@ -1517,6 +1541,8 @@ function CommandWorkbench({
             />
           </label>
         </div>
+        <ChoiceChipRow title="服务端来源" testIdPrefix="move-source-choice" choices={moveCandidate?.sources} onPick={(choice) => onMoveDraft({ ...moveDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端目的地" testIdPrefix="move-destination-choice" choices={moveCandidate?.destinations} onPick={(choice) => onMoveDraft({ ...moveDraft, destination: choice.id })} />
         <button data-testid="submit-move-unit" disabled={!canMove} onClick={onSubmitMove}>
           Submit MOVE_UNIT
         </button>
@@ -1556,6 +1582,14 @@ function CommandWorkbench({
             />
           </label>
         </div>
+        <ChoiceChipRow title="服务端装备" testIdPrefix="assemble-source-choice" choices={assembleCandidate?.sources} onPick={(choice) => onAssembleDraft({ ...assembleDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端宿主" testIdPrefix="assemble-target-choice" choices={assembleCandidate?.targets} onPick={(choice) => onAssembleDraft({ ...assembleDraft, targetObjectId: choice.id })} />
+        <ChoiceChipRow
+          title="服务端费用"
+          testIdPrefix="assemble-cost-choice"
+          choices={assembleCandidate?.optionalCosts}
+          onPick={(choice) => onAssembleDraft({ ...assembleDraft, optionalCosts: choice.id })}
+        />
         <button data-testid="submit-assemble-equipment" disabled={!canAssemble} onClick={onSubmitAssemble}>
           Submit ASSEMBLE_EQUIPMENT
         </button>
@@ -1604,6 +1638,25 @@ function CommandWorkbench({
             />
           </label>
         </div>
+        <ChoiceChipRow title="服务端战场" testIdPrefix="battle-destination-choice" choices={battleCandidate?.destinations} onPick={(choice) => onBattleDraft({ ...battleDraft, battlefieldId: choice.id })} />
+        <ChoiceChipRow
+          title="服务端攻击方"
+          testIdPrefix="battle-attacker-choice"
+          choices={battleCandidate?.sources}
+          onPick={(choice) => onBattleDraft({ ...battleDraft, attackerObjectIds: toggleListValue(battleDraft.attackerObjectIds, choice.id).join(", ") })}
+        />
+        <ChoiceChipRow
+          title="服务端防守方"
+          testIdPrefix="battle-defender-choice"
+          choices={battleCandidate?.targets}
+          onPick={(choice) => onBattleDraft({ ...battleDraft, defenderObjectIds: toggleListValue(battleDraft.defenderObjectIds, choice.id).join(", ") })}
+        />
+        <ChoiceChipRow
+          title="服务端费用"
+          testIdPrefix="battle-cost-choice"
+          choices={battleCandidate?.optionalCosts}
+          onPick={(choice) => onBattleDraft({ ...battleDraft, optionalCosts: choice.id })}
+        />
         <button data-testid="submit-declare-battle" disabled={!canDeclareBattle} onClick={onSubmitBattle}>
           Submit DECLARE_BATTLE
         </button>
@@ -1658,6 +1711,41 @@ function PromptCandidatePanel({ candidates }: { candidates: ActionPromptCandidat
         )}
       </div>
     </section>
+  );
+}
+
+function ChoiceChipRow({
+  title,
+  testIdPrefix,
+  choices,
+  onPick
+}: {
+  title: string;
+  testIdPrefix: string;
+  choices?: ActionPromptChoiceDto[];
+  onPick: (choice: ActionPromptChoiceDto) => void;
+}) {
+  if (!choices?.length) {
+    return null;
+  }
+
+  return (
+    <div className="choice-chip-row" data-testid={`${testIdPrefix}-row`}>
+      <span>{title}</span>
+      <div>
+        {choices.map((choice) => (
+          <button
+            data-testid={`${testIdPrefix}-${cssSafeId(choice.id)}`}
+            key={choice.id}
+            onClick={() => onPick(choice)}
+            title={choice.reason}
+            type="button"
+          >
+            {choice.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -2297,6 +2385,10 @@ function promptActionLabel(action: string) {
       END_TURN: "结束回合"
     }[action] ?? action
   );
+}
+
+function candidateFor(candidates: ActionPromptCandidateDto[], action: string) {
+  return candidates.find((candidate) => candidate.action === action);
 }
 
 function selectionIntentLabel(intent: SelectionIntent) {

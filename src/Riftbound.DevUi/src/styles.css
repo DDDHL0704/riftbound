@@ -608,7 +608,8 @@ h3 {
 
 .selection-strip,
 .cost-palette,
-.stack-tags {
+.stack-tags,
+.choice-chip-row div {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -738,6 +739,33 @@ h3 {
   color: #2f4a51;
   font-size: 11px;
   line-height: 1.35;
+}
+
+.choice-chip-row {
+  display: grid;
+  gap: 5px;
+}
+
+.choice-chip-row > span {
+  color: #5d7077;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.choice-chip-row button {
+  min-height: 28px;
+  border-color: #8aa4aa;
+  background: #eef5f3;
+  color: #25424a;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+.choice-chip-row button:hover:not(:disabled) {
+  border-color: #145c55;
+  background: #d9efe2;
+  color: #175c3d;
 }
 
 .response-grid {
