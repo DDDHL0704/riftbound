@@ -1778,6 +1778,45 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticPreventMoveBaseSeedRejectsMoveToBase()
+    {
+        const string roomId = "p7-9-battlefield-static-prevent-move-base";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-static-prevent-move-base", "seed-p7-9-battlefield-static-prevent-move-base");
+
+        var moveClients = new RecordingHubClients();
+        var move = JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-TRAPPED-UNIT",
+              "origin": "BATTLEFIELD",
+              "destination": "BASE",
+              "optionalCosts": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-prevent-move-base", move);
+
+        var error = Assert.Single(moveClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.InvalidTarget, payload.Code);
+        Assert.Equal(
+            "MOVE_UNIT blocked by battlefield static: units cannot move from this battlefield to base.",
+            payload.Message);
+    }
+
+    [Fact]
     public async Task P79BattlefieldWinningScoreSeedRaisesThresholdAndDelaysBurnoutWin()
     {
         const string roomId = "p7-9-battlefield-winning-score";

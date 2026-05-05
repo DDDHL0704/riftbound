@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static roam, and representative effects. Battlefield slices migrated `32/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `22` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, and representative effects. Battlefield slices migrated `33/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `21` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-31 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-32 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `31` done.
-- Current functional-unit implementation: `789/811 = 97.3%`.
-- Current manual deferred boundary: `22/811 = 2.7%`.
+- P7.9.7 battlefield foundation slices: `32` done.
+- Current functional-unit implementation: `790/811 = 97.4%`.
+- Current manual deferred boundary: `21/811 = 2.6%`.
 - Remaining manual domains:
-  - `战场`: `22` functional units / `23` entries
+  - `战场`: `21` functional units / `22` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2434,3 +2434,35 @@ P7.9.7 battlefield foundation slice 31 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/static-roam battlefield slice. GameHub coverage verifies the seed, prompt source/optional cost, authoritative move event, and snapshot boundary.
+
+## P7.9.7 Battlefield Foundation Slice 32 Delivered
+
+This is the thirty-second rule slice inside P7.9.7. It adds a static battlefield movement restriction.
+
+- Added implemented battlefield card:
+  - `OGN·295/298`: while this battlefield object is present in a player's battlefield zone, battlefield-zone units cannot move to that player's base through `MOVE_UNIT`.
+- Server-authoritative static restriction changes:
+  - `MOVE_UNIT` from `BATTLEFIELD` to `BASE` now checks the server-side `OGN·295/298` battlefield static before mutating zones.
+  - The mutation is rejected with `ErrorCodes.InvalidTarget` and a stable message when the movement restriction applies; no frontend rule inference is required.
+  - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative blocks controlled battlefield-zone units from moving to base while preserving the existing prompt and snapshot authority model.
+- Added `battlefield-static-prevent-move-base` local development seed plus GameHub coverage for submitting the blocked move and receiving the stable backend error.
+- Migrated this battlefield static movement restriction slice in `BehaviorSpec`:
+  - Implemented functional units: `790/811`
+  - Manual deferred functional units: `21/811`
+  - Implemented official entries: `987/1009`
+  - Manual deferred official entries: `22/1009`
+  - Battlefield rule-domain implemented: `33` functional units / `35` entries
+  - Remaining battlefield manual deferred: `21` functional units / `22` entries
+  - Move template coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 32 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventMove"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2616/2616`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `61/61`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2756/2756`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/static-prevent-move battlefield slice. GameHub coverage verifies the seed, blocked move submission, stable backend error, and snapshot boundary.

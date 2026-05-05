@@ -179,6 +179,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
+    private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
@@ -3238,6 +3239,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             return RejectWithCorePrompts(
                 state,
                 "MOVE_UNIT source must not be in combat.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(destinationZone, MoveUnitBaseZone, StringComparison.Ordinal)
+            && HasBattlefieldStaticPreventMoveToBase(state, intent.PlayerId, command.SourceObjectId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT blocked by battlefield static: units cannot move from this battlefield to base.",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -7622,6 +7633,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
+            || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
             || IsBattlefieldStaticRoamCardNo(cardNo);
     }
 
@@ -7780,6 +7792,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldPreventMoveToBaseCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldPreventMoveToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldStaticRoamCardNo(string? cardNo)
@@ -9663,6 +9680,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
             && IsBattlefieldStaticRoamCardNo(cardObject.CardNo));
+    }
+
+    private static bool HasBattlefieldStaticPreventMoveToBase(MatchState state, string playerId, string sourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return zones.Battlefields.Any(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && IsBattlefieldPreventMoveToBaseCardNo(cardObject.CardNo));
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)

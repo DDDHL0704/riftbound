@@ -26422,6 +26422,30 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit()
+    {
+        var state = BattlefieldStaticPreventMoveBaseState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-static-prevent-move-base", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BATTLEFIELD-TRAPPED-UNIT",
+                "BATTLEFIELD",
+                "BASE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(
+            "MOVE_UNIT blocked by battlefield static: units cannot move from this battlefield to base.",
+            result.ErrorMessage);
+        Assert.Equal(["P1-BATTLEFIELD-VILEMAW-LAIR", "P1-BATTLEFIELD-TRAPPED-UNIT"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38479,6 +38503,36 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-WIND-RUNNER"] = new(
                     "P1-BATTLEFIELD-WIND-RUNNER",
                     power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldStaticPreventMoveBaseState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-VILEMAW-LAIR", "P1-BATTLEFIELD-TRAPPED-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-VILEMAW-LAIR"] = new(
+                    "P1-BATTLEFIELD-VILEMAW-LAIR",
+                    cardNo: "OGN·295/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-TRAPPED-UNIT"] = new(
+                    "P1-BATTLEFIELD-TRAPPED-UNIT",
+                    power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1")
