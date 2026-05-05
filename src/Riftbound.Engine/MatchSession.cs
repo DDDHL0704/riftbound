@@ -1067,6 +1067,7 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT", "横置：重贴附已贴附武装"),
                 new ActionPromptChoiceDto("LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA", "鼓舞并横置：获得 1 法力"),
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT", "支付 1 并横置：召回己方提莫单位"),
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT", "支付 1 并横置：打出黄沙士兵"),
                 new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵")
             ],
             _ => null
@@ -1194,6 +1195,8 @@ internal static class ActionPromptBuilder
             or "OGN·263a/298"
             or "OGN·307/298"
             or "OGN·307*/298"
+            or "SFD·197/221"
+            or "SFD·247/221"
             or "UNL-189/219"
             or "UNL-230*/219"
             or "UNL-230/219";
@@ -2714,6 +2717,7 @@ public sealed class MatchSession : IMatchSession
                         "P1-LEGEND-MISS-FORTUNE",
                         "P1-LEGEND-KHAZIX",
                         "P1-LEGEND-PYKE",
+                        "P1-LEGEND-AZIR",
                         "P1-LEGEND-LILLIA"
                     ],
                     championZone: ["P1-CHAMPION-001"]),
@@ -2732,6 +2736,7 @@ public sealed class MatchSession : IMatchSession
                 ["P1-LEGEND-MISS-FORTUNE"] = new("P1-LEGEND-MISS-FORTUNE", cardNo: "OGN·267/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-KHAZIX"] = new("P1-LEGEND-KHAZIX", cardNo: "UNL-201/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-PYKE"] = new("P1-LEGEND-PYKE", cardNo: "UNL-185/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-AZIR"] = new("P1-LEGEND-AZIR", cardNo: "SFD·197/221", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-LILLIA"] = new("P1-LEGEND-LILLIA", cardNo: "UNL-189/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-BASE-UNIT"] = new("P1-LEGEND-BASE-UNIT", power: 2, tags: [CardObjectTags.UnitCard], ownerId: seed.P1, controllerId: seed.P1),
                 ["P1-LEGEND-EPHEMERAL-UNIT"] = new("P1-LEGEND-EPHEMERAL-UNIT", power: 1, tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral], ownerId: seed.P1, controllerId: seed.P1),
@@ -2744,7 +2749,8 @@ public sealed class MatchSession : IMatchSession
                 {
                     [seed.P1] = 3,
                     [seed.P2] = 0
-                }
+                },
+                UntilEndOfTurnEffects = [$"PLAYED_ARMAMENT_THIS_TURN:{seed.P1}"]
             };
     }
 

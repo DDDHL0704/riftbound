@@ -23894,6 +23894,97 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActAzirCreatesTemperedSandSoldierAfterArmamentPlayedThisTurn()
+    {
+        var state = LegendActiveAbilityState("SFD·197/221", "P1-LEGEND-AZIR", mana: 1) with
+        {
+            UntilEndOfTurnEffects = ["PLAYED_ARMAMENT_THIS_TURN:P1"]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-azir-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-AZIR",
+                "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT",
+                [],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-AZIR"].IsExhausted);
+        Assert.Contains("P1-LEGEND-AZIR-TOKEN-001", result.State.PlayerZones["P1"].Base);
+        var token = result.State.CardObjects["P1-LEGEND-AZIR-TOKEN-001"];
+        Assert.Equal("SFD·T02", token.CardNo);
+        Assert.Equal(2, token.Power);
+        Assert.Equal("P1", token.OwnerId);
+        Assert.Equal("P1", token.ControllerId);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(CardObjectTags.SandSoldier, token.Tags);
+        Assert.Contains(CardEquipmentKeywordNames.Tempered, token.Tags);
+        var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("SFD·T02", tokenEvent.Payload["tokenCardNo"]);
+        Assert.Equal(true, tokenEvent.Payload["azirTempered"]);
+    }
+
+    [Fact]
+    public async Task P79LegendActAzirRequiresArmamentPlayedThisTurn()
+    {
+        var state = LegendActiveAbilityState("SFD·247/221", "P1-LEGEND-AZIR-REPRINT", mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-azir-legend-act-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-AZIR-REPRINT",
+                "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT",
+                [],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.False(result.State.CardObjects["P1-LEGEND-AZIR-REPRINT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
+    public async Task P79LegendAzirTracksArmamentPlayedThisTurnFromWeaponPlay()
+    {
+        var baseState = LegendActiveAbilityState("SFD·197/221", "P1-LEGEND-AZIR", mana: 2);
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-DORANS-BLADE"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-DORANS-BLADE"] = new(
+            "P1-DORANS-BLADE",
+            cardNo: "SFD·095/221",
+            tags: [CardObjectTags.EquipmentCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-azir-armament-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-DORANS-BLADE", "SFD·095/221", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains("PLAYED_ARMAMENT_THIS_TURN:P1", result.State.UntilEndOfTurnEffects);
+        Assert.DoesNotContain("P1-DORANS-BLADE", result.State.PlayerZones["P1"].Hand);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();

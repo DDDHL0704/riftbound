@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `25/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `26/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `6` done.
+- P7.9.6 active-ability slices: `7` done.
 - P7.9.6 automatic-trigger slices: `6` done.
-- P7.9.6 static legend slices: `5` done.
-- Current functional-unit implementation: `738/811 = 91.0%`.
-- Current manual deferred boundary: `73/811 = 9.0%`.
+- P7.9.6 static legend slices: `6` done.
+- Current functional-unit implementation: `739/811 = 91.1%`.
+- Current manual deferred boundary: `72/811 = 8.9%`.
 - Remaining manual domains:
-  - `传奇`: `19` functional units / `45` entries
+  - `传奇`: `18` functional units / `43` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `6` legend active-ability slices, `6` automatic-trigger slices, and `5` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `7` legend active-ability slices, `6` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -963,3 +963,39 @@ P7.9.6 active/replacement slice 6 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule slice. The Teemo recall path uses the existing `LEGEND_ACT` candidate UI, and standby replacement remains a backend `HIDE_CARD` rule path without a new product panel in this batch.
+
+## P7.9.6 Active/Static Slice 7 Delivered
+
+This is the eighteenth committed rule slice inside P7.9.6. It adds Azir / 沙漠皇帝 legend sand-soldier creation plus the static Sand Soldier `百炼` tag surface.
+
+- Added Azir legend active ability:
+  - `LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT`
+  - requires the controller to have played a `武装` equipment this turn through a server-side until-end-of-turn marker
+  - pays `1`, exhausts Azir, and creates official token `SFD·T02` 黄沙士兵 in the controller's base
+  - applies Azir's static surface by adding `百炼` to created Sand Soldiers while the controller has an Azir legend
+  - emits `LEGEND_ABILITY_ACTIVATED`, `COST_PAID`, `LEGEND_EXHAUSTED`, and `UNIT_TOKEN_CREATED`
+- Expanded `ActionPrompt` legend candidates with the Azir mode label and updated the local legend-actions seed so the page can operate the new ability from the existing `LEGEND_ACT` panel.
+- Accepted same-functional-unit legend entries:
+  - `SFD·197/221`
+  - `SFD·247/221`
+- Added representative conformance coverage for Azir success, rejection before an armament was played this turn, and the armament-play marker produced by playing official weapon `SFD·095/221` 多兰之刃 even when the source object lacks a preexisting `武装` tag.
+- Migrated this legend active/static slice in `BehaviorSpec`:
+  - Implemented functional units: `739/811`
+  - Manual deferred functional units: `72/811`
+  - Implemented official entries: `909/1009`
+  - Manual deferred official entries: `100/1009`
+  - Legend rule-domain implemented: `26` functional units / `63` entries
+  - Remaining legend manual deferred: `18` functional units / `43` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active/static slice 7 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendActAzir|FullyQualifiedName~P79LegendAzir"`: passed `40/40`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2542/2542`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2649/2649`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule slice because it reuses the existing `LEGEND_ACT` UI path and no new frontend flow was added. The Azir action is visible through server prompt candidates and the resulting `UNIT_TOKEN_CREATED` event/snapshot.

@@ -89,11 +89,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
     private const int TeemoLegendManaCost = 1;
     private const string TeemoLegendManaCostToken = "SPEND_MANA:1";
+    private const string AzirSpiritforgedLegendCardNo = "SFD·197/221";
+    private const string AzirLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT";
+    private const int AzirLegendManaCost = 1;
+    private const string AzirLegendManaCostToken = "SPEND_MANA:1";
     private const string JinxLegendCardNo = "FND-251/298";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
+    private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
     private const string MasterYiIntroLegendCardNo = "OGS·019/024";
@@ -108,6 +113,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string VolibearFoundationLegendCardNo = "FND-249/298";
     private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
     private const int PowerfulUnitPowerThreshold = 5;
+    private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -240,6 +246,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             PlayerExperience = playerExperience,
             PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
+            UntilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
+                state.UntilEndOfTurnEffects,
+                intent.PlayerId,
+                behavior),
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
@@ -796,6 +806,71 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static IReadOnlyList<string> MarkArmamentPlayedThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return IsArmamentPlayBehavior(behavior)
+            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildPlayedArmamentThisTurnEffectId(playerId))
+            : existingEffectIds;
+    }
+
+    private static bool IsArmamentPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsEquipment
+            && (ParseDelimitedValues(behavior.SourceEquipmentTags)
+                    .Contains("武装", StringComparer.Ordinal)
+                || IsOfficialArmamentEquipmentCardNo(behavior.CardNo));
+    }
+
+    private static bool IsOfficialArmamentEquipmentCardNo(string? cardNo)
+    {
+        return cardNo is "UNL-019/219"
+            or "UNL-039/219"
+            or "UNL-096/219"
+            or "UNL-158/219"
+            or "SFD·009/221"
+            or "SFD·016/221"
+            or "SFD·022/221"
+            or "SFD·030/221"
+            or "SFD·033/221"
+            or "SFD·042/221"
+            or "SFD·051/221"
+            or "SFD·056/221"
+            or "SFD·059/221"
+            or "SFD·064/221"
+            or "SFD·073/221"
+            or "SFD·090/221"
+            or "SFD·095/221"
+            or "SFD·102/221"
+            or "SFD·108/221"
+            or "SFD·115/221"
+            or "SFD·118/221"
+            or "SFD·118a/221·P"
+            or "SFD·124/221"
+            or "SFD·133/221"
+            or "SFD·134/221"
+            or "SFD·139/221"
+            or "SFD·150/221"
+            or "SFD·153/221"
+            or "SFD·161/221"
+            or "SFD·172/221"
+            or "SFD·178/221";
+    }
+
+    private static string BuildPlayedArmamentThisTurnEffectId(string playerId)
+    {
+        return $"{PlayedArmamentThisTurnEffectPrefix}{playerId}";
+    }
+
+    private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BuildPlayedArmamentThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
     private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
     {
         return behavior.AppliesPowerModifierToSourceUnit
@@ -1109,6 +1184,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        if (ability.RequiresPlayedArmamentThisTurn
+            && !ControllerPlayedArmamentThisTurn(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} requires the controller to have played an armament this turn.",
+                ErrorCodes.InsufficientCost);
+        }
+
         if (ability.RequiresOwnedTeemoUnitTarget
             && !IsValidOwnedTeemoUnitTarget(state, intent.PlayerId, targetObjectIds[0]))
         {
@@ -1327,6 +1411,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     command.AbilityId,
                     events);
                 break;
+            case LegendAbilityEffectKinds.CreateSandSoldier:
+                CreateLegendSandSoldier(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
             case LegendAbilityEffectKinds.CreateMinion:
                 CreateLegendMinion(
                     playerZones,
@@ -1506,6 +1599,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand,
                 RequiresOwnedTeemoUnitTarget: true),
+            AzirLegendAbilityId => new LegendAbilityDefinition(
+                AzirLegendAbilityId,
+                [AzirSpiritforgedLegendCardNo, "SFD·247/221"],
+                "沙漠皇帝传奇沙兵技能",
+                AzirLegendManaCost,
+                0,
+                AzirLegendManaCostToken,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.CreateSandSoldier,
+                RequiresPlayedArmamentThisTurn: true),
             LilliaLegendAbilityId => new LegendAbilityDefinition(
                 LilliaLegendAbilityId,
                 [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
@@ -1632,6 +1736,43 @@ public sealed class CoreRuleEngine : IRuleEngine
             or "OGN·197b/298"
             or "SFD·230/221"
             or "SFD·230*/221";
+    }
+
+    private static bool IsAzirLegendCardNo(string? cardNo)
+    {
+        return cardNo is AzirSpiritforgedLegendCardNo or "SFD·247/221";
+    }
+
+    private static bool ControllerHasAzirLegend(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        return playerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(objectId =>
+                cardObjects.TryGetValue(objectId, out var legendState)
+                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && IsAzirLegendCardNo(legendState.CardNo));
+    }
+
+    private static IReadOnlyList<string> ApplyAzirSandSoldierTemperedTags(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<string> tokenTags)
+    {
+        if (!tokenTags.Contains(CardObjectTags.SandSoldier, StringComparer.Ordinal)
+            || !ControllerHasAzirLegend(playerZones, cardObjects, playerId))
+        {
+            return tokenTags;
+        }
+
+        return tokenTags
+            .Concat([CardEquipmentKeywordNames.Tempered])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static void MoveLegendTargetBetweenBaseAndBattlefield(
@@ -2032,6 +2173,62 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["power"] = tokenState.Power,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = tokenState.Tags.ToArray()
+            }));
+    }
+
+    private static void CreateLegendSandSoldier(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
+        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(SandSoldierTokenCardNo, out var definition)
+            ? definition.CreateObject(tokenObjectId, playerId, playerId)
+            : new CardObjectState(
+                tokenObjectId,
+                power: 2,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.SandSoldier],
+                cardNo: SandSoldierTokenCardNo,
+                ownerId: playerId,
+                controllerId: playerId);
+        var tokenTags = ApplyAzirSandSoldierTemperedTags(
+            playerZones,
+            cardObjects,
+            playerId,
+            tokenState.Tags);
+        tokenState = tokenState with
+        {
+            Tags = tokenTags
+        };
+
+        cardObjects[tokenObjectId] = tokenState;
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{sourceObjectId} 打出黄沙士兵",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenState.CardNo,
+                ["tokenName"] = "黄沙士兵",
+                ["power"] = tokenState.Power,
+                ["destinationZone"] = "BASE",
+                ["tokenTags"] = tokenState.Tags.ToArray(),
+                ["azirTempered"] = tokenState.Tags.Contains(CardEquipmentKeywordNames.Tempered, StringComparer.Ordinal)
             }));
     }
 
@@ -8899,6 +9096,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
             : ParseDelimitedValues(behavior.CreatedBaseUnitTokenTags);
+        tokenTags = ApplyAzirSandSoldierTemperedTags(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            tokenTags);
         var createdTokenObjectIds = new List<string>();
         for (var tokenIndex = 0; tokenIndex < tokenCount; tokenIndex++)
         {
@@ -12015,6 +12217,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresAttachedArmamentSecondTarget = false,
         bool RequiresDifferentArmamentHost = false,
         bool RequiresPlayedAnotherCardThisTurn = false,
+        bool RequiresPlayedArmamentThisTurn = false,
         bool RequiresOwnedTeemoUnitTarget = false,
         string ManaCostReductionKind = "");
 
@@ -12029,6 +12232,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string GainMana = "GAIN_MANA";
         public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";
+        public const string CreateSandSoldier = "CREATE_SAND_SOLDIER";
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
     }
