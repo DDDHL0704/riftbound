@@ -23822,6 +23822,78 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActTeemoRecallsOwnedChampionZoneTeemoUnit()
+    {
+        var state = TeemoLegendRecallState("OGN·263/298", "P1-LEGEND-TEEMO", mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-teemo-recall-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-TEEMO",
+                "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT",
+                ["P1-TEEMO-UNIT"],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-TEEMO"].IsExhausted);
+        Assert.DoesNotContain("P1-TEEMO-UNIT", result.State.PlayerZones["P1"].ChampionZone);
+        Assert.Contains("P1-TEEMO-UNIT", result.State.PlayerZones["P1"].Hand);
+        var returnedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal));
+        Assert.Equal("CHAMPION", returnedEvent.Payload["originZone"]);
+        Assert.Equal("P1-TEEMO-UNIT", returnedEvent.Payload["targetObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTeemoStandbyReplacementHidesStandbyCardWithMana()
+    {
+        var state = TeemoLegendStandbyHideState(hasTeemoLegend: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-teemo-standby-hide", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-STANDBY-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_TEEMO_MANA"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.DoesNotContain("P1-STANDBY-TEEMO", result.State.PlayerZones["P1"].Hand);
+        Assert.Contains("P1-STANDBY-TEEMO", result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects["P1-STANDBY-TEEMO"].IsFaceDown);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(true, costEvent.Payload["teemoStandbyHideReplacement"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTeemoStandbyReplacementRequiresTeemoLegend()
+    {
+        var state = TeemoLegendStandbyHideState(hasTeemoLegend: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-teemo-standby-hide-rejected", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-STANDBY-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_TEEMO_MANA"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-STANDBY-TEEMO", result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-STANDBY-TEEMO", result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -34713,6 +34785,80 @@ public sealed class ConformanceFixtureRunnerTests
             PlayerZones = playerZones,
             CardObjects = cardObjects
         };
+    }
+
+    private static MatchState TeemoLegendRecallState(string sourceCardNo, string sourceObjectId, int mana)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            ChampionZone = ["P1-TEEMO-UNIT"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-TEEMO-UNIT"] = new(
+            "P1-TEEMO-UNIT",
+            cardNo: "OGN·197/298",
+            power: 1,
+            tags: [CardObjectTags.UnitCard, "待命", "约德尔人"],
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState TeemoLegendStandbyHideState(bool hasTeemoLegend)
+    {
+        return new MatchState(
+            "p7-9-teemo-standby-room",
+            0,
+            907,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-STANDBY-TEEMO"],
+                    LegendZone = hasTeemoLegend ? ["P1-LEGEND-TEEMO"] : []
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-STANDBY-TEEMO"] = new(
+                    "P1-STANDBY-TEEMO",
+                    cardNo: "OGN·121/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-TEEMO"] = new(
+                    "P1-LEGEND-TEEMO",
+                    cardNo: "OGN·263/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
     }
 
     private static MatchState JinxLegendTurnStartState()

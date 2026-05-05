@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `24/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `25/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `5` done.
+- P7.9.6 active-ability slices: `6` done.
 - P7.9.6 automatic-trigger slices: `6` done.
 - P7.9.6 static legend slices: `5` done.
-- Current functional-unit implementation: `737/811 = 90.9%`.
-- Current manual deferred boundary: `74/811 = 9.1%`.
+- Current functional-unit implementation: `738/811 = 91.0%`.
+- Current manual deferred boundary: `73/811 = 9.0%`.
 - Remaining manual domains:
-  - `传奇`: `20` functional units / `49` entries
+  - `传奇`: `19` functional units / `45` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `5` legend active-ability slices, `6` automatic-trigger slices, and `5` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `6` legend active-ability slices, `6` automatic-trigger slices, and `5` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -922,3 +922,44 @@ P7.9.6 active-ability slice 5 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because the existing `LEGEND_ACT` UI path already renders no-target, no-cost legend actions through server candidates. The Darius action is visible through server prompt candidates and the resulting `MANA_GAINED` event/snapshot.
+
+## P7.9.6 Active/Replacement Slice 6 Delivered
+
+This is the seventeenth committed rule slice inside P7.9.6. It adds Teemo / 迅捷斥候 legend recall and standby hide replacement coverage.
+
+- Added Teemo legend active ability:
+  - `LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT`
+  - pays `1`, exhausts Teemo, and returns an owned Teemo unit from the champion zone or field to hand
+  - validates source legend, target ownership, target card identity, unit tag, zone, source exhaustion, and mana payment
+  - emits `LEGEND_ABILITY_ACTIVATED`, `COST_PAID`, `LEGEND_EXHAUSTED`, and `UNIT_RETURNED_TO_HAND`
+- Added Teemo standby replacement support:
+  - `HIDE_CARD optionalCosts=["STANDBY_TEEMO_MANA"]`
+  - requires a controlled Teemo legend
+  - spends `1` mana and records `teemoStandbyHideReplacement` in the cost event
+- Expanded `ActionPrompt` legend candidates with the Teemo recall mode and champion-zone unit targets for legend actions.
+- Accepted same-functional-unit legend entries:
+  - `OGN·263/298`
+  - `OGN·263a/298`
+  - `OGN·307/298`
+  - `OGN·307*/298`
+- Added representative conformance coverage for Teemo legend recall, Teemo standby replacement success, and replacement rejection without a Teemo legend.
+- Migrated this legend active/replacement slice in `BehaviorSpec`:
+  - Implemented functional units: `738/811`
+  - Manual deferred functional units: `73/811`
+  - Implemented official entries: `907/1009`
+  - Manual deferred official entries: `102/1009`
+  - Legend rule-domain implemented: `25` functional units / `61` entries
+  - Remaining legend manual deferred: `19` functional units / `45` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active/replacement slice 6 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendActTeemo|FullyQualifiedName~P79LegendTeemo"`: passed `40/40`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2539/2539`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2646/2646`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule slice. The Teemo recall path uses the existing `LEGEND_ACT` candidate UI, and standby replacement remains a backend `HIDE_CARD` rule path without a new product panel in this batch.

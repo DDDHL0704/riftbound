@@ -11,6 +11,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyHideDestination = "STANDBY";
     private const string StandbyHideOptionalCost = "STANDBY_A";
     private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
+    private const string StandbyHideTeemoOptionalCost = "STANDBY_TEEMO_MANA";
     private const int StandbyHideManaCost = 1;
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
@@ -84,6 +85,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DariusOriginLegendCardNo = "OGN·253/298";
     private const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
     private const int DariusLegendManaGain = 1;
+    private const string TeemoOriginLegendCardNo = "OGN·263/298";
+    private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
+    private const int TeemoLegendManaCost = 1;
+    private const string TeemoLegendManaCostToken = "SPEND_MANA:1";
     private const string JinxLegendCardNo = "FND-251/298";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
@@ -1104,6 +1109,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        if (ability.RequiresOwnedTeemoUnitTarget
+            && !IsValidOwnedTeemoUnitTarget(state, intent.PlayerId, targetObjectIds[0]))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} target must be an owned Teemo unit in the champion zone or on the field.",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (ability.RequiresFriendlyUnitTarget
             && !IsValidLegendAbilityTarget(state, intent.PlayerId, targetObjectIds[0], ability))
         {
@@ -1303,6 +1317,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                     command.AbilityId,
                     events);
                 break;
+            case LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand:
+                ReturnOwnedTeemoUnitToHand(
+                    playerZones,
+                    cardObjects,
+                    targetObjectIds[0],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
             case LegendAbilityEffectKinds.CreateMinion:
                 CreateLegendMinion(
                     playerZones,
@@ -1471,6 +1495,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainMana,
                 RequiresPlayedAnotherCardThisTurn: true),
+            TeemoLegendAbilityId => new LegendAbilityDefinition(
+                TeemoLegendAbilityId,
+                [TeemoOriginLegendCardNo, "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
+                "迅捷斥候传奇召回技能",
+                TeemoLegendManaCost,
+                0,
+                TeemoLegendManaCostToken,
+                1,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand,
+                RequiresOwnedTeemoUnitTarget: true),
             LilliaLegendAbilityId => new LegendAbilityDefinition(
                 LilliaLegendAbilityId,
                 [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
@@ -1569,6 +1604,34 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return !ability.RequiresDifferentArmamentHost
             || !string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
+    }
+
+    private static bool IsValidOwnedTeemoUnitTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && (zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                || zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                || zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal))
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !targetState.IsFaceDown
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && string.Equals(targetState.OwnerId, playerId, StringComparison.Ordinal)
+            && IsTeemoUnitCardNo(targetState.CardNo);
+    }
+
+    private static bool IsTeemoUnitCardNo(string? cardNo)
+    {
+        return cardNo is "FND-196/298"
+            or "OGN·121/298"
+            or "OGN·121a/298"
+            or "OGN·197/298"
+            or "OGN·197a/298"
+            or "OGN·197b/298"
+            or "SFD·230/221"
+            or "SFD·230*/221";
     }
 
     private static void MoveLegendTargetBetweenBaseAndBattlefield(
@@ -1752,6 +1815,57 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["originZone"] = location.Value.Zone,
                 ["ownerPlayerId"] = ownerPlayerId,
+                ["destinationZone"] = "HAND"
+            }));
+    }
+
+    private static void ReturnOwnedTeemoUnitToHand(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return;
+        }
+
+        var originZone = zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal)
+            ? "CHAMPION"
+            : zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                ? MoveUnitBattlefieldZone
+                : MoveUnitBaseZone;
+        playerZones[playerId] = zones with
+        {
+            Base = RemoveFromZone(zones.Base, targetObjectId),
+            Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+            ChampionZone = RemoveFromZone(zones.ChampionZone, targetObjectId),
+            Hand = zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Hand
+                : zones.Hand.Concat([targetObjectId]).ToArray()
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            ControllerId = playerId,
+            IsAttacking = false,
+            IsDefending = false,
+            IsExhausted = false
+        };
+        events.Add(new GameEvent(
+            "UNIT_RETURNED_TO_HAND",
+            $"{targetObjectId} 被提莫传奇技能返回手牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = originZone,
+                ["ownerPlayerId"] = playerId,
                 ["destinationZone"] = "HAND"
             }));
     }
@@ -2140,11 +2254,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
         var usesStandardStandbyHideCost = optionalCosts.Count == 1
             && string.Equals(optionalCosts[0], StandbyHideOptionalCost, StringComparison.Ordinal);
+        var usesTeemoStandbyHideCost = optionalCosts.Count == 1
+            && string.Equals(optionalCosts[0], StandbyHideTeemoOptionalCost, StringComparison.Ordinal)
+            && HasTeemoStandbyHidePermission(state, intent.PlayerId);
         var usesFreeStandbyHideCost = optionalCosts.Count == 1
             && string.Equals(optionalCosts[0], StandbyHideFreeOptionalCost, StringComparison.Ordinal)
             && HasFreeStandbyHidePermission(state, intent.PlayerId);
         if (!string.Equals(destination, StandbyHideDestination, StringComparison.Ordinal)
-            || (!usesStandardStandbyHideCost && !usesFreeStandbyHideCost))
+            || (!usesStandardStandbyHideCost && !usesTeemoStandbyHideCost && !usesFreeStandbyHideCost))
         {
             return RejectWithCorePrompts(
                 state,
@@ -2232,6 +2349,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             costPaidPayload["standbyHideCostWaived"] = true;
         }
+        if (usesTeemoStandbyHideCost)
+        {
+            costPaidPayload["teemoStandbyHideReplacement"] = true;
+        }
 
         var events = new List<GameEvent>
         {
@@ -2266,6 +2387,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             FreeStandbyHideEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool HasTeemoStandbyHidePermission(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(legendObjectId =>
+                state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+                && IsTeemoLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool IsTeemoLegendCardNo(string? cardNo)
+    {
+        return cardNo is TeemoOriginLegendCardNo
+            or "OGN·263a/298"
+            or "OGN·307/298"
+            or "OGN·307*/298";
     }
 
     private static string FreeStandbyHideEffectId(string playerId)
@@ -11878,6 +12015,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresAttachedArmamentSecondTarget = false,
         bool RequiresDifferentArmamentHost = false,
         bool RequiresPlayedAnotherCardThisTurn = false,
+        bool RequiresOwnedTeemoUnitTarget = false,
         string ManaCostReductionKind = "");
 
     private static class LegendAbilityEffectKinds
@@ -11890,6 +12028,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string AttachArmament = "ATTACH_ARMAMENT";
         public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string GainMana = "GAIN_MANA";
+        public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
     }

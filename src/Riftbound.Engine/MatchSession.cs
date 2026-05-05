@@ -1012,7 +1012,7 @@ internal static class ActionPromptBuilder
                     && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal))
                 .Select(objectId => ObjectChoice(state, objectId, "opposing battlefield defender candidate"))
                 .ToArray(),
-            "LEGEND_ACT" => ControlledBoardObjects(state, playerId)
+            "LEGEND_ACT" => ControlledLegendActionObjects(state, playerId)
                 .Where(objectId =>
                     IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
                     || IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.EquipmentCard))
@@ -1066,6 +1066,7 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT", "支付 1 并横置：贴附未贴附武装"),
                 new ActionPromptChoiceDto("LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT", "横置：重贴附已贴附武装"),
                 new ActionPromptChoiceDto("LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA", "鼓舞并横置：获得 1 法力"),
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT", "支付 1 并横置：召回己方提莫单位"),
                 new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵")
             ],
             _ => null
@@ -1141,6 +1142,13 @@ internal static class ActionPromptBuilder
             : [];
     }
 
+    private static IEnumerable<string> ControlledLegendActionObjects(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base.Concat(zones.Battlefields).Concat(zones.ChampionZone)
+            : [];
+    }
+
     private static bool IsControlledObjectWithTag(
         MatchState state,
         string playerId,
@@ -1182,6 +1190,10 @@ internal static class ActionPromptBuilder
             or "OGN·253/298"
             or "OGN·302/298"
             or "OGN·302*/298"
+            or "OGN·263/298"
+            or "OGN·263a/298"
+            or "OGN·307/298"
+            or "OGN·307*/298"
             or "UNL-189/219"
             or "UNL-230*/219"
             or "UNL-230/219";
