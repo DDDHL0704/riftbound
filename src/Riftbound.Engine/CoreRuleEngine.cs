@@ -138,6 +138,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RenataLegendCardNo = "SFD·201/221";
     private const int RenataGoldBonusWinningScoreDistance = 3;
     private const string RenataGoldBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
+    private const string LeblancLegendCardNo = "UNL-199/219";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3669,6 +3670,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             runePools = ireliaConquerTrigger.RunePools;
             combatEvents.AddRange(ireliaConquerTrigger.Events);
+            if (TryResolveLeblancLegendImageTrigger(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    attackerObjectId,
+                    "BATTLEFIELD_CONQUERED_CREATE_IMAGE",
+                    out var leblancConquerEvents))
+            {
+                combatEvents.AddRange(leblancConquerEvents);
+            }
             if (winnerPlayerId is null
                 && CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId) >= 4
                 && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, intent.PlayerId, out var garenLegendCardNo))
@@ -3712,6 +3725,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal))
             {
                 var battlefieldHeldEventEmitted = false;
+                var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
+                    IsObjectOnField(playerZones, defenderObjectId)
+                    && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
+                if (TryResolveLeblancLegendImageTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        leblancCopySourceObjectId,
+                        "BATTLEFIELD_HELD_CREATE_IMAGE",
+                        out var leblancHeldEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(leblancHeldEvents);
+                }
+
                 if (TryGetActiveVexLegend(playerZones, cardObjects, battleWinnerPlayerId, out var vexLegendObjectId, out var vexLegendState))
                 {
                     AddBattlefieldHeldEventIfNeeded(
@@ -4593,6 +4629,152 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsRenataLegendCardNo(string? cardNo)
     {
         return cardNo is RenataLegendCardNo or "SFD·249/221";
+    }
+
+    private static bool TryResolveLeblancLegendImageTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string battleSourceObjectId,
+        string copySourceObjectId,
+        string trigger,
+        out IReadOnlyList<GameEvent> events)
+    {
+        events = [];
+        if (!TryGetActiveLeblancLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState)
+            || string.IsNullOrWhiteSpace(copySourceObjectId)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.Hand.Count == 0
+            || !cardObjects.TryGetValue(copySourceObjectId, out var copySourceState)
+            || !copySourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, copySourceObjectId))
+        {
+            return false;
+        }
+
+        var discardedObjectId = zones.Hand.First();
+        if (!TryDiscardCardFromHand(playerZones, playerId, discardedObjectId))
+        {
+            return false;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
+        var tokenTags = copySourceState.Tags
+            .Concat([CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "映像"])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = true
+        };
+        cardObjects[tokenObjectId] = new CardObjectState(
+            tokenObjectId,
+            power: copySourceState.Power,
+            tags: tokenTags,
+            cardNo: copySourceState.CardNo,
+            ownerId: playerId,
+            controllerId: playerId);
+        var updatedZones = playerZones[playerId];
+        playerZones[playerId] = updatedZones with
+        {
+            Battlefields = updatedZones.Battlefields.Concat([tokenObjectId]).ToArray()
+        };
+
+        events =
+        [
+            new GameEvent(
+                "CARD_DISCARDED",
+                $"{playerId} 弃置一张手牌以触发诡术妖姬",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["targetObjectId"] = discardedObjectId,
+                    ["reason"] = trigger,
+                    ["destinationZone"] = "GRAVEYARD"
+                }),
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的诡术妖姬因战场结果触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = trigger,
+                    ["sourceObjectId"] = battleSourceObjectId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["discardedObjectId"] = discardedObjectId,
+                    ["copiedTargetObjectId"] = copySourceObjectId
+                }),
+            new GameEvent(
+                "LEGEND_EXHAUSTED",
+                $"{legendObjectId} 变为休眠状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = trigger
+                }),
+            new GameEvent(
+                "UNIT_TOKEN_CREATED",
+                $"{legendObjectId} 在战场打出映像",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenName"] = "映像",
+                    ["tokenCardNo"] = copySourceState.CardNo,
+                    ["power"] = copySourceState.Power,
+                    ["destinationZone"] = "BATTLEFIELD",
+                    ["battlefieldId"] = battlefieldId,
+                    ["copiedTargetObjectId"] = copySourceObjectId,
+                    ["copiedCardNo"] = copySourceState.CardNo,
+                    ["isExhausted"] = false,
+                    ["tokenTags"] = tokenTags,
+                    ["trigger"] = trigger
+                })
+        ];
+        return true;
+    }
+
+    private static bool TryGetActiveLeblancLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsLeblancLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsLeblancLegendCardNo(string? cardNo)
+    {
+        return cardNo is LeblancLegendCardNo or "UNL-235/219" or "UNL-235*/219";
     }
 
     private static void AddBattlefieldHeldEventIfNeeded(

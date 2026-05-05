@@ -25272,6 +25272,134 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerLeblancCreatesActiveImageOnConquer()
+    {
+        var state = LeblancBattlefieldConquerState("UNL-199/219", "P1-LEGEND-LEBLANC", hasDiscard: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leblanc-battlefield-conquer", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-LEBLANC-ATTACKER"],
+                ["P2-LEBLANC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-LEBLANC"].IsExhausted);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-LEBLANC-DISCARD"], result.State.PlayerZones["P1"].Graveyard);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P1"].Battlefields, objectId =>
+            objectId.StartsWith("P1-LEGEND-LEBLANC-TOKEN-", StringComparison.Ordinal));
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.False(tokenState.IsExhausted);
+        Assert.Equal(4, tokenState.Power);
+        Assert.Equal("UNL-021/219", tokenState.CardNo);
+        Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
+        Assert.Contains(CardObjectTags.Ephemeral, tokenState.Tags);
+        Assert.Contains("映像", tokenState.Tags);
+        Assert.Contains("潜伏", tokenState.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEBLANC-DISCARD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CREATE_IMAGE", StringComparison.Ordinal));
+        Assert.Equal("UNL-199/219", triggerEvent.Payload["legendCardNo"]);
+        Assert.Equal("P1-LEBLANC-ATTACKER", triggerEvent.Payload["copiedTargetObjectId"]);
+        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["tokenName"] as string, "映像", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD", tokenEvent.Payload["destinationZone"]);
+        Assert.Equal("P1-LEBLANC-ATTACKER", tokenEvent.Payload["copiedTargetObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerLeblancCreatesActiveImageOnHold()
+    {
+        var state = LeblancBattlefieldHoldState("UNL-235/219", "P2-LEGEND-LEBLANC-REPRINT", hasDiscard: true, legendExhausted: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leblanc-battlefield-held", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-LEBLANC-ATTACKER"],
+                ["P2-LEBLANC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-LEBLANC-REPRINT"].IsExhausted);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-LEBLANC-DISCARD"], result.State.PlayerZones["P2"].Graveyard);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P2"].Battlefields, objectId =>
+            objectId.StartsWith("P2-LEGEND-LEBLANC-REPRINT-TOKEN-", StringComparison.Ordinal));
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.False(tokenState.IsExhausted);
+        Assert.Equal(4, tokenState.Power);
+        Assert.Equal("SFD·101/221", tokenState.CardNo);
+        Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
+        Assert.Contains(CardObjectTags.Ephemeral, tokenState.Tags);
+        Assert.Contains("映像", tokenState.Tags);
+        Assert.Contains("法盾", tokenState.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_IMAGE", StringComparison.Ordinal));
+        Assert.Equal("UNL-235/219", triggerEvent.Payload["legendCardNo"]);
+        Assert.Equal("P2-LEBLANC-DEFENDER", triggerEvent.Payload["copiedTargetObjectId"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["copiedTargetObjectId"] as string, "P2-LEBLANC-DEFENDER", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerLeblancRequiresDiscardAndActiveLegend()
+    {
+        var noDiscardState = LeblancBattlefieldHoldState("UNL-235*/219", "P2-LEGEND-LEBLANC-ALT", hasDiscard: false, legendExhausted: false);
+
+        var noDiscardResult = await new CoreRuleEngine().ResolveAsync(
+            noDiscardState,
+            new PlayerIntent("intent-p7-9-leblanc-battlefield-held-no-discard", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-LEBLANC-ATTACKER"],
+                ["P2-LEBLANC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(noDiscardResult.Accepted);
+        Assert.False(noDiscardResult.State.CardObjects["P2-LEGEND-LEBLANC-ALT"].IsExhausted);
+        Assert.Empty(noDiscardResult.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(noDiscardResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_IMAGE", StringComparison.Ordinal));
+
+        var exhaustedLegendState = LeblancBattlefieldHoldState("UNL-199/219", "P2-LEGEND-LEBLANC", hasDiscard: true, legendExhausted: true);
+
+        var exhaustedLegendResult = await new CoreRuleEngine().ResolveAsync(
+            exhaustedLegendState,
+            new PlayerIntent("intent-p7-9-leblanc-battlefield-held-exhausted", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-LEBLANC-ATTACKER"],
+                ["P2-LEBLANC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(exhaustedLegendResult.Accepted);
+        Assert.True(exhaustedLegendResult.State.CardObjects["P2-LEGEND-LEBLANC"].IsExhausted);
+        Assert.Equal(["P2-LEBLANC-DISCARD"], exhaustedLegendResult.State.PlayerZones["P2"].Hand);
+        Assert.Empty(exhaustedLegendResult.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(exhaustedLegendResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_IMAGE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -35721,6 +35849,106 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-RENATA-DEFENDER",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: legendExhausted,
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState LeblancBattlefieldConquerState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool hasDiscard)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-LEBLANC-ATTACKER"],
+                    Hand = hasDiscard ? ["P1-LEBLANC-DISCARD"] : [],
+                    LegendZone = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-LEBLANC-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEBLANC-ATTACKER"] = new(
+                    "P1-LEBLANC-ATTACKER",
+                    cardNo: "UNL-021/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt, "潜伏"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEBLANC-DISCARD"] = new(
+                    "P1-LEBLANC-DISCARD",
+                    cardNo: "UNL-001/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-LEBLANC-DEFENDER"] = new(
+                    "P2-LEBLANC-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState LeblancBattlefieldHoldState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool hasDiscard,
+        bool legendExhausted)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-LEBLANC-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-LEBLANC-DEFENDER"],
+                    Hand = hasDiscard ? ["P2-LEBLANC-DISCARD"] : [],
+                    LegendZone = [sourceObjectId]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEBLANC-ATTACKER"] = new(
+                    "P1-LEBLANC-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-LEBLANC-DEFENDER"] = new(
+                    "P2-LEBLANC-DEFENDER",
+                    cardNo: "SFD·101/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "法盾"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-LEBLANC-DISCARD"] = new(
+                    "P2-LEBLANC-DISCARD",
+                    cardNo: "UNL-002/219",
                     ownerId: "P2",
                     controllerId: "P2"),
                 [sourceObjectId] = new(
