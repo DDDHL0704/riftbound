@@ -84,6 +84,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
     private const string MasterYiIntroLegendCardNo = "OGS·019/024";
+    private const string AhriLegendCardNo = "OGN·255/298";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -2434,6 +2435,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var combatEvents = new List<GameEvent>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
+        var defendingPlayerId = ResolveSingleDefendingPlayerId(playerZones, defenderObjectIds);
         var attackerCombatPower = ResolveBattleCombatPower(
             state,
             playerZones,
@@ -2441,6 +2443,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             attackerState,
             true,
             0,
+            defendingPlayerId,
             out var assaultBonus,
             out var attackerStaticPowerBonus);
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
@@ -2457,6 +2460,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defenderState,
                 false,
                 defendingUnitCount,
+                null,
                 out _,
                 out _);
             var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
@@ -2502,6 +2506,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defenderState,
                 false,
                 defendingUnitCount,
+                null,
                 out var steadfastBonus,
                 out var defenderStaticPowerBonus);
             if (defenderCombatPower <= 0)
@@ -2694,6 +2699,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardObjectState cardObject,
         bool isAttacking,
         int defendingUnitCount,
+        string? defendingPlayerId,
         out int keywordBonus,
         out int staticPowerBonus)
     {
@@ -2704,6 +2710,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
+            staticPowerBonus += ResolveAhriLegendAttackPowerPenalty(
+                state,
+                playerZones,
+                cardObject,
+                keywordBonus,
+                defendingPlayerId);
         }
 
         if (!isAttacking && HasRumbleLegendMechanicalSteadfastBonus(state, playerZones, objectId, cardObject))
@@ -2717,6 +2729,58 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static string? ResolveSingleDefendingPlayerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyList<string> defenderObjectIds)
+    {
+        string? defendingPlayerId = null;
+        foreach (var defenderObjectId in defenderObjectIds)
+        {
+            var location = FindFieldObjectLocation(playerZones, defenderObjectId);
+            if (location is null)
+            {
+                return null;
+            }
+
+            if (defendingPlayerId is null)
+            {
+                defendingPlayerId = location.Value.PlayerId;
+                continue;
+            }
+
+            if (!string.Equals(defendingPlayerId, location.Value.PlayerId, StringComparison.Ordinal))
+            {
+                return null;
+            }
+        }
+
+        return defendingPlayerId;
+    }
+
+    private static int ResolveAhriLegendAttackPowerPenalty(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        CardObjectState attackerState,
+        int attackerKeywordBonus,
+        string? defendingPlayerId)
+    {
+        if (string.IsNullOrWhiteSpace(defendingPlayerId)
+            || !playerZones.TryGetValue(defendingPlayerId, out var defenderZones)
+            || !defenderZones.LegendZone.Any(legendObjectId =>
+                state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+                && IsAhriLegendCardNo(legendState.CardNo)))
+        {
+            return 0;
+        }
+
+        return attackerState.Power + attackerKeywordBonus > 1 ? -1 : 0;
+    }
+
+    private static bool IsAhriLegendCardNo(string? cardNo)
+    {
+        return cardNo is AhriLegendCardNo or "OGN·303/298" or "OGN·303*/298";
     }
 
     private static int CountLucianLegendEquipmentAssaultBonus(

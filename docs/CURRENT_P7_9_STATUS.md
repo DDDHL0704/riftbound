@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `13/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `14/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -204,13 +204,13 @@ Final P7.9 gate:
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `3` done.
 - P7.9.6 automatic-trigger slices: `1` done.
-- P7.9.6 static legend slices: `3` done.
-- Current functional-unit implementation: `726/811 = 89.5%`.
-- Current manual deferred boundary: `85/811 = 10.5%`.
+- P7.9.6 static legend slices: `4` done.
+- Current functional-unit implementation: `727/811 = 89.6%`.
+- Current manual deferred boundary: `84/811 = 10.4%`.
 - Remaining manual domains:
-  - `传奇`: `31` functional units / `71` entries
+  - `传奇`: `30` functional units / `68` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `1` automatic-trigger slice, and `3` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `1` automatic-trigger slice, and `4` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -610,3 +610,38 @@ P7.9.6 static legend slice 3 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because Master Yi is a passive combat static effect and this batch introduced no new UI operation path. The battle UI continues to submit `DECLARE_BATTLE`; the static bonus is visible through server events/snapshot.
+
+## P7.9.6 Static Legend Slice 4 Delivered
+
+This is the eighth committed rule slice inside P7.9.6. It adds an enemy-attack combat-static legend penalty and reuses the `staticPowerBonus` payload field introduced by the Master Yi slice.
+
+- Added Ahri / 九尾妖狐 legend static ability:
+  - when an enemy unit attacks a battlefield controlled by Ahri's controller, that attacker gets `-1` combat power
+  - the penalty cannot reduce the attacker's combat power below `1`
+  - the penalty is calculated during `DECLARE_BATTLE` combat-power resolution
+  - `DAMAGE_APPLIED` exposes `staticPowerBonus = -1` when the penalty applies
+- Accepted same-functional-unit legend entries:
+  - `OGN·255/298`
+  - `OGN·303*/298`
+  - `OGN·303/298`
+- Added representative conformance coverage for a `3` power attacker dealing only `2` combat damage while attacking into Ahri's controlled battlefield.
+- Migrated this legend static slice in `BehaviorSpec`:
+  - Implemented functional units: `727/811`
+  - Manual deferred functional units: `84/811`
+  - Implemented official entries: `884/1009`
+  - Manual deferred official entries: `125/1009`
+  - Legend rule-domain implemented: `14` functional units / `38` entries
+  - Remaining legend manual deferred: `30` functional units / `68` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 static legend slice 4 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendStaticAhri"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2524/2524`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2631/2631`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because Ahri is a passive combat static effect and this batch introduced no new UI operation path. The battle UI continues to submit `DECLARE_BATTLE`; the attack penalty is visible through server events/snapshot.
