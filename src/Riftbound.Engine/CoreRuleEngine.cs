@@ -175,6 +175,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
+    private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
@@ -7617,6 +7618,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
             || IsBattlefieldFirstTurnScoreCardNo(cardNo)
             || IsBattlefieldTurnStartDamageAllUnitsCardNo(cardNo)
+            || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo);
     }
@@ -7760,6 +7762,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldTurnStartDamageAllUnitsCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldTurnStartDamageAllUnitsCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldTurnStartDestroyUnitDrawCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldTurnStartDestroyUnitDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerRevealRecycleCardNo(string? cardNo)
@@ -8734,15 +8741,32 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             turnPlayerId,
             state.Tick);
+        var battlefieldStartDrawResult = ApplyBattlefieldTurnStartDestroyUnitDraw(
+            state with
+            {
+                PlayerZones = playerZones,
+                CardObjects = cardObjects
+            },
+            playerZones,
+            cardObjects,
+            turnPlayerId,
+            state.RngCursor);
         var preStartState = state with
         {
             PlayerZones = playerZones,
-            CardObjects = cardObjects
+            PlayerScores = battlefieldStartDrawResult.PlayerScores,
+            CardObjects = cardObjects,
+            RngCursor = battlefieldStartDrawResult.RngCursor
         };
         var currentZones = playerZones.TryGetValue(turnPlayerId, out var zones)
             ? zones
             : PlayerZones.Empty;
-        var firstTurnScoreResult = ApplyBattlefieldFirstTurnScore(preStartState, turnPlayerId);
+        var firstTurnScoreResult = battlefieldStartDrawResult.WinnerPlayerId is null
+            ? ApplyBattlefieldFirstTurnScore(preStartState, turnPlayerId)
+            : new ScoreApplicationResult(
+                battlefieldStartDrawResult.PlayerScores,
+                battlefieldStartDrawResult.WinnerPlayerId,
+                []);
 
         var calledRuneTarget = firstTurnScoreResult.WinnerPlayerId is null ? RuneCallCount(preStartState) : 0;
         var calledRunes = currentZones.RuneDeck.Take(calledRuneTarget).ToArray();
@@ -8762,8 +8786,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 [],
                 firstTurnScoreResult.WinnerPlayerId,
                 firstTurnScoreResult.PlayerScores,
-                state.RngCursor,
-                EffectiveWinningScore(state));
+                preStartState.RngCursor,
+                EffectiveWinningScore(preStartState));
 
         playerZones[turnPlayerId] = currentZones with
         {
@@ -8779,6 +8803,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 drawResult,
                 ephemeralCleanupResult.Events
                     .Concat(battlefieldStartDamageResult.Events)
+                    .Concat(battlefieldStartDrawResult.Events)
                     .Concat(firstTurnScoreResult.Events)
                     .ToArray())
             .ToList();
@@ -8824,6 +8849,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             WinnerPlayerId = winnerPlayerId,
             DestroyedUnitOwnerIdsThisTurn = ephemeralCleanupResult.DestroyedUnitOwnerIds
                 .Concat(battlefieldStartDamageResult.DestroyedUnitOwnerIds)
+                .Concat(battlefieldStartDrawResult.DestroyedUnitOwnerIds)
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
@@ -16747,6 +16773,103 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .ToArray());
     }
 
+    private static BattlefieldStartDrawResult ApplyBattlefieldTurnStartDestroyUnitDraw(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string turnPlayerId,
+        long rngCursor)
+    {
+        var playerScores = NormalizeScoresForSeats(state);
+        if (!playerZones.TryGetValue(turnPlayerId, out var zones))
+        {
+            return new BattlefieldStartDrawResult([], [], playerScores, null, rngCursor);
+        }
+
+        var sourceObjectIds = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardObject.CardNo))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (sourceObjectIds.Length == 0)
+        {
+            return new BattlefieldStartDrawResult([], [], playerScores, null, rngCursor);
+        }
+
+        var targetObjectId = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(targetObjectId))
+        {
+            return new BattlefieldStartDrawResult([], [], playerScores, null, rngCursor);
+        }
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{turnPlayerId} 回合开始时摧毁单位并抽牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = turnPlayerId,
+                    ["trigger"] = "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW",
+                    ["sourceObjectIds"] = sourceObjectIds,
+                    ["targetObjectId"] = targetObjectId,
+                    ["drawCount"] = 1,
+                    ["timing"] = MatchPhases.TurnStart,
+                    ["beforeScoring"] = true
+                })
+        };
+        var pseudoStackItem = new StackItemState(
+            $"TURN-START-BATTLEFIELD-DRAW-{state.Tick}",
+            turnPlayerId,
+            sourceObjectIds[0],
+            "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW",
+            string.Empty,
+            [],
+            0);
+        if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
+        {
+            return new BattlefieldStartDrawResult(events, [], playerScores, null, rngCursor);
+        }
+
+        events.Add(BuildFieldRemovalEvent(
+            "暮色玫瑰实验室",
+            pseudoStackItem,
+            targetObjectId,
+            removalResult,
+            "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW"));
+        var destroyedUnitOwnerIds = removalResult.WasDestroyed && removalResult.WasUnit
+            ? new[] { removalResult.OwnerPlayerId }
+            : [];
+        var drawApplication = ApplyDrawToPlayer(
+            state with
+            {
+                PlayerZones = playerZones,
+                PlayerScores = playerScores,
+                CardObjects = cardObjects
+            },
+            playerZones,
+            playerScores,
+            turnPlayerId,
+            1,
+            rngCursor,
+            events);
+
+        return new BattlefieldStartDrawResult(
+            events,
+            destroyedUnitOwnerIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                .ToArray(),
+            drawApplication.PlayerScores,
+            drawApplication.WinnerPlayerId,
+            drawApplication.RngCursor);
+    }
+
     private static ScoreApplicationResult ApplyBattlefieldFirstTurnScore(MatchState state, string playerId)
     {
         var playerScores = NormalizeScoresForSeats(state);
@@ -17231,6 +17354,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         public static BattlefieldStartDamageResult Empty { get; } = new([], []);
     }
+
+    private sealed record BattlefieldStartDrawResult(
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> DestroyedUnitOwnerIds,
+        IReadOnlyDictionary<string, int> PlayerScores,
+        string? WinnerPlayerId,
+        long RngCursor);
 
     private sealed record DrawApplicationResult(
         IReadOnlyDictionary<string, int> PlayerScores,

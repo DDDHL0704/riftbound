@@ -26529,6 +26529,46 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldTurnStartDestroyDrawsBeforeScoring()
+    {
+        var state = BattlefieldTurnStartDestroyDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-turn-start-destroy-draw", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-ROSE-LAB"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["sourceObjectIds"]));
+        Assert.Equal("P2-BATTLEFIELD-ROSE-SACRIFICE", triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["drawCount"]);
+        Assert.True((bool)triggerEvent.Payload["beforeScoring"]!);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-ROSE-SACRIFICE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
+        Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
+        Assert.Equal(["P2-BATTLEFIELD-ROSE-LAB"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains("P2", result.State.DestroyedUnitOwnerIdsThisTurn);
+
+        var indexedEvents = result.Events.Select((gameEvent, index) => (gameEvent, index)).ToArray();
+        var triggerIndex = indexedEvents.Single(entry => ReferenceEquals(entry.gameEvent, triggerEvent)).index;
+        var firstDrawIndex = indexedEvents.First(entry => string.Equals(entry.gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)).index;
+        var runeIndex = indexedEvents.First(entry => string.Equals(entry.gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)).index;
+        Assert.True(triggerIndex >= 0);
+        Assert.True(firstDrawIndex > triggerIndex);
+        Assert.True(runeIndex > firstDrawIndex);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldPaysPowerToGainScore()
     {
         var state = BattlefieldHeldScoreState();
@@ -38536,6 +38576,49 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-FROST-SURVIVOR",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldTurnStartDestroyDrawState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
+                    Battlefields = ["P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-ROSE-LAB"] = new(
+                    "P2-BATTLEFIELD-ROSE-LAB",
+                    cardNo: "UNL-209/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new(
+                    "P2-BATTLEFIELD-ROSE-SACRIFICE",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-ROSE-DRAW-001"] = new(
+                    "P2-ROSE-DRAW-001",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-NORMAL-DRAW-001"] = new(
+                    "P2-NORMAL-DRAW-001",
                     ownerId: "P2",
                     controllerId: "P2")
             }

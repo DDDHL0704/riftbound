@@ -938,6 +938,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
+    private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
@@ -1268,6 +1269,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldTurnStartDamageAllUnitsCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldTurnStartDestroyUnitDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
@@ -1651,6 +1653,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
+    private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
 
@@ -2407,6 +2410,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-first-turn-rune" => BuildBattlefieldFirstTurnRuneScenario(current, seed),
             "battlefield-first-turn-score" => BuildBattlefieldFirstTurnScoreScenario(current, seed),
             "battlefield-turn-start-damage" => BuildBattlefieldTurnStartDamageScenario(current, seed),
+            "battlefield-turn-start-destroy-draw" => BuildBattlefieldTurnStartDestroyDrawScenario(current, seed),
             "battlefield-held-score" => BuildBattlefieldHeldScoreScenario(current, seed),
             "battlefield-held-seven-units-win" => BuildBattlefieldHeldSevenUnitsWinScenario(current, seed),
             "battlefield-conquer-reveal-recycle" => BuildBattlefieldConquerRevealRecycleScenario(current, seed),
@@ -3658,6 +3662,55 @@ public sealed class MatchSession : IMatchSession
                     "P2-BATTLEFIELD-FROST-SURVIVOR",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattlefieldTurnStartDestroyDrawScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303060,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
+                    battlefields: ["P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-ROSE-LAB"] = new(
+                    "P2-BATTLEFIELD-ROSE-LAB",
+                    cardNo: BattlefieldTurnStartDestroyUnitDrawCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new(
+                    "P2-BATTLEFIELD-ROSE-SACRIFICE",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-ROSE-DRAW-001"] = new(
+                    "P2-ROSE-DRAW-001",
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-NORMAL-DRAW-001"] = new(
+                    "P2-NORMAL-DRAW-001",
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
