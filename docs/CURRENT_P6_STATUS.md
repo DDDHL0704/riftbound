@@ -174,7 +174,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.2b | Done | Recall/move/recycle/banish/temp might/boon existing-template promotion. | Conformance fixtures for representative paths. |
 | P6.3a | Done | Swift/reaction/spell-duel online response-window smoke. | GameHub/Room smoke passed. |
 | P6.3b | Done | Swift spell-duel timing expansion for 6 simple official spell representatives. | Conformance + catalog profile tests passed. |
-| P6.3c | Planned | Reaction priority-window playable coverage expansion. | Conformance + GameHub/Room smoke where response-window-visible. |
+| P6.3c | Done | Reaction priority-window timing expansion for 6 simple official spell representatives. | Conformance + catalog profile tests passed. |
+| P6.3d | Planned | Remaining reaction/standby/ambush boundary triage. | Conformance + zero-side-effect blocked/deferred checks. |
 | P6.4 | Planned | Movement/battle/scoring batches. | GameHub/Room smoke required. |
 | P6.5 | Planned | Standby/ambush/echo batches. | Response-window conformance required. |
 | P6.6 | Planned | Equipment/assemble/agile/forge/tempered batches. | P5 equipment invariant tests required. |
@@ -207,6 +208,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - boon: `51/66 entries = 77.3%`, `41/48 units = 85.4%`
 - P6.3a response-window smoke progress: `1/1 GameHub smoke = 100.0%`.
 - P6.3b swift spell-duel timing expansion: `6/6 selected official swift spell representatives = 100.0%`.
+- P6.3c reaction priority-window timing expansion: `6/6 selected official reaction spell representatives = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -369,6 +371,29 @@ P6.3b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `17/17`.
 - `git diff --check`: passed.
 
+## P6.3c Delivered
+
+- Enabled `CanPlayDuringPriority` for 6 implemented official `反应` spell representatives that already had P2/P4 conformance coverage:
+  - `SFD·087/221` 先知之兆: draw 3.
+  - `OGN·058/298` 训练有素: temporary power +2 and draw 1.
+  - `OGN·093/298` 烟幕弹: temporary power -4 with floor 1.
+  - `OGN·095/298` “敲”诈: temporary power -1 with floor 1 and draw 1.
+  - `UNL-066/219` 月光之殇: temporary power -10.
+  - `OGN·169/298` 罡风: recall a battlefield unit with power no higher than 3.
+- Kept `{{反应>}}` activated resource/legend/equipment abilities, `伏击`, `待命`, and `灵便` out of this batch; those remain P6.3d/P6.5/P6.6 boundaries.
+- Added catalog baseline coverage to prove each selected card has official `{{反应}}` card-play text, is `implemented`, and exposes `CardPermissionKeywordRules.BuildProfile(...).HasReaction`.
+- Added `p6-play-reaction-prophets-omen-in-priority.fixture.json` with official card text and rule evidence. The fixture opens a priority window with `焚烧`, plays `先知之兆` as the priority player, resolves it first, then returns priority to the original stack item before resolving `焚烧`.
+- This batch expands playable timing for already implemented functional units; it does not change BehaviorSpec status counts.
+
+P6.3c validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2583/2583`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `29/29`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `17/17`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.3b, then continue into P6.3c reaction priority-window playable coverage expansion.
+Commit P6.3c, then continue into P6.3d remaining reaction/standby/ambush boundary triage.

@@ -7233,7 +7233,8 @@ public static class CardBehaviorRegistry
             1,
             DrawCount: 1,
             TargetScope: CardTargetScopes.AnyUnit,
-            PowerModifierAmount: 2),
+            PowerModifierAmount: 2,
+            CanPlayDuringPriority: true),
         new(
             "OGN·093/298",
             "烟幕弹",
@@ -7243,7 +7244,8 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: -4,
-            MinimumPowerAfterModifier: 1),
+            MinimumPowerAfterModifier: 1,
+            CanPlayDuringPriority: true),
         new(
             "OGN·095/298",
             "“敲”诈",
@@ -7254,7 +7256,8 @@ public static class CardBehaviorRegistry
             DrawCount: 1,
             TargetScope: CardTargetScopes.AnyUnit,
             PowerModifierAmount: -1,
-            MinimumPowerAfterModifier: 1),
+            MinimumPowerAfterModifier: 1,
+            CanPlayDuringPriority: true),
         new(
             "UNL-063/219",
             "月蚀",
@@ -7276,7 +7279,8 @@ public static class CardBehaviorRegistry
             0,
             1,
             TargetScope: CardTargetScopes.AnyUnit,
-            PowerModifierAmount: -10),
+            PowerModifierAmount: -10,
+            CanPlayDuringPriority: true),
         new(
             "OGN·004/298",
             "顺劈",
@@ -7608,7 +7612,8 @@ public static class CardBehaviorRegistry
             0,
             1,
             MaxTargetPower: 3,
-            ReturnsTargetToHand: true),
+            ReturnsTargetToHand: true,
+            CanPlayDuringPriority: true),
         new(
             "OGN·168/298",
             "战或逃",
@@ -8161,7 +8166,8 @@ public static class CardBehaviorRegistry
             "PROPHETS_OMEN_DRAW_3",
             0,
             0,
-            DrawCount: 3),
+            DrawCount: 3,
+            CanPlayDuringPriority: true),
         new(
             "SFD·106/221",
             "实力至上",
