@@ -733,6 +733,51 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldEphemeralSteadfastSeedOffersBattlefieldDestinationAndAppliesBonus()
+    {
+        const string roomId = "p7-9-battlefield-ephemeral-steadfast";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-ephemeral-steadfast", "seed-p7-9-battlefield-ephemeral-steadfast");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-BLACK-FLAME", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-BLACK-FLAME",
+              "attackerObjectIds": ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ephemeral-steadfast", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        var defenderDamageEvent = Assert.Single(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-EPHEMERAL-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldMinionSeedOffersBattlefieldDestinationAndCreatesToken()
     {
         const string roomId = "p7-9-battlefield-held-minion";

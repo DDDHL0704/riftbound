@@ -145,6 +145,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DemaciaMinionTokenCardNo = "OGN·271/298";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
+    private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
@@ -4193,6 +4194,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             keywordBonus += 1;
         }
 
+        if (!isAttacking && HasBattlefieldEphemeralSteadfastBonus(state, playerZones, battlefieldId, cardObject))
+        {
+            keywordBonus += 1;
+        }
+
         if (!isAttacking && HasMasterYiSingleDefenderBonus(state, playerZones, objectId, defendingUnitCount))
         {
             staticPowerBonus += 2;
@@ -4215,6 +4221,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsBattlefieldAllUnitsPowerPlusOneCardNo(battlefieldState.CardNo)
             ? 1
             : 0;
+    }
+
+    private static bool HasBattlefieldEphemeralSteadfastBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && cardObject.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal)
+            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && IsBattlefieldEphemeralUnitsSteadfastCardNo(battlefieldState.CardNo);
     }
 
     private static string? ResolveSingleDefendingPlayerId(
@@ -5833,12 +5851,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
-        return IsBattlefieldHoldCreateMinionCardNo(cardNo)
+        return IsBattlefieldEphemeralUnitsSteadfastCardNo(cardNo)
+            || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
+    }
+
+    private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldEphemeralUnitsSteadfastCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)

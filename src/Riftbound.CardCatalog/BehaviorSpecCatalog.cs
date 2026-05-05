@@ -380,7 +380,8 @@ public static class OfficialRuleDomainBehaviorCatalog
     {
         ArgumentNullException.ThrowIfNull(card);
 
-        return card.CardNo is "OGN·275/298"
+        return card.CardNo is "UNL-208/219"
+            or "OGN·275/298"
             or "OGN·280/298"
             or "OGN·294/298"
             or "OGN·298/298"

@@ -25759,6 +25759,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldEphemeralDefenderGainsSteadfast()
+    {
+        var state = BattlefieldEphemeralSteadfastState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ephemeral-steadfast", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-BLACK-FLAME",
+                ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"],
+                ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-EPHEMERAL-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-EPHEMERAL-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal("坚守", defenderDamageEvent.Payload["keyword"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["damage"]);
+        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"].Damage);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -36751,6 +36780,45 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-DISCARD-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldEphemeralSteadfastState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-BLACK-FLAME", "P2-BATTLEFIELD-EPHEMERAL-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-EPHEMERAL-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-BLACK-FLAME"] = new(
+                    "P2-BATTLEFIELD-BLACK-FLAME",
+                    cardNo: "UNL-208/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-EPHEMERAL-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
                     ownerId: "P2",
                     controllerId: "P2")
             }
