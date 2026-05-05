@@ -25977,6 +25977,38 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerDrawsForOtherControlledBattlefields()
+    {
+        var state = BattlefieldConquerDrawOtherState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-draw-other", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-THRONE-OF-POWER",
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"],
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS", StringComparison.Ordinal));
+        Assert.Equal(2, triggerEvent.Payload["drawCount"]);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-OTHER-001", "P1-BATTLEFIELD-OTHER-002"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["otherBattlefieldObjectIds"]));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-DRAW-OTHER-001", "P1-BATTLEFIELD-DRAW-OTHER-002"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-DRAW-OTHER-003"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["count"], 2));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -37234,6 +37266,81 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerDrawOtherState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P1-BATTLEFIELD-DRAW-OTHER-001",
+                        "P1-BATTLEFIELD-DRAW-OTHER-002",
+                        "P1-BATTLEFIELD-DRAW-OTHER-003"
+                    ],
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-THRONE-OF-POWER",
+                        "P1-BATTLEFIELD-OTHER-001",
+                        "P1-BATTLEFIELD-OTHER-002",
+                        "P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-THRONE-OF-POWER"] = new(
+                    "P1-BATTLEFIELD-THRONE-OF-POWER",
+                    cardNo: "SFD·217/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-OTHER-001"] = new(
+                    "P1-BATTLEFIELD-OTHER-001",
+                    cardNo: "OGN·280/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-OTHER-002"] = new(
+                    "P1-BATTLEFIELD-OTHER-002",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-DRAW-OTHER-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DRAW-OTHER-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-001"] = new(
+                    "P1-BATTLEFIELD-DRAW-OTHER-001",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-002"] = new(
+                    "P1-BATTLEFIELD-DRAW-OTHER-002",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-DRAW-OTHER-003"] = new(
+                    "P1-BATTLEFIELD-DRAW-OTHER-003",
+                    ownerId: "P1",
+                    controllerId: "P1")
             }
         };
     }
