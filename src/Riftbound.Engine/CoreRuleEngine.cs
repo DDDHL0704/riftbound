@@ -154,6 +154,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
+    private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -198,6 +199,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
+    private const int BattlefieldDestroyedInBattleRecallManaCost = 3;
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
@@ -215,6 +217,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerReadyRuneAtEndEffectPrefix = "BATTLEFIELD_CONQUER_READY_RUNE_AT_END:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
+    private const string BattlefieldDestroyedInBattleRecallEffectId = "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
 
@@ -4173,7 +4176,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             combatStackItem,
             damageTriggeredDestroyTargetObjectIds,
-            runePools);
+            runePools,
+            battlefieldId);
         runePools = lethalCleanup.RunePools;
         combatEvents.AddRange(lethalCleanup.Events);
         if (!string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId))
@@ -5691,6 +5695,123 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["destinationZone"] = "BASE",
                     ["replacementEffectId"] = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED",
                     ["destroyReason"] = destroyReason,
+                    ["isExhausted"] = true
+                })
+        ];
+        return true;
+    }
+
+    private static bool TryApplyBattlefieldDestroyedInBattleRecallReplacement(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string targetObjectId,
+        StackItemState stackItem,
+        string destroyReason,
+        string? battlefieldId,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools,
+        out IReadOnlyList<GameEvent> events)
+    {
+        nextRunePools = runePools;
+        events = [];
+        var location = FindFieldObjectLocation(playerZones, targetObjectId);
+        if (!string.Equals(stackItem.EffectKind, "DECLARE_BATTLE_COMBAT_DAMAGE", StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(battlefieldId)
+            || location is null
+            || !string.Equals(location.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldDestroyedInBattleRecallCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var controllerId = !string.IsNullOrWhiteSpace(targetState.ControllerId)
+            && playerZones.ContainsKey(targetState.ControllerId)
+                ? targetState.ControllerId
+                : location.Value.PlayerId;
+        var ownerId = string.IsNullOrWhiteSpace(targetState.OwnerId) ? location.Value.PlayerId : targetState.OwnerId;
+        var currentPool = runePools.TryGetValue(controllerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < BattlefieldDestroyedInBattleRecallManaCost)
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[controllerId] = currentPool with
+        {
+            Mana = currentPool.Mana - BattlefieldDestroyedInBattleRecallManaCost
+        };
+        nextRunePools = mutableRunePools;
+
+        foreach (var (playerId, zones) in playerZones.ToArray())
+        {
+            playerZones[playerId] = zones with
+            {
+                Base = RemoveFromZone(zones.Base, targetObjectId),
+                Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+            };
+        }
+
+        var controllerZones = playerZones[controllerId];
+        playerZones[controllerId] = controllerZones with
+        {
+            Base = controllerZones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                ? controllerZones.Base
+                : controllerZones.Base.Concat([targetObjectId]).ToArray()
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            Damage = 0,
+            IsExhausted = true,
+            OwnerId = ownerId,
+            ControllerId = controllerId,
+            IsAttacking = false,
+            IsDefending = false
+        };
+
+        events =
+        [
+            new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{controllerId} 支付鲜血祭坛替代单位摧毁",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = controllerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["battlefieldCardNo"] = battlefieldState.CardNo,
+                    ["trigger"] = BattlefieldDestroyedInBattleRecallEffectId,
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["destroyReason"] = destroyReason,
+                    ["previousDamage"] = targetState.Damage
+                }),
+            new GameEvent(
+                "COST_PAID",
+                $"{controllerId} 支付鲜血祭坛替代费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = controllerId,
+                    ["mana"] = BattlefieldDestroyedInBattleRecallManaCost,
+                    ["power"] = 0,
+                    ["reason"] = BattlefieldDestroyedInBattleRecallEffectId
+                }),
+            new GameEvent(
+                "UNIT_RECALLED_TO_BASE",
+                $"{targetObjectId} 移除伤害并休眠召回",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["ownerPlayerId"] = ownerId,
+                    ["controllerId"] = controllerId,
+                    ["destinationZone"] = "BASE",
+                    ["replacementEffectId"] = BattlefieldDestroyedInBattleRecallEffectId,
+                    ["destroyReason"] = destroyReason,
+                    ["previousDamage"] = targetState.Damage,
+                    ["damage"] = 0,
                     ["isExhausted"] = true
                 })
         ];
@@ -8597,6 +8718,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldGrantBoonCardNo(cardNo)
             || IsBattlefieldHeldReturnHeroCardNo(cardNo)
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
+            || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
@@ -8679,6 +8801,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHeldPayPowerScoreCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldDestroyedInBattleRecallCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)
@@ -18079,7 +18206,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
         IReadOnlySet<string> damageTriggeredDestroyTargetObjectIds,
-        IReadOnlyDictionary<string, RunePool>? runePools = null)
+        IReadOnlyDictionary<string, RunePool>? runePools = null,
+        string? battlefieldId = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -18113,6 +18241,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 nextRunePools = settRunePools;
                 events.AddRange(settReplacementEvents);
+                continue;
+            }
+            if (nextRunePools is not null
+                && TryApplyBattlefieldDestroyedInBattleRecallReplacement(
+                    playerZones,
+                    cardObjects,
+                    nextRunePools,
+                    objectId,
+                    stackItem,
+                    destroyReason,
+                    battlefieldId,
+                    out var battlefieldRunePools,
+                    out var battlefieldReplacementEvents))
+            {
+                nextRunePools = battlefieldRunePools;
+                events.AddRange(battlefieldReplacementEvents);
                 continue;
             }
 

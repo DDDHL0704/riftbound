@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 4 remaining | 5 remaining | P7.9.7 has migrated `50/54` battlefield FUs / `52/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 3 remaining | 4 remaining | P7.9.7 has migrated `51/54` battlefield FUs / `53/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `50/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `4` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, battle-destroyed recall replacement, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `51/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `3` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-49 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-50 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `49` done.
-- Current functional-unit implementation: `807/811 = 99.5%`.
-- Current manual deferred boundary: `4/811 = 0.5%`.
+- P7.9.7 battlefield foundation slices: `50` done.
+- Current functional-unit implementation: `808/811 = 99.6%`.
+- Current manual deferred boundary: `3/811 = 0.4%`.
 - Remaining manual domains:
-  - `战场`: `4` functional units / `5` entries
+  - `战场`: `3` functional units / `4` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -3034,3 +3034,36 @@ P7.9.7 battlefield foundation slice 49 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2800/2800`.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/held-next-spell-Echo battlefield slice. GameHub coverage verifies the seed, authoritative `DECLARE_BATTLE` path, held event, trigger payload, and in-progress snapshot boundary.
+
+## P7.9.7 Battlefield Foundation Slice 50 Delivered
+
+This is the fiftieth rule slice inside P7.9.7. It adds Blood Altar's battle-destroyed replacement for units at a battlefield.
+
+- Added implemented battlefield card:
+  - `UNL-206/219`: if a unit here would be destroyed in battle, that unit's controller may pay `3` mana to instead remove its damage, exhaust it, and recall it.
+- Server-authoritative replacement changes:
+  - Lethal combat-damage cleanup now receives the battle's authoritative `battlefieldId`.
+  - During `DECLARE_BATTLE_COMBAT_DAMAGE` cleanup, the backend checks whether the dying unit is a battlefield unit at a battlefield object `UNL-206/219`.
+  - If the unit's controller has `3` mana, the backend spends it, removes all damage from the unit, clears attacking/defending flags, exhausts it, and moves it to the controller's base instead of destroying it.
+  - If the controller does not have enough mana, destruction proceeds normally; the frontend does not choose or adjudicate the replacement.
+- Added `battlefield-battle-destroyed-recall` local development seed plus GameHub coverage for declaring battle at `P2-BATTLEFIELD-BLOOD-ALTAR` and observing the replacement event, cost payment, recall, and snapshot zone update.
+- Migrated this battlefield replacement/recall slice in `BehaviorSpec`:
+  - Implemented functional units: `808/811`
+  - Manual deferred functional units: `3/811`
+  - Implemented official entries: `1005/1009`
+  - Manual deferred official entries: `4/1009`
+  - Battlefield rule-domain implemented: `51` functional units / `53` entries
+  - Remaining battlefield manual deferred: `3` functional units / `4` entries
+  - Damage/destroy/recall template coverage and trigger/replacement timing coverage moved forward to fully implemented for the affected representative rows.
+
+P7.9.7 battlefield foundation slice 50 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldBattleDestroyed"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2645/2645`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `79/79`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2803/2803`.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/battle-destroyed-recall battlefield slice. GameHub coverage verifies the seed, authoritative battle declaration path, replacement/cost/recall events, and snapshot base/battlefield/graveyard boundary.

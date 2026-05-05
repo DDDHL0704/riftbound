@@ -27641,6 +27641,73 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldBattleDestroyedUnitPaysThreeAndRecalls()
+    {
+        var state = BattlefieldBattleDestroyedRecallState(mana: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-battle-destroyed-recall", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-BLOOD-ALTAR",
+                ["P1-BATTLEFIELD-BLOOD-ATTACKER"],
+                ["P2-BATTLEFIELD-BLOOD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P2-BATTLEFIELD-BLOOD-ALTAR", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["mana"], 3));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["replacementEffectId"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains("P2-BATTLEFIELD-BLOOD-DEFENDER", result.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain("P2-BATTLEFIELD-BLOOD-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        var savedDefender = result.State.CardObjects["P2-BATTLEFIELD-BLOOD-DEFENDER"];
+        Assert.Equal(0, savedDefender.Damage);
+        Assert.True(savedDefender.IsExhausted);
+        Assert.False(savedDefender.IsDefending);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldBattleDestroyedUnitFallsBackToDestroyWhenNoMana()
+    {
+        var state = BattlefieldBattleDestroyedRecallState(mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-battle-destroyed-recall-no-mana", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-BLOOD-ALTAR",
+                ["P1-BATTLEFIELD-BLOOD-ATTACKER"],
+                ["P2-BATTLEFIELD-BLOOD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P2"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains("P2-BATTLEFIELD-BLOOD-DEFENDER", result.State.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone()
     {
         var state = BattlefieldHeldReturnHeroState();
@@ -40437,6 +40504,51 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-PILTOVER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PILTOVER-DEFENDER",
                     power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldBattleDestroyedRecallState(int mana)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(mana, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-BLOOD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-BLOOD-ALTAR", "P2-BATTLEFIELD-BLOOD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-BLOOD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-BLOOD-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-BLOOD-ALTAR"] = new(
+                    "P2-BATTLEFIELD-BLOOD-ALTAR",
+                    cardNo: "UNL-206/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-BLOOD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-BLOOD-DEFENDER",
+                    power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

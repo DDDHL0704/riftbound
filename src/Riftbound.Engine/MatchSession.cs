@@ -917,6 +917,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
+    private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -1323,6 +1324,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldReturnHeroCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal)
@@ -1727,6 +1729,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
+    private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -2525,6 +2528,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-first-turn-rune" => BuildBattlefieldFirstTurnRuneScenario(current, seed),
             "battlefield-first-turn-score" => BuildBattlefieldFirstTurnScoreScenario(current, seed),
             "battlefield-score-delay" => BuildBattlefieldScoreDelayScenario(current, seed),
+            "battlefield-battle-destroyed-recall" => BuildBattlefieldBattleDestroyedRecallScenario(current, seed),
             "battlefield-turn-start-damage" => BuildBattlefieldTurnStartDamageScenario(current, seed),
             "battlefield-turn-start-destroy-draw" => BuildBattlefieldTurnStartDestroyDrawScenario(current, seed),
             "battlefield-held-score" => BuildBattlefieldHeldScoreScenario(current, seed),
@@ -3791,6 +3795,52 @@ public sealed class MatchSession : IMatchSession
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldBattleDestroyedRecallScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303067,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = new(3, 0)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLEFIELD-BLOOD-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    battlefields: ["P2-BATTLEFIELD-BLOOD-ALTAR", "P2-BATTLEFIELD-BLOOD-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-BLOOD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-BLOOD-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-BLOOD-ALTAR"] = new(
+                    "P2-BATTLEFIELD-BLOOD-ALTAR",
+                    cardNo: BattlefieldDestroyedInBattleRecallCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-BLOOD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-BLOOD-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

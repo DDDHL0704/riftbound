@@ -381,6 +381,7 @@ public static class OfficialRuleDomainBehaviorCatalog
         ArgumentNullException.ThrowIfNull(card);
 
         return card.CardNo is "UNL-205/219"
+            or "UNL-206/219"
             or "UNL-207/219"
             or "UNL-208/219"
             or "UNL-209/219"
