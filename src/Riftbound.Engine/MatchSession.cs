@@ -1870,6 +1870,8 @@ public sealed class MatchSession : IMatchSession
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
             "equipment" => BuildEquipmentScenario(current, seed),
             "resource-experience" => BuildResourceExperienceScenario(current, seed),
+            "lifecycle-ephemeral" => BuildLifecycleEphemeralScenario(current, seed),
+            "lifecycle-last-breath" => BuildLifecycleLastBreathScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
@@ -2173,6 +2175,82 @@ public sealed class MatchSession : IMatchSession
                 [seed.P2] = 0
             }
         };
+    }
+
+    private static MatchState BuildLifecycleEphemeralScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303801,
+            801,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    baseZone: ["P1-EPHEMERAL-OTHER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    baseZone: ["P2-EPHEMERAL-BASE", "P2-KEEP-BASE"],
+                    battlefields: ["P2-EPHEMERAL-BATTLEFIELD"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EPHEMERAL-OTHER"] = new(power: 1, tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral]),
+                ["P2-EPHEMERAL-BASE"] = new(power: 1, tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral]),
+                ["P2-EPHEMERAL-BATTLEFIELD"] = new(power: 2, tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral]),
+                ["P2-KEEP-BASE"] = new(power: 3, tags: [CardObjectTags.UnitCard])
+            });
+    }
+
+    private static MatchState BuildLifecycleLastBreathScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303802,
+            802,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(4, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-VENGEANCE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-LAST-BREATH-DRAW-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-WATCHFUL-SENTINEL-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-WATCHFUL-SENTINEL-001"] = new(
+                    "P2-WATCHFUL-SENTINEL-001",
+                    cardNo: "OGN·096/298",
+                    ownerId: seed.P2,
+                    controllerId: seed.P2,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard])
+            });
     }
 
     private static MatchState BuildControlScenario(MatchState current, DevScenarioSeed seed)

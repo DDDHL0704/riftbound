@@ -187,7 +187,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.7a | Done | Experience/level/hunt/encourage surface matrix and current execution/deferred boundary triage. | Catalog profile matrix passed. |
 | P6.7b | Done | Experience gain + level threshold Room-visible representative smoke. | GameHub/Room smoke passed. |
 | P6.8a | Done | Lifecycle/trigger/replacement surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
-| P6.8b | Planned | Last Breath/Ephemeral representative Room or fixture checks. | High-risk small batch. |
+| P6.8b | Done | Last Breath + Ephemeral representative Room smokes. | GameHub/Room smoke passed. |
 | P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
 | P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
 | P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
@@ -238,6 +238,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Profile deferred boundary: `31/67 entries = 46.3%`; `29/61 functional units = 47.5%` for Last Breath queues, one Ephemeral+Last Breath overlap, and broad Predict grants.
   - Trigger timing surface: `530` entries / `423` functional units; `358/423 = 84.6%` units have implemented specs and `65/423 = 15.4%` remain pending.
   - Replacement timing surface: `28` entries / `24` functional units; `21/24 = 87.5%` units have implemented specs and `3/24 = 12.5%` remain pending.
+- P6.8b lifecycle Room smoke progress: `2/2 GameHub core paths = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -662,6 +663,32 @@ P6.8a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `24/24`.
 - `git diff --check`: passed.
 
+## P6.8b Delivered
+
+- Added two development-only lifecycle scenario seeds for current P4/P5 representative paths:
+  - `lifecycle-ephemeral`: P2 controls one Ephemeral base unit and one Ephemeral battlefield unit; P1 controls a separate Ephemeral unit that must not be cleaned up on P2 turn start.
+  - `lifecycle-last-breath`: P1 can play `OGN·229/298` 复仇 against P2's `OGN·096/298` 警觉的哨兵, with a P2 draw card prepared for the Last Breath representative queue.
+- Added GameHub/Room smokes:
+  - Local URL: N/A; in-memory SignalR `GameHub` smoke with no browser/server listener.
+  - Room ID: `p6-8b-lifecycle-ephemeral-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(lifecycle-ephemeral)` -> `END_TURN(P1)`.
+  - Observed events: `TURN_END_DECLARED`, `TURN_PLAYER_ADVANCED`, `TURN_START_BEGAN`, two `UNIT_DESTROYED`, `RUNES_CALLED`, `CARD_DRAWN`, `MAIN_PHASE_BEGAN`.
+  - Final snapshot summary: P1's unrelated Ephemeral base unit remains; P2 battlefield is empty; P2 base has `P2-KEEP-BASE`, `P2-RUNE-001`, and `P2-RUNE-002`; P2 hand contains `P2-MAIN-001`; P2 graveyard contains `P2-EPHEMERAL-BASE` and `P2-EPHEMERAL-BATTLEFIELD`.
+  - Room ID: `p6-8b-lifecycle-last-breath-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(lifecycle-last-breath)` -> `PLAY_CARD Vengeance, OGN·229/298, target P2-WATCHFUL-SENTINEL-001` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)`.
+  - Observed events: `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, `STACK_ITEM_RESOLVED`, `UNIT_DESTROYED`, `TRIGGER_QUEUED`, `TRIGGER_RESOLVED`, `CARD_DRAWN`.
+  - Final snapshot summary: stack is empty; P1 graveyard contains `P1-SPELL-VENGEANCE`; P2 battlefield is empty; P2 hand contains `P2-LAST-BREATH-DRAW-001`; P2 graveyard contains `P2-WATCHFUL-SENTINEL-001`.
+- This batch does not broaden generic trigger or replacement ordering; it Room-smokes the current Ephemeral cleanup and Watchful Sentinel Last Breath representative paths.
+
+P6.8b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2596/2596`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `33/33`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.8a, then continue into P6.8b last-breath/ephemeral representative checks.
+Commit P6.8b, then continue into P6.9 legend active/passive batches.

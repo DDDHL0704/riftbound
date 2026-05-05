@@ -913,6 +913,119 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6LifecycleEphemeralSeedBroadcastsTurnStartCleanupInDevelopment()
+    {
+        const string roomId = "p6-8b-lifecycle-ephemeral-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "lifecycle-ephemeral", "seed-p6-lifecycle-ephemeral");
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-ephemeral-end-turn", endTurn);
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var events = EventsFor(endTurnClients);
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "TURN_END_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "TURN_START_BEGAN", StringComparison.Ordinal));
+        Assert.Equal(2, events.Count(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "MAIN_PHASE_BEGAN", StringComparison.Ordinal));
+
+        var snapshot = SnapshotFor(endTurnClients, "P2");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains("P1-EPHEMERAL-OTHER", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(
+            ["P2-KEEP-BASE", "P2-RUNE-001", "P2-RUNE-002"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["base"]));
+        Assert.Equal(
+            ["P2-MAIN-001"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["hand"]));
+        Assert.Equal(
+            ["P2-EPHEMERAL-BASE", "P2-EPHEMERAL-BATTLEFIELD"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+    }
+
+    [Fact]
+    public async Task P6LifecycleLastBreathSeedBroadcastsTriggerQueueInDevelopment()
+    {
+        const string roomId = "p6-8b-lifecycle-last-breath-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "lifecycle-last-breath", "seed-p6-lifecycle-last-breath");
+
+        var playClients = new RecordingHubClients();
+        var vengeance = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-VENGEANCE",
+              "cardNo": "OGN·229/298",
+              "targetObjectIds": ["P2-WATCHFUL-SENTINEL-001"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-last-breath-vengeance", vengeance);
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var passP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-last-breath-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-last-breath-p2-pass", passPriorityAgain);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP2Clients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+
+        var snapshot = SnapshotFor(passP2Clients, "P2");
+        Assert.Empty(snapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-SPELL-VENGEANCE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(["P2-LAST-BREATH-DRAW-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["hand"]));
+        Assert.Equal(["P2-WATCHFUL-SENTINEL-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+    }
+
+    [Fact]
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
