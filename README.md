@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已完成全部战场规则域，最新新增 `OGN·286/298` 清算人竞技场：据守时由后端激活已支持单位的征服效果；既有 `OGN·278/298` / `OGN·278a/298` 班德尔树额外战场待命目的地、`SFD·208/221` 魄罗熔炉授予友方传奇贴附武装、`UNL-206/219` 鲜血祭坛战斗摧毁替代、`UNL-216/219` 皮城学院据守后让下一个法术获得 Echo、`SFD·209/221` 遗忘丰碑阻止前三回合战场得分，以及 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `811/811` 个功能单元，manual deferred 剩余 `0/811`。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- P7.9 本地产品版全卡可玩已完成：`1009/1009` 官方条目为 `CONFORMANCE_PASS`，`811/811` 功能单元实现，manual deferred 剩余 `0/811`；最终验证通过后端 full test `2817/2817`、`ConformanceFixtureRunnerTests 2653/2653`、`CardCatalogBaselineTests 38/38`、`GameHubJoinTests 84/84`、前端 build 和 Browser smoke。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 
@@ -66,7 +66,7 @@ npm install
 npm run dev
 ```
 
-访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`。P7 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、对战桌面、ActionPrompt 操作、事件日志、战报/回放边界、图鉴和卡牌详情。P7.9 会继续把开发工具折叠到本地专用入口，并把手填 objectId/JSON 的操作推进为结构化 prompt 驱动的点击式流程。UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
+访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`。P7/P7.9 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、对战桌面、结构化 ActionPrompt 操作、点击式出牌/目标/费用/战斗/传奇/战场能力、事件日志、战报/回放边界、全卡图鉴和卡牌详情。UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
 
 ## 项目结构
 
@@ -85,7 +85,7 @@ npm run dev
 
 核心计划文档：
 
-- `docs/CURRENT_P7_9_STATUS.md`：当前短交接，记录 P7.9 本地产品版全卡可玩目标、缺口审计、批次计划、验证门禁和进度。
+- `docs/CURRENT_P7_9_STATUS.md`：P7.9 本地产品版全卡可玩完成状态、最终验证和 Browser smoke。
 - `docs/CURRENT_P7_STATUS.md`：P7 产品级 Web 对战完成状态、Browser smoke 和最终验证。
 - `docs/CURRENT_P6_STATUS.md`：P6 全卡状态矩阵，保留 P6 final 的 `713/811` implemented 与 `98/811` manual deferred 边界；P7.9 当前数字以 `docs/CURRENT_P7_9_STATUS.md` 为准。
 - `docs/CURRENT_P4_STATUS.md`：P4 高频关键词/基础模板候选、风险分层、P4.1-P4.392 完成状态、最终验证和下一阶段边界。

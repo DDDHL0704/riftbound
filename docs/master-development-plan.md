@@ -76,7 +76,7 @@ flowchart LR
 | P5 | 装备/控制权/触发替换 | 贴附、未激活、owner/controller、替换、触发队列 | 稳定 demo |
 | P6 | 全卡牌批量实现 | 按功能逻辑单元批量接入 811 个后端行为 | 扩展牌池 |
 | P7 | 产品级 Web 对战 | 精美 UI、动画、回放、观战、战报 | 对外 alpha |
-| P7.9 | 本地产品版全卡可玩 | 结构化 ActionPrompt、点击式 UI、传奇/战场规则域、全卡页面操作 | 本地完整 alpha |
+| P7.9 | 本地产品版全卡可玩 | 结构化 ActionPrompt、点击式 UI、传奇/战场规则域、全卡页面操作（已完成） | 本地完整 alpha |
 | P8 | 生产化 | 账号、匹配、部署、监控、风控、运维 | beta/上线 |
 
 ## 5. P0：规则和卡牌基线
@@ -483,7 +483,7 @@ flowchart LR
 
 ## 14. P7.9：本地产品版全卡可玩
 
-状态：P7 已完成；P7.9 已完成 P7.9.6 传奇规则域，并在 P7.9.7 完成战场规则域五十四个功能单元：`DECLARE_BATTLE` 支持服务端已知战场卡对象目的地，ActionPrompt 下发战场对象候选；`OGN·286/298` 清算人竞技场在据守时由后端激活已支持单位的征服效果；`OGN·278/298` / `OGN·278a/298` 班德尔树在控制该战场时为 `HIDE_CARD` 提供额外的战场待命目的地；`SFD·208/221` 魄罗熔炉在控制该战场时授予友方传奇横置贴附受控武装的 `LEGEND_ACT` 能力；`UNL-206/219` 鲜血祭坛在战斗中替代此处单位摧毁，支付 3 后移除伤害、休眠并召回；`UNL-216/219` 皮城学院据守后让本回合下一个法术获得等同基础费用的 Echo；`SFD·209/221` 遗忘丰碑在玩家第三回合前阻止战场来源得分；`UNL-214/219` 鬼影湾在战场单位返回手牌后支付 1 叫一枚休眠符文；`UNL-213/219` 蜕变花园授予战场单位 `ACTIVATE_ABILITY` 横置获得 1 经验；`OGN·289/298` 征服后选择两枚符文并在回合结束时重置，`SFD·207/221` 征服后支付 1、返回己方战场单位并在战场打出黄沙士兵，以及已落地的 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `811/811` 功能单元，manual deferred 剩余 `0/811`。当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
+状态：P7 已完成；P7.9 本地产品版全卡可玩也已完成。最终实现 `1009/1009` 官方条目 `CONFORMANCE_PASS`，`811/811` 功能单元，manual deferred `0/811`，blocked `0`。最终验证通过后端 full test `2817/2817`、`ConformanceFixtureRunnerTests 2653/2653`、`CardCatalogBaselineTests 38/38`、`GameHubJoinTests 84/84`、前端 build 和 Browser smoke。当前短交接、最终审计和 smoke 记录见 `docs/CURRENT_P7_9_STATUS.md`。
 
 目标：
 
@@ -616,15 +616,15 @@ Browser Use 阶段性测试：
 
 ## 19. 下一步执行顺序
 
-新窗口接手时，先读 `docs/CURRENT_P7_9_STATUS.md`、`docs/CURRENT_P7_STATUS.md`、`docs/CURRENT_P6_STATUS.md`、`README.md` 和 `docs/START_HERE.md`。当前只推进 P7.9 本地产品版全卡可玩，不进入 P8 生产账号、匹配、部署、监控或风控。
+新窗口接手时，先读 `docs/CURRENT_P7_9_STATUS.md`、`docs/CURRENT_P7_STATUS.md`、`docs/CURRENT_P6_STATUS.md`、`README.md` 和 `docs/START_HERE.md`。P7.9 本地产品版全卡可玩已完成；除非用户明确要求生产化，不进入 P8 账号、匹配、部署、监控或风控。
 
 立即执行：
 
-1. 以 `docs/CURRENT_P7_9_STATUS.md` 为当前状态文件，按批次更新进度、验证和提交。
-2. 先做结构化 `ActionPrompt` 兼容层，再让 UI 消费 prompt candidates。
-3. 把手填 objectId/JSON 的产品路径替换为点击式来源、目标、费用、目的地和模式选择。
-4. 在 `811/811` 功能单元实现、`0/811` manual deferred 的基础上，继续 P7.9.9 战斗完整性、P7.9.10 图鉴/页面操作整合、P7.9.11 UI polish 与最终验收。
-5. 每个显著 UI 批次跑 Browser smoke；每个规则批次补 conformance、GameHub 或 engine 测试。
+1. 以 `docs/CURRENT_P7_9_STATUS.md` 为当前状态文件，保留最终验证、Browser smoke 和完成边界。
+2. 如果继续维护，只做本地产品版 alpha 范围内的 bugfix、回归测试、文档同步或小幅 polish。
+3. 任何新增可玩能力仍必须来自服务端 `ActionPrompt`，并补 conformance、engine/GameHub 测试和 Browser smoke。
+4. P8 只能在用户明确要求时启动；启动前重新审计账号、匹配、部署、监控、风控、持久化回放/观战等生产边界。
+5. 每次修改后保持后端 full test/focused suites、前端 build、Browser smoke 和 clean status 绿色。
 
 已完成的 P1 底座项：
 
@@ -639,7 +639,7 @@ Browser Use 阶段性测试：
 - `WsClientMessage` / `WsServerMessage` 已接入默认 `protocolVersion = 1`、`schemaVersion = 1`，canonical JSON 测试已固定 camelCase envelope 字段；TypeScript DTO、客户端兼容策略和事件 upcaster 仍待后续补齐。
 - `docs/p2-rules-preflight.md` 已建立 P2 前置审查：符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture。
 
-P8 只在 P7.9 完成并通过最终验收后启动。
+P8 只在用户明确要求后启动；P7.9 最终验收已通过。
 
 ## 20. 完成定义
 

@@ -155,7 +155,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.9 | Done | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, and UI operation. Slice 1 tightened `DECLARE_BATTLE` prompt candidates to legal battlefield unit sources/defenders only; slice 2 exposed the combat prompt filter seed in the UI and verified the page path with Browser smoke; slice 3 added a multi-defender battle seed and verified one attacker/two defender prompt chips plus authoritative battle submission in the browser; slice 4 exposes battle assignment roles in the product event log and Browser smoke verifies `BULWARK_FIRST` / `BACK_ROW_LAST` visibility. | Conformance + Browser smoke passed. |
 | P7.9.10 | Done | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. The catalog now displays all filtered cards, shows `1009/1009 CONFORMANCE_PASS`, marks 0 manual/blocked, keeps searched details in sync with filtered results, and shows the server operation surface for each card. | `CardCatalogBaselineTests` updated and green; Browser smoke passed. |
 | P7.9.11 | Done | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. Added live event/system regions, a replay/spectator read-only summary, and stronger keyboard focus styling. | Frontend build + Browser visual smoke passed. |
-| P7.9.x | Planned | Final audit: `811/811` functional units implemented, no manual deferred, full tests, Browser smoke, clean status. | Full final validation and commit. |
+| P7.9.x | Done | Final audit: `811/811` functional units implemented, no manual deferred, full tests, Browser smoke, clean status. | Full final validation and Browser smoke passed. |
 
 Initial estimate: `13` top-level batches. P7.9.6 and P7.9.7 were split into additional rule sub-batches for safe commits; P7.9.8 was absorbed by the final P7.9.7 battlefield slice because no manual battlefield unit remains.
 
@@ -207,6 +207,7 @@ Final P7.9 gate:
 - P7.9.9 status: done; combat completeness slices 1-4 done.
 - P7.9.10 status: done.
 - P7.9.11 status: done.
+- P7.9.x final audit status: done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
@@ -215,8 +216,8 @@ Final P7.9 gate:
 - Current functional-unit implementation: `811/811 = 100.0%`.
 - Current manual deferred boundary: `0/811 = 0.0%`.
 - Remaining manual domains: none.
-- Overall P7.9 progress: `12/13 top-level batches = 92.3%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, P7.9.9 combat completeness is done, P7.9.10 full catalog/page-detail integration is done, and P7.9.11 product polish is done.
-- Estimated remaining top-level batches: `1` final audit.
+- Overall P7.9 progress: `13/13 top-level batches = 100.0%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, P7.9.9 combat completeness is done, P7.9.10 full catalog/page-detail integration is done, P7.9.11 product polish is done, and the final audit passed.
+- Estimated remaining top-level batches: `0`.
 
 ## P7.9.0 Delivered
 
@@ -3342,3 +3343,46 @@ P7.9.11 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
 - Browser visual smoke through the in-app browser: passed.
 - `git diff --check`: passed.
+
+## P7.9 Final Audit Delivered
+
+P7.9 本地产品版全卡可玩已完成。P7.9 did not enter P8 production accounts, matchmaking, deployment, monitoring, risk control, mobile-specific work, complex AI, or production replay/spectator APIs.
+
+Final implementation status:
+
+- Official entries: `1009/1009` BehaviorSpecs are `implemented` / `CONFORMANCE_PASS`.
+- Functional units: `811/811 = 100.0%` implemented.
+- Manual deferred functional units: `0/811 = 0.0%`.
+- Manual deferred official entries: `0/1009 = 0.0%`.
+- Remaining manual domains: none.
+- P7.9 top-level progress: `13/13 = 100.0%`.
+
+Final validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2817/2817`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2653/2653`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `84/84`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+
+Final Browser smoke:
+
+- Web URL: `http://127.0.0.1:5173/`
+- API URL: `http://127.0.0.1:5089`
+- Room ID: `p7-9-final-smoke-1778020979893`
+- Operation path:
+  - Opened the local Web URL and set API URL to `http://127.0.0.1:5089`.
+  - Joined both players.
+  - Readied both players.
+  - Played a card through `Basic Play` and `Submit PLAY_CARD`.
+  - Passed priority through a prompt button.
+  - Ended the turn through a prompt button and observed `TURN_END_DECLARED` / `TURN_PLAYER_ADVANCED`.
+  - Declared battle and observed assignment-role event log rows.
+  - Executed `LEGEND_ACT` through the product workbench.
+  - Executed battlefield-granted `ACTIVATE_ABILITY`.
+  - Disconnected and reconnected P1 with room recovery.
+- Event log summary: `CARD_PLAYED`, `PRIORITY_PASSED`, `TURN_END_DECLARED`, `TURN_PLAYER_ADVANCED`, `BATTLE_DECLARED`, `DAMAGE_APPLIED`, `LEGEND_ABILITY_ACTIVATED`, `ABILITY_ACTIVATED`, `BATTLEFIELD_TRIGGER_RESOLVED`.
+- Final snapshot summary: room `IN_PROGRESS`, turn `#175`, active player `P1`, winner `-`, P1 score `0`, P2 score `0`, P1 battlefield `2`, P2 battlefield `0`, replay boundary `LOCAL EVENTS 44`, snapshot tick `11`.
+- Catalog boundary confirmed: `P7.9 全量可玩状态：1009/1009 CONFORMANCE_PASS，0 manual deferred，0 blocked。`
+- Screenshot verification: visible viewport captured through the in-app browser after final smoke.
