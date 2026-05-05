@@ -26520,6 +26520,39 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(result.State.WinnerPlayerId);
     }
 
+    [Theory]
+    [InlineData("OGN·293/298")]
+    [InlineData("OGN·293a/298")]
+    public async Task P79BattlefieldHeldSevenUnitsWinsGame(string battlefieldCardNo)
+    {
+        var state = BattlefieldHeldSevenUnitsWinState(battlefieldCardNo);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-seven-units-win", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-GRAND-PLAZA",
+                ["P1-BATTLEFIELD-GRAND-ATTACKER"],
+                ["P2-BATTLEFIELD-GRAND-UNIT-001"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_SEVEN_UNITS_WIN", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-GRAND-PLAZA", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(battlefieldCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        Assert.Equal(7, triggerEvent.Payload["controlledBattlefieldUnitCount"]);
+        Assert.Equal(7, triggerEvent.Payload["requiredUnitCount"]);
+        var winEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal("P2", winEvent.Payload["winnerPlayerId"]);
+        Assert.Equal("BATTLEFIELD_HELD_SEVEN_UNITS_WIN", winEvent.Payload["reason"]);
+    }
+
     [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
@@ -38397,6 +38430,53 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P2",
                     controllerId: "P2")
             }
+        };
+    }
+
+    private static MatchState BattlefieldHeldSevenUnitsWinState(string battlefieldCardNo)
+    {
+        var defenderUnitObjectIds = Enumerable.Range(1, 7)
+            .Select(index => $"P2-BATTLEFIELD-GRAND-UNIT-{index:000}")
+            .ToArray();
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-GRAND-ATTACKER"] = new(
+                "P1-BATTLEFIELD-GRAND-ATTACKER",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P2-BATTLEFIELD-GRAND-PLAZA"] = new(
+                "P2-BATTLEFIELD-GRAND-PLAZA",
+                cardNo: battlefieldCardNo,
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        foreach (var defenderUnitObjectId in defenderUnitObjectIds)
+        {
+            cardObjects[defenderUnitObjectId] = new CardObjectState(
+                defenderUnitObjectId,
+                power: string.Equals(defenderUnitObjectId, defenderUnitObjectIds[0], StringComparison.Ordinal) ? 3 : 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GRAND-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = new[] { "P2-BATTLEFIELD-GRAND-PLAZA" }.Concat(defenderUnitObjectIds).ToArray()
+                }
+            },
+            CardObjects = cardObjects
         };
     }
 

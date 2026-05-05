@@ -1906,6 +1906,57 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldSevenUnitsSeedOffersBattlefieldDestinationAndWins()
+    {
+        const string roomId = "p7-9-battlefield-held-seven-units-win";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-held-seven-units-win", "seed-p7-9-battlefield-held-seven-units-win");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-GRAND-PLAZA", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-GRAND-PLAZA",
+              "attackerObjectIds": ["P1-BATTLEFIELD-GRAND-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-GRAND-UNIT-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-seven-units-win", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_SEVEN_UNITS_WIN", StringComparison.Ordinal));
+        Assert.Equal(7, triggerEvent.Payload["controlledBattlefieldUnitCount"]);
+        var winEvent = Assert.Single(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal("P2", winEvent.Payload["winnerPlayerId"]);
+        Assert.Equal("BATTLEFIELD_HELD_SEVEN_UNITS_WIN", winEvent.Payload["reason"]);
+
+        var battleSnapshot = SnapshotFor(battleClients, "P2");
+        Assert.Equal("P2", battleSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.Finished, battleSnapshot.Timing["roomStatus"]);
+    }
+
+    [Fact]
     public async Task P6EchoStackSeedBroadcastsRepeatedDrawInDevelopment()
     {
         const string roomId = "p6-5a-echo-stack-core";

@@ -173,10 +173,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
+    private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
+    private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
+    private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -4098,6 +4101,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                     winnerPlayerId = battlefieldScoreWinnerPlayerId ?? winnerPlayerId;
                 }
 
+                var battlefieldSevenUnitsEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldSevenUnitsWinTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        EffectiveWinningScore(playerZones, cardObjects),
+                        battlefieldSevenUnitsEvents,
+                        out var battlefieldSevenUnitsWinnerPlayerId))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldSevenUnitsEvents);
+                    winnerPlayerId = battlefieldSevenUnitsWinnerPlayerId ?? winnerPlayerId;
+                }
+
                 var battlefieldBoonEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldGrantBoonTrigger(
                         playerZones,
@@ -6240,6 +6265,59 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldSevenUnitsWinTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        int winningScore,
+        List<GameEvent> events,
+        out string? winnerPlayerId)
+    {
+        winnerPlayerId = null;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldSevenUnitsWinCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var controlledBattlefieldUnitCount = CountControlledBattlefieldUnits(playerZones, cardObjects, playerId);
+        if (controlledBattlefieldUnitCount < BattlefieldHeldSevenUnitsWinThreshold)
+        {
+            return false;
+        }
+
+        winnerPlayerId = playerId;
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并满足单位数量胜利条件",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_SEVEN_UNITS_WIN",
+                ["sourceObjectId"] = sourceObjectId,
+                ["controlledBattlefieldUnitCount"] = controlledBattlefieldUnitCount,
+                ["requiredUnitCount"] = BattlefieldHeldSevenUnitsWinThreshold
+            }));
+        events.Add(new GameEvent(
+            "MATCH_WON",
+            $"{playerId} 因据守战场达到特殊胜利条件并获胜",
+            new Dictionary<string, object?>
+            {
+                ["winnerPlayerId"] = playerId,
+                ["winningScore"] = winningScore,
+                ["reason"] = "BATTLEFIELD_HELD_SEVEN_UNITS_WIN",
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["controlledBattlefieldUnitCount"] = controlledBattlefieldUnitCount,
+                ["requiredUnitCount"] = BattlefieldHeldSevenUnitsWinThreshold
+            }));
+        return true;
+    }
+
     private static bool TryGetFirstSurvivingBattlefieldUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -7354,7 +7432,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
-            || IsBattlefieldFirstTurnScoreCardNo(cardNo);
+            || IsBattlefieldFirstTurnScoreCardNo(cardNo)
+            || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7486,6 +7565,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldFirstTurnScoreCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldSevenUnitsWinCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
