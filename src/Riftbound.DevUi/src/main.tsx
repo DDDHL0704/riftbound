@@ -2915,11 +2915,43 @@ function collectTimelineEvents(players: Record<PlayerKey, PlayerState>): Timelin
 }
 
 function eventPayloadSummary(payload: Record<string, unknown>) {
-  const parts = Object.entries(payload)
-    .filter(([, value]) => value !== undefined && value !== null && value !== "")
-    .slice(0, 4)
-    .map(([key, value]) => `${key}: ${formatPayloadValue(value)}`);
+  const visibleEntries = Object.entries(payload)
+    .filter(([, value]) => value !== undefined && value !== null && value !== "");
+  const priorityKeys = [
+    "assignmentIndex",
+    "assignmentRole",
+    "sourceObjectId",
+    "targetObjectId",
+    "damage",
+    "battlefieldId",
+    "playerId",
+    "trigger"
+  ];
+  const orderedEntries = [
+    ...priorityKeys.flatMap((priorityKey) => visibleEntries.filter(([key]) => key === priorityKey)),
+    ...visibleEntries.filter(([key]) => !priorityKeys.includes(key))
+  ];
+  const parts = orderedEntries
+    .slice(0, 6)
+    .map(([key, value]) => `${key}: ${formatPayloadEntryValue(key, value)}`);
   return parts.length > 0 ? parts.join(" / ") : "no payload";
+}
+
+function formatPayloadEntryValue(key: string, value: unknown): string {
+  if (key === "assignmentRole") {
+    return combatAssignmentRoleLabel(value);
+  }
+  return formatPayloadValue(value);
+}
+
+function combatAssignmentRoleLabel(value: unknown): string {
+  if (value === "BULWARK_FIRST") {
+    return "BULWARK_FIRST (壁垒优先)";
+  }
+  if (value === "BACK_ROW_LAST") {
+    return "BACK_ROW_LAST (后排最后)";
+  }
+  return formatPayloadValue(value);
 }
 
 function formatPayloadValue(value: unknown): string {
