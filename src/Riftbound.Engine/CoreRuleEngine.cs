@@ -183,6 +183,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
+    private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -381,6 +382,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["baseMana"] = behavior.ManaCost,
                     ["costReductionMana"] = plan.CostReductionMana,
                     ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
+                    ["battlefieldEchoCostReductionMana"] = plan.BattlefieldEchoCostReductionMana,
                     ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
@@ -7666,7 +7668,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
             || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
             || IsBattlefieldStaticRoamCardNo(cardNo)
-            || IsBattlefieldPreventUnitPlayCardNo(cardNo);
+            || IsBattlefieldPreventUnitPlayCardNo(cardNo)
+            || IsBattlefieldEchoCostReductionCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7844,6 +7847,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldPreventUnitPlayCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldPreventUnitPlayCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldEchoCostReductionCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -8516,6 +8524,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var battlefieldEchoCostReductionMana = ResolveBattlefieldEchoCostReductionMana(
+            state,
+            intent.PlayerId,
+            behavior,
+            optionalCosts,
+            extraManaCost);
+        extraManaCost = Math.Max(0, extraManaCost - battlefieldEchoCostReductionMana);
         var costReductionMana = ResolveCostReductionMana(state, intent.PlayerId, behavior);
         var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
             state,
@@ -8570,6 +8585,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCosts,
             costReductionMana,
             optionalCostManaReduction,
+            battlefieldEchoCostReductionMana,
             spellshieldTaxMana,
             spellshieldTaxTargetObjectIds,
             exhaustedOptionalCostTargetObjectIds,
@@ -10967,6 +10983,27 @@ public sealed class CoreRuleEngine : IRuleEngine
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
             _ => 0
         };
+    }
+
+    private static int ResolveBattlefieldEchoCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> optionalCosts,
+        int echoExtraManaCost)
+    {
+        if (echoExtraManaCost <= 0
+            || behavior.EchoManaCost <= 0
+            || !optionalCosts.Contains(EchoOptionalCostNames.Echo, StringComparer.Ordinal)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldEchoCostReductionCardNo(cardObject.CardNo)))
+        {
+            return 0;
+        }
+
+        return Math.Min(1, echoExtraManaCost);
     }
 
     private static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)
@@ -17620,6 +17657,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> OptionalCosts,
         int CostReductionMana,
         int OptionalCostManaReduction,
+        int BattlefieldEchoCostReductionMana,
         int SpellshieldTaxMana,
         IReadOnlyList<string> SpellshieldTaxTargetObjectIds,
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,

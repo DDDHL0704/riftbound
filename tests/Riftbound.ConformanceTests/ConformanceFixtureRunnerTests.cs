@@ -26506,6 +26506,34 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticReducesEchoCost()
+    {
+        var state = BattlefieldEchoCostReductionState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-echo-cost-reduction", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-CENTER-STAGE",
+                "UNL-061/219",
+                [],
+                OptionalCosts: ["ECHO"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(2, stackItem.EffectRepeatCount);
+        Assert.Equal(["ECHO"], stackItem.OptionalCosts);
+        var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(3, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldEchoCostReductionMana"]);
+        Assert.Equal(["ECHO"], Assert.IsAssignableFrom<IReadOnlyList<string>>(costPaid.Payload["optionalCosts"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38677,6 +38705,37 @@ public sealed class ConformanceFixtureRunnerTests
                     "TEST-000",
                     [])
             ]
+        };
+    }
+
+    private static MatchState BattlefieldEchoCostReductionState()
+    {
+        return PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-CENTER-STAGE"],
+                    MainDeck = ["P1-MAIN-001", "P1-MAIN-002"],
+                    Battlefields = ["P1-BATTLEFIELD-MARAI-SPIRE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-CENTER-STAGE"] = new(
+                    "P1-SPELL-CENTER-STAGE",
+                    cardNo: "UNL-061/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-MARAI-SPIRE"] = new(
+                    "P1-BATTLEFIELD-MARAI-SPIRE",
+                    cardNo: "SFD·211/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
         };
     }
 

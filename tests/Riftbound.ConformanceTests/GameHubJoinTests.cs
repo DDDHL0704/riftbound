@@ -1857,6 +1857,50 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticEchoCostReductionSeedPaysReducedEchoCost()
+    {
+        const string roomId = "p7-9-battlefield-static-echo-cost-reduction";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-static-echo-cost-reduction", "seed-p7-9-battlefield-static-echo-cost-reduction");
+
+        var playClients = new RecordingHubClients();
+        var centerStage = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-CENTER-STAGE",
+              "cardNo": "UNL-061/219",
+              "targetObjectIds": [],
+              "optionalCosts": ["ECHO"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-echo-cost-reduction", centerStage);
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var events = EventsFor(playClients);
+        var costPaid = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(3, costPaid.Payload["mana"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldEchoCostReductionMana"]);
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["effectRepeatCount"], 2));
+        var p1Snapshot = SnapshotFor(playClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
     {
         const string roomId = "p7-9-battlefield-move-power";
