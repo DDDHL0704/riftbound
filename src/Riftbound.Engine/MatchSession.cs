@@ -907,6 +907,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
+    private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
@@ -1219,6 +1220,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDrawForOtherBattlefieldsCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneCreateGoldCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal);
     }
 
@@ -1585,6 +1587,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
+    private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
 
     private readonly IRuleEngine ruleEngine;
@@ -2342,6 +2345,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-conquer-ready-legend" => BuildBattlefieldConquerReadyLegendScenario(current, seed),
             "battlefield-conquer-draw-other" => BuildBattlefieldConquerDrawOtherScenario(current, seed),
             "battlefield-conquer-powerful-draw" => BuildBattlefieldConquerPowerfulDrawScenario(current, seed),
+            "battlefield-conquer-gold" => BuildBattlefieldConquerGoldScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
             "specified-hand" => BuildSpecifiedHandScenario(current, seed),
             _ => throw new MatchSessionException(
@@ -3763,6 +3767,56 @@ public sealed class MatchSession : IMatchSession
                     "P1-BATTLEFIELD-POWERFUL-DRAW-002",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldConquerGoldScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303040,
+            110,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-TREASURE-PILE", "P1-BATTLEFIELD-GOLD-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-GOLD-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new(
+                    "P1-BATTLEFIELD-TREASURE-PILE",
+                    cardNo: BattlefieldConquerPayOneCreateGoldCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-GOLD-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

@@ -26038,6 +26038,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerGoldPaysOneToCreateDormantGold()
+    {
+        var state = BattlefieldConquerGoldState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-gold", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-TREASURE-PILE",
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"],
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD", StringComparison.Ordinal));
+        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD", StringComparison.Ordinal));
+        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
+        Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects[tokenObjectId].IsExhausted);
+        Assert.Contains("金币", result.State.CardObjects[tokenObjectId].Tags);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -37418,6 +37447,45 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-BATTLEFIELD-POWERFUL-DRAW-002",
                     ownerId: "P1",
                     controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerGoldState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-TREASURE-PILE", "P1-BATTLEFIELD-GOLD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-GOLD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-TREASURE-PILE"] = new(
+                    "P1-BATTLEFIELD-TREASURE-PILE",
+                    cardNo: "SFD·220/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-GOLD-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
             }
         };
     }

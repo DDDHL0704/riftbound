@@ -158,9 +158,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
+    private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
+    private const int BattlefieldGoldManaCost = 1;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3785,6 +3787,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = battlefieldPowerfulDrawApplication.WinnerPlayerId;
                 rngCursor = battlefieldPowerfulDrawApplication.RngCursor;
             }
+            if (TryResolveBattlefieldConquerPayOneCreateGoldTrigger(
+                    playerZones,
+                    cardObjects,
+                    runePools,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    combatEvents,
+                    out var battlefieldGoldRunePools))
+            {
+                runePools = battlefieldGoldRunePools;
+            }
             if (TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
                     state,
                     playerZones,
@@ -6344,6 +6358,72 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerPayOneCreateGoldTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools)
+    {
+        nextRunePools = runePools;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerPayOneCreateGoldCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < BattlefieldGoldManaCost)
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - BattlefieldGoldManaCost
+        };
+        nextRunePools = mutableRunePools;
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并打出金币",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD",
+                ["sourceObjectId"] = sourceObjectId,
+                ["tokenName"] = "金币"
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付珍宝堆征服触发费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["mana"] = BattlefieldGoldManaCost,
+                ["power"] = 0,
+                ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD"
+            }));
+        CreateLegendEquipmentToken(
+            playerZones,
+            cardObjects,
+            playerId,
+            battlefieldObjectId,
+            "BATTLEFIELD_CONQUERED_PAY_1_CREATE_GOLD",
+            "金币",
+            [CardObjectTags.EquipmentCard, "金币", "反应"],
+            isExhausted: true,
+            events);
+        return true;
+    }
+
     private static bool TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -6445,6 +6525,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
+            || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -6511,6 +6592,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPowerfulPayOneDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerPayOneCreateGoldCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerPayOneCreateGoldCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
