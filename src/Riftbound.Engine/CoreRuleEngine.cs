@@ -179,6 +179,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
+    private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -3443,7 +3444,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!HasRoamPermission(sourceState))
+        if (!HasRoamPermission(state, intent.PlayerId, command.SourceObjectId, sourceState))
         {
             return RejectWithCorePrompts(
                 state,
@@ -7620,7 +7621,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldTurnStartDamageAllUnitsCardNo(cardNo)
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
-            || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo);
+            || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
+            || IsBattlefieldStaticRoamCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7778,6 +7780,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldStaticRoamCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -9634,10 +9641,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparison.Ordinal);
     }
 
-    private static bool HasRoamPermission(CardObjectState sourceState)
+    private static bool HasRoamPermission(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardObjectState sourceState)
     {
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
-            || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal);
+            || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
+            || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
+    }
+
+    private static bool HasBattlefieldStaticRoamPermission(MatchState state, string playerId, string sourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        return zones.Battlefields.Any(objectId =>
+            state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && IsBattlefieldStaticRoamCardNo(cardObject.CardNo));
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)

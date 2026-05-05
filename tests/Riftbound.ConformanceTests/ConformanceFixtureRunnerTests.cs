@@ -26395,6 +26395,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticRoamAllowsPreciseBattlefieldMovement()
+    {
+        var state = BattlefieldStaticRoamState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-static-roam", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BATTLEFIELD-WIND-RUNNER",
+                "BATTLEFIELD:P1-WIND-HILL",
+                "BATTLEFIELD:P1-FAR-FIELD",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var moveEvent = Assert.Single(result.Events);
+        Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", moveEvent.Kind);
+        Assert.Equal("游走", moveEvent.Payload["movementKeyword"]);
+        Assert.Equal("BATTLEFIELD:P1-WIND-HILL", moveEvent.Payload["origin"]);
+        Assert.Equal("BATTLEFIELD:P1-FAR-FIELD", moveEvent.Payload["destination"]);
+        Assert.Equal(["P1-BATTLEFIELD-WIND-HILL", "P1-BATTLEFIELD-WIND-RUNNER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("游走", result.State.CardObjects["P1-BATTLEFIELD-WIND-RUNNER"].Tags);
+        Assert.DoesNotContain("ROAM", result.State.CardObjects["P1-BATTLEFIELD-WIND-RUNNER"].UntilEndOfTurnEffects);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38425,6 +38452,36 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldStaticRoamState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-WIND-HILL", "P1-BATTLEFIELD-WIND-RUNNER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-WIND-HILL"] = new(
+                    "P1-BATTLEFIELD-WIND-HILL",
+                    cardNo: "OGN·297/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-WIND-RUNNER"] = new(
+                    "P1-BATTLEFIELD-WIND-RUNNER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
             }
         };
     }

@@ -1728,6 +1728,56 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticRoamSeedAllowsPreciseBattlefieldMove()
+    {
+        const string roomId = "p7-9-battlefield-static-roam";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-static-roam", "seed-p7-9-battlefield-static-roam");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var moveCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLEFIELD-WIND-RUNNER", StringComparison.Ordinal));
+        Assert.Contains(moveCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "ROAM", StringComparison.Ordinal));
+
+        var moveClients = new RecordingHubClients();
+        var move = JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-WIND-RUNNER",
+              "origin": "BATTLEFIELD:P1-WIND-HILL",
+              "destination": "BATTLEFIELD:P1-FAR-FIELD",
+              "optionalCosts": ["ROAM"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-roam", move);
+
+        Assert.Empty(moveClients.CallerClient.Errors);
+        var moveEvent = Assert.Single(EventsFor(moveClients), gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        Assert.Equal("游走", moveEvent.Payload["movementKeyword"]);
+        Assert.Equal("BATTLEFIELD:P1-WIND-HILL", moveEvent.Payload["origin"]);
+        Assert.Equal("BATTLEFIELD:P1-FAR-FIELD", moveEvent.Payload["destination"]);
+
+        var p1Snapshot = SnapshotFor(moveClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-WIND-HILL", "P1-BATTLEFIELD-WIND-RUNNER"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldWinningScoreSeedRaisesThresholdAndDelaysBurnoutWin()
     {
         const string roomId = "p7-9-battlefield-winning-score";
