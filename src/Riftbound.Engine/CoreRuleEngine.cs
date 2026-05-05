@@ -153,6 +153,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
+    private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -3498,6 +3499,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var rngCursor = state.RngCursor;
         var attackerState = cardObjects[attackerObjectId];
         var defenderStates = defenderObjectIds.ToDictionary(
             defenderObjectId => defenderObjectId,
@@ -3536,6 +3538,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var combatEvents = new List<GameEvent>();
+        var battlefieldRevealSpellTrigger = ResolveBattlefieldDefendRevealSpellTrigger(
+            playerZones,
+            cardObjects,
+            defendingPlayerId ?? string.Empty,
+            battlefieldId,
+            attackerObjectId,
+            rngCursor);
+        rngCursor = battlefieldRevealSpellTrigger.RngCursor;
+        combatEvents.AddRange(battlefieldRevealSpellTrigger.Events);
         if (!string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId))
         {
             combatEvents.Add(new GameEvent(
@@ -3683,7 +3694,6 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var playerExperience = state.PlayerExperience;
         var playerScores = state.PlayerScores;
-        var rngCursor = state.RngCursor;
         string? winnerPlayerId = null;
         if (huntAmount > 0
             && defenderObjectIds.All(defenderObjectId => lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
@@ -5865,6 +5875,94 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static RecycleResult ResolveBattlefieldDefendRevealSpellTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (string.IsNullOrWhiteSpace(playerId)
+            || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldDefendRevealSpellCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.MainDeck.Count == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var revealedObjectId = zones.MainDeck[0];
+        var revealedIsSpell = cardObjects.TryGetValue(revealedObjectId, out var revealedState)
+            && revealedState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal);
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 防守战场并展示主牌堆顶牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["revealedObjectId"] = revealedObjectId,
+                ["revealedIsSpell"] = revealedIsSpell
+            }));
+        events.Add(new GameEvent(
+            "CARDS_REVEALED",
+            $"{playerId} 展示主牌堆顶部 1 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["cardIds"] = new[] { revealedObjectId },
+                ["count"] = 1,
+                ["zone"] = "MAIN_DECK"
+            }));
+
+        if (revealedIsSpell)
+        {
+            playerZones[playerId] = zones with
+            {
+                MainDeck = zones.MainDeck.Skip(1).ToArray(),
+                Hand = zones.Hand.Concat([revealedObjectId]).ToArray()
+            };
+            events.Add(new GameEvent(
+                "CARD_DRAWN",
+                $"{playerId} 将展示的法术牌置入手牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["count"] = 1,
+                    ["cardIds"] = new[] { revealedObjectId }
+                }));
+        }
+        else
+        {
+            playerZones[playerId] = zones with
+            {
+                MainDeck = zones.MainDeck.Skip(1).Concat([revealedObjectId]).ToArray()
+            };
+            events.Add(new GameEvent(
+                "CARDS_RECYCLED",
+                $"{playerId} 回收展示的牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["cardIds"] = new[] { revealedObjectId },
+                    ["count"] = 1,
+                    ["sourceZone"] = "MAIN_DECK",
+                    ["destinationZone"] = "MAIN_DECK"
+                }));
+        }
+
+        return new RecycleResult(events, rngCursor);
+    }
+
     private static RecycleResult ResolveBattlefieldConquerRecycleRuneTrigger(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -6028,6 +6126,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
             || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
+            || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -6069,6 +6168,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerRecycleRuneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerRecycleRuneCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldDefendRevealSpellCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldDefendRevealSpellCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)

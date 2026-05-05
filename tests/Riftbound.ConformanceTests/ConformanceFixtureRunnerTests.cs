@@ -25791,6 +25791,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldDefendRevealSpellDrawsTopSpell()
+    {
+        var state = BattlefieldDefendRevealSpellState(topCardIsSpell: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-defend-reveal-spell", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RAVENBLOOM",
+                ["P1-BATTLEFIELD-REVEAL-ATTACKER"],
+                ["P2-BATTLEFIELD-REVEAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P2-BATTLEFIELD-REVEAL-SPELL"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-MAIN-001"], result.State.PlayerZones["P2"].MainDeck);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-RAVENBLOOM", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-REVEAL-SPELL", triggerEvent.Payload["revealedObjectId"]);
+        Assert.Equal(true, triggerEvent.Payload["revealedIsSpell"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
+            && Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["cardIds"]).Contains("P2-BATTLEFIELD-REVEAL-SPELL", StringComparer.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldDefendRevealSpellRecyclesTopNonSpell()
+    {
+        var state = BattlefieldDefendRevealSpellState(topCardIsSpell: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-defend-reveal-nonspell", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RAVENBLOOM",
+                ["P1-BATTLEFIELD-REVEAL-ATTACKER"],
+                ["P2-BATTLEFIELD-REVEAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-MAIN-001", "P2-BATTLEFIELD-REVEAL-UNIT"], result.State.PlayerZones["P2"].MainDeck);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-REVEAL-UNIT", triggerEvent.Payload["revealedObjectId"]);
+        Assert.Equal(false, triggerEvent.Payload["revealedIsSpell"]);
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-REVEAL-UNIT"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldEphemeralDefenderGainsSteadfast()
     {
         var state = BattlefieldEphemeralSteadfastState();
@@ -36896,6 +36957,59 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RECYCLE-DEFENDER",
                     power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldDefendRevealSpellState(bool topCardIsSpell)
+    {
+        var topCardObjectId = topCardIsSpell
+            ? "P2-BATTLEFIELD-REVEAL-SPELL"
+            : "P2-BATTLEFIELD-REVEAL-UNIT";
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-REVEAL-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = [topCardObjectId, "P2-MAIN-001"],
+                    Battlefields = ["P2-BATTLEFIELD-RAVENBLOOM", "P2-BATTLEFIELD-REVEAL-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-REVEAL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-REVEAL-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-RAVENBLOOM"] = new(
+                    "P2-BATTLEFIELD-RAVENBLOOM",
+                    cardNo: "SFD·215/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-REVEAL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-REVEAL-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-REVEAL-SPELL"] = new(
+                    "P2-BATTLEFIELD-REVEAL-SPELL",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-REVEAL-UNIT"] = new(
+                    "P2-BATTLEFIELD-REVEAL-UNIT",
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

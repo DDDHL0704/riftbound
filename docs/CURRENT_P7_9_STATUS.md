@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, and representative effects. Battlefield slices migrated `9/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `45` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, and representative effects. Battlefield slices migrated `10/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `44` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-8 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-9 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `8` done.
-- Current functional-unit implementation: `766/811 = 94.5%`.
-- Current manual deferred boundary: `45/811 = 5.5%`.
+- P7.9.7 battlefield foundation slices: `9` done.
+- Current functional-unit implementation: `767/811 = 94.6%`.
+- Current manual deferred boundary: `44/811 = 5.4%`.
 - Remaining manual domains:
-  - `战场`: `45` functional units / `48` entries
+  - `战场`: `44` functional units / `47` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -1709,3 +1709,35 @@ P7.9.7 battlefield foundation slice 8 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination and submitted object-id battle resolution for the conquest rune-recycle effect.
+
+## P7.9.7 Battlefield Foundation Slice 9 Delivered
+
+This is the ninth rule slice inside P7.9.7. It adds a defending battlefield top-deck reveal branch with both draw and recycle outcomes.
+
+- Added implemented battlefield card:
+  - `SFD·215/221`: when the controller defends at this battlefield object, the backend reveals that player's top main-deck card. If it is a spell card, it moves to hand; otherwise it is recycled to the bottom of the main deck.
+- Event stream additions:
+  - `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE`
+  - `CARDS_REVEALED` for the top-deck card
+  - `CARD_DRAWN` for the spell branch
+  - `CARDS_RECYCLED` for the non-spell branch
+- Added `battlefield-defend-reveal-spell` local development seed plus GameHub coverage for prompt destination exposure, top-card reveal, spell draw event, hidden main-deck count, and resulting hand state.
+- Migrated this battlefield defending-trigger/recycle slice in `BehaviorSpec`:
+  - Implemented functional units: `767/811`
+  - Manual deferred functional units: `44/811`
+  - Implemented official entries: `962/1009`
+  - Manual deferred official entries: `47/1009`
+  - Battlefield rule-domain implemented: `10` functional units / `10` entries
+  - Remaining battlefield manual deferred: `44` functional units / `47` entries
+
+P7.9.7 battlefield foundation slice 9 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldDefendReveal"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2591/2591`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2708/2708`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination and submitted object-id battle resolution for the defending top-deck reveal/draw path.
