@@ -25578,6 +25578,94 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerSettConsumesBoonAndRecallsDestroyedUnit()
+    {
+        var state = SettDestroyReplacementState("OGN·269/298", "P1-LEGEND-SETT", mana: 1, legendExhausted: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sett-recall-boon-unit", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SETT-BOON-ATTACKER"],
+                ["P2-SETT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-SETT"].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(["P1-SETT-BOON-ATTACKER"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        var recalledUnit = result.State.CardObjects["P1-SETT-BOON-ATTACKER"];
+        Assert.True(recalledUnit.IsExhausted);
+        Assert.Equal(1, recalledUnit.Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, recalledUnit.Tags);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Equal("P1-SETT-BOON-ATTACKER", triggerEvent.Payload["targetObjectId"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["replacementEffectId"] as string, "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-SETT-BOON-ATTACKER", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerSettReadiesOnConquer()
+    {
+        var state = SettConquerState("OGN·310/298", "P1-LEGEND-SETT-REPRINT", legendExhausted: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sett-conquer-ready", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SETT-ATTACKER"],
+                ["P2-SETT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-SETT-REPRINT"].IsExhausted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_LEGEND", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-SETT-REPRINT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerSettReplacementRequiresManaAndActiveLegend()
+    {
+        var state = SettDestroyReplacementState("OGN·310*/298", "P1-LEGEND-SETT-ALT", mana: 0, legendExhausted: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sett-recall-boon-unit-no-mana", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SETT-BOON-ATTACKER"],
+                ["P2-SETT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-SETT-ALT"].IsExhausted);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-SETT-BOON-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -36248,6 +36336,93 @@ public sealed class ConformanceFixtureRunnerTests
                     isExhausted: legendExhausted,
                     ownerId: legendControllerId,
                     controllerId: legendControllerId)
+            }
+        };
+    }
+
+    private static MatchState SettDestroyReplacementState(
+        string sourceCardNo,
+        string sourceObjectId,
+        int mana,
+        bool legendExhausted)
+    {
+        return PunishmentState(mana: mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-SETT-BOON-ATTACKER"],
+                    LegendZone = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SETT-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SETT-BOON-ATTACKER"] = new(
+                    "P1-SETT-BOON-ATTACKER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: legendExhausted,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SETT-DEFENDER"] = new(
+                    "P2-SETT-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState SettConquerState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool legendExhausted)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-SETT-ATTACKER"],
+                    LegendZone = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SETT-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SETT-ATTACKER"] = new(
+                    "P1-SETT-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: legendExhausted,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SETT-DEFENDER"] = new(
+                    "P2-SETT-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
             }
         };
     }

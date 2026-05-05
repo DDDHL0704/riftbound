@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `43/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -201,17 +201,16 @@ Final P7.9 gate:
 - P7.9.3 status: done.
 - P7.9.4 status: done.
 - P7.9.5 status: done.
-- P7.9.6 status: in progress.
+- P7.9.6 status: done.
 - P7.9.6 active-ability slices: `10` done.
-- P7.9.6 automatic-trigger slices: `16` done.
+- P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `756/811 = 93.2%`.
-- Current manual deferred boundary: `55/811 = 6.8%`.
+- Current functional-unit implementation: `757/811 = 93.3%`.
+- Current manual deferred boundary: `54/811 = 6.7%`.
 - Remaining manual domains:
-  - `传奇`: `1` functional unit / `3` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `10` legend active/reaction slices, `16` automatic-trigger slices, and `6` static legend slices are complete.
-- Estimated remaining top-level batches: `7`.
+- Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
+- Estimated remaining top-level batches: `6`.
 
 ## P7.9.0 Delivered
 
@@ -1424,3 +1423,36 @@ P7.9.6 automatic-trigger slice 16 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend battle-trigger rule slice. It reuses existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes; later battlefield UI work should render Brush replacement as a battlefield object rather than a unit.
+
+## P7.9.6 Automatic/Replacement Slice 17 Delivered
+
+This is the thirty-second committed rule slice inside P7.9.6 and closes the remaining legend-domain manual deferred unit. It adds Sett / 腕豪's Boon-unit replacement and conquest ready trigger while keeping battle resolution server-authoritative.
+
+- Added Sett legend support for:
+  - `OGN·269/298`
+  - `OGN·310/298`
+  - `OGN·310*/298`
+- When a controlled Boon unit would be destroyed by lethal battle damage and the controller has an active Sett legend plus `1` mana, the backend pays `1` mana, removes Boon, reduces that unit's power by `1`, clears its damage, exhausts it, moves it to base, and exhausts Sett.
+- When Sett's controller conquers a battlefield with Sett exhausted, the backend readies Sett through the existing battle-result trigger path.
+- The event stream records `LEGEND_TRIGGER_RESOLVED`, `COST_PAID`, `BOON_CONSUMED`, `LEGEND_EXHAUSTED`, `UNIT_RECALLED_TO_BASE`, and `LEGEND_READIED` as applicable so UI/event-log work can render the replacement and ready result without client-side rule inference.
+- The replacement is skipped when the unit is not Boon, Sett is exhausted, or the controller lacks mana; no frontend rule inference is added.
+- Migrated this legend replacement/trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `757/811`
+  - Manual deferred functional units: `54/811`
+  - Implemented official entries: `952/1009`
+  - Manual deferred official entries: `57/1009`
+  - Legend rule-domain implemented: `44` functional units / `106` entries
+  - Remaining legend manual deferred: `0` functional units / `0` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic/replacement slice 17 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendTriggerSett"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2580/2580`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2687/2687`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend battle-trigger/replacement slice. It reuses the existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes; P7.9.7 battlefield UI work should render recalled exhausted Boon units, Sett exhaustion/readying, and replacement event grouping from server events.

@@ -142,6 +142,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ReksaiLegendCardNo = "SFD·187/221";
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string BrushBattlefieldTokenCardNo = "UNL·T03";
+    private const string SettLegendCardNo = "OGN·269/298";
+    private const int SettLegendManaCost = 1;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3621,16 +3623,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardNo: attackerState.CardNo,
             targetObjectIds: new[] { attackerObjectId }.Concat(defenderObjectIds).ToArray(),
             optionalCosts: optionalCosts);
+        IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
         var lethalCleanup = ApplyLethalDamageCleanup(
             playerZones,
             cardObjects,
             combatStackItem,
-            damageTriggeredDestroyTargetObjectIds);
+            damageTriggeredDestroyTargetObjectIds,
+            runePools);
+        runePools = lethalCleanup.RunePools;
         combatEvents.AddRange(lethalCleanup.Events);
 
         var playerExperience = state.PlayerExperience;
         var playerScores = state.PlayerScores;
-        IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
         var rngCursor = state.RngCursor;
         string? winnerPlayerId = null;
         if (huntAmount > 0
@@ -3673,6 +3677,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             runePools = ireliaConquerTrigger.RunePools;
             combatEvents.AddRange(ireliaConquerTrigger.Events);
+            var settConquerTrigger = ResolveSettLegendConquerReadyTrigger(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId);
+            combatEvents.AddRange(settConquerTrigger);
             if (TryResolveLeblancLegendImageTrigger(
                     playerZones,
                     cardObjects,
@@ -4495,8 +4506,238 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = legendObjectId,
                     ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
-                })
+            })
         ]);
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveSettLegendConquerReadyTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string attackerObjectId)
+    {
+        if (!TryGetExhaustedSettLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState))
+        {
+            return [];
+        }
+
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = false
+        };
+
+        return
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的腕豪因征服战场触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = "BATTLEFIELD_CONQUERED_READY_LEGEND",
+                    ["sourceObjectId"] = attackerObjectId,
+                    ["battlefieldId"] = battlefieldId
+                }),
+            new GameEvent(
+                "LEGEND_READIED",
+                $"{legendObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "BATTLEFIELD_CONQUERED_READY_LEGEND"
+                })
+        ];
+    }
+
+    private static bool TryApplySettLegendDestroyReplacement(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string targetObjectId,
+        StackItemState stackItem,
+        string destroyReason,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools,
+        out IReadOnlyList<GameEvent> events)
+    {
+        nextRunePools = runePools;
+        events = [];
+        var location = FindFieldObjectLocation(playerZones, targetObjectId);
+        if (location is null
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
+            || !TryGetActiveSettLegend(playerZones, cardObjects, location.Value.PlayerId, out var legendObjectId, out var legendState))
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(location.Value.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < SettLegendManaCost)
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[location.Value.PlayerId] = currentPool with
+        {
+            Mana = currentPool.Mana - SettLegendManaCost
+        };
+        nextRunePools = mutableRunePools;
+
+        var nextTags = targetState.Tags
+            .Where(tag => !string.Equals(tag, CardObjectTags.Boon, StringComparison.Ordinal))
+            .ToArray();
+        var zones = playerZones[location.Value.PlayerId];
+        playerZones[location.Value.PlayerId] = zones with
+        {
+            Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Base
+                : zones.Base.Concat([targetObjectId]).ToArray(),
+            Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId)
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            Damage = 0,
+            Power = Math.Max(0, targetState.Power - 1),
+            IsExhausted = true,
+            Tags = nextTags
+        };
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = true
+        };
+
+        events =
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{location.Value.PlayerId} 的腕豪替代单位摧毁",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = location.Value.PlayerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED",
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["destroyReason"] = destroyReason
+                }),
+            new GameEvent(
+                "COST_PAID",
+                $"{location.Value.PlayerId} 支付腕豪替代费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = location.Value.PlayerId,
+                    ["mana"] = SettLegendManaCost,
+                    ["power"] = 0,
+                    ["reason"] = "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED"
+                }),
+            new GameEvent(
+                "BOON_CONSUMED",
+                $"{targetObjectId} 消耗增益",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = location.Value.PlayerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["previousPower"] = targetState.Power,
+                    ["power"] = Math.Max(0, targetState.Power - 1)
+                }),
+            new GameEvent(
+                "LEGEND_EXHAUSTED",
+                $"{legendObjectId} 变为休眠状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = location.Value.PlayerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "BOON_UNIT_DESTROYED_PAY_1_RECALL_EXHAUSTED"
+                }),
+            new GameEvent(
+                "UNIT_RECALLED_TO_BASE",
+                $"{targetObjectId} 改为休眠召回",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = legendObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["ownerPlayerId"] = location.Value.PlayerId,
+                    ["destinationZone"] = "BASE",
+                    ["replacementEffectId"] = "SETT_BOON_UNIT_DESTROYED_RECALL_EXHAUSTED",
+                    ["destroyReason"] = destroyReason,
+                    ["isExhausted"] = true
+                })
+        ];
+        return true;
+    }
+
+    private static bool TryGetExhaustedSettLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsSettLegendCardNo(candidate.CardNo)
+                || !candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetActiveSettLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsSettLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsSettLegendCardNo(string? cardNo)
+    {
+        return cardNo is SettLegendCardNo or "OGN·310/298" or "OGN·310*/298";
     }
 
     private static bool TryGetExhaustedIreliaLegend(
@@ -13511,11 +13752,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
-        IReadOnlySet<string> damageTriggeredDestroyTargetObjectIds)
+        IReadOnlySet<string> damageTriggeredDestroyTargetObjectIds,
+        IReadOnlyDictionary<string, RunePool>? runePools = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
+        var nextRunePools = runePools;
         var lethalObjectIds = cardObjects
             .Where(entry => entry.Value.Power > 0
                 && ((entry.Value.Damage > 0
@@ -13528,14 +13771,30 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var objectId in lethalObjectIds)
         {
+            var destroyReason = damageTriggeredDestroyTargetObjectIds.Contains(objectId)
+                ? "DAMAGE_TRIGGERED_DESTROY"
+                : "LETHAL_DAMAGE";
+            if (nextRunePools is not null
+                && TryApplySettLegendDestroyReplacement(
+                    playerZones,
+                    cardObjects,
+                    nextRunePools,
+                    objectId,
+                    stackItem,
+                    destroyReason,
+                    out var settRunePools,
+                    out var settReplacementEvents))
+            {
+                nextRunePools = settRunePools;
+                events.AddRange(settReplacementEvents);
+                continue;
+            }
+
             if (!TryDestroyTarget(playerZones, cardObjects, objectId, out var removalResult))
             {
                 continue;
             }
 
-            var destroyReason = damageTriggeredDestroyTargetObjectIds.Contains(objectId)
-                ? "DAMAGE_TRIGGERED_DESTROY"
-                : "LETHAL_DAMAGE";
             events.Add(BuildFieldRemovalEvent(
                 destroyReason == "DAMAGE_TRIGGERED_DESTROY" ? "伤害触发效果" : "致命伤害",
                 stackItem,
@@ -13554,7 +13813,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
-        return new LethalDamageCleanupResult(events, destroyedObjectIds, destroyedUnitOwnerIds);
+        return new LethalDamageCleanupResult(
+            events,
+            destroyedObjectIds,
+            destroyedUnitOwnerIds,
+            nextRunePools ?? new Dictionary<string, RunePool>(StringComparer.Ordinal));
     }
 
     private static bool IsObjectOnField(
@@ -14505,7 +14768,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record LethalDamageCleanupResult(
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedObjectIds,
-        IReadOnlyList<string> DestroyedUnitOwnerIds);
+        IReadOnlyList<string> DestroyedUnitOwnerIds,
+        IReadOnlyDictionary<string, RunePool> RunePools);
 
     private sealed record TemporaryControlReturnResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,
