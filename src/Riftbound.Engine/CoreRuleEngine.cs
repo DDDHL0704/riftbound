@@ -91,6 +91,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DravenLegendCardNo = "SFD·185/221";
     private const string GarenIntroLegendCardNo = "OGS·023/024";
     private const string LuxIntroLegendCardNo = "OGS·021/024";
+    private const string AnnieIntroLegendCardNo = "OGS·017/024";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -3926,6 +3927,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = controlReturnResult.CardObjects
         };
         var cleanupResult = ApplyTurnEndCleanup(cleanupState);
+        var turnEndCardObjects = cleanupResult.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var annieTurnEndEvents = ReadyRunesForAnnieAtTurnEnd(
+            controlReturnResult.PlayerZones,
+            turnEndCardObjects,
+            state.TurnPlayerId);
         var nextTurnState = cleanupState with
         {
             TurnNumber = state.TurnNumber + 1,
@@ -3935,7 +3941,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             TimingState = TimingStates.NeutralClosed,
             RunePools = ClearRunePools(state),
             PlayerZones = controlReturnResult.PlayerZones,
-            CardObjects = cleanupResult.CardObjects,
+            CardObjects = turnEndCardObjects,
             UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
             DestroyedUnitOwnerIdsThisTurn = [],
             PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal),
@@ -3943,6 +3949,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
         var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult, controlReturnResult.Events)
+            .Concat(annieTurnEndEvents)
             .Concat(turnStartResult.Events)
             .ToArray();
 
@@ -4097,6 +4104,66 @@ public sealed class CoreRuleEngine : IRuleEngine
         return behavior.ManaCost >= 5
             && !behavior.PlaysSourceToBaseAsUnit
             && !behavior.PlaysSourceToBaseAsEquipment;
+    }
+
+    private static IReadOnlyList<GameEvent> ReadyRunesForAnnieAtTurnEnd(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.LegendZone.Any(legendObjectId =>
+                cardObjects.TryGetValue(legendObjectId, out var legendState)
+                && string.Equals(legendState.CardNo, AnnieIntroLegendCardNo, StringComparison.Ordinal)))
+        {
+            return [];
+        }
+
+        var readiedRuneObjectIds = zones.Base
+            .Where(objectId =>
+                cardObjects.TryGetValue(objectId, out var runeState)
+                && runeState.IsExhausted
+                && IsRuneObject(objectId, runeState))
+            .Take(2)
+            .ToArray();
+        if (readiedRuneObjectIds.Length == 0)
+        {
+            return [];
+        }
+
+        foreach (var objectId in readiedRuneObjectIds)
+        {
+            cardObjects[objectId] = cardObjects[objectId] with { IsExhausted = false };
+        }
+
+        return
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的黑暗之女回合结束触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendCardNo"] = AnnieIntroLegendCardNo,
+                    ["trigger"] = "TURN_END_READY_TWO_RUNES",
+                    ["runeObjectIds"] = readiedRuneObjectIds
+                }),
+            new GameEvent(
+                "RUNE_READIED",
+                $"{playerId} 让 {readiedRuneObjectIds.Length} 枚符文变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["count"] = readiedRuneObjectIds.Length,
+                    ["objectIds"] = readiedRuneObjectIds
+                })
+        ];
+    }
+
+    private static bool IsRuneObject(string objectId, CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || objectId.Contains("RUNE", StringComparison.OrdinalIgnoreCase);
     }
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(

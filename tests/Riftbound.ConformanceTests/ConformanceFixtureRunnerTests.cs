@@ -24398,6 +24398,73 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerAnnieReadiesTwoRunesAtTurnEnd()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-RUNE-EXHAUSTED-001",
+                        "P1-RUNE-EXHAUSTED-002",
+                        "P1-RUNE-EXHAUSTED-003",
+                        "P1-UNIT-EXHAUSTED"
+                    ],
+                    LegendZone = ["P1-LEGEND-ANNIE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-ANNIE"] = new(
+                    "P1-LEGEND-ANNIE",
+                    cardNo: "OGS·017/024",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUNE-EXHAUSTED-001"] = new(
+                    "P1-RUNE-EXHAUSTED-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard]),
+                ["P1-RUNE-EXHAUSTED-002"] = new(
+                    "P1-RUNE-EXHAUSTED-002",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard]),
+                ["P1-RUNE-EXHAUSTED-003"] = new(
+                    "P1-RUNE-EXHAUSTED-003",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard]),
+                ["P1-UNIT-EXHAUSTED"] = new(
+                    "P1-UNIT-EXHAUSTED",
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-annie-end-turn", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-RUNE-EXHAUSTED-001"].IsExhausted);
+        Assert.False(result.State.CardObjects["P1-RUNE-EXHAUSTED-002"].IsExhausted);
+        Assert.True(result.State.CardObjects["P1-RUNE-EXHAUSTED-003"].IsExhausted);
+        Assert.True(result.State.CardObjects["P1-UNIT-EXHAUSTED"].IsExhausted);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "TURN_END_READY_TWO_RUNES", StringComparison.Ordinal));
+        var runeReadyEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_READIED", StringComparison.Ordinal));
+        Assert.Equal(2, runeReadyEvent.Payload["count"]);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();

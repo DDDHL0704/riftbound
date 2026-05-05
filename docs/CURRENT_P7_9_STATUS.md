@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `16/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `20/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -203,14 +203,14 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `3` done.
-- P7.9.6 automatic-trigger slices: `4` done.
+- P7.9.6 automatic-trigger slices: `5` done.
 - P7.9.6 static legend slices: `5` done.
-- Current functional-unit implementation: `732/811 = 90.3%`.
-- Current manual deferred boundary: `79/811 = 9.7%`.
+- Current functional-unit implementation: `733/811 = 90.4%`.
+- Current manual deferred boundary: `78/811 = 9.6%`.
 - Remaining manual domains:
-  - `传奇`: `25` functional units / `61` entries
+  - `传奇`: `24` functional units / `60` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `4` automatic-trigger slices, and `5` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `5` automatic-trigger slices, and `5` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -779,3 +779,36 @@ P7.9.6 static legend slice 5 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because the Master Yi level aura is a passive combat/unit-entry static and this batch introduced no new UI operation path. The play-card and battle UI continue to submit server prompt commands; the power bonus and active-entry state are visible through server events/snapshot.
+
+## P7.9.6 Automatic-Trigger Slice 5 Delivered
+
+This is the thirteenth committed rule slice inside P7.9.6. It adds a turn-end legend resource trigger without adding frontend legality logic.
+
+- Added OGS Annie / 黑暗之女 legend trigger:
+  - at the controller's turn end, ready up to `2` exhausted rune objects in that controller's base
+  - emits `LEGEND_TRIGGER_RESOLVED` with `trigger = TURN_END_READY_TWO_RUNES`
+  - emits `RUNE_READIED` with the exact readied rune object ids and `count = 2` when two runes are readied
+  - leaves non-rune exhausted objects and additional exhausted runes unchanged
+- Accepted legend entry:
+  - `OGS·017/024`
+- Added representative conformance coverage for ending the turn with Annie, three exhausted runes, and an exhausted non-rune unit.
+- Migrated this legend trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `733/811`
+  - Manual deferred functional units: `78/811`
+  - Implemented official entries: `892/1009`
+  - Manual deferred official entries: `117/1009`
+  - Legend rule-domain implemented: `20` functional units / `46` entries
+  - Remaining legend manual deferred: `24` functional units / `60` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger slice 5 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendTriggerAnnie"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2530/2530`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2637/2637`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because Annie is a passive turn-end trigger and this batch introduced no new UI operation path. The end-turn UI continues to submit server prompt commands; the rune-ready trigger is visible through server events/snapshot.
