@@ -191,8 +191,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.10b | Done | Battlefield representative blocked/deferred surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
 | P6.11a | Done | Token factory identity/domain binding for all official token entries. | Token object factory tests passed. |
 | P6.11b | Done | Copy-token and token activated-resource blocked surfaces. | Dedicated token/copy zero-side-effect tests passed. |
-| P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
-| P6.x | Planned | Completion audit and final verification. | Full suite, focused suites, status matrix, no unexpected dirty files. |
+| P6.12 | Done | Unique complex-card completion audit: all remaining playable units are implemented and all non-play manual units are explicit deferred domains. | Completion audit test passed. |
+| P6.x | Done | Completion audit and final verification. | Full suite, focused suites, status matrix, no unexpected dirty files. |
 
 Initial estimated remaining implementation/audit batches after P6.0: at least `15`, likely more after high-risk card triage. The batch count is intentionally conservative and will be updated after each P6 slice lands.
 
@@ -259,6 +259,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6 manual non-`PLAY_CARD` backlog remaining after P6.11a: `98/811 functional units = 12.1%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `163/1009 entries = 16.2%` still requiring P6 implementation or explicit final blocked/deferred reason.
 - P6-specific newly closed backlog after P6.11a: `19/117 = 16.2%` functional units and `61/224 = 27.2%` official entries.
+- P6 final completion audit: `811/811 functional units = 100.0%` have either implemented execution/domain coverage (`713/811 = 87.9%`) or explicit manual deferred non-`PLAY_CARD` coverage (`98/811 = 12.1%`); `0/811 = 0.0%` remain unimplemented.
 
 ## Validation Policy
 
@@ -886,6 +887,34 @@ P6.11b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.12 / P6.x Final Completion Audit Delivered
+
+- Added `P6CompletionAuditKeepsEveryFunctionalUnitImplementedOrExplicitlyDeferred`.
+- Locked final P6 completion conditions:
+  - `1009/1009` official entries have a BehaviorSpec status and reason.
+  - `811/811` functional units have either implemented coverage or explicit deferred coverage.
+  - `713/811 = 87.9%` functional units are implemented by existing playable registry behavior, rune resource domain, or token factory domain.
+  - `98/811 = 12.1%` functional units remain manual deferred, limited to `传奇` and `战场`.
+  - `0/811 = 0.0%` functional units remain unimplemented.
+  - every manual deferred official entry has official text, no `ImplementedEffectKind`, no `ImplementedByCardNo`, and no `CardBehaviorRegistry` route.
+  - every implemented entry has an implementation route through either `CardBehaviorRegistry`, `RUNE_RESOURCE_DOMAIN`, or `TOKEN_FACTORY_DOMAIN`.
+  - representative blocked/deferred catalogs are present for legend abilities, battlefield effects, and token rule surfaces.
+- Completion disposition:
+  - Playable `PLAY_CARD` cards remain on P2-P5 conformance-backed registry paths.
+  - Runes are closed by the P6 rune resource domain.
+  - Tokens are closed by the P6 token factory domain, with activated/copy/battlefield token surfaces explicitly deferred.
+  - Legends and battlefields remain explicit non-`PLAY_CARD` manual domains with representative zero-side-effect blocked surfaces and final audit coverage.
+- No P7 product UI, AI, mobile, or deployment work was started.
+
+P6.12 / P6.x final validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2612/2612`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2507/2507`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.11b, then continue into P6.12 unique complex-card completion audit and remaining manual legend/battlefield final blocked/deferred coverage.
+Commit P6.12/P6.x final audit. P6 is complete after the commit and clean-status check; do not enter P7 unless explicitly requested.

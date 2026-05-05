@@ -674,6 +674,78 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6CompletionAuditKeepsEveryFunctionalUnitImplementedOrExplicitlyDeferred()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
+
+        Assert.Equal(1009, specs.Count);
+        Assert.Equal(811, coverage.FunctionalUnits);
+        Assert.Equal(713, coverage.ImplementedUnits);
+        Assert.Equal(98, coverage.ManualRuleRequiredUnits);
+        Assert.Equal(0, coverage.UnimplementedUnits);
+        Assert.DoesNotContain(specs, spec => string.Equals(
+            spec.Status,
+            BehaviorImplementationStatuses.Unimplemented,
+            StringComparison.Ordinal));
+
+        var manualSpecs = specs
+            .Where(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal))
+            .ToArray();
+        var manualCategories = manualSpecs
+            .Select(spec => spec.CardCategoryName)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["传奇", "战场"], manualCategories);
+        Assert.Equal(163, manualSpecs.Length);
+        Assert.Equal(
+            98,
+            manualSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
+        Assert.All(manualSpecs, spec =>
+        {
+            Assert.Contains("dedicated non-PLAY_CARD rule domain", spec.Reason, StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(spec.OfficialText));
+            Assert.Null(spec.ImplementedEffectKind);
+            Assert.Null(spec.ImplementedByCardNo);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out _));
+        });
+
+        var implementedSpecs = specs
+            .Where(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Implemented,
+                StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(846, implementedSpecs.Length);
+        Assert.All(implementedSpecs, spec =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedEffectKind));
+            Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedByCardNo));
+            var isP6NonPlayDomain = string.Equals(
+                    spec.ImplementedEffectKind,
+                    OfficialRuleDomainBehaviorCatalog.RuneResourceDomainEffectKind,
+                    StringComparison.Ordinal)
+                || string.Equals(
+                    spec.ImplementedEffectKind,
+                    OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind,
+                    StringComparison.Ordinal);
+            Assert.True(
+                isP6NonPlayDomain || CardBehaviorRegistry.TryGetByCardNo(spec.ImplementedByCardNo!, out _),
+                $"{spec.CardNo} has implemented effect {spec.ImplementedEffectKind} without registry or P6 domain coverage.");
+        });
+
+        Assert.Equal(5, P6LegendAbilityCatalog.GetDeferredSurfaces().Count);
+        Assert.Equal(5, P6BattlefieldEffectCatalog.GetDeferredSurfaces().Count);
+        Assert.Equal(5, P6TokenFactoryCatalog.GetDeferredRuleSurfaces().Count);
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
