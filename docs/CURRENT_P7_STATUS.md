@@ -162,10 +162,10 @@ Core P7 smoke path:
 | P7.5 | Done | Status badges, equipment attachment strip, damage/temp power/exhaustion/combat/shield/swift/ephemeral/control markers. | Browser visual smoke passed. |
 | P7.6 | Done | Product event log, match report, replay/spectator entry with explicit backend boundary. | Browser smoke passed: report and boundary. |
 | P7.7 | Done | Catalog and card detail browser with BehaviorSpec status and deferred labels. | Browser smoke passed: catalog/detail filtering. |
-| P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
+| P7.8 | Done | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser smoke passed; screenshot fallback noted. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `8/10 batches = 80.0%`; estimated remaining batches: `2`.
+Current P7 progress: `9/10 batches = 90.0%`; estimated remaining batches: `1`.
 
 ## Validation Policy
 
@@ -296,6 +296,22 @@ P7.7 validation:
 - Browser smoke: passed; catalog loaded `1009` specs, showed `CONFORMANCE_PASS 846`, `Manual deferred 163`, and a manual legend detail with the P7 blocked boundary.
 - `git diff --check`: passed.
 
+## P7.8 Delivered
+
+- Shifted the product UI palette away from the earlier warm dev-bench theme into a cleaner blue/green desktop table style.
+- Added a system notice strip for empty seating, reconnecting/error states, and catalog loading/error state.
+- Added keyboard `focus-visible` outlines for buttons and form controls.
+- Tightened empty-state spacing after Browser smoke caught the `No player snapshot` copy running together with its helper line.
+- Removed the remaining dominant beige/cream hard-coded colors from the main CSS scan.
+
+P7.8 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- Browser smoke: passed via Browser Use DOM verification; first screen showed room entry, system notice, battle desk, operation panel, event log, and catalog. Empty desk copy was verified as two separate lines after the fix.
+- Browser screenshot note: screenshot capture succeeded before the empty-state fix and exposed the text issue; after the fix, repeated screenshot attempts timed out in the browser CDP path, so the fixed state was verified by DOM smoke.
+- `rg` CSS scan for the previous dominant beige/cream hard-coded values: passed with no matches.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -346,3 +362,8 @@ P7.7 validation:
   - Operation path: reload Web URL -> wait for catalog load -> verify `CONFORMANCE_PASS` counts -> switch filter to `P6 manual deferred` -> open first manual card detail.
   - Catalog summary: loaded `1009` BehaviorSpecs; `CONFORMANCE_PASS 846`, `Manual deferred 163`, `Blocked 0`.
   - Detail summary: selected manual deferred legend `FND-249/298` 不灭狂雷; detail showed functional unit `FU-fd15be558d`, official text, BehaviorSpec reason `Category '传奇' requires a dedicated non-PLAY_CARD rule domain before template execution.`, and the P7 blocked-from-playable-controls boundary.
+- P7.8 polish smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Operation path: reload Web URL -> verify first-screen room entry, system notice, battle desk, operation panel, event log, and catalog -> inspect empty desk copy.
+  - Visual/DOM summary: `等待双人入座` system notice shown; `Battle Desk` empty state now renders `No player snapshot` and `Join both clients to populate the desk.` as separate lines; catalog still loads `CONFORMANCE_PASS 846`.
+  - Screenshot boundary: Browser screenshot capture timed out after the fix, but the earlier Browser screenshot caught the empty-state layout issue and the corrected DOM was verified after patching.

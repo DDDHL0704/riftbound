@@ -380,6 +380,7 @@ function App() {
   const roomSummary = useMemo(() => summarizeRoom(latestSnapshot), [latestSnapshot]);
   const visibleObjectIds = useMemo(() => collectVisibleObjectIds(latestSnapshot), [latestSnapshot]);
   const catalogSummary = useMemo(() => summarizeCatalog(catalog), [catalog]);
+  const systemNotices = useMemo(() => buildSystemNotices(players, catalogStatus), [players, catalogStatus]);
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
 
   useEffect(() => {
@@ -841,6 +842,8 @@ function App() {
         ))}
       </section>
 
+      <SystemNotice notices={systemNotices} />
+
       <section className="workspace-grid">
         <BattleDesk snapshot={latestSnapshot} activePlayerId={activePlayer.playerId} onPickObject={addTargetObjectId} />
         <CommandWorkbench
@@ -903,6 +906,20 @@ function App() {
         ))}
       </section>
     </main>
+  );
+}
+
+function SystemNotice({ notices }: { notices: string[] }) {
+  if (notices.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="system-notice" data-testid="system-notice">
+      {notices.map((notice) => (
+        <span key={notice}>{notice}</span>
+      ))}
+    </section>
   );
 }
 
@@ -1995,6 +2012,27 @@ function summarizeRoom(snapshot?: SnapshotDto) {
     { label: "Stack", value: String(snapshot.stack?.length ?? 0) },
     { label: "Winner", value: String(snapshot.timing?.winnerPlayerId ?? "-") }
   ];
+}
+
+function buildSystemNotices(players: Record<PlayerKey, PlayerState>, catalogStatus: string) {
+  const notices: string[] = [];
+  const statuses = playerKeys.map((key) => players[key].status);
+  if (statuses.every((status) => status === "disconnected")) {
+    notices.push("等待双人入座");
+  }
+  if (statuses.some((status) => status === "reconnecting")) {
+    notices.push("连接恢复中");
+  }
+  if (statuses.some((status) => status === "error" || status === "closed")) {
+    notices.push("存在断线或错误状态");
+  }
+  if (catalogStatus === "loading") {
+    notices.push("图鉴加载中");
+  } else if (!catalogStatus.startsWith("loaded")) {
+    notices.push(`图鉴状态: ${catalogStatus}`);
+  }
+
+  return notices;
 }
 
 function summarizeCatalog(specs: BehaviorSpecDto[]) {
