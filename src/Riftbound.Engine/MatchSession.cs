@@ -1865,6 +1865,9 @@ public sealed class MatchSession : IMatchSession
             "basic-play" => BuildBasicPlayScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
+            "echo-stack" => BuildEchoStackScenario(current, seed),
+            "standby-reaction" => BuildStandbyReactionScenario(current, seed),
+            "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
             "equipment" => BuildEquipmentScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
@@ -1971,6 +1974,126 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P2-UNIT-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"])
             });
+    }
+
+    private static MatchState BuildEchoStackScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303061,
+            61,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(4, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-DRAW-001", "P1-DRAW-002"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-CENTER-STAGE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+    }
+
+    private static MatchState BuildStandbyReactionScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303197,
+            97,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    baseZone: ["P1-FACEDOWN-OGN-TEEMO-PURPLE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO-PURPLE"] = new(
+                    "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+                    isFaceDown: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    manaCost: 2,
+                    cardNo: "OGN·197/298")
+            });
+
+        return state with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = seed.P1,
+            StackItems = [PendingProbeStackItem(seed)]
+        };
+    }
+
+    private static MatchState BuildAmbushReactionScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303021,
+            21,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(3, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+                    battlefields: ["P1-BATTLEFIELD-FRIENDLY-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNL-GLOOMY-APOTHECARY"] = new(
+                    "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush],
+                    manaCost: 3,
+                    cardNo: "UNL-021/219"),
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(power: 2, tags: [CardObjectTags.UnitCard])
+            });
+
+        return state with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = seed.P1,
+            StackItems = [PendingProbeStackItem(seed)]
+        };
     }
 
     private static MatchState BuildEquipmentScenario(MatchState current, DevScenarioSeed seed)
@@ -2206,6 +2329,17 @@ public sealed class MatchSession : IMatchSession
             banished ?? [],
             legendZone ?? [],
             championZone ?? []);
+    }
+
+    private static StackItemState PendingProbeStackItem(DevScenarioSeed seed)
+    {
+        return new StackItemState(
+            "STACK-0-P2-SPELL-PROBE",
+            seed.P2,
+            "P2-SPELL-PROBE",
+            "PENDING_TEST_SPELL",
+            "TEST-000",
+            []);
     }
 
     private static string? PlayerBySeat(MatchState state, string seat)

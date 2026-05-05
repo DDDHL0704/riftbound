@@ -179,7 +179,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.4a | Done | Movement + burnout scoring/win GameHub core-path smoke. | GameHub/Room smoke passed. |
 | P6.4b | Done | Battle declaration GameHub core-path smoke. | GameHub/Room smoke passed. |
 | P6.4c | Planned | Remaining movement/battle/scoring boundary checks. | Conformance + GameHub/Room smoke where player-visible. |
-| P6.5 | Planned | Standby/ambush/echo batches. | Response-window conformance required. |
+| P6.5a | Done | Standby reaction, Ambush reaction, and Echo representative GameHub smokes. | GameHub/Room smoke passed. |
+| P6.5b | Planned | Remaining standby/ambush/echo boundary triage. | Response-window conformance + zero-side-effect blocked/deferred checks. |
 | P6.6 | Planned | Equipment/assemble/agile/forge/tempered batches. | P5 equipment invariant tests required. |
 | P6.7 | Planned | Experience/level/hunt/encourage batches. | Engine + conformance tests. |
 | P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
@@ -213,6 +214,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6.3c reaction priority-window timing expansion: `6/6 selected official reaction spell representatives = 100.0%`.
 - P6.4a movement/scoring smoke progress: `2/2 GameHub core paths = 100.0%`.
 - P6.4b battle declaration smoke progress: `1/1 GameHub core path = 100.0%`.
+- P6.5a standby/ambush/echo smoke progress: `3/3 GameHub core paths = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -444,6 +446,37 @@ P6.4b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `19/19`.
 - `git diff --check`: passed.
 
+## P6.5a Delivered
+
+- Added three development-only scenario seeds for existing representative interaction paths:
+  - `echo-stack`: `UNL-061/219` 台前作秀 with `ECHO` optional cost and two-card draw deck.
+  - `standby-reaction`: face-down `OGN·197/298` 提莫 in base with a pending opponent stack item and P1 holding priority.
+  - `ambush-reaction`: `UNL-021/219` 阴森药剂师 in hand with a friendly battlefield unit, a pending opponent stack item, and P1 holding priority.
+- Added GameHub/Room smokes:
+  - Local URL: N/A; in-memory SignalR `GameHub` smoke with no browser/server listener.
+  - Room ID: `p6-5a-echo-stack-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(echo-stack)` -> `SubmitIntent(PLAY_CARD Center Stage, UNL-061/219, optionalCosts ECHO)` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)`.
+  - Observed events: `COST_PAID`, `STACK_ITEM_ADDED`, `STACK_ITEM_RESOLVED`, `CARD_DRAWN`.
+  - Final snapshot summary: stack is empty, P1 main deck count is `0`, P1 hand contains `P1-DRAW-001` and `P1-DRAW-002`, and `P1-SPELL-CENTER-STAGE` is in graveyard.
+  - Room ID: `p6-5a-standby-reaction-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(standby-reaction)` -> `SubmitIntent(REVEAL_CARD Teemo, mode STANDBY_REACTION, destination STACK)` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)`.
+  - Observed events: `CARD_REVEALED`, `CARD_PLAYED`, `STACK_ITEM_ADDED`, `STACK_ITEM_RESOLVED`, `UNIT_PLAYED_TO_BASE`, `POWER_MODIFIED_UNTIL_END_OF_TURN`.
+  - Final snapshot summary: one original opponent stack item remains, and `P1-FACEDOWN-OGN-TEEMO-PURPLE` is in P1 base face-up on the resolved path.
+  - Room ID: `p6-5a-ambush-reaction-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(ambush-reaction)` -> `SubmitIntent(PLAY_CARD Gloomy Apothecary, mode AMBUSH, destination BATTLEFIELD:P1-MAIN)` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)`.
+  - Observed events: `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, `STACK_ITEM_RESOLVED`, `UNIT_PLAYED_TO_BATTLEFIELD`.
+  - Final snapshot summary: one original opponent stack item remains, P1 hand is empty, and P1 battlefield contains the existing friendly unit plus `P1-HAND-UNL-GLOOMY-APOTHECARY`.
+- This batch does not change engine behavior or BehaviorSpec status counts; it promotes already-conformant P4/P2 representative paths to Room-visible P6 coverage.
+
+P6.5a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2588/2588`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `29/29`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `22/22`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.4b, then continue into P6.4c movement/battle/scoring boundary checks and P6.5 standby/ambush/echo batches.
+Commit P6.5a, then continue into P6.5b remaining standby/ambush/echo boundary triage and P6.6 equipment/assemble/agile/forge/tempered batches.

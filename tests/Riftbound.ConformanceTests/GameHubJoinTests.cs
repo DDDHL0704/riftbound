@@ -562,6 +562,185 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6EchoStackSeedBroadcastsRepeatedDrawInDevelopment()
+    {
+        const string roomId = "p6-5a-echo-stack-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "echo-stack", "seed-p6-echo-stack");
+
+        var playClients = new RecordingHubClients();
+        var centerStage = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-CENTER-STAGE",
+              "cardNo": "UNL-061/219",
+              "targetObjectIds": [],
+              "optionalCosts": ["ECHO"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-echo-center-stage", centerStage);
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var passP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-echo-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-echo-p2-pass", passPriorityAgain);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP2Clients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        var drawEvent = Assert.Single(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(2, drawEvent.Payload["count"]);
+        var snapshot = SnapshotFor(passP2Clients, "P1");
+        Assert.Empty(snapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(0, Assert.IsType<int>(p1Zones["mainDeckCount"]));
+        Assert.Equal(
+            ["P1-DRAW-001", "P1-DRAW-002"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        Assert.Contains("P1-SPELL-CENTER-STAGE", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+    }
+
+    [Fact]
+    public async Task P6StandbyReactionSeedBroadcastsRevealStackAndResolutionInDevelopment()
+    {
+        const string roomId = "p6-5a-standby-reaction-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "standby-reaction", "seed-p6-standby-reaction");
+
+        var revealClients = new RecordingHubClients();
+        var teemoReveal = JsonDocument.Parse("""
+            {
+              "cmdType": "REVEAL_CARD",
+              "sourceObjectId": "P1-FACEDOWN-OGN-TEEMO-PURPLE",
+              "cardNo": "OGN·197/298",
+              "targetObjectIds": [],
+              "mode": "STANDBY_REACTION",
+              "optionalCosts": ["STANDBY_REVEAL_0"],
+              "destination": "STACK"
+            }
+            """).RootElement.Clone();
+        await CreateHub(revealClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-standby-teemo-reveal", teemoReveal);
+        Assert.Empty(revealClients.CallerClient.Errors);
+        var revealEvents = EventsFor(revealClients);
+        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_REVEALED", StringComparison.Ordinal));
+        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(revealEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var passP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-standby-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-standby-p2-pass", passPriorityAgain);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP2Clients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        var snapshot = SnapshotFor(passP2Clients, "P1");
+        Assert.Single(snapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains("P1-FACEDOWN-OGN-TEEMO-PURPLE", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+    }
+
+    [Fact]
+    public async Task P6AmbushReactionSeedBroadcastsBattlefieldPlayInDevelopment()
+    {
+        const string roomId = "p6-5a-ambush-reaction-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "ambush-reaction", "seed-p6-ambush-reaction");
+
+        var playClients = new RecordingHubClients();
+        var gloomyApothecary = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+              "cardNo": "UNL-021/219",
+              "targetObjectIds": [],
+              "mode": "AMBUSH",
+              "destination": "BATTLEFIELD:P1-MAIN"
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-ambush-gloomy-apothecary", gloomyApothecary);
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var passP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-ambush-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-ambush-p2-pass", passPriorityAgain);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP2Clients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BATTLEFIELD", StringComparison.Ordinal));
+        var snapshot = SnapshotFor(passP2Clients, "P1");
+        Assert.Single(snapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-FRIENDLY-001", "P1-HAND-UNL-GLOOMY-APOTHECARY"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+    }
+
+    [Fact]
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
