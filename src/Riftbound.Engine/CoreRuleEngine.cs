@@ -184,6 +184,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
+    private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -191,6 +192,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
+    private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
 
@@ -321,6 +323,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.UntilEndOfTurnEffects,
             intent.PlayerId,
             behavior);
+        untilEndOfTurnEffects = MarkEquipmentPlayedThisTurn(
+            untilEndOfTurnEffects,
+            intent.PlayerId,
+            behavior);
         untilEndOfTurnEffects = MarkRengarUnitPlayedTriggerTarget(
             untilEndOfTurnEffects,
             stackItem,
@@ -383,6 +389,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["costReductionMana"] = plan.CostReductionMana,
                     ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
                     ["battlefieldEchoCostReductionMana"] = plan.BattlefieldEchoCostReductionMana,
+                    ["battlefieldEquipmentCostReductionMana"] = plan.BattlefieldEquipmentCostReductionMana,
                     ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
@@ -919,6 +926,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             : existingEffectIds;
     }
 
+    private static IReadOnlyList<string> MarkEquipmentPlayedThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsEquipment
+            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildPlayedEquipmentThisTurnEffectId(playerId))
+            : existingEffectIds;
+    }
+
     private static bool IsArmamentPlayBehavior(CardBehaviorDefinition behavior)
     {
         return behavior.PlaysSourceToBaseAsEquipment
@@ -967,10 +984,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{PlayedArmamentThisTurnEffectPrefix}{playerId}";
     }
 
+    private static string BuildPlayedEquipmentThisTurnEffectId(string playerId)
+    {
+        return $"{PlayedEquipmentThisTurnEffectPrefix}{playerId}";
+    }
+
     private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
             BuildPlayedArmamentThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static bool ControllerPlayedEquipmentThisTurn(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BuildPlayedEquipmentThisTurnEffectId(playerId),
             StringComparer.Ordinal);
     }
 
@@ -7669,7 +7698,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
             || IsBattlefieldStaticRoamCardNo(cardNo)
             || IsBattlefieldPreventUnitPlayCardNo(cardNo)
-            || IsBattlefieldEchoCostReductionCardNo(cardNo);
+            || IsBattlefieldEchoCostReductionCardNo(cardNo)
+            || IsBattlefieldEquipmentCostReductionCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7852,6 +7882,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldEchoCostReductionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldEquipmentCostReductionCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -8532,13 +8567,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             extraManaCost);
         extraManaCost = Math.Max(0, extraManaCost - battlefieldEchoCostReductionMana);
         var costReductionMana = ResolveCostReductionMana(state, intent.PlayerId, behavior);
+        var battlefieldEquipmentCostReductionMana = ResolveBattlefieldEquipmentCostReductionMana(
+            state,
+            intent.PlayerId,
+            behavior);
         var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
             state,
             intent.PlayerId,
             behavior,
             targetObjectIds,
             out var spellshieldTaxTargetObjectIds);
-        var totalManaCost = Math.Max(0, behavior.ManaCost - costReductionMana - optionalCostManaReduction)
+        var totalManaCost = Math.Max(0, behavior.ManaCost
+                - costReductionMana
+                - optionalCostManaReduction
+                - battlefieldEquipmentCostReductionMana)
             + extraManaCost
             + spellshieldTaxMana;
         var totalPowerCost = extraPowerCost;
@@ -8586,6 +8628,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             costReductionMana,
             optionalCostManaReduction,
             battlefieldEchoCostReductionMana,
+            battlefieldEquipmentCostReductionMana,
             spellshieldTaxMana,
             spellshieldTaxTargetObjectIds,
             exhaustedOptionalCostTargetObjectIds,
@@ -11004,6 +11047,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return Math.Min(1, echoExtraManaCost);
+    }
+
+    private static int ResolveBattlefieldEquipmentCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.ManaCost <= 0
+            || !behavior.PlaysSourceToBaseAsEquipment
+            || ControllerPlayedEquipmentThisTurn(state, playerId)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldEquipmentCostReductionCardNo(cardObject.CardNo)))
+        {
+            return 0;
+        }
+
+        return Math.Min(1, behavior.ManaCost);
     }
 
     private static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)
@@ -17658,6 +17720,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int CostReductionMana,
         int OptionalCostManaReduction,
         int BattlefieldEchoCostReductionMana,
+        int BattlefieldEquipmentCostReductionMana,
         int SpellshieldTaxMana,
         IReadOnlyList<string> SpellshieldTaxTargetObjectIds,
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,

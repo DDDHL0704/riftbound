@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成三十六个战场对象/战斗结果功能单元（新增 `SFD·211/221` 友方回响费用减少 1；既有 `UNL-207/219`、`UNL-208/219`、`UNL-209/219`、`UNL-210/219`、`UNL-212/219`、`UNL-217/219`、`OGN·275/298`、`OGN·276/298` / `OGN·276a/298`、`OGN·277/298`、`OGN·279/298`、`OGN·280/298`、`OGN·281/298`、`OGN·282/298`、`OGN·283/298`、`OGN·284/298`、`OGN·285/298`、`OGN·287/298`、`OGN·288/298`、`OGN·290/298`、`OGN·291/298`、`OGN·293/298` / `OGN·293a/298`、`OGN·294/298`、`OGN·295/298`、`OGN·297/298`、`OGN·298/298`、`SFD·210/221`、`SFD·212/221`、`SFD·214/221`、`SFD·215/221`、`SFD·216/221`、`SFD·217/221`、`SFD·218/221`、`SFD·219/221`、`SFD·220/221`、`SFD·221/221`、`DECLARE_BATTLE` 战场对象目的地、GameHub prompt 覆盖）。当前实现 `793/811` 个功能单元，manual deferred 剩余 `18/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成三十七个战场对象/战斗结果功能单元，最新新增 `SFD·213/221` 首个友方装备每回合费用减少 1；既有战场对象 destination、hold/conquer 事件、`SFD·211/221` 友方回响费用减少 1、`SFD·216/221` 战场单位打出限制，以及 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `794/811` 个功能单元，manual deferred 剩余 `17/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 

@@ -69,12 +69,12 @@ Out of scope:
 
 ### Rule Gaps
 
-The hard blocker for "all cards fully playable" is not the P7 UI. It is the P6 manual domain boundary:
+The hard blocker for "all cards fully playable" is not the P7 UI. It is the remaining P6 manual domain boundary:
 
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
-| Legends | 44 | 106 | Display only, active/passive domains blocked | Implement `LEGEND_ACT`, static/passive/trigger/identity surfaces, prompt exposure, conformance, UI operation |
-| Battlefields | 54 | 57 | Display only, battlefield effects blocked | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
+| Battlefields | 17 remaining | 18 remaining | P7.9.7 has migrated `37/54` battlefield FUs / `39/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo cost reductions, and representative effects. Battlefield slices migrated `36/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `18` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo/equipment cost reductions, and representative effects. Battlefield slices migrated `37/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `17` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-35 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-36 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `35` done.
-- Current functional-unit implementation: `793/811 = 97.8%`.
-- Current manual deferred boundary: `18/811 = 2.2%`.
+- P7.9.7 battlefield foundation slices: `36` done.
+- Current functional-unit implementation: `794/811 = 97.9%`.
+- Current manual deferred boundary: `17/811 = 2.1%`.
 - Remaining manual domains:
-  - `战场`: `18` functional units / `19` entries
+  - `战场`: `17` functional units / `18` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2563,3 +2563,36 @@ P7.9.7 battlefield foundation slice 35 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/static-echo battlefield slice. GameHub coverage verifies the seed, reduced Echo cost payload, stack repeat count, and snapshot boundary.
+
+## P7.9.7 Battlefield Foundation Slice 36 Delivered
+
+This is the thirty-sixth rule slice inside P7.9.7. It adds a static battlefield equipment cost reduction.
+
+- Added implemented battlefield card:
+  - `SFD·213/221`: while this battlefield object is present in a player's battlefield zone, that player's first friendly equipment played each turn costs `1` less mana.
+- Server-authoritative equipment cost reduction changes:
+  - `PLAY_CARD` planning now applies the reduction only for equipment cards that the server already recognizes as equipment play commands.
+  - The backend records `PLAYED_EQUIPMENT_THIS_TURN:{playerId}` as an until-end-of-turn marker after an equipment is played, so a second equipment in the same turn cannot receive the first-equipment reduction.
+  - `COST_PAID` now includes `battlefieldEquipmentCostReductionMana` so the UI/event log can explain the reduced paid mana total without client-side rule math.
+  - Boundary note: token equipment creation is not a `PLAY_CARD` equipment command, so token generation remains excluded from this reduction.
+- Added `battlefield-static-equipment-cost-reduction` local development seed plus GameHub coverage for submitting a Long Sword with only reduced mana available and receiving the authoritative cost payload.
+- Migrated this battlefield equipment cost reduction slice in `BehaviorSpec`:
+  - Implemented functional units: `794/811`
+  - Manual deferred functional units: `17/811`
+  - Implemented official entries: `991/1009`
+  - Manual deferred official entries: `18/1009`
+  - Battlefield rule-domain implemented: `37` functional units / `39` entries
+  - Remaining battlefield manual deferred: `17` functional units / `18` entries
+  - Static equipment-cost coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 36 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticReducesFirstEquipmentCost|FullyQualifiedName~P79BattlefieldStaticEquipmentCostReductionSeed"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2620/2620`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `65/65`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2764/2764`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/static-equipment battlefield slice. GameHub coverage verifies the seed, reduced equipment cost payload, stack item creation, and snapshot boundary.
