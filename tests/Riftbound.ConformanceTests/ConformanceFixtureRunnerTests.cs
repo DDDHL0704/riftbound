@@ -26770,6 +26770,53 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldUnitCostIncreaseMarksHolderUntilEndOfTurn()
+    {
+        var state = BattlefieldHeldUnitCostIncreaseBattleState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-unit-cost-increase-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-HELIA-VAULT",
+                ["P1-BATTLEFIELD-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains("BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P2", result.State.UntilEndOfTurnEffects);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var trigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-HELIA-VAULT", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal("BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P2", trigger.Payload["effectId"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldUnitCostIncreaseAddsOneToNonTokenUnitPlay()
+    {
+        var state = BattlefieldHeldUnitCostIncreasePlayState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-unit-cost-increase-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(4, costEvent.Payload["mana"]);
+        Assert.Equal(3, costEvent.Payload["baseMana"]);
+        Assert.Equal(1, costEvent.Payload["battlefieldHeldUnitCostIncreaseMana"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -39179,6 +39226,71 @@ public sealed class ConformanceFixtureRunnerTests
             }
                 .Where(entry => includeVoidGate || !string.Equals(entry.Key, "P2-BATTLEFIELD-VOID-GATE", StringComparison.Ordinal))
                 .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+        };
+    }
+
+    private static MatchState BattlefieldHeldUnitCostIncreaseBattleState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-HELIA-VAULT", "P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 1),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2",
+                    power: 3),
+                ["P2-BATTLEFIELD-HELIA-VAULT"] = new(
+                    "P2-BATTLEFIELD-HELIA-VAULT",
+                    cardNo: "UNL-219/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldUnitCostIncreasePlayState()
+    {
+        return PunishmentState(mana: 4) with
+        {
+            UntilEndOfTurnEffects = ["BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:P1"],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CRAFTSMAN"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CRAFTSMAN"] = new(
+                    "P1-UNIT-CRAFTSMAN",
+                    cardNo: "OGN·211/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
         };
     }
 

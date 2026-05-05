@@ -189,6 +189,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
+    private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -198,6 +199,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
+    private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
 
@@ -411,6 +413,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
                     ["battlefieldEchoCostReductionMana"] = plan.BattlefieldEchoCostReductionMana,
                     ["battlefieldEquipmentCostReductionMana"] = plan.BattlefieldEquipmentCostReductionMana,
+                    ["battlefieldHeldUnitCostIncreaseMana"] = plan.BattlefieldHeldUnitCostIncreaseMana,
                     ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
@@ -1061,6 +1064,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{BattlefieldFriendlySpellDrawUsedEffectPrefix}{playerId}:{sourceObjectId}";
     }
 
+    private static string BuildBattlefieldHeldUnitCostIncreaseEffectId(string playerId)
+    {
+        return $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}";
+    }
+
     private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
@@ -1082,6 +1090,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return state.UntilEndOfTurnEffects.Contains(
             BuildBattlefieldFriendlySpellDrawUsedEffectId(playerId, sourceObjectId),
+            StringComparer.Ordinal);
+    }
+
+    private static bool BattlefieldHeldUnitCostIncreaseActive(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BuildBattlefieldHeldUnitCostIncreaseEffectId(playerId),
             StringComparer.Ordinal);
     }
 
@@ -3880,6 +3895,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetObjectIds: new[] { attackerObjectId }.Concat(defenderObjectIds).ToArray(),
             optionalCosts: optionalCosts);
         IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
+        IReadOnlyList<string> untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
         var lethalCleanup = ApplyLethalDamageCleanup(
             playerZones,
             cardObjects,
@@ -4292,6 +4308,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                     winnerPlayerId = battlefieldSevenUnitsWinnerPlayerId ?? winnerPlayerId;
                 }
 
+                var battlefieldUnitCostEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldUnitCostIncreaseTrigger(
+                        playerZones,
+                        cardObjects,
+                        untilEndOfTurnEffects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        battlefieldUnitCostEvents,
+                        out var battlefieldUnitCostUntilEndOfTurnEffects))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldUnitCostEvents);
+                    untilEndOfTurnEffects = battlefieldUnitCostUntilEndOfTurnEffects;
+                }
+
                 var battlefieldBoonEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldGrantBoonTrigger(
                         playerZones,
@@ -4532,6 +4570,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerExperience = playerExperience,
             RunePools = runePools,
             RngCursor = rngCursor,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PassedPriorityPlayerIds = [],
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
@@ -6579,6 +6618,42 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldUnitCostIncreaseTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldUnitCostIncreaseCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var effectId = BuildBattlefieldHeldUnitCostIncreaseEffectId(playerId);
+        nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId);
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守海力亚秘库，本回合非指示物单位费用增加",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["effectId"] = effectId,
+                ["manaIncrease"] = 1
+            }));
+        return true;
+    }
+
     private static bool TryGetFirstSurvivingBattlefieldUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -7785,7 +7860,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
-            || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo);
+            || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
+            || IsBattlefieldHeldUnitCostIncreaseCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7993,6 +8069,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldTargetSpellSkillDamageBonusCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldUnitCostIncreaseCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldUnitCostIncreaseCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -8677,6 +8758,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             state,
             intent.PlayerId,
             behavior);
+        var battlefieldHeldUnitCostIncreaseMana = ResolveBattlefieldHeldUnitCostIncreaseMana(
+            state,
+            intent.PlayerId,
+            behavior);
         var spellshieldTaxMana = ResolveSpellshieldTargetTaxMana(
             state,
             intent.PlayerId,
@@ -8688,6 +8773,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 - optionalCostManaReduction
                 - battlefieldEquipmentCostReductionMana)
             + extraManaCost
+            + battlefieldHeldUnitCostIncreaseMana
             + spellshieldTaxMana;
         var totalPowerCost = extraPowerCost;
         var totalExperienceCost = experienceCost;
@@ -8735,6 +8821,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCostManaReduction,
             battlefieldEchoCostReductionMana,
             battlefieldEquipmentCostReductionMana,
+            battlefieldHeldUnitCostIncreaseMana,
             spellshieldTaxMana,
             spellshieldTaxTargetObjectIds,
             exhaustedOptionalCostTargetObjectIds,
@@ -11172,6 +11259,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return Math.Min(1, behavior.ManaCost);
+    }
+
+    private static int ResolveBattlefieldHeldUnitCostIncreaseMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!behavior.PlaysSourceToBaseAsUnit
+            || behavior.ManaCost <= 0
+            || P6TokenFactoryCatalog.TryGetByCardNo(behavior.CardNo, out _)
+            || !BattlefieldHeldUnitCostIncreaseActive(state, playerId))
+        {
+            return 0;
+        }
+
+        return 1;
     }
 
     private static bool TryGetBattlefieldFriendlySpellDrawSourceObjectId(
@@ -18031,6 +18134,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int OptionalCostManaReduction,
         int BattlefieldEchoCostReductionMana,
         int BattlefieldEquipmentCostReductionMana,
+        int BattlefieldHeldUnitCostIncreaseMana,
         int SpellshieldTaxMana,
         IReadOnlyList<string> SpellshieldTaxTargetObjectIds,
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,

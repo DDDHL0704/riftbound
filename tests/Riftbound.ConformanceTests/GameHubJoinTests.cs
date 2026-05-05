@@ -2146,6 +2146,46 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldUnitCostIncreaseSeedAddsOneToUnitPlayCost()
+    {
+        const string roomId = "p7-9-battlefield-held-unit-cost-increase";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-held-unit-cost-increase", "seed-p7-9-battlefield-held-unit-cost-increase");
+
+        var playClients = new RecordingHubClients();
+        var unitPlay = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-UNIT-CRAFTSMAN",
+              "cardNo": "OGN·211/298",
+              "targetObjectIds": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-unit-cost-increase-play", unitPlay);
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var events = EventsFor(playClients);
+        var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(4, costEvent.Payload["mana"]);
+        Assert.Equal(3, costEvent.Payload["baseMana"]);
+        Assert.Equal(1, costEvent.Payload["battlefieldHeldUnitCostIncreaseMana"]);
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["cardNo"] as string, "OGN·211/298", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
     {
         const string roomId = "p7-9-battlefield-move-power";
