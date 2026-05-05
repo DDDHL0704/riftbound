@@ -166,6 +166,14 @@ type StatusBadge = {
   tone?: "combat" | "defense" | "warning" | "control" | "attachment";
 };
 
+type TimelineEvent = {
+  key: string;
+  serverTick: number;
+  kind: string;
+  description: string;
+  payload: Record<string, unknown>;
+};
+
 const playerKeys: PlayerKey[] = ["p1", "p2"];
 const replayableActions = new Set(["READY", "PASS", "PASS_PRIORITY", "PASS_FOCUS", "END_TURN"]);
 
@@ -808,6 +816,8 @@ function App() {
         />
       </section>
 
+      <MatchTelemetry players={players} snapshot={latestSnapshot} roomId={roomId} />
+
       <section className="players-grid">
         {playerKeys.map((key) => (
           <PlayerPanel
@@ -1442,6 +1452,106 @@ function ResponseWindowPanel({ snapshot, prompt }: { snapshot?: SnapshotDto; pro
   );
 }
 
+function MatchTelemetry({
+  players,
+  snapshot,
+  roomId
+}: {
+  players: Record<PlayerKey, PlayerState>;
+  snapshot?: SnapshotDto;
+  roomId: string;
+}) {
+  const timeline = useMemo(() => collectTimelineEvents(players), [players]);
+  const playerReports = Object.entries(snapshot?.players ?? {}).sort(([, left], [, right]) =>
+    String(left.seat ?? "").localeCompare(String(right.seat ?? ""))
+  );
+  const roomStatus = String(snapshot?.timing?.roomStatus ?? snapshot?.turnState ?? "-");
+  const winner = String(snapshot?.timing?.winnerPlayerId ?? "-");
+
+  return (
+    <section className="telemetry-grid" data-testid="match-telemetry">
+      <section className="event-log-panel" data-testid="event-log">
+        <div className="section-title">
+          <h2>事件日志</h2>
+          <span>{timeline.length} events</span>
+        </div>
+        <ol className="event-list">
+          {timeline.length === 0 ? (
+            <li className="empty-row">等待服务器事件</li>
+          ) : (
+            timeline.slice(0, 18).map((event) => (
+              <li key={event.key}>
+                <span className="event-kind">{event.kind}</span>
+                <strong>{event.description}</strong>
+                <small>{eventPayloadSummary(event.payload)}</small>
+              </li>
+            ))
+          )}
+        </ol>
+      </section>
+
+      <section className="report-panel" data-testid="match-report">
+        <div className="section-title">
+          <h2>战报摘要</h2>
+          <span>{roomStatus}</span>
+        </div>
+        <div className="report-summary">
+          <div>
+            <span>Room</span>
+            <strong>{roomId || "-"}</strong>
+          </div>
+          <div>
+            <span>Turn</span>
+            <strong>{snapshot ? `#${snapshot.turnNumber}` : "-"}</strong>
+          </div>
+          <div>
+            <span>Active</span>
+            <strong>{snapshot?.activePlayerId ?? "-"}</strong>
+          </div>
+          <div>
+            <span>Winner</span>
+            <strong>{winner}</strong>
+          </div>
+        </div>
+        <div className="player-report-list">
+          {playerReports.length === 0 ? (
+            <div className="empty-row">暂无战报</div>
+          ) : (
+            playerReports.map(([playerId, player]) => (
+              <div className="player-report" key={playerId}>
+                <strong>{playerId}</strong>
+                <span>分数 {player.score ?? 0}</span>
+                <span>手牌 {player.handSize ?? 0}</span>
+                <span>基地 {player.zones?.base?.length ?? 0}</span>
+                <span>战场 {player.zones?.battlefields?.length ?? 0}</span>
+                <span>废牌 {player.zones?.graveyard?.length ?? 0}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="replay-panel" data-testid="replay-spectator">
+        <div className="section-title">
+          <h2>回放 / 观战</h2>
+          <span>deferred boundary</span>
+        </div>
+        <p>
+          当前 Web 端只展示本房间连接收到的服务器事件和最终 snapshot；后端已有 journal/recovery 基础，但尚未开放产品级回放或旁观 API。
+        </p>
+        <div className="button-row">
+          <button data-testid="open-replay" disabled>
+            打开回放
+          </button>
+          <button data-testid="open-spectator" disabled>
+            观战入口
+          </button>
+        </div>
+      </section>
+    </section>
+  );
+}
+
 function PlayerPanel({
   playerKey,
   state,
@@ -1645,6 +1755,50 @@ function summarizeRoom(snapshot?: SnapshotDto) {
     { label: "Stack", value: String(snapshot.stack?.length ?? 0) },
     { label: "Winner", value: String(snapshot.timing?.winnerPlayerId ?? "-") }
   ];
+}
+
+function collectTimelineEvents(players: Record<PlayerKey, PlayerState>): TimelineEvent[] {
+  const seen = new Set<string>();
+  const timeline: TimelineEvent[] = [];
+
+  for (const key of playerKeys) {
+    for (const message of players[key].events) {
+      message.payload.forEach((event, index) => {
+        const fingerprint = `${message.serverTick}:${event.kind}:${event.description}:${JSON.stringify(event.payload)}`;
+        if (seen.has(fingerprint)) {
+          return;
+        }
+        seen.add(fingerprint);
+        timeline.push({
+          key: `${fingerprint}:${index}`,
+          serverTick: message.serverTick,
+          kind: event.kind,
+          description: event.description,
+          payload: event.payload
+        });
+      });
+    }
+  }
+
+  return timeline.sort((left, right) => right.serverTick - left.serverTick || left.kind.localeCompare(right.kind));
+}
+
+function eventPayloadSummary(payload: Record<string, unknown>) {
+  const parts = Object.entries(payload)
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .slice(0, 4)
+    .map(([key, value]) => `${key}: ${formatPayloadValue(value)}`);
+  return parts.length > 0 ? parts.join(" / ") : "no payload";
+}
+
+function formatPayloadValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => String(item)).join(", ")}]`;
+  }
+  if (typeof value === "object" && value !== null) {
+    return JSON.stringify(value);
+  }
+  return String(value);
 }
 
 function buildPlayCardCommand(draft: PlayCardDraft) {

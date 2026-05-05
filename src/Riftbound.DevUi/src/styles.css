@@ -182,6 +182,13 @@ h3 {
   align-items: start;
 }
 
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.1fr) minmax(360px, 0.9fr) minmax(260px, 0.55fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
 .workspace-grid {
   display: grid;
   grid-template-columns: minmax(660px, 1.25fr) minmax(430px, 0.75fr);
@@ -473,7 +480,10 @@ h3 {
 .play-card-panel,
 .command-panel,
 .response-panel,
-.fixture-panel {
+.fixture-panel,
+.event-log-panel,
+.report-panel,
+.replay-panel {
   display: grid;
   gap: 10px;
   border: 1px solid #e3d9cb;
@@ -601,6 +611,89 @@ h3 {
 .response-grid strong {
   overflow-wrap: anywhere;
   font-size: 12px;
+}
+
+.event-list {
+  display: grid;
+  gap: 6px;
+  max-height: 360px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.event-list li,
+.empty-row {
+  display: grid;
+  gap: 3px;
+  border: 1px solid #ebe1d4;
+  border-radius: 6px;
+  background: #fbf7ee;
+  padding: 8px;
+}
+
+.event-kind {
+  width: fit-content;
+  border-radius: 999px;
+  background: #274b63;
+  color: #fff;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.event-list strong {
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.event-list small,
+.replay-panel p {
+  color: #5e564c;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.report-summary div,
+.player-report {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #e3d9cb;
+  border-radius: 6px;
+  background: #fbf7ee;
+  padding: 8px;
+}
+
+.report-summary span,
+.player-report span {
+  color: #766c60;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.report-summary strong,
+.player-report strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.player-report-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.replay-panel {
+  align-content: start;
 }
 
 .player-panel {

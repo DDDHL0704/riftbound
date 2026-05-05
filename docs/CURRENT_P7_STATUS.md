@@ -160,12 +160,12 @@ Core P7 smoke path:
 | P7.3 | Done | ActionPrompt-driven play/pass/end-turn/move/battle controls. | Browser smoke: play, pass, end turn, move/battle. |
 | P7.4 | Done | Payment and target-selection UX, response windows, spell-duel surface. | Browser smoke: target and response flow. |
 | P7.5 | Done | Status badges, equipment attachment strip, damage/temp power/exhaustion/combat/shield/swift/ephemeral/control markers. | Browser visual smoke passed. |
-| P7.6 | Planned | Event log, match report, replay/spectator entry with backend boundary. | Browser smoke: report and boundary. |
+| P7.6 | Done | Product event log, match report, replay/spectator entry with explicit backend boundary. | Browser smoke passed: report and boundary. |
 | P7.7 | Planned | Catalog and card detail browser with BehaviorSpec status and deferred labels. | Browser smoke: catalog/detail filtering. |
 | P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `6/10 batches = 60.0%`; estimated remaining batches: `4`.
+Current P7 progress: `7/10 batches = 70.0%`; estimated remaining batches: `3`.
 
 ## Validation Policy
 
@@ -267,6 +267,20 @@ P7.5 validation:
 - Browser smoke: passed with `status-showcase`; desk showed attachment, Spellshield, Stun, Ephemeral, Swift, Roam, damage, `+2 战力`, and control badge text from the server snapshot.
 - `git diff --check`: passed.
 
+## P7.6 Delivered
+
+- Added a product event log panel that merges and de-duplicates server `Events` messages from both clients.
+- Added a match report panel summarizing room id, room status, turn, active player, winner, and each player's score/hand/base/battlefield/graveyard counts from the latest server snapshot.
+- Added a visible replay/spectator entry with disabled buttons and an explicit boundary: current Web UI can show received events and latest snapshot, while product replay/spectator APIs remain deferred until backend endpoints exist.
+- Kept raw debug JSON below the product telemetry; the new panels are readable surfaces, not rule or replay simulators.
+
+P7.6 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- Browser smoke: passed with `battle-score` + prompt `END_TURN`; telemetry showed `21 events`, `BURNOUT_APPLIED`, `MATCH_WON`, report status `FINISHED`, winner `P1`, and disabled replay/spectator buttons.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -304,3 +318,10 @@ P7.5 validation:
   - Operation path: reload Web URL -> set room id -> `双人入座` -> `双方准备` -> seed `status-showcase`.
   - Event summary: `DEV_SCENARIO_SEEDED` for `status-showcase`; no gameplay command was required because this smoke verifies product rendering of server snapshot markers.
   - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#555`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; visible desk contained `P1-UNIT-STATUS-ANCHOR`, attached `P1-EQUIPMENT-LONG-SWORD` (`SFD·022/221`), `+2 战力`, `法盾`, `游走`, `瞬息`, `眩晕`, and `P2-CONTROLLED-UNIT` with `控制 P1`.
+- P7.6 event log/report/replay-boundary smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - roomId: `p7-6-report-1777955956990`
+  - Operation path: reload Web URL -> set room id -> `双人入座` -> `双方准备` -> seed `battle-score` -> P1 prompt `END_TURN`.
+  - Event summary: product event log showed `21 events`, including `TURN_END_DECLARED`, `TURN_START_BEGAN`, multiple `BURNOUT_APPLIED`, and `MATCH_WON`.
+  - Final snapshot summary: roomStatus `FINISHED`, turn `#76`, active player `P2`, winner `P1`, P1 score `8`, P2 score `0`; replay and spectator entry buttons were visible and disabled with a deferred backend boundary.
