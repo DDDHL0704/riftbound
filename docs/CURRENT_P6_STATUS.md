@@ -185,7 +185,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.6b | Done | Long Sword play + assemble Room smoke. | GameHub/Room smoke passed. |
 | P6.6c | Planned | Remaining equipment assemble/agile/tempered boundary checks. | P5 equipment invariant tests required. |
 | P6.7a | Done | Experience/level/hunt/encourage surface matrix and current execution/deferred boundary triage. | Catalog profile matrix passed. |
-| P6.7b | Planned | Remaining experience/level/hunt/encourage representative boundary checks. | Engine + conformance tests. |
+| P6.7b | Done | Experience gain + level threshold Room-visible representative smoke. | GameHub/Room smoke passed. |
 | P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
 | P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
 | P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
@@ -230,6 +230,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Level execution representatives: `5/18 entries = 27.8%`, `5/17 functional units = 29.4%` have current level threshold execution; the remaining surface stays deferred.
   - Encourage execution representatives: `5/15 entries = 33.3%`, `5/10 functional units = 50.0%` have current condition-bound representative execution; the remaining surface stays deferred.
   - Experience behavior representatives: `6/51 entries = 11.8%`, `6/47 functional units = 12.8%` have current gain/spend execution; remaining experience text stays deferred unless separately covered.
+- P6.7b resource/experience Room smoke progress: `1/1 GameHub core path = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -597,6 +598,29 @@ P6.7a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `23/23`.
 - `git diff --check`: passed.
 
+## P6.7b Delivered
+
+- Added a development-only `resource-experience` scenario seed for current P2-P5 representative resource paths:
+  - P1 starts at `2` experience with `UNL-092/219` 德玛西亚使节 and `UNL-047/219` 踏苔蜥 in hand.
+  - P1 starts with `5` generic runes so the Room path can play both units without introducing new cost logic.
+- Added a GameHub/Room smoke:
+  - Local URL: N/A; in-memory SignalR `GameHub` smoke with no browser/server listener.
+  - Room ID: `p6-7b-resource-experience-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(resource-experience)` -> `PLAY_CARD Demacia Envoy, UNL-092/219` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)` -> `PLAY_CARD Moss Stepper, UNL-047/219` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)`.
+  - Observed Demacia Envoy events: `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, `STACK_ITEM_RESOLVED`, `UNIT_PLAYED_TO_BASE`, `EXPERIENCE_GAINED`.
+  - Observed Moss Stepper events: `STACK_ITEM_RESOLVED`, `UNIT_PLAYED_TO_BASE`.
+  - Final snapshot summary: P1 experience is `3`; P1 base contains `P1-UNIT-DEMACIA-ENVOY` and `P1-UNIT-MOSS-STEPPER`; Moss Stepper has power `4` and tags include `法盾` and `狩猎2`.
+- This batch does not broaden resource keyword semantics; it Room-smokes the current experience gain and level-threshold representatives already covered by conformance fixtures.
+
+P6.7b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2593/2593`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `32/32`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `24/24`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.7a, then continue into P6.7b remaining experience/resource boundary checks.
+Commit P6.7b, then continue into P6.8 last-breath/ephemeral/replacement/trigger batches.

@@ -1869,6 +1869,7 @@ public sealed class MatchSession : IMatchSession
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
             "equipment" => BuildEquipmentScenario(current, seed),
+            "resource-experience" => BuildResourceExperienceScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
@@ -2130,6 +2131,48 @@ public sealed class MatchSession : IMatchSession
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             });
+    }
+
+    private static MatchState BuildResourceExperienceScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303092,
+            92,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(5, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-RESOURCE-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand:
+                    [
+                        "P1-UNIT-DEMACIA-ENVOY",
+                        "P1-UNIT-MOSS-STEPPER"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+
+        return state with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [seed.P1] = 2,
+                [seed.P2] = 0
+            }
+        };
     }
 
     private static MatchState BuildControlScenario(MatchState current, DevScenarioSeed seed)

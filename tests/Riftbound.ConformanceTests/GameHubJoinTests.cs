@@ -818,6 +818,101 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6ResourceExperienceSeedBroadcastsExperienceAndLevelInDevelopment()
+    {
+        const string roomId = "p6-7b-resource-experience-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "resource-experience", "seed-p6-resource-experience");
+
+        var playExperienceClients = new RecordingHubClients();
+        var demaciaEnvoy = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-UNIT-DEMACIA-ENVOY",
+              "cardNo": "UNL-092/219",
+              "targetObjectIds": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(playExperienceClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-play-demacia-envoy", demaciaEnvoy);
+        Assert.Empty(playExperienceClients.CallerClient.Errors);
+        var playExperienceEvents = EventsFor(playExperienceClients);
+        Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playExperienceEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var passExperienceP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passExperienceP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-resource-p1-pass", passPriority);
+        Assert.Empty(passExperienceP1Clients.CallerClient.Errors);
+
+        var passExperienceP2Clients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passExperienceP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-resource-p2-pass", passPriorityAgain);
+        Assert.Empty(passExperienceP2Clients.CallerClient.Errors);
+        var experienceEvents = EventsFor(passExperienceP2Clients);
+        Assert.Contains(experienceEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(experienceEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(experienceEvents, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        var experienceSnapshot = SnapshotFor(passExperienceP2Clients, "P1");
+        var experienceP1 = Assert.IsType<Dictionary<string, object?>>(experienceSnapshot.Players["P1"]);
+        Assert.Equal(3, Assert.IsType<int>(experienceP1["experience"]));
+
+        var playLevelClients = new RecordingHubClients();
+        var mossStepper = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-UNIT-MOSS-STEPPER",
+              "cardNo": "UNL-047/219",
+              "targetObjectIds": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(playLevelClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-play-moss-stepper", mossStepper);
+        Assert.Empty(playLevelClients.CallerClient.Errors);
+
+        var passLevelP1Clients = new RecordingHubClients();
+        var passLevelPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passLevelP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-level-p1-pass", passLevelPriority);
+        Assert.Empty(passLevelP1Clients.CallerClient.Errors);
+
+        var passLevelP2Clients = new RecordingHubClients();
+        var passLevelPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passLevelP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-level-p2-pass", passLevelPriorityAgain);
+        Assert.Empty(passLevelP2Clients.CallerClient.Errors);
+        var levelEvents = EventsFor(passLevelP2Clients);
+        Assert.Contains(levelEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(levelEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        var levelSnapshot = SnapshotFor(passLevelP2Clients, "P1");
+        var levelP1 = Assert.IsType<Dictionary<string, object?>>(levelSnapshot.Players["P1"]);
+        Assert.Equal(3, Assert.IsType<int>(levelP1["experience"]));
+        var levelP1Zones = Assert.IsType<Dictionary<string, object?>>(levelP1["zones"]);
+        Assert.Equal(
+            ["P1-UNIT-DEMACIA-ENVOY", "P1-UNIT-MOSS-STEPPER"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(levelP1Zones["base"]));
+        var levelObjects = Assert.IsType<Dictionary<string, object?>>(levelP1["objects"]);
+        var leveledMossStepper = Assert.IsType<Dictionary<string, object?>>(levelObjects["P1-UNIT-MOSS-STEPPER"]);
+        Assert.Equal(4, Assert.IsType<int>(leveledMossStepper["power"]));
+        var tags = Assert.IsAssignableFrom<IReadOnlyList<string>>(leveledMossStepper["tags"]);
+        Assert.Contains(CardObjectTags.Spellshield, tags);
+        Assert.Contains("狩猎2", tags);
+    }
+
+    [Fact]
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
