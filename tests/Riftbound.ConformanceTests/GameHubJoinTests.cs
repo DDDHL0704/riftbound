@@ -1810,6 +1810,44 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFirstTurnScoreSeedGainsScore()
+    {
+        const string roomId = "p7-9-battlefield-first-turn-score";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-first-turn-score", "seed-p7-9-battlefield-first-turn-score");
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-turn-score", endTurn);
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        Assert.Contains(endTurnEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_TURN_GAIN_SCORE", StringComparison.Ordinal));
+        var scoreEvent = Assert.Single(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["score"]);
+
+        var p2Snapshot = SnapshotFor(endTurnClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        Assert.Equal(1, Assert.IsType<int>(p2["score"]));
+        Assert.Null(p2Snapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.InProgress, p2Snapshot.Timing["roomStatus"]);
+    }
+
+    [Fact]
     public async Task P6EchoStackSeedBroadcastsRepeatedDrawInDevelopment()
     {
         const string roomId = "p6-5a-echo-stack-core";

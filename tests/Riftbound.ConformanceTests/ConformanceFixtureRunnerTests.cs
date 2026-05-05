@@ -26461,6 +26461,31 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticFirstTurnScoreGainsOneScore()
+    {
+        var state = BattlefieldFirstTurnScoreState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-first-turn-score", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Null(result.State.WinnerPlayerId);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_TURN_GAIN_SCORE", StringComparison.Ordinal));
+        var scoreEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
+        Assert.Equal(1, scoreEvent.Payload["score"]);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -38257,6 +38282,41 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-MAIN-001",
                     ownerId: "P2",
                     controllerId: "P2"),
+            }
+        };
+    }
+
+    private static MatchState BattlefieldFirstTurnScoreState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GLORY-ARENA"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-GLORY-ARENA"] = new(
+                    "P1-BATTLEFIELD-GLORY-ARENA",
+                    cardNo: "OGN·290/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-MAIN-001"] = new(
+                    "P2-MAIN-001",
+                    ownerId: "P2",
+                    controllerId: "P2")
             }
         };
     }

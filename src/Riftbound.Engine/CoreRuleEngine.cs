@@ -171,6 +171,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
+    private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -7227,7 +7228,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo)
             || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
-            || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo);
+            || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
+            || IsBattlefieldFirstTurnScoreCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7349,6 +7351,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldFirstTurnExtraRuneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldFirstTurnScoreCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -8310,11 +8317,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         var currentZones = playerZones.TryGetValue(turnPlayerId, out var zones)
             ? zones
             : PlayerZones.Empty;
+        var firstTurnScoreResult = ApplyBattlefieldFirstTurnScore(state, turnPlayerId);
 
-        var calledRuneTarget = RuneCallCount(state);
+        var calledRuneTarget = firstTurnScoreResult.WinnerPlayerId is null ? RuneCallCount(state) : 0;
         var calledRunes = currentZones.RuneDeck.Take(calledRuneTarget).ToArray();
         var remainingRuneDeck = currentZones.RuneDeck.Skip(calledRunes.Length).ToArray();
-        var drawResult = DrawOne(state, turnPlayerId, currentZones);
+        var drawResult = firstTurnScoreResult.WinnerPlayerId is null
+            ? DrawOne(
+                state with
+                {
+                    PlayerScores = firstTurnScoreResult.PlayerScores
+                },
+                turnPlayerId,
+                currentZones)
+            : new DrawResult(
+                currentZones.MainDeck,
+                currentZones.Graveyard,
+                [],
+                [],
+                firstTurnScoreResult.WinnerPlayerId,
+                firstTurnScoreResult.PlayerScores,
+                state.RngCursor,
+                EffectiveWinningScore(state));
 
         playerZones[turnPlayerId] = currentZones with
         {
@@ -8324,7 +8348,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             Graveyard = drawResult.Graveyard,
             Base = currentZones.Base.Concat(calledRunes).ToArray()
         };
-        var events = BuildTurnStartEvents(state, calledRunes.Length, drawResult, ephemeralCleanupResult.Events)
+        var events = BuildTurnStartEvents(
+                state,
+                calledRunes.Length,
+                drawResult,
+                ephemeralCleanupResult.Events.Concat(firstTurnScoreResult.Events).ToArray())
             .ToList();
         var playerScores = drawResult.PlayerScores;
         var winnerPlayerId = drawResult.WinnerPlayerId;
@@ -16198,6 +16226,59 @@ public sealed class CoreRuleEngine : IRuleEngine
         return baseRuneCount + BattlefieldFirstTurnExtraRuneCount(state);
     }
 
+    private static ScoreApplicationResult ApplyBattlefieldFirstTurnScore(MatchState state, string playerId)
+    {
+        var playerScores = NormalizeScoresForSeats(state);
+        if (!IsTurnPlayersFirstTurn(state))
+        {
+            return new ScoreApplicationResult(playerScores, null, []);
+        }
+
+        var sourceObjectIds = state.PlayerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldFirstTurnScoreCardNo(cardObject.CardNo))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (sourceObjectIds.Length == 0)
+        {
+            return new ScoreApplicationResult(playerScores, null, []);
+        }
+
+        playerScores[playerId] = playerScores.TryGetValue(playerId, out var score)
+            ? score + sourceObjectIds.Length
+            : sourceObjectIds.Length;
+        var events = new List<GameEvent>
+        {
+            new(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{playerId} 因战场获得分数",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["trigger"] = "BATTLEFIELD_FIRST_TURN_GAIN_SCORE",
+                    ["sourceObjectIds"] = sourceObjectIds,
+                    ["amount"] = sourceObjectIds.Length,
+                    ["score"] = playerScores[playerId]
+                }),
+            new(
+                "SCORE_GAINED",
+                $"{playerId} 获得 {sourceObjectIds.Length} 分",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["amount"] = sourceObjectIds.Length,
+                    ["score"] = playerScores[playerId],
+                    ["reason"] = "BATTLEFIELD_FIRST_TURN_GAIN_SCORE",
+                    ["sourceObjectIds"] = sourceObjectIds
+                })
+        };
+        return new ScoreApplicationResult(
+            playerScores,
+            WinningPlayerId(playerScores, EffectiveWinningScore(state)),
+            events);
+    }
+
     private static bool IsSecondActionPlayersFirstTurn(MatchState state)
     {
         return state.TurnNumber == 2
@@ -16627,6 +16708,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, int> PlayerScores,
         string? WinnerPlayerId,
         long RngCursor);
+
+    private sealed record ScoreApplicationResult(
+        IReadOnlyDictionary<string, int> PlayerScores,
+        string? WinnerPlayerId,
+        IReadOnlyList<GameEvent> Events);
 
     private sealed record BurnoutResult(
         string ScoredPlayerId,
