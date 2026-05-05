@@ -387,6 +387,7 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "UNL-210/219"
             or "UNL-211/219"
             or "UNL-212/219"
+            or "UNL-218/219"
             or "UNL-219/219"
             or "OGN·276/298"
             or "OGN·276a/298"

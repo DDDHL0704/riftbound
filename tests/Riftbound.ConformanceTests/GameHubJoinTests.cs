@@ -2146,6 +2146,66 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldPlayUnitBoonSeedPaysOneAndGrantsBoonOnResolution()
+    {
+        const string roomId = "p7-9-battlefield-play-unit-boon";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-play-unit-boon", "seed-p7-9-battlefield-play-unit-boon");
+
+        var playClients = new RecordingHubClients();
+        var unitPlay = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-UNIT-CRAFTSMAN",
+              "cardNo": "OGN·211/298",
+              "targetObjectIds": [],
+              "destination": "BATTLEFIELD:P1-MAIN"
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-play-unit-boon-play", unitPlay);
+        Assert.Empty(playClients.CallerClient.Errors);
+
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-play-unit-boon-p1-pass", passPriority);
+        var resolveClients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-play-unit-boon-p2-pass", passPriorityAgain);
+
+        Assert.Empty(resolveClients.CallerClient.Errors);
+        var events = EventsFor(resolveClients);
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["mana"], 1));
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
+
+        var p1Snapshot = SnapshotFor(resolveClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unit = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-CRAFTSMAN"]);
+        Assert.Equal(3, Assert.IsType<int>(unit["power"]));
+        Assert.Contains(CardObjectTags.Boon, Assert.IsAssignableFrom<IReadOnlyList<string>>(unit["tags"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldUnitCostIncreaseSeedAddsOneToUnitPlayCost()
     {
         const string roomId = "p7-9-battlefield-held-unit-cost-increase";

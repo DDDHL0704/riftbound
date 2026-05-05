@@ -188,6 +188,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const int BattlefieldReadyLegendManaCost = 1;
@@ -310,6 +311,28 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var behavior = plan.Behavior;
         var targetObjectIds = plan.TargetObjectIds;
+        var destination = string.Equals(command.Destination?.Trim(), MoveUnitBaseZone, StringComparison.Ordinal)
+            ? string.Empty
+            : command.Destination?.Trim() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(destination)
+            && (!behavior.PlaysSourceToBaseAsUnit
+                || !string.Equals(destination, $"{MoveUnitBattlefieldZone}:{intent.PlayerId}-MAIN", StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} has unsupported play destination.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.IsNullOrWhiteSpace(destination)
+            && HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
+                ErrorCodes.InvalidTarget);
+        }
+
         var runePools = PayRuneCosts(state, intent.PlayerId, plan.TotalManaCost, plan.TotalPowerCost);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, plan.TotalExperienceCost);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
@@ -325,7 +348,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior.DamageAmountFromOptionalPowerCost ? plan.TotalPowerCost : behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
-            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId));
+            playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
+            destination: destination);
         var untilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
             state.UntilEndOfTurnEffects,
             intent.PlayerId,
@@ -7860,6 +7884,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
+            || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
             || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
             || IsBattlefieldHeldUnitCostIncreaseCardNo(cardNo);
     }
@@ -8064,6 +8089,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldPlayUnitPayOneBoonCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldTargetSpellSkillDamageBonusCardNo(string? cardNo)
@@ -8892,6 +8922,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PlayerZones = stackResolution.PlayerZones,
                 PlayerScores = stackResolution.PlayerScores,
                 PlayerExperience = stackResolution.PlayerExperience,
+                RunePools = stackResolution.RunePools,
                 CardObjects = stackResolution.CardObjects,
                 UntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects,
                 RngCursor = stackResolution.RngCursor,
@@ -11364,6 +11395,80 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string playerId,
+        StackItemState stackItem,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools,
+        List<GameEvent> events)
+    {
+        nextRunePools = runePools;
+        if (!IsStackItemBattlefieldDestination(stackItem)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
+            || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceUnitState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
+            || !runePools.TryGetValue(playerId, out var currentPool)
+            || currentPool.Mana < 1)
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldPlayUnitPayOneBoonCardNo(cardObject.CardNo))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - 1
+        };
+        nextRunePools = mutableRunePools;
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 在偶像谷打出单位并支付 1 给予增益",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON",
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = stackItem.SourceObjectId,
+                ["destination"] = stackItem.Destination,
+                ["manaCost"] = 1
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付偶像谷单位增益触发费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["mana"] = 1,
+                ["power"] = 0,
+                ["reason"] = "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON"
+            }));
+        GrantLegendBoon(
+            cardObjects,
+            stackItem.SourceObjectId,
+            playerId,
+            battlefieldObjectId,
+            "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON",
+            events);
+        return true;
+    }
+
     private static RecycleResult TryResolveBattlefieldHighCostSpellInsightTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -11791,6 +11896,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state.CardObjects,
                 state.PlayerScores,
                 state.PlayerExperience,
+                state.RunePools,
                 state.UntilEndOfTurnEffects,
                 null,
                 [],
@@ -11817,6 +11923,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var rngCursor = state.RngCursor;
         var playerScores = state.PlayerScores;
         var playerExperience = NormalizeExperienceForSeats(state);
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         string? winnerPlayerId = null;
         string? extraTurnPlayerId = null;
         int? drawCountOverride = null;
@@ -11854,6 +11961,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem,
                     state.PlayerExperience,
                     events);
+            }
+
+            if (TryResolveBattlefieldPlayUnitPayOneBoonTrigger(
+                    playerZones,
+                    cardObjects,
+                    runePools,
+                    stackItem.ControllerId,
+                    stackItem,
+                    out var battlefieldBoonRunePools,
+                    events))
+            {
+                runePools = battlefieldBoonRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             }
 
             events.AddRange(ResolvePowerfulUnitPlayedRuneLegendTriggers(
@@ -13691,6 +13810,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             playerScores,
             playerExperience,
+            runePools,
             untilEndOfTurnEffects.ToArray(),
             winnerPlayerId,
             events,
@@ -13741,6 +13861,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
+            state.RunePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
@@ -13802,6 +13923,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
+            state.RunePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
@@ -18149,6 +18271,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, CardObjectState> CardObjects,
         IReadOnlyDictionary<string, int> PlayerScores,
         IReadOnlyDictionary<string, int> PlayerExperience,
+        IReadOnlyDictionary<string, RunePool> RunePools,
         IReadOnlyList<string> UntilEndOfTurnEffects,
         string? WinnerPlayerId,
         IReadOnlyList<GameEvent> Events,

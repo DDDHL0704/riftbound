@@ -26817,6 +26817,92 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldPlayUnitBoonPaysOneAndGrantsBoon()
+    {
+        var state = BattlefieldPlayUnitBoonState(mana: 4);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                [],
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(1, play.State.RunePools["P1"].Mana);
+        Assert.Equal(0, p2Pass.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-UNIT-CRAFTSMAN", p2Pass.State.PlayerZones["P1"].Battlefields);
+        var unit = p2Pass.State.CardObjects["P1-UNIT-CRAFTSMAN"];
+        Assert.Equal(3, unit.Power);
+        Assert.Contains(CardObjectTags.Boon, unit.Tags);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["mana"], 1));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldPlayUnitBoonSkipsWhenManaUnavailable()
+    {
+        var state = BattlefieldPlayUnitBoonState(mana: 3);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-no-mana-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                [],
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-no-mana-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-no-mana-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(0, p2Pass.State.RunePools["P1"].Mana);
+        var unit = p2Pass.State.CardObjects["P1-UNIT-CRAFTSMAN"];
+        Assert.Equal(2, unit.Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, unit.Tags);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -39288,6 +39374,36 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-UNIT-CRAFTSMAN"] = new(
                     "P1-UNIT-CRAFTSMAN",
                     cardNo: "OGN·211/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldPlayUnitBoonState(int mana)
+    {
+        return PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CRAFTSMAN"],
+                    Battlefields = ["P1-BATTLEFIELD-IDOL-VALLEY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CRAFTSMAN"] = new(
+                    "P1-UNIT-CRAFTSMAN",
+                    cardNo: "OGN·211/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-IDOL-VALLEY"] = new(
+                    "P1-BATTLEFIELD-IDOL-VALLEY",
+                    cardNo: "UNL-218/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1")
             }
