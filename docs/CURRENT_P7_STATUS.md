@@ -159,13 +159,13 @@ Core P7 smoke path:
 | P7.2 | Done | Battle desktop layout with lanes/base/hand/runes/legend/champion/equipment/control markers. | Browser visual smoke. |
 | P7.3 | Done | ActionPrompt-driven play/pass/end-turn/move/battle controls. | Browser smoke: play, pass, end turn, move/battle. |
 | P7.4 | Done | Payment and target-selection UX, response windows, spell-duel surface. | Browser smoke: target and response flow. |
-| P7.5 | Planned | Status, equipment, damage, temp power, exhaustion, combat, shield/swift/ephemeral markers. | Browser visual smoke. |
+| P7.5 | Done | Status badges, equipment attachment strip, damage/temp power/exhaustion/combat/shield/swift/ephemeral/control markers. | Browser visual smoke passed. |
 | P7.6 | Planned | Event log, match report, replay/spectator entry with backend boundary. | Browser smoke: report and boundary. |
 | P7.7 | Planned | Catalog and card detail browser with BehaviorSpec status and deferred labels. | Browser smoke: catalog/detail filtering. |
 | P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `5/10 batches = 50.0%`; estimated remaining batches: `5`.
+Current P7 progress: `6/10 batches = 60.0%`; estimated remaining batches: `4`.
 
 ## Validation Policy
 
@@ -251,6 +251,22 @@ P7.4 validation:
 - Browser smoke: passed with `spell-duel`, target selection, `PLAY_CARD`, P1 `PASS_PRIORITY`, P2 `PASS_PRIORITY`, and stack resolution.
 - `git diff --check`: passed.
 
+## P7.5 Delivered
+
+- Added snapshot-driven status badges for damage, temporary power, exhaustion, attack/defense, face-down, attached, control divergence, Spellshield, Stun, Ephemeral, Swift, Standby, Ambush, Echo, Boon, and Roam.
+- Added an attachment strip under host objects so equipment is visible both as its own server object and as attached to its target.
+- Added visual classes for damaged, shielded, ephemeral, attached, and control-diverged objects without changing any frontend legality logic.
+- Added a `status-showcase` development seed that exposes attached equipment, control transfer markers, damage, temp power, Spellshield, Stun, Ephemeral, Swift, Standby, and Roam in one server snapshot.
+- Added a GameHub regression test for the showcase snapshot to keep attached equipment and owner/controller fields stable.
+
+P7.5 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `27/27`.
+- Browser smoke: passed with `status-showcase`; desk showed attachment, Spellshield, Stun, Ephemeral, Swift, Roam, damage, `+2 战力`, and control badge text from the server snapshot.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -281,3 +297,10 @@ P7.4 validation:
   - Operation path: reload Web URL -> `新房间` -> `双人入座` -> `双方准备` -> seed `spell-duel` -> submit `PLAY_CARD P1-SPELL-HEXTECH-RAY` targeting `P2-UNIT-001` -> P1 `PASS_PRIORITY` -> switch active client to P2 -> P2 `PASS_PRIORITY`.
   - Event summary: `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, `PRIORITY_PASSED`, `STACK_ITEM_RESOLVED`, and damage resolution were observed.
   - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#9`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; P1 spell is in graveyard, P2 target is in graveyard, selected target remains visible in the command builder as submitted intent context.
+- P7.5 status/equipment visual smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - roomId: `p7-5-status-1777955607381`
+  - Operation path: reload Web URL -> set room id -> `双人入座` -> `双方准备` -> seed `status-showcase`.
+  - Event summary: `DEV_SCENARIO_SEEDED` for `status-showcase`; no gameplay command was required because this smoke verifies product rendering of server snapshot markers.
+  - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#555`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; visible desk contained `P1-UNIT-STATUS-ANCHOR`, attached `P1-EQUIPMENT-LONG-SWORD` (`SFD·022/221`), `+2 战力`, `法盾`, `游走`, `瞬息`, `眩晕`, and `P2-CONTROLLED-UNIT` with `控制 P1`.

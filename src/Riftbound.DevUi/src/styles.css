@@ -310,12 +310,19 @@ h3 {
   align-content: start;
 }
 
+.object-cell {
+  display: grid;
+  gap: 4px;
+  width: min(172px, 100%);
+  max-width: 100%;
+}
+
 .object-card {
   display: grid;
   gap: 4px;
   max-width: 100%;
   min-height: 74px;
-  width: min(172px, 100%);
+  width: 100%;
   border-color: #758b9c;
   border-left-width: 5px;
   background: #edf4f7;
@@ -350,6 +357,22 @@ h3 {
   box-shadow: inset 0 -3px 0 #274b63;
 }
 
+.object-card.damaged {
+  outline: 1px solid rgba(162, 69, 45, 0.35);
+}
+
+.object-card.shielded {
+  box-shadow: inset 0 3px 0 #2e6f90;
+}
+
+.object-card.ephemeral {
+  background: #f3effb;
+}
+
+.object-card.controlled {
+  border-right: 4px solid #a2452d;
+}
+
 .object-card span {
   overflow-wrap: anywhere;
   font-size: 11px;
@@ -360,6 +383,77 @@ h3 {
   color: #526a7a;
   font-size: 10px;
   line-height: 1.25;
+}
+
+.status-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.object-card .status-badge {
+  width: fit-content;
+  border: 1px solid #8aa4aa;
+  border-radius: 999px;
+  background: #f7fbfb;
+  color: #25424a;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.object-card .status-badge.combat {
+  border-color: #bd765f;
+  background: #fff1eb;
+  color: #873f2a;
+}
+
+.object-card .status-badge.defense {
+  border-color: #78a98a;
+  background: #eef8f0;
+  color: #276042;
+}
+
+.object-card .status-badge.warning {
+  border-color: #b8a063;
+  background: #fff8dc;
+  color: #6d5622;
+}
+
+.object-card .status-badge.control {
+  border-color: #ac6f83;
+  background: #fff0f4;
+  color: #81344d;
+}
+
+.object-card .status-badge.attachment {
+  border-color: #6e87a1;
+  background: #eef4fb;
+  color: #274b63;
+}
+
+.attached-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 2px solid #274b63;
+}
+
+.attachment-chip {
+  min-height: 24px;
+  border-color: #8b5d22;
+  background: #fff5df;
+  color: #6a441b;
+  padding: 3px 6px;
+  font-size: 10px;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.attachment-chip:hover:not(:disabled) {
+  background: #f8e7c0;
 }
 
 .hidden-card,

@@ -1871,6 +1871,7 @@ public sealed class MatchSession : IMatchSession
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
             "equipment" => BuildEquipmentScenario(current, seed),
+            "status-showcase" => BuildStatusShowcaseScenario(current, seed),
             "resource-experience" => BuildResourceExperienceScenario(current, seed),
             "lifecycle-ephemeral" => BuildLifecycleEphemeralScenario(current, seed),
             "lifecycle-last-breath" => BuildLifecycleLastBreathScenario(current, seed),
@@ -2134,6 +2135,101 @@ public sealed class MatchSession : IMatchSession
                     "P1-UNIT-ASSEMBLE-TARGET",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
+            });
+    }
+
+    private static MatchState BuildStatusShowcaseScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303555,
+            555,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(3, 1),
+                [seed.P2] = new(1, 0)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    baseZone:
+                    [
+                        "P1-UNIT-STATUS-ANCHOR",
+                        "P1-EQUIPMENT-LONG-SWORD",
+                        "P1-STANDBY-FACEDOWN",
+                        "P1-EPHEMERAL-UNIT"
+                    ],
+                    battlefields: ["P1-BATTLE-DAMAGED"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    baseZone: ["P2-STUNNED-UNIT"],
+                    battlefields: ["P2-CONTROLLED-UNIT"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-STATUS-ANCHOR"] = new(
+                    "P1-UNIT-STATUS-ANCHOR",
+                    power: 3,
+                    untilEndOfTurnPowerModifier: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield, CardCombatKeywordNames.Roam],
+                    untilEndOfTurnEffects: ["BOON:+1", "POWER:+2_UNTIL_END_OF_TURN"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    tags: [CardObjectTags.EquipmentCard],
+                    cardNo: "SFD·022/221",
+                    attachedToObjectId: "P1-UNIT-STATUS-ANCHOR",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-STANDBY-FACEDOWN"] = new(
+                    "P1-STANDBY-FACEDOWN",
+                    isFaceDown: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    manaCost: 2,
+                    cardNo: "OGN·197/298",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-EPHEMERAL-UNIT"] = new(
+                    "P1-EPHEMERAL-UNIT",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-DAMAGED"] = new(
+                    "P1-BATTLE-DAMAGED",
+                    damage: 2,
+                    isExhausted: true,
+                    isAttacking: true,
+                    power: 4,
+                    untilEndOfTurnPowerModifier: -1,
+                    tags: [CardObjectTags.UnitCard, CardPermissionKeywordNames.Swift],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-STUNNED-UNIT"] = new(
+                    "P2-STUNNED-UNIT",
+                    damage: 1,
+                    isExhausted: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "眩晕"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-CONTROLLED-UNIT"] = new(
+                    "P2-CONTROLLED-UNIT",
+                    isDefending: true,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    ownerId: seed.P2,
+                    controllerId: seed.P1)
             });
     }
 

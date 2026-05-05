@@ -818,6 +818,49 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P7StatusShowcaseSeedBroadcastsAttachedEquipmentAndStatusMarkersInDevelopment()
+    {
+        const string roomId = "p7-5-status-showcase";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "status-showcase", "seed-p7-status-showcase");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        Assert.Contains(EventsFor(seedClients), gameEvent => string.Equals(gameEvent.Kind, "DEV_SCENARIO_SEEDED", StringComparison.Ordinal));
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var anchor = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-STATUS-ANCHOR"]);
+        Assert.Equal(2, anchor["untilEndOfTurnPowerModifier"]);
+        Assert.Contains(CardObjectTags.Spellshield, Assert.IsAssignableFrom<IReadOnlyList<string>>(anchor["tags"]));
+        Assert.Contains(CardCombatKeywordNames.Roam, Assert.IsAssignableFrom<IReadOnlyList<string>>(anchor["tags"]));
+
+        var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-EQUIPMENT-LONG-SWORD"]);
+        Assert.Equal("P1-UNIT-STATUS-ANCHOR", equipment["attachedToObjectId"]);
+        Assert.Equal("P1", equipment["ownerId"]);
+        Assert.Equal("P1", equipment["controllerId"]);
+
+        var p2Snapshot = SnapshotFor(seedClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        var p2Objects = Assert.IsType<Dictionary<string, object?>>(p2["objects"]);
+        var controlled = Assert.IsType<Dictionary<string, object?>>(p2Objects["P2-CONTROLLED-UNIT"]);
+        Assert.Equal("P2", controlled["ownerId"]);
+        Assert.Equal("P1", controlled["controllerId"]);
+        Assert.True(Assert.IsType<bool>(controlled["isDefending"]));
+    }
+
+    [Fact]
     public async Task P6ResourceExperienceSeedBroadcastsExperienceAndLevelInDevelopment()
     {
         const string roomId = "p6-7b-resource-experience-core";

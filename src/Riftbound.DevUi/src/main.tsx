@@ -161,6 +161,11 @@ type ScenarioPreset = {
   command: Record<string, unknown>;
 };
 
+type StatusBadge = {
+  label: string;
+  tone?: "combat" | "defense" | "warning" | "control" | "attachment";
+};
+
 const playerKeys: PlayerKey[] = ["p1", "p2"];
 const replayableActions = new Set(["READY", "PASS", "PASS_PRIORITY", "PASS_FOCUS", "END_TURN"]);
 
@@ -241,6 +246,14 @@ const scenarioPresets: ScenarioPreset[] = [
       sourceObjectId: "P1-EQUIPMENT-LONG-SWORD",
       cardNo: "SFD·022/221",
       targetObjectIds: []
+    }
+  },
+  {
+    id: "status-showcase",
+    title: "Status Showcase",
+    description: "Seeded snapshot for equipment attachment, control, damage, shields, and temporary states.",
+    command: {
+      cmdType: "PASS"
     }
   },
   {
@@ -942,12 +955,31 @@ function ObjectList({
 
   return (
     <div className="object-list">
-      {ids.map((id) => (
-        <button className={objectClassName(objects?.[id])} key={id} onClick={() => onPickObject(id)}>
-          <span>{cardTitle(id, objects?.[id])}</span>
-          <ObjectMeta object={objects?.[id]} />
-        </button>
-      ))}
+      {ids.map((id) => {
+        const attachments = attachedObjectsFor(id, objects);
+        return (
+          <div className="object-cell" key={id}>
+            <button className={objectClassName(objects?.[id])} onClick={() => onPickObject(id)}>
+              <span>{cardTitle(id, objects?.[id])}</span>
+              <ObjectMeta object={objects?.[id]} />
+            </button>
+            {attachments.length > 0 ? (
+              <div className="attached-strip" aria-label={`${id} attached equipment`}>
+                {attachments.map((attachment) => (
+                  <button
+                    className="attachment-chip"
+                    key={attachment.objectId}
+                    onClick={() => onPickObject(attachment.objectId ?? "")}
+                    type="button"
+                  >
+                    {attachment.cardNo ?? attachment.objectId}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -970,13 +1002,24 @@ function ObjectMeta({ object }: { object?: ObjectView }) {
     object.attachedToObjectId ? `贴附 ${object.attachedToObjectId}` : "",
     object.controllerId && object.ownerId && object.controllerId !== object.ownerId ? `控制 ${object.controllerId}` : ""
   ].filter(Boolean);
+  const badges = statusBadges(object);
+  const tags = displayTags(object);
 
   return (
     <>
       {object.cardNo ? <small>{object.cardNo}</small> : null}
       {combatBits.length > 0 ? <small>{combatBits.join(" / ")}</small> : null}
       {stateBits.length > 0 ? <small>{stateBits.join(" / ")}</small> : null}
-      {object.tags?.length ? <small>{object.tags.slice(0, 4).join(", ")}</small> : null}
+      {badges.length > 0 ? (
+        <span className="status-badges">
+          {badges.map((badge) => (
+            <span className={badge.tone ? `status-badge ${badge.tone}` : "status-badge"} key={badge.label}>
+              {badge.label}
+            </span>
+          ))}
+        </span>
+      ) : null}
+      {tags.length ? <small>{tags.slice(0, 4).join(", ")}</small> : null}
       {object.untilEndOfTurnEffects?.length ? <small>{object.untilEndOfTurnEffects.join(", ")}</small> : null}
     </>
   );
@@ -1720,8 +1763,99 @@ function cardTitle(objectId: string, object?: ObjectView) {
   return object?.cardNo ? `${objectId} · ${object.cardNo}` : objectId;
 }
 
+function attachedObjectsFor(objectId: string, objects?: Record<string, ObjectView>) {
+  return Object.entries(objects ?? {})
+    .map(([fallbackId, object]) => ({ ...object, objectId: object.objectId || fallbackId }))
+    .filter((object) => object.attachedToObjectId === objectId)
+    .sort((left, right) => String(left.objectId).localeCompare(String(right.objectId)));
+}
+
 function effectivePower(object: ObjectView) {
   return (object.power ?? 0) + (object.untilEndOfTurnPowerModifier ?? 0);
+}
+
+function statusBadges(object: ObjectView): StatusBadge[] {
+  const badges: StatusBadge[] = [];
+  if (object.damage && object.damage > 0) {
+    badges.push({ label: `${object.damage} 伤害`, tone: "combat" });
+  }
+  if (object.untilEndOfTurnPowerModifier && object.untilEndOfTurnPowerModifier !== 0) {
+    badges.push({ label: formatPowerModifier(object.untilEndOfTurnPowerModifier), tone: "combat" });
+  }
+  if (object.isExhausted) {
+    badges.push({ label: "横置", tone: "warning" });
+  }
+  if (object.isAttacking) {
+    badges.push({ label: "攻击中", tone: "combat" });
+  }
+  if (object.isDefending) {
+    badges.push({ label: "防守中", tone: "combat" });
+  }
+  if (object.isFaceDown) {
+    badges.push({ label: "盖放", tone: "warning" });
+  }
+  if (object.attachedToObjectId) {
+    badges.push({ label: "已贴附", tone: "attachment" });
+  }
+  if (object.ownerId && object.controllerId && object.ownerId !== object.controllerId) {
+    badges.push({ label: `控制 ${object.controllerId}`, tone: "control" });
+  }
+  if (hasObjectMarker(object, ["法盾", "SPELLSHIELD"])) {
+    badges.push({ label: "法盾", tone: "defense" });
+  }
+  if (hasObjectMarker(object, ["眩晕", "STUN"])) {
+    badges.push({ label: "眩晕", tone: "warning" });
+  }
+  if (hasObjectMarker(object, ["瞬息", "EPHEMERAL"])) {
+    badges.push({ label: "瞬息", tone: "warning" });
+  }
+  if (hasObjectMarker(object, ["迅捷", "SWIFT"])) {
+    badges.push({ label: "迅捷", tone: "defense" });
+  }
+  if (hasObjectMarker(object, ["待命", "STANDBY"])) {
+    badges.push({ label: "待命", tone: "warning" });
+  }
+  if (hasObjectMarker(object, ["伏击", "AMBUSH"])) {
+    badges.push({ label: "伏击", tone: "warning" });
+  }
+  if (hasObjectMarker(object, ["回响", "ECHO"])) {
+    badges.push({ label: "回响", tone: "defense" });
+  }
+  if (hasObjectMarker(object, ["增益", "BOON"])) {
+    badges.push({ label: "增益", tone: "defense" });
+  }
+  if (hasObjectMarker(object, ["游走", "ROAM"])) {
+    badges.push({ label: "游走", tone: "defense" });
+  }
+
+  return uniqueBadges(badges);
+}
+
+function displayTags(object: ObjectView) {
+  return (object.tags ?? []).filter((tag) => !tag.startsWith("CARD_TYPE:"));
+}
+
+function formatPowerModifier(value: number) {
+  return `${value > 0 ? "+" : ""}${value} 战力`;
+}
+
+function hasObjectMarker(object: ObjectView, needles: string[]) {
+  const haystack = [...(object.tags ?? []), ...(object.untilEndOfTurnEffects ?? [])].map((value) => value.toUpperCase());
+  return needles.some((needle) => {
+    const normalized = needle.toUpperCase();
+    return haystack.some((value) => value.includes(normalized));
+  });
+}
+
+function uniqueBadges(badges: StatusBadge[]) {
+  const labels = new Set<string>();
+  return badges.filter((badge) => {
+    if (labels.has(badge.label)) {
+      return false;
+    }
+    labels.add(badge.label);
+    return true;
+  });
 }
 
 function objectClassName(object?: ObjectView) {
@@ -1741,6 +1875,18 @@ function objectClassName(object?: ObjectView) {
   }
   if (object?.attachedToObjectId) {
     classes.push("attached");
+  }
+  if (object?.damage && object.damage > 0) {
+    classes.push("damaged");
+  }
+  if (object && hasObjectMarker(object, ["法盾", "SPELLSHIELD"])) {
+    classes.push("shielded");
+  }
+  if (object && hasObjectMarker(object, ["瞬息", "EPHEMERAL"])) {
+    classes.push("ephemeral");
+  }
+  if (object?.ownerId && object.controllerId && object.ownerId !== object.controllerId) {
+    classes.push("controlled");
   }
   return classes.join(" ");
 }
