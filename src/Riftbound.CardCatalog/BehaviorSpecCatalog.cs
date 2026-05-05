@@ -290,7 +290,9 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "UNL-230*/219"
             or "UNL-230/219"
             or "SFD·181/221"
-            or "SFD·240/221";
+            or "SFD·240/221"
+            or "SFD·183/221"
+            or "SFD·241/221";
     }
 }
 

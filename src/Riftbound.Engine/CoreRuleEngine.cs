@@ -82,6 +82,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string RumbleLegendCardNo = "SFD·181/221";
+    private const string LucianLegendCardNo = "SFD·183/221";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -2687,12 +2688,48 @@ public sealed class CoreRuleEngine : IRuleEngine
         keywordBonus = CombatKeywordAmount(
             cardObject.Tags,
             isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast);
+        if (isAttacking)
+        {
+            keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
+        }
+
         if (!isAttacking && HasRumbleLegendMechanicalSteadfastBonus(state, playerZones, objectId, cardObject))
         {
             keywordBonus += 1;
         }
 
         return Math.Max(0, cardObject.Power + keywordBonus);
+    }
+
+    private static int CountLucianLegendEquipmentAssaultBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null
+            || !playerZones.TryGetValue(location.Value.PlayerId, out var zones)
+            || !zones.LegendZone.Any(legendObjectId =>
+                state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+                && IsLucianLegendCardNo(legendState.CardNo)))
+        {
+            return 0;
+        }
+
+        return AttachedEquipmentObjectIds(state.CardObjects, objectId)
+            .Count(equipmentObjectId =>
+            {
+                var equipmentLocation = FindFieldObjectLocation(playerZones, equipmentObjectId);
+                return equipmentLocation is not null
+                    && string.Equals(equipmentLocation.Value.PlayerId, location.Value.PlayerId, StringComparison.Ordinal)
+                    && state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+                    && equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal);
+            });
+    }
+
+    private static bool IsLucianLegendCardNo(string? cardNo)
+    {
+        return cardNo is LucianLegendCardNo or "SFD·241/221";
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(
