@@ -25822,6 +25822,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerOverkillCreatesWarhawk()
+    {
+        var state = BattlefieldConquerWarhawkState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-warhawk", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-HUNTING-GROUNDS",
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"],
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK", StringComparison.Ordinal));
+        Assert.Equal(4, triggerEvent.Payload["assignedOverkillDamageToEnemyUnits"]);
+        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["tokenCardNo"] as string, "UNL·T02", StringComparison.Ordinal));
+        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
+        Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Battlefields);
+        var token = result.State.CardObjects[tokenObjectId];
+        Assert.Equal(1, token.Power);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(CardObjectTags.Spellshield, token.Tags);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerMillsTopTwoFromBattlefieldObject()
     {
         var state = BattlefieldConquerMillState();
@@ -37319,6 +37350,45 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SHIRANA-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerWarhawkState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-HUNTING-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-HUNTING-GROUNDS", "P2-BATTLEFIELD-HUNTING-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-HUNTING-ATTACKER",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-HUNTING-GROUNDS"] = new(
+                    "P2-BATTLEFIELD-HUNTING-GROUNDS",
+                    cardNo: "UNL-217/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-HUNTING-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

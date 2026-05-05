@@ -143,6 +143,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string BrushBattlefieldTokenCardNo = "UNL·T03";
     private const string DemaciaMinionTokenCardNo = "OGN·271/298";
+    private const string WarhawkTokenCardNo = "UNL·T02";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
@@ -166,6 +167,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
+    private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -3870,6 +3872,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = battlefieldOtherDrawApplication.WinnerPlayerId;
                 rngCursor = battlefieldOtherDrawApplication.RngCursor;
             }
+            TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                assignedOverkillDamageToEnemyUnits,
+                combatEvents);
 
             combatEvents.AddRange(ResolveViLegendOverkillConquerTrigger(
                 playerZones,
@@ -7011,6 +7021,66 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        int assignedOverkillDamageToEnemyUnits,
+        List<GameEvent> events)
+    {
+        if (assignedOverkillDamageToEnemyUnits < 3
+            || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerOverkillCreateWarhawkCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || !P6TokenFactoryCatalog.TryGetByCardNo(WarhawkTokenCardNo, out var tokenDefinition))
+        {
+            return false;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
+        cardObjects[tokenObjectId] = tokenDefinition.CreateObject(
+            tokenObjectId,
+            playerId,
+            playerId);
+        playerZones[playerId] = zones with
+        {
+            Battlefields = zones.Battlefields.Concat([tokenObjectId]).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并打出战鹰",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK",
+                ["sourceObjectId"] = sourceObjectId,
+                ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
+                ["tokenObjectId"] = tokenObjectId
+            }));
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{battlefieldObjectId} 打出战鹰",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["abilityId"] = "BATTLEFIELD_CONQUERED_OVERKILL_CREATE_WARHAWK",
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenDefinition.CardNo,
+                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["power"] = tokenDefinition.DefaultPower,
+                ["destinationZone"] = "BATTLEFIELD",
+                ["tokenTags"] = tokenDefinition.Tags.ToArray()
+            }));
+        return true;
+    }
+
     private static bool TryGetFirstExhaustedFriendlyEquipment(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -7150,7 +7220,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
             || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
-            || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
+            || IsBattlefieldConquerDiscardDrawCardNo(cardNo)
+            || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7256,6 +7327,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerOverkillCreateWarhawkCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal);
     }
 
     private static bool PlayerWithinWinningScoreDistance(
