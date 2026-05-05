@@ -140,7 +140,9 @@ const playerKeys: PlayerKey[] = ["p1", "p2"];
 const replayableActions = new Set(["READY", "PASS", "PASS_PRIORITY", "PASS_FOCUS", "END_TURN"]);
 
 const defaultServerUrl = localStorage.getItem("riftbound.devUi.serverUrl") ?? "http://127.0.0.1:5088";
-const defaultRoomId = `dev-${new Date().toISOString().slice(0, 10)}-smoke`;
+const defaultRoomId = localStorage.getItem("riftbound.p7.roomId") ?? `p7-${new Date().toISOString().slice(0, 10)}-battle`;
+const defaultP1Id = localStorage.getItem("riftbound.p7.player.p1") ?? "P1";
+const defaultP2Id = localStorage.getItem("riftbound.p7.player.p2") ?? "P2";
 
 const initialDraft: PlayCardDraft = {
   sourceObjectId: "",
@@ -230,7 +232,7 @@ const scenarioPresets: ScenarioPreset[] = [
 const initialPlayers: Record<PlayerKey, PlayerState> = {
   p1: {
     label: "P1",
-    playerId: "P1",
+    playerId: defaultP1Id,
     status: "disconnected",
     reconnectStatus: "idle",
     events: [],
@@ -241,7 +243,7 @@ const initialPlayers: Record<PlayerKey, PlayerState> = {
   },
   p2: {
     label: "P2",
-    playerId: "P2",
+    playerId: defaultP2Id,
     status: "disconnected",
     reconnectStatus: "idle",
     events: [],
@@ -261,6 +263,7 @@ function App() {
   const [fixtureDraft, setFixtureDraft] = useState("");
   const [fixtureStatus, setFixtureStatus] = useState("idle");
   const connections = useRef<Record<PlayerKey, signalR.HubConnection | null>>({ p1: null, p2: null });
+  const playersRef = useRef(initialPlayers);
   const logCounter = useRef(1);
   const intentCounter = useRef(1);
 
@@ -271,10 +274,14 @@ function App() {
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
 
   function updatePlayer(key: PlayerKey, updater: (state: PlayerState) => PlayerState) {
-    setPlayers((current) => ({
-      ...current,
-      [key]: updater(current[key])
-    }));
+    setPlayers((current) => {
+      const next = {
+        ...current,
+        [key]: updater(current[key])
+      };
+      playersRef.current = next;
+      return next;
+    });
   }
 
   function appendLog(
@@ -309,7 +316,7 @@ function App() {
     });
     connection.onreconnected(async () => {
       updatePlayer(key, (current) => ({ ...current, status: "reconnected", reconnectStatus: "transport reconnected" }));
-      const token = players[key].session?.reconnectToken;
+      const token = playersRef.current[key].session?.reconnectToken ?? loadStoredSession(roomId.trim(), playerId)?.reconnectToken;
       try {
         if (token) {
           await connection.invoke("Reconnect", roomId.trim(), playerId, token);
@@ -328,6 +335,7 @@ function App() {
     });
 
     connection.on("Joined", (message: WsServerMessage<PlayerSessionDto>) => {
+      rememberSession(roomId.trim(), message.payload);
       updatePlayer(key, (current) => ({
         ...current,
         status: "connected",
@@ -385,6 +393,8 @@ function App() {
     }
 
     localStorage.setItem("riftbound.devUi.serverUrl", serverUrl);
+    localStorage.setItem("riftbound.p7.roomId", roomId.trim());
+    localStorage.setItem(`riftbound.p7.player.${key}`, playerId);
     await connections.current[key]?.stop();
     connections.current[key] = null;
     updatePlayer(key, (current) => ({ ...current, status: "connecting", reconnectStatus: "starting" }));
@@ -403,7 +413,8 @@ function App() {
   async function reconnect(key: PlayerKey) {
     const state = players[key];
     const playerId = state.playerId.trim();
-    const token = state.session?.reconnectToken;
+    const storedSession = loadStoredSession(roomId.trim(), playerId);
+    const token = state.session?.reconnectToken ?? storedSession?.reconnectToken;
     if (!token) {
       appendLog(key, { method: "Reconnect", status: "failed", payload: "no reconnect token" });
       return;
@@ -436,11 +447,15 @@ function App() {
       connections.current[key] = null;
     }
 
-    setRoomId(`dev-${Date.now()}`);
-    setPlayers({
+    const nextRoomId = `p7-${Date.now()}`;
+    setRoomId(nextRoomId);
+    localStorage.setItem("riftbound.p7.roomId", nextRoomId);
+    const nextPlayers = {
       p1: { ...initialPlayers.p1, playerId: players.p1.playerId },
       p2: { ...initialPlayers.p2, playerId: players.p2.playerId }
-    });
+    };
+    setPlayers(nextPlayers);
+    playersRef.current = nextPlayers;
     setFixtureDraft("");
     setFixtureStatus("idle");
   }
@@ -574,8 +589,9 @@ function App() {
     <main className="app-shell">
       <section className="top-bar" aria-label="Connection settings">
         <div>
-          <p className="eyebrow">P2.5 Dev Test UI</p>
-          <h1>Riftbound GameHub Test Bench</h1>
+          <p className="eyebrow">P7 Web Battle</p>
+          <h1>符文战场</h1>
+          <span className="subtitle">服务端权威双人对战房间</span>
         </div>
         <label>
           Server URL
@@ -607,16 +623,16 @@ function App() {
           </select>
         </label>
         <button data-testid="new-room" onClick={() => void newRoom()}>
-          New Room
+          新房间
         </button>
         <button data-testid="join-both" onClick={() => void runForBoth(connectAndJoin)}>
-          Join Both
+          双人入座
         </button>
         <button data-testid="ready-both" onClick={() => void runForBoth(ready)}>
-          Ready Both
+          双方准备
         </button>
         <button data-testid="snapshot-both" onClick={() => void runForBoth(requestSnapshot)}>
-          Snapshot Both
+          同步状态
         </button>
       </section>
 
@@ -1276,6 +1292,40 @@ function formatJson(value: unknown) {
 
 function errorToText(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function sessionStorageKey(roomId: string, playerId: string) {
+  return `riftbound.p7.session.${roomId.trim()}.${playerId.trim()}`;
+}
+
+function rememberSession(roomId: string, session: PlayerSessionDto) {
+  if (!roomId.trim() || !session.playerId.trim()) {
+    return;
+  }
+
+  localStorage.setItem(sessionStorageKey(roomId, session.playerId), JSON.stringify(session));
+}
+
+function loadStoredSession(roomId: string, playerId: string): PlayerSessionDto | undefined {
+  const raw = localStorage.getItem(sessionStorageKey(roomId, playerId));
+  if (!raw) {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<PlayerSessionDto>;
+    if (typeof parsed.playerId === "string" && typeof parsed.seat === "string" && typeof parsed.reconnectToken === "string") {
+      return {
+        playerId: parsed.playerId,
+        seat: parsed.seat,
+        reconnectToken: parsed.reconnectToken
+      };
+    }
+  } catch {
+    localStorage.removeItem(sessionStorageKey(roomId, playerId));
+  }
+
+  return undefined;
 }
 
 createRoot(document.getElementById("root")!).render(

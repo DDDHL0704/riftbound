@@ -155,7 +155,7 @@ Core P7 smoke path:
 | Batch | Status | Target | Gate |
 | --- | --- | --- | --- |
 | P7.0 | Done | Audit/status file, ability matrix, deferred policy, smoke path. | `git diff --check`; docs-only commit. |
-| P7.1 | Planned | Product room, two-player connection, reconnect, snapshot/prompt/event shell. | Browser smoke: join, ready, reconnect. |
+| P7.1 | Done | Product room, two-player connection, reconnect, snapshot/prompt/event shell. | Browser smoke: join, ready, reconnect. |
 | P7.2 | Planned | Battle desktop layout with lanes/base/hand/runes/legend/champion/equipment/control markers. | Browser visual smoke. |
 | P7.3 | Planned | ActionPrompt-driven play/pass/end-turn/move/battle controls. | Browser smoke: play, pass, end turn, move/battle. |
 | P7.4 | Planned | Payment and target-selection UX, response windows, spell-duel surface. | Browser smoke: target and response flow. |
@@ -165,7 +165,7 @@ Core P7 smoke path:
 | P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `1/10 batches = 10.0%`; estimated remaining batches: `9`.
+Current P7 progress: `2/10 batches = 20.0%`; estimated remaining batches: `8`.
 
 ## Validation Policy
 
@@ -191,6 +191,26 @@ Final P7 gate:
 
 - `git diff --check`: passed.
 
+## P7.1 Delivered
+
+- Promoted the web header and default room naming from the P2.5 dev-test identity into a P7 room-first product entry.
+- Persisted the current P7 room id and P1/P2 ids in browser local storage.
+- Persisted reconnect sessions per room/player and let `Reconnect` recover from either in-memory session state or stored reconnect tokens.
+- Kept SignalR `Joined`, `Snapshot`, `Prompt`, `Events`, and `Error` flows unchanged and server-authoritative.
+- Kept development scenario seeds available only as local smoke helpers; they are still guarded by the backend `Development` environment check.
+
+P7.1 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
-- Pending.
+- P7.1 room/reconnect smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - roomId: `p7-2026-05-05-battle`
+  - Operation path: open Web URL -> `双人入座` -> `双方准备` -> P1 `Stop` -> P1 `Reconnect`.
+  - Event summary: P1/P2 joined, ready flow emitted `MATCH_STARTED`, reconnect returned a fresh `RECONNECT` session and current snapshot/prompt.
+  - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#1`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`, no winner; P1 reconnect status `reconnected`, seat `P1`, prompt actionable with server prompt actions.
