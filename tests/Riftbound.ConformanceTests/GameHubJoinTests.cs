@@ -582,6 +582,64 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79CombatPromptFiltersDeclareBattleCandidatesToLegalBattlefieldUnits()
+    {
+        const string roomId = "p7-9-combat-prompt-filter";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battle-prompt-filter", "seed-p7-9-combat-prompt-filter");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.True(battleCandidate.Enabled);
+        Assert.Equal(
+            ["P1-BATTLE-PROMPT-ATTACKER"],
+            (battleCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            ["P2-BATTLE-PROMPT-DEFENDER"],
+            (battleCandidate.Targets ?? []).Select(choice => choice.Id).ToArray());
+        Assert.DoesNotContain(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-PROMPT-BASE-UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-PROMPT-FACEDOWN", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-PROMPT-ALREADY-ATTACKING", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-PROMPT-BASE-DEFENDER", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-PROMPT-FACEDOWN", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-PROMPT-ALREADY-DEFENDING", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-PROMPT-EQUIPMENT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Equal(1, Assert.IsType<int>(metadata["attackerCount"]));
+        Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
+        Assert.Equal("battlefield-zone-face-up-units-not-already-in-combat", metadata["candidateFiltering"]);
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-PROMPT-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLE-PROMPT-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-combat-prompt-filter", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldDrawSeedOffersBattlefieldDestinationAndDraws()
     {
         const string roomId = "p7-9-battlefield-held-draw";

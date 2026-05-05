@@ -152,7 +152,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Done | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, battle-destroyed recall replacement, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, battlefield-granted LEGEND_ACT armament attach, battlefield-granted extra standby destination, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and held-battlefield activation of supported unit conquest effects. Battlefield slices migrated all `54/54` battlefield FUs. | Focused conformance + GameHub tests. |
 | P7.9.8 | Done / absorbed | The planned remaining-battlefield batch was absorbed by P7.9.7 slice 53; no battlefield manual functional unit remains. | Functional-unit coverage tests. |
-| P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
+| P7.9.9 | In progress | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, and UI operation. Slice 1 tightened `DECLARE_BATTLE` prompt candidates to legal battlefield unit sources/defenders only. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
 | P7.9.x | Planned | Final audit: `811/811` functional units implemented, no manual deferred, full tests, Browser smoke, clean status. | Full final validation and commit. |
@@ -204,15 +204,17 @@ Final P7.9 gate:
 - P7.9.6 status: done.
 - P7.9.7 status: done; battlefield foundation slices 1-53 done.
 - P7.9.8 status: done / absorbed; no remaining battlefield functional-unit batch is needed.
+- P7.9.9 status: in progress; combat completeness slice 1 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
 - P7.9.7 battlefield foundation slices: `53` done.
+- P7.9.9 combat completeness slices: `1` done.
 - Current functional-unit implementation: `811/811 = 100.0%`.
 - Current manual deferred boundary: `0/811 = 0.0%`.
 - Remaining manual domains: none.
-- Overall P7.9 progress: `9/13 top-level batches = 69.2%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, and P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries.
-- Estimated remaining top-level batches: `4`.
+- Overall P7.9 progress: `9/13 top-level batches = 69.2%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, and P7.9.9 has started with combat prompt legality hardening.
+- Estimated remaining top-level batches: `4` (`P7.9.9` finish, `P7.9.10`, `P7.9.11`, final audit).
 
 ## P7.9.0 Delivered
 
@@ -3174,3 +3176,30 @@ P7.9.7 battlefield foundation slice 53 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2814/2814`.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/battlefield-conquest activation slice. GameHub coverage verifies the seed, prompt candidate exposure, authoritative `DECLARE_BATTLE` path, trigger/effect events, and snapshot updates; the next significant UI batch must repeat Browser smoke.
+
+## P7.9.9 Combat Completeness Slice 1 Delivered
+
+This is the first combat-completeness slice inside P7.9.9. It hardens the product operation path for battle declaration without adding client-side rule authority.
+
+- Prompt contract changes:
+  - `DECLARE_BATTLE` sources now include only battlefield-zone, face-up unit objects that are not already marked attacking or defending.
+  - `DECLARE_BATTLE` targets now include only opposing battlefield-zone, face-up unit objects that are not already marked attacking or defending.
+  - Base units, face-down units, already-in-combat units, equipment, and battlefield card objects are filtered out of the battle source/defender candidate chips before the UI sees them.
+  - The candidate is disabled when no legal attacker or defender candidate exists.
+  - `DECLARE_BATTLE` metadata now exposes the current supported shape: one attacker, one or two defenders, multi-defender requires `壁垒` / `后排` assignment keywords, and all battlefield effect targets remain server-validated on submit.
+- Product boundary:
+  - The frontend still submits only the selected candidate ids and never decides battle legality.
+  - Existing server rejection paths remain authoritative for stale prompts and hand-written invalid commands.
+- GameHub coverage:
+  - Added `battle-prompt-filter` local development seed with a legal attacker/defender plus illegal base, face-down, already-in-combat, and equipment objects.
+  - Added GameHub test coverage proving the prompt exposes only the legal attacker/defender and still accepts the submitted legal battle command.
+
+P7.9.9 combat completeness slice 1 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79CombatPromptFiltersDeclareBattleCandidates"`: passed `1/1`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `83/83`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2815/2815`.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend prompt-candidate filter slice. The next visual/UI combat slice should exercise the candidate chips in the browser.

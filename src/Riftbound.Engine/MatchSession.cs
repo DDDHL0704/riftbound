@@ -1021,9 +1021,13 @@ internal static class ActionPromptBuilder
         var optionalCosts = OptionalCostsFor(action);
         var requiresSourceChoices = string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
             || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
-            || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal);
+            || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
+        var requiresTargetChoices = string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
         var hasRequiredChoices = !requiresSourceChoices
             || sources?.Count > 0;
+        hasRequiredChoices = hasRequiredChoices
+            && (!requiresTargetChoices || targets?.Count > 0);
         var enabled = promptActionable
             && !string.Equals(action, "WAIT", StringComparison.Ordinal)
             && hasRequiredChoices;
@@ -1078,8 +1082,8 @@ internal static class ActionPromptBuilder
                 .Select(objectId => ObjectChoice(state, objectId, "controlled equipment"))
                 .ToArray(),
             "DECLARE_BATTLE" => zones.Battlefields
-                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
-                .Select(objectId => ObjectChoice(state, objectId, "controlled battlefield unit"))
+                .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "legal battlefield attacker candidate"))
                 .ToArray(),
             "LEGEND_ACT" => zones.LegendZone
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -1109,11 +1113,9 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
                 .Select(objectId => ObjectChoice(state, objectId, "controlled unit host"))
                 .ToArray(),
-            "DECLARE_BATTLE" => PublicBoardObjects(state)
-                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                    && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal))
-                .Select(objectId => ObjectChoice(state, objectId, "opposing battlefield defender candidate"))
+            "DECLARE_BATTLE" => OpposingBattlefieldObjects(state, playerId)
+                .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
+                .Select(entry => ObjectChoice(state, entry.ObjectId, "legal opposing battlefield defender candidate"))
                 .ToArray(),
             "LEGEND_ACT" => ControlledLegendActionObjects(state, playerId)
                 .Where(objectId =>
@@ -1259,7 +1261,12 @@ internal static class ActionPromptBuilder
             {
                 ["sourcePolicy"] = "controlled-battlefield-unit",
                 ["targetPolicy"] = "opposing-battlefield-unit",
-                ["battlefieldTargetPolicy"] = "server-validates-battlefield-effect-targets-on-submit"
+                ["battlefieldTargetPolicy"] = "server-validates-battlefield-effect-targets-on-submit",
+                ["attackerCount"] = 1,
+                ["defenderCountMin"] = 1,
+                ["defenderCountMax"] = 2,
+                ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
+                ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat"
             },
             "LEGEND_ACT" => new Dictionary<string, object?>
             {
@@ -1281,6 +1288,24 @@ internal static class ActionPromptBuilder
             .SelectMany(zones => zones.Battlefields)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldCardObject(cardObject));
+    }
+
+    private static IEnumerable<(string PlayerId, string ObjectId)> OpposingBattlefieldObjects(MatchState state, string playerId)
+    {
+        return state.PlayerZones
+            .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
+            .SelectMany(entry => entry.Value.Battlefields.Select(objectId => (entry.Key, objectId)));
+    }
+
+    private static bool IsReadyFaceUpBattlefieldUnitForBattle(MatchState state, string zonePlayerId, string objectId)
+    {
+        return state.PlayerZones.TryGetValue(zonePlayerId, out var zones)
+            && zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !cardObject.IsFaceDown
+            && !cardObject.IsAttacking
+            && !cardObject.IsDefending
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
 
     private static IEnumerable<string> ControlledBattlefieldExtraStandbyObjects(MatchState state, string playerId)
@@ -2599,6 +2624,7 @@ public sealed class MatchSession : IMatchSession
             "lifecycle-last-breath" => BuildLifecycleLastBreathScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
+            "battle-prompt-filter" => BuildBattlePromptFilterScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
             "battlefield-held-minion" => BuildBattlefieldHeldMinionScenario(current, seed),
@@ -3308,6 +3334,105 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLE-ATTACKER-001"] = new(power: 3, tags: ["CARD_TYPE:UNIT"]),
                 ["P2-BATTLE-DEFENDER-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildBattlePromptFilterScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303071,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    baseZone: ["P1-BATTLE-PROMPT-BASE-UNIT"],
+                    battlefields:
+                    [
+                        "P1-BATTLE-PROMPT-ATTACKER",
+                        "P1-BATTLE-PROMPT-FACEDOWN",
+                        "P1-BATTLE-PROMPT-ALREADY-ATTACKING"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    baseZone: ["P2-BATTLE-PROMPT-BASE-DEFENDER"],
+                    battlefields:
+                    [
+                        "P2-BATTLE-PROMPT-DEFENDER",
+                        "P2-BATTLE-PROMPT-FACEDOWN",
+                        "P2-BATTLE-PROMPT-ALREADY-DEFENDING",
+                        "P2-BATTLE-PROMPT-EQUIPMENT"
+                    ],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-PROMPT-BASE-UNIT"] = new(
+                    "P1-BATTLE-PROMPT-BASE-UNIT",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-PROMPT-ATTACKER"] = new(
+                    "P1-BATTLE-PROMPT-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-PROMPT-FACEDOWN"] = new(
+                    "P1-BATTLE-PROMPT-FACEDOWN",
+                    isFaceDown: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-PROMPT-ALREADY-ATTACKING"] = new(
+                    "P1-BATTLE-PROMPT-ALREADY-ATTACKING",
+                    isAttacking: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-PROMPT-BASE-DEFENDER"] = new(
+                    "P2-BATTLE-PROMPT-BASE-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-PROMPT-DEFENDER"] = new(
+                    "P2-BATTLE-PROMPT-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-PROMPT-FACEDOWN"] = new(
+                    "P2-BATTLE-PROMPT-FACEDOWN",
+                    isFaceDown: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-PROMPT-ALREADY-DEFENDING"] = new(
+                    "P2-BATTLE-PROMPT-ALREADY-DEFENDING",
+                    isDefending: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-PROMPT-EQUIPMENT"] = new(
+                    "P2-BATTLE-PROMPT-EQUIPMENT",
+                    cardNo: "SFD·011/221",
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 
