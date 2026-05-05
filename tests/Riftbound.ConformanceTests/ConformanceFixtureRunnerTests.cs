@@ -24464,6 +24464,81 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, runeReadyEvent.Payload["count"]);
     }
 
+    [Theory]
+    [InlineData("OGN·249/298", "P1-LEGEND-VOLIBEAR")]
+    [InlineData("SFD·205/221", "P1-LEGEND-FIORA")]
+    public async Task P79LegendTriggerPowerfulUnitCallsRuneAndExhaustsLegend(
+        string legendCardNo,
+        string legendObjectId)
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-GAI-BEAST"],
+                    RuneDeck = ["P1-RUNE-POWERFUL-001"],
+                    LegendZone = [legendObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [legendObjectId] = new(
+                    legendObjectId,
+                    cardNo: legendCardNo,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GAI-BEAST"] = new(
+                    "P1-GAI-BEAST",
+                    cardNo: "SFD·175/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUNE-POWERFUL-001"] = new(
+                    "P1-RUNE-POWERFUL-001",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    tags: [CardObjectTags.RuneCard])
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var playResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p7-9-powerful-unit-play-{legendCardNo}", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-GAI-BEAST", "SFD·175/221", []),
+            CancellationToken.None);
+        var p1PassResult = await engine.ResolveAsync(
+            playResult.State,
+            new PlayerIntent($"intent-p7-9-powerful-unit-p1-pass-{legendCardNo}", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2PassResult = await engine.ResolveAsync(
+            p1PassResult.State,
+            new PlayerIntent($"intent-p7-9-powerful-unit-p2-pass-{legendCardNo}", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        Assert.True(p1PassResult.Accepted);
+        Assert.True(p2PassResult.Accepted);
+        Assert.Contains("P1-GAI-BEAST", p2PassResult.State.PlayerZones["P1"].Base);
+        Assert.Contains("P1-RUNE-POWERFUL-001", p2PassResult.State.PlayerZones["P1"].Base);
+        Assert.Empty(p2PassResult.State.PlayerZones["P1"].RuneDeck);
+        Assert.True(p2PassResult.State.CardObjects[legendObjectId].IsExhausted);
+        Assert.True(p2PassResult.State.CardObjects["P1-RUNE-POWERFUL-001"].IsExhausted);
+        Assert.Contains(p2PassResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "POWERFUL_UNIT_PLAYED_CALL_RUNE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["legendCardNo"] as string, legendCardNo, StringComparison.Ordinal));
+        Assert.Contains(p2PassResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["legendObjectId"] as string, legendObjectId, StringComparison.Ordinal));
+        var runeCallEvent = Assert.Single(p2PassResult.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Equal(1, runeCallEvent.Payload["count"]);
+    }
+
     [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {

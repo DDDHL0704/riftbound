@@ -92,6 +92,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string GarenIntroLegendCardNo = "OGS·023/024";
     private const string LuxIntroLegendCardNo = "OGS·021/024";
     private const string AnnieIntroLegendCardNo = "OGS·017/024";
+    private const string VolibearFoundationLegendCardNo = "FND-249/298";
+    private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
+    private const int PowerfulUnitPowerThreshold = 5;
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -4166,6 +4169,86 @@ public sealed class CoreRuleEngine : IRuleEngine
             || objectId.Contains("RUNE", StringComparison.OrdinalIgnoreCase);
     }
 
+    private static IReadOnlyList<GameEvent> ResolvePowerfulUnitPlayedRuneLegendTriggers(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string playedUnitObjectId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !cardObjects.TryGetValue(playedUnitObjectId, out var playedUnit)
+            || !playedUnit.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || playedUnit.Power < PowerfulUnitPowerThreshold)
+        {
+            return [];
+        }
+
+        foreach (var legendObjectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(legendObjectId, out var legendState)
+                || legendState.IsExhausted
+                || !IsPowerfulUnitRuneLegendCardNo(legendState.CardNo))
+            {
+                continue;
+            }
+
+            var runeCallResult = CallRunes(playerZones, cardObjects, playerId, 1);
+            if (runeCallResult.CalledRuneObjectIds.Count == 0)
+            {
+                return [];
+            }
+
+            cardObjects[legendObjectId] = legendState with { IsExhausted = true };
+            return
+            [
+                new GameEvent(
+                    "LEGEND_TRIGGER_RESOLVED",
+                    $"{playerId} 的强力单位传奇触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["legendObjectId"] = legendObjectId,
+                        ["legendCardNo"] = legendState.CardNo,
+                        ["trigger"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE",
+                        ["playedUnitObjectId"] = playedUnitObjectId,
+                        ["playedUnitPower"] = playedUnit.Power
+                    }),
+                new GameEvent(
+                    "LEGEND_EXHAUSTED",
+                    $"{playerId} 横置传奇以召出符文",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["legendObjectId"] = legendObjectId,
+                        ["legendCardNo"] = legendState.CardNo,
+                        ["reason"] = "POWERFUL_UNIT_PLAYED_CALL_RUNE"
+                    }),
+                new GameEvent(
+                    "RUNES_CALLED",
+                    $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["sourceObjectId"] = legendObjectId,
+                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+                    })
+            ];
+        }
+
+        return [];
+    }
+
+    private static bool IsPowerfulUnitRuneLegendCardNo(string? cardNo)
+    {
+        return cardNo is VolibearFoundationLegendCardNo
+            or "OGN·249/298"
+            or "OGN·300/298"
+            or "OGN·300*/298"
+            or FioraSpiritforgedLegendCardNo
+            or "SFD·251/221";
+    }
+
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -5794,6 +5877,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     state.PlayerExperience,
                     events);
             }
+
+            events.AddRange(ResolvePowerfulUnitPlayedRuneLegendTriggers(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem.SourceObjectId));
         }
 
         if (behavior.GainExperienceOnPlay > 0)
