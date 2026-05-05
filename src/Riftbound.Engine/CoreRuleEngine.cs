@@ -157,8 +157,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
+    private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int BattlefieldReadyLegendManaCost = 1;
+    private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3764,6 +3766,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackerObjectId);
             runePools = battlefieldReadyLegendTrigger.RunePools;
             combatEvents.AddRange(battlefieldReadyLegendTrigger.Events);
+            if (TryResolveBattlefieldConquerPowerfulPayOneDrawTrigger(
+                    state,
+                    playerZones,
+                    cardObjects,
+                    runePools,
+                    playerScores,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    rngCursor,
+                    combatEvents,
+                    out var battlefieldPowerfulDrawRunePools,
+                    out var battlefieldPowerfulDrawApplication))
+            {
+                runePools = battlefieldPowerfulDrawRunePools;
+                playerScores = battlefieldPowerfulDrawApplication.PlayerScores;
+                winnerPlayerId = battlefieldPowerfulDrawApplication.WinnerPlayerId;
+                rngCursor = battlefieldPowerfulDrawApplication.RngCursor;
+            }
             if (TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
                     state,
                     playerZones,
@@ -6234,6 +6255,95 @@ public sealed class CoreRuleEngine : IRuleEngine
         ]);
     }
 
+    private static bool TryResolveBattlefieldConquerPowerfulPayOneDrawTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor,
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools,
+        out DrawApplicationResult drawApplication)
+    {
+        nextRunePools = runePools;
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerPowerfulPayOneDrawCardNo(battlefieldState.CardNo)
+            || !TryGetSurvivingPowerfulUnit(cardObjects, playerZones, sourceObjectId, out var powerfulObjectId))
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < BattlefieldPowerfulDrawManaCost)
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - BattlefieldPowerfulDrawManaCost
+        };
+        nextRunePools = mutableRunePools;
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并以强力单位抽牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW",
+                ["sourceObjectId"] = sourceObjectId,
+                ["powerfulObjectId"] = powerfulObjectId,
+                ["drawCount"] = 1
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付沉没神庙征服触发费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["mana"] = BattlefieldPowerfulDrawManaCost,
+                ["power"] = 0,
+                ["reason"] = "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW"
+            }));
+        drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            playerId,
+            1,
+            rngCursor,
+            events);
+        return true;
+    }
+
+    private static bool TryGetSurvivingPowerfulUnit(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out string powerfulObjectId)
+    {
+        powerfulObjectId = string.Empty;
+        if (!cardObjects.TryGetValue(objectId, out var candidate)
+            || candidate.Power < PowerfulUnitPowerThreshold
+            || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return false;
+        }
+
+        powerfulObjectId = objectId;
+        return true;
+    }
+
     private static bool TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -6334,6 +6444,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(cardNo)
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
+            || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -6395,6 +6506,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerDrawForOtherBattlefieldsCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerPowerfulPayOneDrawCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)

@@ -906,6 +906,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
+    private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
@@ -1217,6 +1218,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDrawForOtherBattlefieldsCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal);
     }
 
@@ -1582,6 +1584,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
+    private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
 
     private readonly IRuleEngine ruleEngine;
@@ -2338,6 +2341,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-isolated-defender" => BuildBattlefieldIsolatedDefenderScenario(current, seed),
             "battlefield-conquer-ready-legend" => BuildBattlefieldConquerReadyLegendScenario(current, seed),
             "battlefield-conquer-draw-other" => BuildBattlefieldConquerDrawOtherScenario(current, seed),
+            "battlefield-conquer-powerful-draw" => BuildBattlefieldConquerPowerfulDrawScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
             "specified-hand" => BuildSpecifiedHandScenario(current, seed),
             _ => throw new MatchSessionException(
@@ -3699,6 +3703,64 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-DRAW-OTHER-003"] = new(
                     "P1-BATTLEFIELD-DRAW-OTHER-003",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldConquerPowerfulDrawScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303039,
+            109,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-BATTLEFIELD-POWERFUL-DRAW-001", "P1-BATTLEFIELD-POWERFUL-DRAW-002"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-SUNKEN-TEMPLE", "P1-BATTLEFIELD-POWERFUL-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-POWERFUL-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new(
+                    "P1-BATTLEFIELD-SUNKEN-TEMPLE",
+                    cardNo: BattlefieldConquerPowerfulPayOneDrawCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-ATTACKER",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-POWERFUL-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P1-BATTLEFIELD-POWERFUL-DRAW-001"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-DRAW-001",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-POWERFUL-DRAW-002"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-DRAW-002",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });

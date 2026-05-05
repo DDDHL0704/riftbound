@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, and representative effects. Battlefield slices migrated `13/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `41` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, and representative effects. Battlefield slices migrated `14/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `40` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-12 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-13 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `12` done.
-- Current functional-unit implementation: `770/811 = 94.9%`.
-- Current manual deferred boundary: `41/811 = 5.1%`.
+- P7.9.7 battlefield foundation slices: `13` done.
+- Current functional-unit implementation: `771/811 = 95.1%`.
+- Current manual deferred boundary: `40/811 = 4.9%`.
 - Remaining manual domains:
-  - `战场`: `41` functional units / `44` entries
+  - `战场`: `40` functional units / `43` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -1830,3 +1830,34 @@ P7.9.7 battlefield foundation slice 12 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination and authoritative event/snapshot update for the draw-for-other-battlefields path.
+
+## P7.9.7 Battlefield Foundation Slice 13 Delivered
+
+This is the thirteenth rule slice inside P7.9.7. It adds a conquest-trigger battlefield payment/draw effect gated by a surviving powerful unit.
+
+- Added implemented battlefield card:
+  - `SFD·218/221`: when a player conquers this battlefield object and the surviving attacker is a powerful unit, the backend pays `1` mana if available and draws `1` card.
+- Event stream additions:
+  - `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW`, `powerfulObjectId`, and `drawCount`
+  - `COST_PAID` for the battlefield trigger cost
+  - `CARD_DRAWN` from the existing authoritative draw path
+- Added `battlefield-conquer-powerful-draw` local development seed plus GameHub coverage for prompt destination exposure, submitted object-id battle resolution, cost payment, draw event, and final hand/mana snapshot.
+- Migrated this battlefield conquest/payment/draw slice in `BehaviorSpec`:
+  - Implemented functional units: `771/811`
+  - Manual deferred functional units: `40/811`
+  - Implemented official entries: `966/1009`
+  - Manual deferred official entries: `43/1009`
+  - Battlefield rule-domain implemented: `14` functional units / `14` entries
+  - Remaining battlefield manual deferred: `40` functional units / `43` entries
+
+P7.9.7 battlefield foundation slice 13 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldConquerPowerful"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2595/2595`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `42/42`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2716/2716`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination, payment event, and authoritative event/snapshot update for the powerful-unit draw path.

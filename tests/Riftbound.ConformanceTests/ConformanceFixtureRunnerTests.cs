@@ -26009,6 +26009,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerPowerfulUnitPaysOneToDraw()
+    {
+        var state = BattlefieldConquerPowerfulDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-powerful-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-SUNKEN-TEMPLE",
+                ["P1-BATTLEFIELD-POWERFUL-ATTACKER"],
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-POWERFUL-ATTACKER", triggerEvent.Payload["powerfulObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["drawCount"]);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-POWERFUL-DRAW-002"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -37339,6 +37368,54 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-DRAW-OTHER-003"] = new(
                     "P1-BATTLEFIELD-DRAW-OTHER-003",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerPowerfulDrawState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-BATTLEFIELD-POWERFUL-DRAW-001", "P1-BATTLEFIELD-POWERFUL-DRAW-002"],
+                    Battlefields = ["P1-BATTLEFIELD-SUNKEN-TEMPLE", "P1-BATTLEFIELD-POWERFUL-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-POWERFUL-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SUNKEN-TEMPLE"] = new(
+                    "P1-BATTLEFIELD-SUNKEN-TEMPLE",
+                    cardNo: "SFD·218/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-ATTACKER",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-POWERFUL-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-BATTLEFIELD-POWERFUL-DRAW-001"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-DRAW-001",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-POWERFUL-DRAW-002"] = new(
+                    "P1-BATTLEFIELD-POWERFUL-DRAW-002",
                     ownerId: "P1",
                     controllerId: "P1")
             }
