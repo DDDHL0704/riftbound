@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, and representative effects. Battlefield slices migrated `28/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `26` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage, and representative effects. Battlefield slices migrated `29/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `25` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,13 +202,13 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-27 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-28 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `27` done.
-- Current functional-unit implementation: `785/811 = 96.8%`.
-- Current manual deferred boundary: `26/811 = 3.2%`.
+- P7.9.7 battlefield foundation slices: `28` done.
+- Current functional-unit implementation: `786/811 = 96.9%`.
+- Current manual deferred boundary: `25/811 = 3.1%`.
 - Remaining manual domains:
   - `战场`: `26` functional units / `27` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
@@ -2306,3 +2306,35 @@ P7.9.7 battlefield foundation slice 27 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/reveal-recycle battlefield slice. GameHub coverage verifies the seed, authoritative prompt destination, reveal/recycle events, and snapshot boundary.
+
+## P7.9.7 Battlefield Foundation Slice 28 Delivered
+
+This is the twenty-eighth rule slice inside P7.9.7. It adds a turn-start battlefield damage effect.
+
+- Added implemented battlefield card:
+  - `UNL-212/219`: at each player's turn start, before scoring/rune/draw flow, the backend deals `1` damage to battlefield-zone unit objects and performs lethal damage cleanup.
+- Server-authoritative turn-start damage changes:
+  - The trigger runs during the existing `ResolveTurnStart` path after ephemeral cleanup and before first-turn battlefield scoring, rune calls, and card draw.
+  - The mutation emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS`, per-target `DAMAGE_APPLIED`, and `UNIT_DESTROYED` when lethal damage removes a unit.
+  - Boundary note: because the current battlefield model stores battlefield-zone objects flatly, this representative applies to battlefield-zone units while preserving server authority and no frontend location inference.
+- Added `battlefield-turn-start-damage` local development seed plus GameHub coverage for end-turn transition into turn start, authoritative damage/destruction events, ordering before rune call, and final snapshot zone state.
+- Migrated this battlefield turn-start damage slice in `BehaviorSpec`:
+  - Implemented functional units: `786/811`
+  - Manual deferred functional units: `25/811`
+  - Implemented official entries: `983/1009`
+  - Manual deferred official entries: `26/1009`
+  - Battlefield rule-domain implemented: `29` functional units / `31` entries
+  - Remaining battlefield manual deferred: `25` functional units / `26` entries
+  - Damage template coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 28 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldTurnStartDamageAllBattlefieldUnitsBeforeScoring|FullyQualifiedName~P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2612/2612`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `57/57`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2748/2748`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/turn-start battlefield slice. GameHub coverage verifies the seed, authoritative event ordering, damage/destruction events, and snapshot boundary.

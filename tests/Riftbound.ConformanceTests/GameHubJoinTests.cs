@@ -1848,6 +1848,59 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall()
+    {
+        const string roomId = "p7-9-battlefield-turn-start-damage";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-turn-start-damage", "seed-p7-9-battlefield-turn-start-damage");
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-turn-start-damage", endTurn);
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        Assert.Contains(endTurnEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal));
+        Assert.Equal(
+            2,
+            endTurnEvents.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal)));
+        Assert.Contains(endTurnEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-FROST-FALLING", StringComparison.Ordinal));
+        var indexedEvents = endTurnEvents.Select((gameEvent, index) => (gameEvent, index)).ToArray();
+        var triggerIndex = indexedEvents.First(entry =>
+            string.Equals(entry.gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(entry.gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal)).index;
+        var runeIndex = indexedEvents.First(entry => string.Equals(entry.gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)).index;
+        Assert.True(triggerIndex >= 0);
+        Assert.True(runeIndex > triggerIndex);
+
+        var p2Snapshot = SnapshotFor(endTurnClients, "P2");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-BATTLEFIELD-FROST-HOLD"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Equal(["P1-BATTLEFIELD-FROST-FALLING"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Contains("P2-BATTLEFIELD-FROST-SURVIVOR", Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(MatchStatuses.InProgress, p2Snapshot.Timing["roomStatus"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldScoreSeedOffersBattlefieldDestinationAndGainsScore()
     {
         const string roomId = "p7-9-battlefield-held-score";
