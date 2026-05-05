@@ -56,7 +56,7 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
     var summary = FunctionalUnitBuilder.Summarize(units);
     var schema = OfficialCardSchemaValidator.Validate(catalog);
-    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     var behaviorReport = BehaviorSpecCatalogBuilder.BuildReport(specs);
     return Results.Ok(new
     {
@@ -81,7 +81,7 @@ app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
     var summary = FunctionalUnitBuilder.Summarize(units);
     var schema = OfficialCardSchemaValidator.Validate(catalog);
     var stability = FunctionalUnitReporter.Build(units);
-    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     var behaviorReport = BehaviorSpecCatalogBuilder.BuildReport(specs);
 
     return Results.Ok(new
@@ -102,7 +102,7 @@ app.MapGet("/catalog/behavior-specs", async (string? cardNo, CancellationToken c
 {
     var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
     var units = FunctionalUnitBuilder.Build(catalog.Cards);
-    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     if (string.IsNullOrWhiteSpace(cardNo))
     {
         return Results.Ok(specs);
@@ -118,12 +118,14 @@ app.MapHub<GameHub>("/hubs/game");
 
 app.Run();
 
-static IReadOnlyList<ImplementedCardBehavior> ImplementedBehaviors()
+static IReadOnlyList<ImplementedCardBehavior> ImplementedBehaviors(IReadOnlyList<OfficialCard> cards)
 {
-    return CardBehaviorRegistry.GetAll()
+    var playCardBehaviors = CardBehaviorRegistry.GetAll()
         .Select(definition => new ImplementedCardBehavior(
             definition.CardNo,
             definition.EffectKind,
             definition.DisplayName))
         .ToArray();
+
+    return OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(cards, playCardBehaviors);
 }

@@ -70,12 +70,15 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
         var report = BehaviorSpecCatalogBuilder.BuildReport(specs);
 
         Assert.Equal(1009, report.OfficialEntries);
         Assert.Equal(1009, report.BehaviorSpecs);
         Assert.Empty(report.MissingReasonCardNos);
+        Assert.Equal(833, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
+        Assert.Equal(163, report.StatusCounts[BehaviorImplementationStatuses.ManualRuleRequired]);
+        Assert.Equal(13, report.StatusCounts[BehaviorImplementationStatuses.Unimplemented]);
         Assert.Contains(BehaviorImplementationStatuses.Implemented, report.StatusCounts.Keys);
         Assert.Contains(BehaviorImplementationStatuses.ManualRuleRequired, report.StatusCounts.Keys);
         Assert.Contains(BehaviorImplementationStatuses.Unimplemented, report.StatusCounts.Keys);
@@ -97,11 +100,36 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains(drawSpec.Effects, effect => string.Equals(effect.TemplateId, BehaviorTemplateIds.Draw, StringComparison.Ordinal));
 
         var runeSpec = specs.First(spec => string.Equals(spec.CardCategoryName, "符文", StringComparison.Ordinal));
-        Assert.Equal(BehaviorImplementationStatuses.ManualRuleRequired, runeSpec.Status);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, runeSpec.Status);
+        Assert.Equal(OfficialRuleDomainBehaviorCatalog.RuneResourceDomainEffectKind, runeSpec.ImplementedEffectKind);
+        Assert.Contains("P6 rune resource domain", runeSpec.Reason, StringComparison.Ordinal);
 
         var tokenSpec = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL·T02", StringComparison.Ordinal));
         Assert.Equal(BehaviorImplementationStatuses.Unimplemented, tokenSpec.Status);
         Assert.Contains("token", tokenSpec.Reason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task P6RuneResourceDomainMapsAllRuneEntriesWithoutMakingRunesPlayableCards()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var runeSpecs = specs
+            .Where(spec => string.Equals(spec.CardCategoryName, "符文", StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.Equal(48, runeSpecs.Length);
+        Assert.Equal(6, runeSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
+        Assert.All(runeSpecs, spec =>
+        {
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, spec.Status);
+            Assert.Equal(OfficialRuleDomainBehaviorCatalog.RuneResourceDomainEffectKind, spec.ImplementedEffectKind);
+            Assert.Equal(spec.CardNo, spec.ImplementedByCardNo);
+            Assert.Contains("rune call", spec.Reason, StringComparison.Ordinal);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out _));
+        });
     }
 
     [Fact]
@@ -163,7 +191,7 @@ public sealed class CardCatalogBaselineTests
 
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
         var spec = specs.Single(candidate => string.Equals(candidate.CardNo, "SFD·087/221", StringComparison.Ordinal));
         var executor = new BehaviorTemplateExecutor();
         var plan = executor.BuildPlan(
@@ -192,7 +220,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
         var bridge = new BehaviorTemplateDelegationBridge();
         var candidates = new[]
         {
@@ -261,7 +289,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
         var bridge = new BehaviorTemplateDelegationBridge();
         var spec = specs.Single(candidate => string.Equals(candidate.CardNo, "SFD·077/221", StringComparison.Ordinal));
 
@@ -282,7 +310,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
         var executor = new BehaviorTemplatePrimitiveExecutor();
         var primitiveCandidates = new[]
         {
@@ -388,7 +416,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var swiftSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·004/298", StringComparison.Ordinal));
         Assert.Contains(swiftSpec.Keywords, keyword => string.Equals(keyword.Keyword, "迅捷", StringComparison.Ordinal));
@@ -799,7 +827,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var jinxSpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·030/298", StringComparison.Ordinal));
         Assert.Contains(jinxSpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
@@ -821,7 +849,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var jinxAltASpec = specs.Single(spec => string.Equals(spec.CardNo, "OGN·030a/298", StringComparison.Ordinal));
         Assert.Contains(jinxAltASpec.Keywords, keyword => string.Equals(keyword.Keyword, "急速", StringComparison.Ordinal));
@@ -843,7 +871,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var centerStageSpec = specs.Single(spec => string.Equals(spec.CardNo, "UNL-061/219", StringComparison.Ordinal));
         Assert.Contains(centerStageSpec.Keywords, keyword =>
@@ -870,7 +898,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var assaultPoro = BuildCombatProfile(specs, "OGN·210/298", CardCombatKeywordNames.Assault);
         Assert.True(assaultPoro.HasAssault);
@@ -905,7 +933,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var gluttonousToadfrog = BuildResourceProfile(specs, "UNL-100/219", CardResourceKeywordNames.Hunt);
         Assert.True(gluttonousToadfrog.HasHunt);
@@ -1029,7 +1057,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var doransShield = BuildEquipmentProfile(specs, "SFD·033/221", CardEquipmentKeywordNames.Assemble);
         Assert.True(doransShield.HasAssemble);
@@ -1063,7 +1091,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var takeUpSpec = specs.Single(spec => string.Equals(spec.CardNo, "SFD·011/221", StringComparison.Ordinal));
         Assert.Contains(CardPermissionKeywordNames.Reaction, takeUpSpec.OfficialText, StringComparison.Ordinal);
@@ -1086,7 +1114,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var maskedAttendant = BuildLifecycleProfile(specs, "UNL-081/219", CardLifecycleKeywordNames.Ephemeral);
         Assert.True(maskedAttendant.HasEphemeral);
@@ -1109,7 +1137,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var centerStage = BuildInteractionProfile(specs, "UNL-061/219", CardInteractionKeywordNames.Echo);
         Assert.True(centerStage.HasEcho);
@@ -1131,7 +1159,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
 
         var prophetsOmen = BuildBasicActionProfile(specs, "SFD·087/221");
         Assert.True(prophetsOmen.HasDraw);
@@ -1213,7 +1241,7 @@ public sealed class CardCatalogBaselineTests
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
-        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors());
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
         var covered = new HashSet<string>(StringComparer.Ordinal);
 
         void Cover(string key, bool condition)
@@ -1400,14 +1428,16 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(2, uncoveredNonPlayableCategories["指示物装备"]);
     }
 
-    private static IReadOnlyList<ImplementedCardBehavior> ImplementedBehaviors()
+    private static IReadOnlyList<ImplementedCardBehavior> ImplementedBehaviors(IReadOnlyList<OfficialCard> cards)
     {
-        return CardBehaviorRegistry.GetAll()
+        var playCardBehaviors = CardBehaviorRegistry.GetAll()
             .Select(definition => new ImplementedCardBehavior(
                 definition.CardNo,
                 definition.EffectKind,
                 definition.DisplayName))
             .ToArray();
+
+        return OfficialRuleDomainBehaviorCatalog.MergeWithNonPlayCardDomains(cards, playCardBehaviors);
     }
 
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)

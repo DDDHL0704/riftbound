@@ -106,27 +106,26 @@ Functional units by category:
 | 指示物装备 | 2 |
 | 指示物战场 | 2 |
 
-Current P3/P4/P5 BehaviorSpec status by official entry:
+Current P6 BehaviorSpec status by official entry:
 
-| Status | Entries | Meaning at P6.0 |
+| Status | Entries | Meaning at P6.1a |
 | --- | ---: | --- |
-| `implemented` | 785 | Has a current `CardBehaviorRegistry` mapping, often through a shared functional unit. |
-| `manual-rule-required` | 211 | Non-`PLAY_CARD` domains: runes, legends, and battlefields. P6 must either implement the domain or block/defer explicitly. |
+| `implemented` | 833 | Has a current `CardBehaviorRegistry` mapping or a P6 non-`PLAY_CARD` rule-domain mapping. |
+| `manual-rule-required` | 163 | Non-`PLAY_CARD` domains: legends and battlefields. P6 must either implement the domain or block/defer explicitly. |
 | `unimplemented` | 13 | Token categories awaiting explicit token factory binding. |
 
 Current status by functional unit:
 
 | Status | Functional units |
 | --- | ---: |
-| `implemented` | 694 |
-| `manual-rule-required` | 104 |
+| `implemented` | 700 |
+| `manual-rule-required` | 98 |
 | `unimplemented` | 13 |
 
-Uncovered non-`PLAY_CARD` functional units at P6.0:
+Remaining uncovered non-`PLAY_CARD` functional units:
 
 | Category | Functional units | Entries | P6 disposition |
 | --- | ---: | ---: | --- |
-| 符文 | 6 | 48 | Low-risk P6.1 candidate; P2 core rune call/pay/clear paths already exist, needs official status mapping. |
 | 传奇 | 44 | 106 | P6.9 high-risk/manual domain; active/passive identity rules need dedicated handlers or blocked reason. |
 | 战场 | 54 | 57 | P6.10 high-risk/manual domain; battlefield effects and control need dedicated handlers or blocked reason. |
 | 指示物单位 | 9 | 9 | P6.11 token factory domain. |
@@ -168,8 +167,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 
 | Batch | Status | Target | Planned gate |
 | --- | --- | --- | --- |
-| P6.0 | In progress | Audit/status file, risk layering, first migration plan. | `git diff --check`, focused catalog test if code changes are absent. |
-| P6.1a | Planned | Rune resource-domain mapping: 6 functional units / 48 entries. | Existing P2 rune conformance fixtures + `CardCatalogBaselineTests`. |
+| P6.0 | Done | Audit/status file, risk layering, first migration plan. | Full P6 gate passed. |
+| P6.1a | Done | Rune resource-domain mapping: 6 functional units / 48 entries. | Existing P2 rune conformance fixtures + `CardCatalogBaselineTests`. |
 | P6.1b | Planned | Same-text variant/reprint audit for already implemented functional units. | Catalog status matrix + no duplicate rule handlers. |
 | P6.2a | Planned | Draw/damage/destroy/stun existing-template promotion. | Conformance fixtures for representative paths. |
 | P6.2b | Planned | Recall/move/recycle/banish/temp might/boon existing-template promotion. | Conformance fixtures for representative paths. |
@@ -189,11 +188,12 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 
 ## Current Progress
 
-- P6.0 audit progress: `1/1 audit slice = 100.0%` once this file is committed.
-- P6 implementation progress using current P2-P5 playable registry baseline: `694/811 functional units = 85.6%`.
-- P6 non-`PLAY_CARD` backlog: `117/811 functional units = 14.4%`.
-- P6 official-entry status coverage through P3/P4/P5: `1009/1009 entries = 100.0%`, but `224/1009 entries = 22.2%` still require P6 implementation or explicit final blocked/deferred reason.
-- P6-specific newly closed backlog after P6.0: `0/117 = 0.0%`.
+- P6.0 audit progress: `1/1 audit slice = 100.0%`.
+- P6.1a rune resource-domain progress: `6/6 rune functional units = 100.0%`; `48/48 rune entries = 100.0%`.
+- P6 implementation progress: `700/811 functional units = 86.3%`.
+- P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
+- P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
+- P6-specific newly closed backlog after P6.1a: `6/117 = 5.1%` functional units and `48/224 = 21.4%` official entries.
 
 ## Validation Policy
 
@@ -224,6 +224,23 @@ High-risk rule abilities also require GameHub/Room or Browser smoke with local U
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 - `git diff --check`: passed.
 
+## P6.1a Delivered
+
+- Added `OfficialRuleDomainBehaviorCatalog` as the P6 bridge for non-`PLAY_CARD` rule domains.
+- Mapped all official rune cards to `RUNE_RESOURCE_DOMAIN` without adding rune card numbers to `CardBehaviorRegistry`.
+- Updated `/catalog/summary`, `/catalog/p3-status`, and `/catalog/behavior-specs` so BehaviorSpecs merge play-card registry mappings with the P6 rune resource-domain mapping.
+- Updated catalog baseline tests so all `48` rune official entries and `6` rune functional units are `implemented`, while `CardBehaviorRegistry.TryGetByCardNo` still rejects them as playable cards.
+- P6.1a relies on existing P2 conformance evidence for rune call, rune pool payment, and end-turn rune pool clearing: `p2-preflight-turn-start-runes-and-draw`, `p2-preflight-turn-start-short-rune-deck`, `p2-preflight-turn-start-first-p2-extra-rune`, and the many existing cost-payment fixtures.
+
+P6.1a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2575/2575`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2493/2493`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `24/24`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.0, then continue immediately into P6.1a rune resource-domain mapping. P6.1a should keep rune cards out of the `PLAY_CARD` registry while marking the six rune functional units as implemented through the P2 resource domain and its conformance evidence.
+Commit P6.1a, then continue into P6.1b same-text variant/reprint audit for already implemented functional units.

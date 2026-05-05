@@ -13,6 +13,38 @@ public sealed record BehaviorSpecCatalogReport(
     IReadOnlyDictionary<string, int> StatusCounts,
     IReadOnlyList<string> MissingReasonCardNos);
 
+public static class OfficialRuleDomainBehaviorCatalog
+{
+    public const string RuneResourceDomainEffectKind = "RUNE_RESOURCE_DOMAIN";
+
+    public static IReadOnlyList<ImplementedCardBehavior> MergeWithNonPlayCardDomains(
+        IReadOnlyList<OfficialCard> cards,
+        IReadOnlyList<ImplementedCardBehavior> playCardBehaviors)
+    {
+        ArgumentNullException.ThrowIfNull(cards);
+        ArgumentNullException.ThrowIfNull(playCardBehaviors);
+
+        var runeBehaviors = cards
+            .Where(IsRuneCard)
+            .Select(card => new ImplementedCardBehavior(
+                card.CardNo,
+                RuneResourceDomainEffectKind,
+                card.CardName))
+            .ToArray();
+
+        return playCardBehaviors
+            .Concat(runeBehaviors)
+            .ToArray();
+    }
+
+    public static bool IsRuneCard(OfficialCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+
+        return string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal);
+    }
+}
+
 public static class BehaviorSpecCatalogBuilder
 {
     private static readonly HashSet<string> SafeExistingTemplateMappings = new(StringComparer.Ordinal)
@@ -165,6 +197,12 @@ public static class BehaviorSpecCatalogBuilder
     {
         return status switch
         {
+            BehaviorImplementationStatuses.Implemented when implementation is not null
+                && string.Equals(
+                    implementation.EffectKind,
+                    OfficialRuleDomainBehaviorCatalog.RuneResourceDomainEffectKind,
+                    StringComparison.Ordinal) =>
+                "Mapped to the P6 rune resource domain: rune call, rune pool payment, and end-turn clearing are covered by P2 core rules conformance fixtures; rune cards remain outside PLAY_CARD.",
             BehaviorImplementationStatuses.Implemented when implementation is not null
                 && string.Equals(implementation.CardNo, card.CardNo, StringComparison.Ordinal) =>
                 $"Mapped directly to existing P2 hand-written behavior '{implementation.EffectKind}'.",
