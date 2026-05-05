@@ -114,6 +114,36 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P79ProductCatalogExposesAllOfficialEntriesAsConformancePass()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var implementedSpecs = specs
+            .Where(spec => string.Equals(spec.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .ToArray();
+        var manualDeferredSpecs = specs
+            .Where(spec => string.Equals(spec.Status, BehaviorImplementationStatuses.ManualRuleRequired, StringComparison.Ordinal))
+            .ToArray();
+        var blockedSpecs = specs
+            .Where(spec => string.Equals(spec.Status, BehaviorImplementationStatuses.Unimplemented, StringComparison.Ordinal))
+            .ToArray();
+
+        Assert.Equal(1009, implementedSpecs.Length);
+        Assert.Equal(811, implementedSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
+        Assert.Empty(manualDeferredSpecs);
+        Assert.Empty(blockedSpecs);
+        Assert.Equal(106, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "传奇", StringComparison.Ordinal)));
+        Assert.Equal(57, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "战场", StringComparison.Ordinal)));
+        Assert.All(implementedSpecs, spec =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedByCardNo));
+            Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedEffectKind));
+        });
+    }
+
+    [Fact]
     public async Task P6RuneResourceDomainMapsAllRuneEntriesWithoutMakingRunesPlayableCards()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

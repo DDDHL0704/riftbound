@@ -153,7 +153,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.7 | Done | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, battle-destroyed recall replacement, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, battlefield-granted LEGEND_ACT armament attach, battlefield-granted extra standby destination, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and held-battlefield activation of supported unit conquest effects. Battlefield slices migrated all `54/54` battlefield FUs. | Focused conformance + GameHub tests. |
 | P7.9.8 | Done / absorbed | The planned remaining-battlefield batch was absorbed by P7.9.7 slice 53; no battlefield manual functional unit remains. | Functional-unit coverage tests. |
 | P7.9.9 | Done | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, and UI operation. Slice 1 tightened `DECLARE_BATTLE` prompt candidates to legal battlefield unit sources/defenders only; slice 2 exposed the combat prompt filter seed in the UI and verified the page path with Browser smoke; slice 3 added a multi-defender battle seed and verified one attacker/two defender prompt chips plus authoritative battle submission in the browser; slice 4 exposes battle assignment roles in the product event log and Browser smoke verifies `BULWARK_FIRST` / `BACK_ROW_LAST` visibility. | Conformance + Browser smoke passed. |
-| P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
+| P7.9.10 | Done | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. The catalog now displays all filtered cards, shows `1009/1009 CONFORMANCE_PASS`, marks 0 manual/blocked, keeps searched details in sync with filtered results, and shows the server operation surface for each card. | `CardCatalogBaselineTests` updated and green; Browser smoke passed. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
 | P7.9.x | Planned | Final audit: `811/811` functional units implemented, no manual deferred, full tests, Browser smoke, clean status. | Full final validation and commit. |
 
@@ -205,6 +205,7 @@ Final P7.9 gate:
 - P7.9.7 status: done; battlefield foundation slices 1-53 done.
 - P7.9.8 status: done / absorbed; no remaining battlefield functional-unit batch is needed.
 - P7.9.9 status: done; combat completeness slices 1-4 done.
+- P7.9.10 status: done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
@@ -213,8 +214,8 @@ Final P7.9 gate:
 - Current functional-unit implementation: `811/811 = 100.0%`.
 - Current manual deferred boundary: `0/811 = 0.0%`.
 - Remaining manual domains: none.
-- Overall P7.9 progress: `10/13 top-level batches = 76.9%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, and P7.9.9 combat completeness is done with prompt legality, multi-defender assignment, event-log assignment-role visibility, GameHub coverage, and Browser smoke.
-- Estimated remaining top-level batches: `3` (`P7.9.10`, `P7.9.11`, final audit).
+- Overall P7.9 progress: `11/13 top-level batches = 84.6%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, P7.9.9 combat completeness is done, and P7.9.10 confirms the full catalog/page-detail surface now presents all official cards as playable `CONFORMANCE_PASS` entries.
+- Estimated remaining top-level batches: `2` (`P7.9.11`, final audit).
 
 ## P7.9.0 Delivered
 
@@ -3289,4 +3290,33 @@ P7.9.9 combat completeness slice 4 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
 - Browser smoke through the in-app browser: passed.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `84/84`.
+- `git diff --check`: passed.
+
+## P7.9.10 Catalog And Page Operation Delivered
+
+This batch closes the product catalog/page-detail integration gap now that P7.9 has removed all P6 manual deferred functional units.
+
+- Frontend catalog changes:
+  - The catalog list now displays all filtered cards instead of truncating to the first `80`, so no implemented card is hidden by a UI slice.
+  - The catalog status strip now shows `CONFORMANCE_PASS 1009/1009`, `Manual deferred 0`, `Blocked 0`, and the current visible result count.
+  - Added a product status boundary showing `P7.9 全量可玩状态：1009/1009 CONFORMANCE_PASS，0 manual deferred，0 blocked。`
+  - Card details now show an `Operation surface` row so each official card is tied to its server-side operation domain: `PLAY_CARD`, `ACTIVATE_ABILITY`, `LEGEND_ACT`, `DECLARE_BATTLE`/battlefield domain, `RUNE_RESOURCE`, or `TOKEN_FACTORY`.
+  - Search/filter detail selection now follows the filtered result set; searching a card no longer leaves the detail pane stuck on a previously selected unrelated card.
+  - The status dropdown was shortened to avoid clipped native select text in the desktop layout.
+- Card catalog baseline:
+  - Added `P79ProductCatalogExposesAllOfficialEntriesAsConformancePass`.
+  - The new test asserts `1009/1009` official entries are implemented, `811/811` functional units are represented, `0` manual deferred specs remain, `0` blocked specs remain, and every implemented spec has an implementation card/effect kind.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL used for current-code smoke: `http://127.0.0.1:5089`
+  - Operation path: reload Web URL, verify catalog counts and playable boundary, search `FND-249/298`, verify the detail panel follows the searched card, verify `CONFORMANCE_PASS`, verify `OPERATION SURFACE`, and verify no `catalog-deferred-boundary` remains.
+  - Smoke summary: counts text was `CONFORMANCE_PASS 1009/1009`, `Manual deferred 0`, `Blocked 0`, `Visible 1009`; searched card `FND-249/298` detail showed `CONFORMANCE_PASS` and `LEGEND_ACT / legend domain`.
+  - Screenshot verification: visible viewport captured through the in-app browser after the catalog search/detail check.
+
+P7.9.10 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79ProductCatalogExposesAllOfficialEntriesAsConformancePass"`: passed `1/1`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `38/38`.
+- Browser smoke through the in-app browser: passed.
 - `git diff --check`: passed.

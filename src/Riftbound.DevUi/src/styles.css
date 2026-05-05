@@ -1012,6 +1012,12 @@ h3 {
   line-height: 1.35;
 }
 
+.catalog-boundary.pass {
+  border-color: #78a98a;
+  background: #eef8f0;
+  color: #276042;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

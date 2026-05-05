@@ -2339,8 +2339,15 @@ function CardCatalogPanel({
   onSelect: (cardNo: string) => void;
 }) {
   const filtered = useMemo(() => filterCatalog(specs, query, filter), [specs, query, filter]);
-  const selected = specs.find((spec) => spec.cardNo === selectedCardNo) ?? filtered[0] ?? specs[0];
-  const visible = filtered.slice(0, 80);
+  const selected = filtered.find((spec) => spec.cardNo === selectedCardNo) ?? filtered[0] ?? specs[0];
+  const visible = filtered;
+  const implementedCount = summary.implemented ?? 0;
+  const manualDeferredCount = summary["manual-rule-required"] ?? 0;
+  const blockedCount = summary.unimplemented ?? 0;
+  const allSpecsConformancePass = specs.length > 0
+    && implementedCount === specs.length
+    && manualDeferredCount === 0
+    && blockedCount === 0;
 
   return (
     <section className="catalog-panel" data-testid="card-catalog">
@@ -2366,24 +2373,34 @@ function CardCatalogPanel({
         <label>
           Status
           <select data-testid="catalog-filter" value={filter} onChange={(event) => onFilter(event.target.value as CatalogFilter)}>
-            <option value="conformance-pass">CONFORMANCE_PASS</option>
-            <option value="manual-deferred">P6 manual deferred</option>
-            <option value="blocked">Blocked / unimplemented</option>
+            <option value="conformance-pass">Playable</option>
+            <option value="manual-deferred">Manual audit</option>
+            <option value="blocked">Blocked audit</option>
             <option value="all">All statuses</option>
           </select>
         </label>
         <div className="catalog-counts" data-testid="catalog-counts">
-          <span>CONFORMANCE_PASS {summary.implemented ?? 0}</span>
-          <span>Manual deferred {summary["manual-rule-required"] ?? 0}</span>
-          <span>Blocked {summary.unimplemented ?? 0}</span>
+          <span>CONFORMANCE_PASS {implementedCount}/{specs.length}</span>
+          <span>Manual deferred {manualDeferredCount}</span>
+          <span>Blocked {blockedCount}</span>
+          <span>Visible {visible.length}</span>
         </div>
+      </div>
+
+      <div
+        className={allSpecsConformancePass ? "catalog-boundary pass" : "catalog-boundary"}
+        data-testid="catalog-playable-boundary"
+      >
+        {allSpecsConformancePass
+          ? `P7.9 全量可玩状态：${implementedCount}/${specs.length} CONFORMANCE_PASS，0 manual deferred，0 blocked。`
+          : `图鉴审计状态：${implementedCount}/${specs.length} CONFORMANCE_PASS，${manualDeferredCount} manual deferred，${blockedCount} blocked。`}
       </div>
 
       <div className="catalog-layout">
         <div className="catalog-list" data-testid="catalog-results">
           <div className="catalog-list-summary">
             <strong>{filtered.length}</strong>
-            <span>showing {visible.length}</span>
+            <span>showing all {visible.length}</span>
           </div>
           {visible.length === 0 ? (
             <div className="empty-row">No catalog cards match this filter.</div>
@@ -2441,6 +2458,10 @@ function CardDetail({ spec }: { spec?: BehaviorSpecDto }) {
         <div>
           <dt>Functional unit</dt>
           <dd>{spec.functionalUnitId}</dd>
+        </div>
+        <div>
+          <dt>Operation surface</dt>
+          <dd>{catalogOperationSurface(spec)}</dd>
         </div>
         <div>
           <dt>Implemented by</dt>
@@ -2868,6 +2889,26 @@ function statusLabel(status: string) {
     return "BLOCKED";
   }
   return status;
+}
+
+function catalogOperationSurface(spec: BehaviorSpecDto) {
+  const effectKind = spec.implementedEffectKind ?? "";
+  if (effectKind === "RUNE_RESOURCE_DOMAIN" || spec.cardCategoryName === "符文") {
+    return "RUNE_RESOURCE domain";
+  }
+  if (effectKind === "TOKEN_FACTORY_DOMAIN" || spec.cardCategoryName.startsWith("指示物")) {
+    return "TOKEN_FACTORY domain";
+  }
+  if (effectKind === "LEGEND_ACTION_DOMAIN" || spec.cardCategoryName === "传奇") {
+    return "LEGEND_ACT / legend domain";
+  }
+  if (effectKind === "BATTLEFIELD_RULE_DOMAIN" || spec.cardCategoryName === "战场") {
+    return "DECLARE_BATTLE / battlefield domain";
+  }
+  if (spec.activatedAbilities?.length) {
+    return "ACTIVATE_ABILITY prompt";
+  }
+  return "PLAY_CARD prompt";
 }
 
 function catalogStatusClass(status: string) {
