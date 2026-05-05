@@ -83,6 +83,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
+    private const string MasterYiIntroLegendCardNo = "OGS·019/024";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -2439,9 +2440,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             attackerObjectId,
             attackerState,
             true,
-            out var assaultBonus);
+            0,
+            out var assaultBonus,
+            out var attackerStaticPowerBonus);
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
         var remainingAttackerDamage = attackerCombatPower;
+        var defendingUnitCount = defenderAssignments.Count;
         for (var defenderIndex = 0; defenderIndex < defenderAssignments.Count && remainingAttackerDamage > 0; defenderIndex++)
         {
             var assignment = defenderAssignments[defenderIndex];
@@ -2452,6 +2456,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 assignment.ObjectId,
                 defenderState,
                 false,
+                defendingUnitCount,
+                out _,
                 out _);
             var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
             var damageAmount = defenderIndex == defenderAssignments.Count - 1
@@ -2480,6 +2486,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     assaultBonus,
                     attackerCombatPower,
                     CardCombatKeywordNames.Assault,
+                    attackerStaticPowerBonus,
                     hasMultipleDefenders ? defenderIndex + 1 : null,
                     hasMultipleDefenders ? assignment.Role : null)));
             remainingAttackerDamage -= damageAmount;
@@ -2494,7 +2501,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 assignment.ObjectId,
                 defenderState,
                 false,
-                out var steadfastBonus);
+                defendingUnitCount,
+                out var steadfastBonus,
+                out var defenderStaticPowerBonus);
             if (defenderCombatPower <= 0)
             {
                 continue;
@@ -2517,7 +2526,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     defenderState.Power,
                     steadfastBonus,
                     defenderCombatPower,
-                    CardCombatKeywordNames.Steadfast)));
+                    CardCombatKeywordNames.Steadfast,
+                    defenderStaticPowerBonus)));
         }
 
         var combatStackItem = new StackItemState(
@@ -2683,11 +2693,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState cardObject,
         bool isAttacking,
-        out int keywordBonus)
+        int defendingUnitCount,
+        out int keywordBonus,
+        out int staticPowerBonus)
     {
         keywordBonus = CombatKeywordAmount(
             cardObject.Tags,
             isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast);
+        staticPowerBonus = 0;
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -2698,7 +2711,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             keywordBonus += 1;
         }
 
-        return Math.Max(0, cardObject.Power + keywordBonus);
+        if (!isAttacking && HasMasterYiSingleDefenderBonus(state, playerZones, objectId, defendingUnitCount))
+        {
+            staticPowerBonus += 2;
+        }
+
+        return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
 
     private static int CountLucianLegendEquipmentAssaultBonus(
@@ -2730,6 +2748,28 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsLucianLegendCardNo(string? cardNo)
     {
         return cardNo is LucianLegendCardNo or "SFD·241/221";
+    }
+
+    private static bool HasMasterYiSingleDefenderBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        int defendingUnitCount)
+    {
+        if (defendingUnitCount != 1)
+        {
+            return false;
+        }
+
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.LegendZone.Any(legendObjectId =>
+            state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+            && string.Equals(legendState.CardNo, MasterYiIntroLegendCardNo, StringComparison.Ordinal));
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(
@@ -2793,6 +2833,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int keywordBonus,
         int combatPower,
         string keyword,
+        int staticPowerBonus = 0,
         int? assignmentIndex = null,
         string? assignmentRole = null)
     {
@@ -2803,6 +2844,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         payload["keyword"] = keyword;
         payload["keywordBonus"] = keywordBonus;
         payload["combatPower"] = combatPower;
+        if (staticPowerBonus != 0)
+        {
+            payload["staticPowerBonus"] = staticPowerBonus;
+        }
+
         if (assignmentIndex is not null)
         {
             payload["assignmentIndex"] = assignmentIndex.Value;
