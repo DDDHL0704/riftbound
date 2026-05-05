@@ -23454,6 +23454,58 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActSpendsExperienceExhaustsLegendAndDraws()
+    {
+        var state = LegendActState(experience: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                [],
+                ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.True(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActRejectsInsufficientExperienceWithoutSideEffects()
+    {
+        var state = LegendActState(experience: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-insufficient", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                [],
+                ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(2, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
@@ -33353,6 +33405,66 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             });
+    }
+
+    private static MatchState LegendActState(int experience)
+    {
+        return new MatchState(
+            "p7-9-legend-act-room",
+            0,
+            905,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-LEGEND-DRAW-001"],
+                    LegendZone = ["P1-LEGEND-POPPY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-POPPY"] = new(
+                    "P1-LEGEND-POPPY",
+                    cardNo: "UNL-237/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-DRAW-001"] = new(
+                    "P1-LEGEND-DRAW-001",
+                    cardNo: "SFD·125/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            })
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = experience,
+                ["P2"] = 0
+            }
+        };
     }
 
     private static MatchState P4SpellDuelFocusState()

@@ -148,7 +148,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.2 | Done | Product operation shell: hide dev tools by default, click-to-source/target scaffolding, action summary. | Frontend build + Browser smoke. |
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
-| P7.9.5 | Planned | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
+| P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Planned | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
@@ -196,8 +196,13 @@ Final P7.9 gate:
 ## Current Progress
 
 - P7.9.0 status: done.
-- Overall P7.9 progress: `5/13 top-level batches = 38.5%`.
-- Estimated remaining top-level batches: `8`.
+- P7.9.1 status: done.
+- P7.9.2 status: done.
+- P7.9.3 status: done.
+- P7.9.4 status: done.
+- P7.9.5 status: done.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`.
+- Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
 
@@ -294,3 +299,45 @@ P7.9.4 validation:
   - Room ID: `p7-1777960124126`
   - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `join-both` -> `ready-both` -> open dev tools -> `seed-basic-play` -> click `play-source-choice-P1-UNIT-MIGHTY-FAERIE` -> click `play-destination-choice-BASE` -> click `cost-echo` -> clear optional cost -> submit `PLAY_CARD`
   - UI summary: source field became `P1-UNIT-MIGHTY-FAERIE`, destination field became `BASE`, optional cost field became `ECHO` before clearing, and event log included `CARD_PLAYED`, `COST_PAID`, and `STACK_ITEM_ADDED`.
+
+## P7.9.5 Delivered
+
+- Added the first server-authoritative legend action command:
+  - `LegendActCommand`
+  - JSON mapper support for `cmdType: "LEGEND_ACT"`
+  - `CoreRuleEngine.ResolveLegendAct`
+- Implemented the first representative legend ability path for Poppy (`UNL-237/219`):
+  - requires active player's main open window
+  - requires source in the acting player's legend zone
+  - requires `abilityId = LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW`
+  - requires `optionalCosts = ["SPEND_EXPERIENCE:3"]`
+  - spends 3 experience, exhausts the legend, and draws 1 card
+  - emits `LEGEND_ABILITY_ACTIVATED`, `EXPERIENCE_SPENT`, `LEGEND_EXHAUSTED`, and `CARD_DRAWN`
+- Added structured `LEGEND_ACT` prompt choices:
+  - implemented legend source candidates
+  - ability choice
+  - required experience cost hint
+  - metadata policy explaining the server-side validation boundary
+- Added a `legend-act` development seed with P1 Poppy, 3 experience, and a known card to draw.
+- Added a product workbench `LEGEND_ACT` panel with source, ability, target, and cost fields plus server-provided choice chips.
+- Added click-mode selection support for legend sources.
+- Added representative tests:
+  - direct rule/conformance tests for successful legend action and insufficient-experience rejection without side effects
+  - GameHub seed/prompt/submit/snapshot coverage for online `LEGEND_ACT`
+- Kept the old P6 deferred `ACTIVATE_ABILITY` boundary intact. This batch establishes the new command path and one implemented representative; it does not yet close all `44/44` legend functional units.
+
+P7.9.5 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2509/2509`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `git diff --check`: passed.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-1777961365175`
+  - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `双人入座` -> second `双人入座` retry for P2 seating -> `双方准备` -> open dev tools -> `Legend Act` seed -> click legend source `UNL-237/219 / P1-LEGEND-POPPY` -> click ability `花费 3 经验并横置：抽 1 张` -> click cost `支付 3 经验` -> submit `LEGEND_ACT`
+  - Event log summary: `LEGEND_ABILITY_ACTIVATED`, `EXPERIENCE_SPENT`, `LEGEND_EXHAUSTED`, `CARD_DRAWN`
+  - Final snapshot summary: P1 experience `0`; `P1-LEGEND-POPPY` exhausted; P1 hand contains `P1-LEGEND-DRAW-001`; P1 main deck count `0`
+  - Browser screenshot capture was attempted through the in-app Browser API, but the Browser CDP `Page.captureScreenshot` command timed out repeatedly. DOM/state smoke still verified the visible operation path and final state.

@@ -34,6 +34,11 @@ public static class GameCommandJsonMapper
                 Text(cmd, "abilityId"),
                 TextArray(cmd, "targetObjectIds"),
                 TextArray(cmd, "optionalCosts")),
+            "LEGEND_ACT" => new LegendActCommand(
+                Text(cmd, "sourceObjectId"),
+                Text(cmd, "abilityId"),
+                TextArray(cmd, "targetObjectIds"),
+                TextArray(cmd, "optionalCosts")),
             "HIDE_CARD" => new HideCardCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "cardNo"),

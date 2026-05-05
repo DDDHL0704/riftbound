@@ -176,6 +176,13 @@ type BattleDraft = {
   optionalCosts: string;
 };
 
+type LegendDraft = {
+  sourceObjectId: string;
+  abilityId: string;
+  targetObjectIds: string;
+  optionalCosts: string;
+};
+
 type SelectionIntent =
   | "play-source"
   | "play-target"
@@ -183,7 +190,8 @@ type SelectionIntent =
   | "assemble-source"
   | "assemble-target"
   | "battle-attacker"
-  | "battle-defender";
+  | "battle-defender"
+  | "legend-source";
 
 type BehaviorSpecDto = {
   cardNo: string;
@@ -234,7 +242,7 @@ type TimelineEvent = {
 
 const playerKeys: PlayerKey[] = ["p1", "p2"];
 const replayableActions = new Set(["READY", "PASS", "PASS_PRIORITY", "PASS_FOCUS", "END_TURN"]);
-const directPromptActions = new Set([...replayableActions, "PLAY_CARD"]);
+const directPromptActions = new Set([...replayableActions, "PLAY_CARD", "LEGEND_ACT"]);
 
 const selectionIntentOptions: SelectionIntentOption[] = [
   { id: "play-source", label: "出牌来源", hint: "点击手牌或可见对象填入 PLAY_CARD source" },
@@ -243,7 +251,8 @@ const selectionIntentOptions: SelectionIntentOption[] = [
   { id: "assemble-source", label: "装备来源", hint: "点击装备填入 ASSEMBLE source" },
   { id: "assemble-target", label: "装备目标", hint: "点击宿主填入 ASSEMBLE target" },
   { id: "battle-attacker", label: "攻击方", hint: "点击单位加入战斗攻击方" },
-  { id: "battle-defender", label: "防守方", hint: "点击单位加入战斗防守方" }
+  { id: "battle-defender", label: "防守方", hint: "点击单位加入战斗防守方" },
+  { id: "legend-source", label: "传奇来源", hint: "点击传奇填入 LEGEND_ACT source" }
 ];
 
 const defaultServerUrl = localStorage.getItem("riftbound.devUi.serverUrl") ?? "http://127.0.0.1:5088";
@@ -278,6 +287,13 @@ const initialBattleDraft: BattleDraft = {
   attackerObjectIds: "",
   defenderObjectIds: "",
   optionalCosts: "COMBAT_ASSIGNMENT"
+};
+
+const initialLegendDraft: LegendDraft = {
+  sourceObjectId: "",
+  abilityId: "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+  targetObjectIds: "",
+  optionalCosts: "SPEND_EXPERIENCE:3"
 };
 
 const scenarioPresets: ScenarioPreset[] = [
@@ -365,6 +381,18 @@ const scenarioPresets: ScenarioPreset[] = [
     }
   },
   {
+    id: "legend-act",
+    title: "Legend Act",
+    description: "P1 has Poppy legend, 3 experience, and one card to draw.",
+    command: {
+      cmdType: "LEGEND_ACT",
+      sourceObjectId: "P1-LEGEND-POPPY",
+      abilityId: "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+      targetObjectIds: [],
+      optionalCosts: ["SPEND_EXPERIENCE:3"]
+    }
+  },
+  {
     id: "specified-hand",
     title: "Specified Hand",
     description: "P1 receives multiple known playable cards for ad hoc fixture replay.",
@@ -411,6 +439,7 @@ function App() {
   const [moveDraft, setMoveDraft] = useState(initialMoveDraft);
   const [assembleDraft, setAssembleDraft] = useState(initialAssembleDraft);
   const [battleDraft, setBattleDraft] = useState(initialBattleDraft);
+  const [legendDraft, setLegendDraft] = useState(initialLegendDraft);
   const [selectionIntent, setSelectionIntent] = useState<SelectionIntent>("play-target");
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [fixtureDraft, setFixtureDraft] = useState("");
@@ -433,8 +462,8 @@ function App() {
   const systemNotices = useMemo(() => buildSystemNotices(players, catalogStatus), [players, catalogStatus]);
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
   const selectedObjectIds = useMemo(
-    () => collectDraftObjectSelections(playDraft, moveDraft, assembleDraft, battleDraft),
-    [playDraft, moveDraft, assembleDraft, battleDraft]
+    () => collectDraftObjectSelections(playDraft, moveDraft, assembleDraft, battleDraft, legendDraft),
+    [playDraft, moveDraft, assembleDraft, battleDraft, legendDraft]
   );
 
   useEffect(() => {
@@ -715,6 +744,14 @@ function App() {
         optionalCosts: "COMBAT_ASSIGNMENT"
       });
     }
+    if (preset.id === "legend-act") {
+      setLegendDraft({
+        sourceObjectId: "P1-LEGEND-POPPY",
+        abilityId: "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+        targetObjectIds: "",
+        optionalCosts: "SPEND_EXPERIENCE:3"
+      });
+    }
   }
 
   async function submitIntent(key: PlayerKey, command: Record<string, unknown>, requestedIntentId?: string) {
@@ -761,6 +798,11 @@ function App() {
     updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
   }
 
+  async function submitLegendDraft() {
+    await submitIntent(activeKey, buildLegendActCommand(legendDraft), players[activeKey].clientIntentId);
+    updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+  }
+
   async function submitPromptAction(key: PlayerKey, action: string) {
     if (action === "READY") {
       await ready(key);
@@ -770,6 +812,12 @@ function App() {
     if (action === "PLAY_CARD") {
       setActiveKey(key);
       setCommandForPlayer(key, buildPlayCardCommand(playDraft));
+      return;
+    }
+
+    if (action === "LEGEND_ACT") {
+      setActiveKey(key);
+      setCommandForPlayer(key, buildLegendActCommand(legendDraft));
       return;
     }
 
@@ -831,6 +879,11 @@ function App() {
         ...current,
         attackerObjectIds: toggleListValue(current.attackerObjectIds, objectId).join(", ")
       }));
+      return;
+    }
+
+    if (selectionIntent === "legend-source") {
+      setLegendDraft((current) => ({ ...current, sourceObjectId: objectId }));
       return;
     }
 
@@ -942,6 +995,7 @@ function App() {
           moveDraft={moveDraft}
           assembleDraft={assembleDraft}
           battleDraft={battleDraft}
+          legendDraft={legendDraft}
           visibleObjectIds={visibleObjectIds}
           selectionIntent={selectionIntent}
           devToolsOpen={devToolsOpen}
@@ -953,10 +1007,12 @@ function App() {
           onMoveDraft={setMoveDraft}
           onAssembleDraft={setAssembleDraft}
           onBattleDraft={setBattleDraft}
+          onLegendDraft={setLegendDraft}
           onSubmitPlayCard={() => void submitPlayCardDraft()}
           onSubmitMove={() => void submitMoveDraft()}
           onSubmitAssemble={() => void submitAssembleDraft()}
           onSubmitBattle={() => void submitBattleDraft()}
+          onSubmitLegend={() => void submitLegendDraft()}
           onPromptAction={(action) => void submitPromptAction(activeKey, action)}
           onSeedScenario={(preset) => void seedScenario(preset)}
           onRefreshFixture={refreshFixtureDraft}
@@ -1238,6 +1294,7 @@ function CommandWorkbench({
   moveDraft,
   assembleDraft,
   battleDraft,
+  legendDraft,
   visibleObjectIds,
   selectionIntent,
   devToolsOpen,
@@ -1249,10 +1306,12 @@ function CommandWorkbench({
   onMoveDraft,
   onAssembleDraft,
   onBattleDraft,
+  onLegendDraft,
   onSubmitPlayCard,
   onSubmitMove,
   onSubmitAssemble,
   onSubmitBattle,
+  onSubmitLegend,
   onPromptAction,
   onSeedScenario,
   onRefreshFixture,
@@ -1265,6 +1324,7 @@ function CommandWorkbench({
   moveDraft: MoveUnitDraft;
   assembleDraft: AssembleDraft;
   battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
   visibleObjectIds: string[];
   selectionIntent: SelectionIntent;
   devToolsOpen: boolean;
@@ -1276,10 +1336,12 @@ function CommandWorkbench({
   onMoveDraft: (draft: MoveUnitDraft) => void;
   onAssembleDraft: (draft: AssembleDraft) => void;
   onBattleDraft: (draft: BattleDraft) => void;
+  onLegendDraft: (draft: LegendDraft) => void;
   onSubmitPlayCard: () => void;
   onSubmitMove: () => void;
   onSubmitAssemble: () => void;
   onSubmitBattle: () => void;
+  onSubmitLegend: () => void;
   onPromptAction: (action: string) => void;
   onSeedScenario: (preset: ScenarioPreset) => void;
   onRefreshFixture: () => void;
@@ -1298,6 +1360,8 @@ function CommandWorkbench({
   const moveCandidate = candidateFor(promptCandidates, "MOVE_UNIT");
   const assembleCandidate = candidateFor(promptCandidates, "ASSEMBLE_EQUIPMENT");
   const battleCandidate = candidateFor(promptCandidates, "DECLARE_BATTLE");
+  const legendCandidate = candidateFor(promptCandidates, "LEGEND_ACT");
+  const canLegendAct = Boolean(legendCandidate?.enabled && legendCandidate.sources?.length);
   const playTargetChoices: ActionPromptChoiceDto[] = playCandidate?.targets?.length
     ? playCandidate.targets
     : visibleObjectIds.map((objectId): ActionPromptChoiceDto => ({ id: objectId, label: objectId }));
@@ -1369,6 +1433,7 @@ function CommandWorkbench({
         moveDraft={moveDraft}
         assembleDraft={assembleDraft}
         battleDraft={battleDraft}
+        legendDraft={legendDraft}
       />
 
       <section className="play-card-panel">
@@ -1662,6 +1727,57 @@ function CommandWorkbench({
         </button>
       </section>
 
+      <section className="command-panel">
+        <div className="section-title">
+          <h3>LEGEND_ACT</h3>
+          <span>{canLegendAct ? "prompt allows LEGEND_ACT" : "blocked by current prompt"}</span>
+        </div>
+        <div className="form-grid">
+          <label>
+            sourceObjectId
+            <input
+              data-testid="legend-source"
+              value={legendDraft.sourceObjectId}
+              onChange={(event) => onLegendDraft({ ...legendDraft, sourceObjectId: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            abilityId
+            <input
+              data-testid="legend-ability"
+              value={legendDraft.abilityId}
+              onChange={(event) => onLegendDraft({ ...legendDraft, abilityId: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            targetObjectIds
+            <input
+              data-testid="legend-targets"
+              value={legendDraft.targetObjectIds}
+              onChange={(event) => onLegendDraft({ ...legendDraft, targetObjectIds: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            optionalCosts
+            <input
+              data-testid="legend-optional-costs"
+              value={legendDraft.optionalCosts}
+              onChange={(event) => onLegendDraft({ ...legendDraft, optionalCosts: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+        </div>
+        <ChoiceChipRow title="服务端传奇" testIdPrefix="legend-source-choice" choices={legendCandidate?.sources} onPick={(choice) => onLegendDraft({ ...legendDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端能力" testIdPrefix="legend-ability-choice" choices={legendCandidate?.modes} onPick={(choice) => onLegendDraft({ ...legendDraft, abilityId: choice.id })} />
+        <ChoiceChipRow title="服务端费用" testIdPrefix="legend-cost-choice" choices={legendCandidate?.optionalCosts} onPick={(choice) => onLegendDraft({ ...legendDraft, optionalCosts: choice.id })} />
+        <button data-testid="submit-legend-act" disabled={!canLegendAct} onClick={onSubmitLegend}>
+          Submit LEGEND_ACT
+        </button>
+      </section>
+
       {devToolsOpen ? (
       <section className="fixture-panel">
         <div className="section-title">
@@ -1799,7 +1915,8 @@ function IntentSummaryPanel({
   playDraft,
   moveDraft,
   assembleDraft,
-  battleDraft
+  battleDraft,
+  legendDraft
 }: {
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
@@ -1807,6 +1924,7 @@ function IntentSummaryPanel({
   moveDraft: MoveUnitDraft;
   assembleDraft: AssembleDraft;
   battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
 }) {
   const summaryRows = [
     {
@@ -1824,6 +1942,10 @@ function IntentSummaryPanel({
     {
       label: "BATTLE",
       value: summarizeCommand(buildDeclareBattleCommand(battleDraft))
+    },
+    {
+      label: "LEGEND",
+      value: summarizeCommand(buildLegendActCommand(legendDraft))
     }
   ];
 
@@ -2425,7 +2547,8 @@ function collectDraftObjectSelections(
   playDraft: PlayCardDraft,
   moveDraft: MoveUnitDraft,
   assembleDraft: AssembleDraft,
-  battleDraft: BattleDraft
+  battleDraft: BattleDraft,
+  legendDraft: LegendDraft
 ) {
   return new Set(
     [
@@ -2435,7 +2558,9 @@ function collectDraftObjectSelections(
       assembleDraft.sourceObjectId,
       assembleDraft.targetObjectId,
       ...parseList(battleDraft.attackerObjectIds),
-      ...parseList(battleDraft.defenderObjectIds)
+      ...parseList(battleDraft.defenderObjectIds),
+      legendDraft.sourceObjectId,
+      ...parseList(legendDraft.targetObjectIds)
     ].filter(Boolean)
   );
 }
@@ -2653,6 +2778,20 @@ function buildDeclareBattleCommand(draft: BattleDraft) {
     battlefieldId: draft.battlefieldId.trim(),
     attackerObjectIds: parseList(draft.attackerObjectIds),
     defenderObjectIds: parseList(draft.defenderObjectIds)
+  };
+  const optionalCosts = parseList(draft.optionalCosts);
+  if (optionalCosts.length > 0) {
+    command.optionalCosts = optionalCosts;
+  }
+  return command;
+}
+
+function buildLegendActCommand(draft: LegendDraft) {
+  const command: Record<string, unknown> = {
+    cmdType: "LEGEND_ACT",
+    sourceObjectId: draft.sourceObjectId.trim(),
+    abilityId: draft.abilityId.trim(),
+    targetObjectIds: parseList(draft.targetObjectIds)
   };
   const optionalCosts = parseList(draft.optionalCosts);
   if (optionalCosts.length > 0) {

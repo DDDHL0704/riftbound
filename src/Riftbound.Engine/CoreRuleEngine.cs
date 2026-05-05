@@ -46,6 +46,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
     private const string SpendExperienceOptionalCostPrefix = "SPEND_EXPERIENCE:";
+    private const string PoppyLegendCardNo = "UNL-237/219";
+    private const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
+    private const int PoppyLegendExperienceCost = 3;
+    private const string PoppyLegendExperienceCostToken = "SPEND_EXPERIENCE:3";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -74,6 +78,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (command is ActivateAbilityCommand activateAbilityCommand)
         {
             return ValueTask.FromResult(ResolveActivateAbility(state, intent, activateAbilityCommand));
+        }
+
+        if (command is LegendActCommand legendActCommand)
+        {
+            return ValueTask.FromResult(ResolveLegendAct(state, intent, legendActCommand));
         }
 
         if (command is HideCardCommand hideCardCommand)
@@ -901,6 +910,167 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
                 })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveLegendAct(
+        MatchState state,
+        PlayerIntent intent,
+        LegendActCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (!string.Equals(command.AbilityId, PoppyLegendAbilityId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT ability is not implemented yet.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (command.TargetObjectIds.Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Poppy's legend draw ability does not accept targets.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!optionalCosts.SequenceEqual([PoppyLegendExperienceCostToken], StringComparer.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Poppy's legend draw ability requires SPEND_EXPERIENCE:3.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.LegendZone.Contains(command.SourceObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT source must be a controlled legend object.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.IsNullOrWhiteSpace(sourceState.ControllerId)
+            && !string.Equals(sourceState.ControllerId, intent.PlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT source must be controlled by the acting player.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, PoppyLegendCardNo, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT source does not expose Poppy's implemented legend draw ability.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT source must be active.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var currentExperience = NormalizeExperienceForSeats(state);
+        if (!currentExperience.TryGetValue(intent.PlayerId, out var experience)
+            || experience < PoppyLegendExperienceCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Not enough experience to activate Poppy's legend draw ability.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var playerExperience = PayExperienceCosts(state, intent.PlayerId, PoppyLegendExperienceCost);
+        var playerScores = NormalizeScoresForSeats(state);
+        var events = new List<GameEvent>
+        {
+            new(
+                "LEGEND_ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 使用传奇行动",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = PoppyLegendCardNo,
+                    ["abilityId"] = command.AbilityId
+                }),
+            new(
+                "EXPERIENCE_SPENT",
+                $"{intent.PlayerId} 支付 {PoppyLegendExperienceCost} 经验",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["amount"] = PoppyLegendExperienceCost,
+                    ["remainingExperience"] = playerExperience[intent.PlayerId],
+                    ["abilityId"] = command.AbilityId
+                }),
+            new(
+                "LEGEND_EXHAUSTED",
+                $"{command.SourceObjectId} 横置",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId
+                })
+        };
+
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            intent.PlayerId,
+            1,
+            state.RngCursor,
+            events);
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            PlayerExperience = playerExperience,
+            PlayerScores = drawApplication.PlayerScores,
+            RngCursor = drawApplication.RngCursor,
+            Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
         };
 
         return new ResolutionResult(

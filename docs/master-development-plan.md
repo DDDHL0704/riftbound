@@ -483,7 +483,7 @@ flowchart LR
 
 ## 14. P7.9：本地产品版全卡可玩
 
-状态：P7 已完成；P7.9 当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
+状态：P7 已完成；P7.9 已完成到 P7.9.5，`LEGEND_ACT` 代表路径和页面操作已打通；下一步 P7.9.6 分批补齐传奇功能单元。当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
 
 目标：
 

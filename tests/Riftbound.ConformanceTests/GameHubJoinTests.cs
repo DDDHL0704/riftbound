@@ -976,6 +976,64 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79LegendActSeedBroadcastsPromptAndDrawsFromLegendActionInDevelopment()
+    {
+        const string roomId = "p7-9-legend-act-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "legend-act", "seed-p7-9-legend-act");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var legendCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+        Assert.True(legendCandidate.Enabled);
+        Assert.Contains(legendCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-LEGEND-POPPY", StringComparison.Ordinal));
+        Assert.Contains(legendCandidate.Modes ?? [], choice => string.Equals(choice.Id, "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", StringComparison.Ordinal));
+        Assert.Contains(legendCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "SPEND_EXPERIENCE:3", StringComparison.Ordinal));
+
+        var actClients = new RecordingHubClients();
+        var legendAct = JsonDocument.Parse("""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-LEGEND-POPPY",
+              "abilityId": "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+              "targetObjectIds": [],
+              "optionalCosts": ["SPEND_EXPERIENCE:3"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(actClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-legend-act", legendAct);
+
+        Assert.Empty(actClients.CallerClient.Errors);
+        var actEvents = EventsFor(actClients);
+        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
+        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        var actSnapshot = SnapshotFor(actClients, "P1");
+        var actP1 = Assert.IsType<Dictionary<string, object?>>(actSnapshot.Players["P1"]);
+        Assert.Equal(0, Assert.IsType<int>(actP1["experience"]));
+        var actZones = Assert.IsType<Dictionary<string, object?>>(actP1["zones"]);
+        Assert.Equal(0, Assert.IsType<int>(actZones["mainDeckCount"]));
+        Assert.Equal(["P1-LEGEND-DRAW-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(actZones["hand"]));
+        var actObjects = Assert.IsType<Dictionary<string, object?>>(actP1["objects"]);
+        var legendObject = Assert.IsType<Dictionary<string, object?>>(actObjects["P1-LEGEND-POPPY"]);
+        Assert.True(Assert.IsType<bool>(legendObject["isExhausted"]));
+    }
+
+    [Fact]
     public async Task P6LifecycleEphemeralSeedBroadcastsTurnStartCleanupInDevelopment()
     {
         const string roomId = "p6-8b-lifecycle-ephemeral-core";

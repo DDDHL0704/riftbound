@@ -100,6 +100,12 @@ public sealed record ActivateAbilityCommand(
     IReadOnlyList<string> TargetObjectIds,
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ACTIVATE_ABILITY");
 
+public sealed record LegendActCommand(
+    string SourceObjectId,
+    string AbilityId,
+    IReadOnlyList<string> TargetObjectIds,
+    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("LEGEND_ACT");
+
 public sealed record HideCardCommand(
     string SourceObjectId,
     string CardNo,
