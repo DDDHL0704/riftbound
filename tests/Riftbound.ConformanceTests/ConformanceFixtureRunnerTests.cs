@@ -26139,6 +26139,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldCallsRuneForHolder()
+    {
+        var state = BattlefieldHeldRuneState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-rune", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-STAR-PEAK",
+                ["P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER"],
+                ["P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CALL_RUNE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-STAR-PEAK", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(["P1-RUNE-001"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Empty(result.State.PlayerZones["P2"].RuneDeck);
+        Assert.DoesNotContain("P1-RUNE-001", result.State.PlayerZones["P1"].Base);
+        Assert.Contains("P2-BATTLEFIELD-SINGLE-RUNE-001", result.State.PlayerZones["P2"].Base);
+        Assert.True(result.State.CardObjects["P2-BATTLEFIELD-SINGLE-RUNE-001"].IsExhausted);
+        var runeEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-SINGLE-RUNE-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(runeEvent.Payload["runeObjectIds"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPowerAddsOneToBattleParticipants()
     {
         var state = BattlefieldStaticPowerState();
@@ -37562,6 +37593,47 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-RUNES-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RUNES-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldRuneState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    RuneDeck = ["P1-RUNE-001"],
+                    Battlefields = ["P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    RuneDeck = ["P2-BATTLEFIELD-SINGLE-RUNE-001"],
+                    Battlefields = ["P2-BATTLEFIELD-STAR-PEAK", "P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-STAR-PEAK"] = new(
+                    "P2-BATTLEFIELD-STAR-PEAK",
+                    cardNo: "OGN·288/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

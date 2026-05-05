@@ -386,6 +386,7 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "OGN·279/298"
             or "OGN·280/298"
             or "OGN·287/298"
+            or "OGN·288/298"
             or "OGN·294/298"
             or "OGN·298/298"
             or "SFD·210/221"

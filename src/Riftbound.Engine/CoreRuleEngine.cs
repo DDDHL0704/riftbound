@@ -148,6 +148,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
+    private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
@@ -3980,6 +3981,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                     combatEvents.AddRange(battlefieldRuneEvents);
                 }
 
+                var battlefieldSingleRuneEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldCallRuneTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        battlefieldSingleRuneEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldSingleRuneEvents);
+                }
+
                 var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
                     IsObjectOnField(playerZones, defenderObjectId)
                     && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
@@ -5845,6 +5865,50 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldCallRuneTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHoldCallRuneCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并召出符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_CALL_RUNE",
+                ["sourceObjectId"] = sourceObjectId
+            }));
+        var runeCallResult = CallRunes(
+            playerZones,
+            cardObjects,
+            playerId,
+            1);
+        events.Add(new GameEvent(
+            "RUNES_CALLED",
+            $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+            }));
+        return true;
+    }
+
     private static bool TryResolveBattlefieldDefenderSteadfastChoice(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -6515,6 +6579,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return IsBattlefieldEphemeralUnitsSteadfastCardNo(cardNo)
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || IsBattlefieldHoldDrawCardNo(cardNo)
+            || IsBattlefieldHoldCallRuneCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
@@ -6542,6 +6607,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldDrawCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHoldCallRuneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHoldCallRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)
