@@ -6,29 +6,28 @@
 
 ## 当前状态
 
-- 这是第一阶段骨架，不是可替代 Java 服务端的完整实现。
 - 当前机器已安装 .NET 10 SDK、PostgreSQL 16、Redis 和 Node 24。
 - 五份官方 PDF 规则文档与官网卡牌快照是最终规则权威。
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
-- P3 卡牌数据与行为系统已完成只读规格层：`1009/1009` 官方卡 schema valid、`811/811` functional units stable id、`1009/1009` BehaviorSpec 可展示，模板执行器仅作为骨架路由，不替换 P2 手写规则。
-- P4 高频关键词与基础卡牌已完成：P4.1-P4.392 已按风险分层小批次覆盖权限、战斗、生命周期、资源、互动、装备关键词和基础动作模板；只把已验证代表路径接入可玩路径，并用 direct engine/conformance/Room 测试锁定未实现 surface 的零副作用拒绝边界。
-- P5 装备/控制权/触发/替换系统已完成代表范围：装备身份/贴附/随动/宿主离场清理、临时控制权归还、触发队列代表、绝念代表、防止法术/技能伤害、持续效果清理均有 conformance 覆盖；详见 `docs/CURRENT_P5_STATUS.md`。下一阶段是 P6 全卡牌批量实现；不要在没有新 goal 或明确指令时进入 P6/P7。
+- P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
+- P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：补齐结构化 ActionPrompt、点击式 UI 操作、传奇/战场规则域和全部卡牌页面可操作能力。P6 仍有 `98/811` 个 manual deferred 功能单元，全部集中在传奇/战场；P7.9 以关闭这些缺口为核心验收。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 
 如果在新的 Codex 窗口继续开发，先读：
 
-1. `docs/CURRENT_P5_STATUS.md`
-2. `docs/CURRENT_P4_STATUS.md`
-3. `docs/CURRENT_P3_STATUS.md`
-4. `docs/CURRENT_P2_STATUS.md`
-5. `docs/CURRENT_P2_5_STATUS.md`
+1. `docs/CURRENT_P7_9_STATUS.md`
+2. `docs/CURRENT_P7_STATUS.md`
+3. `docs/CURRENT_P6_STATUS.md`
+4. `docs/CURRENT_P5_STATUS.md`
+5. `docs/CURRENT_P4_STATUS.md`
 6. 本 `README.md`（如果不是从这里进入）
 7. `docs/rules-evidence-index.md` 中目标卡牌对应行
 8. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
-`docs/CURRENT_P5_STATUS.md` 是当前短交接入口；`docs/CURRENT_P4_STATUS.md`、`docs/CURRENT_P3_STATUS.md`、`docs/CURRENT_P2_STATUS.md` 和 `docs/CURRENT_P2_5_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级、P1/P2 禁止范围和验收门禁，默认按需读取。更完整的计划/审计文档也按需读取，避免每次新窗口加载重复长清单。
+`docs/CURRENT_P7_9_STATUS.md` 是当前短交接入口；`docs/CURRENT_P7_STATUS.md` 和 `docs/CURRENT_P6_STATUS.md` 是 P7.9 的直接基线。更早的 `CURRENT_*_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级和验收门禁，默认按需读取。
 
 ## 推荐本地准备
 
@@ -67,7 +66,7 @@ npm install
 npm run dev
 ```
 
-访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`，点击 `Join Both`、`Ready Both`、`Snapshot Both`。开发测试台包含 Battle Desk、Operation Panel、Debug Panel、`PLAY_CARD` builder、手写 JSON `SubmitIntent` 面板、fixture draft，以及 Development-only scenario seeds：`basic-play`、`movement`、`spell-duel`、`equipment`、`control`、`battle-score`、`specified-hand`。P2.5 UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
+访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`。P7 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、对战桌面、ActionPrompt 操作、事件日志、战报/回放边界、图鉴和卡牌详情。P7.9 会继续把开发工具折叠到本地专用入口，并把手填 objectId/JSON 的操作推进为结构化 prompt 驱动的点击式流程。UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
 
 ## 项目结构
 
@@ -86,7 +85,10 @@ npm run dev
 
 核心计划文档：
 
-- `docs/CURRENT_P4_STATUS.md`：当前短交接，记录 P4 高频关键词/基础模板候选、风险分层、P4.1-P4.392 完成状态、最终验证和下一阶段边界。
+- `docs/CURRENT_P7_9_STATUS.md`：当前短交接，记录 P7.9 本地产品版全卡可玩目标、缺口审计、批次计划、验证门禁和进度。
+- `docs/CURRENT_P7_STATUS.md`：P7 产品级 Web 对战完成状态、Browser smoke 和最终验证。
+- `docs/CURRENT_P6_STATUS.md`：P6 全卡状态矩阵，包含当前 `713/811` implemented 与 `98/811` manual deferred 边界。
+- `docs/CURRENT_P4_STATUS.md`：P4 高频关键词/基础模板候选、风险分层、P4.1-P4.392 完成状态、最终验证和下一阶段边界。
 - `docs/CURRENT_P3_STATUS.md`：当前短交接，记录 P3 卡牌数据、BehaviorSpec、解析管线、模板骨架和验证状态。
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
 - `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。

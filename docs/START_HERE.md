@@ -68,9 +68,9 @@
 
 ## 4. 当前状态
 
-新项目已建立第一阶段骨架：`Riftbound.Contracts`、`Riftbound.Engine`、`Riftbound.Api`、`Riftbound.Persistence`、`Riftbound.CardCatalog` 和 `Riftbound.ConformanceTests` 均已可用。本机环境为 .NET 10.0.203、PostgreSQL 16、Redis 6.2.4、Node 24，新的终端先执行 `source scripts/dev-env.sh`。
+新项目已建立完整的 P1-P7 内部可玩链路：`Riftbound.Contracts`、`Riftbound.Engine`、`Riftbound.Api`、`Riftbound.Persistence`、`Riftbound.CardCatalog`、`Riftbound.ConformanceTests` 和 `Riftbound.DevUi` 均已可用。本机环境为 .NET 10.0.203、PostgreSQL 16、Redis 6.2.4、Node 24，新的终端先执行 `source scripts/dev-env.sh`。
 
-当前 P4 高频关键词与基础卡牌已完成，最终状态以 `docs/CURRENT_P4_STATUS.md` 为准；P3/P2/P2.5 完成状态分别以对应 `CURRENT_*_STATUS.md` 为准。本文件只记录阶段方向和工作约束；功能基线提交、最近测试计数、registry 百分比和阶段清单位置都从短状态文件读取。
+P7 产品级 Web 对战已完成，最终状态以 `docs/CURRENT_P7_STATUS.md` 为准。当前新目标是 P7.9 本地产品版全卡可玩，状态入口为 `docs/CURRENT_P7_9_STATUS.md`。P6 最终状态仍保留一个关键规则边界：`713/811` 功能单元已实现，`98/811` 功能单元是传奇/战场 manual deferred。P7.9 的核心任务就是关闭这 98 个规则缺口，并让对应能力通过服务端 prompt 在页面可操作。
 
 完整卡牌/模式覆盖列表不再重复维护在本文件中：
 
@@ -82,11 +82,17 @@
 
 ## 5. 立即开发顺序
 
-当前完成阶段是 P5 装备/控制权/触发/替换系统代表范围。下一阶段应另开 P6 全卡牌批量实现 goal；在没有新 goal 或明确用户指令前，不要继续进入 P6/P7。
+当前完成阶段是 P7 产品级 Web 对战。下一阶段是 P7.9 本地产品版全卡可玩，不进入 P8 生产化。
 
-每个新增能力必须补齐 registry 或 template/profile 绑定、fixture、`rulesEvidence`、conformance/engine 测试、`docs/rules-evidence-index.md` 和当前阶段状态文件。长摘要文档只做短状态维护，不再粘贴完整已覆盖卡牌清单。
+立即顺序：
 
-P5 已完成但这些边界仍保持：不要开始最终产品级 UI、一次性全卡牌迁移、复杂 AI、移动端适配、多实例房间热迁移；P6 全卡牌批量实现需要单独计划和验收门禁。
+1. 维护 `docs/CURRENT_P7_9_STATUS.md` 作为当前短交接入口。
+2. 先升级结构化 `ActionPrompt` 合约，让服务端返回合法来源、目标、模式、费用、目的地和 disabled/deferred reason。
+3. 再把 UI 从手填 objectId/JSON 推进到点击式出牌、目标、费用、移动、战斗、传奇和战场操作。
+4. 按风险小批次补齐传奇和战场规则域，最终关闭 `98/811` manual deferred 功能单元。
+5. 每批补齐 registry 或 domain catalog、fixture、rules evidence、conformance/engine/GameHub 测试、Browser smoke 和当前阶段状态文件。
+
+这些边界仍保持：不进入 P8 账号/匹配/部署/监控/风控；不做复杂 AI；不做移动端专项；不提交规则 PDF/FAQ；不提交未跟踪的 `riftbound-dotnet.sln`。
 
 ## 6. 阶段验收门禁
 
@@ -138,8 +144,7 @@ P2.5 后，每个高风险规则能力都要用 Codex 内置浏览器做真实 P
 
 ```text
 继续 /Users/dinghaolin/MyProjects/riftbound-dotnet 的《符文战场》新项目。
-先读取 docs/CURRENT_P5_STATUS.md、docs/CURRENT_P4_STATUS.md、docs/CURRENT_P3_STATUS.md、docs/CURRENT_P2_STATUS.md、docs/CURRENT_P2_5_STATUS.md 和 README.md；需要迁移具体卡牌或关键词时，再读取 docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。只有遇到项目边界、资料优先级或验收门禁问题时，再读取 docs/START_HERE.md。
+先读取 docs/CURRENT_P7_9_STATUS.md、docs/CURRENT_P7_STATUS.md、docs/CURRENT_P6_STATUS.md、README.md 和 docs/START_HERE.md；需要迁移具体卡牌或关键词时，再读取 docs/rules-evidence-index.md 的目标行，以及 docs/conformance-fixture-format.md 的 schema 规则。
 目标不变：.NET 10 + ASP.NET Core + SignalR 服务端权威双人 Web 卡牌游戏。五份官方 PDF、FAQ 与官网卡牌快照是最终规则权威，旧 Java 项目只作为历史行为参考和 fixture 导出工具。
-P5 装备/控制权/触发/替换系统代表范围已完成：如继续开发，请先创建/确认新的 P6 goal，再进入全卡牌批量实现；不要一次性扩张到最终 UI 或 P7。
-不要重做最终 UI，不要在没有明确 P6 goal 时进入 P6/P7，不要提交规则 PDF/FAQ，不要回退现有改动。
+P7 产品级 Web 对战已完成，当前推进 P7.9 本地产品版全卡可玩：结构化 ActionPrompt、点击式 UI 操作、传奇/战场规则域补齐、最终关闭 P6 的 98 个 manual deferred 功能单元。不要进入 P8 账号/匹配/部署/监控/风控，不要提交规则 PDF/FAQ，不要提交未跟踪的 riftbound-dotnet.sln，不要回退现有改动。
 ```

@@ -76,6 +76,7 @@ flowchart LR
 | P5 | 装备/控制权/触发替换 | 贴附、未激活、owner/controller、替换、触发队列 | 稳定 demo |
 | P6 | 全卡牌批量实现 | 按功能逻辑单元批量接入 811 个后端行为 | 扩展牌池 |
 | P7 | 产品级 Web 对战 | 精美 UI、动画、回放、观战、战报 | 对外 alpha |
+| P7.9 | 本地产品版全卡可玩 | 结构化 ActionPrompt、点击式 UI、传奇/战场规则域、全卡页面操作 | 本地完整 alpha |
 | P8 | 生产化 | 账号、匹配、部署、监控、风控、运维 | beta/上线 |
 
 ## 5. P0：规则和卡牌基线
@@ -480,7 +481,45 @@ flowchart LR
 - UI 只在后端已通过 conformance 的能力上开放。
 - 可以复用开发期测试 UI 的可靠交互逻辑，但视觉、动效、信息层级和新手体验按产品标准重做。
 
-## 14. P8：生产化
+## 14. P7.9：本地产品版全卡可玩
+
+状态：P7 已完成；P7.9 当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
+
+目标：
+
+在不进入 P8 生产化的前提下，把 P7 的产品级 Web 对战推进为本地完整 alpha：所有官方卡牌规则能力都有后端实现、conformance 覆盖和页面操作入口；前端通过结构化 `ActionPrompt` 展示合法行动，不手写规则、不持有权威状态。
+
+核心任务：
+
+1. 结构化 `ActionPrompt`：
+   - 保留现有 `actions: string[]` 兼容层。
+   - 新增合法来源、目标、费用、模式、目的地、prompt/snapshot 版本和 disabled reason。
+   - 旧 prompt 下提交必须能被服务端稳定拒绝。
+2. 点击式产品操作：
+   - 出牌、目标、可选费用、响应、移动、战斗、装备、传奇、战场操作都从 prompt 候选生成。
+   - 默认隐藏 raw JSON、fixture draft 和 scenario seed，只保留本地开发折叠入口。
+3. 传奇规则域：
+   - 实现 `LEGEND_ACT` 命令、传奇主动/被动/静态/触发能力、身份效果和 UI 操作入口。
+   - 关闭 P6 中 `44` 个传奇 manual deferred 功能单元。
+4. 战场规则域：
+   - 实现战场控制、据守、征服、得分、战场触发/静态/奖励效果和 UI 操作入口。
+   - 关闭 P6 中 `54` 个战场 manual deferred 功能单元。
+5. 战斗和长尾整合：
+   - 补强多单位战斗、伤害分配、战斗触发、控制权、装备、token/copy 和页面展示边界。
+6. 图鉴、日志、战报、回放/观战：
+   - 图鉴展示每张卡的可玩状态和实现路径。
+   - 事件日志向玩家可读文案升级。
+   - 本地回放/观战保持明确边界，直到 P8 持久化和生产身份系统接入。
+
+验收：
+
+- `811/811` 功能单元实现；`0` manual deferred；`0` unimplemented。
+- `1009/1009` 官方条目都有实现状态、规则证据和页面可解释状态。
+- 所有页面可操作能力均来自服务端 prompt。
+- 后端 full test、Conformance、CardCatalogBaseline、GameHubJoin、前端 build、Browser smoke 全绿。
+- 工作区最终只剩未跟踪 `riftbound-dotnet.sln`。
+
+## 15. P8：生产化
 
 目标：
 
@@ -504,7 +543,7 @@ flowchart LR
 - 对局可从数据库恢复。
 - 关键指标可监控和告警。
 
-## 15. 测试体系
+## 16. 测试体系
 
 测试金字塔：
 
@@ -536,7 +575,7 @@ Browser Use 阶段性测试：
 - Browser Use smoke 不替代 conformance tests；它验证真实前端链路、视觉状态和人工可操作性。
 - 如果内置浏览器临时不可用，才允许用 Playwright 作为替代，并在验收记录中说明原因，后续恢复后补测。
 
-## 16. 数据库计划
+## 17. 数据库计划
 
 第一阶段 PostgreSQL 表：
 
@@ -561,7 +600,7 @@ Browser Use 阶段性测试：
 - journal 和 fixture 行必须带 `ruleset_version`、`faq_version`、audit 状态和 `rules_evidence`。
 - 卡牌快照版本进入 `matches`，保证旧对局可回放。
 
-## 17. 开发纪律
+## 18. 开发纪律
 
 后续开发必须遵守：
 
@@ -575,17 +614,17 @@ Browser Use 阶段性测试：
 - 不提交规则 PDF/FAQ。
 - 不把旧 Java 架构照搬到新项目。
 
-## 18. 下一步执行顺序
+## 19. 下一步执行顺序
 
-新窗口接手时，先读 `docs/CURRENT_P2_STATUS.md`，再按需读取 `docs/START_HERE.md` 和本节，确认当前只推进 P2 核心规则 preflight，不进入最终 UI、全卡牌迁移或复杂 AI。
+新窗口接手时，先读 `docs/CURRENT_P7_9_STATUS.md`、`docs/CURRENT_P7_STATUS.md`、`docs/CURRENT_P6_STATUS.md`、`README.md` 和 `docs/START_HERE.md`。当前只推进 P7.9 本地产品版全卡可玩，不进入 P8 生产账号、匹配、部署、监控或风控。
 
 立即执行：
 
-1. 继续 P2 preflight：逐批迁移高价值卡牌行为，优先费用、单目标、伤害/本回合效果类。
-2. 随卡牌迁移继续抽象对象控制者/所属者、隐藏信息和结算链事件 payload。
-3. 继续把已有 P2 fixture 从手写断言迁移到 `CompareExpected`。
-4. 在 C# 侧继续完善 fixture runner 的 richer expected canonical diff、event sequence、权威状态快照和 recovery hydrate。
-5. 新增 fixture 必须使用 `PASS_PRIORITY` / `PASS_FOCUS` / `END_TURN`，裸 `PASS` 只保留为 Java legacy oracle 对照。
+1. 以 `docs/CURRENT_P7_9_STATUS.md` 为当前状态文件，按批次更新进度、验证和提交。
+2. 先做结构化 `ActionPrompt` 兼容层，再让 UI 消费 prompt candidates。
+3. 把手填 objectId/JSON 的产品路径替换为点击式来源、目标、费用、目的地和模式选择。
+4. 分批补齐传奇和战场规则域，最终关闭 `98/811` manual deferred 功能单元。
+5. 每个显著 UI 批次跑 Browser smoke；每个规则批次补 conformance、GameHub 或 engine 测试。
 
 已完成的 P1 底座项：
 
@@ -600,9 +639,9 @@ Browser Use 阶段性测试：
 - `WsClientMessage` / `WsServerMessage` 已接入默认 `protocolVersion = 1`、`schemaVersion = 1`，canonical JSON 测试已固定 camelCase envelope 字段；TypeScript DTO、客户端兼容策略和事件 upcaster 仍待后续补齐。
 - `docs/p2-rules-preflight.md` 已建立 P2 前置审查：符文池、`END_TURN`、`PASS_PRIORITY`、`PASS_FOCUS`、清理/特殊清理、最小状态模型、事件词表和首批 P2 fixture。
 
-第一阶段完成后，再按 `docs/p2-rules-preflight.md` 开始迁移 P2 核心规则引擎。
+P8 只在 P7.9 完成并通过最终验收后启动。
 
-## 19. 完成定义
+## 20. 完成定义
 
 一个功能只有同时满足以下条件，才算完成：
 
@@ -616,7 +655,7 @@ Browser Use 阶段性测试：
 - 前端 smoke 或等价 E2E 通过。
 - 文档和状态矩阵已更新。
 
-## 20. 计划补充项与遗漏清单
+## 21. 计划补充项与遗漏清单
 
 当前主计划已覆盖规则、卡牌、联机、测试 UI、测试体系、数据库和生产化主线。以下补充项需要纳入后续阶段任务，避免项目到中后期才暴露工程缺口。
 
