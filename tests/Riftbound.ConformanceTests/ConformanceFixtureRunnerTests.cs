@@ -24121,6 +24121,106 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerGarenDrawsTwoOnConquerWithFourBattlefieldUnits()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-ATTACKER",
+                        "P1-BATTLEFIELD-SUPPORT-001",
+                        "P1-BATTLEFIELD-SUPPORT-002",
+                        "P1-BATTLEFIELD-SUPPORT-003"
+                    ],
+                    LegendZone = ["P1-LEGEND-GAREN"],
+                    MainDeck = ["P1-GAREN-DRAW-001", "P1-GAREN-DRAW-002"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-SUPPORT-001"] = new(
+                    "P1-BATTLEFIELD-SUPPORT-001",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-SUPPORT-002"] = new(
+                    "P1-BATTLEFIELD-SUPPORT-002",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-SUPPORT-003"] = new(
+                    "P1-BATTLEFIELD-SUPPORT-003",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-GAREN"] = new(
+                    "P1-LEGEND-GAREN",
+                    cardNo: "OGS·023/024",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GAREN-DRAW-001"] = new(
+                    "P1-GAREN-DRAW-001",
+                    cardNo: "SFD·125/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-GAREN-DRAW-002"] = new(
+                    "P1-GAREN-DRAW-002",
+                    cardNo: "SFD·126/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-garen-trigger-conquer", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-GAREN-DRAW-001", "P1-GAREN-DRAW-002"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DRAW_TWO", StringComparison.Ordinal));
+        var drawEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(2, drawEvent.Payload["count"]);
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();

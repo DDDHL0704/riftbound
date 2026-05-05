@@ -86,6 +86,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string MasterYiIntroLegendCardNo = "OGS·019/024";
     private const string AhriLegendCardNo = "OGN·255/298";
     private const string DravenLegendCardNo = "SFD·185/221";
+    private const string GarenIntroLegendCardNo = "OGS·023/024";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -2578,6 +2579,34 @@ public sealed class CoreRuleEngine : IRuleEngine
                 huntAmount,
                 combatStackItem,
                 combatEvents);
+            if (winnerPlayerId is null
+                && CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId) >= 4
+                && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, intent.PlayerId, out var garenLegendCardNo))
+            {
+                combatEvents.Add(new GameEvent(
+                    "LEGEND_TRIGGER_RESOLVED",
+                    $"{intent.PlayerId} 的德玛西亚之力因征服战场触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = intent.PlayerId,
+                        ["legendCardNo"] = garenLegendCardNo,
+                        ["trigger"] = "BATTLEFIELD_CONQUERED_DRAW_TWO",
+                        ["sourceObjectId"] = attackerObjectId,
+                        ["battlefieldId"] = battlefieldId,
+                        ["controlledBattlefieldUnitCount"] = CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId)
+                    }));
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    intent.PlayerId,
+                    2,
+                    rngCursor,
+                    combatEvents);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
         }
 
         if (TryResolveBattleWinnerPlayerId(
@@ -2945,6 +2974,43 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsDravenLegendCardNo(string? cardNo)
     {
         return cardNo is DravenLegendCardNo or "SFD·242/221";
+    }
+
+    private static bool TryGetGarenIntroLegendCardNo(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string cardNo)
+    {
+        cardNo = GarenIntroLegendCardNo;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var legendObjectId in zones.LegendZone)
+        {
+            if (cardObjects.TryGetValue(legendObjectId, out var legendState)
+                && string.Equals(legendState.CardNo, GarenIntroLegendCardNo, StringComparison.Ordinal))
+            {
+                cardNo = legendState.CardNo ?? GarenIntroLegendCardNo;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int CountControlledBattlefieldUnits(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        return playerZones.TryGetValue(playerId, out var zones)
+            ? zones.Battlefields.Count(objectId =>
+                cardObjects.TryGetValue(objectId, out var objectState)
+                && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            : 0;
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(
