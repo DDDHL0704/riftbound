@@ -25700,6 +25700,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerMillsTopTwoFromBattlefieldObject()
+    {
+        var state = BattlefieldConquerMillState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-mill", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-SCRAPYARD",
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"],
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-BATTLEFIELD-MILL-003"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_MILL_TOP_TWO", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", triggerEvent.Payload["battlefieldObjectId"]);
+        var millEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(millEvent.Payload["cardIds"]));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -36494,6 +36521,46 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
                     power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerMillState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002", "P1-BATTLEFIELD-MILL-003"],
+                    Battlefields = ["P1-BATTLEFIELD-SCRAPYARD", "P1-BATTLEFIELD-CONQUER-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-CONQUER-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SCRAPYARD"] = new(
+                    "P1-BATTLEFIELD-SCRAPYARD",
+                    cardNo: "SFD·212/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-CONQUER-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-CONQUER-DEFENDER",
+                    power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

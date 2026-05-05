@@ -145,6 +145,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
+    private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3662,6 +3663,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 huntAmount,
                 combatStackItem,
                 combatEvents);
+            TryResolveBattlefieldConquerMillTwoTrigger(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                combatEvents);
             combatEvents.AddRange(ResolveViLegendOverkillConquerTrigger(
                 playerZones,
                 cardObjects,
@@ -5476,6 +5484,57 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerMillTwoTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerMillTwoCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.MainDeck.Count == 0)
+        {
+            return false;
+        }
+
+        var movedCardIds = zones.MainDeck.Take(2).ToArray();
+        playerZones[playerId] = zones with
+        {
+            MainDeck = zones.MainDeck.Skip(movedCardIds.Length).ToArray(),
+            Graveyard = zones.Graveyard.Concat(movedCardIds).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并弃置主牌堆顶牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_MILL_TOP_TWO",
+                ["sourceObjectId"] = sourceObjectId,
+                ["count"] = movedCardIds.Length
+            }));
+        events.Add(new GameEvent(
+            "CARDS_MILLED",
+            $"{playerId} 将主牌堆顶 {movedCardIds.Length} 张牌放入废牌堆",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["cardIds"] = movedCardIds,
+                ["count"] = movedCardIds.Length,
+                ["sourceZone"] = "MAIN_DECK",
+                ["destinationZone"] = "GRAVEYARD"
+            }));
+        return true;
+    }
+
     private static bool TryGetBattlefieldCardObject(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -5506,12 +5565,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
-        return IsBattlefieldHoldDrawCardNo(cardNo);
+        return IsBattlefieldHoldDrawCardNo(cardNo)
+            || IsBattlefieldConquerMillTwoCardNo(cardNo);
     }
 
     private static bool IsBattlefieldHoldDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldDrawCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal);
     }
 
     private static bool PlayerWithinWinningScoreDistance(
