@@ -395,7 +395,7 @@ const scenarioPresets: ScenarioPreset[] = [
   {
     id: "legend-active-actions",
     title: "Legend Actions",
-    description: "P1 has Yasuo, Lee Sin, Poppy, Viktor, mana, experience, and friendly unit targets.",
+    description: "P1 has implemented legend action sources, mana, experience, and friendly unit targets.",
     command: {
       cmdType: "LEGEND_ACT",
       sourceObjectId: "P1-LEGEND-YASUO",

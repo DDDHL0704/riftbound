@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. First active-ability slice migrated `4/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active-ability slices migrated `8/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,13 +202,13 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slice: done.
-- Current functional-unit implementation: `717/811 = 88.4%`.
-- Current manual deferred boundary: `94/811 = 11.6%`.
+- P7.9.6 active-ability slices: `2` done.
+- Current functional-unit implementation: `721/811 = 88.9%`.
+- Current manual deferred boundary: `90/811 = 11.1%`.
 - Remaining manual domains:
-  - `传奇`: `40` functional units / `92` entries
+  - `传奇`: `36` functional units / `83` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `1` committed legend rule slice is complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `2` legend active-ability slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -392,3 +392,44 @@ P7.9.6 active-ability validation:
   - Event log summary: `LEGEND_ABILITY_ACTIVATED`, `COST_PAID`, `LEGEND_EXHAUSTED`, `UNIT_MOVED_TO_BASE`
   - Final snapshot summary: tick `906`; P1 active; P1 base count `2`; P1 battlefield count `0`; `P1-LEGEND-BATTLEFIELD-UNIT` moved into base; match remains `IN_PROGRESS`
   - Screenshot note: Browser operation path and DOM/state verification passed. The in-app Browser screenshot APIs (`playwright.screenshot` and `cua.get_visible_screenshot`) timed out in this environment, matching the prior P7.9.5 screenshot limitation.
+
+## P7.9.6 Active-Ability Slice 2 Delivered
+
+This is the second committed rule slice inside P7.9.6. It keeps using the same `LEGEND_ACT` server-authoritative command and expands the implemented legend action domain without adding frontend legality rules.
+
+- Added implemented server-authoritative abilities:
+  - Miss Fortune / 赏金猎人: exhaust legend, give a controlled unit `ROAM` until end of turn.
+  - Kha'Zix / 虚空掠夺者: spend `1` experience and exhaust legend to grant boon to a controlled unit.
+  - Kha'Zix / 虚空掠夺者: spend `2` experience and exhaust legend to move an exhausted controlled battlefield unit to base.
+  - Pyke / 血港鬼影: pay `1` mana and exhaust legend to return a controlled battlefield unit to its owner's hand, then create an exhausted coin equipment token in base.
+- Accepted same-functional-unit legend reprints/variants for those abilities:
+  - `OGN·267/298`, `OGN·309*/298`, `OGN·309/298`
+  - `UNL-201/219`, `UNL-236*/219`, `UNL-236/219`
+  - `UNL-185/219`, `UNL-228*/219`, `UNL-228/219`
+- Expanded `legend-active-actions` dev seed with Miss Fortune, Kha'Zix, Pyke, and an exhausted battlefield unit target.
+- Expanded `LEGEND_ACT` prompt modes and cost choices for the new abilities.
+- Migrated the second legend action domain slice in `BehaviorSpec`:
+  - Implemented functional units: `721/811`
+  - Manual deferred functional units: `90/811`
+  - Implemented official entries: `869/1009`
+  - Manual deferred official entries: `140/1009`
+  - Legend action domain implemented: `8` functional units / `23` entries
+  - Remaining legend manual deferred: `36` functional units / `83` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active-ability slice 2 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2517/2517`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2624/2624`.
+- `git diff --check`: passed.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-9-legend-pyke-clean-1777963470048`
+  - Operation path: reload Web URL -> set server URL to `5089` -> set room id -> `join-both` -> `ready-both` -> open dev tools -> `Legend Actions` seed -> choose source `P1-LEGEND-PYKE` -> choose ability `LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN` -> choose cost `SPEND_MANA:1` -> submit `LEGEND_ACT`
+  - Event log summary: `COST_PAID`, `LEGEND_ABILITY_ACTIVATED`, `LEGEND_EXHAUSTED`, `UNIT_RETURNED_TO_HAND`, `EQUIPMENT_TOKEN_CREATED`
+  - Final snapshot summary: match `IN_PROGRESS`; tick `906`; P1 hand count `1`; P1 base count `2`; P1 battlefield count `1`; `P1-LEGEND-PYKE-TOKEN-001` created in base; `P1-LEGEND-BATTLEFIELD-UNIT` returned to hand.

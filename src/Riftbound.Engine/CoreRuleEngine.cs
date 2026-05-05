@@ -63,6 +63,19 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ViktorLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_MINION";
     private const int ViktorLegendManaCost = 1;
     private const string ViktorLegendManaCostToken = "SPEND_MANA:1";
+    private const string MissFortuneLegendCardNo = "OGN·267/298";
+    private const string MissFortuneLegendAbilityId = "LEGEND_EXHAUST_GRANT_ROAM";
+    private const string KhazixLegendCardNo = "UNL-201/219";
+    private const string KhazixLegendBoonAbilityId = "LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON";
+    private const int KhazixLegendBoonExperienceCost = 1;
+    private const string KhazixLegendBoonExperienceCostToken = "SPEND_EXPERIENCE:1";
+    private const string KhazixLegendMoveAbilityId = "LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE";
+    private const int KhazixLegendMoveExperienceCost = 2;
+    private const string KhazixLegendMoveExperienceCostToken = "SPEND_EXPERIENCE:2";
+    private const string PykeLegendCardNo = "UNL-185/219";
+    private const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
+    private const int PykeLegendManaCost = 1;
+    private const string PykeLegendManaCostToken = "SPEND_MANA:1";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -968,11 +981,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!optionalCosts.SequenceEqual([ability.RequiredCostToken], StringComparer.Ordinal))
+        var requiredCostTokens = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
+            ? Array.Empty<string>()
+            : [ability.RequiredCostToken];
+        if (!optionalCosts.SequenceEqual(requiredCostTokens, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} requires {ability.RequiredCostToken}.",
+                string.IsNullOrWhiteSpace(ability.RequiredCostToken)
+                    ? $"{ability.DisplayName} does not accept optional costs."
+                    : $"{ability.DisplayName} requires {ability.RequiredCostToken}.",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -1012,17 +1030,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (ability.RequiresFriendlyUnitTarget
-            && (!IsControlledFieldObject(state, intent.PlayerId, targetObjectIds[0])
-                || !CardObjectHasTag(state.CardObjects, targetObjectIds[0], CardObjectTags.UnitCard)))
+            && !IsValidLegendAbilityTarget(state, intent.PlayerId, targetObjectIds[0], ability))
         {
             return RejectWithCorePrompts(
                 state,
-                $"{ability.DisplayName} target must be a controlled field unit.",
+                $"{ability.DisplayName} target must satisfy its implemented legend target restrictions.",
                 ErrorCodes.InvalidTarget);
         }
 
+        var manaCost = ability.ManaCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < ability.ManaCost)
+        if (currentPool.Mana < manaCost)
         {
             return RejectWithCorePrompts(
                 state,
@@ -1043,7 +1061,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var runePools = PayRuneCosts(state, intent.PlayerId, ability.ManaCost, 0);
+        var runePools = PayRuneCosts(state, intent.PlayerId, manaCost, 0);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, ability.ExperienceCost);
         IReadOnlyDictionary<string, int> playerScores = NormalizeScoresForSeats(state);
         var winnerPlayerId = state.WinnerPlayerId;
@@ -1061,7 +1079,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = command.AbilityId
                 })
         };
-        if (ability.ManaCost > 0)
+        if (manaCost > 0)
         {
             events.Add(new GameEvent(
                 "COST_PAID",
@@ -1069,7 +1087,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["mana"] = ability.ManaCost,
+                    ["mana"] = manaCost,
                     ["power"] = 0,
                     ["abilityId"] = command.AbilityId
                 }));
@@ -1140,6 +1158,35 @@ public sealed class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     command.SourceObjectId,
                     command.AbilityId,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.GrantRoam:
+                GrantLegendRoam(
+                    cardObjects,
+                    targetObjectIds[0],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin:
+                ReturnLegendTargetToOwnerHand(
+                    playerZones,
+                    cardObjects,
+                    targetObjectIds[0],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                CreateLegendEquipmentToken(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    "金币",
+                    [CardObjectTags.EquipmentCard, "反应"],
+                    isExhausted: true,
                     events);
                 break;
             case LegendAbilityEffectKinds.CreateMinion:
@@ -1222,10 +1269,76 @@ public sealed class CoreRuleEngine : IRuleEngine
                 0,
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.CreateMinion),
+            MissFortuneLegendAbilityId => new LegendAbilityDefinition(
+                MissFortuneLegendAbilityId,
+                [MissFortuneLegendCardNo, "OGN·309/298", "OGN·309*/298"],
+                "赏金猎人传奇游走技能",
+                0,
+                0,
+                string.Empty,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.GrantRoam),
+            KhazixLegendBoonAbilityId => new LegendAbilityDefinition(
+                KhazixLegendBoonAbilityId,
+                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                "卡兹克传奇增益技能",
+                0,
+                KhazixLegendBoonExperienceCost,
+                KhazixLegendBoonExperienceCostToken,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.GrantBoon),
+            KhazixLegendMoveAbilityId => new LegendAbilityDefinition(
+                KhazixLegendMoveAbilityId,
+                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                "卡兹克传奇休眠单位移动技能",
+                0,
+                KhazixLegendMoveExperienceCost,
+                KhazixLegendMoveExperienceCostToken,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.MoveFriendlyUnit,
+                RequiresBattlefieldTarget: true,
+                RequiresExhaustedTarget: true),
+            PykeLegendAbilityId => new LegendAbilityDefinition(
+                PykeLegendAbilityId,
+                [PykeLegendCardNo, "UNL-228/219", "UNL-228*/219"],
+                "派克传奇召回金币技能",
+                PykeLegendManaCost,
+                0,
+                PykeLegendManaCostToken,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin,
+                RequiresBattlefieldTarget: true),
             _ => default!
         };
 
         return ability is not null;
+    }
+
+    private static bool IsValidLegendAbilityTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId,
+        LegendAbilityDefinition ability)
+    {
+        if (!IsControlledFieldObject(state, playerId, targetObjectId)
+            || !CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard))
+        {
+            return false;
+        }
+
+        var location = FindFieldObjectLocation(state.PlayerZones, targetObjectId);
+        if (ability.RequiresBattlefieldTarget
+            && (location is null || !string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)))
+        {
+            return false;
+        }
+
+        return !ability.RequiresExhaustedTarget
+            || (state.CardObjects.TryGetValue(targetObjectId, out var targetState) && targetState.IsExhausted);
     }
 
     private static void MoveLegendTargetBetweenBaseAndBattlefield(
@@ -1302,6 +1415,128 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["alreadyHadBoon"] = alreadyHadBoon,
                 ["power"] = alreadyHadBoon ? targetState.Power : targetState.Power + 1
+            }));
+    }
+
+    private static void GrantLegendRoam(
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return;
+        }
+
+        cardObjects[targetObjectId] = targetState with
+        {
+            UntilEndOfTurnEffects = AddUntilEndOfTurnEffect(targetState.UntilEndOfTurnEffects, MoveUnitRoamOptionalCost)
+        };
+        events.Add(new GameEvent(
+            "ROAM_GRANTED",
+            $"{targetObjectId} 本回合获得游走",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["targetObjectId"] = targetObjectId,
+                ["effectId"] = MoveUnitRoamOptionalCost
+            }));
+    }
+
+    private static void ReturnLegendTargetToOwnerHand(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        var location = FindFieldObjectLocation(playerZones, targetObjectId);
+        if (location is null
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return;
+        }
+
+        var ownerPlayerId = !string.IsNullOrWhiteSpace(targetState.OwnerId)
+            && playerZones.ContainsKey(targetState.OwnerId)
+            ? targetState.OwnerId
+            : playerId;
+        RemoveFieldObjectFromLocation(playerZones, location.Value.PlayerId, location.Value.Zone, targetObjectId);
+        var ownerZones = playerZones[ownerPlayerId];
+        playerZones[ownerPlayerId] = ownerZones with
+        {
+            Hand = ownerZones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                ? ownerZones.Hand
+                : ownerZones.Hand.Concat([targetObjectId]).ToArray()
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            ControllerId = ownerPlayerId,
+            IsAttacking = false,
+            IsDefending = false
+        };
+        events.Add(new GameEvent(
+            "UNIT_RETURNED_TO_HAND",
+            $"{targetObjectId} 被传奇技能返回手牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = location.Value.Zone,
+                ["ownerPlayerId"] = ownerPlayerId,
+                ["destinationZone"] = "HAND"
+            }));
+    }
+
+    private static void CreateLegendEquipmentToken(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        string tokenName,
+        IReadOnlyList<string> tokenTags,
+        bool isExhausted,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
+        cardObjects[tokenObjectId] = new CardObjectState(
+            tokenObjectId,
+            isExhausted: isExhausted,
+            tags: tokenTags,
+            ownerId: playerId,
+            controllerId: playerId);
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "EQUIPMENT_TOKEN_CREATED",
+            $"{sourceObjectId} 打出装备指示物",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = tokenName,
+                ["destinationZone"] = "BASE",
+                ["isExhausted"] = isExhausted,
+                ["tokenTags"] = tokenTags
             }));
     }
 
@@ -10617,13 +10852,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         string RequiredCostToken,
         int RequiredTargetCount,
         bool RequiresFriendlyUnitTarget,
-        string EffectKind);
+        string EffectKind,
+        bool RequiresBattlefieldTarget = false,
+        bool RequiresExhaustedTarget = false);
 
     private static class LegendAbilityEffectKinds
     {
         public const string DrawOne = "DRAW_ONE";
         public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";
         public const string GrantBoon = "GRANT_BOON";
+        public const string GrantRoam = "GRANT_ROAM";
+        public const string ReturnBattlefieldUnitAndCreateCoin = "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN";
         public const string CreateMinion = "CREATE_MINION";
     }
 

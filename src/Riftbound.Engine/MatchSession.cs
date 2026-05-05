@@ -1056,7 +1056,11 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT", "支付 2 并横置：移动友方单位"),
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_GRANT_BOON", "支付 1 并横置：给予友方单位增益"),
                 new ActionPromptChoiceDto("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", "花费 3 经验并横置：抽 1 张"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_MINION", "支付 1 并横置：打出 1 战力随从")
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_MINION", "支付 1 并横置：打出 1 战力随从"),
+                new ActionPromptChoiceDto("LEGEND_EXHAUST_GRANT_ROAM", "横置：给予友方单位游走"),
+                new ActionPromptChoiceDto("LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON", "花费 1 经验并横置：给予友方单位增益"),
+                new ActionPromptChoiceDto("LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE", "花费 2 经验并横置：移动休眠友方单位回基地"),
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN", "支付 1 并横置：召回战场友方单位并打出金币")
             ],
             _ => null
         };
@@ -1077,6 +1081,8 @@ internal static class ActionPromptBuilder
             "LEGEND_ACT" => [
                 new ActionPromptChoiceDto("SPEND_MANA:1", "支付 1 法力"),
                 new ActionPromptChoiceDto("SPEND_MANA:2", "支付 2 法力"),
+                new ActionPromptChoiceDto("SPEND_EXPERIENCE:1", "支付 1 经验"),
+                new ActionPromptChoiceDto("SPEND_EXPERIENCE:2", "支付 2 经验"),
                 new ActionPromptChoiceDto("SPEND_EXPERIENCE:3", "支付 3 经验")
             ],
             _ => null
@@ -1153,7 +1159,16 @@ internal static class ActionPromptBuilder
             or "FND-265/298"
             or "OGN·265/298"
             or "OGN·308*/298"
-            or "OGN·308/298";
+            or "OGN·308/298"
+            or "OGN·267/298"
+            or "OGN·309/298"
+            or "OGN·309*/298"
+            or "UNL-201/219"
+            or "UNL-236/219"
+            or "UNL-236*/219"
+            or "UNL-185/219"
+            or "UNL-228/219"
+            or "UNL-228*/219";
     }
 
     private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)
@@ -2661,13 +2676,16 @@ public sealed class MatchSession : IMatchSession
                     mainDeck: ["P1-LEGEND-DRAW-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
                     baseZone: ["P1-LEGEND-BASE-UNIT"],
-                    battlefields: ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                    battlefields: ["P1-LEGEND-BATTLEFIELD-UNIT", "P1-LEGEND-EXHAUSTED-BATTLEFIELD-UNIT"],
                     legendZone:
                     [
                         "P1-LEGEND-YASUO",
                         "P1-LEGEND-LEE-SIN",
                         "P1-LEGEND-POPPY",
-                        "P1-LEGEND-VIKTOR"
+                        "P1-LEGEND-VIKTOR",
+                        "P1-LEGEND-MISS-FORTUNE",
+                        "P1-LEGEND-KHAZIX",
+                        "P1-LEGEND-PYKE"
                     ],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -2682,8 +2700,12 @@ public sealed class MatchSession : IMatchSession
                 ["P1-LEGEND-LEE-SIN"] = new("P1-LEGEND-LEE-SIN", cardNo: "OGN·257/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-POPPY"] = new("P1-LEGEND-POPPY", cardNo: "UNL-237/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-VIKTOR"] = new("P1-LEGEND-VIKTOR", cardNo: "FND-265/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-MISS-FORTUNE"] = new("P1-LEGEND-MISS-FORTUNE", cardNo: "OGN·267/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-KHAZIX"] = new("P1-LEGEND-KHAZIX", cardNo: "UNL-201/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-PYKE"] = new("P1-LEGEND-PYKE", cardNo: "UNL-185/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
                 ["P1-LEGEND-BASE-UNIT"] = new("P1-LEGEND-BASE-UNIT", power: 2, tags: [CardObjectTags.UnitCard], ownerId: seed.P1, controllerId: seed.P1),
                 ["P1-LEGEND-BATTLEFIELD-UNIT"] = new("P1-LEGEND-BATTLEFIELD-UNIT", power: 3, tags: [CardObjectTags.UnitCard], ownerId: seed.P1, controllerId: seed.P1),
+                ["P1-LEGEND-EXHAUSTED-BATTLEFIELD-UNIT"] = new("P1-LEGEND-EXHAUSTED-BATTLEFIELD-UNIT", power: 2, isExhausted: true, tags: [CardObjectTags.UnitCard], ownerId: seed.P1, controllerId: seed.P1),
                 ["P1-LEGEND-DRAW-001"] = new("P1-LEGEND-DRAW-001", cardNo: "SFD·125/221", ownerId: seed.P1, controllerId: seed.P1, power: 3, tags: [CardObjectTags.UnitCard])
             }) with
             {

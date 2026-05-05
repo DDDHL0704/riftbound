@@ -23599,6 +23599,123 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActGrantsRoamWithMissFortune()
+    {
+        var state = LegendActiveAbilityState("OGN·267/298", "P1-LEGEND-MISS-FORTUNE", mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-miss-fortune-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-MISS-FORTUNE",
+                "LEGEND_EXHAUST_GRANT_ROAM",
+                ["P1-LEGEND-BASE-UNIT"],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-MISS-FORTUNE"].IsExhausted);
+        Assert.Contains("ROAM", result.State.CardObjects["P1-LEGEND-BASE-UNIT"].UntilEndOfTurnEffects);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ROAM_GRANTED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActKhazixSpendsExperienceToGrantBoon()
+    {
+        var state = LegendActiveAbilityState("UNL-201/219", "P1-LEGEND-KHAZIX", mana: 0) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 1,
+                ["P2"] = 0
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-khazix-boon-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-KHAZIX",
+                "LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON",
+                ["P1-LEGEND-BASE-UNIT"],
+                ["SPEND_EXPERIENCE:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.True(result.State.CardObjects["P1-LEGEND-KHAZIX"].IsExhausted);
+        Assert.Contains(CardObjectTags.Boon, result.State.CardObjects["P1-LEGEND-BASE-UNIT"].Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActKhazixMovesDormantBattlefieldUnitToBase()
+    {
+        var state = LegendActiveAbilityState("UNL-201/219", "P1-LEGEND-KHAZIX", mana: 0) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 2,
+                ["P2"] = 0
+            },
+            CardObjects = LegendActiveAbilityState("UNL-201/219", "P1-LEGEND-KHAZIX", mana: 0)
+                .CardObjects
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => string.Equals(entry.Key, "P1-LEGEND-BATTLEFIELD-UNIT", StringComparison.Ordinal)
+                        ? entry.Value with { IsExhausted = true }
+                        : entry.Value,
+                    StringComparer.Ordinal)
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-khazix-move-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-KHAZIX",
+                "LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_EXPERIENCE:2"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActPykeReturnsBattlefieldUnitAndCreatesCoin()
+    {
+        var state = LegendActiveAbilityState("UNL-185/219", "P1-LEGEND-PYKE", mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-pyke-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-PYKE",
+                "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-PYKE"].IsExhausted);
+        Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains("P1-LEGEND-PYKE-TOKEN-001", result.State.PlayerZones["P1"].Base);
+        var token = result.State.CardObjects["P1-LEGEND-PYKE-TOKEN-001"];
+        Assert.True(token.IsExhausted);
+        Assert.Contains(CardObjectTags.EquipmentCard, token.Tags);
+        Assert.Contains("反应", token.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
