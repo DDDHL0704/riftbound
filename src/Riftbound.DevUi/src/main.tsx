@@ -176,6 +176,15 @@ type BattleDraft = {
   optionalCosts: string;
 };
 
+type SelectionIntent =
+  | "play-source"
+  | "play-target"
+  | "move-source"
+  | "assemble-source"
+  | "assemble-target"
+  | "battle-attacker"
+  | "battle-defender";
+
 type BehaviorSpecDto = {
   cardNo: string;
   cardName: string;
@@ -209,6 +218,12 @@ type StatusBadge = {
   tone?: "combat" | "defense" | "warning" | "control" | "attachment";
 };
 
+type SelectionIntentOption = {
+  id: SelectionIntent;
+  label: string;
+  hint: string;
+};
+
 type TimelineEvent = {
   key: string;
   serverTick: number;
@@ -219,6 +234,17 @@ type TimelineEvent = {
 
 const playerKeys: PlayerKey[] = ["p1", "p2"];
 const replayableActions = new Set(["READY", "PASS", "PASS_PRIORITY", "PASS_FOCUS", "END_TURN"]);
+const directPromptActions = new Set([...replayableActions, "PLAY_CARD"]);
+
+const selectionIntentOptions: SelectionIntentOption[] = [
+  { id: "play-source", label: "出牌来源", hint: "点击手牌或可见对象填入 PLAY_CARD source" },
+  { id: "play-target", label: "出牌目标", hint: "点击对象加入或移除 PLAY_CARD targets" },
+  { id: "move-source", label: "移动单位", hint: "点击要移动的单位填入 MOVE_UNIT source" },
+  { id: "assemble-source", label: "装备来源", hint: "点击装备填入 ASSEMBLE source" },
+  { id: "assemble-target", label: "装备目标", hint: "点击宿主填入 ASSEMBLE target" },
+  { id: "battle-attacker", label: "攻击方", hint: "点击单位加入战斗攻击方" },
+  { id: "battle-defender", label: "防守方", hint: "点击单位加入战斗防守方" }
+];
 
 const defaultServerUrl = localStorage.getItem("riftbound.devUi.serverUrl") ?? "http://127.0.0.1:5088";
 const defaultRoomId = localStorage.getItem("riftbound.p7.roomId") ?? `p7-${new Date().toISOString().slice(0, 10)}-battle`;
@@ -385,6 +411,8 @@ function App() {
   const [moveDraft, setMoveDraft] = useState(initialMoveDraft);
   const [assembleDraft, setAssembleDraft] = useState(initialAssembleDraft);
   const [battleDraft, setBattleDraft] = useState(initialBattleDraft);
+  const [selectionIntent, setSelectionIntent] = useState<SelectionIntent>("play-target");
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [fixtureDraft, setFixtureDraft] = useState("");
   const [fixtureStatus, setFixtureStatus] = useState("idle");
   const [catalog, setCatalog] = useState<BehaviorSpecDto[]>([]);
@@ -404,6 +432,10 @@ function App() {
   const catalogSummary = useMemo(() => summarizeCatalog(catalog), [catalog]);
   const systemNotices = useMemo(() => buildSystemNotices(players, catalogStatus), [players, catalogStatus]);
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
+  const selectedObjectIds = useMemo(
+    () => collectDraftObjectSelections(playDraft, moveDraft, assembleDraft, battleDraft),
+    [playDraft, moveDraft, assembleDraft, battleDraft]
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -756,36 +788,56 @@ function App() {
     updatePlayer(key, (current) => ({ ...current, jsonIntent: formatJson(command) }));
   }
 
-  function addTargetObjectId(objectId: string) {
-    setPlayDraft((current) => {
-      const values = parseList(current.targetObjectIds);
-      if (!values.includes(objectId)) {
-        values.push(objectId);
-      }
+  function handleObjectPick(objectId: string) {
+    if (!objectId) {
+      return;
+    }
 
-      return { ...current, targetObjectIds: values.join(", ") };
-    });
-    setMoveDraft((current) => ({ ...current, sourceObjectId: current.sourceObjectId || objectId }));
-    setAssembleDraft((current) => ({
-      ...current,
-      sourceObjectId: current.sourceObjectId || objectId,
-      targetObjectId: current.sourceObjectId ? current.targetObjectId || objectId : current.targetObjectId
-    }));
-    setBattleDraft((current) => {
-      const attackers = parseList(current.attackerObjectIds);
-      const defenders = parseList(current.defenderObjectIds);
-      if (attackers.length === 0) {
-        attackers.push(objectId);
-      } else if (!defenders.includes(objectId)) {
-        defenders.push(objectId);
-      }
-
-      return {
+    if (selectionIntent === "play-source") {
+      const object = findObject(latestSnapshot, objectId);
+      setPlayDraft((current) => ({
         ...current,
-        attackerObjectIds: attackers.join(", "),
-        defenderObjectIds: defenders.join(", ")
-      };
-    });
+        sourceObjectId: objectId,
+        cardNo: object?.cardNo ?? current.cardNo
+      }));
+      return;
+    }
+
+    if (selectionIntent === "play-target") {
+      setPlayDraft((current) => ({
+        ...current,
+        targetObjectIds: toggleListValue(current.targetObjectIds, objectId).join(", ")
+      }));
+      return;
+    }
+
+    if (selectionIntent === "move-source") {
+      setMoveDraft((current) => ({ ...current, sourceObjectId: objectId }));
+      return;
+    }
+
+    if (selectionIntent === "assemble-source") {
+      setAssembleDraft((current) => ({ ...current, sourceObjectId: objectId }));
+      return;
+    }
+
+    if (selectionIntent === "assemble-target") {
+      setAssembleDraft((current) => ({ ...current, targetObjectId: objectId }));
+      return;
+    }
+
+    if (selectionIntent === "battle-attacker") {
+      setBattleDraft((current) => ({
+        ...current,
+        attackerObjectIds: toggleListValue(current.attackerObjectIds, objectId).join(", ")
+      }));
+      return;
+    }
+
+    setBattleDraft((current) => ({
+      ...current,
+      defenderObjectIds: toggleListValue(current.defenderObjectIds, objectId).join(", ")
+    }));
   }
 
   function refreshFixtureDraft() {
@@ -853,6 +905,14 @@ function App() {
         <button data-testid="snapshot-both" onClick={() => void runForBoth(requestSnapshot)}>
           同步状态
         </button>
+        <button
+          className={devToolsOpen ? "secondary-toggle active" : "secondary-toggle"}
+          data-testid="toggle-dev-tools"
+          onClick={() => setDevToolsOpen((current) => !current)}
+          type="button"
+        >
+          开发工具
+        </button>
       </section>
 
       <section className="room-strip" aria-label="Room summary">
@@ -867,7 +927,13 @@ function App() {
       <SystemNotice notices={systemNotices} />
 
       <section className="workspace-grid">
-        <BattleDesk snapshot={latestSnapshot} activePlayerId={activePlayer.playerId} onPickObject={addTargetObjectId} />
+        <BattleDesk
+          snapshot={latestSnapshot}
+          activePlayerId={activePlayer.playerId}
+          selectedObjectIds={selectedObjectIds}
+          selectionIntent={selectionIntent}
+          onPickObject={handleObjectPick}
+        />
         <CommandWorkbench
           activeKey={activeKey}
           activePlayer={activePlayer}
@@ -877,14 +943,16 @@ function App() {
           assembleDraft={assembleDraft}
           battleDraft={battleDraft}
           visibleObjectIds={visibleObjectIds}
+          selectionIntent={selectionIntent}
+          devToolsOpen={devToolsOpen}
           fixtureText={fixtureText}
           fixtureStatus={fixtureStatus}
           onActiveKey={setActiveKey}
+          onSelectionIntent={setSelectionIntent}
           onPlayDraft={setPlayDraft}
           onMoveDraft={setMoveDraft}
           onAssembleDraft={setAssembleDraft}
           onBattleDraft={setBattleDraft}
-          onPickObject={addTargetObjectId}
           onSubmitPlayCard={() => void submitPlayCardDraft()}
           onSubmitMove={() => void submitMoveDraft()}
           onSubmitAssemble={() => void submitAssembleDraft()}
@@ -924,6 +992,7 @@ function App() {
             onSnapshot={() => void requestSnapshot(key)}
             onPromptAction={(action) => void submitPromptAction(key, action)}
             onSubmitJson={() => void submitJsonIntent(key)}
+            devToolsOpen={devToolsOpen}
           />
         ))}
       </section>
@@ -948,10 +1017,14 @@ function SystemNotice({ notices }: { notices: string[] }) {
 function BattleDesk({
   snapshot,
   activePlayerId,
+  selectedObjectIds,
+  selectionIntent,
   onPickObject
 }: {
   snapshot?: SnapshotDto;
   activePlayerId: string;
+  selectedObjectIds: Set<string>;
+  selectionIntent: SelectionIntent;
   onPickObject: (objectId: string) => void;
 }) {
   const players = Object.entries(snapshot?.players ?? {}).sort(([, left], [, right]) =>
@@ -962,11 +1035,17 @@ function BattleDesk({
     <section className="desk-panel" data-testid="battle-desk">
       <div className="section-title">
         <h2>Battle Desk</h2>
-        <span>{snapshot ? `${snapshot.turnState} / ${activePlayerId}` : "no snapshot"}</span>
+        <span>{snapshot ? `${selectionIntentLabel(selectionIntent)} / ${activePlayerId}` : "no snapshot"}</span>
       </div>
       <div className="lane-board">
         {players.map(([playerId, player]) => (
-          <PlayerDesk key={playerId} playerId={playerId} player={player} onPickObject={onPickObject} />
+          <PlayerDesk
+            key={playerId}
+            playerId={playerId}
+            player={player}
+            selectedObjectIds={selectedObjectIds}
+            onPickObject={onPickObject}
+          />
         ))}
         {players.length === 0 ? <EmptyDesk /> : null}
       </div>
@@ -984,10 +1063,12 @@ function BattleDesk({
 function PlayerDesk({
   playerId,
   player,
+  selectedObjectIds,
   onPickObject
 }: {
   playerId: string;
   player: PlayerSummary;
+  selectedObjectIds: Set<string>;
   onPickObject: (objectId: string) => void;
 }) {
   const zones = player.zones ?? {};
@@ -1012,18 +1093,18 @@ function PlayerDesk({
         <span>手牌 {player.handSize ?? 0}</span>
       </div>
       <div className="identity-row">
-        <ZoneRow title="传奇" ids={zones.legendZone ?? []} objects={player.objects} onPickObject={onPickObject} compact />
-        <ZoneRow title="英雄" ids={zones.championZone ?? []} objects={player.objects} onPickObject={onPickObject} compact />
+        <ZoneRow title="传奇" ids={zones.legendZone ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
+        <ZoneRow title="英雄" ids={zones.championZone ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
       </div>
-      <ZoneRow title="手牌" ids={zones.hand ?? []} hiddenCount={zones.handHidden ?? 0} objects={player.objects} onPickObject={onPickObject} />
+      <ZoneRow title="手牌" ids={zones.hand ?? []} hiddenCount={zones.handHidden ?? 0} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
       <div className="battlefield-pair">
-        <ZoneRow title="战场 I" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 0)} objects={player.objects} onPickObject={onPickObject} />
-        <ZoneRow title="战场 II" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 1)} objects={player.objects} onPickObject={onPickObject} />
+        <ZoneRow title="战场 I" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 0)} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
+        <ZoneRow title="战场 II" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 1)} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
       </div>
-      <ZoneRow title="基地" ids={zones.base ?? []} objects={player.objects} onPickObject={onPickObject} />
+      <ZoneRow title="基地" ids={zones.base ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
       <div className="zone-minor-grid">
-        <ZoneRow title="废牌堆" ids={zones.graveyard ?? []} objects={player.objects} onPickObject={onPickObject} compact />
-        <ZoneRow title="放逐区" ids={zones.banished ?? []} objects={player.objects} onPickObject={onPickObject} compact />
+        <ZoneRow title="废牌堆" ids={zones.graveyard ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
+        <ZoneRow title="放逐区" ids={zones.banished ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
       </div>
     </article>
   );
@@ -1034,6 +1115,7 @@ function ZoneRow({
   ids,
   hiddenCount = 0,
   objects,
+  selectedObjectIds,
   onPickObject,
   compact = false
 }: {
@@ -1041,6 +1123,7 @@ function ZoneRow({
   ids: string[];
   hiddenCount?: number;
   objects?: Record<string, ObjectView>;
+  selectedObjectIds: Set<string>;
   onPickObject: (objectId: string) => void;
   compact?: boolean;
 }) {
@@ -1051,7 +1134,7 @@ function ZoneRow({
         <strong>{hiddenCount > 0 ? hiddenCount : ids.length}</strong>
       </div>
       {hiddenCount > 0 ? <div className="hidden-card">{hiddenCount} 张隐藏手牌</div> : null}
-      <ObjectList ids={ids} objects={objects} onPickObject={onPickObject} />
+      <ObjectList ids={ids} objects={objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
     </section>
   );
 }
@@ -1059,10 +1142,12 @@ function ZoneRow({
 function ObjectList({
   ids,
   objects,
+  selectedObjectIds,
   onPickObject
 }: {
   ids: string[];
   objects?: Record<string, ObjectView>;
+  selectedObjectIds?: Set<string>;
   onPickObject: (objectId: string) => void;
 }) {
   if (ids.length === 0) {
@@ -1075,7 +1160,11 @@ function ObjectList({
         const attachments = attachedObjectsFor(id, objects);
         return (
           <div className="object-cell" key={id}>
-            <button className={objectClassName(objects?.[id])} onClick={() => onPickObject(id)}>
+            <button
+              className={selectedObjectIds?.has(id) ? `${objectClassName(objects?.[id])} selected` : objectClassName(objects?.[id])}
+              onClick={() => onPickObject(id)}
+              type="button"
+            >
               <span>{cardTitle(id, objects?.[id])}</span>
               <ObjectMeta object={objects?.[id]} />
             </button>
@@ -1150,14 +1239,16 @@ function CommandWorkbench({
   assembleDraft,
   battleDraft,
   visibleObjectIds,
+  selectionIntent,
+  devToolsOpen,
   fixtureText,
   fixtureStatus,
   onActiveKey,
+  onSelectionIntent,
   onPlayDraft,
   onMoveDraft,
   onAssembleDraft,
   onBattleDraft,
-  onPickObject,
   onSubmitPlayCard,
   onSubmitMove,
   onSubmitAssemble,
@@ -1175,14 +1266,16 @@ function CommandWorkbench({
   assembleDraft: AssembleDraft;
   battleDraft: BattleDraft;
   visibleObjectIds: string[];
+  selectionIntent: SelectionIntent;
+  devToolsOpen: boolean;
   fixtureText: string;
   fixtureStatus: string;
   onActiveKey: (key: PlayerKey) => void;
+  onSelectionIntent: (intent: SelectionIntent) => void;
   onPlayDraft: (draft: PlayCardDraft) => void;
   onMoveDraft: (draft: MoveUnitDraft) => void;
   onAssembleDraft: (draft: AssembleDraft) => void;
   onBattleDraft: (draft: BattleDraft) => void;
-  onPickObject: (objectId: string) => void;
   onSubmitPlayCard: () => void;
   onSubmitMove: () => void;
   onSubmitAssemble: () => void;
@@ -1193,6 +1286,7 @@ function CommandWorkbench({
   onCopyFixture: () => void;
 }) {
   const promptActions = activePlayer.prompt?.actions ?? [];
+  const promptCandidates = promptCandidatesFor(activePlayer.prompt);
   const promptIsActionable = Boolean(activePlayer.prompt?.actionable);
   const canPlayCard = promptIsActionable && promptActions.includes("PLAY_CARD");
   const canMove = promptIsActionable && promptActions.includes("MOVE_UNIT");
@@ -1229,16 +1323,17 @@ function CommandWorkbench({
           </select>
         </label>
         <div className="action-chips">
-          {promptActions.map((action) => (
+          {promptCandidates.map((candidate) => (
             <button
-              className={promptIsActionable ? "action-chip actionable" : "action-chip"}
-              data-testid={`workbench-action-${action.toLowerCase().replaceAll("_", "-")}`}
-              disabled={!promptIsActionable || !replayableActions.has(action)}
-              key={action}
-              onClick={() => onPromptAction(action)}
+              className={candidate.enabled ? "action-chip actionable" : "action-chip"}
+              data-testid={`workbench-action-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
+              disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
+              key={candidate.action}
+              onClick={() => onPromptAction(candidate.action)}
+              title={candidate.reason}
               type="button"
             >
-              {action}
+              {candidate.label}
             </button>
           ))}
         </div>
@@ -1246,20 +1341,15 @@ function CommandWorkbench({
 
       <ResponseWindowPanel snapshot={snapshot} prompt={activePlayer.prompt} />
 
-      <section className="scenario-panel">
-        <div className="section-title">
-          <h3>Scenario Seeds</h3>
-          <span>development only</span>
-        </div>
-        <div className="scenario-grid">
-          {scenarioPresets.map((preset) => (
-            <button data-testid={`seed-${preset.id}`} key={preset.id} onClick={() => onSeedScenario(preset)}>
-              <strong>{preset.title}</strong>
-              <small>{preset.description}</small>
-            </button>
-          ))}
-        </div>
-      </section>
+      <SelectionModePanel selectionIntent={selectionIntent} onSelectionIntent={onSelectionIntent} />
+      <IntentSummaryPanel
+        prompt={activePlayer.prompt}
+        selectionIntent={selectionIntent}
+        playDraft={playDraft}
+        moveDraft={moveDraft}
+        assembleDraft={assembleDraft}
+        battleDraft={battleDraft}
+      />
 
       <section className="play-card-panel">
         <div className="section-title">
@@ -1330,7 +1420,6 @@ function CommandWorkbench({
               type="button"
               key={objectId}
               onClick={() => {
-                onPickObject(objectId);
                 togglePlayTarget(objectId);
               }}
             >
@@ -1366,6 +1455,23 @@ function CommandWorkbench({
           Submit PLAY_CARD
         </button>
       </section>
+
+      {devToolsOpen ? (
+        <section className="scenario-panel">
+          <div className="section-title">
+            <h3>Scenario Seeds</h3>
+            <span>development only</span>
+          </div>
+          <div className="scenario-grid">
+            {scenarioPresets.map((preset) => (
+              <button data-testid={`seed-${preset.id}`} key={preset.id} onClick={() => onSeedScenario(preset)}>
+                <strong>{preset.title}</strong>
+                <small>{preset.description}</small>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="command-panel">
         <div className="section-title">
@@ -1502,6 +1608,7 @@ function CommandWorkbench({
         </button>
       </section>
 
+      {devToolsOpen ? (
       <section className="fixture-panel">
         <div className="section-title">
           <h3>Fixture Draft</h3>
@@ -1517,6 +1624,100 @@ function CommandWorkbench({
         </div>
         <pre data-testid="fixture-draft">{fixtureText}</pre>
       </section>
+      ) : null}
+    </section>
+  );
+}
+
+function SelectionModePanel({
+  selectionIntent,
+  onSelectionIntent
+}: {
+  selectionIntent: SelectionIntent;
+  onSelectionIntent: (intent: SelectionIntent) => void;
+}) {
+  return (
+    <section className="selection-mode-panel" data-testid="selection-mode-panel">
+      <div className="section-title">
+        <h3>桌面点击模式</h3>
+        <span>{selectionIntentHint(selectionIntent)}</span>
+      </div>
+      <div className="selection-mode-grid">
+        {selectionIntentOptions.map((option) => (
+          <button
+            className={selectionIntent === option.id ? "selected" : ""}
+            data-testid={`selection-mode-${option.id}`}
+            key={option.id}
+            onClick={() => onSelectionIntent(option.id)}
+            title={option.hint}
+            type="button"
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function IntentSummaryPanel({
+  prompt,
+  selectionIntent,
+  playDraft,
+  moveDraft,
+  assembleDraft,
+  battleDraft
+}: {
+  prompt?: ActionPromptDto;
+  selectionIntent: SelectionIntent;
+  playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
+}) {
+  const summaryRows = [
+    {
+      label: "PLAY_CARD",
+      value: summarizeCommand(buildPlayCardCommand(playDraft))
+    },
+    {
+      label: "MOVE_UNIT",
+      value: summarizeCommand(buildMoveUnitCommand(moveDraft))
+    },
+    {
+      label: "ASSEMBLE",
+      value: summarizeCommand(buildAssembleCommand(assembleDraft))
+    },
+    {
+      label: "BATTLE",
+      value: summarizeCommand(buildDeclareBattleCommand(battleDraft))
+    }
+  ];
+
+  return (
+    <section className="intent-summary-panel" data-testid="intent-summary">
+      <div className="section-title">
+        <h3>待提交操作</h3>
+        <span>{prompt?.promptId ? `prompt ${prompt.promptId}` : selectionIntentLabel(selectionIntent)}</span>
+      </div>
+      <div className="intent-summary-grid">
+        <div>
+          <span>Prompt tick</span>
+          <strong>{prompt?.snapshotTick ?? "-"}</strong>
+        </div>
+        <div>
+          <span>当前模式</span>
+          <strong>{selectionIntentLabel(selectionIntent)}</strong>
+        </div>
+      </div>
+      <div className="intent-summary-list">
+        {summaryRows.map((row) => (
+          <div key={row.label}>
+            <span>{row.label}</span>
+            <strong>{row.value}</strong>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -1841,7 +2042,8 @@ function PlayerPanel({
   onReady,
   onSnapshot,
   onPromptAction,
-  onSubmitJson
+  onSubmitJson,
+  devToolsOpen
 }: {
   playerKey: PlayerKey;
   state: PlayerState;
@@ -1853,8 +2055,9 @@ function PlayerPanel({
   onSnapshot: () => void;
   onPromptAction: (action: string) => void;
   onSubmitJson: () => void;
+  devToolsOpen: boolean;
 }) {
-  const promptActions = state.prompt?.actions ?? [];
+  const promptCandidates = promptCandidatesFor(state.prompt);
 
   return (
     <article className="player-panel" data-testid={`${playerKey}-panel`}>
@@ -1910,7 +2113,7 @@ function PlayerPanel({
         </div>
         <div>
           <dt>Prompt</dt>
-          <dd>{state.prompt?.actionable ? "actionable" : "waiting"}</dd>
+          <dd>{state.prompt?.actionable ? "actionable" : "waiting"} / {state.prompt?.snapshotTick ?? "-"}</dd>
         </div>
       </dl>
 
@@ -1920,23 +2123,25 @@ function PlayerPanel({
           <span>{state.prompt?.reason ?? "No prompt yet"}</span>
         </div>
         <div className="button-row">
-          {promptActions.length === 0 ? (
+          {promptCandidates.length === 0 ? (
             <button disabled>No prompt action</button>
           ) : (
-            promptActions.map((action) => (
+            promptCandidates.map((candidate) => (
               <button
-                key={action}
-                data-testid={`${playerKey}-${action.toLowerCase().replaceAll("_", "-")}`}
-                disabled={!state.prompt?.actionable || (!replayableActions.has(action) && action !== "PLAY_CARD")}
-                onClick={() => onPromptAction(action)}
+                key={candidate.action}
+                data-testid={`${playerKey}-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
+                disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
+                onClick={() => onPromptAction(candidate.action)}
+                title={candidate.reason}
               >
-                {action}
+                {candidate.label}
               </button>
             ))
           )}
         </div>
       </section>
 
+      {devToolsOpen ? (
       <section className="intent-panel" aria-label={`${state.label} submit intent`}>
         <div className="section-title">
           <h3>SubmitIntent JSON</h3>
@@ -1960,8 +2165,9 @@ function PlayerPanel({
           Submit JSON
         </button>
       </section>
+      ) : null}
 
-      <DebugGrid state={state} />
+      {devToolsOpen ? <DebugGrid state={state} /> : null}
     </article>
   );
 }
@@ -2012,6 +2218,101 @@ function EmptyDesk() {
       <span>Join both clients to populate the desk.</span>
     </div>
   );
+}
+
+function promptCandidatesFor(prompt?: ActionPromptDto): ActionPromptCandidateDto[] {
+  if (prompt?.candidates?.length) {
+    return prompt.candidates;
+  }
+
+  return (prompt?.actions ?? []).map((action) => ({
+    action,
+    label: promptActionLabel(action),
+    enabled: Boolean(prompt?.actionable) && action !== "WAIT",
+    reason: prompt?.reason ?? ""
+  }));
+}
+
+function promptActionLabel(action: string) {
+  return (
+    {
+      READY: "准备",
+      WAIT: "等待",
+      PLAY_CARD: "打出卡牌",
+      ACTIVATE_ABILITY: "激活能力",
+      ASSEMBLE_EQUIPMENT: "装配装备",
+      MOVE_UNIT: "移动单位",
+      DECLARE_BATTLE: "声明战斗",
+      HIDE_CARD: "隐藏卡牌",
+      TAP_RUNE: "横置符文",
+      LEGEND_ACT: "传奇行动",
+      PASS: "让过",
+      PASS_PRIORITY: "让过优先权",
+      PASS_FOCUS: "让过焦点",
+      END_TURN: "结束回合"
+    }[action] ?? action
+  );
+}
+
+function selectionIntentLabel(intent: SelectionIntent) {
+  return selectionIntentOptions.find((option) => option.id === intent)?.label ?? intent;
+}
+
+function selectionIntentHint(intent: SelectionIntent) {
+  return selectionIntentOptions.find((option) => option.id === intent)?.hint ?? "点击桌面对象填入当前操作";
+}
+
+function findObject(snapshot: SnapshotDto | undefined, objectId: string) {
+  if (!snapshot) {
+    return undefined;
+  }
+
+  for (const player of Object.values(snapshot.players)) {
+    const candidate = player.objects?.[objectId];
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  return undefined;
+}
+
+function toggleListValue(value: string, nextValue: string) {
+  const values = parseList(value);
+  return values.includes(nextValue)
+    ? values.filter((valueItem) => valueItem !== nextValue)
+    : [...values, nextValue];
+}
+
+function collectDraftObjectSelections(
+  playDraft: PlayCardDraft,
+  moveDraft: MoveUnitDraft,
+  assembleDraft: AssembleDraft,
+  battleDraft: BattleDraft
+) {
+  return new Set(
+    [
+      playDraft.sourceObjectId,
+      ...parseList(playDraft.targetObjectIds),
+      moveDraft.sourceObjectId,
+      assembleDraft.sourceObjectId,
+      assembleDraft.targetObjectId,
+      ...parseList(battleDraft.attackerObjectIds),
+      ...parseList(battleDraft.defenderObjectIds)
+    ].filter(Boolean)
+  );
+}
+
+function summarizeCommand(command: Record<string, unknown>) {
+  const parts = Object.entries(command)
+    .filter(([, value]) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== undefined && value !== null && value !== "";
+    })
+    .map(([key, value]) => `${key}=${formatPayloadValue(value)}`);
+  return parts.length ? parts.join(" / ") : String(command.cmdType ?? "-");
 }
 
 function summarizeRoom(snapshot?: SnapshotDto) {

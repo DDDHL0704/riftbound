@@ -110,10 +110,23 @@ label {
 
 .top-bar {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) 260px 260px auto auto auto;
+  grid-template-columns: minmax(260px, 1fr) 220px 220px 96px repeat(5, auto);
   align-items: end;
   gap: 12px;
   padding: 14px;
+}
+
+.secondary-toggle {
+  border-color: #8aa4aa;
+  background: #eef5f3;
+  color: #25424a;
+}
+
+.secondary-toggle:hover:not(:disabled),
+.secondary-toggle.active {
+  border-color: #145c55;
+  background: #d9efe2;
+  color: #175c3d;
 }
 
 .eyebrow {
@@ -389,6 +402,11 @@ h3 {
   border-right: 4px solid #a2452d;
 }
 
+.object-card.selected {
+  outline: 3px solid rgba(20, 92, 85, 0.42);
+  box-shadow: 0 0 0 3px rgba(20, 92, 85, 0.12);
+}
+
 .object-card span {
   overflow-wrap: anywhere;
   font-size: 11px;
@@ -491,6 +509,8 @@ h3 {
 
 .stack-strip,
 .scenario-panel,
+.selection-mode-panel,
+.intent-summary-panel,
 .play-card-panel,
 .command-panel,
 .response-panel,
@@ -619,6 +639,61 @@ h3 {
   border-color: #1f6b5d;
   background: #d9efe2;
   color: #175c3d;
+}
+
+.selection-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.selection-mode-grid button {
+  min-height: 32px;
+  border-color: #c9d8dc;
+  background: #eef5f3;
+  color: #25424a;
+}
+
+.selection-mode-grid button.selected {
+  border-color: #145c55;
+  background: #176b63;
+  color: #fff;
+}
+
+.intent-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.intent-summary-grid div,
+.intent-summary-list div {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #dbe4e6;
+  border-radius: 6px;
+  background: #f8fbfa;
+  padding: 8px;
+}
+
+.intent-summary-grid span,
+.intent-summary-list span {
+  color: #5d7077;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.intent-summary-grid strong,
+.intent-summary-list strong {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.intent-summary-list {
+  display: grid;
+  gap: 6px;
 }
 
 .response-grid {

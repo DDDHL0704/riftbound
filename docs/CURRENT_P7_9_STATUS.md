@@ -145,7 +145,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | --- | --- | --- | --- |
 | P7.9.0 | Done | Audit, current status file, `START_HERE`, README, and master plan synchronization. | `git diff --check`; docs-only commit. |
 | P7.9.1 | Done | Backward-compatible structured `ActionPrompt` contract design and first DTO/test slice. | Build + prompt serialization tests. |
-| P7.9.2 | Planned | Product operation shell: hide dev tools by default, click-to-source/target scaffolding, action summary. | Frontend build + Browser smoke. |
+| P7.9.2 | Done | Product operation shell: hide dev tools by default, click-to-source/target scaffolding, action summary. | Frontend build + Browser smoke. |
 | P7.9.3 | Planned | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Planned | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Planned | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
@@ -196,8 +196,8 @@ Final P7.9 gate:
 ## Current Progress
 
 - P7.9.0 status: done.
-- Overall P7.9 progress: `2/13 top-level batches = 15.4%`.
-- Estimated remaining top-level batches: `11`.
+- Overall P7.9 progress: `3/13 top-level batches = 23.1%`.
+- Estimated remaining top-level batches: `10`.
 
 ## P7.9.0 Delivered
 
@@ -229,3 +229,24 @@ P7.9.1 validation:
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `27/27`.
+
+## P7.9.2 Delivered
+
+- Added a product operation shell on top of the P7 workbench:
+  - desktop click mode selector for play source, play target, move source, assemble source, assemble target, battle attacker, and battle defender
+  - selected object highlighting on the battle desk
+  - intent summary panel for the currently drafted `PLAY_CARD`, `MOVE_UNIT`, `ASSEMBLE_EQUIPMENT`, and `DECLARE_BATTLE` commands
+  - prompt candidate labels in command chips instead of raw action ids where structured prompt data is available
+- Added a top-level `开发工具` toggle.
+- Hid scenario seeds, fixture draft, raw `SubmitIntent JSON`, and debug JSON panels by default.
+- Kept all operation drafting as client intent assembly only; no frontend legality rules were introduced.
+
+P7.9.2 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-1777959564489`
+  - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `join-both` -> `ready-both` -> open dev tools -> `seed-basic-play`
+  - UI summary: `桌面点击模式` and `待提交操作` visible; `Scenario Seeds`, `Fixture Draft`, and raw JSON hidden before opening dev tools; debug prompt contains `promptId`, `snapshotTick`, and `candidates`.
