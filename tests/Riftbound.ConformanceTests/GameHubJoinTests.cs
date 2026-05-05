@@ -358,6 +358,75 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
+    {
+        const string roomId = "p6-3a-response-window";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "spell-duel", "seed-p6-spell-duel");
+
+        var playClients = new RecordingHubClients();
+        var play = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+              "cardNo": "OGN·009/298",
+              "targetObjectIds": ["P2-UNIT-001"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-play-hextech-ray", play);
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(
+            Assert.Single(playClients.GroupClient.EventMessages).Payload);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(2, playClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, playClients.GroupClient.Prompts.Count);
+        var playP1Prompt = PromptFor(playClients, "P1");
+        var playP2Prompt = PromptFor(playClients, "P2");
+        Assert.True(playP1Prompt.Actionable);
+        Assert.Contains("PASS_PRIORITY", playP1Prompt.Actions);
+        Assert.False(playP2Prompt.Actionable);
+        Assert.Contains("WAIT", playP2Prompt.Actions);
+
+        var passClients = new RecordingHubClients();
+        var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-pass-priority", pass);
+
+        Assert.Empty(passClients.CallerClient.Errors);
+        var passEvents = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(
+            Assert.Single(passClients.GroupClient.EventMessages).Payload);
+        Assert.Contains(passEvents, gameEvent => string.Equals(gameEvent.Kind, "PRIORITY_PASSED", StringComparison.Ordinal));
+        Assert.Equal(2, passClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, passClients.GroupClient.Prompts.Count);
+        var passP1Prompt = PromptFor(passClients, "P1");
+        var passP2Prompt = PromptFor(passClients, "P2");
+        Assert.False(passP1Prompt.Actionable);
+        Assert.Contains("WAIT", passP1Prompt.Actions);
+        Assert.True(passP2Prompt.Actionable);
+        Assert.Contains("PASS_PRIORITY", passP2Prompt.Actions);
+
+        var p2Snapshot = Assert.IsType<SnapshotDto>(
+            Assert.Single(passClients.GroupClient.Snapshots, message => string.Equals(message.PlayerId, "P2", StringComparison.Ordinal)).Payload);
+        Assert.Single(p2Snapshot.Stack);
+        Assert.Equal("P2", p2Snapshot.Timing["priorityPlayerId"]);
+        Assert.Equal("NEUTRAL_CLOSED", p2Snapshot.Timing["timingState"]);
+    }
+
+    [Fact]
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
@@ -408,6 +477,12 @@ public sealed class GameHubJoinTests
             .Ready("room-a", "alice", "ready-alice");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
             .Ready("room-a", "bob", "ready-bob");
+    }
+
+    private static ActionPromptDto PromptFor(RecordingHubClients clients, string playerId)
+    {
+        return Assert.IsType<ActionPromptDto>(
+            Assert.Single(clients.GroupClient.Prompts, message => string.Equals(message.PlayerId, playerId, StringComparison.Ordinal)).Payload);
     }
 
     private sealed class RecordingGameClient : IGameClient

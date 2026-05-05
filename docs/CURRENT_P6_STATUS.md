@@ -172,7 +172,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.1b | Done | Same-text variant/reprint audit for already implemented functional units. | Catalog status matrix + no duplicate rule handlers. |
 | P6.2a | Done | Draw/damage/destroy/stun existing-template promotion. | Conformance fixtures for representative paths. |
 | P6.2b | Done | Recall/move/recycle/banish/temp might/boon existing-template promotion. | Conformance fixtures for representative paths. |
-| P6.3 | Planned | Swift/reaction/spell-duel batches. | GameHub/Room smoke required. |
+| P6.3a | Done | Swift/reaction/spell-duel online response-window smoke. | GameHub/Room smoke passed. |
+| P6.3b | Planned | Swift/reaction/spell-duel playable coverage expansion. | Conformance + GameHub/Room smoke where response-window-visible. |
 | P6.4 | Planned | Movement/battle/scoring batches. | GameHub/Room smoke required. |
 | P6.5 | Planned | Standby/ambush/echo batches. | Response-window conformance required. |
 | P6.6 | Planned | Equipment/assemble/agile/forge/tempered batches. | P5 equipment invariant tests required. |
@@ -203,6 +204,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - banish: `8/11 entries = 72.7%`, `8/9 units = 88.9%`
   - temp might: `255/292 entries = 87.3%`, `208/230 units = 90.4%`
   - boon: `51/66 entries = 77.3%`, `41/48 units = 85.4%`
+- P6.3a response-window smoke progress: `1/1 GameHub smoke = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -321,6 +323,27 @@ P6.2b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 - `git diff --check`: passed.
 
+## P6.3a Delivered
+
+- Added a GameHub/Room smoke for the response-window handoff after a spell is played from the `spell-duel` development seed.
+- Test path: `P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed` in `GameHubJoinTests`.
+- Local URL: N/A; this is an in-memory SignalR `GameHub` smoke with no browser/server listener.
+- Room ID: `p6-3a-response-window`.
+- Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(spell-duel)` -> `SubmitIntent(PLAY_CARD Hextech Ray, OGN·009/298, target P2-UNIT-001)` -> `SubmitIntent(PASS_PRIORITY by P1)`.
+- Observed events after play: `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`.
+- Observed events after pass: `PRIORITY_PASSED`.
+- Final prompt/snapshot summary: stack remains at `1` pending item, `timingState = NEUTRAL_CLOSED`, `priorityPlayerId = P2`; P1 prompt is `WAIT`, P2 prompt is actionable `PASS_PRIORITY`.
+- This batch does not close additional functional units; it verifies the online response-window boundary required before expanding swift/reaction/spell-duel playable coverage.
+
+P6.3a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2579/2579`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2493/2493`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `27/27`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `17/17`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.2b, then continue into P6.3 swift/reaction/spell-duel batches with Room/GameHub smoke.
+Commit P6.3a, then continue into P6.3b swift/reaction/spell-duel playable coverage expansion.
