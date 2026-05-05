@@ -184,7 +184,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.6a | Done | Equipment keyword surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
 | P6.6b | Done | Long Sword play + assemble Room smoke. | GameHub/Room smoke passed. |
 | P6.6c | Planned | Remaining equipment assemble/agile/tempered boundary checks. | P5 equipment invariant tests required. |
-| P6.7 | Planned | Experience/level/hunt/encourage batches. | Engine + conformance tests. |
+| P6.7a | Done | Experience/level/hunt/encourage surface matrix and current execution/deferred boundary triage. | Catalog profile matrix passed. |
+| P6.7b | Planned | Remaining experience/level/hunt/encourage representative boundary checks. | Engine + conformance tests. |
 | P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
 | P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
 | P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
@@ -224,6 +225,11 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Representative attach/detach boundary: `1/1 Take Up representative = 100.0% implemented-representative`.
   - Profile deferred boundary: `52/52 entries = 100.0%`, `46/46 functional units = 100.0%` for broad Assemble/Agile/Tempered execution surfaces.
 - P6.6b equipment Room smoke progress: `1/1 GameHub core path = 100.0%`.
+- P6.7a resource/experience surface triage: `47/47 resource/experience functional units = 100.0%` statused in the matrix.
+  - Hunt execution boundary: `14/14 entries = 100.0%`, `14/14 functional units = 100.0%` carry registry source tags used by the P4 Hunt conquest experience path.
+  - Level execution representatives: `5/18 entries = 27.8%`, `5/17 functional units = 29.4%` have current level threshold execution; the remaining surface stays deferred.
+  - Encourage execution representatives: `5/15 entries = 33.3%`, `5/10 functional units = 50.0%` have current condition-bound representative execution; the remaining surface stays deferred.
+  - Experience behavior representatives: `6/51 entries = 11.8%`, `6/47 functional units = 12.8%` have current gain/spend execution; remaining experience text stays deferred unless separately covered.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -563,6 +569,34 @@ P6.6b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `23/23`.
 - `git diff --check`: passed.
 
+## P6.7a Delivered
+
+- Added a P6 resource/experience coverage matrix to `CardCatalogBaselineTests`.
+- Locked official resource keyword surfaces and current execution/deferred boundaries:
+
+| Keyword | Entries | Spec implemented entries | Functional units | Spec implemented units | Registry execution entries | Registry execution units | Profile deferred entries | Profile deferred units |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 狩猎 | 14 | 14 | 14 | 14 | 14 | 14 | 14 | 14 |
+| 等级 | 18 | 15 | 17 | 15 | 5 | 5 | 18 | 17 |
+| 鼓舞 | 15 | 12 | 10 | 9 | 5 | 5 | 15 | 10 |
+
+- Locked the `gain_experience` template surface: `51` entries / `47` functional units; `43` implemented entries / `43` implemented units; `8` manual-rule-required entries / `4` pending units.
+- Current executable representatives:
+  - `狩猎`: all `14` Hunt keyword entries have registry source tags and stay tied to the P4 conquest experience path.
+  - `等级`: `5` entries / `5` units have threshold execution via `LevelExperienceThreshold`; broader level branches remain deferred.
+  - `鼓舞`: `5` entries / `5` units have condition-bound representative execution for cost reduction, temporary might, discard/draw, minion creation, or self-boon; broader encourage branches remain deferred.
+  - `经验`: `6` entries / `6` units have current gain/spend execution (`GainExperienceOnPlay`, per-friendly-field gain, or optional experience cost); remaining experience text remains deferred unless a later batch gives it conformance coverage.
+- This batch does not change engine behavior or BehaviorSpec status counts; it prevents P6 from accidentally promoting broad resource/experience surfaces beyond the P2-P5 representative paths.
+
+P6.7a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2592/2592`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `32/32`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `23/23`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.6b, then continue into P6.6c remaining equipment boundary checks or P6.7 experience/resource batches.
+Commit P6.7a, then continue into P6.7b remaining experience/resource boundary checks.

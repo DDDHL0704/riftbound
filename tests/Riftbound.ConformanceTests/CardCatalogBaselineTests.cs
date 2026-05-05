@@ -340,6 +340,92 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6ResourceAndExperienceFamiliesReportSpecAndExecutionBoundaryCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var rows = BuildResourceKeywordCoverageRows(
+            specs,
+            [
+                CardResourceKeywordNames.Hunt,
+                CardResourceKeywordNames.Level,
+                CardResourceKeywordNames.Encourage
+            ]);
+        var experienceReport = BehaviorTemplateFamilyCoverageReporter.Build(
+            specs,
+            [BehaviorTemplateIds.GainExperience]);
+        var experienceFamily = Assert.Single(experienceReport.Families);
+        var experienceRows = specs
+            .Where(spec => spec.TemplateIds.Contains(BehaviorTemplateIds.GainExperience, StringComparer.Ordinal))
+            .Select(spec =>
+            {
+                CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out var definition);
+                return new
+                {
+                    Spec = spec,
+                    Definition = definition
+                };
+            })
+            .ToArray();
+        var experienceUnitGroups = experienceRows
+            .GroupBy(row => row.Spec.FunctionalUnitId, StringComparer.Ordinal)
+            .ToArray();
+
+        AssertResourceKeywordCoverage(
+            rows,
+            CardResourceKeywordNames.Hunt,
+            entries: 14,
+            specImplementedEntries: 14,
+            functionalUnits: 14,
+            specImplementedFunctionalUnits: 14,
+            registryExecutionEntries: 14,
+            registryExecutionFunctionalUnits: 14,
+            profileDeferredEntries: 14,
+            profileDeferredFunctionalUnits: 14);
+        AssertResourceKeywordCoverage(
+            rows,
+            CardResourceKeywordNames.Level,
+            entries: 18,
+            specImplementedEntries: 15,
+            functionalUnits: 17,
+            specImplementedFunctionalUnits: 15,
+            registryExecutionEntries: 5,
+            registryExecutionFunctionalUnits: 5,
+            profileDeferredEntries: 18,
+            profileDeferredFunctionalUnits: 17);
+        AssertResourceKeywordCoverage(
+            rows,
+            CardResourceKeywordNames.Encourage,
+            entries: 15,
+            specImplementedEntries: 12,
+            functionalUnits: 10,
+            specImplementedFunctionalUnits: 9,
+            registryExecutionEntries: 5,
+            registryExecutionFunctionalUnits: 5,
+            profileDeferredEntries: 15,
+            profileDeferredFunctionalUnits: 10);
+        AssertFamily(
+            experienceReport,
+            BehaviorTemplateIds.GainExperience,
+            entries: 51,
+            implementedEntries: 43,
+            manualRuleRequiredEntries: 8,
+            unimplementedEntries: 0,
+            functionalUnits: 47,
+            implementedFunctionalUnits: 43,
+            pendingFunctionalUnits: 4);
+        Assert.Equal(6, experienceRows.Count(row => HasExperienceBehavior(row.Definition)));
+        Assert.Equal(6, experienceUnitGroups.Count(group => group.Any(row => HasExperienceBehavior(row.Definition))));
+        Assert.All(rows, row =>
+        {
+            Assert.Equal(row.Entries, row.ProfileDeferredEntries);
+            Assert.Equal(row.FunctionalUnits, row.ProfileDeferredFunctionalUnits);
+            Assert.True(row.RegistryExecutionEntries > 0, $"{row.Keyword} should have a P2-P5 representative boundary.");
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1929,6 +2015,154 @@ public sealed class CardCatalogBaselineTests
         int SpecImplementedEntries,
         int FunctionalUnits,
         int SpecImplementedFunctionalUnits,
+        int ProfileDeferredEntries,
+        int ProfileDeferredFunctionalUnits);
+
+    private static IReadOnlyList<ResourceKeywordCoverageRow> BuildResourceKeywordCoverageRows(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<string> keywords)
+    {
+        var profileRows = specs
+            .Select(spec =>
+            {
+                CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out var definition);
+                return new
+                {
+                    Spec = spec,
+                    Definition = definition,
+                    Profile = CardResourceKeywordRules.BuildProfile(spec, definition)
+                };
+            })
+            .ToArray();
+
+        return keywords
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(keyword =>
+            {
+                var keywordRows = profileRows
+                    .Where(row => HasResourceKeyword(row.Profile, keyword))
+                    .ToArray();
+                var unitGroups = keywordRows
+                    .GroupBy(row => row.Spec.FunctionalUnitId, StringComparer.Ordinal)
+                    .ToArray();
+
+                return new ResourceKeywordCoverageRow(
+                    keyword,
+                    keywordRows.Length,
+                    keywordRows.Count(row => string.Equals(
+                        row.Spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    unitGroups.Length,
+                    unitGroups.Count(group => group.Any(row => string.Equals(
+                        row.Spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal))),
+                    keywordRows.Count(row => HasResourceExecutionBoundary(keyword, row.Definition)),
+                    unitGroups.Count(group => group.Any(row => HasResourceExecutionBoundary(keyword, row.Definition))),
+                    keywordRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        ResourceKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal)),
+                    unitGroups.Count(group => group.All(row => string.Equals(
+                        row.Profile.Status,
+                        ResourceKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal))));
+            })
+            .ToArray();
+    }
+
+    private static bool HasResourceKeyword(CardResourceKeywordProfile profile, string keyword)
+    {
+        return keyword switch
+        {
+            CardResourceKeywordNames.Hunt => profile.HasHunt,
+            CardResourceKeywordNames.Level => profile.HasLevel,
+            CardResourceKeywordNames.Encourage => profile.HasEncourage,
+            CardResourceKeywordNames.Spellshield => profile.HasSpellshield,
+            _ => false
+        };
+    }
+
+    private static bool HasResourceExecutionBoundary(
+        string keyword,
+        CardBehaviorDefinition? definition)
+    {
+        if (definition is null)
+        {
+            return false;
+        }
+
+        return keyword switch
+        {
+            CardResourceKeywordNames.Hunt => CardResourceKeywordRules.HuntAmountFromTags(SourceTags(definition)) > 0,
+            CardResourceKeywordNames.Level => definition.LevelExperienceThreshold > 0,
+            CardResourceKeywordNames.Encourage => definition.CostReductionConditionKind == CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
+                || definition.DrawConditionKind == CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn
+                || definition.SourceBoonConditionKind == CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn
+                || definition.TargetCountConditionKind == CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn
+                || definition.CreatedBaseUnitTokenConditionKind == CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn,
+            CardResourceKeywordNames.Spellshield => CardResourceKeywordRules.SpellshieldTaxFromTags(SourceTags(definition)) > 0,
+            _ => false
+        };
+    }
+
+    private static bool HasExperienceBehavior(CardBehaviorDefinition? definition)
+    {
+        return definition is not null
+            && (definition.GainExperienceOnPlay > 0
+                || definition.GainExperienceOnPlayPerFriendlyFieldUnit > 0
+                || definition.OptionalExperienceCost > 0);
+    }
+
+    private static IReadOnlyList<string> SourceTags(CardBehaviorDefinition definition)
+    {
+        return ParseDelimitedValues(definition.SourceUnitTags)
+            .Concat(ParseDelimitedValues(definition.SourceEquipmentTags))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<string> ParseDelimitedValues(string value)
+    {
+        return value
+            .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .ToArray();
+    }
+
+    private static void AssertResourceKeywordCoverage(
+        IReadOnlyList<ResourceKeywordCoverageRow> rows,
+        string keyword,
+        int entries,
+        int specImplementedEntries,
+        int functionalUnits,
+        int specImplementedFunctionalUnits,
+        int registryExecutionEntries,
+        int registryExecutionFunctionalUnits,
+        int profileDeferredEntries,
+        int profileDeferredFunctionalUnits)
+    {
+        var row = Assert.Single(rows, candidate => string.Equals(candidate.Keyword, keyword, StringComparison.Ordinal));
+        Assert.Equal(entries, row.Entries);
+        Assert.Equal(specImplementedEntries, row.SpecImplementedEntries);
+        Assert.Equal(functionalUnits, row.FunctionalUnits);
+        Assert.Equal(specImplementedFunctionalUnits, row.SpecImplementedFunctionalUnits);
+        Assert.Equal(registryExecutionEntries, row.RegistryExecutionEntries);
+        Assert.Equal(registryExecutionFunctionalUnits, row.RegistryExecutionFunctionalUnits);
+        Assert.Equal(profileDeferredEntries, row.ProfileDeferredEntries);
+        Assert.Equal(profileDeferredFunctionalUnits, row.ProfileDeferredFunctionalUnits);
+    }
+
+    private sealed record ResourceKeywordCoverageRow(
+        string Keyword,
+        int Entries,
+        int SpecImplementedEntries,
+        int FunctionalUnits,
+        int SpecImplementedFunctionalUnits,
+        int RegistryExecutionEntries,
+        int RegistryExecutionFunctionalUnits,
         int ProfileDeferredEntries,
         int ProfileDeferredFunctionalUnits);
 
