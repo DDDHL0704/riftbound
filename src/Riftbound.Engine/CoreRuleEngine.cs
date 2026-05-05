@@ -150,6 +150,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
+    private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
@@ -3789,6 +3790,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId;
                 rngCursor = battlefieldDiscardDrawApplication.RngCursor;
             }
+            if (TryResolveBattlefieldConquerConsumeBoonDrawTrigger(
+                    state,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    rngCursor,
+                    combatEvents,
+                    out var battlefieldBoonDrawApplication))
+            {
+                playerScores = battlefieldBoonDrawApplication.PlayerScores;
+                winnerPlayerId = battlefieldBoonDrawApplication.WinnerPlayerId;
+                rngCursor = battlefieldBoonDrawApplication.RngCursor;
+            }
             var battlefieldReadyLegendTrigger = ResolveBattlefieldConquerPayOneReadyLegendTrigger(
                 playerZones,
                 cardObjects,
@@ -6492,6 +6509,112 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerConsumeBoonDrawTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerConsumeBoonDrawCardNo(battlefieldState.CardNo)
+            || !TryGetFirstControlledBoonUnit(playerZones, cardObjects, playerId, sourceObjectId, out var targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        var nextPower = Math.Max(0, targetState.Power - 1);
+        cardObjects[targetObjectId] = targetState with
+        {
+            Power = nextPower,
+            Tags = targetState.Tags
+                .Where(tag => !string.Equals(tag, CardObjectTags.Boon, StringComparison.Ordinal))
+                .ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并消耗增益抽牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW",
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["drawCount"] = 1
+            }));
+        events.Add(new GameEvent(
+            "BOON_CONSUMED",
+            $"{targetObjectId} 因征服战场消耗增益",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["previousPower"] = targetState.Power,
+                ["power"] = nextPower,
+                ["reason"] = "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW"
+            }));
+
+        drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            playerId,
+            1,
+            rngCursor,
+            events);
+        return true;
+    }
+
+    private static bool TryGetFirstControlledBoonUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string preferredObjectId,
+        out string targetObjectId,
+        out CardObjectState targetState)
+    {
+        targetObjectId = string.Empty;
+        targetState = default!;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var candidateObjectIds = new[] { preferredObjectId }
+            .Concat(zones.Battlefields)
+            .Concat(zones.Base)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        foreach (var candidateObjectId in candidateObjectIds)
+        {
+            if (cardObjects.TryGetValue(candidateObjectId, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && candidate.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
+                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
+                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal))
+                && IsObjectOnField(playerZones, candidateObjectId))
+            {
+                targetObjectId = candidateObjectId;
+                targetState = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static (IReadOnlyDictionary<string, RunePool> RunePools, IReadOnlyList<GameEvent> Events)
         ResolveBattlefieldConquerPayOneReadyLegendTrigger(
             IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -6910,6 +7033,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldHoldCallRuneCardNo(cardNo)
             || IsBattlefieldHoldGrantBoonCardNo(cardNo)
+            || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
@@ -6949,6 +7073,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldGrantBoonCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)

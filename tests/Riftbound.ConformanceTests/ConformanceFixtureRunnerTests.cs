@@ -25760,6 +25760,39 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerConsumesBoonAndDraws()
+    {
+        var state = BattlefieldConquerBoonDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-boon-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-SHIRANA-MONASTERY",
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"],
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-SHIRANA-ATTACKER", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+        var attacker = result.State.CardObjects["P1-BATTLEFIELD-SHIRANA-ATTACKER"];
+        Assert.Equal(3, attacker.Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, attacker.Tags);
+        Assert.Equal(["P1-BATTLEFIELD-BOON-DRAW-CARD"], result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerMillsTopTwoFromBattlefieldObject()
     {
         var state = BattlefieldConquerMillState();
@@ -37174,6 +37207,51 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-PLUNDER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PLUNDER-DEFENDER",
                     power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerBoonDrawState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-BATTLEFIELD-BOON-DRAW-CARD"],
+                    Battlefields = ["P1-BATTLEFIELD-SHIRANA-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-SHIRANA-MONASTERY", "P2-BATTLEFIELD-SHIRANA-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-SHIRANA-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Boon, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-BOON-DRAW-CARD"] = new(
+                    "P1-BATTLEFIELD-BOON-DRAW-CARD",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-SHIRANA-MONASTERY"] = new(
+                    "P2-BATTLEFIELD-SHIRANA-MONASTERY",
+                    cardNo: "OGN·282/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-SHIRANA-DEFENDER",
+                    power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
