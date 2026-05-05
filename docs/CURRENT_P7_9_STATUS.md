@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `34/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `35/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `8` done.
+- P7.9.6 active-ability slices: `9` done.
 - P7.9.6 automatic-trigger slices: `10` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `747/811 = 92.1%`.
-- Current manual deferred boundary: `64/811 = 7.9%`.
+- Current functional-unit implementation: `748/811 = 92.2%`.
+- Current manual deferred boundary: `63/811 = 7.8%`.
 - Remaining manual domains:
-  - `传奇`: `10` functional units / `24` entries
+  - `传奇`: `9` functional units / `22` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `8` legend active-ability slices, `10` automatic-trigger slices, and `6` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `9` legend active-ability slices, `10` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -1166,3 +1166,35 @@ P7.9.6 automatic-trigger slice 10 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend trigger slice. It updates authoritative events/snapshots through existing stack resolution.
+
+## P7.9.6 Active/Reaction Draw Slice 9 Delivered
+
+This is the twenty-fourth committed rule slice inside P7.9.6. It adds Ezreal / 探险家's reaction draw condition through the existing server-authoritative `LEGEND_ACT` command.
+
+- Added Ezreal legend action support for:
+  - `SFD·199/221`
+  - `SFD·248/221`
+- The backend now tracks, until end of turn, whether an Ezreal controller has twice targeted enemy units or equipment with spells or implemented unit skills.
+- Ezreal's reaction action is only accepted in a priority window when the target-count condition has reached `2`; it exhausts the legend and draws one card without resolving or mutating the pending stack item.
+- The unit-skill target tracker is gated by actual Ezreal legend presence so unrelated skill fixtures do not gain Ezreal-only until-end-of-turn markers.
+- Migrated this legend reaction draw slice in `BehaviorSpec`:
+  - Implemented functional units: `748/811`
+  - Manual deferred functional units: `63/811`
+  - Implemented official entries: `930/1009`
+  - Manual deferred official entries: `79/1009`
+  - Legend rule-domain implemented: `35` functional units / `84` entries
+  - Remaining legend manual deferred: `9` functional units / `22` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active/reaction draw slice 9 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendActEzreal"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendActEzreal|FullyQualifiedName~CoreRuleEnginePlaysStandFirmAndPreventsXerathSkillDamageThisTurn"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2557/2557`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2664/2664`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt rule slice. It reuses the existing priority-window `LEGEND_ACT` UI path and is covered by conformance prompt assertions.

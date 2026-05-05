@@ -24420,6 +24420,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActEzrealDrawsAfterSecondEnemyTargetThisTurn()
+    {
+        var state = EzrealEnemyTargetSpellState("SFD·199/221", "P1-LEGEND-EZREAL", priorTargetCount: 1);
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ezreal-play-second-target-spell", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-EZREAL-HUNT-002", "UNL-159/219", ["P2-EZREAL-TARGET-002"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        Assert.Contains("EZREAL_ENEMY_TARGETS_THIS_TURN:P1:2", playResult.State.UntilEndOfTurnEffects);
+        var prompt = ResolutionResult.BuildPrompts(playResult.State)["P1"];
+        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY"], prompt.Actions);
+        Assert.Contains(prompt.Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
+            && candidate.Enabled
+            && (candidate.Sources ?? []).Any(source => string.Equals(source.Id, "P1-LEGEND-EZREAL", StringComparison.Ordinal)));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-ezreal-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-EZREAL",
+                "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-EZREAL"].IsExhausted);
+        Assert.Contains("P1-EZREAL-DRAW-001", result.State.PlayerZones["P1"].Hand);
+        Assert.Single(result.State.StackItems);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        var drawEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(1, drawEvent.Payload["count"]);
+    }
+
+    [Fact]
+    public async Task P79LegendActEzrealRequiresTwoEnemyTargetsThisTurn()
+    {
+        var state = EzrealPriorityState("SFD·248/221", "P1-LEGEND-EZREAL-REPRINT", targetCount: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ezreal-legend-act-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-EZREAL-REPRINT",
+                "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.False(result.State.CardObjects["P1-LEGEND-EZREAL-REPRINT"].IsExhausted);
+        Assert.DoesNotContain("P1-EZREAL-DRAW-001", result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -35553,6 +35614,89 @@ public sealed class ConformanceFixtureRunnerTests
         return state with
         {
             PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState EzrealEnemyTargetSpellState(
+        string sourceCardNo,
+        string sourceObjectId,
+        int priorTargetCount)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 2);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-EZREAL-HUNT-002"],
+            MainDeck = ["P1-EZREAL-DRAW-001"]
+        };
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Battlefields = ["P2-EZREAL-TARGET-001", "P2-EZREAL-TARGET-002"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-EZREAL-HUNT-002"] = new(
+            "P1-EZREAL-HUNT-002",
+            cardNo: "UNL-159/219",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects["P1-EZREAL-DRAW-001"] = new(
+            "P1-EZREAL-DRAW-001",
+            cardNo: "UNL-001/219",
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects["P2-EZREAL-TARGET-001"] = new(
+            "P2-EZREAL-TARGET-001",
+            power: 3,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P2",
+            controllerId: "P2");
+        cardObjects["P2-EZREAL-TARGET-002"] = new(
+            "P2-EZREAL-TARGET-002",
+            power: 3,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P2",
+            controllerId: "P2");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            UntilEndOfTurnEffects = priorTargetCount <= 0
+                ? []
+                : [$"EZREAL_ENEMY_TARGETS_THIS_TURN:P1:{Math.Min(priorTargetCount, 2)}"]
+        };
+    }
+
+    private static MatchState EzrealPriorityState(
+        string sourceCardNo,
+        string sourceObjectId,
+        int targetCount)
+    {
+        var state = EzrealEnemyTargetSpellState(sourceCardNo, sourceObjectId, priorTargetCount: targetCount);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-EZREAL-PENDING-SPELL"] = new(
+            "P1-EZREAL-PENDING-SPELL",
+            cardNo: "UNL-159/219",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-PENDING-EZREAL-REACTION",
+                    "P1",
+                    "P1-EZREAL-PENDING-SPELL",
+                    "EZREAL_PENDING_TARGET_TEST",
+                    "UNL-159/219",
+                    ["P2-EZREAL-TARGET-001"],
+                    0)
+            ],
             CardObjects = cardObjects
         };
     }

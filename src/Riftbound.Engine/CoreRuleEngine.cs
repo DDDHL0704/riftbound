@@ -91,6 +91,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int KaisaLegendPowerGain = 1;
     private const string OrnnLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT";
     private const int OrnnLegendPowerGain = 1;
+    private const string EzrealLegendAbilityId = "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS";
+    private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
+    private const int EzrealEnemyTargetThreshold = 2;
     private const string TeemoOriginLegendCardNo = "OGN·263/298";
     private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
     private const int TeemoLegendManaCost = 1;
@@ -265,6 +268,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects,
             stackItem,
             plan.LeonaStunBoonTargetObjectId);
+        untilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurn(
+            state,
+            untilEndOfTurnEffects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            targetObjectIds);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -919,6 +928,95 @@ public sealed class CoreRuleEngine : IRuleEngine
                 $"{LeonaStunBoonTargetEffectPrefix}{stackItem.StackItemId}:{targetObjectId}");
     }
 
+    private static IReadOnlyList<string> MarkEzrealEnemyTargetsThisTurn(
+        MatchState state,
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        string sourceObjectId,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!ControllerHasEzrealLegend(state, playerId)
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || !targetObjectIds.Any(targetObjectId => IsEnemyUnitOrEquipmentTarget(state, playerId, targetObjectId)))
+        {
+            return existingEffectIds;
+        }
+
+        return SetEzrealEnemyTargetCount(
+            existingEffectIds,
+            playerId,
+            EzrealEnemyTargetsThisTurnCount(existingEffectIds, playerId) + 1);
+    }
+
+    private static IReadOnlyList<string> MarkEzrealEnemyTargetsThisTurnForUnitAbility(
+        MatchState state,
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        if (!ControllerHasEzrealLegend(state, playerId)
+            || !targetObjectIds.Any(targetObjectId => IsEnemyUnitOrEquipmentTarget(state, playerId, targetObjectId)))
+        {
+            return existingEffectIds;
+        }
+
+        return SetEzrealEnemyTargetCount(
+            existingEffectIds,
+            playerId,
+            EzrealEnemyTargetsThisTurnCount(existingEffectIds, playerId) + 1);
+    }
+
+    private static IReadOnlyList<string> SetEzrealEnemyTargetCount(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        int count)
+    {
+        var prefix = $"{EzrealEnemyTargetsThisTurnPrefix}{playerId}:";
+        return existingEffectIds
+            .Where(effectId => !effectId.StartsWith(prefix, StringComparison.Ordinal))
+            .Concat([$"{prefix}{Math.Min(count, EzrealEnemyTargetThreshold)}"])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static int EzrealEnemyTargetsThisTurnCount(
+        IReadOnlyList<string> effectIds,
+        string playerId)
+    {
+        var prefix = $"{EzrealEnemyTargetsThisTurnPrefix}{playerId}:";
+        return effectIds
+            .Where(effectId => effectId.StartsWith(prefix, StringComparison.Ordinal))
+            .Select(effectId => int.TryParse(effectId[prefix.Length..], out var count) ? count : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
+    private static bool IsEnemyUnitOrEquipmentTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return IsEnemyFieldObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && (targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || targetState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal));
+    }
+
+    private static bool ControllerHasEzrealLegend(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsEzrealLegendCardNo(cardObject.CardNo));
+    }
+
+    private static bool IsEzrealLegendCardNo(string? cardNo)
+    {
+        return cardNo is "SFD·199/221" or "SFD·248/221";
+    }
+
     private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
     {
         return behavior.AppliesPowerModifierToSourceUnit
@@ -1254,6 +1352,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 $"{ability.DisplayName} requires a pending equipment stack item.",
                 ErrorCodes.InvalidTarget);
+        }
+
+        if (ability.RequiresEzrealEnemyTargetsThisTurn
+            && EzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, intent.PlayerId) < EzrealEnemyTargetThreshold)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} requires two enemy unit or equipment targets from spells or unit skills this turn.",
+                ErrorCodes.InsufficientCost);
         }
 
         if (ability.RequiresOwnedTeemoUnitTarget
@@ -1735,6 +1842,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PowerGainAmount: OrnnLegendPowerGain,
                 TimingKind: LegendAbilityTimingKinds.PriorityWindow,
                 RequiresPendingEquipmentStackItem: true),
+            EzrealLegendAbilityId => new LegendAbilityDefinition(
+                EzrealLegendAbilityId,
+                ["SFD·199/221", "SFD·248/221"],
+                "探险家传奇反应抽牌技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.DrawOne,
+                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
+                RequiresEzrealEnemyTargetsThisTurn: true),
             TeemoLegendAbilityId => new LegendAbilityDefinition(
                 TeemoLegendAbilityId,
                 [TeemoOriginLegendCardNo, "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
@@ -2666,6 +2785,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             ability.DamageAmount,
             1,
             []);
+        var untilEndOfTurnEffects = MarkEzrealEnemyTargetsThisTurnForUnitAbility(
+            state,
+            state.UntilEndOfTurnEffects,
+            intent.PlayerId,
+            command.TargetObjectIds);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -2673,6 +2797,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
             CardObjects = cardObjects,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
@@ -13178,7 +13303,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         int PowerGainAmount = 0,
         string TimingKind = LegendAbilityTimingKinds.MainOpen,
         bool RequiresPendingSpellStackItem = false,
-        bool RequiresPendingEquipmentStackItem = false);
+        bool RequiresPendingEquipmentStackItem = false,
+        bool RequiresEzrealEnemyTargetsThisTurn = false);
 
     private static class LegendAbilityEffectKinds
     {

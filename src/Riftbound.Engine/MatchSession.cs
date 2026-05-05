@@ -1082,7 +1082,8 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵"),
                 new ActionPromptChoiceDto("LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA", "法术对决横置：获得 1 法力"),
                 new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL", "法术反应横置：获得 1 符能"),
-                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT", "装备反应横置：获得 1 符能")
+                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT", "装备反应横置：获得 1 符能"),
+                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS", "反应横置：抽 1 张")
             ],
             _ => null
         };
@@ -1219,6 +1220,8 @@ internal static class ActionPromptBuilder
             or "OGN·299*/298"
             or "SFD·189/221"
             or "SFD·244/221"
+            or "SFD·199/221"
+            or "SFD·248/221"
             or "UNL-189/219"
             or "UNL-230*/219"
             or "UNL-230/219";
