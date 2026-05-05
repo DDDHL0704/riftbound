@@ -332,7 +332,8 @@ public static class CardBehaviorRegistry
             2,
             "INCINERATE_DAMAGE_2",
             2,
-            1),
+            1,
+            CanPlayDuringSpellDuel: true),
         new(
             "OGS·002/024",
             "烈火风暴",
@@ -390,7 +391,8 @@ public static class CardBehaviorRegistry
             CardDamageConditionKinds.None,
             0,
             "STUNNED",
-            TargetScope: CardTargetScopes.AnyUnit),
+            TargetScope: CardTargetScopes.AnyUnit,
+            CanPlayDuringSpellDuel: true),
         new(
             "UNL-042/219",
             "走开",
@@ -676,7 +678,8 @@ public static class CardBehaviorRegistry
             1,
             "HEXTECH_RAY_DAMAGE_3",
             3,
-            1),
+            1,
+            CanPlayDuringSpellDuel: true),
         new(
             "OGN·014/298",
             "霹天雳地",
@@ -7505,7 +7508,8 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.FriendlyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard,
-            BanishesTargetThenPlaysToBase: true),
+            BanishesTargetThenPlaysToBase: true,
+            CanPlayDuringSpellDuel: true),
         new(
             "SFD·200/221",
             "奥术跃迁",
@@ -7594,7 +7598,8 @@ public static class CardBehaviorRegistry
             "REPRIMAND_RETURN_BATTLEFIELD_UNIT_TO_HAND",
             0,
             1,
-            ReturnsTargetToHand: true),
+            ReturnsTargetToHand: true,
+            CanPlayDuringSpellDuel: true),
         new(
             "OGN·169/298",
             "罡风",
@@ -7922,7 +7927,8 @@ public static class CardBehaviorRegistry
             0,
             1,
             TargetScope: CardTargetScopes.Equipment,
-            ReturnsTargetToHand: true),
+            ReturnsTargetToHand: true,
+            CanPlayDuringSpellDuel: true),
         new(
             "OGN·105/298",
             "星芒凝汇",

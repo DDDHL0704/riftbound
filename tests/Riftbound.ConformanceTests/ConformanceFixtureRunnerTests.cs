@@ -21670,6 +21670,23 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PassedFocusPlayerIds);
     }
 
+    [Fact]
+    public async Task P6SwiftKeywordAllowsHextechRayInSpellDuelFocusWindow()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p6-play-swift-hextech-ray-in-spell-duel-focus.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Null(result.FinalState.FocusPlayerId);
+        Assert.Empty(result.FinalState.PassedFocusPlayerIds);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-wind-wall-counter-spell.fixture.json")]
     [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json")]

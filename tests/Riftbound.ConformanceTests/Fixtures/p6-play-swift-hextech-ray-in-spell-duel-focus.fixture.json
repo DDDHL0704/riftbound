@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p6-play-swift-hextech-ray-in-spell-duel-focus",
+  "description": "Hextech Ray can be played by the focus player during an open spell duel because it has Swift, then resolves through the existing P2 damage stack path.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603303023,
+  "rulesEvidence": [
+    {
+      "source": "official/card-catalog.zh-CN.json",
+      "locator": "OGN·009/298 海克斯射线",
+      "note": "官方卡面：费用 1；迅捷；对战场上的一名单位造成 3 点伤害。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p35-p36 rules 341-348; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "法术对决是开环机会窗口；迅捷牌可在你的回合或法术对决中打出；打出法术需要支付费用、选择合法目标并加入结算链。"
+    }
+  ],
+  "roomId": "p6-swift-hextech-ray-spell-duel-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603303023,
+    "turnNumber": 93,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "SPELL_DUEL_OPEN",
+    "focusPlayerId": "P1",
+    "passedFocusPlayerIds": [],
+    "scores": {
+      "P1": 0,
+      "P2": 0
+    },
+    "runePools": {
+      "P1": { "mana": 1, "power": 0 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": [],
+        "runeDeck": [],
+        "hand": ["P1-SPELL-HEXTECH-RAY"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": [],
+        "hand": [],
+        "base": [],
+        "battlefields": ["P2-UNIT-HEXTECH-RAY-001"],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P2-UNIT-HEXTECH-RAY-001": {
+        "damage": 0,
+        "untilEndOfTurnEffects": []
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p6-hextech-ray-spell-duel-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+        "cardNo": "OGN·009/298",
+        "targetObjectIds": ["P2-UNIT-HEXTECH-RAY-001"]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p6-hextech-ray-spell-duel-p1-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "intent-p6-hextech-ray-spell-duel-p2-pass",
+      "cmd": {
+        "cmdType": "PASS_PRIORITY"
+      }
+    }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "DAMAGE_APPLIED"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      { "kind": "COST_PAID" },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+          "cardNo": "OGN·009/298",
+          "targetObjectIds": ["P2-UNIT-HEXTECH-RAY-001"],
+          "effectKind": "HEXTECH_RAY_DAMAGE_3"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-SPELL-HEXTECH-RAY",
+          "targetObjectId": "P2-UNIT-HEXTECH-RAY-001",
+          "damage": 3
+        }
+      }
+    ],
+    "promptActions": {
+      "P1": ["END_TURN"],
+      "P2": ["WAIT"]
+    },
+    "finalState": {
+      "turnNumber": 93,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "focusPlayerId": null,
+      "passedFocusPlayerIds": [],
+      "scores": {
+        "P1": 0,
+        "P2": 0
+      },
+      "runePools": {
+        "P1": { "mana": 0, "power": 0 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "hand": [],
+          "graveyard": ["P1-SPELL-HEXTECH-RAY"]
+        },
+        "P2": {
+          "battlefields": ["P2-UNIT-HEXTECH-RAY-001"]
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P2-UNIT-HEXTECH-RAY-001": {
+          "damage": 3,
+          "untilEndOfTurnEffects": []
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}

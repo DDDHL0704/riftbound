@@ -943,6 +943,39 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6SwiftTimingFlagsCoverSimpleOfficialSwiftSpellRepresentatives()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var simpleSwiftSpells = new[]
+        {
+            "OGS·003/024",
+            "OGN·009/298",
+            "OGN·050/298",
+            "OGN·102/298",
+            "OGN·172/298",
+            "SFD·135/221"
+        };
+
+        foreach (var cardNo in simpleSwiftSpells)
+        {
+            var spec = specs.Single(spec => string.Equals(spec.CardNo, cardNo, StringComparison.Ordinal));
+            Assert.Equal("法术", spec.CardCategoryName);
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, spec.Status);
+            Assert.Contains("{{迅捷}}", spec.OfficialText, StringComparison.Ordinal);
+            Assert.DoesNotContain("{{迅捷>}}", spec.OfficialText, StringComparison.Ordinal);
+            Assert.Contains(spec.Keywords, keyword => string.Equals(keyword.Keyword, "迅捷", StringComparison.Ordinal));
+
+            Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+            var profile = CardPermissionKeywordRules.BuildProfile(definition);
+            Assert.True(profile.HasSwift);
+            Assert.False(profile.HasReaction);
+            Assert.True(definition.CanPlayDuringSpellDuel);
+        }
+    }
+
+    [Fact]
     public async Task P4PermissionKeywordProfileIncludesJinxAltAHasteReadyDiscardBranch()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
