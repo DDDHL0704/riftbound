@@ -27,10 +27,24 @@ public sealed record P6TokenFactoryDefinition(
     }
 }
 
+public sealed record P6DeferredTokenRuleSurface(
+    string SurfaceId,
+    string SourceCardNo,
+    string DisplayName,
+    string OfficialTextAnchor,
+    string SurfaceKind,
+    bool IsActivatedCommandSurface,
+    int TargetCount,
+    string Reason);
+
 public static class P6TokenFactoryCatalog
 {
     public const string BattlefieldCardTag = "CARD_TYPE:BATTLEFIELD";
     public const string CopySourceRequiredTag = "COPY_SOURCE_REQUIRED";
+    public const string ActivatedResourceSurfaceKind = "activated-resource";
+    public const string CopyTokenSurfaceKind = "copy-token";
+    public const string BattlefieldReplacementSurfaceKind = "battlefield-replacement";
+    public const string BattlefieldStaticSurfaceKind = "battlefield-static";
 
     private static readonly P6TokenFactoryDefinition[] Definitions =
     [
@@ -49,9 +63,63 @@ public static class P6TokenFactoryCatalog
         Unit("OGN·274/298", "精灵", "精灵", 3, CardObjectTags.Ephemeral)
     ];
 
+    private static readonly P6DeferredTokenRuleSurface[] DeferredRuleSurfaces =
+    [
+        new(
+            "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_UNL",
+            "UNL·T05",
+            "UNL Gold reaction resource ability",
+            "{{反应}} — 摧毁此牌，{{横置}}：{{获得}}{{A}}",
+            ActivatedResourceSurfaceKind,
+            IsActivatedCommandSurface: true,
+            TargetCount: 0,
+            "P6.11 keeps token activated resource abilities deferred until token-source destruction, exhaustion, reaction timing, and color resource gain are modeled outside PLAY_CARD."),
+        new(
+            "TOKEN_DEFERRED_GOLD_REACTION_DESTROY_EXHAUST_GAIN_A_SFD",
+            "SFD·T03",
+            "SFD Gold reaction resource ability",
+            "摧毁此牌，{{横置}}：{{反应}}—{{获得}}{{A}}",
+            ActivatedResourceSurfaceKind,
+            IsActivatedCommandSurface: true,
+            TargetCount: 0,
+            "P6.11 keeps the alternate Gold wording deferred behind the same zero-side-effect activated-resource boundary."),
+        new(
+            "TOKEN_DEFERRED_IMAGE_COPY_SOURCE_REQUIRED",
+            "UNL·T06",
+            "Image copy-token entry replacement",
+            "当我被打出时，变为某张卡牌的复制体",
+            CopyTokenSurfaceKind,
+            IsActivatedCommandSurface: false,
+            TargetCount: 1,
+            "P6.11 binds Image as a copy-source-required token identity, but copy timing and play-effect suppression remain deferred."),
+        new(
+            "TOKEN_DEFERRED_BRUSH_BATTLEFIELD_REPLACEMENT",
+            "UNL·T03",
+            "Brush battlefield replacement token",
+            "当你在此处得分时，你可以选择使用被此牌替代的战场来替代此牌",
+            BattlefieldReplacementSurfaceKind,
+            IsActivatedCommandSurface: false,
+            TargetCount: 0,
+            "P6.11 keeps token battlefield replacement deferred until battlefield replacement ordering and original-location memory are modeled."),
+        new(
+            "TOKEN_DEFERRED_BARON_NEST_MOVE_STATIC",
+            "UNL·T01",
+            "Baron Nest movement static token",
+            "单位可从任意位置移动到此处",
+            BattlefieldStaticSurfaceKind,
+            IsActivatedCommandSurface: false,
+            TargetCount: 0,
+            "P6.11 keeps token battlefield movement static text deferred to the battlefield location domain.")
+    ];
+
     public static IReadOnlyList<P6TokenFactoryDefinition> GetAll()
     {
         return Definitions;
+    }
+
+    public static IReadOnlyList<P6DeferredTokenRuleSurface> GetDeferredRuleSurfaces()
+    {
+        return DeferredRuleSurfaces;
     }
 
     public static bool TryGetByCardNo(

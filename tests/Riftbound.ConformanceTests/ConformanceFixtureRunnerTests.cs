@@ -23599,6 +23599,124 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P6TokenFactoryCatalogAuditsDeferredRuleSurfacesAgainstOfficialText()
+    {
+        var surfaces = P6TokenFactoryCatalog.GetDeferredRuleSurfaces();
+
+        Assert.Equal(5, surfaces.Count);
+        Assert.Contains(surfaces, surface => surface.IsActivatedCommandSurface);
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceKind,
+            P6TokenFactoryCatalog.CopyTokenSurfaceKind,
+            StringComparison.Ordinal));
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceKind,
+            P6TokenFactoryCatalog.BattlefieldReplacementSurfaceKind,
+            StringComparison.Ordinal));
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceKind,
+            P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind,
+            StringComparison.Ordinal));
+        Assert.All(surfaces, surface =>
+        {
+            Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.SurfaceId, out _));
+            Assert.False(string.IsNullOrWhiteSpace(surface.Reason));
+            Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out _));
+        });
+
+        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        foreach (var surface in surfaces)
+        {
+            var officialCard = officialCatalog.Cards.Single(card =>
+                string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
+            var parsed = RuleTextParser.Parse(officialCard);
+
+            Assert.StartsWith("指示物", officialCard.CardCategoryName, StringComparison.Ordinal);
+            Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+
+            switch (surface.SurfaceKind)
+            {
+                case P6TokenFactoryCatalog.ActivatedResourceSurfaceKind:
+                    Assert.NotEmpty(parsed.ActivatedAbilities);
+                    break;
+                case P6TokenFactoryCatalog.CopyTokenSurfaceKind:
+                    Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var imageDefinition));
+                    Assert.True(imageDefinition.RequiresCopySource);
+                    break;
+                case P6TokenFactoryCatalog.BattlefieldReplacementSurfaceKind:
+                    Assert.NotEmpty(parsed.Replacements);
+                    break;
+                case P6TokenFactoryCatalog.BattlefieldStaticSurfaceKind:
+                    Assert.NotEmpty(parsed.StaticAbilities);
+                    break;
+                default:
+                    Assert.Fail($"Unexpected token surface kind '{surface.SurfaceKind}'.");
+                    break;
+            }
+        }
+    }
+
+    public static IEnumerable<object[]> P6DeferredTokenActivatedSurfaceData()
+    {
+        return P6TokenFactoryCatalog.GetDeferredRuleSurfaces()
+            .Where(surface => surface.IsActivatedCommandSurface)
+            .Select(surface => new object[] { surface });
+    }
+
+    [Theory]
+    [MemberData(nameof(P6DeferredTokenActivatedSurfaceData))]
+    public async Task P6ActivateAbilityCommandRejectsTokenDeferredCommandSurfacesOutsideRegistry(
+        P6DeferredTokenRuleSurface surface)
+    {
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(surface.SourceCardNo, out var definition));
+        var tokenObject = definition.CreateObject(
+            "P1-TOKEN-DEFERRED-SOURCE",
+            ownerId: "P1",
+            controllerId: "P1");
+        var state = PunishmentState(mana: 10) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-TOKEN-DEFERRED-SOURCE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(10, 10),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TOKEN-DEFERRED-SOURCE"] = tokenObject
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p6-token-deferred-{surface.SurfaceId}", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-TOKEN-DEFERRED-SOURCE",
+                surface.SurfaceId,
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ACTIVATE_ABILITY is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-TOKEN-DEFERRED-SOURCE"], result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects["P1-TOKEN-DEFERRED-SOURCE"].IsExhausted);
+        Assert.Equal(surface.SourceCardNo, result.State.CardObjects["P1-TOKEN-DEFERRED-SOURCE"].CardNo);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandAddsViDoublePowerSkillToStack()
     {
         var state = PunishmentState(mana: 2) with

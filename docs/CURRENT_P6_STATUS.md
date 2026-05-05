@@ -190,7 +190,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.10a | Done | Battlefield rule-domain surface matrix and manual boundary triage. | Catalog domain matrix passed. |
 | P6.10b | Done | Battlefield representative blocked/deferred surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
 | P6.11a | Done | Token factory identity/domain binding for all official token entries. | Token object factory tests passed. |
-| P6.11b | Planned | Copy-token and token activated-resource blocked surfaces. | Dedicated token/copy zero-side-effect tests. |
+| P6.11b | Done | Copy-token and token activated-resource blocked surfaces. | Dedicated token/copy zero-side-effect tests passed. |
 | P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
 | P6.x | Planned | Completion audit and final verification. | Full suite, focused suites, status matrix, no unexpected dirty files. |
 
@@ -254,6 +254,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Template keyword hits: `34/57 entries = 59.6%`, `34/54 units = 63.0%`, but none are promoted because battlefields need a dedicated non-`PLAY_CARD` domain.
 - P6.10b battlefield blocked/deferred surface progress: `5/57 battlefield entries = 8.8%` representative surfaces audited; `2/3 parsed activated battlefield entries = 66.7%` command-addressable surfaces covered; `2/2 zero-side-effect direct engine rejections = 100.0%`.
 - P6.11a token factory domain progress: `13/13 token entries = 100.0%`; `13/13 token functional units = 100.0%`; all official token identities now have explicit object-factory bindings while remaining outside `PLAY_CARD`.
+- P6.11b token blocked/deferred surface progress: `5/13 token entries = 38.5%` representative rule surfaces audited; `2/2 token activated-resource command surfaces = 100.0%` zero-side-effect direct engine rejections.
 - P6 implementation progress: `713/811 functional units = 87.9%`.
 - P6 manual non-`PLAY_CARD` backlog remaining after P6.11a: `98/811 functional units = 12.1%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `163/1009 entries = 16.2%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -856,6 +857,35 @@ P6.11a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.11b Delivered
+
+- Added five representative token deferred rule surfaces to `P6TokenFactoryCatalog`:
+  - `UNL·T05` 金币: reaction-speed destroy/exhaust to gain `{{A}}`.
+  - `SFD·T03` 金币: alternate wording of the same resource-token activated ability.
+  - `UNL·T06` 映像: copy-source-required token identity and play-effect suppression text.
+  - `UNL·T03` 草丛: token battlefield replacement of the original battlefield.
+  - `UNL·T01` 男爵巢穴: token battlefield static movement permission.
+- Added catalog audit coverage proving each representative:
+  - is an official token entry;
+  - has the expected official card text anchor;
+  - has an explicit token factory identity binding;
+  - parses into the expected P3 surface family or copy-source marker;
+  - is not present in `CardBehaviorRegistry`.
+- Added direct CoreRuleEngine rejection coverage for both Gold activated-resource surfaces:
+  - command: `ACTIVATE_ABILITY` from a token equipment source object;
+  - result: `UNSUPPORTED_COMMAND`;
+  - zero side effects: no events, tick unchanged, runes unchanged, source remains in base, source remains unexhausted, stack empty.
+- This batch does not implement token activated abilities, copy timing, or token battlefield effects; it locks the blocked/deferred boundary with explicit official text.
+
+P6.11b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2611/2611`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2507/2507`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `36/36`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.11a, then continue into P6.11b copy-token and token activated-resource blocked surfaces.
+Commit P6.11b, then continue into P6.12 unique complex-card completion audit and remaining manual legend/battlefield final blocked/deferred coverage.
