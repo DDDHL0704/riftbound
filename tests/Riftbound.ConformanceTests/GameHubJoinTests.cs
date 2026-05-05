@@ -939,6 +939,55 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldIsolatedDefenderSeedOffersBattlefieldDestinationAndPenalty()
+    {
+        const string roomId = "p7-9-battlefield-isolated-defender";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-isolated-defender", "seed-p7-9-battlefield-isolated-defender");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORBIDDEN-WASTELAND", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-FORBIDDEN-WASTELAND",
+              "attackerObjectIds": ["P1-BATTLEFIELD-ISOLATED-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-ISOLATED-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-isolated-defender", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var defenderDamageEvent = Assert.Single(EventsFor(battleClients), gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal(-2, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
+
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var attacker = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-BATTLEFIELD-ISOLATED-ATTACKER"]);
+        Assert.Equal(2, Assert.IsType<int>(attacker["damage"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldMinionSeedOffersBattlefieldDestinationAndCreatesToken()
     {
         const string roomId = "p7-9-battlefield-held-minion";

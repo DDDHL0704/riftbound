@@ -25920,6 +25920,36 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldIsolatedDefenderLosesSteadfastTwo()
+    {
+        var state = BattlefieldIsolatedDefenderState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-isolated-defender", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-FORBIDDEN-WASTELAND",
+                ["P1-BATTLEFIELD-ISOLATED-ATTACKER"],
+                ["P2-BATTLEFIELD-ISOLATED-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-ISOLATED-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-ISOLATED-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal("坚守", defenderDamageEvent.Payload["keyword"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(-2, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["damage"]);
+        Assert.Equal(2, result.State.CardObjects["P1-BATTLEFIELD-ISOLATED-ATTACKER"].Damage);
+        Assert.Equal(["P2-BATTLEFIELD-ISOLATED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -37088,6 +37118,45 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(
                     "P2-BATTLEFIELD-FORTIFIED-DEFENDER",
                     power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldIsolatedDefenderState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-ISOLATED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-FORBIDDEN-WASTELAND", "P2-BATTLEFIELD-ISOLATED-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ISOLATED-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ISOLATED-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-FORBIDDEN-WASTELAND"] = new(
+                    "P2-BATTLEFIELD-FORBIDDEN-WASTELAND",
+                    cardNo: "UNL-210/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-ISOLATED-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-ISOLATED-DEFENDER",
+                    power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

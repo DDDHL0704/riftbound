@@ -154,6 +154,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
+    private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -4259,6 +4260,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             keywordBonus += 1;
         }
 
+        if (!isAttacking && HasBattlefieldIsolatedDefenderSteadfastPenalty(state, playerZones, battlefieldId, cardObject, defendingUnitCount))
+        {
+            keywordBonus -= 2;
+        }
+
         if (!isAttacking
             && string.Equals(objectId, battlefieldSteadfastObjectId, StringComparison.Ordinal))
         {
@@ -4299,6 +4305,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             && cardObject.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal)
             && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
             && IsBattlefieldEphemeralUnitsSteadfastCardNo(battlefieldState.CardNo);
+    }
+
+    private static bool HasBattlefieldIsolatedDefenderSteadfastPenalty(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        CardObjectState cardObject,
+        int defendingUnitCount)
+    {
+        return defendingUnitCount == 1
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(battlefieldState.CardNo);
     }
 
     private static string? ResolveSingleDefendingPlayerId(
@@ -6127,6 +6146,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
             || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
+            || IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -6173,6 +6193,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefendRevealSpellCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefendRevealSpellCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
