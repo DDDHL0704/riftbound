@@ -27550,6 +27550,97 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldGrantsNextSpellEcho()
+    {
+        var state = BattlefieldHeldNextSpellEchoState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-next-spell-echo", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-PILTOVER-ACADEMY",
+                ["P1-BATTLEFIELD-PILTOVER-ATTACKER"],
+                ["P2-BATTLEFIELD-PILTOVER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains("BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2", result.State.UntilEndOfTurnEffects);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-PILTOVER-ACADEMY", triggerEvent.Payload["battlefieldObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldNextSpellEchoRepeatsSpellAndConsumesMarker()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TurnNumber = 2,
+            ActivePlayerId = "P2",
+            TurnPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(4, 0)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-PUNISHMENT-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-PUNISHMENT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-PUNISHMENT-TARGET"] = new(
+                    "P1-BATTLEFIELD-PUNISHMENT-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SPELL-PUNISHMENT"] = new(
+                    "P2-SPELL-PUNISHMENT",
+                    cardNo: "UNL-007/219",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            UntilEndOfTurnEffects = ["BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2"]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-next-spell-echo-play", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-PUNISHMENT",
+                "UNL-007/219",
+                ["P1-BATTLEFIELD-PUNISHMENT-TARGET"],
+                OptionalCosts: ["ECHO"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
+        Assert.DoesNotContain("BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2", result.State.UntilEndOfTurnEffects);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal(2, stackItem.EffectRepeatCount);
+        Assert.Equal(["ECHO"], stackItem.OptionalCosts);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["mana"], 4)
+            && Equals(gameEvent.Payload["baseMana"], 2));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO", StringComparison.Ordinal));
+        Assert.True(Assert.IsType<bool>(triggerEvent.Payload["echoPaid"]));
+        Assert.Equal(2, triggerEvent.Payload["effectRepeatCount"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone()
     {
         var state = BattlefieldHeldReturnHeroState();
@@ -40300,6 +40391,51 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-ENERGY-DEFENDER"] = new(
                     "P2-BATTLEFIELD-ENERGY-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldNextSpellEchoState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-PILTOVER-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-PILTOVER-ACADEMY", "P2-BATTLEFIELD-PILTOVER-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-PILTOVER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-PILTOVER-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-PILTOVER-ACADEMY"] = new(
+                    "P2-BATTLEFIELD-PILTOVER-ACADEMY",
+                    cardNo: "UNL-216/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-PILTOVER-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-PILTOVER-DEFENDER",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

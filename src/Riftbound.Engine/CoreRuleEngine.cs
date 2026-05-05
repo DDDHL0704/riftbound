@@ -187,6 +187,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
+    private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
@@ -213,6 +214,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
     private const string BattlefieldConquerReadyRuneAtEndEffectPrefix = "BATTLEFIELD_CONQUER_READY_RUNE_AT_END:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
+    private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
 
@@ -400,6 +402,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     intent.PlayerId,
                     battlefieldFriendlySpellDrawSourceObjectId));
         }
+        var battlefieldNextSpellEchoConsumed = BattlefieldHeldNextSpellEchoActive(state, intent.PlayerId)
+            && IsSpellPlayBehavior(behavior);
+        if (battlefieldNextSpellEchoConsumed)
+        {
+            untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(
+                untilEndOfTurnEffects,
+                BuildBattlefieldHeldNextSpellEchoEffectId(intent.PlayerId));
+        }
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -455,6 +465,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
                 })
         };
+        if (battlefieldNextSpellEchoConsumed)
+        {
+            events.Add(new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的下一个法术获得皮城学院回响",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["trigger"] = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO",
+                    ["playedCardNo"] = command.CardNo,
+                    ["playedCardManaCost"] = behavior.ManaCost,
+                    ["optionalCosts"] = plan.OptionalCosts.ToArray(),
+                    ["echoPaid"] = plan.OptionalCosts.Contains(EchoOptionalCostNames.Echo, StringComparer.Ordinal),
+                    ["effectRepeatCount"] = plan.EffectRepeatCount
+                }));
+        }
         IReadOnlyDictionary<string, int> playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         var rngCursor = state.RngCursor;
@@ -1022,6 +1048,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static IReadOnlyList<string> RemoveUntilEndOfTurnEffect(
+        IReadOnlyList<string> existingEffectIds,
+        string effectId)
+    {
+        return existingEffectIds
+            .Where(id => !string.Equals(id, effectId, StringComparison.Ordinal))
+            .ToArray();
+    }
+
     private static IReadOnlyList<string> MarkArmamentPlayedThisTurn(
         IReadOnlyList<string> existingEffectIds,
         string playerId,
@@ -1112,6 +1147,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}";
     }
 
+    private static string BuildBattlefieldHeldNextSpellEchoEffectId(string playerId)
+    {
+        return $"{BattlefieldHeldNextSpellEchoEffectPrefix}{playerId}";
+    }
+
     private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
@@ -1140,6 +1180,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return state.UntilEndOfTurnEffects.Contains(
             BuildBattlefieldHeldUnitCostIncreaseEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static bool BattlefieldHeldNextSpellEchoActive(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BuildBattlefieldHeldNextSpellEchoEffectId(playerId),
             StringComparer.Ordinal);
     }
 
@@ -4580,6 +4627,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                     untilEndOfTurnEffects = battlefieldUnitCostUntilEndOfTurnEffects;
                 }
 
+                var battlefieldNextSpellEchoEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldNextSpellEchoTrigger(
+                        playerZones,
+                        cardObjects,
+                        untilEndOfTurnEffects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        battlefieldNextSpellEchoEvents,
+                        out var battlefieldNextSpellEchoUntilEndOfTurnEffects))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldNextSpellEchoEvents);
+                    untilEndOfTurnEffects = battlefieldNextSpellEchoUntilEndOfTurnEffects;
+                }
+
                 var battlefieldBoonEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldGrantBoonTrigger(
                         playerZones,
@@ -7005,6 +7074,41 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldNextSpellEchoTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldNextSpellEchoCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var effectId = BuildBattlefieldHeldNextSpellEchoEffectId(playerId);
+        nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId);
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守皮城学院，下一个法术获得回响",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO",
+                ["sourceObjectId"] = sourceObjectId,
+                ["effectId"] = effectId
+            }));
+        return true;
+    }
+
     private static bool TryGetFirstSurvivingBattlefieldUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -8524,6 +8628,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldStaticRoamCardNo(cardNo)
             || IsBattlefieldPreventUnitPlayCardNo(cardNo)
             || IsBattlefieldEchoCostReductionCardNo(cardNo)
+            || IsBattlefieldHeldNextSpellEchoCardNo(cardNo)
             || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
@@ -8731,6 +8836,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldEchoCostReductionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldNextSpellEchoCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldNextSpellEchoCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldEquipmentCostReductionCardNo(string? cardNo)
@@ -9316,6 +9426,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (!TryBuildOptionalCostPlan(
+                state,
+                intent.PlayerId,
                 command.OptionalCosts,
                 behavior,
                 out var optionalCosts,
@@ -11685,6 +11797,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryBuildOptionalCostPlan(
+        MatchState state,
+        string playerId,
         IReadOnlyList<string>? optionalCosts,
         CardBehaviorDefinition behavior,
         out IReadOnlyList<string> normalizedOptionalCosts,
@@ -11711,6 +11825,19 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (normalizedOptionalCosts.Count == 0)
         {
+            return true;
+        }
+
+        if (TryBuildBattlefieldHeldNextSpellEchoOptionalCost(
+                state,
+                playerId,
+                normalizedOptionalCosts,
+                behavior,
+                out var battlefieldEchoExtraManaCost,
+                out var battlefieldEchoEffectRepeatCount))
+        {
+            extraManaCost = battlefieldEchoExtraManaCost;
+            effectRepeatCount = battlefieldEchoEffectRepeatCount;
             return true;
         }
 
@@ -11816,6 +11943,29 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryBuildBattlefieldHeldNextSpellEchoOptionalCost(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out int extraManaCost,
+        out int effectRepeatCount)
+    {
+        extraManaCost = 0;
+        effectRepeatCount = 1;
+        if (normalizedOptionalCosts.Count != 1
+            || !string.Equals(normalizedOptionalCosts[0], EchoOptionalCostNames.Echo, StringComparison.Ordinal)
+            || !BattlefieldHeldNextSpellEchoActive(state, playerId)
+            || !IsSpellPlayBehavior(behavior))
+        {
+            return false;
+        }
+
+        extraManaCost = behavior.ManaCost;
+        effectRepeatCount = 2;
+        return true;
     }
 
     private static bool TryParseExhaustFriendlyUnitOptionalCost(string optionalCost, out string targetObjectId)
