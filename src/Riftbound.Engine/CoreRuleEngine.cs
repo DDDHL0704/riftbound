@@ -177,6 +177,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
+    private const string BattlefieldMovedUnitPowerPlusOneCardNo = "OGN·277/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
@@ -3270,6 +3271,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         RemoveFieldObjectFromLocation(playerZones, intent.PlayerId, originZone, command.SourceObjectId);
         AddFieldObjectToLocation(playerZones, intent.PlayerId, destinationZone, command.SourceObjectId);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
+            state,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            originZone,
+            destinationZone);
         var attachedEquipmentMoves = MoveAttachedEquipmentWithHost(
             playerZones,
             attachedEquipmentObjectIds,
@@ -3281,6 +3290,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
+            CardObjects = cardObjects,
             PassedPriorityPlayerIds = []
         };
 
@@ -3306,6 +3316,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(attachedEquipmentMoves);
+        events.AddRange(movementTriggerEvents);
 
         return new ResolutionResult(
             true,
@@ -3483,10 +3494,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
+            state,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            originZone,
+            destinationZone);
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
+            CardObjects = cardObjects,
             PassedPriorityPlayerIds = []
         };
 
@@ -3508,6 +3528,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = optionalCosts.ToArray()
                 })
         };
+        events.AddRange(movementTriggerEvents);
 
         return new ResolutionResult(
             true,
@@ -7632,6 +7653,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldTurnStartDamageAllUnitsCardNo(cardNo)
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
+            || IsBattlefieldMovedUnitPowerPlusOneCardNo(cardNo)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
             || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
             || IsBattlefieldStaticRoamCardNo(cardNo);
@@ -7786,6 +7808,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerRevealRecycleCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldMovedUnitPowerPlusOneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldMovedUnitPowerPlusOneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldSevenUnitsWinCardNo(string? cardNo)
@@ -9693,6 +9720,62 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
             && IsBattlefieldPreventMoveToBaseCardNo(cardObject.CardNo));
+    }
+
+    private static IReadOnlyList<GameEvent> ApplyBattlefieldMovedUnitPowerPlusOne(
+        MatchState state,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string originZone,
+        string destinationZone)
+    {
+        if (!string.Equals(originZone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.Equals(originZone, destinationZone, StringComparison.Ordinal)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldMovedUnitPowerPlusOneCardNo(cardObject.CardNo))
+            || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || sourceState.IsFaceDown)
+        {
+            return [];
+        }
+
+        var nextSourceState = sourceState with
+        {
+            Power = sourceState.Power + 1,
+            UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + 1
+        };
+        cardObjects[sourceObjectId] = nextSourceState;
+        return
+        [
+            new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{playerId} 的后巷酒吧移动单位触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["trigger"] = "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1",
+                    ["targetObjectId"] = sourceObjectId,
+                    ["originZone"] = originZone,
+                    ["destinationZone"] = destinationZone
+                }),
+            new GameEvent(
+                "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                $"{sourceObjectId} 本回合战力 +1",
+                new Dictionary<string, object?>
+                {
+                    ["targetObjectId"] = sourceObjectId,
+                    ["powerDelta"] = 1,
+                    ["appliedPowerDelta"] = 1,
+                    ["minimumPower"] = 0,
+                    ["resultingPower"] = nextSourceState.Power,
+                    ["reason"] = "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1"
+                })
+        ];
     }
 
     private static IReadOnlyList<string> NormalizeOptionalCosts(IReadOnlyList<string>? optionalCosts)

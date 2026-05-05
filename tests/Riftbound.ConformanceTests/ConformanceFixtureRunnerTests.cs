@@ -26446,6 +26446,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldMovedUnitGainsTemporaryPower()
+    {
+        var state = BattlefieldMovePowerState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-move-power", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BATTLEFIELD-BAR-REGULAR",
+                "BATTLEFIELD",
+                "BASE",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-BATTLEFIELD-BACK-ALLEY-BAR"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-BAR-REGULAR"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].Power);
+        Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-BAR-REGULAR"].UntilEndOfTurnPowerModifier);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["resultingPower"], 3));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38533,6 +38562,36 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-TRAPPED-UNIT"] = new(
                     "P1-BATTLEFIELD-TRAPPED-UNIT",
                     power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldMovePowerState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-BACK-ALLEY-BAR", "P1-BATTLEFIELD-BAR-REGULAR"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-BACK-ALLEY-BAR"] = new(
+                    "P1-BATTLEFIELD-BACK-ALLEY-BAR",
+                    cardNo: "OGN·277/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-BAR-REGULAR"] = new(
+                    "P1-BATTLEFIELD-BAR-REGULAR",
+                    power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1")

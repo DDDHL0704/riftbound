@@ -1817,6 +1817,53 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
+    {
+        const string roomId = "p7-9-battlefield-move-power";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-move-power", "seed-p7-9-battlefield-move-power");
+
+        var moveClients = new RecordingHubClients();
+        var move = JsonDocument.Parse("""
+            {
+              "cmdType": "MOVE_UNIT",
+              "sourceObjectId": "P1-BATTLEFIELD-BAR-REGULAR",
+              "origin": "BATTLEFIELD",
+              "destination": "BASE",
+              "optionalCosts": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(moveClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-move-power", move);
+
+        Assert.Empty(moveClients.CallerClient.Errors);
+        var moveEvents = EventsFor(moveClients);
+        Assert.Contains(moveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
+        Assert.Contains(moveEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.Contains(moveEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["resultingPower"], 3));
+
+        var p1Snapshot = SnapshotFor(moveClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-BATTLEFIELD-BACK-ALLEY-BAR"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Equal(["P1-BATTLEFIELD-BAR-REGULAR"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldWinningScoreSeedRaisesThresholdAndDelaysBurnoutWin()
     {
         const string roomId = "p7-9-battlefield-winning-score";
