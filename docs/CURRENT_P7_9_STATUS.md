@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer event model, and representative effects. First hold-trigger slice migrated `1/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `53/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,13 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
+- P7.9.7 status: in progress; battlefield foundation slice 1 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `757/811 = 93.3%`.
-- Current manual deferred boundary: `54/811 = 6.7%`.
+- P7.9.7 battlefield foundation slices: `1` done.
+- Current functional-unit implementation: `758/811 = 93.5%`.
+- Current manual deferred boundary: `53/811 = 6.5%`.
 - Remaining manual domains:
-  - `战场`: `54` functional units / `57` entries
+  - `战场`: `53` functional units / `56` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -1456,3 +1458,35 @@ P7.9.6 automatic/replacement slice 17 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend battle-trigger/replacement slice. It reuses the existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes; P7.9.7 battlefield UI work should render recalled exhausted Boon units, Sett exhaustion/readying, and replacement event grouping from server events.
+
+## P7.9.7 Battlefield Foundation Slice 1 Delivered
+
+This is the first committed rule slice inside P7.9.7. It starts the battlefield rule domain by allowing server-known battlefield card objects to be selected as `DECLARE_BATTLE.battlefieldId` destinations and implements the first no-cost held-battlefield trigger.
+
+- Added battlefield object support for battle declaration:
+  - existing compatibility destination `BATTLEFIELD:{playerId}-MAIN` remains accepted
+  - actual battlefield card object ids are accepted when the object is on the field and has `CARD_TYPE:BATTLEFIELD` or an implemented battlefield card identity
+  - structured `ActionPrompt` `DECLARE_BATTLE` destinations now include public battlefield card object choices
+- Added the first implemented battlefield card:
+  - `OGN·280/298`
+  - when the defending player holds that battlefield, the backend emits `BATTLEFIELD_HELD`, resolves `BATTLEFIELD_HELD_DRAW_ONE`, and draws one card for the holder
+- Added a `battlefield-held-draw` local development seed so GameHub/prompt tests can exercise the battlefield destination and trigger path without client-side rule inference.
+- Migrated this battlefield held-trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `758/811`
+  - Manual deferred functional units: `53/811`
+  - Implemented official entries: `953/1009`
+  - Manual deferred official entries: `56/1009`
+  - Battlefield rule-domain implemented: `1` functional unit / `1` entry
+  - Remaining battlefield manual deferred: `53` functional units / `56` entries
+
+P7.9.7 battlefield foundation slice 1 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHeldDraw"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2581/2581`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `29/29`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2689/2689`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured destination candidate and submitted object-id path; the existing UI already renders prompt destinations and battle events from server data.

@@ -25666,6 +25666,40 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldDrawsCardFromBattlefieldObject()
+    {
+        var state = BattlefieldHeldDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-DREAM-TREE",
+                ["P1-BATTLEFIELD-HELD-ATTACKER"],
+                ["P2-BATTLEFIELD-HELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P2-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains(result.State.PlayerZones["P2"].Battlefields, objectId =>
+            string.Equals(objectId, "P2-BATTLEFIELD-DREAM-TREE", StringComparison.Ordinal));
+        var resultEvents = result.Events.ToArray();
+        var heldIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerIndex = Array.FindIndex(resultEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.True(heldIndex >= 0);
+        Assert.True(triggerIndex > heldIndex);
+        var triggerEvent = resultEvents[triggerIndex];
+        Assert.Equal("BATTLEFIELD_HELD_DRAW_ONE", triggerEvent.Payload["trigger"]);
+        Assert.Equal("P2-BATTLEFIELD-DREAM-TREE", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["count"], 1));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -36420,6 +36454,46 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-SETT-DEFENDER"] = new(
                     "P2-SETT-DEFENDER",
                     power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldDrawState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-HELD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-BATTLEFIELD-DRAW-001"],
+                    Battlefields = ["P2-BATTLEFIELD-DREAM-TREE", "P2-BATTLEFIELD-HELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-HELD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-HELD-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DREAM-TREE"] = new(
+                    "P2-BATTLEFIELD-DREAM-TREE",
+                    cardNo: "OGN·280/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-HELD-DEFENDER",
+                    power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

@@ -204,6 +204,7 @@ public static class OfficialRuleDomainBehaviorCatalog
     public const string RuneResourceDomainEffectKind = "RUNE_RESOURCE_DOMAIN";
     public const string TokenFactoryDomainEffectKind = "TOKEN_FACTORY_DOMAIN";
     public const string LegendActionDomainEffectKind = "LEGEND_ACTION_DOMAIN";
+    public const string BattlefieldRuleDomainEffectKind = "BATTLEFIELD_RULE_DOMAIN";
 
     public static IReadOnlyList<ImplementedCardBehavior> MergeWithNonPlayCardDomains(
         IReadOnlyList<OfficialCard> cards,
@@ -233,11 +234,19 @@ public static class OfficialRuleDomainBehaviorCatalog
                 LegendActionDomainEffectKind,
                 card.CardName))
             .ToArray();
+        var battlefieldRuleBehaviors = cards
+            .Where(IsImplementedBattlefieldRuleCard)
+            .Select(card => new ImplementedCardBehavior(
+                card.CardNo,
+                BattlefieldRuleDomainEffectKind,
+                card.CardName))
+            .ToArray();
 
         return playCardBehaviors
             .Concat(runeBehaviors)
             .Concat(tokenBehaviors)
             .Concat(legendActionBehaviors)
+            .Concat(battlefieldRuleBehaviors)
             .ToArray();
     }
 
@@ -365,6 +374,13 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "UNL-191/219"
             or "UNL-231/219"
             or "UNL-231*/219";
+    }
+
+    public static bool IsImplementedBattlefieldRuleCard(OfficialCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+
+        return card.CardNo is "OGN·280/298";
     }
 }
 
@@ -538,6 +554,12 @@ public static class BehaviorSpecCatalogBuilder
                     OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind,
                     StringComparison.Ordinal) =>
                 "Mapped to the P7.9 legend action domain: LEGEND_ACT validates source legend, exhaustion, costs, targets, and server-authoritative effects; legend cards remain outside PLAY_CARD.",
+            BehaviorImplementationStatuses.Implemented when implementation is not null
+                && string.Equals(
+                    implementation.EffectKind,
+                    OfficialRuleDomainBehaviorCatalog.BattlefieldRuleDomainEffectKind,
+                    StringComparison.Ordinal) =>
+                "Mapped to the P7.9 battlefield rule domain: DECLARE_BATTLE accepts server-known battlefield objects and resolves hold/conquer battlefield effects from authoritative combat events; battlefield cards remain outside PLAY_CARD.",
             BehaviorImplementationStatuses.Implemented when implementation is not null
                 && string.Equals(implementation.CardNo, card.CardNo, StringComparison.Ordinal) =>
                 $"Mapped directly to existing P2 hand-written behavior '{implementation.EffectKind}'.",

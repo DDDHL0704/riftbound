@@ -483,7 +483,7 @@ flowchart LR
 
 ## 14. P7.9：本地产品版全卡可玩
 
-状态：P7 已完成；P7.9 已完成 P7.9.6 传奇规则域，`LEGEND_ACT` 已打通结构化提示、页面操作和十个传奇主动/反应小批次（含 Jax 武装贴附/重贴附、Darius 鼓舞资源、Teemo 召回/待命替代、Azir 武装后打出黄沙士兵、Diana/Kai'Sa/Ornn 反应资源、Ezreal 反应抽牌，以及 Irelia 友方目标反应重置/征服重置传奇），并已补入十七个自动触发/替换小批次（含 Jinx/Draven/Garen/Lux/Annie、Volibear/Fiora 强力单位召符文、Rengar 打出单位 S+1、Leona 眩晕后增益、Sivir 回收符文造金币/敌方单位摧毁重置、Jhin 高费法术放逐完成、Vi 过量伤害征服重置、Vex 据守抽牌、Renata 据守造金币、LeBlanc 征服/据守弃牌造映像、Rek'Sai 征服展示/打出/回收、Ivern 征服/据守替换草丛，以及 Sett 恩赐单位替代毁灭/征服重置传奇）与 Rumble/Lucian/OGS Master Yi/Ahri/UNL Master Yi/Azir 静态传奇小批次；当前实现 `757/811` 功能单元，manual deferred 剩余 `54/811`，全部集中在战场。当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
+状态：P7 已完成；P7.9 已完成 P7.9.6 传奇规则域，并在 P7.9.7 进入战场规则域首个切片：`DECLARE_BATTLE` 支持服务端已知战场卡对象目的地，ActionPrompt 下发战场对象候选，`OGN·280/298` 据守抽牌已由后端结算。当前实现 `758/811` 功能单元，manual deferred 剩余 `53/811`，全部集中在战场。当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
 
 目标：
 
@@ -503,7 +503,7 @@ flowchart LR
    - P7.9.6 已迁移 `44/44` 个传奇功能单元；传奇 manual deferred 已关闭。
 4. 战场规则域：
    - 实现战场控制、据守、征服、得分、战场触发/静态/奖励效果和 UI 操作入口。
-   - 关闭 P6 中 `54` 个战场 manual deferred 功能单元。
+   - P7.9.7 已迁移 `1/54` 个战场功能单元；继续关闭 P6 中剩余 `53` 个战场 manual deferred 功能单元。
 5. 战斗和长尾整合：
    - 补强多单位战斗、伤害分配、战斗触发、控制权、装备、token/copy 和页面展示边界。
 6. 图鉴、日志、战报、回放/观战：
@@ -623,7 +623,7 @@ Browser Use 阶段性测试：
 1. 以 `docs/CURRENT_P7_9_STATUS.md` 为当前状态文件，按批次更新进度、验证和提交。
 2. 先做结构化 `ActionPrompt` 兼容层，再让 UI 消费 prompt candidates。
 3. 把手填 objectId/JSON 的产品路径替换为点击式来源、目标、费用、目的地和模式选择。
-4. 分批补齐战场规则域，最终关闭当前剩余 `54/811` manual deferred 功能单元。
+4. 分批补齐战场规则域，最终关闭当前剩余 `53/811` manual deferred 功能单元。
 5. 每个显著 UI 批次跑 Browser smoke；每个规则批次补 conformance、GameHub 或 engine 测试。
 
 已完成的 P1 底座项：

@@ -144,6 +144,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BrushBattlefieldTokenCardNo = "UNL·T03";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
+    private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3760,6 +3761,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal))
             {
                 var battlefieldHeldEventEmitted = false;
+                var battlefieldTriggerEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldDrawTrigger(
+                        state,
+                        playerZones,
+                        cardObjects,
+                        playerScores,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        rngCursor,
+                        battlefieldTriggerEvents,
+                        out var battlefieldDrawApplication))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldTriggerEvents);
+                    playerScores = battlefieldDrawApplication.PlayerScores;
+                    winnerPlayerId = battlefieldDrawApplication.WinnerPlayerId;
+                    rngCursor = battlefieldDrawApplication.RngCursor;
+                }
+
                 var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
                     IsObjectOnField(playerZones, defenderObjectId)
                     && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
@@ -3992,10 +4019,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!string.Equals(
-                command.BattlefieldId?.Trim(),
-                $"{DeclareBattleBattlefieldPrefix}{intent.PlayerId}-MAIN",
-                StringComparison.Ordinal))
+        if (!IsSupportedDeclareBattlefieldId(state, intent.PlayerId, command.BattlefieldId?.Trim()))
         {
             return false;
         }
@@ -4050,6 +4074,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return defenderObjectIds.Count == 1 || hasAssignmentOrderingKeyword;
+    }
+
+    private static bool IsSupportedDeclareBattlefieldId(MatchState state, string playerId, string? battlefieldId)
+    {
+        if (string.Equals(
+                battlefieldId,
+                $"{DeclareBattleBattlefieldPrefix}{playerId}-MAIN",
+                StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefieldId, out _, out _);
     }
 
     private static int ResolveBattleCombatPower(
@@ -5392,8 +5429,89 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["battlefieldId"] = battlefieldId,
                 ["sourceObjectId"] = attackerObjectId,
                 ["defenderObjectIds"] = defenderObjectIds.ToArray()
-            }));
+        }));
         battlefieldHeldEventEmitted = true;
+    }
+
+    private static bool TryResolveBattlefieldHeldDrawTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHoldDrawCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并抽牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_DRAW_ONE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["drawCount"] = 1
+            }));
+        drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            playerId,
+            1,
+            rngCursor,
+            events);
+        return true;
+    }
+
+    private static bool TryGetBattlefieldCardObject(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string? battlefieldId,
+        out string battlefieldObjectId,
+        out CardObjectState battlefieldState)
+    {
+        battlefieldObjectId = string.Empty;
+        battlefieldState = new CardObjectState();
+        if (string.IsNullOrWhiteSpace(battlefieldId)
+            || !cardObjects.TryGetValue(battlefieldId.Trim(), out var candidate)
+            || !IsBattlefieldCardObject(candidate)
+            || !IsObjectOnField(playerZones, battlefieldId.Trim()))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = battlefieldId.Trim();
+        battlefieldState = candidate;
+        return true;
+    }
+
+    private static bool IsBattlefieldCardObject(CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+            || IsImplementedBattlefieldCardNo(cardObject.CardNo);
+    }
+
+    private static bool IsImplementedBattlefieldCardNo(string? cardNo)
+    {
+        return IsBattlefieldHoldDrawCardNo(cardNo);
+    }
+
+    private static bool IsBattlefieldHoldDrawCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHoldDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool PlayerWithinWinningScoreDistance(
