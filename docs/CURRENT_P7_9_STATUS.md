@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `14/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `15/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -203,14 +203,14 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `3` done.
-- P7.9.6 automatic-trigger slices: `1` done.
+- P7.9.6 automatic-trigger slices: `2` done.
 - P7.9.6 static legend slices: `4` done.
-- Current functional-unit implementation: `727/811 = 89.6%`.
-- Current manual deferred boundary: `84/811 = 10.4%`.
+- Current functional-unit implementation: `728/811 = 89.8%`.
+- Current manual deferred boundary: `83/811 = 10.2%`.
 - Remaining manual domains:
-  - `传奇`: `30` functional units / `68` entries
+  - `传奇`: `29` functional units / `66` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `1` automatic-trigger slice, and `4` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `2` automatic-trigger slices, and `4` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -645,3 +645,37 @@ P7.9.6 static legend slice 4 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because Ahri is a passive combat static effect and this batch introduced no new UI operation path. The battle UI continues to submit `DECLARE_BATTLE`; the attack penalty is visible through server events/snapshot.
+
+## P7.9.6 Automatic-Trigger Slice 2 Delivered
+
+This is the ninth committed rule slice inside P7.9.6. It adds a battle-won legend trigger that resolves after lethal combat cleanup and before the final snapshot is emitted.
+
+- Added Draven / 荣耀行刑官 legend trigger:
+  - after combat cleanup, if exactly one side still has units remaining in that battle, that side is considered to have won the battle
+  - if the battle winner controls Draven in their legend zone, draw `1`
+  - emits `LEGEND_TRIGGER_RESOLVED` with `trigger = BATTLE_WON_DRAW_ONE`, then normal `CARD_DRAWN` events
+  - preserves burnout/winner handling through the existing `ApplyDrawToPlayer` path
+- Accepted same-functional-unit legend entries:
+  - `SFD·185/221`
+  - `SFD·242/221`
+- Added representative conformance coverage for an attacker winning combat under Draven and drawing the top main-deck card.
+- Migrated this legend trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `728/811`
+  - Manual deferred functional units: `83/811`
+  - Implemented official entries: `886/1009`
+  - Manual deferred official entries: `123/1009`
+  - Legend rule-domain implemented: `15` functional units / `40` entries
+  - Remaining legend manual deferred: `29` functional units / `66` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger slice 2 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendTriggerDraven"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2525/2525`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2632/2632`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because Draven is a passive combat trigger and this batch introduced no new UI operation path. The battle UI continues to submit `DECLARE_BATTLE`; the trigger and draw are visible through server events/snapshot.

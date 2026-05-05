@@ -296,7 +296,9 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "OGS·019/024"
             or "OGN·255/298"
             or "OGN·303/298"
-            or "OGN·303*/298";
+            or "OGN·303*/298"
+            or "SFD·185/221"
+            or "SFD·242/221";
     }
 }
 

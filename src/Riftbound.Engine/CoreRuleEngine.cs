@@ -85,6 +85,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LucianLegendCardNo = "SFD·183/221";
     private const string MasterYiIntroLegendCardNo = "OGS·019/024";
     private const string AhriLegendCardNo = "OGN·255/298";
+    private const string DravenLegendCardNo = "SFD·185/221";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -2551,6 +2552,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         combatEvents.AddRange(lethalCleanup.Events);
 
         var playerExperience = state.PlayerExperience;
+        var playerScores = state.PlayerScores;
+        var rngCursor = state.RngCursor;
+        string? winnerPlayerId = null;
         if (huntAmount > 0
             && defenderObjectIds.All(defenderObjectId => lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
             && cardObjects.TryGetValue(attackerObjectId, out var survivingAttackerState)
@@ -2576,16 +2580,55 @@ public sealed class CoreRuleEngine : IRuleEngine
                 combatEvents);
         }
 
+        if (TryResolveBattleWinnerPlayerId(
+                playerZones,
+                cardObjects,
+                attackerObjectId,
+                defenderObjectIds,
+                defendingPlayerId,
+                intent.PlayerId,
+                out var battleWinnerPlayerId)
+            && TryGetDravenLegendCardNo(playerZones, cardObjects, battleWinnerPlayerId, out var dravenLegendCardNo))
+        {
+            combatEvents.Add(new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{battleWinnerPlayerId} 的荣耀行刑官因赢得战斗触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = battleWinnerPlayerId,
+                    ["legendCardNo"] = dravenLegendCardNo,
+                    ["trigger"] = "BATTLE_WON_DRAW_ONE",
+                    ["sourceObjectId"] = attackerObjectId,
+                    ["attackerObjectId"] = attackerObjectId,
+                    ["defenderObjectIds"] = defenderObjectIds.ToArray()
+                }));
+            var drawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                playerScores,
+                battleWinnerPlayerId,
+                1,
+                rngCursor,
+                combatEvents);
+            playerScores = drawApplication.PlayerScores;
+            winnerPlayerId = drawApplication.WinnerPlayerId;
+            rngCursor = drawApplication.RngCursor;
+        }
+
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
+            PlayerScores = playerScores,
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
+            RngCursor = rngCursor,
             PassedPriorityPlayerIds = [],
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
-                lethalCleanup.DestroyedUnitOwnerIds)
+                lethalCleanup.DestroyedUnitOwnerIds),
+            Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId
         };
         var events = new List<GameEvent>
         {
@@ -2834,6 +2877,74 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.LegendZone.Any(legendObjectId =>
             state.CardObjects.TryGetValue(legendObjectId, out var legendState)
             && string.Equals(legendState.CardNo, MasterYiIntroLegendCardNo, StringComparison.Ordinal));
+    }
+
+    private static bool TryResolveBattleWinnerPlayerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string attackerObjectId,
+        IReadOnlyList<string> defenderObjectIds,
+        string? defendingPlayerId,
+        string attackingPlayerId,
+        out string winnerPlayerId)
+    {
+        winnerPlayerId = string.Empty;
+        var attackerSurvived = cardObjects.TryGetValue(attackerObjectId, out var attackerState)
+            && attackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && IsObjectOnField(playerZones, attackerObjectId);
+        var anyDefenderSurvived = defenderObjectIds.Any(defenderObjectId =>
+            cardObjects.TryGetValue(defenderObjectId, out var defenderState)
+            && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && IsObjectOnField(playerZones, defenderObjectId));
+
+        if (attackerSurvived == anyDefenderSurvived)
+        {
+            return false;
+        }
+
+        if (attackerSurvived)
+        {
+            winnerPlayerId = attackingPlayerId;
+            return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(defendingPlayerId))
+        {
+            winnerPlayerId = defendingPlayerId;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetDravenLegendCardNo(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string cardNo)
+    {
+        cardNo = DravenLegendCardNo;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var legendObjectId in zones.LegendZone)
+        {
+            if (cardObjects.TryGetValue(legendObjectId, out var legendState)
+                && IsDravenLegendCardNo(legendState.CardNo))
+            {
+                cardNo = legendState.CardNo ?? DravenLegendCardNo;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsDravenLegendCardNo(string? cardNo)
+    {
+        return cardNo is DravenLegendCardNo or "SFD·242/221";
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(

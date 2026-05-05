@@ -24052,6 +24052,75 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerDravenDrawsWhenControllerWinsBattle()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"],
+                    LegendZone = ["P1-LEGEND-DRAVEN"],
+                    MainDeck = ["P1-DRAVEN-DRAW-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-DRAVEN"] = new(
+                    "P1-LEGEND-DRAVEN",
+                    cardNo: "SFD·185/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DRAVEN-DRAW-001"] = new(
+                    "P1-DRAVEN-DRAW-001",
+                    cardNo: "SFD·125/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-draven-trigger-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-DRAVEN-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLE_WON_DRAW_ONE", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.DoesNotContain("P2-BATTLEFIELD-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P1-BATTLEFIELD-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
