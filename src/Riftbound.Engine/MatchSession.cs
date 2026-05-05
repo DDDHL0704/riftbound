@@ -936,6 +936,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
+    private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
 
@@ -1263,6 +1264,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldSevenUnitsWinAltCardNo, StringComparison.Ordinal);
     }
@@ -1643,6 +1645,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
+    private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
 
     private readonly IRuleEngine ruleEngine;
@@ -2398,6 +2401,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-first-turn-score" => BuildBattlefieldFirstTurnScoreScenario(current, seed),
             "battlefield-held-score" => BuildBattlefieldHeldScoreScenario(current, seed),
             "battlefield-held-seven-units-win" => BuildBattlefieldHeldSevenUnitsWinScenario(current, seed),
+            "battlefield-conquer-reveal-recycle" => BuildBattlefieldConquerRevealRecycleScenario(current, seed),
             "battlefield-conquer-mill" => BuildBattlefieldConquerMillScenario(current, seed),
             "battlefield-conquer-discard-draw" => BuildBattlefieldConquerDiscardDrawScenario(current, seed),
             "battlefield-conquer-recycle-rune" => BuildBattlefieldConquerRecycleRuneScenario(current, seed),
@@ -3653,6 +3657,73 @@ public sealed class MatchSession : IMatchSession
                     championZone: ["P2-CHAMPION-001"])
             },
             cardObjects);
+    }
+
+    private static MatchState BuildBattlefieldConquerRevealRecycleScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303053,
+            153,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck:
+                    [
+                        "P1-BATTLEFIELD-CANDLE-001",
+                        "P1-BATTLEFIELD-CANDLE-002",
+                        "P1-BATTLEFIELD-CANDLE-003"
+                    ],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-CANDLELIT-SANCTUM", "P1-BATTLEFIELD-CANDLE-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-CANDLE-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new(
+                    "P1-BATTLEFIELD-CANDLELIT-SANCTUM",
+                    cardNo: BattlefieldConquerRevealRecycleCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-CANDLE-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-CANDLE-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P1-BATTLEFIELD-CANDLE-001"] = new(
+                    "P1-BATTLEFIELD-CANDLE-001",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-CANDLE-002"] = new(
+                    "P1-BATTLEFIELD-CANDLE-002",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-CANDLE-003"] = new(
+                    "P1-BATTLEFIELD-CANDLE-003",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
     }
 
     private static MatchState BuildBattlefieldConquerMillScenario(MatchState current, DevScenarioSeed seed)

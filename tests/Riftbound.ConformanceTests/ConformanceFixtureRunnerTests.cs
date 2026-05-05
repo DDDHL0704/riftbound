@@ -26554,6 +26554,40 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerRevealRecyclesTopTwo()
+    {
+        var state = BattlefieldConquerRevealRecycleState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-reveal-recycle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-CANDLELIT-SANCTUM",
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"],
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-CANDLELIT-SANCTUM", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(["P1-BATTLEFIELD-CANDLE-001", "P1-BATTLEFIELD-CANDLE-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["revealedObjectIds"]));
+        var revealedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
+        Assert.Equal(2, revealedEvent.Payload["count"]);
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal(2, recycleEvent.Payload["count"]);
+        Assert.Equal("P1-BATTLEFIELD-CANDLE-003", result.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-CANDLE-001", "P1-BATTLEFIELD-CANDLE-002"],
+            result.State.PlayerZones["P1"].MainDeck.Skip(1).Order(StringComparer.Ordinal).ToArray());
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -38477,6 +38511,63 @@ public sealed class ConformanceFixtureRunnerTests
                 }
             },
             CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BattlefieldConquerRevealRecycleState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P1-BATTLEFIELD-CANDLE-001",
+                        "P1-BATTLEFIELD-CANDLE-002",
+                        "P1-BATTLEFIELD-CANDLE-003"
+                    ],
+                    Battlefields = ["P1-BATTLEFIELD-CANDLELIT-SANCTUM", "P1-BATTLEFIELD-CANDLE-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-CANDLE-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-CANDLELIT-SANCTUM"] = new(
+                    "P1-BATTLEFIELD-CANDLELIT-SANCTUM",
+                    cardNo: "OGN·291/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-CANDLE-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-CANDLE-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-BATTLEFIELD-CANDLE-001"] = new(
+                    "P1-BATTLEFIELD-CANDLE-001",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-CANDLE-002"] = new(
+                    "P1-BATTLEFIELD-CANDLE-002",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-CANDLE-003"] = new(
+                    "P1-BATTLEFIELD-CANDLE-003",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
         };
     }
 

@@ -173,6 +173,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
+    private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
     private const string BattlefieldHeldSevenUnitsWinCardNo = "OGN·293/298";
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const int BattlefieldReadyLegendManaCost = 1;
@@ -3786,6 +3787,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 rngCursor);
             rngCursor = battlefieldRecycleRuneTrigger.RngCursor;
             combatEvents.AddRange(battlefieldRecycleRuneTrigger.Events);
+            var battlefieldRevealRecycleTrigger = ResolveBattlefieldConquerRevealRecycleTrigger(
+                state,
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                rngCursor);
+            rngCursor = battlefieldRevealRecycleTrigger.RngCursor;
+            combatEvents.AddRange(battlefieldRevealRecycleTrigger.Events);
             if (TryResolveBattlefieldConquerDiscardDrawTrigger(
                     state,
                     playerZones,
@@ -6764,6 +6775,83 @@ public sealed class CoreRuleEngine : IRuleEngine
         return new RecycleResult(events, rngCursor);
     }
 
+    private static RecycleResult ResolveBattlefieldConquerRevealRecycleTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerRevealRecycleCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.MainDeck.Count == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var revealedObjectIds = zones.MainDeck.Take(2).ToArray();
+        var recycledObjectIds = RandomizeForMainDeckBottom(
+            revealedObjectIds,
+            state.Seed,
+            rngCursor,
+            battlefieldObjectId);
+        if (revealedObjectIds.Length > 1)
+        {
+            rngCursor++;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            MainDeck = zones.MainDeck
+                .Skip(revealedObjectIds.Length)
+                .Concat(recycledObjectIds)
+                .ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并展示回收顶牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["revealedObjectIds"] = revealedObjectIds,
+                ["recycledObjectIds"] = recycledObjectIds,
+                ["returnedObjectIds"] = Array.Empty<string>()
+            }));
+        events.Add(new GameEvent(
+            "CARDS_REVEALED",
+            $"{playerId} 展示主牌堆顶部 {revealedObjectIds.Length} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["cardIds"] = revealedObjectIds,
+                ["count"] = revealedObjectIds.Length,
+                ["zone"] = "MAIN_DECK"
+            }));
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{playerId} 回收 {recycledObjectIds.Count} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["cardIds"] = recycledObjectIds,
+                ["count"] = recycledObjectIds.Count,
+                ["reason"] = "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE"
+            }));
+        return new RecycleResult(events, rngCursor);
+    }
+
     private static bool TryResolveBattlefieldConquerDiscardDrawTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -7433,6 +7521,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
             || IsBattlefieldFirstTurnScoreCardNo(cardNo)
+            || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo);
     }
 
@@ -7565,6 +7654,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldFirstTurnScoreCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerRevealRecycleCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerRevealRecycleCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldSevenUnitsWinCardNo(string? cardNo)

@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, and representative effects. Battlefield slices migrated `27/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `27` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, and representative effects. Battlefield slices migrated `28/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `26` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-26 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-27 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `26` done.
-- Current functional-unit implementation: `784/811 = 96.7%`.
-- Current manual deferred boundary: `27/811 = 3.3%`.
+- P7.9.7 battlefield foundation slices: `27` done.
+- Current functional-unit implementation: `785/811 = 96.8%`.
+- Current manual deferred boundary: `26/811 = 3.2%`.
 - Remaining manual domains:
-  - `战场`: `27` functional units / `28` entries
+  - `战场`: `26` functional units / `27` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2274,3 +2274,35 @@ P7.9.7 battlefield foundation slice 26 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/special-win battlefield slice. GameHub coverage verifies the seed, authoritative prompt destination, match-won event, winner snapshot, and finished room state.
+
+## P7.9.7 Battlefield Foundation Slice 27 Delivered
+
+This is the twenty-seventh rule slice inside P7.9.7. It adds a conquest top-deck reveal/recycle battlefield effect.
+
+- Added implemented battlefield card:
+  - `OGN·291/298`: when a player conquers this battlefield, the backend reveals the top two cards of that player's main deck and recycles the revealed cards as the deterministic representative choice.
+- Server-authoritative reveal/recycle changes:
+  - The conquest trigger runs on the existing `DECLARE_BATTLE` conquest path after the battlefield is conquered.
+  - The mutation emits `BATTLEFIELD_CONQUERED`, `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE`, `CARDS_REVEALED`, and `CARDS_RECYCLED`.
+  - Boundary note: the official text allows choosing any number of the two revealed cards and ordering the rest; this slice uses the existing deterministic backend recycle model for a product-playable representative path and adds no frontend choice inference.
+- Added `battlefield-conquer-reveal-recycle` local development seed plus GameHub coverage for prompt destination exposure, battle declaration, reveal/recycle events, final main-deck snapshot boundary, and non-finished room state.
+- Migrated this battlefield conquest reveal/recycle slice in `BehaviorSpec`:
+  - Implemented functional units: `785/811`
+  - Manual deferred functional units: `26/811`
+  - Implemented official entries: `982/1009`
+  - Manual deferred official entries: `27/1009`
+  - Battlefield rule-domain implemented: `28` functional units / `30` entries
+  - Remaining battlefield manual deferred: `26` functional units / `27` entries
+  - Timing trigger and Recycle template coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 27 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldConquerRevealRecyclesTopTwo|FullyQualifiedName~P79BattlefieldConquerRevealRecycleSeedOffersBattlefieldDestinationAndRecycles"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2611/2611`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `56/56`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2746/2746`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/reveal-recycle battlefield slice. GameHub coverage verifies the seed, authoritative prompt destination, reveal/recycle events, and snapshot boundary.
