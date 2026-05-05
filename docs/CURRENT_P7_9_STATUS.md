@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 6 remaining | 7 remaining | P7.9.7 has migrated `48/54` battlefield FUs / `50/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 5 remaining | 6 remaining | P7.9.7 has migrated `49/54` battlefield FUs / `51/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, unit-returned Ghost Bay rune trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `48/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `6` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `49/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `5` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-47 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-48 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `47` done.
-- Current functional-unit implementation: `805/811 = 99.3%`.
-- Current manual deferred boundary: `6/811 = 0.7%`.
+- P7.9.7 battlefield foundation slices: `48` done.
+- Current functional-unit implementation: `806/811 = 99.4%`.
+- Current manual deferred boundary: `5/811 = 0.6%`.
 - Remaining manual domains:
-  - `战场`: `6` functional units / `7` entries
+  - `战场`: `5` functional units / `6` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2966,3 +2966,37 @@ P7.9.7 battlefield foundation slice 47 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2794/2794`.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/Ghost Bay battlefield slice. GameHub coverage verifies the seed, pass-priority return resolution path, authoritative trigger/cost/rune events, and snapshot rune-zone update.
+
+## P7.9.7 Battlefield Foundation Slice 48 Delivered
+
+This is the forty-eighth rule slice inside P7.9.7. It adds Forgotten Monument's pre-third-turn battlefield scoring delay.
+
+- Added implemented battlefield card:
+  - `SFD·209/221`: before each player's third turn starts, that player cannot gain score from the battlefield.
+- Server-authoritative score-delay changes:
+  - Added a server-side player turn ordinal helper so the engine can determine whether a player is still before their third turn, including the period before that player has taken a first turn.
+  - Battlefield-origin score events now check for `SFD·209/221` before mutating score.
+  - The existing first-turn battlefield score path is prevented before the player's third turn and emits `BATTLEFIELD_SCORE_PREVENTED` instead of `SCORE_GAINED`.
+  - The held-battlefield `SFD·214/221` pay-4-power score path is also prevented before the player's third turn; no power is spent when scoring is prevented.
+  - Boundary note: the current flat battlefield-zone model cannot distinguish multiple physical "here" locations. This representative applies the `SFD·209/221` delay to battlefield-origin score gains while the card is present, keeping the rule server-authoritative and visible through events.
+- Added `battlefield-score-delay` local development seed plus GameHub coverage for ending P1's turn into P2's first turn and observing score prevention in the event stream and snapshot.
+- Migrated this battlefield score-delay slice in `BehaviorSpec`:
+  - Implemented functional units: `806/811`
+  - Manual deferred functional units: `5/811`
+  - Implemented official entries: `1003/1009`
+  - Manual deferred official entries: `6/1009`
+  - Battlefield rule-domain implemented: `49` functional units / `51` entries
+  - Remaining battlefield manual deferred: `5` functional units / `6` entries
+  - Trigger/timing coverage moved forward to `527/530` implemented entries and `420/423` implemented functional units.
+
+P7.9.7 battlefield foundation slice 48 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldScoreDelay"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2641/2641`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `77/77`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2797/2797`.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/score-delay battlefield slice. GameHub coverage verifies the seed, authoritative `END_TURN` path, prevented score event, and unchanged score snapshot.

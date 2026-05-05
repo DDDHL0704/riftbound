@@ -176,6 +176,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const string BattlefieldFirstTurnScoreCardNo = "OGN·290/298";
+    private const string BattlefieldScoreDelayCardNo = "SFD·209/221";
     private const string BattlefieldTurnStartDamageAllUnitsCardNo = "UNL-212/219";
     private const string BattlefieldTurnStartDestroyUnitDrawCardNo = "UNL-209/219";
     private const string BattlefieldConquerRevealRecycleCardNo = "OGN·291/298";
@@ -204,6 +205,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldUnitReturnedCallRuneManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
     private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
+    private const int BattlefieldScoreDelayReleasedTurnOrdinal = 3;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
@@ -4507,6 +4509,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
                 var battlefieldScoreEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldPayPowerScoreTrigger(
+                        state,
                         playerZones,
                         cardObjects,
                         runePools,
@@ -6807,6 +6810,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static bool TryResolveBattlefieldHeldPayPowerScoreTrigger(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, RunePool> runePools,
@@ -6827,6 +6831,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
         {
             return false;
+        }
+
+        if (TryBuildBattlefieldScorePreventedEvent(
+                state,
+                playerId,
+                "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                [battlefieldObjectId],
+                out var scorePreventedEvent)
+            && scorePreventedEvent is not null)
+        {
+            events.Add(scorePreventedEvent);
+            return true;
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
@@ -8498,6 +8514,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
             || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo)
             || IsBattlefieldFirstTurnScoreCardNo(cardNo)
+            || IsBattlefieldScoreDelayCardNo(cardNo)
             || IsBattlefieldTurnStartDamageAllUnitsCardNo(cardNo)
             || IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardNo)
             || IsBattlefieldConquerRevealRecycleCardNo(cardNo)
@@ -8663,6 +8680,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldFirstTurnScoreCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldFirstTurnScoreCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldScoreDelayCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldScoreDelayCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldTurnStartDamageAllUnitsCardNo(string? cardNo)
@@ -18621,6 +18643,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new ScoreApplicationResult(playerScores, null, []);
         }
 
+        if (TryBuildBattlefieldScorePreventedEvent(
+                state,
+                playerId,
+                "BATTLEFIELD_FIRST_TURN_GAIN_SCORE",
+                sourceObjectIds,
+                out var scorePreventedEvent)
+            && scorePreventedEvent is not null)
+        {
+            return new ScoreApplicationResult(playerScores, null, [scorePreventedEvent]);
+        }
+
         playerScores[playerId] = playerScores.TryGetValue(playerId, out var score)
             ? score + sourceObjectIds.Length
             : sourceObjectIds.Length;
@@ -18653,6 +18686,66 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerScores,
             WinningPlayerId(playerScores, EffectiveWinningScore(state)),
             events);
+    }
+
+    private static bool TryBuildBattlefieldScorePreventedEvent(
+        MatchState state,
+        string playerId,
+        string preventedReason,
+        IReadOnlyList<string> scoreSourceObjectIds,
+        out GameEvent? scorePreventedEvent)
+    {
+        scorePreventedEvent = null;
+        var turnOrdinal = PlayerTurnOrdinal(state, playerId);
+        if (turnOrdinal < 0
+            || turnOrdinal >= BattlefieldScoreDelayReleasedTurnOrdinal)
+        {
+            return false;
+        }
+
+        var sourceObjectIds = state.PlayerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldScoreDelayCardNo(cardObject.CardNo))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (sourceObjectIds.Length == 0)
+        {
+            return false;
+        }
+
+        scorePreventedEvent = new GameEvent(
+            "BATTLEFIELD_SCORE_PREVENTED",
+            $"{playerId} 尚未进入第 3 回合，遗忘丰碑阻止其从战场获得分数",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["trigger"] = "BATTLEFIELD_SCORE_DELAY_UNTIL_THIRD_TURN",
+                ["sourceObjectIds"] = sourceObjectIds,
+                ["preventedReason"] = preventedReason,
+                ["scoreSourceObjectIds"] = scoreSourceObjectIds.ToArray(),
+                ["turnOrdinal"] = turnOrdinal,
+                ["releasedTurnOrdinal"] = BattlefieldScoreDelayReleasedTurnOrdinal
+            });
+        return true;
+    }
+
+    private static int PlayerTurnOrdinal(MatchState state, string playerId)
+    {
+        var players = SeatPlayerIds(state);
+        var playerIndex = Array.IndexOf(players, playerId);
+        if (players.Length == 0
+            || playerIndex < 0)
+        {
+            return -1;
+        }
+
+        if (state.TurnNumber < playerIndex + 1)
+        {
+            return 0;
+        }
+
+        return ((state.TurnNumber - (playerIndex + 1)) / players.Length) + 1;
     }
 
     private static bool IsSecondActionPlayersFirstTurn(MatchState state)

@@ -27335,6 +27335,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldScoreDelayPreventsFirstTurnScoreBeforeThirdTurn()
+    {
+        var baseState = BattlefieldFirstTurnScoreState();
+        var state = baseState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = baseState.PlayerZones["P1"] with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GLORY-ARENA", "P1-BATTLEFIELD-FORGOTTEN-MONUMENT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FORGOTTEN-MONUMENT"] = new(
+                    "P1-BATTLEFIELD-FORGOTTEN-MONUMENT",
+                    cardNo: "SFD·209/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-score-delay-first-turn", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+        var preventedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
+        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
+        Assert.Equal(1, preventedEvent.Payload["turnOrdinal"]);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldTurnStartDamageAllBattlefieldUnitsBeforeScoring()
     {
         var state = BattlefieldTurnStartDamageState();
@@ -27450,6 +27492,61 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, scoreEvent.Payload["amount"]);
         Assert.Equal(1, scoreEvent.Payload["score"]);
         Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldScoreDelayPreventsHeldScorePaymentBeforeThirdTurn()
+    {
+        var baseState = BattlefieldHeldScoreState();
+        var state = baseState with
+        {
+            TurnNumber = 1,
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P2"] = baseState.PlayerZones["P2"] with
+                {
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-ENERGY-HUB",
+                        "P2-BATTLEFIELD-ENERGY-DEFENDER",
+                        "P2-BATTLEFIELD-FORGOTTEN-MONUMENT"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P2-BATTLEFIELD-FORGOTTEN-MONUMENT"] = new(
+                    "P2-BATTLEFIELD-FORGOTTEN-MONUMENT",
+                    cardNo: "SFD·209/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-score-delay-held", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+        Assert.Equal(4, result.State.RunePools["P2"].Power);
+        var preventedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
+        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("reason", out var reason)
+            && string.Equals(reason as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
     }
 
     [Fact]

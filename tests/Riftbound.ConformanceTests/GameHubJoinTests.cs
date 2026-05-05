@@ -2701,6 +2701,43 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldScoreDelaySeedPreventsFirstTurnScore()
+    {
+        const string roomId = "p7-9-battlefield-score-delay";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-score-delay", "seed-p7-9-battlefield-score-delay");
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-score-delay", endTurn);
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        var preventedEvent = Assert.Single(endTurnEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
+        Assert.Equal("P2", preventedEvent.Payload["playerId"]);
+        Assert.Equal("BATTLEFIELD_FIRST_TURN_GAIN_SCORE", preventedEvent.Payload["preventedReason"]);
+        Assert.DoesNotContain(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+
+        var p2Snapshot = SnapshotFor(endTurnClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        Assert.Equal(0, Assert.IsType<int>(p2["score"]));
+        Assert.Null(p2Snapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.InProgress, p2Snapshot.Timing["roomStatus"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldTurnStartDamageSeedDamagesAndDestroysBeforeRuneCall()
     {
         const string roomId = "p7-9-battlefield-turn-start-damage";
