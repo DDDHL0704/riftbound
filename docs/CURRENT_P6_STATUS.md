@@ -186,7 +186,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.6c | Planned | Remaining equipment assemble/agile/tempered boundary checks. | P5 equipment invariant tests required. |
 | P6.7a | Done | Experience/level/hunt/encourage surface matrix and current execution/deferred boundary triage. | Catalog profile matrix passed. |
 | P6.7b | Done | Experience gain + level threshold Room-visible representative smoke. | GameHub/Room smoke passed. |
-| P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
+| P6.8a | Done | Lifecycle/trigger/replacement surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
+| P6.8b | Planned | Last Breath/Ephemeral representative Room or fixture checks. | High-risk small batch. |
 | P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
 | P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
 | P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
@@ -231,6 +232,12 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Encourage execution representatives: `5/15 entries = 33.3%`, `5/10 functional units = 50.0%` have current condition-bound representative execution; the remaining surface stays deferred.
   - Experience behavior representatives: `6/51 entries = 11.8%`, `6/47 functional units = 12.8%` have current gain/spend execution; remaining experience text stays deferred unless separately covered.
 - P6.7b resource/experience Room smoke progress: `1/1 GameHub core path = 100.0%`.
+- P6.8a lifecycle/timing surface triage:
+  - Lifecycle keyword-surface entries: `67/67 = 100.0%`; functional units: `61/61 = 100.0%`.
+  - Profile implemented/delegated boundary: `36/67 entries = 53.7%`; `32/61 functional units = 52.5%` for Ephemeral cleanup and audited Predict recycle paths.
+  - Profile deferred boundary: `31/67 entries = 46.3%`; `29/61 functional units = 47.5%` for Last Breath queues, one Ephemeral+Last Breath overlap, and broad Predict grants.
+  - Trigger timing surface: `530` entries / `423` functional units; `358/423 = 84.6%` units have implemented specs and `65/423 = 15.4%` remain pending.
+  - Replacement timing surface: `28` entries / `24` functional units; `21/24 = 87.5%` units have implemented specs and `3/24 = 12.5%` remain pending.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -621,6 +628,40 @@ P6.7b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `24/24`.
 - `git diff --check`: passed.
 
+## P6.8a Delivered
+
+- Added a P6 lifecycle/trigger/replacement coverage matrix to `CardCatalogBaselineTests`.
+- Locked lifecycle keyword surfaces and current execution/deferred boundaries:
+
+| Keyword | Entries | Spec implemented entries | Functional units | Spec implemented units | Profile implemented entries | Profile delegated entries | Profile deferred entries | Profile implemented units | Profile delegated units | Profile deferred units |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 瞬息 | 30 | 21 | 26 | 21 | 29 | 0 | 1 | 25 | 0 | 1 |
+| 绝念 | 25 | 25 | 25 | 25 | 0 | 0 | 25 | 0 | 0 | 25 |
+| 预知 | 12 | 12 | 10 | 10 | 0 | 7 | 5 | 0 | 7 | 3 |
+
+- Locked timing surfaces from P3 `TriggerSpec` / `ReplacementSpec` parsing:
+
+| Surface | Entries | Spec implemented entries | Manual-rule-required entries | Unimplemented entries | Functional units | Spec implemented units | Pending units |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| trigger | 530 | 429 | 98 | 3 | 423 | 358 | 65 |
+| replacement | 28 | 23 | 4 | 1 | 24 | 21 | 3 |
+
+- Deferred reason:
+  - `绝念`: P5 has representative trigger queue/resolution coverage, but broad per-card last-breath effects remain deferred until tiny high-risk batches cover each effect family.
+  - `瞬息`: P4 has turn-start cleanup and multiple tag-application representatives; one Ephemeral+Last Breath overlap remains deferred because Last Breath owns the high-risk queue semantics.
+  - `预知`: audited top-card recycle/no-recycle paths are delegated to existing P2 behavior; broad static grants or non-audited predict branches remain deferred.
+  - `trigger` / `replacement`: parsed surfaces are locked for completion audit, but generic ordering, simultaneous queues, and replacement priority remain deferred unless a representative path has separate conformance coverage.
+- This batch does not change engine behavior or BehaviorSpec status counts; it prevents P6 from promoting broad trigger/replacement surfaces beyond the P2-P5 representative paths.
+
+P6.8a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2594/2594`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `33/33`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `24/24`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.7b, then continue into P6.8 last-breath/ephemeral/replacement/trigger batches.
+Commit P6.8a, then continue into P6.8b last-breath/ephemeral representative checks.

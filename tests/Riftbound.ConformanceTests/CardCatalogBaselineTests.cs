@@ -426,6 +426,99 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var lifecycleRows = BuildLifecycleKeywordCoverageRows(
+            specs,
+            [
+                CardLifecycleKeywordNames.Ephemeral,
+                CardLifecycleKeywordNames.LastBreath,
+                CardLifecycleKeywordNames.Predict
+            ]);
+        var timingRows = BuildTimingSurfaceCoverageRows(
+            specs,
+            [
+                TimingSurfaceNames.Trigger,
+                TimingSurfaceNames.Replacement
+            ]);
+
+        AssertLifecycleKeywordCoverage(
+            lifecycleRows,
+            CardLifecycleKeywordNames.Ephemeral,
+            entries: 30,
+            specImplementedEntries: 21,
+            functionalUnits: 26,
+            specImplementedFunctionalUnits: 21,
+            profileImplementedEntries: 29,
+            profileDelegatedEntries: 0,
+            profileDeferredEntries: 1,
+            profileImplementedFunctionalUnits: 25,
+            profileDelegatedFunctionalUnits: 0,
+            profileDeferredFunctionalUnits: 1);
+        AssertLifecycleKeywordCoverage(
+            lifecycleRows,
+            CardLifecycleKeywordNames.LastBreath,
+            entries: 25,
+            specImplementedEntries: 25,
+            functionalUnits: 25,
+            specImplementedFunctionalUnits: 25,
+            profileImplementedEntries: 0,
+            profileDelegatedEntries: 0,
+            profileDeferredEntries: 25,
+            profileImplementedFunctionalUnits: 0,
+            profileDelegatedFunctionalUnits: 0,
+            profileDeferredFunctionalUnits: 25);
+        AssertLifecycleKeywordCoverage(
+            lifecycleRows,
+            CardLifecycleKeywordNames.Predict,
+            entries: 12,
+            specImplementedEntries: 12,
+            functionalUnits: 10,
+            specImplementedFunctionalUnits: 10,
+            profileImplementedEntries: 0,
+            profileDelegatedEntries: 7,
+            profileDeferredEntries: 5,
+            profileImplementedFunctionalUnits: 0,
+            profileDelegatedFunctionalUnits: 7,
+            profileDeferredFunctionalUnits: 3);
+        AssertTimingSurfaceCoverage(
+            timingRows,
+            TimingSurfaceNames.Trigger,
+            entries: 530,
+            specImplementedEntries: 429,
+            manualRuleRequiredEntries: 98,
+            unimplementedEntries: 3,
+            functionalUnits: 423,
+            specImplementedFunctionalUnits: 358,
+            pendingFunctionalUnits: 65);
+        AssertTimingSurfaceCoverage(
+            timingRows,
+            TimingSurfaceNames.Replacement,
+            entries: 28,
+            specImplementedEntries: 23,
+            manualRuleRequiredEntries: 4,
+            unimplementedEntries: 1,
+            functionalUnits: 24,
+            specImplementedFunctionalUnits: 21,
+            pendingFunctionalUnits: 3);
+        Assert.All(lifecycleRows, row =>
+        {
+            Assert.Equal(row.Entries, row.ProfileImplementedEntries + row.ProfileDelegatedEntries + row.ProfileDeferredEntries);
+            Assert.Equal(
+                row.FunctionalUnits,
+                row.ProfileImplementedFunctionalUnits + row.ProfileDelegatedFunctionalUnits + row.ProfileDeferredFunctionalUnits);
+        });
+        Assert.All(timingRows, row =>
+        {
+            Assert.Equal(row.Entries, row.SpecImplementedEntries + row.ManualRuleRequiredEntries + row.UnimplementedEntries);
+            Assert.Equal(row.FunctionalUnits, row.SpecImplementedFunctionalUnits + row.PendingFunctionalUnits);
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2165,6 +2258,214 @@ public sealed class CardCatalogBaselineTests
         int RegistryExecutionFunctionalUnits,
         int ProfileDeferredEntries,
         int ProfileDeferredFunctionalUnits);
+
+    private static IReadOnlyList<LifecycleKeywordCoverageRow> BuildLifecycleKeywordCoverageRows(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<string> keywords)
+    {
+        var profileRows = specs
+            .Select(spec =>
+            {
+                CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out var definition);
+                return new
+                {
+                    Spec = spec,
+                    Profile = CardLifecycleKeywordRules.BuildProfile(spec, definition)
+                };
+            })
+            .ToArray();
+
+        return keywords
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(keyword =>
+            {
+                var keywordRows = profileRows
+                    .Where(row => HasLifecycleKeyword(row.Profile, keyword))
+                    .ToArray();
+                var unitGroups = keywordRows
+                    .GroupBy(row => row.Spec.FunctionalUnitId, StringComparer.Ordinal)
+                    .ToArray();
+
+                return new LifecycleKeywordCoverageRow(
+                    keyword,
+                    keywordRows.Length,
+                    keywordRows.Count(row => string.Equals(
+                        row.Spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    unitGroups.Length,
+                    unitGroups.Count(group => group.Any(row => string.Equals(
+                        row.Spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal))),
+                    keywordRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        LifecycleKeywordProfileStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    keywordRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        LifecycleKeywordProfileStatuses.RecognizedDelegated,
+                        StringComparison.Ordinal)),
+                    keywordRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        LifecycleKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal)),
+                    unitGroups.Count(group => group.Any(row => string.Equals(
+                        row.Profile.Status,
+                        LifecycleKeywordProfileStatuses.Implemented,
+                        StringComparison.Ordinal))),
+                    unitGroups.Count(group => group.Any(row => string.Equals(
+                        row.Profile.Status,
+                        LifecycleKeywordProfileStatuses.RecognizedDelegated,
+                        StringComparison.Ordinal))),
+                    unitGroups.Count(group => group.All(row => string.Equals(
+                        row.Profile.Status,
+                        LifecycleKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal))));
+            })
+            .ToArray();
+    }
+
+    private static bool HasLifecycleKeyword(CardLifecycleKeywordProfile profile, string keyword)
+    {
+        return keyword switch
+        {
+            CardLifecycleKeywordNames.Ephemeral => profile.HasEphemeral,
+            CardLifecycleKeywordNames.LastBreath => profile.HasLastBreath,
+            CardLifecycleKeywordNames.Predict => profile.HasPredict,
+            _ => false
+        };
+    }
+
+    private static void AssertLifecycleKeywordCoverage(
+        IReadOnlyList<LifecycleKeywordCoverageRow> rows,
+        string keyword,
+        int entries,
+        int specImplementedEntries,
+        int functionalUnits,
+        int specImplementedFunctionalUnits,
+        int profileImplementedEntries,
+        int profileDelegatedEntries,
+        int profileDeferredEntries,
+        int profileImplementedFunctionalUnits,
+        int profileDelegatedFunctionalUnits,
+        int profileDeferredFunctionalUnits)
+    {
+        var row = Assert.Single(rows, candidate => string.Equals(candidate.Keyword, keyword, StringComparison.Ordinal));
+        Assert.Equal(entries, row.Entries);
+        Assert.Equal(specImplementedEntries, row.SpecImplementedEntries);
+        Assert.Equal(functionalUnits, row.FunctionalUnits);
+        Assert.Equal(specImplementedFunctionalUnits, row.SpecImplementedFunctionalUnits);
+        Assert.Equal(profileImplementedEntries, row.ProfileImplementedEntries);
+        Assert.Equal(profileDelegatedEntries, row.ProfileDelegatedEntries);
+        Assert.Equal(profileDeferredEntries, row.ProfileDeferredEntries);
+        Assert.Equal(profileImplementedFunctionalUnits, row.ProfileImplementedFunctionalUnits);
+        Assert.Equal(profileDelegatedFunctionalUnits, row.ProfileDelegatedFunctionalUnits);
+        Assert.Equal(profileDeferredFunctionalUnits, row.ProfileDeferredFunctionalUnits);
+    }
+
+    private sealed record LifecycleKeywordCoverageRow(
+        string Keyword,
+        int Entries,
+        int SpecImplementedEntries,
+        int FunctionalUnits,
+        int SpecImplementedFunctionalUnits,
+        int ProfileImplementedEntries,
+        int ProfileDelegatedEntries,
+        int ProfileDeferredEntries,
+        int ProfileImplementedFunctionalUnits,
+        int ProfileDelegatedFunctionalUnits,
+        int ProfileDeferredFunctionalUnits);
+
+    private static IReadOnlyList<TimingSurfaceCoverageRow> BuildTimingSurfaceCoverageRows(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<string> surfaces)
+    {
+        return surfaces
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(surface =>
+            {
+                var surfaceSpecs = specs
+                    .Where(spec => HasTimingSurface(spec, surface))
+                    .ToArray();
+                var unitGroups = surfaceSpecs
+                    .GroupBy(spec => spec.FunctionalUnitId, StringComparer.Ordinal)
+                    .ToArray();
+                var implementedUnits = unitGroups.Count(group => group.Any(spec => string.Equals(
+                    spec.Status,
+                    BehaviorImplementationStatuses.Implemented,
+                    StringComparison.Ordinal)));
+
+                return new TimingSurfaceCoverageRow(
+                    surface,
+                    surfaceSpecs.Length,
+                    surfaceSpecs.Count(spec => string.Equals(
+                        spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    surfaceSpecs.Count(spec => string.Equals(
+                        spec.Status,
+                        BehaviorImplementationStatuses.ManualRuleRequired,
+                        StringComparison.Ordinal)),
+                    surfaceSpecs.Count(spec => string.Equals(
+                        spec.Status,
+                        BehaviorImplementationStatuses.Unimplemented,
+                        StringComparison.Ordinal)),
+                    unitGroups.Length,
+                    implementedUnits,
+                    unitGroups.Length - implementedUnits);
+            })
+            .ToArray();
+    }
+
+    private static bool HasTimingSurface(BehaviorSpec spec, string surface)
+    {
+        return surface switch
+        {
+            TimingSurfaceNames.Trigger => spec.Triggers.Count > 0,
+            TimingSurfaceNames.Replacement => spec.Replacements.Count > 0,
+            _ => false
+        };
+    }
+
+    private static void AssertTimingSurfaceCoverage(
+        IReadOnlyList<TimingSurfaceCoverageRow> rows,
+        string surface,
+        int entries,
+        int specImplementedEntries,
+        int manualRuleRequiredEntries,
+        int unimplementedEntries,
+        int functionalUnits,
+        int specImplementedFunctionalUnits,
+        int pendingFunctionalUnits)
+    {
+        var row = Assert.Single(rows, candidate => string.Equals(candidate.Surface, surface, StringComparison.Ordinal));
+        Assert.Equal(entries, row.Entries);
+        Assert.Equal(specImplementedEntries, row.SpecImplementedEntries);
+        Assert.Equal(manualRuleRequiredEntries, row.ManualRuleRequiredEntries);
+        Assert.Equal(unimplementedEntries, row.UnimplementedEntries);
+        Assert.Equal(functionalUnits, row.FunctionalUnits);
+        Assert.Equal(specImplementedFunctionalUnits, row.SpecImplementedFunctionalUnits);
+        Assert.Equal(pendingFunctionalUnits, row.PendingFunctionalUnits);
+    }
+
+    private static class TimingSurfaceNames
+    {
+        public const string Trigger = "trigger";
+        public const string Replacement = "replacement";
+    }
+
+    private sealed record TimingSurfaceCoverageRow(
+        string Surface,
+        int Entries,
+        int SpecImplementedEntries,
+        int ManualRuleRequiredEntries,
+        int UnimplementedEntries,
+        int FunctionalUnits,
+        int SpecImplementedFunctionalUnits,
+        int PendingFunctionalUnits);
 
     private static CardCombatKeywordProfile BuildCombatProfile(
         IReadOnlyList<BehaviorSpec> specs,
