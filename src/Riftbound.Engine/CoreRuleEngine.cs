@@ -149,6 +149,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
+    private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
@@ -4008,6 +4009,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                     combatEvents.AddRange(battlefieldSingleRuneEvents);
                 }
 
+                var battlefieldBoonEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldGrantBoonTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds,
+                        battlefieldBoonEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldBoonEvents);
+                }
+
                 var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
                     IsObjectOnField(playerZones, defenderObjectId)
                     && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
@@ -5917,6 +5938,66 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldGrantBoonTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        IReadOnlyList<string> defenderObjectIds,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHoldGrantBoonCardNo(battlefieldState.CardNo)
+            || !TryGetFirstSurvivingBattlefieldUnit(cardObjects, playerZones, defenderObjectIds, out var targetObjectId))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并给予单位增益",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_GRANT_BOON",
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId
+            }));
+        GrantLegendBoon(
+            cardObjects,
+            targetObjectId,
+            playerId,
+            battlefieldObjectId,
+            "BATTLEFIELD_HELD_GRANT_BOON",
+            events);
+        return true;
+    }
+
+    private static bool TryGetFirstSurvivingBattlefieldUnit(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyList<string> candidateObjectIds,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        foreach (var candidateObjectId in candidateObjectIds.OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (cardObjects.TryGetValue(candidateObjectId, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, candidateObjectId))
+            {
+                targetObjectId = candidateObjectId;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool TryResolveBattlefieldDefenderSteadfastChoice(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -6689,6 +6770,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldHoldCallRuneCardNo(cardNo)
+            || IsBattlefieldHoldGrantBoonCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
@@ -6722,6 +6804,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldCallRuneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldCallRuneCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHoldGrantBoonCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)

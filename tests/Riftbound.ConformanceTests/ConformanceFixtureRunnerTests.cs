@@ -25700,6 +25700,36 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldGrantsBoonToSurvivingDefender()
+    {
+        var state = BattlefieldHeldBoonState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-boon", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-NAVORI-ARENA",
+                ["P1-BATTLEFIELD-BOON-ATTACKER"],
+                ["P2-BATTLEFIELD-BOON-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_GRANT_BOON", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-NAVORI-ARENA", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-BOON-DEFENDER", triggerEvent.Payload["targetObjectId"]);
+        var boonEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BOON-DEFENDER", StringComparison.Ordinal));
+        Assert.Equal(false, boonEvent.Payload["alreadyHadBoon"]);
+        var defender = result.State.CardObjects["P2-BATTLEFIELD-BOON-DEFENDER"];
+        Assert.Equal(4, defender.Power);
+        Assert.Contains(CardObjectTags.Boon, defender.Tags);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerMillsTopTwoFromBattlefieldObject()
     {
         var state = BattlefieldConquerMillState();
@@ -37035,6 +37065,45 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldBoonState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-BOON-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-NAVORI-ARENA", "P2-BATTLEFIELD-BOON-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-BOON-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-BOON-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-NAVORI-ARENA"] = new(
+                    "P2-BATTLEFIELD-NAVORI-ARENA",
+                    cardNo: "OGN·283/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-BOON-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-BOON-DEFENDER",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

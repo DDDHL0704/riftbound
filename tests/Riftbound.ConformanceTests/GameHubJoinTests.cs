@@ -633,6 +633,58 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldBoonSeedOffersBattlefieldDestinationAndGrantsBoon()
+    {
+        const string roomId = "p7-9-battlefield-held-boon";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-held-boon", "seed-p7-9-battlefield-held-boon");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-NAVORI-ARENA", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-NAVORI-ARENA",
+              "attackerObjectIds": ["P1-BATTLEFIELD-BOON-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-BOON-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-boon", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_GRANT_BOON", StringComparison.Ordinal));
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BOON-DEFENDER", StringComparison.Ordinal));
+
+        var battleSnapshot = SnapshotFor(battleClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
+        var p2Objects = Assert.IsType<Dictionary<string, object?>>(p2["objects"]);
+        var defender = Assert.IsType<Dictionary<string, object?>>(p2Objects["P2-BATTLEFIELD-BOON-DEFENDER"]);
+        Assert.Equal(4, Assert.IsType<int>(defender["power"]));
+        Assert.Contains(CardObjectTags.Boon, Assert.IsAssignableFrom<IReadOnlyList<string>>(defender["tags"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerMillSeedOffersBattlefieldDestinationAndMills()
     {
         const string roomId = "p7-9-battlefield-conquer-mill";
