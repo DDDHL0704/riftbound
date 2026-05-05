@@ -516,6 +516,52 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6BattleDeclareSeedBroadcastsCombatDamageInDevelopment()
+    {
+        const string roomId = "p6-4b-battle-declare-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battle-declare", "seed-p6-battle-declare");
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-ATTACKER-001"],
+              "defenderObjectIds": ["P2-BATTLE-DEFENDER-001"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-declare-battle", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(2, battleEvents.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        Assert.Empty(battleSnapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains("P1-BATTLE-ATTACKER-001", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.DoesNotContain("P2-BATTLE-DEFENDER-001", Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Contains("P2-BATTLE-DEFENDER-001", Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+    }
+
+    [Fact]
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);

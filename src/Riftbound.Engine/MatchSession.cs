@@ -1867,6 +1867,7 @@ public sealed class MatchSession : IMatchSession
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "equipment" => BuildEquipmentScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
+            "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
             "specified-hand" => BuildSpecifiedHandScenario(current, seed),
             _ => throw new MatchSessionException(
@@ -2031,6 +2032,40 @@ public sealed class MatchSession : IMatchSession
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
                 ["P2-HOSTILE-TAKEOVER-TARGET"] = new(power: 4, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
+            });
+    }
+
+    private static MatchState BuildBattleDeclareScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303025,
+            95,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLE-ATTACKER-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLE-DEFENDER-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-ATTACKER-001"] = new(power: 3, tags: ["CARD_TYPE:UNIT"]),
+                ["P2-BATTLE-DEFENDER-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"])
             });
     }
 
