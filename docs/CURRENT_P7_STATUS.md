@@ -163,9 +163,9 @@ Core P7 smoke path:
 | P7.6 | Done | Product event log, match report, replay/spectator entry with explicit backend boundary. | Browser smoke passed: report and boundary. |
 | P7.7 | Done | Catalog and card detail browser with BehaviorSpec status and deferred labels. | Browser smoke passed: catalog/detail filtering. |
 | P7.8 | Done | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser smoke passed; screenshot fallback noted. |
-| P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
+| P7.x | Done | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate passed. |
 
-Current P7 progress: `9/10 batches = 90.0%`; estimated remaining batches: `1`.
+Current P7 progress: `10/10 batches = 100.0%`; estimated remaining batches: `0`.
 
 ## Validation Policy
 
@@ -312,6 +312,19 @@ P7.8 validation:
 - `rg` CSS scan for the previous dominant beige/cream hard-coded values: passed with no matches.
 - `git diff --check`: passed.
 
+## P7.x Final Validation
+
+- Synchronized legacy fixture prompt expectations with the P7 server prompt contract: open-main prompts now include `DECLARE_BATTLE` after `MOVE_UNIT`.
+- Increased the product event log visible window to `32` events so full play/pass/end-turn/battle smoke keeps early `CARD_PLAYED` evidence visible.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2613/2613`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2507/2507`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `27/27`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- Browser final smoke: passed; details recorded below.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -367,3 +380,10 @@ P7.8 validation:
   - Operation path: reload Web URL -> verify first-screen room entry, system notice, battle desk, operation panel, event log, and catalog -> inspect empty desk copy.
   - Visual/DOM summary: `等待双人入座` system notice shown; `Battle Desk` empty state now renders `No player snapshot` and `Join both clients to populate the desk.` as separate lines; catalog still loads `CONFORMANCE_PASS 846`.
   - Screenshot boundary: Browser screenshot capture timed out after the fix, but the earlier Browser screenshot caught the empty-state layout issue and the corrected DOM was verified after patching.
+- P7.x final smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - roomId: `p7-final-1777957045775`
+  - Operation path: set room id -> `双人入座` -> `双方准备` -> seed `basic-play` -> submit prompt-enabled `PLAY_CARD` -> P1 `PASS_PRIORITY` -> P2 `PASS_PRIORITY` -> P1 `END_TURN` -> seed `battle-declare` -> submit prompt-enabled `DECLARE_BATTLE` -> P1 `Stop` -> P1 `Reconnect`.
+  - Event summary: product event log showed `CARD_PLAYED`, `STACK_ITEM_RESOLVED`, `TURN_END_DECLARED`, `BATTLE_DECLARED`, and `DAMAGE_APPLIED`.
+  - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#95`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; P1 battlefield contains `P1-BATTLE-ATTACKER-001`, P2 graveyard contains `P2-BATTLE-DEFENDER-001`, scores `P1=0` and `P2=0`; P1 reconnect status showed `reconnected`.

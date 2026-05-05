@@ -1563,7 +1563,7 @@ function MatchTelemetry({
           {timeline.length === 0 ? (
             <li className="empty-row">等待服务器事件</li>
           ) : (
-            timeline.slice(0, 18).map((event) => (
+            timeline.slice(0, 32).map((event) => (
               <li key={event.key}>
                 <span className="event-kind">{event.kind}</span>
                 <strong>{event.description}</strong>

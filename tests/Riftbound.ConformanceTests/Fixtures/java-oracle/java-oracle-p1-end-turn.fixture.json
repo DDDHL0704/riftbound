@@ -14,7 +14,7 @@
     "finalTick" : 1,
     "promptActions" : {
       "P1" : [ "WAIT" ],
-      "P2" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ]
+      "P2" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ]
     }
   },
   "faqVersion" : "CORE-260330 + JFAQ-251023 + BREAK-JFAQ-260416 conflict scan; audit incomplete",
@@ -64,7 +64,7 @@
       "P2" : {
         "playerId" : "P2",
         "actionable" : true,
-        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
+        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
         "availableActions" : [ {
           "id" : "PASS",
           "type" : "PASS",
@@ -1645,7 +1645,7 @@
       "P2" : {
         "playerId" : "P2",
         "actionable" : true,
-        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
+        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "TAP_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
         "availableActions" : [ {
           "id" : "PASS",
           "type" : "PASS",
