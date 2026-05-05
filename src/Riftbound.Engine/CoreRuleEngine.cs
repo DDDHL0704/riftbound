@@ -189,6 +189,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
+    private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const int BattlefieldReadyLegendManaCost = 1;
@@ -200,6 +201,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
+    private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
@@ -1086,6 +1088,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string BuildBattlefieldFriendlySpellDrawUsedEffectId(string playerId, string sourceObjectId)
     {
         return $"{BattlefieldFriendlySpellDrawUsedEffectPrefix}{playerId}:{sourceObjectId}";
+    }
+
+    private static string BuildBattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectId(
+        string playerId,
+        string battlefieldObjectId)
+    {
+        return $"{BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix}{playerId}:{battlefieldObjectId}";
     }
 
     private static string BuildBattlefieldHeldUnitCostIncreaseEffectId(string playerId)
@@ -7885,6 +7894,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
+            || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
             || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
             || IsBattlefieldHeldUnitCostIncreaseCardNo(cardNo);
     }
@@ -8094,6 +8104,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldPlayUnitPayOneBoonCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldTargetSpellSkillDamageBonusCardNo(string? cardNo)
@@ -11469,6 +11484,92 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        StackItemState stackItem,
+        List<string> untilEndOfTurnEffects,
+        List<GameEvent> events)
+    {
+        if (!IsStackItemBattlefieldDestination(stackItem)
+            || P6TokenFactoryCatalog.TryGetByCardNo(stackItem.CardNo, out _)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
+            || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardObject.CardNo))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
+        {
+            return false;
+        }
+
+        var effectId = BuildBattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectId(playerId, battlefieldObjectId);
+        if (untilEndOfTurnEffects.Contains(effectId, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var targetObjectId = zones.Battlefields
+            .Where(objectId => !string.Equals(objectId, stackItem.SourceObjectId, StringComparison.Ordinal)
+                && !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
+                && cardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(targetObjectId)
+            || !TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var targetPlayerId)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        cardObjects[targetObjectId] = targetState with
+        {
+            IsAttacking = false,
+            IsDefending = false
+        };
+        untilEndOfTurnEffects.Add(effectId);
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 在流星疗泉打出本回合首个单位并移动另一名单位",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE",
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["playedUnitObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["destination"] = stackItem.Destination,
+                ["effectId"] = effectId
+            }));
+        events.Add(new GameEvent(
+            "UNIT_MOVED_TO_BASE",
+            $"{targetObjectId} 因流星疗泉移动到基地",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = targetPlayerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = MoveUnitBattlefieldZone,
+                ["destinationZone"] = MoveUnitBaseZone,
+                ["reason"] = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE"
+            }));
+        return true;
+    }
+
     private static RecycleResult TryResolveBattlefieldHighCostSpellInsightTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -11974,6 +12075,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 runePools = battlefieldBoonRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             }
+
+            TryResolveBattlefieldFirstUnitPlayedMoveOtherToBaseTrigger(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackItem,
+                untilEndOfTurnEffects,
+                events);
 
             events.AddRange(ResolvePowerfulUnitPlayedRuneLegendTriggers(
                 playerZones,

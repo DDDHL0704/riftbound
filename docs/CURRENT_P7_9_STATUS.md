@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 11 remaining | 12 remaining | P7.9.7 has migrated `43/54` battlefield FUs / `45/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 10 remaining | 11 remaining | P7.9.7 has migrated `44/54` battlefield FUs / `46/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `43/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `11` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `44/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `10` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,13 +202,13 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-42 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-43 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `42` done.
-- Current functional-unit implementation: `800/811 = 98.6%`.
-- Current manual deferred boundary: `11/811 = 1.4%`.
+- P7.9.7 battlefield foundation slices: `43` done.
+- Current functional-unit implementation: `801/811 = 98.8%`.
+- Current manual deferred boundary: `10/811 = 1.2%`.
 - Remaining manual domains:
   - `战场`: `12` functional units / `13` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
@@ -2795,3 +2795,37 @@ P7.9.7 battlefield foundation slice 42 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/unit-play-boon battlefield slice. GameHub coverage verifies the seed, battlefield-destination stack path, pass-priority stack resolution, authoritative trigger/cost/Boon events, and snapshot power/tag update.
+
+## P7.9.7 Battlefield Foundation Slice 43 Delivered
+
+This is the forty-third rule slice inside P7.9.7. It adds a once-per-turn battlefield trigger for the first non-token unit a player plays to a battlefield destination.
+
+- Added implemented battlefield card:
+  - `UNL-215/219`: each turn, the first time a player plays a non-token unit here, that player may move another unit they control here to their base.
+- Server-authoritative first-unit movement changes:
+  - The trigger reuses the normal `PLAY_CARD` battlefield destination preserved on the stack by slice 42.
+  - When the resolving source is a server-known non-token unit and lands on a battlefield, the backend checks the player's battlefield zone for `UNL-215/219`.
+  - The backend records `BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:{playerId}:{battlefieldObjectId}` until end of turn so the movement fires only once per battlefield object per player each turn.
+  - The representative choice deterministically selects the first other controlled battlefield unit by object id, moves it to its owner's base, clears attack/defense flags, and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `UNIT_MOVED_TO_BASE` with reason `BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE`.
+  - Boundary note: the official text is optional and location-specific. Until P7.9 adds richer prompted triggered-choice UI, this representative performs the movement only when an eligible other unit exists and the once-per-turn marker is unused; the UI remains event/snapshot-authoritative.
+- Added `battlefield-first-unit-move-other` local development seed plus GameHub coverage for playing `OGN·211/298` to `BATTLEFIELD:P1-MAIN`, passing priority, and observing the trigger, movement event, and snapshot zone update.
+- Migrated this battlefield first-unit movement slice in `BehaviorSpec`:
+  - Implemented functional units: `801/811`
+  - Manual deferred functional units: `10/811`
+  - Implemented official entries: `998/1009`
+  - Manual deferred official entries: `11/1009`
+  - Battlefield rule-domain implemented: `44` functional units / `46` entries
+  - Remaining battlefield manual deferred: `10` functional units / `11` entries
+  - Trigger/timing-surface and move-template coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 43 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldFirstUnit"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2633/2633`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `72/72`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2784/2784`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/first-unit-movement battlefield slice. GameHub coverage verifies the seed, battlefield-destination stack path, pass-priority stack resolution, authoritative trigger/movement events, and snapshot zone update.

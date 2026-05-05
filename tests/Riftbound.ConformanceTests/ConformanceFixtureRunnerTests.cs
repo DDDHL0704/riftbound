@@ -26903,6 +26903,93 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFirstUnitPlayedMovesOtherUnitToBase()
+    {
+        var state = BattlefieldFirstUnitMoveOtherState();
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                [],
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Contains("P1-UNIT-CRAFTSMAN", p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains(
+            "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:P1-BATTLEFIELD-METEOR-SPRING",
+            p2Pass.State.UntilEndOfTurnEffects);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldFirstUnitPlayedMoveOtherSkipsAfterFirstUse()
+    {
+        var state = BattlefieldFirstUnitMoveOtherState() with
+        {
+            UntilEndOfTurnEffects =
+            [
+                "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:P1-BATTLEFIELD-METEOR-SPRING"
+            ]
+        };
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-used-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                [],
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-used-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-used-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -39406,6 +39493,43 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldFirstUnitMoveOtherState()
+    {
+        return PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CRAFTSMAN"],
+                    Battlefields = ["P1-BATTLEFIELD-METEOR-SPRING", "P1-BATTLEFIELD-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CRAFTSMAN"] = new(
+                    "P1-UNIT-CRAFTSMAN",
+                    cardNo: "OGN·211/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-METEOR-SPRING"] = new(
+                    "P1-BATTLEFIELD-METEOR-SPRING",
+                    cardNo: "UNL-215/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-ALLY"] = new(
+                    "P1-BATTLEFIELD-ALLY",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 2)
             }
         };
     }
