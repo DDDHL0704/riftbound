@@ -770,6 +770,7 @@ function App() {
         <CommandWorkbench
           activeKey={activeKey}
           activePlayer={activePlayer}
+          snapshot={latestSnapshot}
           playDraft={playDraft}
           moveDraft={moveDraft}
           assembleDraft={assembleDraft}
@@ -984,6 +985,7 @@ function ObjectMeta({ object }: { object?: ObjectView }) {
 function CommandWorkbench({
   activeKey,
   activePlayer,
+  snapshot,
   playDraft,
   moveDraft,
   assembleDraft,
@@ -1008,6 +1010,7 @@ function CommandWorkbench({
 }: {
   activeKey: PlayerKey;
   activePlayer: PlayerState;
+  snapshot?: SnapshotDto;
   playDraft: PlayCardDraft;
   moveDraft: MoveUnitDraft;
   assembleDraft: AssembleDraft;
@@ -1036,6 +1039,21 @@ function CommandWorkbench({
   const canMove = promptIsActionable && promptActions.includes("MOVE_UNIT");
   const canAssemble = promptIsActionable && promptActions.includes("ASSEMBLE_EQUIPMENT");
   const canDeclareBattle = promptIsActionable && promptActions.includes("DECLARE_BATTLE");
+  const selectedTargets = parseList(playDraft.targetObjectIds);
+  const selectedOptionalCosts = parseList(playDraft.optionalCosts);
+
+  function togglePlayTarget(objectId: string) {
+    const next = selectedTargets.includes(objectId)
+      ? selectedTargets.filter((targetId) => targetId !== objectId)
+      : [...selectedTargets, objectId];
+    onPlayDraft({ ...playDraft, targetObjectIds: next.join(", ") });
+  }
+
+  function addOptionalCost(cost: string) {
+    if (!selectedOptionalCosts.includes(cost)) {
+      onPlayDraft({ ...playDraft, optionalCosts: [...selectedOptionalCosts, cost].join(", ") });
+    }
+  }
 
   return (
     <section className="workbench-panel" data-testid="command-workbench">
@@ -1066,6 +1084,8 @@ function CommandWorkbench({
           ))}
         </div>
       </div>
+
+      <ResponseWindowPanel snapshot={snapshot} prompt={activePlayer.prompt} />
 
       <section className="scenario-panel">
         <div className="section-title">
@@ -1145,8 +1165,41 @@ function CommandWorkbench({
         </div>
         <div className="target-palette">
           {visibleObjectIds.map((objectId) => (
-            <button type="button" key={objectId} onClick={() => onPickObject(objectId)}>
+            <button
+              className={selectedTargets.includes(objectId) ? "selected" : ""}
+              data-testid={`target-${objectId}`}
+              type="button"
+              key={objectId}
+              onClick={() => {
+                onPickObject(objectId);
+                togglePlayTarget(objectId);
+              }}
+            >
               {objectId}
+            </button>
+          ))}
+        </div>
+        <div className="selection-strip">
+          {selectedTargets.length === 0 ? <span>无目标</span> : selectedTargets.map((targetId) => <span key={targetId}>{targetId}</span>)}
+          <button
+            data-testid="clear-play-targets"
+            disabled={selectedTargets.length === 0}
+            onClick={() => onPlayDraft({ ...playDraft, targetObjectIds: "" })}
+            type="button"
+          >
+            清空目标
+          </button>
+        </div>
+        <div className="cost-palette">
+          {["ECHO", "ASSEMBLE_RED", "COMBAT_ASSIGNMENT", "STANDBY_REVEAL_0", "ROAM", "SPEND_POWER:1"].map((cost) => (
+            <button
+              className={selectedOptionalCosts.includes(cost) ? "selected" : ""}
+              data-testid={`cost-${cost.toLowerCase().replaceAll(":", "-")}`}
+              key={cost}
+              onClick={() => addOptionalCost(cost)}
+              type="button"
+            >
+              {cost}
             </button>
           ))}
         </div>
@@ -1305,6 +1358,43 @@ function CommandWorkbench({
         </div>
         <pre data-testid="fixture-draft">{fixtureText}</pre>
       </section>
+    </section>
+  );
+}
+
+function ResponseWindowPanel({ snapshot, prompt }: { snapshot?: SnapshotDto; prompt?: ActionPromptDto }) {
+  const timingState = String(snapshot?.timing?.timingState ?? "-");
+  const priorityPlayerId = String(snapshot?.timing?.priorityPlayerId ?? "-");
+  const focusPlayerId = String(snapshot?.timing?.focusPlayerId ?? "-");
+  const stackLabels = (snapshot?.stack ?? []).map((item, index) => stackLabel(item, index));
+
+  return (
+    <section className="response-panel" data-testid="response-window">
+      <div className="section-title">
+        <h3>响应窗口</h3>
+        <span>{prompt?.reason ?? "no prompt"}</span>
+      </div>
+      <div className="response-grid">
+        <div>
+          <span>Timing</span>
+          <strong>{timingState}</strong>
+        </div>
+        <div>
+          <span>Priority</span>
+          <strong>{priorityPlayerId}</strong>
+        </div>
+        <div>
+          <span>Focus</span>
+          <strong>{focusPlayerId}</strong>
+        </div>
+        <div>
+          <span>Stack</span>
+          <strong>{stackLabels.length}</strong>
+        </div>
+      </div>
+      <div className="stack-tags">
+        {stackLabels.length === 0 ? <span>stack empty</span> : stackLabels.map((label) => <span key={label}>{label}</span>)}
+      </div>
     </section>
   );
 }

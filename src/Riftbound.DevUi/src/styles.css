@@ -378,6 +378,7 @@ h3 {
 .scenario-panel,
 .play-card-panel,
 .command-panel,
+.response-panel,
 .fixture-panel {
   display: grid;
   gap: 10px;
@@ -430,10 +431,38 @@ h3 {
   overflow: auto;
 }
 
-.target-palette button {
+.target-palette button,
+.cost-palette button,
+.selection-strip button {
   min-height: 28px;
   border-color: #c4b6a2;
   cursor: pointer;
+}
+
+.target-palette button.selected,
+.cost-palette button.selected {
+  border-color: #1f6b5d;
+  background: #d9efe2;
+  color: #175c3d;
+}
+
+.selection-strip,
+.cost-palette,
+.stack-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selection-strip span,
+.stack-tags span {
+  border: 1px solid #d4c7b6;
+  border-radius: 999px;
+  background: #f5efe6;
+  color: #4d463e;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .action-chips {
@@ -451,6 +480,33 @@ h3 {
   border-color: #1f6b5d;
   background: #d9efe2;
   color: #175c3d;
+}
+
+.response-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.response-grid div {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #e3d9cb;
+  border-radius: 6px;
+  background: #fbf7ee;
+  padding: 8px;
+}
+
+.response-grid span {
+  color: #766c60;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.response-grid strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
 }
 
 .player-panel {
