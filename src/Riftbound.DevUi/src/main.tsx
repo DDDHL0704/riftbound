@@ -87,6 +87,28 @@ type ActionPromptDto = {
   actionable: boolean;
   reason: string;
   actions: string[];
+  promptId?: string;
+  snapshotTick?: number;
+  candidates?: ActionPromptCandidateDto[];
+};
+
+type ActionPromptCandidateDto = {
+  action: string;
+  label: string;
+  enabled: boolean;
+  reason: string;
+  sources?: ActionPromptChoiceDto[];
+  targets?: ActionPromptChoiceDto[];
+  destinations?: ActionPromptChoiceDto[];
+  modes?: ActionPromptChoiceDto[];
+  optionalCosts?: ActionPromptChoiceDto[];
+  metadata?: Record<string, unknown>;
+};
+
+type ActionPromptChoiceDto = {
+  id: string;
+  label: string;
+  reason?: string;
 };
 
 type GameEvent = {

@@ -9925,7 +9925,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
         {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
                 playerId,
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal),
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
@@ -9939,7 +9940,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
         {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
                 playerId,
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal),
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
@@ -9950,7 +9952,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : ["WAIT"]));
         }
 
-        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+            state,
             playerId,
             playerId == state.ActivePlayerId,
             playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",

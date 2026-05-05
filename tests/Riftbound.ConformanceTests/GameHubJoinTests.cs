@@ -39,6 +39,16 @@ public sealed class GameHubJoinTests
         var snapshot = Assert.IsType<SnapshotDto>(snapshotMessage.Payload);
         var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["alice"]);
         Assert.Equal("P1", player["seat"]);
+
+        var prompt = Assert.IsType<ActionPromptDto>(promptMessage.Payload);
+        Assert.Equal("alice", prompt.PlayerId);
+        Assert.Equal(snapshot.Tick, prompt.SnapshotTick);
+        Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
+        var candidate = Assert.Single(prompt.Candidates ?? []);
+        Assert.Equal("READY", candidate.Action);
+        Assert.Equal("准备", candidate.Label);
+        Assert.True(candidate.Enabled);
+        Assert.Equal(prompt.Reason, candidate.Reason);
     }
 
     [Fact]
@@ -398,8 +408,10 @@ public sealed class GameHubJoinTests
         var playP2Prompt = PromptFor(playClients, "P2");
         Assert.True(playP1Prompt.Actionable);
         Assert.Contains("PASS_PRIORITY", playP1Prompt.Actions);
+        Assert.Contains(playP1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "PASS_PRIORITY", StringComparison.Ordinal) && candidate.Enabled);
         Assert.False(playP2Prompt.Actionable);
         Assert.Contains("WAIT", playP2Prompt.Actions);
+        Assert.Contains(playP2Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "WAIT", StringComparison.Ordinal) && !candidate.Enabled);
 
         var passClients = new RecordingHubClients();
         var pass = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();

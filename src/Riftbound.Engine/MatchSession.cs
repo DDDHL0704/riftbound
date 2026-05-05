@@ -832,7 +832,8 @@ public sealed record ResolutionResult(
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
             {
                 var ready = readyPlayers.Contains(playerId);
-                return new ActionPromptDto(
+                return ActionPromptBuilder.Build(
+                    state,
                     playerId,
                     !ready && state.Status != MatchStatuses.Finished,
                     ready ? "已准备，等待对手" : "等待玩家准备",
@@ -842,7 +843,8 @@ public sealed record ResolutionResult(
 
         if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
         {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
                 playerId,
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal),
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
@@ -856,7 +858,8 @@ public sealed record ResolutionResult(
         if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
             && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
         {
-            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
                 playerId,
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal),
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
@@ -867,7 +870,8 @@ public sealed record ResolutionResult(
                     : ["WAIT"]));
         }
 
-        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => new ActionPromptDto(
+        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+            state,
             playerId,
             playerId == state.ActivePlayerId,
             playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
@@ -885,6 +889,77 @@ public sealed record ResolutionResult(
                     "END_TURN"
                 ]
                 : ["WAIT"]));
+    }
+}
+
+internal static class ActionPromptBuilder
+{
+    public static ActionPromptDto Build(
+        MatchState state,
+        string playerId,
+        bool actionable,
+        string reason,
+        IReadOnlyList<string> actions)
+    {
+        var normalizedActions = actions
+            .Where(action => !string.IsNullOrWhiteSpace(action))
+            .Select(action => action.Trim())
+            .ToArray();
+        var promptId = $"{state.RoomId}:{state.Tick}:{playerId}:{string.Join(",", normalizedActions)}";
+        var candidates = normalizedActions
+            .Select(action => BuildCandidate(action, actionable, reason))
+            .ToArray();
+
+        return new ActionPromptDto(
+            playerId,
+            actionable,
+            reason,
+            normalizedActions,
+            promptId,
+            state.Tick,
+            candidates);
+    }
+
+    private static ActionPromptCandidateDto BuildCandidate(
+        string action,
+        bool promptActionable,
+        string promptReason)
+    {
+        var enabled = promptActionable && !string.Equals(action, "WAIT", StringComparison.Ordinal);
+        return new ActionPromptCandidateDto(
+            action,
+            LabelFor(action),
+            enabled,
+            enabled ? promptReason : DisabledReasonFor(action, promptReason));
+    }
+
+    private static string LabelFor(string action)
+    {
+        return action switch
+        {
+            "READY" => "准备",
+            "WAIT" => "等待",
+            "PLAY_CARD" => "打出卡牌",
+            "ACTIVATE_ABILITY" => "激活能力",
+            "ASSEMBLE_EQUIPMENT" => "装配装备",
+            "MOVE_UNIT" => "移动单位",
+            "DECLARE_BATTLE" => "声明战斗",
+            "HIDE_CARD" => "隐藏卡牌",
+            "TAP_RUNE" => "横置符文",
+            "LEGEND_ACT" => "传奇行动",
+            "PASS" => "让过",
+            "PASS_PRIORITY" => "让过优先权",
+            "PASS_FOCUS" => "让过焦点",
+            "END_TURN" => "结束回合",
+            _ => action
+        };
+    }
+
+    private static string DisabledReasonFor(string action, string promptReason)
+    {
+        return string.Equals(action, "WAIT", StringComparison.Ordinal)
+            ? promptReason
+            : $"当前 prompt 不允许执行 {action}";
     }
 }
 

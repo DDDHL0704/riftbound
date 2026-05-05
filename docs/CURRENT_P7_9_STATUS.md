@@ -144,7 +144,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | Batch | Status | Target | Gate |
 | --- | --- | --- | --- |
 | P7.9.0 | Done | Audit, current status file, `START_HERE`, README, and master plan synchronization. | `git diff --check`; docs-only commit. |
-| P7.9.1 | Planned | Backward-compatible structured `ActionPrompt` contract design and first DTO/test slice. | Build + prompt serialization tests. |
+| P7.9.1 | Done | Backward-compatible structured `ActionPrompt` contract design and first DTO/test slice. | Build + prompt serialization tests. |
 | P7.9.2 | Planned | Product operation shell: hide dev tools by default, click-to-source/target scaffolding, action summary. | Frontend build + Browser smoke. |
 | P7.9.3 | Planned | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Planned | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
@@ -196,8 +196,8 @@ Final P7.9 gate:
 ## Current Progress
 
 - P7.9.0 status: done.
-- Overall P7.9 progress: `1/13 top-level batches = 7.7%`.
-- Estimated remaining top-level batches: `12`.
+- Overall P7.9 progress: `2/13 top-level batches = 15.4%`.
+- Estimated remaining top-level batches: `11`.
 
 ## P7.9.0 Delivered
 
@@ -209,3 +209,23 @@ Final P7.9 gate:
 P7.9.0 validation:
 
 - `git diff --check`: passed.
+
+## P7.9.1 Delivered
+
+- Added a backward-compatible structured prompt layer:
+  - `ActionPromptDto.promptId`
+  - `ActionPromptDto.snapshotTick`
+  - `ActionPromptDto.candidates`
+  - `ActionPromptCandidateDto`
+  - `ActionPromptChoiceDto`
+- Kept the existing `actions: string[]` contract intact for conformance fixtures and current UI compatibility.
+- Added `ActionPromptBuilder` so current prompts automatically expose a structured candidate per action with localized labels and enabled/disabled state.
+- Populated structured candidates for ready, wait, pass, end turn, play card, move, assemble, battle, legend, and other current action ids.
+- Updated the React DTO type so the UI can start consuming prompt candidates in later P7.9 batches.
+- Added GameHub assertions that prompt payloads include prompt id, snapshot tick, enabled `READY`/`PASS_PRIORITY` candidates, and disabled `WAIT` candidates.
+
+P7.9.1 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `27/27`.
