@@ -1728,6 +1728,51 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldWinningScoreSeedRaisesThresholdAndDelaysBurnoutWin()
+    {
+        const string roomId = "p7-9-battlefield-winning-score";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-winning-score", "seed-p7-9-battlefield-winning-score");
+
+        var seedSnapshot = SnapshotFor(seedClients, "P1");
+        Assert.Equal(9, seedSnapshot.Timing["winningScore"]);
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-winning-score", endTurn);
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        Assert.Contains(endTurnEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BURNOUT_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["scoredPlayerId"] as string, "P1", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["scoredPlayerScore"], 8));
+        Assert.DoesNotContain(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+
+        var p1Snapshot = SnapshotFor(endTurnClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        Assert.Equal(8, Assert.IsType<int>(p1["score"]));
+        Assert.Null(p1Snapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(9, p1Snapshot.Timing["winningScore"]);
+        Assert.Equal(MatchStatuses.InProgress, p1Snapshot.Timing["roomStatus"]);
+        var p2Prompt = PromptFor(endTurnClients, "P2");
+        Assert.True(p2Prompt.Actionable);
+        Assert.Contains("END_TURN", p2Prompt.Actions);
+    }
+
+    [Fact]
     public async Task P6EchoStackSeedBroadcastsRepeatedDrawInDevelopment()
     {
         const string roomId = "p6-5a-echo-stack-core";

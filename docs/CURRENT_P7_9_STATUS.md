@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, and representative effects. Battlefield slices migrated `22/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `32` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score-threshold statics, and representative effects. Battlefield slices migrated `23/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `31` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-21 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-22 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `21` done.
-- Current functional-unit implementation: `779/811 = 96.1%`.
-- Current manual deferred boundary: `32/811 = 3.9%`.
+- P7.9.7 battlefield foundation slices: `22` done.
+- Current functional-unit implementation: `780/811 = 96.2%`.
+- Current manual deferred boundary: `31/811 = 3.8%`.
 - Remaining manual domains:
-  - `战场`: `32` functional units / `35` entries
+  - `战场`: `31` functional units / `33` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2113,3 +2113,36 @@ P7.9.7 battlefield foundation slice 21 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination, conquest-overkill trigger event, Warhawk token creation event, and authoritative snapshot update for the battlefield token path.
+
+## P7.9.7 Battlefield Foundation Slice 22 Delivered
+
+This is the twenty-second rule slice inside P7.9.7. It adds the first battlefield static effect that changes the match victory threshold and exposes that server-computed threshold in snapshots.
+
+- Added implemented battlefield cards:
+  - `OGN·276/298` and `OGN·276a/298`: while these battlefield objects are present on the battlefield, the backend raises the effective winning score by `1` per object.
+- Server-authoritative score threshold changes:
+  - Burnout scoring now checks `EffectiveWinningScore` instead of the fixed base `8`.
+  - `MATCH_WON` events emit the effective `winningScore`.
+  - Player snapshots expose `timing.winningScore` so the UI can display the authoritative threshold without inferring battlefield rules.
+  - Existing "within three of winning score" conditions now use the effective score threshold.
+- Added `battlefield-winning-score` local development seed plus GameHub coverage for snapshot threshold exposure, burnout scoring to `8`, no premature win, and continued actionable prompt flow.
+- Migrated this battlefield static/score-threshold slice in `BehaviorSpec`:
+  - Implemented functional units: `780/811`
+  - Manual deferred functional units: `31/811`
+  - Implemented official entries: `976/1009`
+  - Manual deferred official entries: `33/1009`
+  - Battlefield rule-domain implemented: `23` functional units / `24` entries
+  - Remaining battlefield manual deferred: `31` functional units / `33` entries
+  - Duplicate battlefield group moved to implemented: `OGN·276/298` plus `OGN·276a/298`.
+
+P7.9.7 battlefield foundation slice 22 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticWinningScore|FullyQualifiedName~P79BattlefieldWinningScore"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2605/2605`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `51/51`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2735/2735`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/static snapshot slice. GameHub coverage verifies the seed, authoritative `winningScore` snapshot field, burnout score update, non-finished room state, and continued prompt flow.

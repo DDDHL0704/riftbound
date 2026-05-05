@@ -26395,6 +26395,50 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
+    {
+        var state = BattlefieldWinningScoreState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-winning-score", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(8, result.State.PlayerScores["P1"]);
+        Assert.Null(result.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.InProgress, result.State.Status);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BURNOUT_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["scoredPlayerId"] as string, "P1", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["scoredPlayerScore"], 8));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        var p2Snapshot = result.Snapshots["P2"];
+        Assert.Equal(9, p2Snapshot.Timing["winningScore"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldStaticWinningScoreIncreaseStillWinsAtNine()
+    {
+        var state = BattlefieldWinningScoreState(score: 8);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-winning-score-win", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(9, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        var winEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal("P1", winEvent.Payload["winnerPlayerId"]);
+        Assert.Equal(9, winEvent.Payload["winningScore"]);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -38115,6 +38159,45 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-STATIC-DEFENDER",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldWinningScoreState(int score = 7)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 117,
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerScores = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = score,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-HIGHROAD"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Graveyard = ["P2-BURNOUT-RECYCLE-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-HIGHROAD"] = new(
+                    "P1-BATTLEFIELD-HIGHROAD",
+                    cardNo: "OGN·276/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BURNOUT-RECYCLE-001"] = new(
+                    "P2-BURNOUT-RECYCLE-001",
                     ownerId: "P2",
                     controllerId: "P2")
             }

@@ -383,6 +383,8 @@ public static class OfficialRuleDomainBehaviorCatalog
         return card.CardNo is "UNL-207/219"
             or "UNL-208/219"
             or "UNL-210/219"
+            or "OGN·276/298"
+            or "OGN·276a/298"
             or "OGN·275/298"
             or "OGN·279/298"
             or "OGN·280/298"

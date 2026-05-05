@@ -609,6 +609,10 @@ public sealed record ResolutionResult(
     IReadOnlyDictionary<string, ActionPromptDto> Prompts,
     string? ErrorCode = null)
 {
+    private const int BaseWinningScore = 8;
+    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
+    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
+
     public static ResolutionResult Rejected(
         MatchState state,
         string error,
@@ -647,11 +651,22 @@ public sealed record ResolutionResult(
                     ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                     ["seed"] = state.Seed,
                     ["rngCursor"] = state.RngCursor,
+                    ["winningScore"] = EffectiveWinningScore(state),
                     ["roomStatus"] = state.Status,
                     ["readyPlayerIds"] = state.ReadyPlayerIds
                 },
                 state.TimingState);
         });
+    }
+
+    private static int EffectiveWinningScore(MatchState state)
+    {
+        var modifier = state.PlayerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Count(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
+                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal)));
+        return BaseWinningScore + modifier;
     }
 
     private static Dictionary<string, object?> BuildStackItemSnapshotView(StackItemState item)
@@ -916,6 +931,8 @@ internal static class ActionPromptBuilder
     private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
+    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
+    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
         MatchState state,
@@ -1235,7 +1252,9 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneCreateGoldCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerReadyEquipmentCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal);
+            || string.Equals(cardObject.CardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsImplementedLegendActionCardNo(string? cardNo)
@@ -1610,6 +1629,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
+    private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
 
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
@@ -2359,6 +2379,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-held-boon" => BuildBattlefieldHeldBoonScenario(current, seed),
             "battlefield-conquer-boon-draw" => BuildBattlefieldConquerBoonDrawScenario(current, seed),
             "battlefield-conquer-warhawk" => BuildBattlefieldConquerWarhawkScenario(current, seed),
+            "battlefield-winning-score" => BuildBattlefieldWinningScoreScenario(current, seed),
             "battlefield-conquer-mill" => BuildBattlefieldConquerMillScenario(current, seed),
             "battlefield-conquer-discard-draw" => BuildBattlefieldConquerDiscardDrawScenario(current, seed),
             "battlefield-conquer-recycle-rune" => BuildBattlefieldConquerRecycleRuneScenario(current, seed),
@@ -3385,6 +3406,51 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+    }
+
+    private static MatchState BuildBattlefieldWinningScoreScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303048,
+            117,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLEFIELD-HIGHROAD"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    graveyard: ["P2-BURNOUT-RECYCLE-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-HIGHROAD"] = new(
+                    "P1-BATTLEFIELD-HIGHROAD",
+                    cardNo: BattlefieldWinningScoreSeedCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BURNOUT-RECYCLE-001"] = new(
+                    "P2-BURNOUT-RECYCLE-001",
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            }) with
+            {
+                PlayerScores = new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [seed.P1] = 7,
+                    [seed.P2] = 0
+                }
+            };
     }
 
     private static MatchState BuildBattlefieldConquerMillScenario(MatchState current, DevScenarioSeed seed)

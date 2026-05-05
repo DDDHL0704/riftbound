@@ -4,7 +4,7 @@ namespace Riftbound.Engine;
 
 public sealed class CoreRuleEngine : IRuleEngine
 {
-    private const int WinningScore = 8;
+    private const int BaseWinningScore = 8;
     private const string AmbushPlayMode = "AMBUSH";
     private const string AmbushUnsupportedMessage = "PLAY_CARD mode AMBUSH is not implemented in P4 yet.";
     private const string GloomyApothecaryCardNo = "UNL-021/219";
@@ -168,6 +168,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
+    private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
+    private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -4208,6 +4210,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     };
                     var renataGoldBonusActive = PlayerWithinWinningScoreDistance(
                         playerScores,
+                        EffectiveWinningScore(playerZones, cardObjects),
                         battleWinnerPlayerId,
                         RenataGoldBonusWinningScoreDistance);
                     combatEvents.Add(new GameEvent(
@@ -7221,7 +7224,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
             || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo)
-            || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo);
+            || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
+            || IsBattlefieldIncreaseWinningScoreCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7334,13 +7338,36 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(cardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal);
     }
 
+    private static bool IsBattlefieldIncreaseWinningScoreCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
+    }
+
+    private static int EffectiveWinningScore(MatchState state)
+    {
+        return EffectiveWinningScore(state.PlayerZones, state.CardObjects);
+    }
+
+    private static int EffectiveWinningScore(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
+    {
+        var battlefieldModifier = playerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Count(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldIncreaseWinningScoreCardNo(cardObject.CardNo));
+        return BaseWinningScore + battlefieldModifier;
+    }
+
     private static bool PlayerWithinWinningScoreDistance(
         IReadOnlyDictionary<string, int> playerScores,
+        int winningScore,
         string playerId,
         int distance)
     {
         return playerScores.TryGetValue(playerId, out var score)
-            && score >= WinningScore - distance;
+            && score >= winningScore - distance;
     }
 
     private static int CountControlledBattlefieldUnits(
@@ -10400,7 +10427,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var opponentId = OpponentOf(state, playerId);
         return opponentId is not null
             && state.PlayerScores.TryGetValue(opponentId, out var opponentScore)
-            && opponentScore >= WinningScore - distance;
+            && opponentScore >= EffectiveWinningScore(state) - distance;
     }
 
     private static int MinTargetCount(
@@ -15783,7 +15810,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             [],
             null,
             NormalizeScoresForSeats(state),
-            state.RngCursor);
+            state.RngCursor,
+            EffectiveWinningScore(state));
         var currentZones = zones;
         var drawnCards = new List<string>();
         var burnouts = new List<BurnoutResult>();
@@ -15879,7 +15907,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["winnerPlayerId"] = drawResult.WinnerPlayerId,
-                    ["winningScore"] = WinningScore
+                    ["winningScore"] = drawResult.WinningScore
                 }));
             return events;
         }
@@ -16214,7 +16242,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;
             burnouts.Add(new BurnoutResult(opponentId, playerScores[opponentId]));
-            winnerPlayerId = WinningPlayerId(playerScores);
+            winnerPlayerId = WinningPlayerId(playerScores, EffectiveWinningScore(state));
         }
 
         return new DrawResult(
@@ -16224,13 +16252,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             burnouts,
             winnerPlayerId,
             playerScores,
-            rngCursor);
+            rngCursor,
+            EffectiveWinningScore(state));
     }
 
-    private static string? WinningPlayerId(IReadOnlyDictionary<string, int> playerScores)
+    private static string? WinningPlayerId(IReadOnlyDictionary<string, int> playerScores, int winningScore)
     {
         return playerScores
-            .Where(candidate => candidate.Value >= WinningScore
+            .Where(candidate => candidate.Value >= winningScore
                 && playerScores
                     .Where(other => !string.Equals(other.Key, candidate.Key, StringComparison.Ordinal))
                     .All(other => candidate.Value > other.Value))
@@ -16517,7 +16546,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 new Dictionary<string, object?>
                 {
                     ["winnerPlayerId"] = drawResult.WinnerPlayerId,
-                    ["winningScore"] = WinningScore
+                    ["winningScore"] = drawResult.WinningScore
                 }));
             return events;
         }
@@ -16555,7 +16584,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<BurnoutResult> Burnouts,
         string? WinnerPlayerId,
         IReadOnlyDictionary<string, int> PlayerScores,
-        long RngCursor);
+        long RngCursor,
+        int WinningScore);
 
     private sealed record EphemeralCleanupResult(
         IReadOnlyList<GameEvent> Events,
