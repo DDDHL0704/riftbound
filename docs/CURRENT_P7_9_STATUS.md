@@ -203,14 +203,14 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `3` done.
-- P7.9.6 automatic-trigger slices: `3` done.
+- P7.9.6 automatic-trigger slices: `4` done.
 - P7.9.6 static legend slices: `4` done.
-- Current functional-unit implementation: `729/811 = 89.9%`.
-- Current manual deferred boundary: `82/811 = 10.1%`.
+- Current functional-unit implementation: `730/811 = 90.0%`.
+- Current manual deferred boundary: `81/811 = 10.0%`.
 - Remaining manual domains:
-  - `传奇`: `28` functional units / `65` entries
+  - `传奇`: `27` functional units / `64` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `3` automatic-trigger slices, and `4` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `4` automatic-trigger slices, and `4` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -712,3 +712,36 @@ P7.9.6 automatic-trigger slice 3 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because Garen is a passive conquest trigger and this batch introduced no new UI operation path. The battle UI continues to submit `DECLARE_BATTLE`; the conquest trigger and draw are visible through server events/snapshot.
+
+## P7.9.6 Automatic-Trigger Slice 4 Delivered
+
+This is the eleventh committed rule slice inside P7.9.6. It adds a play-trigger legend draw for a high-cost spell without adding any frontend legality rule.
+
+- Added OGS Lux / 光辉女郎 legend trigger:
+  - when the controller successfully plays a spell with printed mana cost at least `5`, draw `1`
+  - uses the server `CardBehaviorDefinition` to identify non-unit/non-equipment spells and the official printed mana cost, not frontend card text parsing
+  - emits `LEGEND_TRIGGER_RESOLVED` with `trigger = HIGH_COST_SPELL_DRAW_ONE`, then normal `CARD_DRAWN` events
+  - preserves burnout/winner handling through the existing `ApplyDrawToPlayer` path
+- Accepted legend entry:
+  - `OGS·021/024`
+- Added representative conformance coverage for playing `OGN·114/298` Evolution Day under Lux and drawing before the stack item resolves.
+- Migrated this legend trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `730/811`
+  - Manual deferred functional units: `81/811`
+  - Implemented official entries: `888/1009`
+  - Manual deferred official entries: `121/1009`
+  - Legend rule-domain implemented: `17` functional units / `42` entries
+  - Remaining legend manual deferred: `27` functional units / `64` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger slice 4 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendTriggerLux"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2527/2527`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2634/2634`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because Lux is a passive `PLAY_CARD` trigger and this batch introduced no new UI operation path. The play-card UI continues to submit server prompt commands; the trigger and draw are visible through server events/snapshot.

@@ -87,6 +87,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AhriLegendCardNo = "OGN·255/298";
     private const string DravenLegendCardNo = "SFD·185/221";
     private const string GarenIntroLegendCardNo = "OGS·023/024";
+    private const string LuxIntroLegendCardNo = "OGS·021/024";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -262,6 +263,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = plan.OptionalCosts.ToArray()
                 })
         };
+        IReadOnlyDictionary<string, int> playerScores = state.PlayerScores;
+        string? winnerPlayerId = null;
+        var rngCursor = state.RngCursor;
         foreach (var optionalCostTargetObjectId in plan.ExhaustedOptionalCostTargetObjectIds)
         {
             var targetState = cardObjects.TryGetValue(optionalCostTargetObjectId, out var existingTarget)
@@ -332,6 +336,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
         }
 
+        if (TryGetLuxHighCostSpellDrawCardNo(playerZones, cardObjects, intent.PlayerId, behavior, out var luxLegendCardNo))
+        {
+            events.Add(new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的光辉女郎高费法术触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["legendCardNo"] = luxLegendCardNo,
+                    ["trigger"] = "HIGH_COST_SPELL_DRAW_ONE",
+                    ["playedCardNo"] = command.CardNo,
+                    ["playedCardManaCost"] = behavior.ManaCost
+                }));
+            var luxDrawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                playerScores,
+                intent.PlayerId,
+                1,
+                rngCursor,
+                events);
+            playerScores = luxDrawApplication.PlayerScores;
+            winnerPlayerId = luxDrawApplication.WinnerPlayerId;
+            rngCursor = luxDrawApplication.RngCursor;
+        }
+
         events.Add(
             new GameEvent(
                 "STACK_ITEM_ADDED",
@@ -351,7 +381,12 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         nextState = nextState with
         {
+            Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             CardObjects = cardObjects,
+            PlayerZones = playerZones,
+            PlayerScores = playerScores,
+            WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId,
+            RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                 state.DestroyedUnitOwnerIdsThisTurn,
                 destroyedAdditionalCostOwnerIds)
@@ -3982,6 +4017,40 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsJinxLegendCardNo(string? cardNo)
     {
         return cardNo is JinxLegendCardNo or "OGN·251/298" or "OGN·301/298" or "OGN·301*/298";
+    }
+
+    private static bool TryGetLuxHighCostSpellDrawCardNo(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition playedBehavior,
+        out string cardNo)
+    {
+        cardNo = LuxIntroLegendCardNo;
+        if (!IsHighCostSpellForLux(playedBehavior)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (cardObjects.TryGetValue(objectId, out var legendState)
+                && string.Equals(legendState.CardNo, LuxIntroLegendCardNo, StringComparison.Ordinal))
+            {
+                cardNo = legendState.CardNo ?? LuxIntroLegendCardNo;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsHighCostSpellForLux(CardBehaviorDefinition behavior)
+    {
+        return behavior.ManaCost >= 5
+            && !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(

@@ -24221,6 +24221,57 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
+    {
+        var state = PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-EVOLUTION-DAY"],
+                    MainDeck = ["P1-LUX-DRAW-001"],
+                    LegendZone = ["P1-LEGEND-LUX"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-LUX"] = new(
+                    "P1-LEGEND-LUX",
+                    cardNo: "OGS·021/024",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LUX-DRAW-001"] = new(
+                    "P1-LUX-DRAW-001",
+                    cardNo: "SFD·125/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-lux-high-cost-spell", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-EVOLUTION-DAY", "OGN·114/298", []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-LUX-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Single(result.State.StackItems);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "HIGH_COST_SPELL_DRAW_ONE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playedCardNo"] as string, "OGN·114/298", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
