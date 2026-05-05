@@ -76,8 +76,8 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1009, report.OfficialEntries);
         Assert.Equal(1009, report.BehaviorSpecs);
         Assert.Empty(report.MissingReasonCardNos);
-        Assert.Equal(930, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
-        Assert.Equal(79, report.StatusCounts[BehaviorImplementationStatuses.ManualRuleRequired]);
+        Assert.Equal(933, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
+        Assert.Equal(76, report.StatusCounts[BehaviorImplementationStatuses.ManualRuleRequired]);
         Assert.False(report.StatusCounts.ContainsKey(BehaviorImplementationStatuses.Unimplemented));
         Assert.Contains(BehaviorImplementationStatuses.Implemented, report.StatusCounts.Keys);
         Assert.Contains(BehaviorImplementationStatuses.ManualRuleRequired, report.StatusCounts.Keys);
@@ -210,14 +210,14 @@ public sealed class CardCatalogBaselineTests
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
         Assert.Equal(811, coverage.FunctionalUnits);
-        Assert.Equal(748, coverage.ImplementedUnits);
-        Assert.Equal(63, coverage.ManualRuleRequiredUnits);
+        Assert.Equal(749, coverage.ImplementedUnits);
+        Assert.Equal(62, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.Equal(113, coverage.DuplicateGroups);
-        Assert.Equal(102, coverage.ImplementedDuplicateGroups);
-        Assert.Equal(284, coverage.ImplementedDuplicateEntries);
-        Assert.Equal(11, coverage.PendingDuplicateGroups);
-        Assert.Equal(27, coverage.PendingDuplicateEntries);
+        Assert.Equal(103, coverage.ImplementedDuplicateGroups);
+        Assert.Equal(287, coverage.ImplementedDuplicateEntries);
+        Assert.Equal(10, coverage.PendingDuplicateGroups);
+        Assert.Equal(24, coverage.PendingDuplicateEntries);
 
         var implementedDuplicateRows = coverage.Units
             .Where(row => row.IsDuplicateGroup
@@ -256,7 +256,7 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Draw, 131, 121, 10, 0, 114, 106, 8);
-        AssertFamily(report, BehaviorTemplateIds.Damage, 148, 141, 7, 0, 129, 124, 5);
+        AssertFamily(report, BehaviorTemplateIds.Damage, 148, 144, 4, 0, 129, 125, 4);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 127, 122, 5, 0, 118, 115, 3);
         AssertFamily(report, BehaviorTemplateIds.Stun, 33, 33, 0, 0, 29, 29, 0);
         Assert.All(report.Families, family =>
@@ -556,12 +556,12 @@ public sealed class CardCatalogBaselineTests
             timingRows,
             TimingSurfaceNames.Trigger,
             entries: 530,
-            specImplementedEntries: 468,
-            manualRuleRequiredEntries: 62,
+            specImplementedEntries: 471,
+            manualRuleRequiredEntries: 59,
             unimplementedEntries: 0,
             functionalUnits: 423,
-            specImplementedFunctionalUnits: 375,
-            pendingFunctionalUnits: 48);
+            specImplementedFunctionalUnits: 376,
+            pendingFunctionalUnits: 47);
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Replacement,
@@ -604,25 +604,25 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(44, unitGroups.Length);
         Assert.Equal(40, legendSpecs.Select(spec => spec.CardName).Distinct(StringComparer.Ordinal).Count());
         Assert.Equal(
-            22,
+            19,
             legendSpecs.Count(spec => string.Equals(
                 spec.Status,
                 BehaviorImplementationStatuses.ManualRuleRequired,
                 StringComparison.Ordinal)));
         Assert.Equal(
-            9,
+            8,
             unitGroups.Count(group => group.All(spec => string.Equals(
                 spec.Status,
                 BehaviorImplementationStatuses.ManualRuleRequired,
                 StringComparison.Ordinal))));
         Assert.Equal(
-            84,
+            87,
             legendSpecs.Count(spec => string.Equals(
                 spec.Status,
                 BehaviorImplementationStatuses.Implemented,
                 StringComparison.Ordinal)));
         Assert.Equal(
-            35,
+            36,
             unitGroups.Count(group => group.Any(spec => string.Equals(
                 spec.Status,
                 BehaviorImplementationStatuses.Implemented,
@@ -706,6 +706,7 @@ public sealed class CardCatalogBaselineTests
                 "UNL-181/219",
                 "UNL-183/219",
                 "UNL-185/219",
+                "UNL-187/219",
                 "UNL-189/219",
                 "UNL-191/219",
                 "UNL-197/219",
@@ -717,6 +718,8 @@ public sealed class CardCatalogBaselineTests
                 "UNL-227/219",
                 "UNL-228*/219",
                 "UNL-228/219",
+                "UNL-229*/219",
+                "UNL-229/219",
                 "UNL-230*/219",
                 "UNL-230/219",
                 "UNL-231*/219",
@@ -811,8 +814,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.Equal(1009, specs.Count);
         Assert.Equal(811, coverage.FunctionalUnits);
-        Assert.Equal(748, coverage.ImplementedUnits);
-        Assert.Equal(63, coverage.ManualRuleRequiredUnits);
+        Assert.Equal(749, coverage.ImplementedUnits);
+        Assert.Equal(62, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.DoesNotContain(specs, spec => string.Equals(
             spec.Status,
@@ -831,9 +834,9 @@ public sealed class CardCatalogBaselineTests
             .Order(StringComparer.Ordinal)
             .ToArray();
         Assert.Equal(["传奇", "战场"], manualCategories);
-        Assert.Equal(79, manualSpecs.Length);
+        Assert.Equal(76, manualSpecs.Length);
         Assert.Equal(
-            63,
+            62,
             manualSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
         Assert.All(manualSpecs, spec =>
         {
@@ -850,7 +853,7 @@ public sealed class CardCatalogBaselineTests
                 BehaviorImplementationStatuses.Implemented,
                 StringComparison.Ordinal))
             .ToArray();
-        Assert.Equal(930, implementedSpecs.Length);
+        Assert.Equal(933, implementedSpecs.Length);
         Assert.All(implementedSpecs, spec =>
         {
             Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedEffectKind));

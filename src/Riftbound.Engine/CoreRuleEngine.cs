@@ -128,6 +128,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JhinLegendCardNo = "UNL-181/219";
     private const string JhinBanishedHighCostSpellMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
     private const int JhinHighCostSpellManaThreshold = 4;
+    private const string ViLegendCardNo = "UNL-187/219";
+    private const int ViLegendOverkillThreshold = 3;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3468,6 +3470,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
         var remainingAttackerDamage = attackerCombatPower;
         var defendingUnitCount = defenderAssignments.Count;
+        var assignedOverkillDamageToEnemyUnits = 0;
         for (var defenderIndex = 0; defenderIndex < defenderAssignments.Count && remainingAttackerDamage > 0; defenderIndex++)
         {
             var assignment = defenderAssignments[defenderIndex];
@@ -3491,6 +3494,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
             var attackerDamageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 assignment.ObjectId,
@@ -3588,7 +3592,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["sourceObjectId"] = attackerObjectId,
                     ["defeatedObjectIds"] = defenderObjectIds.ToArray(),
-                    ["huntAmount"] = huntAmount
+                    ["huntAmount"] = huntAmount,
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits
                 }));
             playerExperience = GainExperience(
                 NormalizeExperienceForSeats(state),
@@ -3596,6 +3601,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 huntAmount,
                 combatStackItem,
                 combatEvents);
+            combatEvents.AddRange(ResolveViLegendOverkillConquerTrigger(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                assignedOverkillDamageToEnemyUnits));
             if (winnerPlayerId is null
                 && CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId) >= 4
                 && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, intent.PlayerId, out var garenLegendCardNo))
@@ -4056,6 +4068,147 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardNo = legendState.CardNo ?? GarenIntroLegendCardNo;
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveViLegendOverkillConquerTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string attackerObjectId,
+        int assignedOverkillDamageToEnemyUnits)
+    {
+        if (assignedOverkillDamageToEnemyUnits < ViLegendOverkillThreshold
+            || !TryGetActiveViLegend(
+                playerZones,
+                cardObjects,
+                playerId,
+                out var legendObjectId,
+                out var legendState)
+            || !TryGetViLegendReadyTarget(
+                playerZones,
+                cardObjects,
+                playerId,
+                out var readyTargetObjectId,
+                out var readyTargetState))
+        {
+            return [];
+        }
+
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = true
+        };
+        cardObjects[readyTargetObjectId] = readyTargetState with
+        {
+            IsExhausted = false
+        };
+
+        return
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的皮城执法官因过量伤害征服触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = "OVERKILL_CONQUER_READY_UNIT",
+                    ["sourceObjectId"] = attackerObjectId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits,
+                    ["readyTargetObjectId"] = readyTargetObjectId
+                }),
+            new GameEvent(
+                "LEGEND_EXHAUSTED",
+                $"{legendObjectId} 变为休眠状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "OVERKILL_CONQUER_READY_UNIT"
+                }),
+            new GameEvent(
+                "UNIT_READIED",
+                $"{readyTargetObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["targetObjectId"] = readyTargetObjectId,
+                    ["wasExhausted"] = true,
+                    ["isExhausted"] = false,
+                    ["reason"] = "OVERKILL_CONQUER_READY_UNIT"
+                })
+        ];
+    }
+
+    private static bool TryGetActiveViLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsViLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsViLegendCardNo(string? cardNo)
+    {
+        return cardNo is ViLegendCardNo or "UNL-229/219" or "UNL-229*/219";
+    }
+
+    private static bool TryGetViLegendReadyTarget(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string readyTargetObjectId,
+        out CardObjectState readyTargetState)
+    {
+        readyTargetObjectId = string.Empty;
+        readyTargetState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.Base.Concat(zones.Battlefields).OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            readyTargetObjectId = objectId;
+            readyTargetState = candidate;
+            return true;
         }
 
         return false;

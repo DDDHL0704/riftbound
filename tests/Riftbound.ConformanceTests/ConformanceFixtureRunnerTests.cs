@@ -24986,6 +24986,61 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerViReadiesUnitOnOverkillConquer()
+    {
+        var state = ViOverkillConquerState("UNL-187/219", "P1-LEGEND-VI", attackerPower: 5);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-vi-overkill-conquer", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-VI-ATTACKER"],
+                ["P2-VI-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-VI"].IsExhausted);
+        Assert.False(result.State.CardObjects["P1-VI-READY-TARGET"].IsExhausted);
+        var conqueredEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Equal(4, conqueredEvent.Payload["assignedOverkillDamageToEnemyUnits"]);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "OVERKILL_CONQUER_READY_UNIT", StringComparison.Ordinal));
+        Assert.Equal("UNL-187/219", triggerEvent.Payload["legendCardNo"]);
+        Assert.Equal("P1-VI-READY-TARGET", triggerEvent.Payload["readyTargetObjectId"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-VI-READY-TARGET", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerViRequiresThreeOverkillOnConquer()
+    {
+        var state = ViOverkillConquerState("UNL-229/219", "P1-LEGEND-VI-REPRINT", attackerPower: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-vi-overkill-conquer-rejected", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-VI-ATTACKER"],
+                ["P2-VI-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-VI-REPRINT"].IsExhausted);
+        Assert.True(result.State.CardObjects["P1-VI-READY-TARGET"].IsExhausted);
+        var conqueredEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Equal(2, conqueredEvent.Payload["assignedOverkillDamageToEnemyUnits"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "OVERKILL_CONQUER_READY_UNIT", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -35204,6 +35259,56 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P2-UNIT-001"] = new("P2-UNIT-001")
             });
+    }
+
+    private static MatchState ViOverkillConquerState(
+        string sourceCardNo,
+        string sourceObjectId,
+        int attackerPower)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-VI-READY-TARGET"],
+                    Battlefields = ["P1-VI-ATTACKER"],
+                    LegendZone = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-VI-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-VI-ATTACKER"] = new(
+                    "P1-VI-ATTACKER",
+                    power: attackerPower,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-VI-READY-TARGET"] = new(
+                    "P1-VI-READY-TARGET",
+                    power: 2,
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-VI-DEFENDER"] = new(
+                    "P2-VI-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
     }
 
     private static MatchState LegendActState(int experience)
