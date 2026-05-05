@@ -135,7 +135,8 @@ public sealed record DeclareBattleCommand(
     string BattlefieldId = "",
     IReadOnlyList<string>? AttackerObjectIds = null,
     IReadOnlyList<string>? DefenderObjectIds = null,
-    IReadOnlyList<string>? OptionalCosts = null) : GameCommand("DECLARE_BATTLE");
+    IReadOnlyList<string>? OptionalCosts = null,
+    IReadOnlyList<string>? BattlefieldTargetObjectIds = null) : GameCommand("DECLARE_BATTLE");
 
 public sealed record UnsupportedCommand(string RawCmdType, JsonElement? Payload = null)
     : GameCommand(RawCmdType);

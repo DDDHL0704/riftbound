@@ -173,6 +173,7 @@ type BattleDraft = {
   battlefieldId: string;
   attackerObjectIds: string;
   defenderObjectIds: string;
+  battlefieldTargetObjectIds: string;
   optionalCosts: string;
 };
 
@@ -286,6 +287,7 @@ const initialBattleDraft: BattleDraft = {
   battlefieldId: "BATTLEFIELD:P1-MAIN",
   attackerObjectIds: "",
   defenderObjectIds: "",
+  battlefieldTargetObjectIds: "",
   optionalCosts: "COMBAT_ASSIGNMENT"
 };
 
@@ -753,6 +755,7 @@ function App() {
         battlefieldId: "BATTLEFIELD:P1-MAIN",
         attackerObjectIds: "P1-BATTLE-ATTACKER-001",
         defenderObjectIds: "P2-BATTLE-DEFENDER-001",
+        battlefieldTargetObjectIds: "",
         optionalCosts: "COMBAT_ASSIGNMENT"
       });
     }
@@ -1714,6 +1717,15 @@ function CommandWorkbench({
             />
           </label>
           <label>
+            battlefieldTargetObjectIds
+            <input
+              data-testid="battlefield-targets"
+              value={battleDraft.battlefieldTargetObjectIds}
+              onChange={(event) => onBattleDraft({ ...battleDraft, battlefieldTargetObjectIds: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
             optionalCosts
             <input
               data-testid="battle-optional-costs"
@@ -1735,6 +1747,12 @@ function CommandWorkbench({
           testIdPrefix="battle-defender-choice"
           choices={battleCandidate?.targets}
           onPick={(choice) => onBattleDraft({ ...battleDraft, defenderObjectIds: toggleListValue(battleDraft.defenderObjectIds, choice.id).join(", ") })}
+        />
+        <ChoiceChipRow
+          title="服务端战场目标"
+          testIdPrefix="battlefield-target-choice"
+          choices={battleCandidate?.targets}
+          onPick={(choice) => onBattleDraft({ ...battleDraft, battlefieldTargetObjectIds: toggleListValue(battleDraft.battlefieldTargetObjectIds, choice.id).join(", ") })}
         />
         <ChoiceChipRow
           title="服务端费用"
@@ -2585,6 +2603,7 @@ function collectDraftObjectSelections(
       assembleDraft.targetObjectId,
       ...parseList(battleDraft.attackerObjectIds),
       ...parseList(battleDraft.defenderObjectIds),
+      ...parseList(battleDraft.battlefieldTargetObjectIds),
       legendDraft.sourceObjectId,
       ...parseList(legendDraft.targetObjectIds)
     ].filter(Boolean)
@@ -2805,6 +2824,10 @@ function buildDeclareBattleCommand(draft: BattleDraft) {
     attackerObjectIds: parseList(draft.attackerObjectIds),
     defenderObjectIds: parseList(draft.defenderObjectIds)
   };
+  const battlefieldTargetObjectIds = parseList(draft.battlefieldTargetObjectIds);
+  if (battlefieldTargetObjectIds.length > 0) {
+    command.battlefieldTargetObjectIds = battlefieldTargetObjectIds;
+  }
   const optionalCosts = parseList(draft.optionalCosts);
   if (optionalCosts.length > 0) {
     command.optionalCosts = optionalCosts;

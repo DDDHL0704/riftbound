@@ -25788,6 +25788,45 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldDefenderSteadfastTwoChoosesDefender()
+    {
+        var state = BattlefieldDefenderSteadfastState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-defender-steadfast", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-FORTIFIED-POSITION",
+                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"],
+                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-FORTIFIED-POSITION", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-FORTIFIED-DEFENDER", triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal(2, triggerEvent.Payload["keywordBonus"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-FORTIFIED-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-FORTIFIED-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal("坚守", defenderDamageEvent.Payload["keyword"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
+        Assert.Equal(["P1-BATTLEFIELD-FORTIFIED-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-BATTLEFIELD-FORTIFIED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain("P2-BATTLEFIELD-FORTIFIED-DEFENDER", result.State.CardObjects.Keys);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -36819,6 +36858,45 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-EPHEMERAL-DEFENDER",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldDefenderSteadfastState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-FORTIFIED-POSITION", "P2-BATTLEFIELD-FORTIFIED-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-FORTIFIED-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new(
+                    "P2-BATTLEFIELD-FORTIFIED-POSITION",
+                    cardNo: "OGN·279/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-FORTIFIED-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
             }

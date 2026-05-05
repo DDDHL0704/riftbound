@@ -900,6 +900,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
+    private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
@@ -1146,7 +1147,8 @@ internal static class ActionPromptBuilder
             "DECLARE_BATTLE" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "controlled-battlefield-unit",
-                ["targetPolicy"] = "opposing-battlefield-unit"
+                ["targetPolicy"] = "opposing-battlefield-unit",
+                ["battlefieldTargetPolicy"] = "server-validates-battlefield-effect-targets-on-submit"
             },
             "LEGEND_ACT" => new Dictionary<string, object?>
             {
@@ -1204,6 +1206,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldAllUnitsPowerPlusOneCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal);
     }
 
@@ -1563,6 +1566,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
+    private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
 
     private readonly IRuleEngine ruleEngine;
@@ -2313,6 +2317,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-conquer-discard-draw" => BuildBattlefieldConquerDiscardDrawScenario(current, seed),
             "battlefield-held-runes" => BuildBattlefieldHeldRunesScenario(current, seed),
             "battlefield-static-power" => BuildBattlefieldStaticPowerScenario(current, seed),
+            "battlefield-defender-steadfast" => BuildBattlefieldDefenderSteadfastScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
             "specified-hand" => BuildSpecifiedHandScenario(current, seed),
             _ => throw new MatchSessionException(
@@ -3320,6 +3325,56 @@ public sealed class MatchSession : IMatchSession
                 ["P2-BATTLEFIELD-STATIC-DEFENDER"] = new(
                     "P2-BATTLEFIELD-STATIC-DEFENDER",
                     power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattlefieldDefenderSteadfastScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303033,
+            103,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-FORTIFIED-POSITION", "P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-FORTIFIED-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-FORTIFIED-POSITION"] = new(
+                    "P2-BATTLEFIELD-FORTIFIED-POSITION",
+                    cardNo: BattlefieldDefenderSteadfastTwoCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-FORTIFIED-DEFENDER",
+                    power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)

@@ -151,6 +151,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
+    private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -3518,10 +3519,42 @@ public sealed class CoreRuleEngine : IRuleEngine
             };
         }
 
+        var defendingPlayerId = ResolveSingleDefendingPlayerId(playerZones, defenderObjectIds);
+        if (!TryResolveBattlefieldDefenderSteadfastChoice(
+                state,
+                playerZones,
+                battlefieldId,
+                command.BattlefieldTargetObjectIds,
+                defenderObjectIds,
+                out var battlefieldSteadfastObjectId,
+                out var battlefieldSteadfastObjectSourceId,
+                out var battlefieldSteadfastCardNo,
+                out var battlefieldSteadfastRejection))
+        {
+            return battlefieldSteadfastRejection;
+        }
+
         var combatEvents = new List<GameEvent>();
+        if (!string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId))
+        {
+            combatEvents.Add(new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{defendingPlayerId} 防守战场并强化单位",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = defendingPlayerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["battlefieldObjectId"] = battlefieldSteadfastObjectSourceId,
+                    ["battlefieldCardNo"] = battlefieldSteadfastCardNo,
+                    ["trigger"] = "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO",
+                    ["targetObjectId"] = battlefieldSteadfastObjectId,
+                    ["keyword"] = CardCombatKeywordNames.Steadfast,
+                    ["keywordBonus"] = 2
+                }));
+        }
+
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
-        var defendingPlayerId = ResolveSingleDefendingPlayerId(playerZones, defenderObjectIds);
         var attackerCombatPower = ResolveBattleCombatPower(
             state,
             playerZones,
@@ -3531,6 +3564,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             0,
             defendingPlayerId,
             battlefieldId,
+            battlefieldSteadfastObjectId,
             out var assaultBonus,
             out var attackerStaticPowerBonus);
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
@@ -3550,6 +3584,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingUnitCount,
                 null,
                 battlefieldId,
+                battlefieldSteadfastObjectId,
                 out _,
                 out _);
             var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
@@ -3598,6 +3633,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingUnitCount,
                 null,
                 battlefieldId,
+                battlefieldSteadfastObjectId,
                 out var steadfastBonus,
                 out var defenderStaticPowerBonus);
             if (defenderCombatPower <= 0)
@@ -4058,7 +4094,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["attackerObjectIds"] = new[] { attackerObjectId },
                     ["defenderObjectIds"] = defenderObjectIds.ToArray(),
-                    ["optionalCosts"] = optionalCosts.ToArray()
+                    ["optionalCosts"] = optionalCosts.ToArray(),
+                    ["battlefieldTargetObjectIds"] = string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId)
+                        ? Array.Empty<string>()
+                        : new[] { battlefieldSteadfastObjectId }
                 })
         };
         events.AddRange(combatEvents);
@@ -4171,6 +4210,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int defendingUnitCount,
         string? defendingPlayerId,
         string battlefieldId,
+        string? battlefieldSteadfastObjectId,
         out int keywordBonus,
         out int staticPowerBonus)
     {
@@ -4197,6 +4237,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!isAttacking && HasBattlefieldEphemeralSteadfastBonus(state, playerZones, battlefieldId, cardObject))
         {
             keywordBonus += 1;
+        }
+
+        if (!isAttacking
+            && string.Equals(objectId, battlefieldSteadfastObjectId, StringComparison.Ordinal))
+        {
+            keywordBonus += 2;
         }
 
         if (!isAttacking && HasMasterYiSingleDefenderBonus(state, playerZones, objectId, defendingUnitCount))
@@ -5667,6 +5713,58 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldDefenderSteadfastChoice(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        IReadOnlyList<string>? battlefieldTargetObjectIds,
+        IReadOnlyList<string> defenderObjectIds,
+        out string? targetObjectId,
+        out string battlefieldObjectId,
+        out string? battlefieldCardNo,
+        out ResolutionResult rejection)
+    {
+        targetObjectId = null;
+        battlefieldObjectId = string.Empty;
+        battlefieldCardNo = null;
+        rejection = default!;
+
+        var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
+        if (!TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldDefenderSteadfastTwoCardNo(battlefieldState.CardNo))
+        {
+            if (requestedTargetObjectIds.Count > 0)
+            {
+                rejection = RejectWithCorePrompts(
+                    state,
+                    "Battlefield target choices are only supported for battlefield effects that require them.",
+                    ErrorCodes.InvalidTarget);
+                return false;
+            }
+
+            return true;
+        }
+
+        battlefieldCardNo = battlefieldState.CardNo;
+        var selectedTargetObjectId = requestedTargetObjectIds.Count == 0 && defenderObjectIds.Count == 1
+            ? defenderObjectIds[0]
+            : requestedTargetObjectIds.Count == 1
+                ? requestedTargetObjectIds[0]
+                : string.Empty;
+        if (string.IsNullOrWhiteSpace(selectedTargetObjectId)
+            || !defenderObjectIds.Contains(selectedTargetObjectId, StringComparer.Ordinal))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "Fortified Position requires exactly one defending unit as its battlefield target.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        targetObjectId = selectedTargetObjectId;
+        return true;
+    }
+
     private static void CreateBattlefieldMinionTokenInBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -5857,6 +5955,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
+            || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -5888,6 +5987,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldAllUnitsPowerPlusOneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldAllUnitsPowerPlusOneCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)

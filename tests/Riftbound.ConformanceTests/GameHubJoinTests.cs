@@ -778,6 +778,61 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldDefenderSteadfastSeedOffersBattlefieldDestinationAndChoice()
+    {
+        const string roomId = "p7-9-battlefield-defender-steadfast";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-defender-steadfast", "seed-p7-9-battlefield-defender-steadfast");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-POSITION", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-FORTIFIED-POSITION",
+              "attackerObjectIds": ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
+              "battlefieldTargetObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defender-steadfast", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", StringComparison.Ordinal));
+        var defenderDamageEvent = Assert.Single(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal(2, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
+
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-BATTLEFIELD-FORTIFIED-ATTACKER"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldMinionSeedOffersBattlefieldDestinationAndCreatesToken()
     {
         const string roomId = "p7-9-battlefield-held-minion";
