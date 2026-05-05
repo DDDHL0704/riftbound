@@ -154,6 +154,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
+    private const string BattlefieldDefendMoveFriendlyUnitToBaseCardNo = "OGN·285/298";
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
@@ -3547,6 +3548,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return battlefieldSteadfastRejection;
         }
+        if (!TryResolveBattlefieldDefenderMoveToBaseChoice(
+                state,
+                playerZones,
+                battlefieldId,
+                command.BattlefieldTargetObjectIds,
+                defenderObjectIds,
+                out var battlefieldDefenderMoveObjectId,
+                out var battlefieldDefenderMoveObjectSourceId,
+                out var battlefieldDefenderMoveCardNo,
+                out var battlefieldDefenderMoveRejection))
+        {
+            return battlefieldDefenderMoveRejection;
+        }
 
         var combatEvents = new List<GameEvent>();
         var battlefieldRevealSpellTrigger = ResolveBattlefieldDefendRevealSpellTrigger(
@@ -3702,6 +3716,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             runePools);
         runePools = lethalCleanup.RunePools;
         combatEvents.AddRange(lethalCleanup.Events);
+        if (!string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId))
+        {
+            TryResolveBattlefieldDefenderMoveToBaseTrigger(
+                playerZones,
+                cardObjects,
+                defendingPlayerId ?? string.Empty,
+                battlefieldId,
+                attackerObjectId,
+                battlefieldDefenderMoveObjectId,
+                battlefieldDefenderMoveObjectSourceId,
+                battlefieldDefenderMoveCardNo,
+                combatEvents);
+        }
 
         var playerExperience = state.PlayerExperience;
         var playerScores = state.PlayerScores;
@@ -4228,9 +4255,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["attackerObjectIds"] = new[] { attackerObjectId },
                     ["defenderObjectIds"] = defenderObjectIds.ToArray(),
                     ["optionalCosts"] = optionalCosts.ToArray(),
-                    ["battlefieldTargetObjectIds"] = string.IsNullOrWhiteSpace(battlefieldSteadfastObjectId)
-                        ? Array.Empty<string>()
-                        : new[] { battlefieldSteadfastObjectId }
+                    ["battlefieldTargetObjectIds"] = new[]
+                        {
+                            battlefieldSteadfastObjectId,
+                            battlefieldDefenderMoveObjectId
+                        }
+                        .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                        .ToArray()
                 })
         };
         events.AddRange(combatEvents);
@@ -6015,10 +6046,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         rejection = default!;
 
         var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
-        if (!TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState)
+        var hasBattlefieldObject = TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState);
+        if (!hasBattlefieldObject
             || !IsBattlefieldDefenderSteadfastTwoCardNo(battlefieldState.CardNo))
         {
-            if (requestedTargetObjectIds.Count > 0)
+            if (requestedTargetObjectIds.Count > 0
+                && (!hasBattlefieldObject || !IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo)))
             {
                 rejection = RejectWithCorePrompts(
                     state,
@@ -6047,6 +6080,112 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         targetObjectId = selectedTargetObjectId;
+        return true;
+    }
+
+    private static bool TryResolveBattlefieldDefenderMoveToBaseChoice(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        IReadOnlyList<string>? battlefieldTargetObjectIds,
+        IReadOnlyList<string> defenderObjectIds,
+        out string? targetObjectId,
+        out string battlefieldObjectId,
+        out string? battlefieldCardNo,
+        out ResolutionResult rejection)
+    {
+        targetObjectId = null;
+        battlefieldObjectId = string.Empty;
+        battlefieldCardNo = null;
+        rejection = default!;
+
+        if (!TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo))
+        {
+            return true;
+        }
+
+        battlefieldCardNo = battlefieldState.CardNo;
+        var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
+        if (requestedTargetObjectIds.Count == 0)
+        {
+            return true;
+        }
+
+        if (requestedTargetObjectIds.Count != 1
+            || !defenderObjectIds.Contains(requestedTargetObjectIds[0], StringComparer.Ordinal))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "Plunder Ship Alley requires zero or one defending unit as its battlefield target.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        targetObjectId = requestedTargetObjectIds[0];
+        return true;
+    }
+
+    private static bool TryResolveBattlefieldDefenderMoveToBaseTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        string targetObjectId,
+        string battlefieldObjectId,
+        string? battlefieldCardNo,
+        List<GameEvent> events)
+    {
+        if (string.IsNullOrWhiteSpace(playerId)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || (!string.IsNullOrWhiteSpace(targetState.ControllerId)
+                && !string.Equals(targetState.ControllerId, playerId, StringComparison.Ordinal)))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Battlefields = RemoveFromZone(zones.Battlefields, targetObjectId),
+            Base = zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.Base
+                : zones.Base.Concat([targetObjectId]).ToArray()
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            IsAttacking = false,
+            IsDefending = false
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 防守战场并将单位移动到基地",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldCardNo,
+                ["trigger"] = "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId
+            }));
+        events.Add(new GameEvent(
+            "UNIT_MOVED_TO_BASE",
+            $"{targetObjectId} 因战场防守触发移动到基地",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = MoveUnitBattlefieldZone,
+                ["destinationZone"] = MoveUnitBaseZone,
+                ["reason"] = "BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE"
+            }));
         return true;
     }
 
@@ -6775,6 +6914,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
+            || IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(cardNo)
             || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(cardNo)
@@ -6829,6 +6969,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldDefendMoveFriendlyUnitToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerRecycleRuneCardNo(string? cardNo)

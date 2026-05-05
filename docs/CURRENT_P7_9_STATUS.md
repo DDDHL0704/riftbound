@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, and representative effects. Battlefield slices migrated `18/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `36` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, and representative effects. Battlefield slices migrated `19/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `35` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-17 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-18 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `17` done.
-- Current functional-unit implementation: `775/811 = 95.6%`.
-- Current manual deferred boundary: `36/811 = 4.4%`.
+- P7.9.7 battlefield foundation slices: `18` done.
+- Current functional-unit implementation: `776/811 = 95.7%`.
+- Current manual deferred boundary: `35/811 = 4.3%`.
 - Remaining manual domains:
-  - `战场`: `36` functional units / `39` entries
+  - `战场`: `35` functional units / `38` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -1986,3 +1986,34 @@ P7.9.7 battlefield foundation slice 17 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination, Boon event, and authoritative snapshot update for the held-boon path.
+
+## P7.9.7 Battlefield Foundation Slice 18 Delivered
+
+This is the eighteenth rule slice inside P7.9.7. It adds a defending-battlefield optional movement target on the server-authoritative battle path.
+
+- Added implemented battlefield card:
+  - `OGN·285/298`: when a player defends this battlefield object and submits a valid battlefield target, the backend moves the chosen surviving friendly defender from battlefield to base after combat damage is cleaned up.
+- Event stream additions:
+  - `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE`
+  - `UNIT_MOVED_TO_BASE` with `originZone = BATTLEFIELD`, `destinationZone = BASE`, and the battlefield object as source.
+- Added `battlefield-defend-move-to-base` local development seed plus GameHub coverage for prompt destination exposure, target choice submission, movement event, and final base/battlefield snapshot.
+- Migrated this battlefield defense/move slice in `BehaviorSpec`:
+  - Implemented functional units: `776/811`
+  - Manual deferred functional units: `35/811`
+  - Implemented official entries: `971/1009`
+  - Manual deferred official entries: `38/1009`
+  - Battlefield rule-domain implemented: `19` functional units / `19` entries
+  - Remaining battlefield manual deferred: `35` functional units / `38` entries
+  - Secondary template family moved forward: `Move` gained one implemented representative.
+
+P7.9.7 battlefield foundation slice 18 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldDefendMove"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2600/2600`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `47/47`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2726/2726`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination, chosen battlefield target, movement event, and authoritative snapshot update for the defend-move path.
