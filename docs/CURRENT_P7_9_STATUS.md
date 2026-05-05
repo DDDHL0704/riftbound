@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger slices migrated `9/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger slices migrated `10/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,14 +202,14 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `2` done.
+- P7.9.6 active-ability slices: `3` done.
 - P7.9.6 automatic-trigger slices: `1` done.
-- Current functional-unit implementation: `722/811 = 89.0%`.
-- Current manual deferred boundary: `89/811 = 11.0%`.
+- Current functional-unit implementation: `723/811 = 89.1%`.
+- Current manual deferred boundary: `88/811 = 10.9%`.
 - Remaining manual domains:
-  - `传奇`: `35` functional units / `79` entries
+  - `传奇`: `34` functional units / `76` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `2` legend active-ability slices and `1` automatic-trigger slice are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices and `1` automatic-trigger slice are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -468,3 +468,46 @@ P7.9.6 automatic-trigger validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because Jinx is an automatic turn-start backend trigger and this batch introduced no new frontend operation path. The next significant UI/flow batch must run Browser smoke again.
+
+## P7.9.6 Active-Ability Slice 3 Delivered
+
+This is the fourth committed rule slice inside P7.9.6. It keeps the `LEGEND_ACT` path server-authoritative and adds a dynamic-cost zero-target legend action.
+
+- Added Lillia / 含羞蓓蕾 legend active ability:
+  - pays base `4` mana, reduced by the number of controlled friendly `瞬息` objects in base/battlefield
+  - exhausts the legend source
+  - creates an active `3` power `精灵` unit token in base using token card `UNL·T07`
+  - token carries `CARD_TYPE:UNIT`, `瞬息`, and `仙灵`
+- Accepted same-functional-unit legend reprints/variants:
+  - `UNL-189/219`
+  - `UNL-230*/219`
+  - `UNL-230/219`
+- Expanded `legend-active-actions` dev seed with Lillia and a friendly ephemeral support unit so the reduced-cost path can be exercised from prompt choices.
+- Expanded structured prompt choices with the Lillia ability id plus `SPEND_MANA:3` and `SPEND_MANA:4` cost chips.
+- Migrated this legend active-ability slice in `BehaviorSpec`:
+  - Implemented functional units: `723/811`
+  - Manual deferred functional units: `88/811`
+  - Implemented official entries: `876/1009`
+  - Manual deferred official entries: `133/1009`
+  - Legend rule-domain implemented: `10` functional units / `30` entries
+  - Remaining legend manual deferred: `34` functional units / `76` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active-ability slice 3 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendActLillia"`: passed `39/39`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2520/2520`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2627/2627`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-9-lillia-1777964799876`
+  - Operation path: reload Web URL -> set server URL to `5089` -> set room id -> `join-both` -> `ready-both` -> open dev tools -> `Legend Actions` seed -> choose source `P1-LEGEND-LILLIA` -> choose ability `LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE` -> choose cost `SPEND_MANA:3` -> submit `LEGEND_ACT`
+  - Event log summary: `LEGEND_ABILITY_ACTIVATED`, `COST_PAID`, `LEGEND_EXHAUSTED`, `UNIT_TOKEN_CREATED`
+  - Final snapshot summary: match remains `IN_PROGRESS`; P1 mana `0`; `P1-LEGEND-LILLIA` exhausted; P1 base contains `P1-LEGEND-LILLIA-TOKEN-001`; token card no `UNL·T07`.
+  - Screenshot note: Browser DOM/state smoke passed. The in-app Browser screenshot call timed out after `15s`, consistent with the prior screenshot limitation in this environment.

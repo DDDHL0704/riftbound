@@ -77,6 +77,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int PykeLegendManaCost = 1;
     private const string PykeLegendManaCostToken = "SPEND_MANA:1";
     private const string JinxLegendCardNo = "FND-251/298";
+    private const string LilliaLegendCardNo = "UNL-189/219";
+    private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
+    private const int LilliaLegendBaseManaCost = 4;
+    private const string FaerieTokenCardNo = "UNL·T07";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -982,16 +986,21 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        var requiredCostTokens = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
+        var manaCost = ResolveLegendAbilityManaCost(state, intent.PlayerId, ability);
+        var requiredManaCostToken = manaCost > 0 ? $"{SpendManaOptionalCostPrefix}{manaCost}" : string.Empty;
+        var requiredCostToken = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
+            ? requiredManaCostToken
+            : ability.RequiredCostToken;
+        var requiredCostTokens = string.IsNullOrWhiteSpace(requiredCostToken)
             ? Array.Empty<string>()
-            : [ability.RequiredCostToken];
+            : [requiredCostToken];
         if (!optionalCosts.SequenceEqual(requiredCostTokens, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
-                string.IsNullOrWhiteSpace(ability.RequiredCostToken)
+                string.IsNullOrWhiteSpace(requiredCostToken)
                     ? $"{ability.DisplayName} does not accept optional costs."
-                    : $"{ability.DisplayName} requires {ability.RequiredCostToken}.",
+                    : $"{ability.DisplayName} requires {requiredCostToken}.",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -1039,7 +1048,6 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var manaCost = ability.ManaCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < manaCost)
         {
@@ -1199,6 +1207,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     command.AbilityId,
                     events);
                 break;
+            case LegendAbilityEffectKinds.CreateFaerie:
+                CreateLegendFaerie(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
         }
 
         var nextState = state with
@@ -1313,10 +1330,49 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: true,
                 LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin,
                 RequiresBattlefieldTarget: true),
+            LilliaLegendAbilityId => new LegendAbilityDefinition(
+                LilliaLegendAbilityId,
+                [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
+                "莉莉娅传奇精灵技能",
+                LilliaLegendBaseManaCost,
+                0,
+                string.Empty,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.CreateFaerie,
+                ManaCostReductionKind: LegendAbilityManaCostReductionKinds.FriendlyEphemeralFieldObjects),
             _ => default!
         };
 
         return ability is not null;
+    }
+
+    private static int ResolveLegendAbilityManaCost(
+        MatchState state,
+        string playerId,
+        LegendAbilityDefinition ability)
+    {
+        var reduction = ability.ManaCostReductionKind switch
+        {
+            LegendAbilityManaCostReductionKinds.FriendlyEphemeralFieldObjects =>
+                CountFriendlyEphemeralFieldObjects(state, playerId),
+            _ => 0
+        };
+        return Math.Max(0, ability.ManaCost - reduction);
+    }
+
+    private static int CountFriendlyEphemeralFieldObjects(MatchState state, string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Count(objectId => state.CardObjects.TryGetValue(objectId, out var objectState)
+                && IsControlledFieldObject(state, playerId, objectId)
+                && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal));
     }
 
     private static bool IsValidLegendAbilityTarget(
@@ -1578,6 +1634,51 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["power"] = 1,
                 ["destinationZone"] = "BASE",
                 ["tokenTags"] = new[] { CardObjectTags.UnitCard }
+            }));
+    }
+
+    private static void CreateLegendFaerie(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
+        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(FaerieTokenCardNo, out var definition)
+            ? definition.CreateObject(tokenObjectId, playerId, playerId)
+            : new CardObjectState(
+                tokenObjectId,
+                power: 3,
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "仙灵"],
+                cardNo: FaerieTokenCardNo,
+                ownerId: playerId,
+                controllerId: playerId);
+        cardObjects[tokenObjectId] = tokenState;
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{sourceObjectId} 打出精灵",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenState.CardNo,
+                ["tokenName"] = "精灵",
+                ["power"] = tokenState.Power,
+                ["destinationZone"] = "BASE",
+                ["tokenTags"] = tokenState.Tags.ToArray()
             }));
     }
 
@@ -10915,7 +11016,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresFriendlyUnitTarget,
         string EffectKind,
         bool RequiresBattlefieldTarget = false,
-        bool RequiresExhaustedTarget = false);
+        bool RequiresExhaustedTarget = false,
+        string ManaCostReductionKind = "");
 
     private static class LegendAbilityEffectKinds
     {
@@ -10925,6 +11027,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string GrantRoam = "GRANT_ROAM";
         public const string ReturnBattlefieldUnitAndCreateCoin = "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN";
         public const string CreateMinion = "CREATE_MINION";
+        public const string CreateFaerie = "CREATE_FAERIE";
+    }
+
+    private static class LegendAbilityManaCostReductionKinds
+    {
+        public const string FriendlyEphemeralFieldObjects = "FRIENDLY_EPHEMERAL_FIELD_OBJECTS";
     }
 
     private sealed record PlayCardPlan(

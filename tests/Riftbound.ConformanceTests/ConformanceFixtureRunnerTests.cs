@@ -23738,6 +23738,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActLilliaCreatesFaerieWithEphemeralCostReduction()
+    {
+        var state = LegendActiveAbilityWithEphemeralSupportState("UNL-189/219", "P1-LEGEND-LILLIA", mana: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-lillia-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-LILLIA",
+                "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE",
+                [],
+                ["SPEND_MANA:3"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-LILLIA"].IsExhausted);
+        Assert.Contains("P1-LEGEND-LILLIA-TOKEN-001", result.State.PlayerZones["P1"].Base);
+        var token = result.State.CardObjects["P1-LEGEND-LILLIA-TOKEN-001"];
+        Assert.Equal("UNL·T07", token.CardNo);
+        Assert.Equal(3, token.Power);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(CardObjectTags.Ephemeral, token.Tags);
+        Assert.Contains("仙灵", token.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActLilliaReprintRequiresUnreducedManaCost()
+    {
+        var state = LegendActiveAbilityState("UNL-230/219", "P1-LEGEND-LILLIA-REPRINT", mana: 4);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-lillia-reprint-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-LILLIA-REPRINT",
+                "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE",
+                [],
+                ["SPEND_MANA:4"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-LEGEND-LILLIA-REPRINT-TOKEN-001", result.State.PlayerZones["P1"].Base);
+        Assert.Equal("UNL·T07", result.State.CardObjects["P1-LEGEND-LILLIA-REPRINT-TOKEN-001"].CardNo);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
@@ -33756,6 +33806,28 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             });
+    }
+
+    private static MatchState LegendActiveAbilityWithEphemeralSupportState(string sourceCardNo, string sourceObjectId, int mana)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base = playerZones["P1"].Base.Concat(["P1-LEGEND-EPHEMERAL-UNIT"]).ToArray()
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-EPHEMERAL-UNIT"] = new(
+            "P1-LEGEND-EPHEMERAL-UNIT",
+            power: 1,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
     }
 
     private static MatchState JinxLegendTurnStartState()
