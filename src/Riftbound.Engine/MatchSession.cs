@@ -954,6 +954,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
@@ -1357,6 +1358,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldUnitReturnedCallRuneCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal)
@@ -1756,6 +1758,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
@@ -2528,6 +2531,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-spell-power-bonus" => BuildBattlefieldSpellPowerBonusScenario(current, seed),
             "battlefield-high-cost-spell-insight" => BuildBattlefieldHighCostSpellInsightScenario(current, seed),
             "battlefield-unit-experience-ability" => BuildBattlefieldUnitExperienceAbilityScenario(current, seed),
+            "battlefield-return-call-rune" => BuildBattlefieldReturnCallRuneScenario(current, seed),
             "battlefield-play-unit-boon" => BuildBattlefieldPlayUnitBoonScenario(current, seed),
             "battlefield-first-unit-move-other" => BuildBattlefieldFirstUnitMoveOtherScenario(current, seed),
             "battlefield-target-damage-bonus" => BuildBattlefieldTargetDamageBonusScenario(current, seed),
@@ -4404,6 +4408,66 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "SFD·001/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldReturnCallRuneScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303076,
+            176,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(2, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-GHOST-BAY-RUNE-001", "P1-GHOST-BAY-RUNE-002"],
+                    hand: ["P1-SPELL-RECONSIDER"],
+                    battlefields: ["P1-BATTLEFIELD-GHOST-BAY", "P1-BATTLEFIELD-RETURN-UNIT"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-RECONSIDER"] = new(
+                    "P1-SPELL-RECONSIDER",
+                    cardNo: "OGN·104/298",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-GHOST-BAY"] = new(
+                    "P1-BATTLEFIELD-GHOST-BAY",
+                    cardNo: BattlefieldUnitReturnedCallRuneCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-RETURN-UNIT"] = new(
+                    "P1-BATTLEFIELD-RETURN-UNIT",
+                    cardNo: "SFD·001/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-GHOST-BAY-RUNE-001"] = new(
+                    "P1-GHOST-BAY-RUNE-001",
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-GHOST-BAY-RUNE-002"] = new(
+                    "P1-GHOST-BAY-RUNE-002",
+                    tags: [CardObjectTags.RuneCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });

@@ -191,6 +191,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
@@ -200,6 +201,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldSandSoldierManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
+    private const int BattlefieldUnitReturnedCallRuneManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
     private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
     private const int JhinCompletionSpellCount = 4;
@@ -1908,6 +1910,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     events);
                 break;
             case LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin:
+            {
+                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
+                    playerZones,
+                    cardObjects,
+                    targetObjectIds[0],
+                    out var battlefieldReturnPlayerId);
                 ReturnLegendTargetToOwnerHand(
                     playerZones,
                     cardObjects,
@@ -1926,7 +1934,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     [CardObjectTags.EquipmentCard, "反应"],
                     isExhausted: true,
                     events);
+                if (canResolveBattlefieldReturnTrigger
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                        playerZones,
+                        cardObjects,
+                        runePools,
+                        battlefieldReturnPlayerId,
+                        targetObjectIds[0],
+                        command.SourceObjectId,
+                        events,
+                        out var battlefieldReturnRunePools))
+                {
+                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                }
                 break;
+            }
             case LegendAbilityEffectKinds.AttachArmament:
                 AttachOrReattachLegendArmament(
                     cardObjects,
@@ -1977,6 +1999,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                     events);
                 break;
             case LegendAbilityEffectKinds.ReturnOwnedTeemoUnitToHand:
+            {
+                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
+                    playerZones,
+                    cardObjects,
+                    targetObjectIds[0],
+                    out var battlefieldReturnPlayerId);
                 ReturnOwnedTeemoUnitToHand(
                     playerZones,
                     cardObjects,
@@ -1985,7 +2013,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     command.SourceObjectId,
                     command.AbilityId,
                     events);
+                if (canResolveBattlefieldReturnTrigger
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                        playerZones,
+                        cardObjects,
+                        runePools,
+                        battlefieldReturnPlayerId,
+                        targetObjectIds[0],
+                        command.SourceObjectId,
+                        events,
+                        out var battlefieldReturnRunePools))
+                {
+                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                }
                 break;
+            }
             case LegendAbilityEffectKinds.CreateSandSoldier:
                 CreateLegendSandSoldier(
                     playerZones,
@@ -6509,6 +6551,94 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string playerId,
+        string returnedObjectId,
+        string sourceObjectId,
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools)
+    {
+        const string trigger = "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE";
+        nextRunePools = runePools;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
+            cardObjects.TryGetValue(objectId, out var candidate)
+            && IsBattlefieldUnitReturnedCallRuneCardNo(candidate.CardNo)
+            && (string.IsNullOrWhiteSpace(candidate.ControllerId)
+                || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)));
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
+        {
+            return false;
+        }
+
+        if (zones.RuneDeck.Count == 0)
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < BattlefieldUnitReturnedCallRuneManaCost)
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - BattlefieldUnitReturnedCallRuneManaCost
+        };
+        nextRunePools = mutableRunePools;
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 的单位返回手牌并通过鬼影湾召出符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = trigger,
+                ["sourceObjectId"] = sourceObjectId,
+                ["returnedObjectId"] = returnedObjectId
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付鬼影湾触发费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["mana"] = BattlefieldUnitReturnedCallRuneManaCost,
+                ["power"] = 0,
+                ["reason"] = trigger
+            }));
+        var runeCallResult = CallRunes(
+            playerZones,
+            cardObjects,
+            playerId,
+            1);
+        events.Add(new GameEvent(
+            "RUNES_CALLED",
+            $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
+                ["reason"] = trigger,
+                ["returnedObjectId"] = returnedObjectId
+            }));
+        return true;
+    }
+
     private static bool TryResolveBattlefieldHeldGrantBoonTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -7807,6 +7937,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
+            playerZones,
+            cardObjects,
+            targetObjectId,
+            out var battlefieldReturnPlayerId);
         if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var ownerPlayerId, out _))
         {
             return false;
@@ -7872,6 +8007,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["ownerPlayerId"] = ownerPlayerId,
                 ["reason"] = abilityId
             }));
+        if (canResolveBattlefieldReturnTrigger
+            && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                playerZones,
+                cardObjects,
+                nextRunePools,
+                battlefieldReturnPlayerId,
+                targetObjectId,
+                battlefieldObjectId,
+                events,
+                out var battlefieldReturnRunePools))
+        {
+            nextRunePools = battlefieldReturnRunePools;
+        }
         events.Add(new GameEvent(
             "UNIT_TOKEN_CREATED",
             $"{battlefieldObjectId} 打出黄沙士兵",
@@ -8287,6 +8435,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryGetBattlefieldUnitReturnContext(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        out string ownerPlayerId)
+    {
+        ownerPlayerId = string.Empty;
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+                || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            ownerPlayerId = !string.IsNullOrWhiteSpace(targetState.OwnerId)
+                && playerZones.ContainsKey(targetState.OwnerId)
+                    ? targetState.OwnerId
+                    : playerId;
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
@@ -8338,6 +8512,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
             || IsBattlefieldGrantUnitExperienceCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
+            || IsBattlefieldUnitReturnedCallRuneCardNo(cardNo)
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
             || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo)
@@ -8559,6 +8734,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldUnitReturnedCallRuneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldUnitReturnedCallRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldPlayUnitPayOneBoonCardNo(string? cardNo)
@@ -13078,6 +13258,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
             {
+                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
+                    playerZones,
+                    cardObjects,
+                    targetObjectId,
+                    out var battlefieldReturnPlayerId);
                 if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId, out _))
                 {
                     continue;
@@ -13092,12 +13277,30 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["targetObjectId"] = targetObjectId,
                         ["ownerPlayerId"] = returnedOwnerPlayerId
                     }));
+                if (canResolveBattlefieldReturnTrigger
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                        playerZones,
+                        cardObjects,
+                        runePools,
+                        battlefieldReturnPlayerId,
+                        targetObjectId,
+                        stackItem.SourceObjectId,
+                        events,
+                        out var battlefieldReturnRunePools))
+                {
+                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                }
             }
         }
         else if (behavior.ReturnsAllFieldObjectsToHand)
         {
             foreach (var targetObjectId in GetFieldObjectIds(playerZones))
             {
+                var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
+                    playerZones,
+                    cardObjects,
+                    targetObjectId,
+                    out var battlefieldReturnPlayerId);
                 if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId, out var returnedWasEquipment))
                 {
                     continue;
@@ -13109,6 +13312,20 @@ public sealed class CoreRuleEngine : IRuleEngine
                     targetObjectId,
                     returnedOwnerPlayerId,
                     returnedWasEquipment));
+                if (canResolveBattlefieldReturnTrigger
+                    && !returnedWasEquipment
+                    && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                        playerZones,
+                        cardObjects,
+                        runePools,
+                        battlefieldReturnPlayerId,
+                        targetObjectId,
+                        stackItem.SourceObjectId,
+                        events,
+                        out var battlefieldReturnRunePools))
+                {
+                    runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                }
             }
         }
         else if (behavior.AppliesStatusEffectToAllUnits)
@@ -14126,27 +14343,79 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.ReturnsTargetToHand
-                        && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var returnedOwnerPlayerId, out var returnedWasEquipment))
+                        && TryGetBattlefieldUnitReturnContext(
+                            playerZones,
+                            cardObjects,
+                            targetObjectId,
+                            out var battlefieldReturnPlayerId))
+                    {
+                        if (TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var battlefieldReturnedOwnerPlayerId, out var battlefieldReturnedWasEquipment))
+                        {
+                            events.Add(BuildReturnedToHandEvent(
+                                behavior.DisplayName,
+                                stackItem,
+                                targetObjectId,
+                                battlefieldReturnedOwnerPlayerId,
+                                battlefieldReturnedWasEquipment));
+                            if (behavior.RuneCallCountAfterTargetReturn > 0)
+                            {
+                                var runeCallResult = CallRunes(
+                                    playerZones,
+                                    cardObjects,
+                                    battlefieldReturnedOwnerPlayerId,
+                                    behavior.RuneCallCountAfterTargetReturn);
+                                events.Add(new GameEvent(
+                                    "RUNES_CALLED",
+                                    $"{battlefieldReturnedOwnerPlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                                    new Dictionary<string, object?>
+                                    {
+                                        ["playerId"] = battlefieldReturnedOwnerPlayerId,
+                                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+                                    }));
+                            }
+
+                            if (!battlefieldReturnedWasEquipment
+                                && TryResolveBattlefieldUnitReturnedCallRuneTrigger(
+                                    playerZones,
+                                    cardObjects,
+                                    runePools,
+                                    battlefieldReturnPlayerId,
+                                    targetObjectId,
+                                    stackItem.SourceObjectId,
+                                    events,
+                                    out var battlefieldReturnRunePools))
+                            {
+                                runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    if (behavior.ReturnsTargetToHand
+                        && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var normalReturnedOwnerPlayerId, out var normalReturnedWasEquipment))
                     {
                         events.Add(BuildReturnedToHandEvent(
                             behavior.DisplayName,
                             stackItem,
                             targetObjectId,
-                            returnedOwnerPlayerId,
-                            returnedWasEquipment));
+                            normalReturnedOwnerPlayerId,
+                            normalReturnedWasEquipment));
                         if (behavior.RuneCallCountAfterTargetReturn > 0)
                         {
                             var runeCallResult = CallRunes(
                                 playerZones,
                                 cardObjects,
-                                returnedOwnerPlayerId,
+                                normalReturnedOwnerPlayerId,
                                 behavior.RuneCallCountAfterTargetReturn);
                             events.Add(new GameEvent(
                                 "RUNES_CALLED",
-                                $"{returnedOwnerPlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                                $"{normalReturnedOwnerPlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
                                 new Dictionary<string, object?>
                                 {
-                                    ["playerId"] = returnedOwnerPlayerId,
+                                    ["playerId"] = normalReturnedOwnerPlayerId,
                                     ["sourceObjectId"] = stackItem.SourceObjectId,
                                     ["count"] = runeCallResult.CalledRuneObjectIds.Count,
                                     ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()

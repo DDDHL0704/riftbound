@@ -2265,6 +2265,67 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldReturnCallRuneSeedPaysOneAndCallsExtraRune()
+    {
+        const string roomId = "p7-9-battlefield-return-call-rune";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-return-call-rune", "seed-p7-9-battlefield-return-call-rune");
+
+        var playClients = new RecordingHubClients();
+        var reconsider = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-RECONSIDER",
+              "cardNo": "OGN·104/298",
+              "targetObjectIds": ["P1-BATTLEFIELD-RETURN-UNIT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-return-call-rune-play", reconsider);
+        Assert.Empty(playClients.CallerClient.Errors);
+
+        var passP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-return-call-rune-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-return-call-rune-p2-pass", passPriority);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+
+        var events = EventsFor(passP2Clients);
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE", StringComparison.Ordinal));
+        Assert.Equal(2, events.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)));
+        var ghostBayRuneEvent = Assert.Single(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("reason", out var reason)
+            && string.Equals(reason as string, "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE", StringComparison.Ordinal));
+        Assert.Equal(1, ghostBayRuneEvent.Payload["count"]);
+
+        var snapshot = SnapshotFor(passP2Clients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(0, Assert.IsType<int>(zones["runeDeckCount"]));
+        var baseZone = Assert.IsType<string[]>(zones["base"]);
+        Assert.Contains("P1-GHOST-BAY-RUNE-001", baseZone);
+        Assert.Contains("P1-GHOST-BAY-RUNE-002", baseZone);
+    }
+
+    [Fact]
     public async Task P79BattlefieldTargetDamageBonusSeedAddsOneDamageOnResolution()
     {
         const string roomId = "p7-9-battlefield-target-damage-bonus";
