@@ -26703,6 +26703,73 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldTargetDamageBonusAddsOneToSpellDamage()
+    {
+        var state = BattlefieldTargetDamageBonusState();
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-target-damage-bonus-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PUNISHMENT",
+                "UNL-007/219",
+                ["P2-BATTLEFIELD-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-target-damage-bonus-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-target-damage-bonus-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(4, p2Pass.State.CardObjects["P2-BATTLEFIELD-TARGET"].Damage);
+        var damageEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-TARGET", damageEvent.Payload["targetObjectId"]);
+        Assert.Equal(4, damageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldTargetDamageBonusSkipsTargetsWithoutVoidGate()
+    {
+        var state = BattlefieldTargetDamageBonusState(includeVoidGate: false);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-target-damage-bonus-none-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PUNISHMENT",
+                "UNL-007/219",
+                ["P2-BATTLEFIELD-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-target-damage-bonus-none-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-target-damage-bonus-none-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(3, p2Pass.State.CardObjects["P2-BATTLEFIELD-TARGET"].Damage);
+        var damageEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Equal(3, damageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -39069,6 +39136,49 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             }
+        };
+    }
+
+    private static MatchState BattlefieldTargetDamageBonusState(bool includeVoidGate = true)
+    {
+        return PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-PUNISHMENT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = includeVoidGate
+                        ? ["P2-BATTLEFIELD-VOID-GATE", "P2-BATTLEFIELD-TARGET"]
+                        : ["P2-BATTLEFIELD-TARGET"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-PUNISHMENT"] = new(
+                    "P1-SPELL-PUNISHMENT",
+                    cardNo: "UNL-007/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-TARGET"] = new(
+                    "P2-BATTLEFIELD-TARGET",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2",
+                    power: 5),
+                ["P2-BATTLEFIELD-VOID-GATE"] = new(
+                    "P2-BATTLEFIELD-VOID-GATE",
+                    cardNo: "OGN·296/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+                .Where(entry => includeVoidGate || !string.Equals(entry.Key, "P2-BATTLEFIELD-VOID-GATE", StringComparison.Ordinal))
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
         };
     }
 

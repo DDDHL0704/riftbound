@@ -2094,6 +2094,58 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldTargetDamageBonusSeedAddsOneDamageOnResolution()
+    {
+        const string roomId = "p7-9-battlefield-target-damage-bonus";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-target-damage-bonus", "seed-p7-9-battlefield-target-damage-bonus");
+
+        var playClients = new RecordingHubClients();
+        var punishment = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-PUNISHMENT",
+              "cardNo": "UNL-007/219",
+              "targetObjectIds": ["P2-BATTLEFIELD-TARGET"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-target-damage-bonus-play", punishment);
+        Assert.Empty(playClients.CallerClient.Errors);
+
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-target-damage-bonus-p1-pass", passPriority);
+        var resolveClients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-target-damage-bonus-p2-pass", passPriorityAgain);
+
+        Assert.Empty(resolveClients.CallerClient.Errors);
+        var events = EventsFor(resolveClients);
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        var damageEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-TARGET", damageEvent.Payload["targetObjectId"]);
+        Assert.Equal(4, damageEvent.Payload["damage"]);
+
+        var p2Snapshot = SnapshotFor(resolveClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        var p2Objects = Assert.IsType<Dictionary<string, object?>>(p2["objects"]);
+        var target = Assert.IsType<Dictionary<string, object?>>(p2Objects["P2-BATTLEFIELD-TARGET"]);
+        Assert.Equal(4, target["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
     {
         const string roomId = "p7-9-battlefield-move-power";

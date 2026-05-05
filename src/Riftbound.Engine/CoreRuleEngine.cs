@@ -188,6 +188,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -7783,7 +7784,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
-            || IsBattlefieldHighCostSpellInsightCardNo(cardNo);
+            || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
+            || IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7986,6 +7988,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldTargetSpellSkillDamageBonusCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -13658,6 +13665,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             var damageAmount = stackItem.DamageAmount > 0
                 ? stackItem.DamageAmount
                 : P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount;
+            damageAmount = ApplyBattlefieldTargetSpellSkillDamageBonus(
+                playerZones,
+                cardObjects,
+                targetObjectId,
+                damageAmount);
             var preventDamage = state.UntilEndOfTurnEffects.Contains(
                 PreventSpellAndSkillDamageThisTurnEffectId,
                 StringComparer.Ordinal);
@@ -16948,20 +16960,56 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         string? targetObjectId = null)
     {
+        int damageAmount;
         if (behavior.DamageAmountFromFirstTargetManaCost
             && stackItem.TargetObjectIds.Count > 0
             && state.CardObjects.TryGetValue(stackItem.TargetObjectIds[0], out var firstTargetState))
         {
-            return firstTargetState.ManaCost;
+            damageAmount = firstTargetState.ManaCost;
         }
-
-        if (behavior.ConditionalDamageAmount > 0
+        else if (behavior.ConditionalDamageAmount > 0
             && DamageConditionApplies(state, stackItem.ControllerId, behavior.DamageConditionKind, targetObjectId))
         {
-            return behavior.ConditionalDamageAmount;
+            damageAmount = behavior.ConditionalDamageAmount;
+        }
+        else
+        {
+            damageAmount = stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
         }
 
-        return stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
+        if (!IsSpellPlayBehavior(behavior))
+        {
+            return damageAmount;
+        }
+
+        return ApplyBattlefieldTargetSpellSkillDamageBonus(
+            state.PlayerZones,
+            state.CardObjects,
+            targetObjectId,
+            damageAmount);
+    }
+
+    private static int ApplyBattlefieldTargetSpellSkillDamageBonus(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string? targetObjectId,
+        int damageAmount)
+    {
+        if (damageAmount <= 0
+            || string.IsNullOrWhiteSpace(targetObjectId)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return damageAmount;
+        }
+
+        var hasBattlefieldBonus = playerZones.Values.Any(zones =>
+            zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+            && zones.Battlefields.Any(objectId =>
+                cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardObject.CardNo)));
+
+        return hasBattlefieldBonus ? damageAmount + 1 : damageAmount;
     }
 
     private static bool DamageConditionApplies(

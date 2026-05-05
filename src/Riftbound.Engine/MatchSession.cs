@@ -951,6 +951,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
         MatchState state,
@@ -1291,7 +1292,8 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal);
+            || string.Equals(cardObject.CardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsImplementedLegendActionCardNo(string? cardNo)
@@ -1684,6 +1686,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
+    private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
 
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
@@ -2449,6 +2452,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-friendly-spell-draw" => BuildBattlefieldFriendlySpellDrawScenario(current, seed),
             "battlefield-spell-power-bonus" => BuildBattlefieldSpellPowerBonusScenario(current, seed),
             "battlefield-high-cost-spell-insight" => BuildBattlefieldHighCostSpellInsightScenario(current, seed),
+            "battlefield-target-damage-bonus" => BuildBattlefieldTargetDamageBonusScenario(current, seed),
             "battlefield-static-prevent-move-base" => BuildBattlefieldStaticPreventMoveBaseScenario(current, seed),
             "battlefield-static-roam" => BuildBattlefieldStaticRoamScenario(current, seed),
             "battlefield-conquer-mill" => BuildBattlefieldConquerMillScenario(current, seed),
@@ -4277,6 +4281,56 @@ public sealed class MatchSession : IMatchSession
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldTargetDamageBonusScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303068,
+            170,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(2, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-PUNISHMENT"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-VOID-GATE", "P2-BATTLEFIELD-TARGET"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-PUNISHMENT"] = new(
+                    "P1-SPELL-PUNISHMENT",
+                    cardNo: "UNL-007/219",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-TARGET"] = new(
+                    "P2-BATTLEFIELD-TARGET",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2,
+                    power: 5),
+                ["P2-BATTLEFIELD-VOID-GATE"] = new(
+                    "P2-BATTLEFIELD-VOID-GATE",
+                    cardNo: BattlefieldTargetSpellSkillDamageBonusCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 
