@@ -181,7 +181,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.4c | Planned | Remaining movement/battle/scoring boundary checks. | Conformance + GameHub/Room smoke where player-visible. |
 | P6.5a | Done | Standby reaction, Ambush reaction, and Echo representative GameHub smokes. | GameHub/Room smoke passed. |
 | P6.5b | Done | Standby/Ambush/Echo keyword surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
-| P6.6 | Planned | Equipment/assemble/agile/forge/tempered batches. | P5 equipment invariant tests required. |
+| P6.6a | Done | Equipment keyword surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
+| P6.6b | Planned | Equipment assemble/attach Room smoke expansion. | P5 equipment invariant tests required. |
 | P6.7 | Planned | Experience/level/hunt/encourage batches. | Engine + conformance tests. |
 | P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
 | P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
@@ -218,6 +219,9 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6.5b interaction keyword surface triage: `95/95 keyword-surface entries = 100.0%`; `85/85 keyword-surface functional units = 100.0%`.
   - Profile implemented boundary: `10/95 entries = 10.5%`, `10/85 functional units = 11.8%` (mana-only Echo representatives).
   - Profile deferred boundary: `85/95 entries = 89.5%`, `75/85 functional units = 88.2%` (Standby, Ambush, and complex Echo surfaces).
+- P6.6a equipment keyword surface triage: `52/52 equipment-profile entries = 100.0%`; `46/46 equipment-profile functional units = 100.0%`.
+  - Representative attach/detach boundary: `1/1 Take Up representative = 100.0% implemented-representative`.
+  - Profile deferred boundary: `52/52 entries = 100.0%`, `46/46 functional units = 100.0%` for broad Assemble/Agile/Tempered execution surfaces.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -506,6 +510,34 @@ P6.5b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `22/22`.
 - `git diff --check`: passed.
 
+## P6.6a Delivered
+
+- Added a P6 equipment keyword coverage matrix to `CardCatalogBaselineTests`.
+- Locked executable equipment-profile surfaces and current deferred boundaries:
+
+| Keyword | Entries | Spec implemented entries | Functional units | Spec implemented units | Profile deferred entries | Profile deferred units |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 装配 | 32 | 32 | 31 | 31 | 32 | 31 |
+| 灵便 | 4 | 4 | 4 | 4 | 4 | 4 |
+| 百炼 | 16 | 16 | 11 | 11 | 16 | 11 |
+
+- Kept `SFD·011/221` 伸手拿 as the explicit `implemented-representative` for attach/detach: `CanAttachOrDetachWeapon = true`, `DrawCount = 1`.
+- Deferred reason:
+  - broad `装配`: full assemble costs and attachment targets beyond the Long Sword representative remain deferred.
+  - `灵便`: reaction-speed automatic attachment and response-window attachment choice remain deferred.
+  - `百炼`: optional attach-on-play and per-unit equipment selection remain deferred.
+  - static equipment modifiers and owner/controller execution beyond P5 invariants remain deferred unless the specific ordinary play path has conformance coverage.
+- This batch does not change engine behavior or BehaviorSpec status counts; it prevents P6 from promoting broad equipment keyword surfaces beyond the representative P5/P4 paths.
+
+P6.6a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2590/2590`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `31/31`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `22/22`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.5b, then continue into P6.6 equipment/assemble/agile/forge/tempered batches.
+Commit P6.6a, then continue into P6.6b equipment assemble/attach Room smoke expansion.

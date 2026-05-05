@@ -285,6 +285,61 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6EquipmentKeywordFamiliesReportSpecAndExecutionBoundaryCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var rows = BuildEquipmentKeywordCoverageRows(
+            specs,
+            [
+                CardEquipmentKeywordNames.Assemble,
+                CardEquipmentKeywordNames.Agile,
+                CardEquipmentKeywordNames.Tempered
+            ]);
+
+        AssertEquipmentKeywordCoverage(
+            rows,
+            CardEquipmentKeywordNames.Assemble,
+            entries: 32,
+            specImplementedEntries: 32,
+            functionalUnits: 31,
+            specImplementedFunctionalUnits: 31,
+            profileDeferredEntries: 32,
+            profileDeferredFunctionalUnits: 31);
+        AssertEquipmentKeywordCoverage(
+            rows,
+            CardEquipmentKeywordNames.Agile,
+            entries: 4,
+            specImplementedEntries: 4,
+            functionalUnits: 4,
+            specImplementedFunctionalUnits: 4,
+            profileDeferredEntries: 4,
+            profileDeferredFunctionalUnits: 4);
+        AssertEquipmentKeywordCoverage(
+            rows,
+            CardEquipmentKeywordNames.Tempered,
+            entries: 16,
+            specImplementedEntries: 16,
+            functionalUnits: 11,
+            specImplementedFunctionalUnits: 11,
+            profileDeferredEntries: 16,
+            profileDeferredFunctionalUnits: 11);
+
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo("SFD·011/221", out var takeUpDefinition));
+        var attachmentProfile = CardEquipmentKeywordRules.BuildAttachmentProfile(takeUpDefinition);
+        Assert.True(attachmentProfile.CanAttachOrDetachWeapon);
+        Assert.Equal(EquipmentAttachmentProfileStatuses.ImplementedRepresentative, attachmentProfile.Status);
+        Assert.Equal(1, attachmentProfile.DrawCount);
+
+        Assert.All(rows, row =>
+        {
+            Assert.Equal(row.Entries, row.ProfileDeferredEntries);
+            Assert.Equal(row.FunctionalUnits, row.ProfileDeferredFunctionalUnits);
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1784,6 +1839,97 @@ public sealed class CardCatalogBaselineTests
         int ProfileImplementedEntries,
         int ProfileDeferredEntries,
         int ProfileImplementedFunctionalUnits,
+        int ProfileDeferredFunctionalUnits);
+
+    private static IReadOnlyList<EquipmentKeywordCoverageRow> BuildEquipmentKeywordCoverageRows(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<string> keywords)
+    {
+        var profileRows = specs
+            .Select(spec =>
+            {
+                CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out var definition);
+                return new
+                {
+                    Spec = spec,
+                    Profile = CardEquipmentKeywordRules.BuildProfile(spec, definition)
+                };
+            })
+            .ToArray();
+
+        return keywords
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(keyword =>
+            {
+                var keywordRows = profileRows
+                    .Where(row => HasEquipmentKeyword(row.Profile, keyword))
+                    .ToArray();
+                var unitGroups = keywordRows
+                    .GroupBy(row => row.Spec.FunctionalUnitId, StringComparer.Ordinal)
+                    .ToArray();
+
+                return new EquipmentKeywordCoverageRow(
+                    keyword,
+                    keywordRows.Length,
+                    keywordRows.Count(row => string.Equals(
+                        row.Spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    unitGroups.Length,
+                    unitGroups.Count(group => group.Any(row => string.Equals(
+                        row.Spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal))),
+                    keywordRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        EquipmentKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal)),
+                    unitGroups.Count(group => group.All(row => string.Equals(
+                        row.Profile.Status,
+                        EquipmentKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal))));
+            })
+            .ToArray();
+    }
+
+    private static bool HasEquipmentKeyword(CardEquipmentKeywordProfile profile, string keyword)
+    {
+        return keyword switch
+        {
+            CardEquipmentKeywordNames.Assemble => profile.HasAssemble,
+            CardEquipmentKeywordNames.Agile => profile.HasAgile,
+            CardEquipmentKeywordNames.Tempered => profile.HasTempered,
+            _ => false
+        };
+    }
+
+    private static void AssertEquipmentKeywordCoverage(
+        IReadOnlyList<EquipmentKeywordCoverageRow> rows,
+        string keyword,
+        int entries,
+        int specImplementedEntries,
+        int functionalUnits,
+        int specImplementedFunctionalUnits,
+        int profileDeferredEntries,
+        int profileDeferredFunctionalUnits)
+    {
+        var row = Assert.Single(rows, candidate => string.Equals(candidate.Keyword, keyword, StringComparison.Ordinal));
+        Assert.Equal(entries, row.Entries);
+        Assert.Equal(specImplementedEntries, row.SpecImplementedEntries);
+        Assert.Equal(functionalUnits, row.FunctionalUnits);
+        Assert.Equal(specImplementedFunctionalUnits, row.SpecImplementedFunctionalUnits);
+        Assert.Equal(profileDeferredEntries, row.ProfileDeferredEntries);
+        Assert.Equal(profileDeferredFunctionalUnits, row.ProfileDeferredFunctionalUnits);
+    }
+
+    private sealed record EquipmentKeywordCoverageRow(
+        string Keyword,
+        int Entries,
+        int SpecImplementedEntries,
+        int FunctionalUnits,
+        int SpecImplementedFunctionalUnits,
+        int ProfileDeferredEntries,
         int ProfileDeferredFunctionalUnits);
 
     private static CardCombatKeywordProfile BuildCombatProfile(
