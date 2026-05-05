@@ -94,6 +94,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EzrealLegendAbilityId = "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS";
     private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
     private const int EzrealEnemyTargetThreshold = 2;
+    private const string IreliaLegendCardNo = "SFD·195/221";
+    private const string IreliaLegendAbilityId = "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT";
+    private const int IreliaLegendManaCost = 1;
+    private const string IreliaLegendManaCostToken = "SPEND_MANA:1";
     private const string TeemoOriginLegendCardNo = "OGN·263/298";
     private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
     private const int TeemoLegendManaCost = 1;
@@ -1366,6 +1370,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
+        if (ability.RequiresPendingFriendlyUnitTarget
+            && (targetObjectIds.Count == 0
+                || !IsPendingFriendlyUnitTarget(state, intent.PlayerId, targetObjectIds[0])))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} requires a pending spell or skill targeting that friendly unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (ability.RequiresOwnedTeemoUnitTarget
             && !IsValidOwnedTeemoUnitTarget(state, intent.PlayerId, targetObjectIds[0]))
         {
@@ -1579,6 +1593,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     runePools,
                     intent.PlayerId,
                     ability.PowerGainAmount,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.ReadyFriendlyUnit:
+                ReadyLegendFriendlyUnit(
+                    cardObjects,
+                    targetObjectIds[0],
+                    intent.PlayerId,
                     command.SourceObjectId,
                     command.AbilityId,
                     events);
@@ -1857,6 +1880,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 LegendAbilityEffectKinds.DrawOne,
                 TimingKind: LegendAbilityTimingKinds.PriorityWindow,
                 RequiresEzrealEnemyTargetsThisTurn: true),
+            IreliaLegendAbilityId => new LegendAbilityDefinition(
+                IreliaLegendAbilityId,
+                [IreliaLegendCardNo, "SFD·195a/221·P", "SFD·246/221"],
+                "刀锋舞者传奇反应重置技能",
+                IreliaLegendManaCost,
+                0,
+                IreliaLegendManaCostToken,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.ReadyFriendlyUnit,
+                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
+                RequiresPendingFriendlyUnitTarget: true),
             TeemoLegendAbilityId => new LegendAbilityDefinition(
                 TeemoLegendAbilityId,
                 [TeemoOriginLegendCardNo, "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
@@ -1945,6 +1980,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return !ability.RequiresExhaustedTarget
             || (state.CardObjects.TryGetValue(targetObjectId, out var targetState) && targetState.IsExhausted);
+    }
+
+    private static bool IsPendingFriendlyUnitTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return IsControlledFieldObject(state, playerId, targetObjectId)
+            && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
+            && state.StackItems.Any(stackItem =>
+                string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
+                && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
     }
 
     private static bool IsValidLegendArmamentSecondTarget(
@@ -3576,6 +3623,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var playerExperience = state.PlayerExperience;
         var playerScores = state.PlayerScores;
+        IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
         var rngCursor = state.RngCursor;
         string? winnerPlayerId = null;
         if (huntAmount > 0
@@ -3609,6 +3657,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 attackerObjectId,
                 assignedOverkillDamageToEnemyUnits));
+            var ireliaConquerTrigger = ResolveIreliaLegendConquerReadyTrigger(
+                playerZones,
+                cardObjects,
+                runePools,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId);
+            runePools = ireliaConquerTrigger.RunePools;
+            combatEvents.AddRange(ireliaConquerTrigger.Events);
             if (winnerPlayerId is null
                 && CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId) >= 4
                 && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, intent.PlayerId, out var garenLegendCardNo))
@@ -3735,6 +3792,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerScores = playerScores,
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
+            RunePools = runePools,
             RngCursor = rngCursor,
             PassedPriorityPlayerIds = [],
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
@@ -4200,6 +4258,146 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["reason"] = "OVERKILL_CONQUER_READY_UNIT"
                 })
         ];
+    }
+
+    private static void ReadyLegendFriendlyUnit(
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string playerId,
+        string legendObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return;
+        }
+
+        var wasExhausted = targetState.IsExhausted;
+        cardObjects[targetObjectId] = targetState with
+        {
+            IsExhausted = false
+        };
+        events.Add(new GameEvent(
+            "UNIT_READIED",
+            $"{targetObjectId} 变为活跃状态",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = legendObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["wasExhausted"] = wasExhausted,
+                ["isExhausted"] = false,
+                ["abilityId"] = abilityId,
+                ["reason"] = "FRIENDLY_UNIT_TARGETED_READY"
+            }));
+    }
+
+    private static (IReadOnlyDictionary<string, RunePool> RunePools, IReadOnlyList<GameEvent> Events)
+        ResolveIreliaLegendConquerReadyTrigger(
+            IReadOnlyDictionary<string, PlayerZones> playerZones,
+            Dictionary<string, CardObjectState> cardObjects,
+            IReadOnlyDictionary<string, RunePool> runePools,
+            string playerId,
+            string battlefieldId,
+            string attackerObjectId)
+    {
+        if (!TryGetExhaustedIreliaLegend(
+                playerZones,
+                cardObjects,
+                playerId,
+                out var legendObjectId,
+                out var legendState))
+        {
+            return (runePools, []);
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < IreliaLegendManaCost)
+        {
+            return (runePools, []);
+        }
+
+        var nextRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        nextRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - IreliaLegendManaCost
+        };
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = false
+        };
+
+        return (nextRunePools,
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的刀锋舞者因征服战场触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND",
+                    ["sourceObjectId"] = attackerObjectId,
+                    ["battlefieldId"] = battlefieldId
+                }),
+            new GameEvent(
+                "COST_PAID",
+                $"{playerId} 支付刀锋舞者征服触发费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["mana"] = IreliaLegendManaCost,
+                    ["power"] = 0,
+                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                }),
+            new GameEvent(
+                "LEGEND_READIED",
+                $"{legendObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                })
+        ]);
+    }
+
+    private static bool TryGetExhaustedIreliaLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsIreliaLegendCardNo(candidate.CardNo)
+                || !candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsIreliaLegendCardNo(string? cardNo)
+    {
+        return cardNo is IreliaLegendCardNo or "SFD·195a/221·P" or "SFD·246/221";
     }
 
     private static bool TryGetActiveViLegend(
@@ -13548,7 +13746,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         string TimingKind = LegendAbilityTimingKinds.MainOpen,
         bool RequiresPendingSpellStackItem = false,
         bool RequiresPendingEquipmentStackItem = false,
-        bool RequiresEzrealEnemyTargetsThisTurn = false);
+        bool RequiresEzrealEnemyTargetsThisTurn = false,
+        bool RequiresPendingFriendlyUnitTarget = false);
 
     private static class LegendAbilityEffectKinds
     {
@@ -13561,6 +13760,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string GainMana = "GAIN_MANA";
         public const string GainPower = "GAIN_POWER";
+        public const string ReadyFriendlyUnit = "READY_FRIENDLY_UNIT";
         public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";
         public const string CreateSandSoldier = "CREATE_SAND_SOLDIER";
         public const string CreateMinion = "CREATE_MINION";

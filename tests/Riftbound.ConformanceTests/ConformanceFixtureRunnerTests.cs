@@ -25093,6 +25093,103 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActIreliaReadiesPendingTargetedFriendlyUnit()
+    {
+        var state = IreliaPendingFriendlyTargetState("SFD·195/221", "P1-LEGEND-IRELIA", targetFriendlyUnit: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-irelia-targeted-friendly-ready", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-IRELIA",
+                "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-IRELIA"].IsExhausted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-BATTLEFIELD-UNIT"].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEGEND-BATTLEFIELD-UNIT", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActIreliaRequiresPendingFriendlyUnitTarget()
+    {
+        var state = IreliaPendingFriendlyTargetState("SFD·246/221", "P1-LEGEND-IRELIA-REPRINT", targetFriendlyUnit: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-irelia-targeted-friendly-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-IRELIA-REPRINT",
+                "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-IRELIA-REPRINT"].IsExhausted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-BATTLEFIELD-UNIT"].IsExhausted);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerIreliaPaysOneToReadyLegendOnConquer()
+    {
+        var state = IreliaConquerState("SFD·195a/221·P", "P1-LEGEND-IRELIA-PROMO", mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-irelia-conquer-ready", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-IRELIA-ATTACKER"],
+                ["P2-IRELIA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-IRELIA-PROMO"].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-IRELIA-PROMO", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerIreliaRequiresManaToReadyLegendOnConquer()
+    {
+        var state = IreliaConquerState("SFD·195/221", "P1-LEGEND-IRELIA", mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-irelia-conquer-ready-rejected", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-IRELIA-ATTACKER"],
+                ["P2-IRELIA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-IRELIA"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -35406,6 +35503,99 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-VEX-DRAW-001"] = new(
                     "P2-VEX-DRAW-001",
                     cardNo: "UNL-001/219",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState IreliaPendingFriendlyTargetState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool targetFriendlyUnit)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 1);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-BATTLEFIELD-UNIT"] = cardObjects["P1-LEGEND-BATTLEFIELD-UNIT"] with
+        {
+            IsExhausted = true
+        };
+        cardObjects["P1-PENDING-SOURCE"] = new(
+            "P1-PENDING-SOURCE",
+            cardNo: "UNL-159/219",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects["P2-NON-FRIENDLY-TARGET"] = new(
+            "P2-NON-FRIENDLY-TARGET",
+            power: 2,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P2",
+            controllerId: "P2");
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Battlefields = ["P2-NON-FRIENDLY-TARGET"]
+        };
+
+        return state with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-PENDING-IRELIA-TARGET",
+                    "P1",
+                    "P1-PENDING-SOURCE",
+                    "PENDING_IRELIA_FRIENDLY_TARGET_TEST",
+                    cardObjects["P1-PENDING-SOURCE"].CardNo,
+                    targetFriendlyUnit ? ["P1-LEGEND-BATTLEFIELD-UNIT"] : ["P2-NON-FRIENDLY-TARGET"],
+                    0)
+            ],
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState IreliaConquerState(
+        string sourceCardNo,
+        string sourceObjectId,
+        int mana)
+    {
+        return PunishmentState(mana: mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-IRELIA-ATTACKER"],
+                    LegendZone = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-IRELIA-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-IRELIA-ATTACKER"] = new(
+                    "P1-IRELIA-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: true,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-IRELIA-DEFENDER"] = new(
+                    "P2-IRELIA-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
             }

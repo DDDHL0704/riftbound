@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `37/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `38/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `9` done.
+- P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger slices: `12` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `750/811 = 92.5%`.
-- Current manual deferred boundary: `61/811 = 7.5%`.
+- Current functional-unit implementation: `751/811 = 92.6%`.
+- Current manual deferred boundary: `60/811 = 7.4%`.
 - Remaining manual domains:
-  - `传奇`: `7` functional units / `16` entries
+  - `传奇`: `6` functional units / `13` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `9` legend active-ability slices, `12` automatic-trigger slices, and `6` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `10` legend active/reaction slices, `12` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -1261,3 +1261,36 @@ P7.9.6 automatic-trigger slice 12 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend battle-trigger rule slice. It reuses existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes.
+
+## P7.9.6 Active/Reaction Ready Slice 10 Delivered
+
+This is the twenty-seventh committed rule slice inside P7.9.6. It adds Irelia / 刀锋舞者's friendly-target reaction and conquest ready trigger.
+
+- Added Irelia legend action/trigger support for:
+  - `SFD·195/221`
+  - `SFD·195a/221·P`
+  - `SFD·246/221`
+- Added `LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT` through the existing server-authoritative `LEGEND_ACT` path.
+- The reaction is accepted only in a priority window when a pending spell or skill controlled by Irelia's controller targets the selected friendly field unit; the backend charges `SPEND_MANA:1`, exhausts Irelia, and readies that unit.
+- `DECLARE_BATTLE` now resolves Irelia's conquest trigger on the existing `BATTLEFIELD_CONQUERED` path: if Irelia is exhausted and the controller has 1 mana, the backend pays 1 and readies the legend.
+- Added the Irelia ability to structured prompt modes so the page can operate it from server prompt data without frontend legality rules.
+- Migrated this legend ready slice in `BehaviorSpec`:
+  - Implemented functional units: `751/811`
+  - Manual deferred functional units: `60/811`
+  - Implemented official entries: `939/1009`
+  - Manual deferred official entries: `70/1009`
+  - Legend rule-domain implemented: `38` functional units / `93` entries
+  - Remaining legend manual deferred: `6` functional units / `13` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active/reaction ready slice 10 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendActIrelia|FullyQualifiedName~P79LegendTriggerIrelia"`: passed `4/4`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2565/2565`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2672/2672`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt rule slice. It reuses the existing priority-window `LEGEND_ACT` and `DECLARE_BATTLE` UI paths and emits authoritative prompt/event/snapshot changes; the next significant frontend flow batch should smoke the newly exposed Irelia mode.
