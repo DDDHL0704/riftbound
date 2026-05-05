@@ -189,7 +189,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.8a | Done | Lifecycle/trigger/replacement surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
 | P6.8b | Done | Last Breath + Ephemeral representative Room smokes. | GameHub/Room smoke passed. |
 | P6.9a | Done | Legend active/passive surface matrix and manual boundary triage. | Catalog domain matrix passed. |
-| P6.9b | Planned | Legend representative active/passive tiny batches or explicit blocked surfaces. | Dedicated non-`PLAY_CARD` domain tests. |
+| P6.9b | Done | Legend representative activated-ability blocked surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
 | P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
 | P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
 | P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
@@ -246,6 +246,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Replacement surfaces: `3/106 entries = 2.8%`, `1/44 units = 2.3%`.
   - Static/keyword surfaces: `48/106 entries = 45.3%`, `20/44 units = 45.5%`.
   - Template keyword hits: `71/106 entries = 67.0%`, `30/44 units = 68.2%`, but none are promoted because legends need a dedicated non-`PLAY_CARD` domain.
+- P6.9b legend activated-ability blocked surface progress: `5/47 activated legend entries = 10.6%` representative surfaces audited; `5/5 zero-side-effect direct engine rejections = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -731,6 +732,35 @@ P6.9a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.9b Delivered
+
+- Added `P6LegendAbilityCatalog` for five representative deferred legend activated-ability surfaces:
+  - `FND-259/298` 疾风剑豪: pay 2 + exhaust to move a friendly unit.
+  - `OGN·257/298` 盲僧: pay 1 + exhaust to grant boon to a friendly unit.
+  - `UNL-234/219` 皎月女神: reaction-speed exhaust to gain spell-duel-only mana.
+  - `UNL-237/219` 圣锤之毅: spend 3 experience + exhaust to draw.
+  - `FND-265/298` 奥术先驱: pay 1 + exhaust to create a 1-power minion.
+- Added catalog audit coverage proving each representative:
+  - is a `传奇` official entry;
+  - has the expected official card text anchor;
+  - parses as a P3 activated ability;
+  - is not present in the P4 executable activated-ability registry;
+  - is not present in `CardBehaviorRegistry`.
+- Added direct CoreRuleEngine rejection coverage for each representative ability id:
+  - command: `ACTIVATE_ABILITY` from a legend-zone source object;
+  - result: `UNSUPPORTED_COMMAND`;
+  - zero side effects: no events, tick unchanged, runes unchanged, experience unchanged, source remains unexhausted, target damage unchanged, stack empty, legend zone unchanged.
+- This batch does not implement legend active/passive behavior; it creates a concrete blocked/deferred executable boundary for representative legend activated abilities.
+
+P6.9b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2603/2603`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2501/2501`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `34/34`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.9a, then continue into P6.9b legend representative active/passive or blocked-surface batches.
+Commit P6.9b, then continue into P6.10 battlefield effect batches.

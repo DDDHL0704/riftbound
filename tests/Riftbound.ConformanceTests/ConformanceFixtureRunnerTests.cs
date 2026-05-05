@@ -23355,6 +23355,105 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P6LegendAbilityCatalogAuditsDeferredSurfacesAgainstOfficialText()
+    {
+        var surfaces = P6LegendAbilityCatalog.GetDeferredSurfaces();
+
+        Assert.Equal(5, surfaces.Count);
+        Assert.Contains(surfaces, surface => surface.RequiresTarget);
+        Assert.Contains(surfaces, surface => !surface.RequiresTarget);
+        Assert.All(surfaces, surface =>
+        {
+            Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.AbilityId, out _));
+            Assert.False(string.IsNullOrWhiteSpace(surface.Reason));
+        });
+
+        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        foreach (var surface in surfaces)
+        {
+            var officialCard = officialCatalog.Cards.Single(card =>
+                string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
+            Assert.Equal("传奇", officialCard.CardCategoryName);
+            Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
+            Assert.NotEmpty(RuleTextParser.Parse(officialCard).ActivatedAbilities);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+        }
+    }
+
+    public static IEnumerable<object[]> P6DeferredLegendAbilitySurfaceData()
+    {
+        return P6LegendAbilityCatalog.GetDeferredSurfaces()
+            .Select(surface => new object[] { surface });
+    }
+
+    [Theory]
+    [MemberData(nameof(P6DeferredLegendAbilitySurfaceData))]
+    public async Task P6ActivateAbilityCommandRejectsLegendDeferredSurfacesOutsideRegistry(
+        P6DeferredLegendAbilitySurface surface)
+    {
+        var targetObjectIds = surface.RequiresTarget
+            ? new[] { "P1-LEGEND-TARGET-UNIT" }
+            : Array.Empty<string>();
+        var state = PunishmentState(mana: 10) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 10,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    LegendZone = ["P1-LEGEND-DEFERRED-SOURCE"],
+                    Base = ["P1-LEGEND-TARGET-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(10, 10),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-DEFERRED-SOURCE"] = new(
+                    "P1-LEGEND-DEFERRED-SOURCE",
+                    power: 0,
+                    cardNo: surface.SourceCardNo,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-TARGET-UNIT"] = new(
+                    "P1-LEGEND-TARGET-UNIT",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p6-legend-deferred-{surface.AbilityId}", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-LEGEND-DEFERRED-SOURCE",
+                surface.AbilityId,
+                targetObjectIds),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ACTIVATE_ABILITY is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
+        Assert.Equal(10, result.State.PlayerExperience["P1"]);
+        Assert.Equal(["P1-LEGEND-DEFERRED-SOURCE"], result.State.PlayerZones["P1"].LegendZone);
+        Assert.Equal(["P1-LEGEND-TARGET-UNIT"], result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects["P1-LEGEND-DEFERRED-SOURCE"].IsExhausted);
+        Assert.Equal(0, result.State.CardObjects["P1-LEGEND-TARGET-UNIT"].Damage);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandAddsViDoublePowerSkillToStack()
     {
         var state = PunishmentState(mana: 2) with
