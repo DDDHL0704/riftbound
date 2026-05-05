@@ -23454,6 +23454,151 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
+    {
+        var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
+
+        Assert.Equal(5, surfaces.Count);
+        Assert.Contains(surfaces, surface => surface.IsActivatedCommandSurface);
+        Assert.Contains(surfaces, surface => !surface.IsActivatedCommandSurface);
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceKind,
+            P6BattlefieldEffectCatalog.TriggerSurfaceKind,
+            StringComparison.Ordinal));
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceKind,
+            P6BattlefieldEffectCatalog.ReplacementSurfaceKind,
+            StringComparison.Ordinal));
+        Assert.Contains(surfaces, surface => string.Equals(
+            surface.SurfaceKind,
+            P6BattlefieldEffectCatalog.StaticKeywordSurfaceKind,
+            StringComparison.Ordinal));
+        Assert.All(surfaces, surface =>
+        {
+            Assert.False(P4ActivatedAbilityCatalog.TryGetByAbilityId(surface.SurfaceId, out _));
+            Assert.False(string.IsNullOrWhiteSpace(surface.Reason));
+        });
+
+        var officialCatalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        foreach (var surface in surfaces)
+        {
+            var officialCard = officialCatalog.Cards.Single(card =>
+                string.Equals(card.CardNo, surface.SourceCardNo, StringComparison.Ordinal));
+            var parsed = RuleTextParser.Parse(officialCard);
+
+            Assert.Equal("战场", officialCard.CardCategoryName);
+            Assert.Contains(surface.OfficialTextAnchor, officialCard.CardEffect, StringComparison.Ordinal);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(surface.SourceCardNo, out _));
+
+            switch (surface.SurfaceKind)
+            {
+                case P6BattlefieldEffectCatalog.ActivatedGrantSurfaceKind:
+                    Assert.NotEmpty(parsed.ActivatedAbilities);
+                    break;
+                case P6BattlefieldEffectCatalog.TriggerSurfaceKind:
+                    Assert.NotEmpty(parsed.Triggers);
+                    break;
+                case P6BattlefieldEffectCatalog.ReplacementSurfaceKind:
+                    Assert.NotEmpty(parsed.Replacements);
+                    break;
+                case P6BattlefieldEffectCatalog.StaticKeywordSurfaceKind:
+                    Assert.NotEmpty(parsed.Keywords);
+                    Assert.NotEmpty(parsed.StaticAbilities);
+                    break;
+                default:
+                    Assert.Fail($"Unexpected battlefield surface kind '{surface.SurfaceKind}'.");
+                    break;
+            }
+        }
+    }
+
+    public static IEnumerable<object[]> P6DeferredBattlefieldActivatedSurfaceData()
+    {
+        return P6BattlefieldEffectCatalog.GetDeferredSurfaces()
+            .Where(surface => surface.IsActivatedCommandSurface)
+            .Select(surface => new object[] { surface });
+    }
+
+    [Theory]
+    [MemberData(nameof(P6DeferredBattlefieldActivatedSurfaceData))]
+    public async Task P6ActivateAbilityCommandRejectsBattlefieldDeferredCommandSurfacesOutsideRegistry(
+        P6DeferredBattlefieldEffectSurface surface)
+    {
+        var targetObjectIds = Enumerable.Range(1, surface.TargetCount)
+            .Select(index => $"P1-BATTLEFIELD-TARGET-{index:000}")
+            .ToArray();
+        var battlefieldObjectIds = new[] { "P1-BATTLEFIELD-DEFERRED-SOURCE" }
+            .Concat(targetObjectIds)
+            .ToArray();
+        var cardObjects = targetObjectIds
+            .Select(targetObjectId => new KeyValuePair<string, CardObjectState>(
+                targetObjectId,
+                new CardObjectState(
+                    targetObjectId,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])))
+            .Concat(
+            [
+                new KeyValuePair<string, CardObjectState>(
+                    "P1-BATTLEFIELD-DEFERRED-SOURCE",
+                    new CardObjectState(
+                        "P1-BATTLEFIELD-DEFERRED-SOURCE",
+                        power: 0,
+                        cardNo: surface.SourceCardNo,
+                        ownerId: "P1",
+                        controllerId: "P1"))
+            ])
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        var state = PunishmentState(mana: 10) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 3,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = battlefieldObjectIds
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(10, 10),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p6-battlefield-deferred-{surface.SurfaceId}", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-DEFERRED-SOURCE",
+                surface.SurfaceId,
+                targetObjectIds),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("ACTIVATE_ABILITY is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(10, 10), result.State.RunePools["P1"]);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.Equal(battlefieldObjectIds, result.State.PlayerZones["P1"].Battlefields);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-DEFERRED-SOURCE"].IsExhausted);
+        foreach (var targetObjectId in targetObjectIds)
+        {
+            Assert.Equal(0, result.State.CardObjects[targetObjectId].Damage);
+        }
+
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandAddsViDoublePowerSkillToStack()
     {
         var state = PunishmentState(mana: 2) with

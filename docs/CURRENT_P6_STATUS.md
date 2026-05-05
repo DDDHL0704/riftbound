@@ -191,7 +191,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.9a | Done | Legend active/passive surface matrix and manual boundary triage. | Catalog domain matrix passed. |
 | P6.9b | Done | Legend representative activated-ability blocked surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
 | P6.10a | Done | Battlefield rule-domain surface matrix and manual boundary triage. | Catalog domain matrix passed. |
-| P6.10b | Planned | Battlefield representative blocked/deferred surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests. |
+| P6.10b | Done | Battlefield representative blocked/deferred surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
 | P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
 | P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
 | P6.x | Planned | Completion audit and final verification. | Full suite, focused suites, status matrix, no unexpected dirty files. |
@@ -254,6 +254,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Replacement surfaces: `1/57 entries = 1.8%`, `1/54 units = 1.9%`.
   - Static/keyword surfaces: `11/57 entries = 19.3%`, `10/54 units = 18.5%`.
   - Template keyword hits: `34/57 entries = 59.6%`, `34/54 units = 63.0%`, but none are promoted because battlefields need a dedicated non-`PLAY_CARD` domain.
+- P6.10b battlefield blocked/deferred surface progress: `5/57 battlefield entries = 8.8%` representative surfaces audited; `2/3 parsed activated battlefield entries = 66.7%` command-addressable surfaces covered; `2/2 zero-side-effect direct engine rejections = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -802,6 +803,35 @@ P6.10a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.10b Delivered
+
+- Added `P6BattlefieldEffectCatalog` for five representative deferred battlefield effect surfaces:
+  - `UNL-213/219` 蜕变花园: location-scoped unit activated ability grant, `{{横置}}：获得1经验`.
+  - `SFD·208/221` 魄罗熔炉: battlefield-control legend activated ability grant to attach a weapon.
+  - `OGN·292/298` 幻梦之树: first-per-turn friendly-unit spell draw trigger.
+  - `UNL-206/219` 鲜血祭坛: battle-destruction replacement that can remove damage, sleep, and recall.
+  - `UNL-208/219` 黑焰祭坛: static keyword grant for `{{瞬息}}` units gaining `{{坚守}}`.
+- Added catalog audit coverage proving each representative:
+  - is a `战场` official entry;
+  - has the expected official card text anchor;
+  - parses into the expected P3 surface family: activated grant, trigger, replacement, or static keyword;
+  - is not present in `CardBehaviorRegistry`;
+  - has an explicit deferred reason.
+- Added direct CoreRuleEngine rejection coverage for the two command-addressable activated-grant representatives:
+  - command: `ACTIVATE_ABILITY` from a battlefield-source object;
+  - result: `UNSUPPORTED_COMMAND`;
+  - zero side effects: no events, tick unchanged, runes unchanged, experience unchanged, source remains unexhausted, target damage unchanged, stack empty, battlefield zone unchanged.
+- This batch does not implement battlefield behavior; it creates concrete blocked/deferred executable boundaries before token/copy and unique complex-card work.
+
+P6.10b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2607/2607`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2504/2504`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `35/35`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.10a, then continue into P6.10b battlefield representative blocked/deferred surfaces.
+Commit P6.10b, then continue into P6.11 token and copy factory batches.
