@@ -200,6 +200,37 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6SecondaryTemplateFamiliesReportEntryAndFunctionalUnitCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var report = BehaviorTemplateFamilyCoverageReporter.Build(
+            specs,
+            [
+                BehaviorTemplateIds.Recall,
+                BehaviorTemplateIds.Move,
+                BehaviorTemplateIds.Recycle,
+                BehaviorTemplateIds.Banish,
+                BehaviorTemplateIds.TempMight,
+                BehaviorTemplateIds.Boon
+            ]);
+
+        AssertFamily(report, BehaviorTemplateIds.Recall, 49, 39, 10, 0, 43, 36, 7);
+        AssertFamily(report, BehaviorTemplateIds.Move, 136, 116, 19, 1, 111, 100, 11);
+        AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 55, 8, 0, 51, 45, 6);
+        AssertFamily(report, BehaviorTemplateIds.Banish, 11, 8, 3, 0, 9, 8, 1);
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 255, 36, 1, 230, 208, 22);
+        AssertFamily(report, BehaviorTemplateIds.Boon, 66, 51, 15, 0, 48, 41, 7);
+        Assert.All(report.Families, family =>
+        {
+            Assert.Equal(family.Entries, family.ImplementedEntries + family.ManualRuleRequiredEntries + family.UnimplementedEntries);
+            Assert.Equal(family.FunctionalUnits, family.ImplementedFunctionalUnits + family.PendingFunctionalUnits);
+            Assert.True(family.ImplementedEntries > 0, $"{family.TemplateId} should have an implemented representative.");
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

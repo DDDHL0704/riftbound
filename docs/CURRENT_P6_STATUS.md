@@ -171,7 +171,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.1a | Done | Rune resource-domain mapping: 6 functional units / 48 entries. | Existing P2 rune conformance fixtures + `CardCatalogBaselineTests`. |
 | P6.1b | Done | Same-text variant/reprint audit for already implemented functional units. | Catalog status matrix + no duplicate rule handlers. |
 | P6.2a | Done | Draw/damage/destroy/stun existing-template promotion. | Conformance fixtures for representative paths. |
-| P6.2b | Planned | Recall/move/recycle/banish/temp might/boon existing-template promotion. | Conformance fixtures for representative paths. |
+| P6.2b | Done | Recall/move/recycle/banish/temp might/boon existing-template promotion. | Conformance fixtures for representative paths. |
 | P6.3 | Planned | Swift/reaction/spell-duel batches. | GameHub/Room smoke required. |
 | P6.4 | Planned | Movement/battle/scoring batches. | GameHub/Room smoke required. |
 | P6.5 | Planned | Standby/ambush/echo batches. | Response-window conformance required. |
@@ -196,6 +196,13 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - damage: `141/148 entries = 95.3%`, `124/129 units = 96.1%`
   - destroy: `115/127 entries = 90.6%`, `109/118 units = 92.4%`
   - stun: `30/33 entries = 90.9%`, `28/29 units = 96.6%`
+- P6.2b secondary template-family audit:
+  - recall: `39/49 entries = 79.6%`, `36/43 units = 83.7%`
+  - move: `116/136 entries = 85.3%`, `100/111 units = 90.1%`
+  - recycle: `55/63 entries = 87.3%`, `45/51 units = 88.2%`
+  - banish: `8/11 entries = 72.7%`, `8/9 units = 88.9%`
+  - temp might: `255/292 entries = 87.3%`, `208/230 units = 90.4%`
+  - boon: `51/66 entries = 77.3%`, `41/48 units = 85.4%`
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -291,6 +298,29 @@ P6.2a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 - `git diff --check`: passed.
 
+## P6.2b Delivered
+
+- Reused `BehaviorTemplateFamilyCoverageReporter` for the next high-reuse template families: `recall`, `move`, `recycle`, `banish`, `temp_might`, and `boon`.
+- Locked the current P6 coverage:
+  - `recall`: `49` entries / `43` functional units; `39` implemented entries / `36` implemented units.
+  - `move`: `136` entries / `111` functional units; `116` implemented entries / `100` implemented units.
+  - `recycle`: `63` entries / `51` functional units; `55` implemented entries / `45` implemented units.
+  - `banish`: `11` entries / `9` functional units; `8` implemented entries / `8` implemented units.
+  - `temp_might`: `292` entries / `230` functional units; `255` implemented entries / `208` implemented units.
+  - `boon`: `66` entries / `48` functional units; `51` implemented entries / `41` implemented units.
+- Pending rows remain later manual domains or token factories; no pending row is silently promoted into playable paths.
+- Existing representative conformance remains the rule gate for playable paths: `召回/移动` fixtures, `潜行破坏` recycle fixtures, `奥术跃迁` banish-and-replay fixtures, P4 temporary might fixtures, and boon fixtures.
+- This batch does not change `CoreRuleEngine` behavior and does not close additional functional units; it expands the template-family completion audit surface.
+
+P6.2b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2578/2578`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2493/2493`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `27/27`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.2a, then continue into P6.2b recall/move/recycle/banish/temp might/boon existing-template promotion.
+Commit P6.2b, then continue into P6.3 swift/reaction/spell-duel batches with Room/GameHub smoke.
