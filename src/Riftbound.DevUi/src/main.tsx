@@ -401,6 +401,18 @@ const scenarioPresets: ScenarioPreset[] = [
     }
   },
   {
+    id: "battle-prompt-filter",
+    title: "Battle Prompt Filter",
+    description: "P1 sees only legal battlefield attacker and defender candidates.",
+    command: {
+      cmdType: "DECLARE_BATTLE",
+      battlefieldId: "BATTLEFIELD:P1-MAIN",
+      attackerObjectIds: ["P1-BATTLE-PROMPT-ATTACKER"],
+      defenderObjectIds: ["P2-BATTLE-PROMPT-DEFENDER"],
+      optionalCosts: ["COMBAT_ASSIGNMENT"]
+    }
+  },
+  {
     id: "legend-act",
     title: "Legend Act",
     description: "P1 has Poppy legend, 3 experience, and one card to draw.",
@@ -768,6 +780,9 @@ function App() {
     if (preset.command.cmdType === "ACTIVATE_ABILITY") {
       setActivateDraft(activateDraftFromCommand(preset.command));
     }
+    if (preset.command.cmdType === "DECLARE_BATTLE") {
+      setBattleDraft(battleDraftFromCommand(preset.command));
+    }
     if (preset.id === "movement") {
       setMoveDraft({
         sourceObjectId: "P1-BATTLEFIELD-UNIT-001",
@@ -781,15 +796,6 @@ function App() {
         sourceObjectId: "P1-EQUIPMENT-LONG-SWORD",
         targetObjectId: "P1-UNIT-ASSEMBLE-TARGET",
         optionalCosts: "ASSEMBLE_RED"
-      });
-    }
-    if (preset.id === "battle-declare") {
-      setBattleDraft({
-        battlefieldId: "BATTLEFIELD:P1-MAIN",
-        attackerObjectIds: "P1-BATTLE-ATTACKER-001",
-        defenderObjectIds: "P2-BATTLE-DEFENDER-001",
-        battlefieldTargetObjectIds: "",
-        optionalCosts: "COMBAT_ASSIGNMENT"
       });
     }
     if (preset.id === "legend-act") {
@@ -3024,6 +3030,16 @@ function activateDraftFromCommand(command: Record<string, unknown>): ActivateDra
     abilityId: typeof command.abilityId === "string" ? command.abilityId : initialActivateDraft.abilityId,
     targetObjectIds: Array.isArray(command.targetObjectIds) ? command.targetObjectIds.join(", ") : "",
     optionalCosts: Array.isArray(command.optionalCosts) ? command.optionalCosts.join(", ") : ""
+  };
+}
+
+function battleDraftFromCommand(command: Record<string, unknown>): BattleDraft {
+  return {
+    battlefieldId: typeof command.battlefieldId === "string" ? command.battlefieldId : initialBattleDraft.battlefieldId,
+    attackerObjectIds: Array.isArray(command.attackerObjectIds) ? command.attackerObjectIds.join(", ") : "",
+    defenderObjectIds: Array.isArray(command.defenderObjectIds) ? command.defenderObjectIds.join(", ") : "",
+    battlefieldTargetObjectIds: Array.isArray(command.battlefieldTargetObjectIds) ? command.battlefieldTargetObjectIds.join(", ") : "",
+    optionalCosts: Array.isArray(command.optionalCosts) ? command.optionalCosts.join(", ") : initialBattleDraft.optionalCosts
   };
 }
 
