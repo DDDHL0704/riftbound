@@ -65,6 +65,7 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 3px solid rgba(54, 150, 125, 0.36);
   outline-offset: 2px;
+  border-color: #1f6b5d;
 }
 
 select {
@@ -876,6 +877,33 @@ h3 {
 
 .replay-panel {
   align-content: start;
+}
+
+.replay-boundary-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.replay-boundary-summary div {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #dbe4e6;
+  border-radius: 6px;
+  background: #f8fbfa;
+  padding: 8px;
+}
+
+.replay-boundary-summary span {
+  color: #5d7077;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.replay-boundary-summary strong {
+  overflow-wrap: anywhere;
+  font-size: 13px;
 }
 
 .catalog-panel {

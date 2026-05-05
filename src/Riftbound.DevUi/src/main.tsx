@@ -1171,7 +1171,7 @@ function SystemNotice({ notices }: { notices: string[] }) {
   }
 
   return (
-    <section className="system-notice" data-testid="system-notice">
+    <section className="system-notice" data-testid="system-notice" aria-live="polite">
       {notices.map((notice) => (
         <span key={notice}>{notice}</span>
       ))}
@@ -2235,7 +2235,7 @@ function MatchTelemetry({
 
   return (
     <section className="telemetry-grid" data-testid="match-telemetry">
-      <section className="event-log-panel" data-testid="event-log">
+      <section className="event-log-panel" data-testid="event-log" aria-live="polite">
         <div className="section-title">
           <h2>事件日志</h2>
           <span>{timeline.length} events</span>
@@ -2300,6 +2300,16 @@ function MatchTelemetry({
         <div className="section-title">
           <h2>回放 / 观战</h2>
           <span>deferred boundary</span>
+        </div>
+        <div className="replay-boundary-summary" data-testid="replay-boundary-summary">
+          <div>
+            <span>Local events</span>
+            <strong>{timeline.length}</strong>
+          </div>
+          <div>
+            <span>Snapshot tick</span>
+            <strong>{snapshot?.tick ?? "-"}</strong>
+          </div>
         </div>
         <p>
           当前 Web 端只展示本房间连接收到的服务器事件和最终 snapshot；后端已有 journal/recovery 基础，但尚未开放产品级回放或旁观 API。

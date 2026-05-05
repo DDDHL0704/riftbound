@@ -154,7 +154,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.8 | Done / absorbed | The planned remaining-battlefield batch was absorbed by P7.9.7 slice 53; no battlefield manual functional unit remains. | Functional-unit coverage tests. |
 | P7.9.9 | Done | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, and UI operation. Slice 1 tightened `DECLARE_BATTLE` prompt candidates to legal battlefield unit sources/defenders only; slice 2 exposed the combat prompt filter seed in the UI and verified the page path with Browser smoke; slice 3 added a multi-defender battle seed and verified one attacker/two defender prompt chips plus authoritative battle submission in the browser; slice 4 exposes battle assignment roles in the product event log and Browser smoke verifies `BULWARK_FIRST` / `BACK_ROW_LAST` visibility. | Conformance + Browser smoke passed. |
 | P7.9.10 | Done | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. The catalog now displays all filtered cards, shows `1009/1009 CONFORMANCE_PASS`, marks 0 manual/blocked, keeps searched details in sync with filtered results, and shows the server operation surface for each card. | `CardCatalogBaselineTests` updated and green; Browser smoke passed. |
-| P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
+| P7.9.11 | Done | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. Added live event/system regions, a replay/spectator read-only summary, and stronger keyboard focus styling. | Frontend build + Browser visual smoke passed. |
 | P7.9.x | Planned | Final audit: `811/811` functional units implemented, no manual deferred, full tests, Browser smoke, clean status. | Full final validation and commit. |
 
 Initial estimate: `13` top-level batches. P7.9.6 and P7.9.7 were split into additional rule sub-batches for safe commits; P7.9.8 was absorbed by the final P7.9.7 battlefield slice because no manual battlefield unit remains.
@@ -206,6 +206,7 @@ Final P7.9 gate:
 - P7.9.8 status: done / absorbed; no remaining battlefield functional-unit batch is needed.
 - P7.9.9 status: done; combat completeness slices 1-4 done.
 - P7.9.10 status: done.
+- P7.9.11 status: done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
@@ -214,8 +215,8 @@ Final P7.9 gate:
 - Current functional-unit implementation: `811/811 = 100.0%`.
 - Current manual deferred boundary: `0/811 = 0.0%`.
 - Remaining manual domains: none.
-- Overall P7.9 progress: `11/13 top-level batches = 84.6%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, P7.9.9 combat completeness is done, and P7.9.10 confirms the full catalog/page-detail surface now presents all official cards as playable `CONFORMANCE_PASS` entries.
-- Estimated remaining top-level batches: `2` (`P7.9.11`, final audit).
+- Overall P7.9 progress: `12/13 top-level batches = 92.3%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, P7.9.9 combat completeness is done, P7.9.10 full catalog/page-detail integration is done, and P7.9.11 product polish is done.
+- Estimated remaining top-level batches: `1` final audit.
 
 ## P7.9.0 Delivered
 
@@ -3319,4 +3320,25 @@ P7.9.10 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79ProductCatalogExposesAllOfficialEntriesAsConformancePass"`: passed `1/1`.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `38/38`.
 - Browser smoke through the in-app browser: passed.
+- `git diff --check`: passed.
+
+## P7.9.11 Product Polish Delivered
+
+This batch closes the last pre-audit product polish pass without changing rule authority.
+
+- Frontend polish:
+  - Added `aria-live="polite"` to system notices and the event log so connection/event changes have a clearer accessibility surface.
+  - Strengthened keyboard focus styling by syncing the focus ring with a visible control border.
+  - Added a read-only replay/spectator boundary summary with local event count and current snapshot tick.
+  - Kept replay and spectator buttons disabled because product replay/spectator APIs remain outside this local P7.9 scope.
+- Browser visual smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Operation path: reload Web URL, verify `replay-boundary-summary`, focus the server URL field, press `Tab` once, and capture the visible viewport with the focus path exercised.
+  - Replay boundary summary: `LOCAL EVENTS 0`, `SNAPSHOT TICK -` in the no-room empty state.
+  - Screenshot verification: visible viewport captured through the in-app browser after the keyboard-focus path.
+
+P7.9.11 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- Browser visual smoke through the in-app browser: passed.
 - `git diff --check`: passed.
