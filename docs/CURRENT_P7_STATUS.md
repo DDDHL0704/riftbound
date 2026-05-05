@@ -156,7 +156,7 @@ Core P7 smoke path:
 | --- | --- | --- | --- |
 | P7.0 | Done | Audit/status file, ability matrix, deferred policy, smoke path. | `git diff --check`; docs-only commit. |
 | P7.1 | Done | Product room, two-player connection, reconnect, snapshot/prompt/event shell. | Browser smoke: join, ready, reconnect. |
-| P7.2 | Planned | Battle desktop layout with lanes/base/hand/runes/legend/champion/equipment/control markers. | Browser visual smoke. |
+| P7.2 | Done | Battle desktop layout with lanes/base/hand/runes/legend/champion/equipment/control markers. | Browser visual smoke. |
 | P7.3 | Planned | ActionPrompt-driven play/pass/end-turn/move/battle controls. | Browser smoke: play, pass, end turn, move/battle. |
 | P7.4 | Planned | Payment and target-selection UX, response windows, spell-duel surface. | Browser smoke: target and response flow. |
 | P7.5 | Planned | Status, equipment, damage, temp power, exhaustion, combat, shield/swift/ephemeral markers. | Browser visual smoke. |
@@ -165,7 +165,7 @@ Core P7 smoke path:
 | P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `2/10 batches = 20.0%`; estimated remaining batches: `8`.
+Current P7 progress: `3/10 batches = 30.0%`; estimated remaining batches: `7`.
 
 ## Validation Policy
 
@@ -205,6 +205,21 @@ P7.1 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P7.2 Delivered
+
+- Added `cardNo` to visible server snapshot card objects so the battle table can show authoritative card identity without guessing from object ids.
+- Upgraded the desk card presentation for hand, base, two battlefield lanes, legend, champion, graveyard, and banished zones.
+- Added stable card dimensions and visual metadata for power, damage, mana cost, face-down, exhaustion, combat flags, attachment, owner/controller divergence, tags, and until-end-of-turn effects.
+- Added rune/experience/deck/hand counts to the player resource row.
+- Kept all object picking as intent-building only; no frontend legality checks were added.
+
+P7.2 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- Browser visual smoke: passed with the `equipment` scenario; desk showed P1 hand Long Sword, base assemble target, legend/champion slots, two battlefield lanes, and stable object cards.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -214,3 +229,10 @@ P7.1 validation:
   - Operation path: open Web URL -> `双人入座` -> `双方准备` -> P1 `Stop` -> P1 `Reconnect`.
   - Event summary: P1/P2 joined, ready flow emitted `MATCH_STARTED`, reconnect returned a fresh `RECONNECT` session and current snapshot/prompt.
   - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#1`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`, no winner; P1 reconnect status `reconnected`, seat `P1`, prompt actionable with server prompt actions.
+- P7.2 battle desk visual smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - roomId: `p7-1777954427927`
+  - Operation path: reload Web URL -> `新房间` -> `双人入座` -> `双方准备` -> seed `equipment`.
+  - Event summary: `DEV_SCENARIO_SEEDED` for `equipment`; snapshot showed P1 Long Sword in hand and a base unit for assembly.
+  - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#787`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; P1 resources mana `2`, power `1`, hand `1`, base `1`, legend/champion visible; P2 legend/champion visible.

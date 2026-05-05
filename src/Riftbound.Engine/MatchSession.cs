@@ -818,6 +818,7 @@ public sealed record ResolutionResult(
             ["untilEndOfTurnEffects"] = cardObject.UntilEndOfTurnEffects,
             ["manaCost"] = cardObject.ManaCost,
             ["attachedToObjectId"] = cardObject.AttachedToObjectId,
+            ["cardNo"] = cardObject.CardNo,
             ["ownerId"] = cardObject.OwnerId,
             ["controllerId"] = cardObject.ControllerId
         };

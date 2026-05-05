@@ -42,6 +42,7 @@ type ZoneView = {
 
 type ObjectView = {
   objectId?: string;
+  cardNo?: string | null;
   damage?: number;
   power?: number;
   untilEndOfTurnPowerModifier?: number;
@@ -53,6 +54,8 @@ type ObjectView = {
   untilEndOfTurnEffects?: string[];
   manaCost?: number;
   attachedToObjectId?: string | null;
+  ownerId?: string | null;
+  controllerId?: string | null;
 };
 
 type PlayerSummary = {
@@ -62,6 +65,7 @@ type PlayerSummary = {
   ready?: boolean;
   handSize?: number;
   score?: number;
+  experience?: number;
   runePool?: RunePoolView;
   zones?: ZoneView;
   objects?: Record<string, ObjectView>;
@@ -744,23 +748,26 @@ function PlayerDesk({
         </div>
       </header>
       <div className="resource-row">
-        <span>Mana {player.runePool?.mana ?? 0}</span>
-        <span>Power {player.runePool?.power ?? 0}</span>
-        <span>Main {zones.mainDeckCount ?? 0}</span>
-        <span>Rune {zones.runeDeckCount ?? 0}</span>
-        <span>Hand {player.handSize ?? 0}</span>
+        <span>法力 {player.runePool?.mana ?? 0}</span>
+        <span>战力符能 {player.runePool?.power ?? 0}</span>
+        <span>经验 {player.experience ?? 0}</span>
+        <span>主牌堆 {zones.mainDeckCount ?? 0}</span>
+        <span>符文 {zones.runeDeckCount ?? 0}</span>
+        <span>手牌 {player.handSize ?? 0}</span>
       </div>
-      <ZoneRow title="Legend" ids={zones.legendZone ?? []} objects={player.objects} onPickObject={onPickObject} compact />
-      <ZoneRow title="Champion" ids={zones.championZone ?? []} objects={player.objects} onPickObject={onPickObject} compact />
-      <ZoneRow title="Hand" ids={zones.hand ?? []} hiddenCount={zones.handHidden ?? 0} objects={player.objects} onPickObject={onPickObject} />
+      <div className="identity-row">
+        <ZoneRow title="传奇" ids={zones.legendZone ?? []} objects={player.objects} onPickObject={onPickObject} compact />
+        <ZoneRow title="英雄" ids={zones.championZone ?? []} objects={player.objects} onPickObject={onPickObject} compact />
+      </div>
+      <ZoneRow title="手牌" ids={zones.hand ?? []} hiddenCount={zones.handHidden ?? 0} objects={player.objects} onPickObject={onPickObject} />
       <div className="battlefield-pair">
-        <ZoneRow title="Battlefield A" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 0)} objects={player.objects} onPickObject={onPickObject} />
-        <ZoneRow title="Battlefield B" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 1)} objects={player.objects} onPickObject={onPickObject} />
+        <ZoneRow title="战场 I" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 0)} objects={player.objects} onPickObject={onPickObject} />
+        <ZoneRow title="战场 II" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 1)} objects={player.objects} onPickObject={onPickObject} />
       </div>
-      <ZoneRow title="Base" ids={zones.base ?? []} objects={player.objects} onPickObject={onPickObject} />
+      <ZoneRow title="基地" ids={zones.base ?? []} objects={player.objects} onPickObject={onPickObject} />
       <div className="zone-minor-grid">
-        <ZoneRow title="Trash" ids={zones.graveyard ?? []} objects={player.objects} onPickObject={onPickObject} compact />
-        <ZoneRow title="Banished" ids={zones.banished ?? []} objects={player.objects} onPickObject={onPickObject} compact />
+        <ZoneRow title="废牌堆" ids={zones.graveyard ?? []} objects={player.objects} onPickObject={onPickObject} compact />
+        <ZoneRow title="放逐区" ids={zones.banished ?? []} objects={player.objects} onPickObject={onPickObject} compact />
       </div>
     </article>
   );
@@ -787,7 +794,7 @@ function ZoneRow({
         <span>{title}</span>
         <strong>{hiddenCount > 0 ? hiddenCount : ids.length}</strong>
       </div>
-      {hiddenCount > 0 ? <div className="hidden-card">{hiddenCount} hidden</div> : null}
+      {hiddenCount > 0 ? <div className="hidden-card">{hiddenCount} 张隐藏手牌</div> : null}
       <ObjectList ids={ids} objects={objects} onPickObject={onPickObject} />
     </section>
   );
@@ -809,8 +816,8 @@ function ObjectList({
   return (
     <div className="object-list">
       {ids.map((id) => (
-        <button className="object-chip" key={id} onClick={() => onPickObject(id)}>
-          <span>{id}</span>
+        <button className={objectClassName(objects?.[id])} key={id} onClick={() => onPickObject(id)}>
+          <span>{cardTitle(id, objects?.[id])}</span>
           <ObjectMeta object={objects?.[id]} />
         </button>
       ))}
@@ -823,17 +830,27 @@ function ObjectMeta({ object }: { object?: ObjectView }) {
     return null;
   }
 
-  const bits = [
-    object.power !== undefined ? `P${object.power}` : "",
-    object.damage ? `D${object.damage}` : "",
-    object.isExhausted ? "exhausted" : "",
-    object.attachedToObjectId ? `attached:${object.attachedToObjectId}` : ""
+  const combatBits = [
+    object.power !== undefined ? `战力 ${effectivePower(object)}` : "",
+    object.damage ? `伤害 ${object.damage}` : "",
+    object.manaCost !== undefined ? `费用 ${object.manaCost}` : ""
+  ].filter(Boolean);
+  const stateBits = [
+    object.isExhausted ? "横置" : "",
+    object.isAttacking ? "攻击" : "",
+    object.isDefending ? "防守" : "",
+    object.isFaceDown ? "盖放" : "",
+    object.attachedToObjectId ? `贴附 ${object.attachedToObjectId}` : "",
+    object.controllerId && object.ownerId && object.controllerId !== object.ownerId ? `控制 ${object.controllerId}` : ""
   ].filter(Boolean);
 
   return (
     <>
-      {bits.length > 0 ? <small>{bits.join(" / ")}</small> : null}
-      {object.tags?.length ? <small>{object.tags.join(", ")}</small> : null}
+      {object.cardNo ? <small>{object.cardNo}</small> : null}
+      {combatBits.length > 0 ? <small>{combatBits.join(" / ")}</small> : null}
+      {stateBits.length > 0 ? <small>{stateBits.join(" / ")}</small> : null}
+      {object.tags?.length ? <small>{object.tags.slice(0, 4).join(", ")}</small> : null}
+      {object.untilEndOfTurnEffects?.length ? <small>{object.untilEndOfTurnEffects.join(", ")}</small> : null}
     </>
   );
 }
@@ -1261,6 +1278,35 @@ function stackLabel(item: unknown, index: number) {
     return String((item as { stackItemId?: unknown }).stackItemId ?? `stack-${index + 1}`);
   }
   return `stack-${index + 1}`;
+}
+
+function cardTitle(objectId: string, object?: ObjectView) {
+  return object?.cardNo ? `${objectId} · ${object.cardNo}` : objectId;
+}
+
+function effectivePower(object: ObjectView) {
+  return (object.power ?? 0) + (object.untilEndOfTurnPowerModifier ?? 0);
+}
+
+function objectClassName(object?: ObjectView) {
+  const tags = object?.tags ?? [];
+  const classes = ["object-card"];
+  if (tags.some((tag) => tag.includes("UNIT"))) {
+    classes.push("unit");
+  }
+  if (tags.some((tag) => tag.includes("EQUIPMENT") || tag.includes("武装"))) {
+    classes.push("equipment");
+  }
+  if (object?.isFaceDown) {
+    classes.push("face-down");
+  }
+  if (object?.isAttacking || object?.isDefending) {
+    classes.push("in-combat");
+  }
+  if (object?.attachedToObjectId) {
+    classes.push("attached");
+  }
+  return classes.join(" ");
 }
 
 function buildFixtureDraft(roomId: string, players: Record<PlayerKey, PlayerState>) {
