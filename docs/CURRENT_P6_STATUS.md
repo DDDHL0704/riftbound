@@ -108,29 +108,26 @@ Functional units by category:
 
 Current P6 BehaviorSpec status by official entry:
 
-| Status | Entries | Meaning at P6.1a |
+| Status | Entries | Meaning at P6.11a |
 | --- | ---: | --- |
-| `implemented` | 833 | Has a current `CardBehaviorRegistry` mapping or a P6 non-`PLAY_CARD` rule-domain mapping. |
+| `implemented` | 846 | Has a current `CardBehaviorRegistry` mapping or a P6 non-`PLAY_CARD` rule-domain mapping. |
 | `manual-rule-required` | 163 | Non-`PLAY_CARD` domains: legends and battlefields. P6 must either implement the domain or block/defer explicitly. |
-| `unimplemented` | 13 | Token categories awaiting explicit token factory binding. |
+| `unimplemented` | 0 | No official entry is missing an explicit BehaviorSpec status path. |
 
 Current status by functional unit:
 
 | Status | Functional units |
 | --- | ---: |
-| `implemented` | 700 |
+| `implemented` | 713 |
 | `manual-rule-required` | 98 |
-| `unimplemented` | 13 |
+| `unimplemented` | 0 |
 
-Remaining uncovered non-`PLAY_CARD` functional units:
+Remaining manual non-`PLAY_CARD` functional units:
 
 | Category | Functional units | Entries | P6 disposition |
 | --- | ---: | ---: | --- |
 | 传奇 | 44 | 106 | P6.9 high-risk/manual domain; active/passive identity rules need dedicated handlers or blocked reason. |
 | 战场 | 54 | 57 | P6.10 high-risk/manual domain; battlefield effects and control need dedicated handlers or blocked reason. |
-| 指示物单位 | 9 | 9 | P6.11 token factory domain. |
-| 指示物装备 | 2 | 2 | P6.11 token factory domain. |
-| 指示物战场 | 2 | 2 | P6.11 token factory domain. |
 
 ## Risk Layers
 
@@ -192,7 +189,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.9b | Done | Legend representative activated-ability blocked surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
 | P6.10a | Done | Battlefield rule-domain surface matrix and manual boundary triage. | Catalog domain matrix passed. |
 | P6.10b | Done | Battlefield representative blocked/deferred surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
-| P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
+| P6.11a | Done | Token factory identity/domain binding for all official token entries. | Token object factory tests passed. |
+| P6.11b | Planned | Copy-token and token activated-resource blocked surfaces. | Dedicated token/copy zero-side-effect tests. |
 | P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
 | P6.x | Planned | Completion audit and final verification. | Full suite, focused suites, status matrix, no unexpected dirty files. |
 
@@ -206,14 +204,14 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6.2a high-frequency template-family audit:
   - draw: `105/131 entries = 80.2%`, `99/114 units = 86.8%`
   - damage: `141/148 entries = 95.3%`, `124/129 units = 96.1%`
-  - destroy: `115/127 entries = 90.6%`, `109/118 units = 92.4%`
+  - destroy: `119/127 entries = 93.7%`, `113/118 units = 95.8%`
   - stun: `30/33 entries = 90.9%`, `28/29 units = 96.6%`
 - P6.2b secondary template-family audit:
   - recall: `39/49 entries = 79.6%`, `36/43 units = 83.7%`
-  - move: `116/136 entries = 85.3%`, `100/111 units = 90.1%`
+  - move: `117/136 entries = 86.0%`, `101/111 units = 91.0%`
   - recycle: `55/63 entries = 87.3%`, `45/51 units = 88.2%`
   - banish: `8/11 entries = 72.7%`, `8/9 units = 88.9%`
-  - temp might: `255/292 entries = 87.3%`, `208/230 units = 90.4%`
+  - temp might: `256/292 entries = 87.7%`, `209/230 units = 90.9%`
   - boon: `51/66 entries = 77.3%`, `41/48 units = 85.4%`
 - P6.3a response-window smoke progress: `1/1 GameHub smoke = 100.0%`.
 - P6.3b swift spell-duel timing expansion: `6/6 selected official swift spell representatives = 100.0%`.
@@ -238,8 +236,8 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Lifecycle keyword-surface entries: `67/67 = 100.0%`; functional units: `61/61 = 100.0%`.
   - Profile implemented/delegated boundary: `36/67 entries = 53.7%`; `32/61 functional units = 52.5%` for Ephemeral cleanup and audited Predict recycle paths.
   - Profile deferred boundary: `31/67 entries = 46.3%`; `29/61 functional units = 47.5%` for Last Breath queues, one Ephemeral+Last Breath overlap, and broad Predict grants.
-  - Trigger timing surface: `530` entries / `423` functional units; `358/423 = 84.6%` units have implemented specs and `65/423 = 15.4%` remain pending.
-  - Replacement timing surface: `28` entries / `24` functional units; `21/24 = 87.5%` units have implemented specs and `3/24 = 12.5%` remain pending.
+  - Trigger timing surface: `530` entries / `423` functional units; `361/423 = 85.3%` units have implemented specs and `62/423 = 14.7%` remain pending.
+  - Replacement timing surface: `28` entries / `24` functional units; `22/24 = 91.7%` units have implemented specs and `2/24 = 8.3%` remain pending.
 - P6.8b lifecycle Room smoke progress: `2/2 GameHub core paths = 100.0%`.
 - P6.9a legend surface triage: `106/106 legend entries = 100.0%` statused in the matrix; `44/44 legend functional units = 100.0%` remain explicit `manual-rule-required`.
   - Activated ability surfaces: `47/106 entries = 44.3%`, `18/44 units = 40.9%`.
@@ -255,10 +253,11 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Static/keyword surfaces: `11/57 entries = 19.3%`, `10/54 units = 18.5%`.
   - Template keyword hits: `34/57 entries = 59.6%`, `34/54 units = 63.0%`, but none are promoted because battlefields need a dedicated non-`PLAY_CARD` domain.
 - P6.10b battlefield blocked/deferred surface progress: `5/57 battlefield entries = 8.8%` representative surfaces audited; `2/3 parsed activated battlefield entries = 66.7%` command-addressable surfaces covered; `2/2 zero-side-effect direct engine rejections = 100.0%`.
-- P6 implementation progress: `700/811 functional units = 86.3%`.
-- P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
-- P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
-- P6-specific newly closed backlog after P6.1a: `6/117 = 5.1%` functional units and `48/224 = 21.4%` official entries.
+- P6.11a token factory domain progress: `13/13 token entries = 100.0%`; `13/13 token functional units = 100.0%`; all official token identities now have explicit object-factory bindings while remaining outside `PLAY_CARD`.
+- P6 implementation progress: `713/811 functional units = 87.9%`.
+- P6 manual non-`PLAY_CARD` backlog remaining after P6.11a: `98/811 functional units = 12.1%`.
+- P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `163/1009 entries = 16.2%` still requiring P6 implementation or explicit final blocked/deferred reason.
+- P6-specific newly closed backlog after P6.11a: `19/117 = 16.2%` functional units and `61/224 = 27.2%` official entries.
 
 ## Validation Policy
 
@@ -832,6 +831,31 @@ P6.10b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.11a Delivered
+
+- Added `P6TokenFactoryCatalog` with explicit object-factory identity bindings for all `13` official token entries:
+  - `9` unit tokens: 战鹰, 映像, 精灵, 机器人, 黄沙士兵, and three regional 随从 variants.
+  - `2` equipment tokens: both 金币 printings.
+  - `2` battlefield tokens: 男爵巢穴 and 草丛.
+- Added `TOKEN_FACTORY_DOMAIN` to the P6 non-`PLAY_CARD` BehaviorSpec bridge.
+- Mapped every official token card to `implemented` in BehaviorSpecs without adding any token card number to `CardBehaviorRegistry` or making token cards playable from hand.
+- Added catalog baseline coverage proving each token:
+  - has a matching official token factory definition;
+  - preserves official card name, category, card number, default power, and object tags;
+  - can create a `CardObjectState` carrying `cardNo`, owner/controller identity, power, and tags;
+  - stays outside `PLAY_CARD` and `CardBehaviorRegistry`.
+- `UNL·T06` 映像 is explicitly marked `RequiresCopySource`; actual copy timing remains P6.11b/P6.12 work.
+- This batch does not broaden source-card token creation timing. Existing representative token creation fixtures remain the conformance gate for playable source cards.
+
+P6.11a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2608/2608`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2504/2504`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `36/36`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.10b, then continue into P6.11 token and copy factory batches.
+Commit P6.11a, then continue into P6.11b copy-token and token activated-resource blocked surfaces.

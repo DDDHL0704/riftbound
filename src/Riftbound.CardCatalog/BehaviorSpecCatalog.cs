@@ -202,6 +202,7 @@ public static class FunctionalUnitBehaviorCoverageReporter
 public static class OfficialRuleDomainBehaviorCatalog
 {
     public const string RuneResourceDomainEffectKind = "RUNE_RESOURCE_DOMAIN";
+    public const string TokenFactoryDomainEffectKind = "TOKEN_FACTORY_DOMAIN";
 
     public static IReadOnlyList<ImplementedCardBehavior> MergeWithNonPlayCardDomains(
         IReadOnlyList<OfficialCard> cards,
@@ -217,9 +218,17 @@ public static class OfficialRuleDomainBehaviorCatalog
                 RuneResourceDomainEffectKind,
                 card.CardName))
             .ToArray();
+        var tokenBehaviors = cards
+            .Where(IsTokenCard)
+            .Select(card => new ImplementedCardBehavior(
+                card.CardNo,
+                TokenFactoryDomainEffectKind,
+                card.CardName))
+            .ToArray();
 
         return playCardBehaviors
             .Concat(runeBehaviors)
+            .Concat(tokenBehaviors)
             .ToArray();
     }
 
@@ -228,6 +237,13 @@ public static class OfficialRuleDomainBehaviorCatalog
         ArgumentNullException.ThrowIfNull(card);
 
         return string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal);
+    }
+
+    public static bool IsTokenCard(OfficialCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+
+        return card.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal);
     }
 }
 
@@ -389,6 +405,12 @@ public static class BehaviorSpecCatalogBuilder
                     OfficialRuleDomainBehaviorCatalog.RuneResourceDomainEffectKind,
                     StringComparison.Ordinal) =>
                 "Mapped to the P6 rune resource domain: rune call, rune pool payment, and end-turn clearing are covered by P2 core rules conformance fixtures; rune cards remain outside PLAY_CARD.",
+            BehaviorImplementationStatuses.Implemented when implementation is not null
+                && string.Equals(
+                    implementation.EffectKind,
+                    OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind,
+                    StringComparison.Ordinal) =>
+                $"Mapped to the P6 token factory domain: generated token category '{card.CardCategoryName}' has an explicit official token identity binding; token cards remain outside PLAY_CARD.",
             BehaviorImplementationStatuses.Implemented when implementation is not null
                 && string.Equals(implementation.CardNo, card.CardNo, StringComparison.Ordinal) =>
                 $"Mapped directly to existing P2 hand-written behavior '{implementation.EffectKind}'.",

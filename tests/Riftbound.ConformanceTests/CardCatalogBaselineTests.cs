@@ -76,12 +76,11 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1009, report.OfficialEntries);
         Assert.Equal(1009, report.BehaviorSpecs);
         Assert.Empty(report.MissingReasonCardNos);
-        Assert.Equal(833, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
+        Assert.Equal(846, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
         Assert.Equal(163, report.StatusCounts[BehaviorImplementationStatuses.ManualRuleRequired]);
-        Assert.Equal(13, report.StatusCounts[BehaviorImplementationStatuses.Unimplemented]);
+        Assert.False(report.StatusCounts.ContainsKey(BehaviorImplementationStatuses.Unimplemented));
         Assert.Contains(BehaviorImplementationStatuses.Implemented, report.StatusCounts.Keys);
         Assert.Contains(BehaviorImplementationStatuses.ManualRuleRequired, report.StatusCounts.Keys);
-        Assert.Contains(BehaviorImplementationStatuses.Unimplemented, report.StatusCounts.Keys);
         var allowedStatuses = new HashSet<string>(StringComparer.Ordinal)
         {
             BehaviorImplementationStatuses.Implemented,
@@ -105,8 +104,9 @@ public sealed class CardCatalogBaselineTests
         Assert.Contains("P6 rune resource domain", runeSpec.Reason, StringComparison.Ordinal);
 
         var tokenSpec = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL·T02", StringComparison.Ordinal));
-        Assert.Equal(BehaviorImplementationStatuses.Unimplemented, tokenSpec.Status);
-        Assert.Contains("token", tokenSpec.Reason, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, tokenSpec.Status);
+        Assert.Equal(OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind, tokenSpec.ImplementedEffectKind);
+        Assert.Contains("P6 token factory domain", tokenSpec.Reason, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -133,6 +133,69 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6TokenFactoryDomainMapsAllTokenEntriesWithoutMakingTokensPlayableCards()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var tokenSpecs = specs
+            .Where(spec => spec.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal))
+            .ToArray();
+        var definitions = P6TokenFactoryCatalog.GetAll();
+
+        Assert.Equal(13, tokenSpecs.Length);
+        Assert.Equal(13, tokenSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(9, tokenSpecs.Count(spec => string.Equals(spec.CardCategoryName, "指示物单位", StringComparison.Ordinal)));
+        Assert.Equal(2, tokenSpecs.Count(spec => string.Equals(spec.CardCategoryName, "指示物装备", StringComparison.Ordinal)));
+        Assert.Equal(2, tokenSpecs.Count(spec => string.Equals(spec.CardCategoryName, "指示物战场", StringComparison.Ordinal)));
+        Assert.Equal(13, definitions.Count);
+        Assert.Equal(13, definitions.Select(definition => definition.CardNo).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(13, tokenSpecs.Count(spec => P6TokenFactoryCatalog.TryGetByCardNo(spec.CardNo, out _)));
+        Assert.All(tokenSpecs, spec =>
+        {
+            Assert.Equal(BehaviorImplementationStatuses.Implemented, spec.Status);
+            Assert.Equal(OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind, spec.ImplementedEffectKind);
+            Assert.Equal(spec.CardNo, spec.ImplementedByCardNo);
+            Assert.Contains("token factory domain", spec.Reason, StringComparison.Ordinal);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out _));
+
+            var officialCard = catalog.Cards.Single(card => string.Equals(card.CardNo, spec.CardNo, StringComparison.Ordinal));
+            Assert.True(P6TokenFactoryCatalog.TryGetByCardNo(spec.CardNo, out var definition));
+            Assert.Equal(officialCard.CardName, definition.CardName);
+            Assert.Equal(officialCard.CardCategoryName, definition.CategoryName);
+            Assert.Equal(officialCard.Power ?? 0, definition.DefaultPower);
+
+            var tokenObject = definition.CreateObject(
+                $"TOKEN-{definition.CardNo}",
+                ownerId: "P1",
+                controllerId: "P1");
+            Assert.Equal(definition.CardNo, tokenObject.CardNo);
+            Assert.Equal(definition.DefaultPower, tokenObject.Power);
+            Assert.Equal("P1", tokenObject.OwnerId);
+            Assert.Equal("P1", tokenObject.ControllerId);
+            Assert.Equal(definition.Tags.Order(StringComparer.Ordinal), tokenObject.Tags.Order(StringComparer.Ordinal));
+
+            if (string.Equals(definition.CategoryName, "指示物单位", StringComparison.Ordinal))
+            {
+                Assert.Contains(CardObjectTags.UnitCard, definition.Tags);
+            }
+            else if (string.Equals(definition.CategoryName, "指示物装备", StringComparison.Ordinal))
+            {
+                Assert.Contains(CardObjectTags.EquipmentCard, definition.Tags);
+            }
+            else
+            {
+                Assert.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, definition.Tags);
+            }
+        });
+
+        var imageDefinition = definitions.Single(definition => string.Equals(definition.CardNo, "UNL·T06", StringComparison.Ordinal));
+        Assert.True(imageDefinition.RequiresCopySource);
+        Assert.Contains(P6TokenFactoryCatalog.CopySourceRequiredTag, imageDefinition.Tags);
+    }
+
+    [Fact]
     public async Task P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -142,9 +205,9 @@ public sealed class CardCatalogBaselineTests
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
         Assert.Equal(811, coverage.FunctionalUnits);
-        Assert.Equal(700, coverage.ImplementedUnits);
+        Assert.Equal(713, coverage.ImplementedUnits);
         Assert.Equal(98, coverage.ManualRuleRequiredUnits);
-        Assert.Equal(13, coverage.UnimplementedUnits);
+        Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.Equal(113, coverage.DuplicateGroups);
         Assert.Equal(74, coverage.ImplementedDuplicateGroups);
         Assert.Equal(207, coverage.ImplementedDuplicateEntries);
@@ -189,7 +252,7 @@ public sealed class CardCatalogBaselineTests
 
         AssertFamily(report, BehaviorTemplateIds.Draw, 131, 105, 26, 0, 114, 99, 15);
         AssertFamily(report, BehaviorTemplateIds.Damage, 148, 141, 7, 0, 129, 124, 5);
-        AssertFamily(report, BehaviorTemplateIds.Destroy, 127, 115, 8, 4, 118, 109, 9);
+        AssertFamily(report, BehaviorTemplateIds.Destroy, 127, 119, 8, 0, 118, 113, 5);
         AssertFamily(report, BehaviorTemplateIds.Stun, 33, 30, 3, 0, 29, 28, 1);
         Assert.All(report.Families, family =>
         {
@@ -217,10 +280,10 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Recall, 49, 39, 10, 0, 43, 36, 7);
-        AssertFamily(report, BehaviorTemplateIds.Move, 136, 116, 19, 1, 111, 100, 11);
+        AssertFamily(report, BehaviorTemplateIds.Move, 136, 117, 19, 0, 111, 101, 10);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 55, 8, 0, 51, 45, 6);
         AssertFamily(report, BehaviorTemplateIds.Banish, 11, 8, 3, 0, 9, 8, 1);
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 255, 36, 1, 230, 208, 22);
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 256, 36, 0, 230, 209, 21);
         AssertFamily(report, BehaviorTemplateIds.Boon, 66, 51, 15, 0, 48, 41, 7);
         Assert.All(report.Families, family =>
         {
@@ -449,9 +512,9 @@ public sealed class CardCatalogBaselineTests
             lifecycleRows,
             CardLifecycleKeywordNames.Ephemeral,
             entries: 30,
-            specImplementedEntries: 21,
+            specImplementedEntries: 23,
             functionalUnits: 26,
-            specImplementedFunctionalUnits: 21,
+            specImplementedFunctionalUnits: 23,
             profileImplementedEntries: 29,
             profileDelegatedEntries: 0,
             profileDeferredEntries: 1,
@@ -488,22 +551,22 @@ public sealed class CardCatalogBaselineTests
             timingRows,
             TimingSurfaceNames.Trigger,
             entries: 530,
-            specImplementedEntries: 429,
+            specImplementedEntries: 432,
             manualRuleRequiredEntries: 98,
-            unimplementedEntries: 3,
+            unimplementedEntries: 0,
             functionalUnits: 423,
-            specImplementedFunctionalUnits: 358,
-            pendingFunctionalUnits: 65);
+            specImplementedFunctionalUnits: 361,
+            pendingFunctionalUnits: 62);
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Replacement,
             entries: 28,
-            specImplementedEntries: 23,
+            specImplementedEntries: 24,
             manualRuleRequiredEntries: 4,
-            unimplementedEntries: 1,
+            unimplementedEntries: 0,
             functionalUnits: 24,
-            specImplementedFunctionalUnits: 21,
-            pendingFunctionalUnits: 3);
+            specImplementedFunctionalUnits: 22,
+            pendingFunctionalUnits: 2);
         Assert.All(lifecycleRows, row =>
         {
             Assert.Equal(row.Entries, row.ProfileImplementedEntries + row.ProfileDelegatedEntries + row.ProfileDeferredEntries);
