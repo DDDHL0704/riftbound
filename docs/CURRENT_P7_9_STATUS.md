@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `40/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `41/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -203,14 +203,14 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `10` done.
-- P7.9.6 automatic-trigger slices: `14` done.
+- P7.9.6 automatic-trigger slices: `15` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `753/811 = 92.8%`.
-- Current manual deferred boundary: `58/811 = 7.2%`.
+- Current functional-unit implementation: `754/811 = 93.0%`.
+- Current manual deferred boundary: `57/811 = 7.0%`.
 - Remaining manual domains:
-  - `传奇`: `4` functional units / `8` entries
+  - `传奇`: `3` functional units / `6` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `10` legend active/reaction slices, `14` automatic-trigger slices, and `6` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `10` legend active/reaction slices, `15` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -1359,3 +1359,35 @@ P7.9.6 automatic-trigger slice 14 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend battle-trigger rule slice. It reuses existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes; later UI polish should render the active Image token, copied target, `瞬息`, and copy tags in card/token detail.
+
+## P7.9.6 Automatic-Trigger Slice 15 Delivered
+
+This is the thirtieth committed rule slice inside P7.9.6. It adds Rek'Sai / 虚空遁地兽's conquest reveal, play-one, and recycle-rest trigger on top of the existing server-authoritative battle and main-deck movement helpers.
+
+- Added Rek'Sai legend trigger support for:
+  - `SFD·187/221`
+  - `SFD·243/221`
+- When Rek'Sai's controller conquers a battlefield and controls an active Rek'Sai legend, the backend exhausts Rek'Sai, reveals the top two main-deck cards, plays the first revealed unit to that player's base, and recycles the other revealed cards to the main-deck bottom.
+- If the revealed pair has no unit card, the backend still resolves the reveal/recycle trigger and recycles both revealed cards without creating a fake playable action.
+- The event stream records `LEGEND_TRIGGER_RESOLVED`, `LEGEND_EXHAUSTED`, `CARDS_REVEALED`, optional `UNIT_PLAYED_TO_BASE`, and `CARDS_RECYCLED` with revealed, played, recycled, source-zone, and destination-zone payloads for UI rendering.
+- The trigger is skipped when Rek'Sai is exhausted or the controller has no main-deck cards; no frontend rule inference is added.
+- Migrated this legend trigger/recycle slice in `BehaviorSpec`:
+  - Implemented functional units: `754/811`
+  - Manual deferred functional units: `57/811`
+  - Implemented official entries: `946/1009`
+  - Manual deferred official entries: `63/1009`
+  - Legend rule-domain implemented: `41` functional units / `100` entries
+  - Remaining legend manual deferred: `3` functional units / `6` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger slice 15 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendTriggerReksai"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2574/2574`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2681/2681`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend battle-trigger rule slice. It reuses existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes; later UI polish should render the revealed cards, played unit, and recycled cards as a grouped event-log entry.

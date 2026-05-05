@@ -316,6 +316,8 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "SFD·246/221"
             or "SFD·201/221"
             or "SFD·249/221"
+            or "SFD·187/221"
+            or "SFD·243/221"
             or "UNL-199/219"
             or "UNL-235/219"
             or "UNL-235*/219"

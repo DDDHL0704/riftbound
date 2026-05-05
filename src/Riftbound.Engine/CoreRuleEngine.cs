@@ -139,6 +139,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RenataGoldBonusWinningScoreDistance = 3;
     private const string RenataGoldBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
     private const string LeblancLegendCardNo = "UNL-199/219";
+    private const string ReksaiLegendCardNo = "SFD·187/221";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3682,6 +3683,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 combatEvents.AddRange(leblancConquerEvents);
             }
+            var reksaiConquerTrigger = ResolveReksaiLegendConquerRevealTrigger(
+                state,
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                rngCursor);
+            rngCursor = reksaiConquerTrigger.RngCursor;
+            combatEvents.AddRange(reksaiConquerTrigger.Events);
             if (winnerPlayerId is null
                 && CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId) >= 4
                 && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, intent.PlayerId, out var garenLegendCardNo))
@@ -4629,6 +4640,176 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsRenataLegendCardNo(string? cardNo)
     {
         return cardNo is RenataLegendCardNo or "SFD·249/221";
+    }
+
+    private static RecycleResult ResolveReksaiLegendConquerRevealTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string attackerObjectId,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (!TryGetActiveReksaiLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.MainDeck.Count == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var revealedObjectIds = zones.MainDeck.Take(2).ToArray();
+        var playedObjectId = revealedObjectIds.FirstOrDefault(objectId =>
+            cardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)) ?? string.Empty;
+        var recycledObjectIds = string.IsNullOrWhiteSpace(playedObjectId)
+            ? revealedObjectIds
+            : revealedObjectIds
+                .Where(objectId => !string.Equals(objectId, playedObjectId, StringComparison.Ordinal))
+                .ToArray();
+        var randomizedRecycledObjectIds = RandomizeForMainDeckBottom(
+            recycledObjectIds,
+            state.Seed,
+            rngCursor,
+            legendObjectId);
+        if (recycledObjectIds.Length > 1)
+        {
+            rngCursor++;
+        }
+
+        var nextBase = string.IsNullOrWhiteSpace(playedObjectId) || zones.Base.Contains(playedObjectId, StringComparer.Ordinal)
+            ? zones.Base
+            : zones.Base.Concat([playedObjectId]).ToArray();
+        playerZones[playerId] = zones with
+        {
+            MainDeck = zones.MainDeck
+                .Skip(revealedObjectIds.Length)
+                .Concat(randomizedRecycledObjectIds)
+                .ToArray(),
+            Base = nextBase
+        };
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = true
+        };
+        if (!string.IsNullOrWhiteSpace(playedObjectId)
+            && cardObjects.TryGetValue(playedObjectId, out var playedState))
+        {
+            cardObjects[playedObjectId] = playedState with
+            {
+                Damage = 0,
+                UntilEndOfTurnEffects = [],
+                UntilEndOfTurnPowerModifier = 0,
+                IsExhausted = false,
+                OwnerId = string.IsNullOrWhiteSpace(playedState.OwnerId) ? playerId : playedState.OwnerId,
+                ControllerId = playerId
+            };
+        }
+
+        events.Add(new GameEvent(
+            "LEGEND_TRIGGER_RESOLVED",
+            $"{playerId} 的虚空遁地兽因征服战场触发",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["legendObjectId"] = legendObjectId,
+                ["legendCardNo"] = legendState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_PLAY_ONE_RECYCLE_REST",
+                ["sourceObjectId"] = attackerObjectId,
+                ["battlefieldId"] = battlefieldId,
+                ["revealedObjectIds"] = revealedObjectIds,
+                ["playedObjectId"] = playedObjectId,
+                ["recycledObjectIds"] = randomizedRecycledObjectIds
+            }));
+        events.Add(new GameEvent(
+            "LEGEND_EXHAUSTED",
+            $"{legendObjectId} 变为休眠状态",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = legendObjectId,
+                ["reason"] = "BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_PLAY_ONE_RECYCLE_REST"
+            }));
+        events.Add(new GameEvent(
+            "CARDS_REVEALED",
+            $"{playerId} 展示主牌堆顶部 {revealedObjectIds.Length} 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = legendObjectId,
+                ["cardIds"] = revealedObjectIds,
+                ["count"] = revealedObjectIds.Length,
+                ["zone"] = "MAIN_DECK"
+            }));
+        if (!string.IsNullOrWhiteSpace(playedObjectId))
+        {
+            events.Add(new GameEvent(
+                "UNIT_PLAYED_TO_BASE",
+                $"{playerId} 打出展示的单位到基地",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["targetObjectId"] = playedObjectId,
+                    ["ownerPlayerId"] = playerId,
+                    ["playedByPlayerId"] = playerId,
+                    ["sourceZone"] = "MAIN_DECK",
+                    ["destinationZone"] = "BASE"
+                }));
+        }
+
+        if (randomizedRecycledObjectIds.Count > 0)
+        {
+            events.Add(new GameEvent(
+                "CARDS_RECYCLED",
+                $"{playerId} 回收 {randomizedRecycledObjectIds.Count} 张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["cardIds"] = randomizedRecycledObjectIds,
+                    ["count"] = randomizedRecycledObjectIds.Count
+                }));
+        }
+
+        return new RecycleResult(events, rngCursor);
+    }
+
+    private static bool TryGetActiveReksaiLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsReksaiLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsReksaiLegendCardNo(string? cardNo)
+    {
+        return cardNo is ReksaiLegendCardNo or "SFD·243/221";
     }
 
     private static bool TryResolveLeblancLegendImageTrigger(
