@@ -114,8 +114,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
     private const int PowerfulUnitPowerThreshold = 5;
     private const string RengarLegendCardNo = "UNL-183/219";
+    private const string LeonaOriginLegendCardNo = "OGN·261/298";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
+    private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -248,6 +250,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             untilEndOfTurnEffects,
             stackItem,
             plan.RengarUnitPlayedTargetObjectId);
+        untilEndOfTurnEffects = MarkLeonaStunBoonTriggerTarget(
+            untilEndOfTurnEffects,
+            stackItem,
+            plan.LeonaStunBoonTargetObjectId);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -888,6 +894,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             : AddUntilEndOfTurnEffect(
                 existingEffectIds,
                 $"{RengarUnitPlayedTargetEffectPrefix}{stackItem.StackItemId}:{targetObjectId}");
+    }
+
+    private static IReadOnlyList<string> MarkLeonaStunBoonTriggerTarget(
+        IReadOnlyList<string> existingEffectIds,
+        StackItemState stackItem,
+        string targetObjectId)
+    {
+        return string.IsNullOrWhiteSpace(targetObjectId)
+            ? existingEffectIds
+            : AddUntilEndOfTurnEffect(
+                existingEffectIds,
+                $"{LeonaStunBoonTargetEffectPrefix}{stackItem.StackItemId}:{targetObjectId}");
     }
 
     private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
@@ -1767,6 +1785,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardNo is RengarLegendCardNo or "UNL-227/219" or "UNL-227*/219";
     }
 
+    private static bool IsLeonaLegendCardNo(string? cardNo)
+    {
+        return cardNo is LeonaOriginLegendCardNo or "OGN·306/298" or "OGN·306*/298";
+    }
+
     private static bool ControllerHasAzirLegend(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -1788,6 +1811,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && (string.IsNullOrWhiteSpace(legendState.ControllerId)
                     || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
                 && IsRengarLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool ControllerHasLeonaLegend(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var legendState)
+                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && IsLeonaLegendCardNo(legendState.CardNo));
     }
 
     private static bool TryGetRengarLegend(
@@ -1816,6 +1849,38 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             legendObjectId = objectId;
             legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo) ? RengarLegendCardNo : legendState.CardNo;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetLeonaLegend(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out string legendCardNo)
+    {
+        legendObjectId = string.Empty;
+        legendCardNo = LeonaOriginLegendCardNo;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var legendState)
+                || (!string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    && !string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                || !IsLeonaLegendCardNo(legendState.CardNo))
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo) ? LeonaOriginLegendCardNo : legendState.CardNo;
             return true;
         }
 
@@ -4114,6 +4179,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             targetObjectIds,
             out targetObjectIds);
+        var leonaStunBoonTargetObjectId = ExtractLeonaStunBoonTriggerTarget(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            behavior,
+            targetObjectIds,
+            out targetObjectIds);
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
@@ -4147,6 +4219,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             rejection = RejectWithCorePrompts(
                 state,
                 "Rengar legend trigger target must be a unit on the board or the played source unit.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(leonaStunBoonTargetObjectId)
+            && !IsValidLeonaStunBoonTriggerTarget(
+                state,
+                intent.PlayerId,
+                command.SourceObjectId,
+                behavior,
+                leonaStunBoonTargetObjectId))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "Leona legend trigger target must be a friendly unit on the board or the played source unit.",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -4359,7 +4446,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             destroyedAdditionalCostTargetObjectIds,
             returnedAdditionalCostTargetObjectIds,
             discardedOptionalCostTargetObjectIds,
-            rengarUnitPlayedTargetObjectId);
+            rengarUnitPlayedTargetObjectId,
+            leonaStunBoonTargetObjectId);
         return true;
     }
 
@@ -4917,6 +5005,93 @@ public sealed class CoreRuleEngine : IRuleEngine
             id.StartsWith(prefix, StringComparison.Ordinal));
         targetObjectId = string.IsNullOrWhiteSpace(effectId) ? string.Empty : effectId[prefix.Length..];
         return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveLeonaStunBoonTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        IReadOnlyList<GameEvent> stackEvents)
+    {
+        if (!TryGetLeonaStunBoonTarget(state, stackItem.StackItemId, out var targetObjectId)
+            || !TryGetLeonaLegend(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                out var legendObjectId,
+                out var legendCardNo)
+            || !StackEventsStunnedEnemyUnit(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                stackEvents)
+            || !IsControlledFieldUnit(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
+        {
+            return [];
+        }
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{stackItem.ControllerId} 的曙光女神眩晕触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendCardNo,
+                    ["trigger"] = "ENEMY_STUNNED_GRANT_BOON",
+                    ["targetObjectId"] = targetObjectId
+                })
+        };
+        GrantLegendBoon(
+            cardObjects,
+            targetObjectId,
+            stackItem.ControllerId,
+            legendObjectId,
+            "LEGEND_TRIGGER_ENEMY_STUNNED_GRANT_BOON",
+            events);
+        return events;
+    }
+
+    private static bool TryGetLeonaStunBoonTarget(
+        MatchState state,
+        string stackItemId,
+        out string targetObjectId)
+    {
+        var prefix = $"{LeonaStunBoonTargetEffectPrefix}{stackItemId}:";
+        var effectId = state.UntilEndOfTurnEffects.FirstOrDefault(id =>
+            id.StartsWith(prefix, StringComparison.Ordinal));
+        targetObjectId = string.IsNullOrWhiteSpace(effectId) ? string.Empty : effectId[prefix.Length..];
+        return !string.IsNullOrWhiteSpace(targetObjectId);
+    }
+
+    private static bool StackEventsStunnedEnemyUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<GameEvent> stackEvents)
+    {
+        return stackEvents.Any(gameEvent =>
+            string.Equals(gameEvent.Kind, "STATUS_EFFECT_APPLIED", StringComparison.Ordinal)
+            && TryGetPayloadString(gameEvent, "effectId", out var effectId)
+            && string.Equals(effectId, "STUNNED", StringComparison.Ordinal)
+            && TryGetPayloadString(gameEvent, "targetObjectId", out var targetObjectId)
+            && IsEnemyFieldUnit(playerZones, cardObjects, playerId, targetObjectId));
+    }
+
+    private static bool TryGetPayloadString(GameEvent gameEvent, string key, out string value)
+    {
+        value = string.Empty;
+        if (!gameEvent.Payload.TryGetValue(key, out var rawValue)
+            || rawValue is not string stringValue)
+        {
+            return false;
+        }
+
+        value = stringValue;
+        return !string.IsNullOrWhiteSpace(value);
     }
 
     private static bool IsPowerfulUnitRuneLegendCardNo(string? cardNo)
@@ -6451,6 +6626,62 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return FindFieldObjectLocation(state.PlayerZones, targetObjectId) is not null
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !targetState.IsFaceDown;
+    }
+
+    private static string ExtractLeonaStunBoonTriggerTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds,
+        out IReadOnlyList<string> behaviorTargetObjectIds)
+    {
+        behaviorTargetObjectIds = targetObjectIds;
+        if (!BehaviorCanTriggerLeonaStunBoon(behavior)
+            || !ControllerHasLeonaLegend(state, playerId))
+        {
+            return string.Empty;
+        }
+
+        if (targetObjectIds.Count == 0
+            || HasValidTargetCount(state, playerId, behavior, targetObjectIds))
+        {
+            return string.Empty;
+        }
+
+        var behaviorTargetCandidates = targetObjectIds.Take(targetObjectIds.Count - 1).ToArray();
+        if (!HasValidTargetCount(state, playerId, behavior, behaviorTargetCandidates))
+        {
+            return string.Empty;
+        }
+
+        var triggerTargetObjectId = targetObjectIds[^1];
+        behaviorTargetObjectIds = behaviorTargetCandidates;
+        return triggerTargetObjectId;
+    }
+
+    private static bool BehaviorCanTriggerLeonaStunBoon(CardBehaviorDefinition behavior)
+    {
+        return ResolveStatusEffectIds(behavior).Contains("STUNNED", StringComparer.Ordinal);
+    }
+
+    private static bool IsValidLeonaStunBoonTriggerTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior,
+        string targetObjectId)
+    {
+        if (string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal)
+            && behavior.PlaysSourceToBaseAsUnit)
+        {
+            return true;
+        }
+
+        return IsControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown;
@@ -8382,6 +8613,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }));
         }
 
+        events.AddRange(ResolveLeonaStunBoonTrigger(
+            state,
+            playerZones,
+            cardObjects,
+            stackItem,
+            events));
+
         if (!behavior.PlaysSourceToBaseAsEquipment
             && !behavior.PlaysSourceToBaseAsUnit
             && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
@@ -8893,6 +9131,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             && playerZones.Values.Any(zones =>
                 zones.Base.Contains(objectId, StringComparer.Ordinal)
                 || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsControlledFieldUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        return location is not null
+            && string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && cardObjects.TryGetValue(objectId, out var objectState)
+            && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !objectState.IsFaceDown;
+    }
+
+    private static bool IsEnemyFieldUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        return location is not null
+            && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && cardObjects.TryGetValue(objectId, out var objectState)
+            && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !objectState.IsFaceDown;
     }
 
     private static bool TryGetFieldControllerId(
@@ -12467,7 +12733,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> ReturnedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds,
-        string RengarUnitPlayedTargetObjectId);
+        string RengarUnitPlayedTargetObjectId,
+        string LeonaStunBoonTargetObjectId);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

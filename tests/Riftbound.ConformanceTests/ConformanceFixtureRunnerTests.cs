@@ -24062,6 +24062,89 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerLeonaGrantsBoonWhenEnemyStunned()
+    {
+        var state = LeonaLegendStunState("OGN·261/298", "P1-LEGEND-LEONA");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leona-play-stunner", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                "OGN·051/298",
+                ["P2-LEONA-STUN-TARGET", "P1-LEGEND-BASE-UNIT"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        var stackItem = Assert.Single(playResult.State.StackItems);
+        Assert.Equal(["P2-LEONA-STUN-TARGET"], stackItem.TargetObjectIds);
+        Assert.Contains(playResult.State.UntilEndOfTurnEffects, effectId =>
+            effectId.StartsWith("LEONA_STUN_BOON_TARGET:", StringComparison.Ordinal)
+            && effectId.EndsWith(":P1-LEGEND-BASE-UNIT", StringComparison.Ordinal));
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-leona-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-leona-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.Contains("P1-UNIT-SUN-SHIELDGUARD", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains("STUNNED", p2Pass.State.CardObjects["P2-LEONA-STUN-TARGET"].UntilEndOfTurnEffects);
+        var boonTarget = p2Pass.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal(3, boonTarget.Power);
+        Assert.Contains(CardObjectTags.Boon, boonTarget.Tags);
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ENEMY_STUNNED_GRANT_BOON", StringComparison.Ordinal));
+        Assert.Equal("OGN·261/298", triggerEvent.Payload["legendCardNo"]);
+        var boonEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-BASE-UNIT", boonEvent.Payload["targetObjectId"]);
+        Assert.Equal(false, boonEvent.Payload["alreadyHadBoon"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerLeonaRejectsNonFriendlyUnitBoonTarget()
+    {
+        var state = LeonaLegendStunState("OGN·306*/298", "P1-LEGEND-LEONA-REPRINT");
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base = playerZones["P1"].Base.Concat(["P1-LEONA-EQUIPMENT"]).ToArray()
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEONA-EQUIPMENT"] = new(
+            "P1-LEONA-EQUIPMENT",
+            tags: [CardObjectTags.EquipmentCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        state = state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leona-invalid-boon-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                "OGN·051/298",
+                ["P2-LEONA-STUN-TARGET", "P1-LEONA-EQUIPMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Contains("P1-UNIT-SUN-SHIELDGUARD", result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -34943,6 +35026,38 @@ public sealed class ConformanceFixtureRunnerTests
             tags: [CardObjectTags.UnitCard, "魄罗", "法盾"],
             ownerId: "P1",
             controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState LeonaLegendStunState(string sourceCardNo, string sourceObjectId)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 3);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-UNIT-SUN-SHIELDGUARD"]
+        };
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Base = ["P2-LEONA-STUN-TARGET"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-UNIT-SUN-SHIELDGUARD"] = new(
+            "P1-UNIT-SUN-SHIELDGUARD",
+            cardNo: "OGN·051/298",
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects["P2-LEONA-STUN-TARGET"] = new(
+            "P2-LEONA-STUN-TARGET",
+            power: 2,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P2",
+            controllerId: "P2");
         return state with
         {
             PlayerZones = playerZones,
