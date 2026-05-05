@@ -186,6 +186,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
+    private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -485,6 +486,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["destinationZone"] = "GRAVEYARD"
                 }));
         }
+
+        TryResolveBattlefieldSpellPowerBonusTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            behavior,
+            stackItem,
+            events);
 
         if (TryGetLuxHighCostSpellDrawCardNo(playerZones, cardObjects, intent.PlayerId, behavior, out var luxLegendCardNo))
         {
@@ -7760,7 +7769,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldPreventUnitPlayCardNo(cardNo)
             || IsBattlefieldEchoCostReductionCardNo(cardNo)
             || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
-            || IsBattlefieldFriendlySpellDrawCardNo(cardNo);
+            || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
+            || IsBattlefieldSpellPowerBonusCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7953,6 +7963,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldFriendlySpellDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldSpellPowerBonusCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -11142,8 +11157,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         out string sourceObjectId)
     {
         sourceObjectId = string.Empty;
-        if (behavior.PlaysSourceToBaseAsUnit
-            || behavior.PlaysSourceToBaseAsEquipment
+        if (!IsSpellPlayBehavior(behavior)
             || targetObjectIds.Count == 0
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !targetObjectIds.Any(targetObjectId =>
@@ -11161,6 +11175,71 @@ public sealed class CoreRuleEngine : IRuleEngine
             .FirstOrDefault() ?? string.Empty;
 
         return !string.IsNullOrWhiteSpace(sourceObjectId);
+    }
+
+    private static bool TryResolveBattlefieldSpellPowerBonusTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!IsSpellPlayBehavior(behavior)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var sourceObjectId = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldSpellPowerBonusCardNo(cardObject.CardNo))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(sourceObjectId))
+        {
+            return false;
+        }
+
+        var targetObjectId = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out _)
+                && CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(targetObjectId)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 因废弃大厅强化单位",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldObjectId"] = sourceObjectId,
+                ["battlefieldCardNo"] = BattlefieldSpellPowerBonusCardNo,
+                ["trigger"] = "BATTLEFIELD_SPELL_POWER_PLUS_1",
+                ["playedCardNo"] = stackItem.CardNo,
+                ["targetObjectId"] = targetObjectId,
+                ["powerDelta"] = 1
+            }));
+        cardObjects[targetObjectId] = ApplyPowerModifier(
+            targetState,
+            behavior,
+            stackItem,
+            targetObjectId,
+            1,
+            out var powerEvent);
+        events.Add(powerEvent);
+        return true;
+    }
+
+    private static bool IsSpellPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment;
     }
 
     private static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)

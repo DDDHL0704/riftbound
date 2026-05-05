@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 16 remaining | 17 remaining | P7.9.7 has migrated `38/54` battlefield FUs / `40/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 15 remaining | 16 remaining | P7.9.7 has migrated `39/54` battlefield FUs / `41/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo/equipment cost reductions, friendly spell targeting draws, and representative effects. Battlefield slices migrated `38/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `16` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, and representative effects. Battlefield slices migrated `39/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `15` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-37 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-38 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `37` done.
-- Current functional-unit implementation: `795/811 = 98.0%`.
-- Current manual deferred boundary: `16/811 = 2.0%`.
+- P7.9.7 battlefield foundation slices: `38` done.
+- Current functional-unit implementation: `796/811 = 98.2%`.
+- Current manual deferred boundary: `15/811 = 1.8%`.
 - Remaining manual domains:
-  - `战场`: `16` functional units / `17` entries
+  - `战场`: `15` functional units / `16` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2629,3 +2629,36 @@ P7.9.7 battlefield foundation slice 37 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/friendly-spell battlefield slice. GameHub coverage verifies the seed, authoritative battlefield trigger event, draw event, stack item creation, and snapshot hand update.
+
+## P7.9.7 Battlefield Foundation Slice 38 Delivered
+
+This is the thirty-eighth rule slice inside P7.9.7. It adds a spell-play battlefield power trigger.
+
+- Added implemented battlefield card:
+  - `UNL-205/219`: when a player plays a spell, that player may give one unit they control at this battlefield `+1` power until end of turn.
+- Server-authoritative spell-play power changes:
+  - `PLAY_CARD` detects spell plays through the same server-side spell behavior boundary used by the OGN·292 slice.
+  - The backend chooses the first controlled battlefield unit in deterministic object-id order for this representative and applies a standard `POWER_MODIFIED_UNTIL_END_OF_TURN` mutation.
+  - The trigger emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_SPELL_POWER_PLUS_1`, the source battlefield object, the played spell card, and the target object id.
+  - Boundary note: the official text is optional and location-specific; until P7.9 adds richer battlefield location/choice modeling, this representative uses the controlled battlefield zone and deterministic target choice without frontend rule authority.
+- Added `battlefield-spell-power-bonus` local development seed plus GameHub coverage for submitting `SFD·034/221` and observing the authoritative trigger, power event, and snapshot object modifier.
+- Migrated this battlefield trigger/temp-might slice in `BehaviorSpec`:
+  - Implemented functional units: `796/811`
+  - Manual deferred functional units: `15/811`
+  - Implemented official entries: `993/1009`
+  - Manual deferred official entries: `16/1009`
+  - Battlefield rule-domain implemented: `39` functional units / `41` entries
+  - Remaining battlefield manual deferred: `15` functional units / `16` entries
+  - Trigger and temporary-power template coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 38 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldSpellPowerBonus"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2623/2623`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `67/67`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2769/2769`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/spell-power battlefield slice. GameHub coverage verifies the seed, authoritative battlefield trigger event, temporary power event, and snapshot object modifier.

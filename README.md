@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成三十八个战场对象/战斗结果功能单元，最新新增 `OGN·292/298` 每回合首次以法术指定此处友方单位时抽一张牌；既有战场对象 destination、hold/conquer 事件、`SFD·213/221` 首个友方装备费用减少 1、`SFD·211/221` 友方回响费用减少 1、`SFD·216/221` 战场单位打出限制，以及 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `795/811` 个功能单元，manual deferred 剩余 `16/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成三十九个战场对象/战斗结果功能单元，最新新增 `UNL-205/219` 玩家打出法术时强化其控制的战场单位；既有战场对象 destination、hold/conquer 事件、`OGN·292/298` 友方法术指定抽牌、`SFD·213/221` 首个友方装备费用减少 1、`SFD·211/221` 友方回响费用减少 1、`SFD·216/221` 战场单位打出限制，以及 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `796/811` 个功能单元，manual deferred 剩余 `15/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 

@@ -26620,6 +26620,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldSpellPowerBonusBuffsControlledUnitOnSpellPlay()
+    {
+        var state = BattlefieldSpellPowerBonusState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-spell-power-bonus", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SAVAGE-STRENGTH",
+                "SFD·034/221",
+                ["P1-BATTLEFIELD-ALLY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var target = result.State.CardObjects["P1-BATTLEFIELD-ALLY"];
+        Assert.Equal(3, target.Power);
+        Assert.Equal(1, target.UntilEndOfTurnPowerModifier);
+        var trigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-WASTE-HALL", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-ALLY", trigger.Payload["targetObjectId"]);
+        var powerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Equal(1, powerEvent.Payload["appliedPowerDelta"]);
+        Assert.Equal(3, powerEvent.Payload["resultingPower"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38891,6 +38920,43 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-DREAMTREE"] = new(
                     "P1-BATTLEFIELD-DREAMTREE",
                     cardNo: "OGN·292/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldSpellPowerBonusState()
+    {
+        return PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SAVAGE-STRENGTH"],
+                    Battlefields = ["P1-BATTLEFIELD-WASTE-HALL", "P1-BATTLEFIELD-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-SAVAGE-STRENGTH"] = new(
+                    "P1-SPELL-SAVAGE-STRENGTH",
+                    cardNo: "SFD·034/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-ALLY"] = new(
+                    "P1-BATTLEFIELD-ALLY",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 2),
+                ["P1-BATTLEFIELD-WASTE-HALL"] = new(
+                    "P1-BATTLEFIELD-WASTE-HALL",
+                    cardNo: "UNL-205/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1")

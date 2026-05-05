@@ -1995,6 +1995,54 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldSpellPowerBonusSeedBuffsControlledUnitOnSpellPlay()
+    {
+        const string roomId = "p7-9-battlefield-spell-power-bonus";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-spell-power-bonus", "seed-p7-9-battlefield-spell-power-bonus");
+
+        var playClients = new RecordingHubClients();
+        var savageStrength = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-SAVAGE-STRENGTH",
+              "cardNo": "SFD·034/221",
+              "targetObjectIds": ["P1-BATTLEFIELD-ALLY"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-spell-power-bonus", savageStrength);
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var events = EventsFor(playClients);
+        var trigger = Assert.Single(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-WASTE-HALL", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-ALLY", trigger.Payload["targetObjectId"]);
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["appliedPowerDelta"], 1)
+            && Equals(gameEvent.Payload["resultingPower"], 3));
+        var p1Snapshot = SnapshotFor(playClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var target = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-BATTLEFIELD-ALLY"]);
+        Assert.Equal(3, target["power"]);
+        Assert.Equal(1, target["untilEndOfTurnPowerModifier"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
     {
         const string roomId = "p7-9-battlefield-move-power";
