@@ -204,13 +204,13 @@ Final P7.9 gate:
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `3` done.
 - P7.9.6 automatic-trigger slices: `4` done.
-- P7.9.6 static legend slices: `4` done.
-- Current functional-unit implementation: `730/811 = 90.0%`.
-- Current manual deferred boundary: `81/811 = 10.0%`.
+- P7.9.6 static legend slices: `5` done.
+- Current functional-unit implementation: `732/811 = 90.3%`.
+- Current manual deferred boundary: `79/811 = 9.7%`.
 - Remaining manual domains:
-  - `传奇`: `27` functional units / `64` entries
+  - `传奇`: `25` functional units / `61` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `4` automatic-trigger slices, and `4` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `4` automatic-trigger slices, and `5` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -745,3 +745,37 @@ P7.9.6 automatic-trigger slice 4 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because Lux is a passive `PLAY_CARD` trigger and this batch introduced no new UI operation path. The play-card UI continues to submit server prompt commands; the trigger and draw are visible through server events/snapshot.
+
+## P7.9.6 Static Legend Slice 5 Delivered
+
+This is the twelfth committed rule slice inside P7.9.6. It adds the UNL Master Yi level legend aura without adding frontend legality logic.
+
+- Added UNL Master Yi / 无极宗师 level legend static:
+  - at `6+` experience, friendly combat units receive a server-calculated `staticPowerBonus = +1`
+  - at `11+` experience, units entering under the controller are forced active in the unit-entry path
+  - reuses the existing `PlayerExperience`, legend-zone, combat event payload, and unit-entry server state paths
+- Accepted legend entries:
+  - `UNL-191/219`
+  - `UNL-231/219`
+  - `UNL-231*/219`
+- Added representative conformance coverage for the level-6 combat aura and level-11 active-entry boundary.
+- Migrated this legend static slice in `BehaviorSpec`:
+  - Implemented functional units: `732/811`
+  - Manual deferred functional units: `79/811`
+  - Implemented official entries: `891/1009`
+  - Manual deferred official entries: `118/1009`
+  - Legend rule-domain implemented: `19` functional units / `45` entries
+  - Remaining legend manual deferred: `25` functional units / `61` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 static legend slice 5 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendStaticMasterYiLevel"`: passed `39/39`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2529/2529`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2636/2636`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because the Master Yi level aura is a passive combat/unit-entry static and this batch introduced no new UI operation path. The play-card and battle UI continue to submit server prompt commands; the power bonus and active-entry state are visible through server events/snapshot.

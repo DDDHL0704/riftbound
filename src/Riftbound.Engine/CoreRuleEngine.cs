@@ -84,6 +84,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
     private const string MasterYiIntroLegendCardNo = "OGS·019/024";
+    private const string MasterYiLevelLegendCardNo = "UNL-191/219";
+    private const int MasterYiLevelPowerThreshold = 6;
+    private const int MasterYiLevelReadyThreshold = 11;
     private const string AhriLegendCardNo = "OGN·255/298";
     private const string DravenLegendCardNo = "SFD·185/221";
     private const string GarenIntroLegendCardNo = "OGS·023/024";
@@ -2835,6 +2838,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             staticPowerBonus += 2;
         }
 
+        staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
+
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
     }
 
@@ -2941,6 +2946,47 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.LegendZone.Any(legendObjectId =>
             state.CardObjects.TryGetValue(legendObjectId, out var legendState)
             && string.Equals(legendState.CardNo, MasterYiIntroLegendCardNo, StringComparison.Ordinal));
+    }
+
+    private static int ResolveMasterYiLevelLegendPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null)
+        {
+            return 0;
+        }
+
+        return ControllerHasMasterYiLevelLegend(
+            playerZones,
+            state.CardObjects,
+            location.Value.PlayerId,
+            state.PlayerExperience,
+            MasterYiLevelPowerThreshold)
+            ? 1
+            : 0;
+    }
+
+    private static bool ControllerHasMasterYiLevelLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyDictionary<string, int> playerExperience,
+        int experienceThreshold)
+    {
+        return playerExperience.TryGetValue(playerId, out var experience)
+            && experience >= experienceThreshold
+            && playerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(legendObjectId =>
+                cardObjects.TryGetValue(legendObjectId, out var legendState)
+                && IsMasterYiLevelLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool IsMasterYiLevelLegendCardNo(string? cardNo)
+    {
+        return cardNo is MasterYiLevelLegendCardNo or "UNL-231/219" or "UNL-231*/219";
     }
 
     private static bool TryResolveBattleWinnerPlayerId(
@@ -8562,6 +8608,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem.ControllerId,
             playerExperience);
+        var entersActiveFromMasterYiLevel = ControllerHasMasterYiLevelLegend(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            playerExperience,
+            MasterYiLevelReadyThreshold);
         if (levelApplies)
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
@@ -8573,7 +8625,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitState = existingState with
         {
             Power = unitPower,
-            IsExhausted = existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
+            IsExhausted = entersActiveFromMasterYiLevel
+                ? false
+                : existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
@@ -8628,6 +8682,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem.ControllerId,
             playerExperience);
+        var entersActiveFromMasterYiLevel = ControllerHasMasterYiLevelLegend(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            playerExperience,
+            MasterYiLevelReadyThreshold);
         if (levelApplies)
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
@@ -8636,7 +8696,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         var unitState = existingState with
         {
             Power = unitPower,
-            IsExhausted = existingState.IsExhausted || behavior.SourceUnitIsExhausted,
+            IsExhausted = entersActiveFromMasterYiLevel
+                ? false
+                : existingState.IsExhausted || behavior.SourceUnitIsExhausted,
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])

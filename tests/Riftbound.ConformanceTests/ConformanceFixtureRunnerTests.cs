@@ -24272,6 +24272,132 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendStaticMasterYiLevelGrantsFriendlyUnitPowerAtSixExperience()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 6,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"],
+                    LegendZone = ["P1-LEGEND-MASTER-YI-LEVEL"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ATTACKER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-MASTER-YI-LEVEL"] = new(
+                    "P1-LEGEND-MASTER-YI-LEVEL",
+                    cardNo: "UNL-191/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-master-yi-level-static-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79LegendStaticMasterYiLevelElevenReadiesUnitOnEntry()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 11,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-MIGHTY-FAERIE"],
+                    LegendZone = ["P1-LEGEND-MASTER-YI-LEVEL"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-MASTER-YI-LEVEL"] = new(
+                    "P1-LEGEND-MASTER-YI-LEVEL",
+                    cardNo: "UNL-231/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MIGHTY-FAERIE"] = new(
+                    "P1-MIGHTY-FAERIE",
+                    isExhausted: true,
+                    cardNo: "SFD·125/221",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var playResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-master-yi-level-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-MIGHTY-FAERIE", "SFD·125/221", []),
+            CancellationToken.None);
+        var p1PassResult = await engine.ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-master-yi-level-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2PassResult = await engine.ResolveAsync(
+            p1PassResult.State,
+            new PlayerIntent("intent-p7-9-master-yi-level-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        Assert.True(p1PassResult.Accepted);
+        Assert.True(p2PassResult.Accepted);
+        Assert.Contains("P1-MIGHTY-FAERIE", p2PassResult.State.PlayerZones["P1"].Base);
+        Assert.False(p2PassResult.State.CardObjects["P1-MIGHTY-FAERIE"].IsExhausted);
+        Assert.Contains(p2PassResult.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
