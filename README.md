@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成两个传奇主动技能小批次，`LEGEND_ACT` 现在覆盖 8 个传奇功能单元 / 23 个官方条目；当前实现 `721/811` 个功能单元，manual deferred 剩余 `90/811`，全部集中在传奇/战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成两个传奇主动技能小批次和一个 Jinx 自动触发小批次，传奇规则域现在覆盖 9 个传奇功能单元 / 27 个官方条目；当前实现 `722/811` 个功能单元，manual deferred 剩余 `89/811`，全部集中在传奇/战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 

@@ -76,6 +76,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
     private const int PykeLegendManaCost = 1;
     private const string PykeLegendManaCostToken = "SPEND_MANA:1";
+    private const string JinxLegendCardNo = "FND-251/298";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -3418,30 +3419,90 @@ public sealed class CoreRuleEngine : IRuleEngine
             Graveyard = drawResult.Graveyard,
             Base = currentZones.Base.Concat(calledRunes).ToArray()
         };
+        var events = BuildTurnStartEvents(state, calledRunes.Length, drawResult, ephemeralCleanupResult.Events)
+            .ToList();
+        var playerScores = drawResult.PlayerScores;
+        var winnerPlayerId = drawResult.WinnerPlayerId;
+        var rngCursor = drawResult.RngCursor;
+        if (winnerPlayerId is null
+            && TryGetJinxTurnStartDrawCardNo(playerZones, cardObjects, turnPlayerId, out var jinxLegendCardNo))
+        {
+            events.Add(new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{turnPlayerId} 的暴走萝莉回合开始触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = turnPlayerId,
+                    ["legendCardNo"] = jinxLegendCardNo,
+                    ["trigger"] = "JINX_TURN_START_DRAW_IF_HAND_BELOW_TWO"
+                }));
+            var jinxDrawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                playerScores,
+                turnPlayerId,
+                1,
+                rngCursor,
+                events);
+            playerScores = jinxDrawApplication.PlayerScores;
+            winnerPlayerId = jinxDrawApplication.WinnerPlayerId;
+            rngCursor = jinxDrawApplication.RngCursor;
+        }
 
         var nextState = state with
         {
             Tick = state.Tick + 1,
             ActivePlayerId = turnPlayerId,
-            Status = drawResult.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-            Phase = drawResult.WinnerPlayerId is null ? MatchPhases.Main : state.Phase,
-            TimingState = drawResult.WinnerPlayerId is null ? TimingStates.NeutralOpen : state.TimingState,
-            RunePools = drawResult.WinnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
+            Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            Phase = winnerPlayerId is null ? MatchPhases.Main : state.Phase,
+            TimingState = winnerPlayerId is null ? TimingStates.NeutralOpen : state.TimingState,
+            RunePools = winnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
             PlayerZones = playerZones,
-            PlayerScores = drawResult.PlayerScores,
+            PlayerScores = playerScores,
             CardObjects = cardObjects,
-            WinnerPlayerId = drawResult.WinnerPlayerId,
+            WinnerPlayerId = winnerPlayerId,
             DestroyedUnitOwnerIdsThisTurn = ephemeralCleanupResult.DestroyedUnitOwnerIds,
-            RngCursor = drawResult.RngCursor
+            RngCursor = rngCursor
         };
 
         return new ResolutionResult(
             true,
             null,
             nextState,
-            BuildTurnStartEvents(state, calledRunes.Length, drawResult, ephemeralCleanupResult.Events),
+            events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool TryGetJinxTurnStartDrawCardNo(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string cardNo)
+    {
+        cardNo = JinxLegendCardNo;
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || zones.Hand.Count >= 2)
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (cardObjects.TryGetValue(objectId, out var legendState)
+                && IsJinxLegendCardNo(legendState.CardNo))
+            {
+                cardNo = legendState.CardNo ?? JinxLegendCardNo;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsJinxLegendCardNo(string? cardNo)
+    {
+        return cardNo is JinxLegendCardNo or "OGN·251/298" or "OGN·301/298" or "OGN·301*/298";
     }
 
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(

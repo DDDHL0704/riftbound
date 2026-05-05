@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active-ability slices migrated `8/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger slices migrated `9/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -203,12 +203,13 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `2` done.
-- Current functional-unit implementation: `721/811 = 88.9%`.
-- Current manual deferred boundary: `90/811 = 11.1%`.
+- P7.9.6 automatic-trigger slices: `1` done.
+- Current functional-unit implementation: `722/811 = 89.0%`.
+- Current manual deferred boundary: `89/811 = 11.0%`.
 - Remaining manual domains:
-  - `传奇`: `36` functional units / `83` entries
+  - `传奇`: `35` functional units / `79` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `2` legend active-ability slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `2` legend active-ability slices and `1` automatic-trigger slice are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -433,3 +434,37 @@ P7.9.6 active-ability slice 2 validation:
   - Operation path: reload Web URL -> set server URL to `5089` -> set room id -> `join-both` -> `ready-both` -> open dev tools -> `Legend Actions` seed -> choose source `P1-LEGEND-PYKE` -> choose ability `LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN` -> choose cost `SPEND_MANA:1` -> submit `LEGEND_ACT`
   - Event log summary: `COST_PAID`, `LEGEND_ABILITY_ACTIVATED`, `LEGEND_EXHAUSTED`, `UNIT_RETURNED_TO_HAND`, `EQUIPMENT_TOKEN_CREATED`
   - Final snapshot summary: match `IN_PROGRESS`; tick `906`; P1 hand count `1`; P1 base count `2`; P1 battlefield count `1`; `P1-LEGEND-PYKE-TOKEN-001` created in base; `P1-LEGEND-BATTLEFIELD-UNIT` returned to hand.
+
+## P7.9.6 Automatic-Trigger Slice Delivered
+
+This is the third committed rule slice inside P7.9.6. It starts closing legend passive/trigger surfaces that do not require a frontend button, while still keeping all authority in `CoreRuleEngine`.
+
+- Added Jinx / 暴走萝莉 turn-start legend trigger:
+  - after the normal turn-start draw, if the active player's hand is still below `2`, Jinx draws `1` additional card
+  - emits `LEGEND_TRIGGER_RESOLVED` before the extra draw event
+  - preserves burnout/winner handling by skipping the trigger when the normal draw already ended the match
+- Accepted same-functional-unit legend reprints/variants for this trigger:
+  - `FND-251/298`
+  - `OGN·251/298`
+  - `OGN·301*/298`
+  - `OGN·301/298`
+- Migrated this legend trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `722/811`
+  - Manual deferred functional units: `89/811`
+  - Implemented official entries: `873/1009`
+  - Manual deferred official entries: `136/1009`
+  - Legend rule-domain implemented: `9` functional units / `27` entries
+  - Remaining legend manual deferred: `35` functional units / `79` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2518/2518`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2625/2625`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because Jinx is an automatic turn-start backend trigger and this batch introduced no new frontend operation path. The next significant UI/flow batch must run Browser smoke again.

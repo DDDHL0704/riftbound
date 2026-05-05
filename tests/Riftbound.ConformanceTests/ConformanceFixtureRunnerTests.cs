@@ -23716,6 +23716,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
+    {
+        var state = JinxLegendTurnStartState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-jinx-end-turn", "P2", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal("P1", result.State.TurnPlayerId);
+        Assert.Equal(MatchStatuses.InProgress, result.State.Status);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-JINX-DRAW-001", "P1-JINX-DRAW-002"], result.State.PlayerZones["P1"].Hand);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
@@ -33733,6 +33755,66 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1")
+            });
+    }
+
+    private static MatchState JinxLegendTurnStartState()
+    {
+        return new MatchState(
+            "p7-9-jinx-turn-start-room",
+            0,
+            907,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P2",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-JINX-DRAW-001", "P1-JINX-DRAW-002"],
+                    LegendZone = ["P1-LEGEND-JINX"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-JINX"] = new(
+                    "P1-LEGEND-JINX",
+                    cardNo: "FND-251/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-JINX-DRAW-001"] = new(
+                    "P1-JINX-DRAW-001",
+                    cardNo: "SFD·125/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard]),
+                ["P1-JINX-DRAW-002"] = new(
+                    "P1-JINX-DRAW-002",
+                    cardNo: "SFD·126/221",
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard])
             });
     }
 
