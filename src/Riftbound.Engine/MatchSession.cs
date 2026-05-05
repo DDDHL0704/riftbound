@@ -877,6 +877,7 @@ public sealed record ResolutionResult(
                     "ACTIVATE_ABILITY",
                     "ASSEMBLE_EQUIPMENT",
                     "MOVE_UNIT",
+                    "DECLARE_BATTLE",
                     "HIDE_CARD",
                     "TAP_RUNE",
                     "LEGEND_ACT",

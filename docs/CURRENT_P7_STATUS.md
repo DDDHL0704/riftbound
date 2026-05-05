@@ -157,7 +157,7 @@ Core P7 smoke path:
 | P7.0 | Done | Audit/status file, ability matrix, deferred policy, smoke path. | `git diff --check`; docs-only commit. |
 | P7.1 | Done | Product room, two-player connection, reconnect, snapshot/prompt/event shell. | Browser smoke: join, ready, reconnect. |
 | P7.2 | Done | Battle desktop layout with lanes/base/hand/runes/legend/champion/equipment/control markers. | Browser visual smoke. |
-| P7.3 | Planned | ActionPrompt-driven play/pass/end-turn/move/battle controls. | Browser smoke: play, pass, end turn, move/battle. |
+| P7.3 | Done | ActionPrompt-driven play/pass/end-turn/move/battle controls. | Browser smoke: play, pass, end turn, move/battle. |
 | P7.4 | Planned | Payment and target-selection UX, response windows, spell-duel surface. | Browser smoke: target and response flow. |
 | P7.5 | Planned | Status, equipment, damage, temp power, exhaustion, combat, shield/swift/ephemeral markers. | Browser visual smoke. |
 | P7.6 | Planned | Event log, match report, replay/spectator entry with backend boundary. | Browser smoke: report and boundary. |
@@ -165,7 +165,7 @@ Core P7 smoke path:
 | P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `3/10 batches = 30.0%`; estimated remaining batches: `7`.
+Current P7 progress: `4/10 batches = 40.0%`; estimated remaining batches: `6`.
 
 ## Validation Policy
 
@@ -220,6 +220,23 @@ P7.2 validation:
 - Browser visual smoke: passed with the `equipment` scenario; desk showed P1 hand Long Sword, base assemble target, legend/champion slots, two battlefield lanes, and stable object cards.
 - `git diff --check`: passed.
 
+## P7.3 Delivered
+
+- Added product command panels for `MOVE_UNIT`, `ASSEMBLE_EQUIPMENT`, and `DECLARE_BATTLE` alongside `PLAY_CARD`.
+- Added command builders for play destination, move origin/destination, assemble source/target/cost, and battle attackers/defenders/costs.
+- Converted the workbench prompt action chips into actual prompt buttons for direct prompt actions such as `PASS`, `PASS_PRIORITY`, `PASS_FOCUS`, and `END_TURN`.
+- Disabled command submit buttons unless the current server `ActionPrompt` is actionable and exposes that command.
+- Added `DECLARE_BATTLE` to the open-main server prompt surface so the UI does not need to invent a battle action.
+- Added a development `battle-declare` smoke seed button to exercise the prompt-driven combat declaration path.
+
+P7.3 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- Browser smoke: passed with prompt-enabled `MOVE_UNIT` and `DECLARE_BATTLE`.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -236,3 +253,10 @@ P7.2 validation:
   - Operation path: reload Web URL -> `新房间` -> `双人入座` -> `双方准备` -> seed `equipment`.
   - Event summary: `DEV_SCENARIO_SEEDED` for `equipment`; snapshot showed P1 Long Sword in hand and a base unit for assembly.
   - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#787`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; P1 resources mana `2`, power `1`, hand `1`, base `1`, legend/champion visible; P2 legend/champion visible.
+- P7.3 ActionPrompt command smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - roomId: `p7-1777954785777`
+  - Operation path: reload Web URL -> `新房间` -> `双人入座` -> `双方准备` -> seed `movement` -> submit prompt-enabled `MOVE_UNIT` -> seed `battle-declare` -> submit prompt-enabled `DECLARE_BATTLE`.
+  - Event summary: movement path emitted `UNIT_MOVED_TO_BASE`; battle path emitted `BATTLE_DECLARED`, two combat `DAMAGE_APPLIED` events, and defender cleanup.
+  - Final snapshot summary: roomStatus `IN_PROGRESS`, turn `#95`, active player `P1`, timing `NEUTRAL_OPEN`, stack `0`; P1 attacker remains on battlefield with combat damage/attacking marker, P2 defender is in graveyard, current prompt only exposes `END_TURN` so play/move/assemble/battle buttons are disabled.

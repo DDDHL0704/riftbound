@@ -377,6 +377,7 @@ h3 {
 .stack-strip,
 .scenario-panel,
 .play-card-panel,
+.command-panel,
 .fixture-panel {
   display: grid;
   gap: 10px;
@@ -440,6 +441,10 @@ h3 {
   flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-end;
+}
+
+.action-chips button {
+  min-height: 28px;
 }
 
 .action-chip.actionable {

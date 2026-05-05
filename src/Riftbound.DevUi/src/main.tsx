@@ -131,6 +131,27 @@ type PlayCardDraft = {
   targetObjectIds: string;
   mode: string;
   optionalCosts: string;
+  destination: string;
+};
+
+type MoveUnitDraft = {
+  sourceObjectId: string;
+  origin: string;
+  destination: string;
+  optionalCosts: string;
+};
+
+type AssembleDraft = {
+  sourceObjectId: string;
+  targetObjectId: string;
+  optionalCosts: string;
+};
+
+type BattleDraft = {
+  battlefieldId: string;
+  attackerObjectIds: string;
+  defenderObjectIds: string;
+  optionalCosts: string;
 };
 
 type ScenarioPreset = {
@@ -153,7 +174,28 @@ const initialDraft: PlayCardDraft = {
   cardNo: "",
   targetObjectIds: "",
   mode: "",
+  optionalCosts: "",
+  destination: ""
+};
+
+const initialMoveDraft: MoveUnitDraft = {
+  sourceObjectId: "",
+  origin: "BATTLEFIELD",
+  destination: "BASE",
   optionalCosts: ""
+};
+
+const initialAssembleDraft: AssembleDraft = {
+  sourceObjectId: "",
+  targetObjectId: "",
+  optionalCosts: "ASSEMBLE_RED"
+};
+
+const initialBattleDraft: BattleDraft = {
+  battlefieldId: "BATTLEFIELD:P1-MAIN",
+  attackerObjectIds: "",
+  defenderObjectIds: "",
+  optionalCosts: "COMBAT_ASSIGNMENT"
 };
 
 const scenarioPresets: ScenarioPreset[] = [
@@ -221,6 +263,18 @@ const scenarioPresets: ScenarioPreset[] = [
     }
   },
   {
+    id: "battle-declare",
+    title: "Battle Declare",
+    description: "P1 attacker and P2 defender are ready for combat declaration.",
+    command: {
+      cmdType: "DECLARE_BATTLE",
+      battlefieldId: "BATTLEFIELD:P1-MAIN",
+      attackerObjectIds: ["P1-BATTLE-ATTACKER-001"],
+      defenderObjectIds: ["P2-BATTLE-DEFENDER-001"],
+      optionalCosts: ["COMBAT_ASSIGNMENT"]
+    }
+  },
+  {
     id: "specified-hand",
     title: "Specified Hand",
     description: "P1 receives multiple known playable cards for ad hoc fixture replay.",
@@ -264,6 +318,9 @@ function App() {
   const [activeKey, setActiveKey] = useState<PlayerKey>("p1");
   const [players, setPlayers] = useState(initialPlayers);
   const [playDraft, setPlayDraft] = useState(initialDraft);
+  const [moveDraft, setMoveDraft] = useState(initialMoveDraft);
+  const [assembleDraft, setAssembleDraft] = useState(initialAssembleDraft);
+  const [battleDraft, setBattleDraft] = useState(initialBattleDraft);
   const [fixtureDraft, setFixtureDraft] = useState("");
   const [fixtureStatus, setFixtureStatus] = useState("idle");
   const connections = useRef<Record<PlayerKey, signalR.HubConnection | null>>({ p1: null, p2: null });
@@ -504,6 +561,29 @@ function App() {
     setActiveKey(key);
     setCommandForPlayer(key, preset.command);
     setPlayDraft(draftFromCommand(preset.command));
+    if (preset.id === "movement") {
+      setMoveDraft({
+        sourceObjectId: "P1-BATTLEFIELD-UNIT-001",
+        origin: "BATTLEFIELD",
+        destination: "BASE",
+        optionalCosts: ""
+      });
+    }
+    if (preset.id === "equipment") {
+      setAssembleDraft({
+        sourceObjectId: "P1-EQUIPMENT-LONG-SWORD",
+        targetObjectId: "P1-UNIT-ASSEMBLE-TARGET",
+        optionalCosts: "ASSEMBLE_RED"
+      });
+    }
+    if (preset.id === "battle-declare") {
+      setBattleDraft({
+        battlefieldId: "BATTLEFIELD:P1-MAIN",
+        attackerObjectIds: "P1-BATTLE-ATTACKER-001",
+        defenderObjectIds: "P2-BATTLE-DEFENDER-001",
+        optionalCosts: "COMBAT_ASSIGNMENT"
+      });
+    }
   }
 
   async function submitIntent(key: PlayerKey, command: Record<string, unknown>, requestedIntentId?: string) {
@@ -532,6 +612,21 @@ function App() {
 
   async function submitPlayCardDraft() {
     await submitIntent(activeKey, buildPlayCardCommand(playDraft), players[activeKey].clientIntentId);
+    updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+  }
+
+  async function submitMoveDraft() {
+    await submitIntent(activeKey, buildMoveUnitCommand(moveDraft), players[activeKey].clientIntentId);
+    updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+  }
+
+  async function submitAssembleDraft() {
+    await submitIntent(activeKey, buildAssembleCommand(assembleDraft), players[activeKey].clientIntentId);
+    updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+  }
+
+  async function submitBattleDraft() {
+    await submitIntent(activeKey, buildDeclareBattleCommand(battleDraft), players[activeKey].clientIntentId);
     updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
   }
 
@@ -570,6 +665,27 @@ function App() {
       }
 
       return { ...current, targetObjectIds: values.join(", ") };
+    });
+    setMoveDraft((current) => ({ ...current, sourceObjectId: current.sourceObjectId || objectId }));
+    setAssembleDraft((current) => ({
+      ...current,
+      sourceObjectId: current.sourceObjectId || objectId,
+      targetObjectId: current.sourceObjectId ? current.targetObjectId || objectId : current.targetObjectId
+    }));
+    setBattleDraft((current) => {
+      const attackers = parseList(current.attackerObjectIds);
+      const defenders = parseList(current.defenderObjectIds);
+      if (attackers.length === 0) {
+        attackers.push(objectId);
+      } else if (!defenders.includes(objectId)) {
+        defenders.push(objectId);
+      }
+
+      return {
+        ...current,
+        attackerObjectIds: attackers.join(", "),
+        defenderObjectIds: defenders.join(", ")
+      };
     });
   }
 
@@ -655,13 +771,23 @@ function App() {
           activeKey={activeKey}
           activePlayer={activePlayer}
           playDraft={playDraft}
+          moveDraft={moveDraft}
+          assembleDraft={assembleDraft}
+          battleDraft={battleDraft}
           visibleObjectIds={visibleObjectIds}
           fixtureText={fixtureText}
           fixtureStatus={fixtureStatus}
           onActiveKey={setActiveKey}
           onPlayDraft={setPlayDraft}
+          onMoveDraft={setMoveDraft}
+          onAssembleDraft={setAssembleDraft}
+          onBattleDraft={setBattleDraft}
           onPickObject={addTargetObjectId}
           onSubmitPlayCard={() => void submitPlayCardDraft()}
+          onSubmitMove={() => void submitMoveDraft()}
+          onSubmitAssemble={() => void submitAssembleDraft()}
+          onSubmitBattle={() => void submitBattleDraft()}
+          onPromptAction={(action) => void submitPromptAction(activeKey, action)}
           onSeedScenario={(preset) => void seedScenario(preset)}
           onRefreshFixture={refreshFixtureDraft}
           onCopyFixture={() => void copyFixtureDraft()}
@@ -859,13 +985,23 @@ function CommandWorkbench({
   activeKey,
   activePlayer,
   playDraft,
+  moveDraft,
+  assembleDraft,
+  battleDraft,
   visibleObjectIds,
   fixtureText,
   fixtureStatus,
   onActiveKey,
   onPlayDraft,
+  onMoveDraft,
+  onAssembleDraft,
+  onBattleDraft,
   onPickObject,
   onSubmitPlayCard,
+  onSubmitMove,
+  onSubmitAssemble,
+  onSubmitBattle,
+  onPromptAction,
   onSeedScenario,
   onRefreshFixture,
   onCopyFixture
@@ -873,19 +1009,33 @@ function CommandWorkbench({
   activeKey: PlayerKey;
   activePlayer: PlayerState;
   playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
   visibleObjectIds: string[];
   fixtureText: string;
   fixtureStatus: string;
   onActiveKey: (key: PlayerKey) => void;
   onPlayDraft: (draft: PlayCardDraft) => void;
+  onMoveDraft: (draft: MoveUnitDraft) => void;
+  onAssembleDraft: (draft: AssembleDraft) => void;
+  onBattleDraft: (draft: BattleDraft) => void;
   onPickObject: (objectId: string) => void;
   onSubmitPlayCard: () => void;
+  onSubmitMove: () => void;
+  onSubmitAssemble: () => void;
+  onSubmitBattle: () => void;
+  onPromptAction: (action: string) => void;
   onSeedScenario: (preset: ScenarioPreset) => void;
   onRefreshFixture: () => void;
   onCopyFixture: () => void;
 }) {
   const promptActions = activePlayer.prompt?.actions ?? [];
-  const canPlayCard = promptActions.includes("PLAY_CARD");
+  const promptIsActionable = Boolean(activePlayer.prompt?.actionable);
+  const canPlayCard = promptIsActionable && promptActions.includes("PLAY_CARD");
+  const canMove = promptIsActionable && promptActions.includes("MOVE_UNIT");
+  const canAssemble = promptIsActionable && promptActions.includes("ASSEMBLE_EQUIPMENT");
+  const canDeclareBattle = promptIsActionable && promptActions.includes("DECLARE_BATTLE");
 
   return (
     <section className="workbench-panel" data-testid="command-workbench">
@@ -903,9 +1053,16 @@ function CommandWorkbench({
         </label>
         <div className="action-chips">
           {promptActions.map((action) => (
-            <span className={activePlayer.prompt?.actionable ? "action-chip actionable" : "action-chip"} key={action}>
+            <button
+              className={promptIsActionable ? "action-chip actionable" : "action-chip"}
+              data-testid={`workbench-action-${action.toLowerCase().replaceAll("_", "-")}`}
+              disabled={!promptIsActionable || !replayableActions.has(action)}
+              key={action}
+              onClick={() => onPromptAction(action)}
+              type="button"
+            >
               {action}
-            </span>
+            </button>
           ))}
         </div>
       </div>
@@ -928,7 +1085,7 @@ function CommandWorkbench({
       <section className="play-card-panel">
         <div className="section-title">
           <h3>PLAY_CARD Builder</h3>
-          <span>{canPlayCard ? "prompt allows PLAY_CARD" : "manual submit still available below"}</span>
+          <span>{canPlayCard ? "prompt allows PLAY_CARD" : "blocked by current prompt"}</span>
         </div>
         <div className="form-grid">
           <label>
@@ -967,6 +1124,15 @@ function CommandWorkbench({
               spellCheck={false}
             />
           </label>
+          <label>
+            destination
+            <input
+              data-testid="play-destination"
+              value={playDraft.destination}
+              onChange={(event) => onPlayDraft({ ...playDraft, destination: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
           <label className="wide-input">
             optionalCosts
             <input
@@ -984,8 +1150,143 @@ function CommandWorkbench({
             </button>
           ))}
         </div>
-        <button data-testid="submit-play-card" onClick={onSubmitPlayCard}>
+        <button data-testid="submit-play-card" disabled={!canPlayCard} onClick={onSubmitPlayCard}>
           Submit PLAY_CARD
+        </button>
+      </section>
+
+      <section className="command-panel">
+        <div className="section-title">
+          <h3>MOVE_UNIT</h3>
+          <span>{canMove ? "prompt allows MOVE_UNIT" : "blocked by current prompt"}</span>
+        </div>
+        <div className="form-grid">
+          <label>
+            sourceObjectId
+            <input
+              data-testid="move-source"
+              value={moveDraft.sourceObjectId}
+              onChange={(event) => onMoveDraft({ ...moveDraft, sourceObjectId: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            origin
+            <input
+              data-testid="move-origin"
+              value={moveDraft.origin}
+              onChange={(event) => onMoveDraft({ ...moveDraft, origin: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            destination
+            <input
+              data-testid="move-destination"
+              value={moveDraft.destination}
+              onChange={(event) => onMoveDraft({ ...moveDraft, destination: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            optionalCosts
+            <input
+              data-testid="move-optional-costs"
+              value={moveDraft.optionalCosts}
+              onChange={(event) => onMoveDraft({ ...moveDraft, optionalCosts: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+        </div>
+        <button data-testid="submit-move-unit" disabled={!canMove} onClick={onSubmitMove}>
+          Submit MOVE_UNIT
+        </button>
+      </section>
+
+      <section className="command-panel">
+        <div className="section-title">
+          <h3>ASSEMBLE_EQUIPMENT</h3>
+          <span>{canAssemble ? "prompt allows ASSEMBLE_EQUIPMENT" : "blocked by current prompt"}</span>
+        </div>
+        <div className="form-grid">
+          <label>
+            sourceObjectId
+            <input
+              data-testid="assemble-source"
+              value={assembleDraft.sourceObjectId}
+              onChange={(event) => onAssembleDraft({ ...assembleDraft, sourceObjectId: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            targetObjectId
+            <input
+              data-testid="assemble-target"
+              value={assembleDraft.targetObjectId}
+              onChange={(event) => onAssembleDraft({ ...assembleDraft, targetObjectId: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label className="wide-input">
+            optionalCosts
+            <input
+              data-testid="assemble-optional-costs"
+              value={assembleDraft.optionalCosts}
+              onChange={(event) => onAssembleDraft({ ...assembleDraft, optionalCosts: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+        </div>
+        <button data-testid="submit-assemble-equipment" disabled={!canAssemble} onClick={onSubmitAssemble}>
+          Submit ASSEMBLE_EQUIPMENT
+        </button>
+      </section>
+
+      <section className="command-panel">
+        <div className="section-title">
+          <h3>DECLARE_BATTLE</h3>
+          <span>{canDeclareBattle ? "prompt allows DECLARE_BATTLE" : "blocked by current prompt"}</span>
+        </div>
+        <div className="form-grid">
+          <label>
+            battlefieldId
+            <input
+              data-testid="battlefield-id"
+              value={battleDraft.battlefieldId}
+              onChange={(event) => onBattleDraft({ ...battleDraft, battlefieldId: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            attackerObjectIds
+            <input
+              data-testid="battle-attackers"
+              value={battleDraft.attackerObjectIds}
+              onChange={(event) => onBattleDraft({ ...battleDraft, attackerObjectIds: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            defenderObjectIds
+            <input
+              data-testid="battle-defenders"
+              value={battleDraft.defenderObjectIds}
+              onChange={(event) => onBattleDraft({ ...battleDraft, defenderObjectIds: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            optionalCosts
+            <input
+              data-testid="battle-optional-costs"
+              value={battleDraft.optionalCosts}
+              onChange={(event) => onBattleDraft({ ...battleDraft, optionalCosts: event.target.value })}
+              spellCheck={false}
+            />
+          </label>
+        </div>
+        <button data-testid="submit-declare-battle" disabled={!canDeclareBattle} onClick={onSubmitBattle}>
+          Submit DECLARE_BATTLE
         </button>
       </section>
 
@@ -1223,6 +1524,50 @@ function buildPlayCardCommand(draft: PlayCardDraft) {
   if (draft.mode.trim()) {
     command.mode = draft.mode.trim();
   }
+  if (draft.destination.trim()) {
+    command.destination = draft.destination.trim();
+  }
+  const optionalCosts = parseList(draft.optionalCosts);
+  if (optionalCosts.length > 0) {
+    command.optionalCosts = optionalCosts;
+  }
+  return command;
+}
+
+function buildMoveUnitCommand(draft: MoveUnitDraft) {
+  const command: Record<string, unknown> = {
+    cmdType: "MOVE_UNIT",
+    sourceObjectId: draft.sourceObjectId.trim(),
+    origin: draft.origin.trim(),
+    destination: draft.destination.trim()
+  };
+  const optionalCosts = parseList(draft.optionalCosts);
+  if (optionalCosts.length > 0) {
+    command.optionalCosts = optionalCosts;
+  }
+  return command;
+}
+
+function buildAssembleCommand(draft: AssembleDraft) {
+  const command: Record<string, unknown> = {
+    cmdType: "ASSEMBLE_EQUIPMENT",
+    sourceObjectId: draft.sourceObjectId.trim(),
+    targetObjectId: draft.targetObjectId.trim()
+  };
+  const optionalCosts = parseList(draft.optionalCosts);
+  if (optionalCosts.length > 0) {
+    command.optionalCosts = optionalCosts;
+  }
+  return command;
+}
+
+function buildDeclareBattleCommand(draft: BattleDraft) {
+  const command: Record<string, unknown> = {
+    cmdType: "DECLARE_BATTLE",
+    battlefieldId: draft.battlefieldId.trim(),
+    attackerObjectIds: parseList(draft.attackerObjectIds),
+    defenderObjectIds: parseList(draft.defenderObjectIds)
+  };
   const optionalCosts = parseList(draft.optionalCosts);
   if (optionalCosts.length > 0) {
     command.optionalCosts = optionalCosts;
@@ -1236,7 +1581,8 @@ function draftFromCommand(command: Record<string, unknown>): PlayCardDraft {
     cardNo: typeof command.cardNo === "string" ? command.cardNo : "",
     targetObjectIds: Array.isArray(command.targetObjectIds) ? command.targetObjectIds.join(", ") : "",
     mode: typeof command.mode === "string" ? command.mode : "",
-    optionalCosts: Array.isArray(command.optionalCosts) ? command.optionalCosts.join(", ") : ""
+    optionalCosts: Array.isArray(command.optionalCosts) ? command.optionalCosts.join(", ") : "",
+    destination: typeof command.destination === "string" ? command.destination : ""
   };
 }
 
