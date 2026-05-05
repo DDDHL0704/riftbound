@@ -23769,6 +23769,59 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActDariusGainsManaAfterAnotherCardThisTurn()
+    {
+        var state = LegendActiveAbilityState("OGN·253/298", "P1-LEGEND-DARIUS", mana: 0) with
+        {
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 1
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-darius-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-DARIUS",
+                "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.True(result.State.CardObjects["P1-LEGEND-DARIUS"].IsExhausted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        var manaEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.Equal(1, manaEvent.Payload["mana"]);
+        Assert.Equal(1, manaEvent.Payload["manaAfter"]);
+    }
+
+    [Fact]
+    public async Task P79LegendActDariusRequiresAnotherCardPlayedThisTurn()
+    {
+        var state = LegendActiveAbilityState("OGN·302/298", "P1-LEGEND-DARIUS-REPRINT", mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-darius-legend-act-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-DARIUS-REPRINT",
+                "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-DARIUS-REPRINT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();

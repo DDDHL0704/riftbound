@@ -81,6 +81,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
     private const int JaxLegendAttachManaCost = 1;
     private const string JaxLegendAttachManaCostToken = "SPEND_MANA:1";
+    private const string DariusOriginLegendCardNo = "OGN·253/298";
+    private const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
+    private const int DariusLegendManaGain = 1;
     private const string JinxLegendCardNo = "FND-251/298";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
@@ -1092,6 +1095,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (ability.RequiresPlayedAnotherCardThisTurn
+            && !ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} requires the controller to have played another card this turn.",
+                ErrorCodes.InsufficientCost);
+        }
+
         if (ability.RequiresFriendlyUnitTarget
             && !IsValidLegendAbilityTarget(state, intent.PlayerId, targetObjectIds[0], ability))
         {
@@ -1282,6 +1294,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     isReattach: true,
                     events);
                 break;
+            case LegendAbilityEffectKinds.GainMana:
+                runePools = GainLegendMana(
+                    runePools,
+                    intent.PlayerId,
+                    DariusLegendManaGain,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
             case LegendAbilityEffectKinds.CreateMinion:
                 CreateLegendMinion(
                     playerZones,
@@ -1439,6 +1460,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresArmamentSecondTarget: true,
                 RequiresAttachedArmamentSecondTarget: true,
                 RequiresDifferentArmamentHost: true),
+            DariusLegendAbilityId => new LegendAbilityDefinition(
+                DariusLegendAbilityId,
+                [DariusOriginLegendCardNo, "OGN·302/298", "OGN·302*/298"],
+                "诺克萨斯之手传奇鼓舞技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GainMana,
+                RequiresPlayedAnotherCardThisTurn: true),
             LilliaLegendAbilityId => new LegendAbilityDefinition(
                 LilliaLegendAbilityId,
                 [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
@@ -1644,6 +1676,35 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["targetObjectId"] = targetObjectId,
                 ["effectId"] = MoveUnitRoamOptionalCost
             }));
+    }
+
+    private static Dictionary<string, RunePool> GainLegendMana(
+        IReadOnlyDictionary<string, RunePool> currentRunePools,
+        string playerId,
+        int manaAmount,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
+        var nextPool = currentPool with
+        {
+            Mana = currentPool.Mana + manaAmount
+        };
+        runePools[playerId] = nextPool;
+        events.Add(new GameEvent(
+            "MANA_GAINED",
+            $"{playerId} 通过传奇技能获得 {manaAmount} 点法力",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["mana"] = manaAmount,
+                ["manaAfter"] = nextPool.Mana
+            }));
+        return runePools;
     }
 
     private static void ReturnLegendTargetToOwnerHand(
@@ -11816,6 +11877,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresUnattachedArmamentSecondTarget = false,
         bool RequiresAttachedArmamentSecondTarget = false,
         bool RequiresDifferentArmamentHost = false,
+        bool RequiresPlayedAnotherCardThisTurn = false,
         string ManaCostReductionKind = "");
 
     private static class LegendAbilityEffectKinds
@@ -11827,6 +11889,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string ReturnBattlefieldUnitAndCreateCoin = "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN";
         public const string AttachArmament = "ATTACH_ARMAMENT";
         public const string ReattachArmament = "REATTACH_ARMAMENT";
+        public const string GainMana = "GAIN_MANA";
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
     }

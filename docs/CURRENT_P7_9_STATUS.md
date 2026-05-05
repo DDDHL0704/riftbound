@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `23/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `24/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `4` done.
+- P7.9.6 active-ability slices: `5` done.
 - P7.9.6 automatic-trigger slices: `6` done.
 - P7.9.6 static legend slices: `5` done.
-- Current functional-unit implementation: `736/811 = 90.8%`.
-- Current manual deferred boundary: `75/811 = 9.2%`.
+- Current functional-unit implementation: `737/811 = 90.9%`.
+- Current manual deferred boundary: `74/811 = 9.1%`.
 - Remaining manual domains:
-  - `传奇`: `21` functional units / `52` entries
+  - `传奇`: `20` functional units / `49` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `4` legend active-ability slices, `6` automatic-trigger slices, and `5` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `5` legend active-ability slices, `6` automatic-trigger slices, and `5` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -886,3 +886,39 @@ P7.9.6 active-ability slice 4 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this rule-only slice because the existing `LEGEND_ACT` UI path already renders source, mode, target, and cost candidates; this batch added new server candidates and backend validation without a new page flow. The Jax attach/reattach actions are visible through server prompt candidates, `LEGEND_ABILITY_ACTIVATED`, `LEGEND_EXHAUSTED`, `EQUIPMENT_ATTACHED`, and `EQUIPMENT_REATTACHED` events.
+
+## P7.9.6 Active-Ability Slice 5 Delivered
+
+This is the sixteenth committed rule slice inside P7.9.6. It adds Darius / 诺克萨斯之手 legend encourage resource actions through `LEGEND_ACT`.
+
+- Added Darius legend active ability:
+  - `LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA`
+  - requires the controller to have played another card this turn via existing `PlayerCardsPlayedThisTurn`
+  - exhausts the legend and gains `1` mana through server state
+  - emits `LEGEND_ABILITY_ACTIVATED`, `LEGEND_EXHAUSTED`, and `MANA_GAINED`
+- Expanded `ActionPrompt` legend candidates with a Darius mode label.
+- Accepted same-functional-unit legend entries:
+  - `OGN·253/298`
+  - `OGN·302/298`
+  - `OGN·302*/298`
+- Added representative conformance coverage for successful Darius encourage mana gain and rejection before another card was played this turn.
+- Migrated this legend active slice in `BehaviorSpec`:
+  - Implemented functional units: `737/811`
+  - Manual deferred functional units: `74/811`
+  - Implemented official entries: `903/1009`
+  - Manual deferred official entries: `106/1009`
+  - Legend rule-domain implemented: `24` functional units / `57` entries
+  - Remaining legend manual deferred: `20` functional units / `49` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active-ability slice 5 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendActDarius"`: passed `39/39`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2536/2536`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2643/2643`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because the existing `LEGEND_ACT` UI path already renders no-target, no-cost legend actions through server candidates. The Darius action is visible through server prompt candidates and the resulting `MANA_GAINED` event/snapshot.
