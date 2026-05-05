@@ -2105,7 +2105,7 @@ public sealed class MatchSession : IMatchSession
             787,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(2, 0),
+                [seed.P1] = new(2, 1),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -2114,6 +2114,7 @@ public sealed class MatchSession : IMatchSession
                     mainDeck: ["P1-LONG-SWORD-MAIN-001"],
                     runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
                     hand: ["P1-EQUIPMENT-LONG-SWORD"],
+                    baseZone: ["P1-UNIT-ASSEMBLE-TARGET"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -2122,7 +2123,13 @@ public sealed class MatchSession : IMatchSession
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
-            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            });
     }
 
     private static MatchState BuildControlScenario(MatchState current, DevScenarioSeed seed)

@@ -182,7 +182,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.5a | Done | Standby reaction, Ambush reaction, and Echo representative GameHub smokes. | GameHub/Room smoke passed. |
 | P6.5b | Done | Standby/Ambush/Echo keyword surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
 | P6.6a | Done | Equipment keyword surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
-| P6.6b | Planned | Equipment assemble/attach Room smoke expansion. | P5 equipment invariant tests required. |
+| P6.6b | Done | Long Sword play + assemble Room smoke. | GameHub/Room smoke passed. |
+| P6.6c | Planned | Remaining equipment assemble/agile/tempered boundary checks. | P5 equipment invariant tests required. |
 | P6.7 | Planned | Experience/level/hunt/encourage batches. | Engine + conformance tests. |
 | P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
 | P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
@@ -222,6 +223,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6.6a equipment keyword surface triage: `52/52 equipment-profile entries = 100.0%`; `46/46 equipment-profile functional units = 100.0%`.
   - Representative attach/detach boundary: `1/1 Take Up representative = 100.0% implemented-representative`.
   - Profile deferred boundary: `52/52 entries = 100.0%`, `46/46 functional units = 100.0%` for broad Assemble/Agile/Tempered execution surfaces.
+- P6.6b equipment Room smoke progress: `1/1 GameHub core path = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -538,6 +540,29 @@ P6.6a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `22/22`.
 - `git diff --check`: passed.
 
+## P6.6b Delivered
+
+- Expanded the development `equipment` seed into a two-step Room path:
+  - P1 starts with `P1-EQUIPMENT-LONG-SWORD` in hand, `P1-UNIT-ASSEMBLE-TARGET` in base, and enough resources to play then assemble.
+  - The target unit is an explicit face-up unit object with owner/controller identity filled by the existing P5 equipment state model during assemble.
+- Added a GameHub/Room smoke:
+  - Local URL: N/A; in-memory SignalR `GameHub` smoke with no browser/server listener.
+  - Room ID: `p6-6b-equipment-assemble-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(equipment)` -> `SubmitIntent(PLAY_CARD Long Sword, SFD·022/221)` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)` -> `SubmitIntent(ASSEMBLE_EQUIPMENT Long Sword -> P1-UNIT-ASSEMBLE-TARGET, optionalCosts ASSEMBLE_RED)`.
+  - Observed play events: `CARD_PLAYED`, `COST_PAID`, `STACK_ITEM_ADDED`, `STACK_ITEM_RESOLVED`, `EQUIPMENT_PLAYED_TO_BASE`.
+  - Observed assemble events: `COST_PAID`, `EQUIPMENT_ATTACHED`.
+  - Final snapshot summary: `P1-EQUIPMENT-LONG-SWORD` is in P1 base and has `attachedToObjectId = P1-UNIT-ASSEMBLE-TARGET`, `ownerId = P1`, `controllerId = P1`.
+- This batch does not broaden Agile/Tempered semantics; it Room-smokes the current Long Sword assemble representative and P5 owner/controller attachment invariants.
+
+P6.6b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2591/2591`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `31/31`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `23/23`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.6a, then continue into P6.6b equipment assemble/attach Room smoke expansion.
+Commit P6.6b, then continue into P6.6c remaining equipment boundary checks or P6.7 experience/resource batches.
