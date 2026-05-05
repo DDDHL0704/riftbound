@@ -231,6 +231,60 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6InteractionKeywordFamiliesReportSpecAndExecutionBoundaryCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var rows = BuildInteractionKeywordCoverageRows(
+            specs,
+            [
+                CardInteractionKeywordNames.Standby,
+                CardInteractionKeywordNames.Echo,
+                CardInteractionKeywordNames.Ambush
+            ]);
+
+        AssertInteractionKeywordCoverage(
+            rows,
+            CardInteractionKeywordNames.Standby,
+            entries: 53,
+            specImplementedEntries: 47,
+            functionalUnits: 43,
+            specImplementedFunctionalUnits: 41,
+            profileImplementedEntries: 0,
+            profileDeferredEntries: 53,
+            profileImplementedFunctionalUnits: 0,
+            profileDeferredFunctionalUnits: 43);
+        AssertInteractionKeywordCoverage(
+            rows,
+            CardInteractionKeywordNames.Echo,
+            entries: 24,
+            specImplementedEntries: 22,
+            functionalUnits: 24,
+            specImplementedFunctionalUnits: 22,
+            profileImplementedEntries: 10,
+            profileDeferredEntries: 14,
+            profileImplementedFunctionalUnits: 10,
+            profileDeferredFunctionalUnits: 14);
+        AssertInteractionKeywordCoverage(
+            rows,
+            CardInteractionKeywordNames.Ambush,
+            entries: 18,
+            specImplementedEntries: 18,
+            functionalUnits: 18,
+            specImplementedFunctionalUnits: 18,
+            profileImplementedEntries: 0,
+            profileDeferredEntries: 18,
+            profileImplementedFunctionalUnits: 0,
+            profileDeferredFunctionalUnits: 18);
+        Assert.All(rows, row =>
+        {
+            Assert.Equal(row.Entries, row.ProfileImplementedEntries + row.ProfileDeferredEntries);
+            Assert.Equal(row.FunctionalUnits, row.ProfileImplementedFunctionalUnits + row.ProfileDeferredFunctionalUnits);
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1632,6 +1686,105 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(implementedFunctionalUnits, family.ImplementedFunctionalUnits);
         Assert.Equal(pendingFunctionalUnits, family.PendingFunctionalUnits);
     }
+
+    private static IReadOnlyList<InteractionKeywordCoverageRow> BuildInteractionKeywordCoverageRows(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<string> keywords)
+    {
+        return keywords
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(keyword =>
+            {
+                var keywordSpecs = specs
+                    .Where(spec => spec.Keywords.Any(candidate => string.Equals(
+                        candidate.Keyword,
+                        keyword,
+                        StringComparison.Ordinal)))
+                    .ToArray();
+                var profileRows = keywordSpecs
+                    .Select(spec =>
+                    {
+                        CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out var definition);
+                        return new
+                        {
+                            Spec = spec,
+                            Profile = CardInteractionKeywordRules.BuildProfile(spec, definition)
+                        };
+                    })
+                    .ToArray();
+                var specUnitGroups = keywordSpecs
+                    .GroupBy(spec => spec.FunctionalUnitId, StringComparer.Ordinal)
+                    .ToArray();
+                var profileUnitGroups = profileRows
+                    .GroupBy(row => row.Spec.FunctionalUnitId, StringComparer.Ordinal)
+                    .ToArray();
+
+                return new InteractionKeywordCoverageRow(
+                    keyword,
+                    keywordSpecs.Length,
+                    keywordSpecs.Count(spec => string.Equals(
+                        spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    specUnitGroups.Length,
+                    specUnitGroups.Count(group => group.Any(spec => string.Equals(
+                        spec.Status,
+                        BehaviorImplementationStatuses.Implemented,
+                        StringComparison.Ordinal))),
+                    profileRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        InteractionKeywordProfileStatuses.Implemented,
+                        StringComparison.Ordinal)),
+                    profileRows.Count(row => string.Equals(
+                        row.Profile.Status,
+                        InteractionKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal)),
+                    profileUnitGroups.Count(group => group.Any(row => string.Equals(
+                        row.Profile.Status,
+                        InteractionKeywordProfileStatuses.Implemented,
+                        StringComparison.Ordinal))),
+                    profileUnitGroups.Count(group => group.All(row => string.Equals(
+                        row.Profile.Status,
+                        InteractionKeywordProfileStatuses.RecognizedDeferred,
+                        StringComparison.Ordinal))));
+            })
+            .ToArray();
+    }
+
+    private static void AssertInteractionKeywordCoverage(
+        IReadOnlyList<InteractionKeywordCoverageRow> rows,
+        string keyword,
+        int entries,
+        int specImplementedEntries,
+        int functionalUnits,
+        int specImplementedFunctionalUnits,
+        int profileImplementedEntries,
+        int profileDeferredEntries,
+        int profileImplementedFunctionalUnits,
+        int profileDeferredFunctionalUnits)
+    {
+        var row = Assert.Single(rows, candidate => string.Equals(candidate.Keyword, keyword, StringComparison.Ordinal));
+        Assert.Equal(entries, row.Entries);
+        Assert.Equal(specImplementedEntries, row.SpecImplementedEntries);
+        Assert.Equal(functionalUnits, row.FunctionalUnits);
+        Assert.Equal(specImplementedFunctionalUnits, row.SpecImplementedFunctionalUnits);
+        Assert.Equal(profileImplementedEntries, row.ProfileImplementedEntries);
+        Assert.Equal(profileDeferredEntries, row.ProfileDeferredEntries);
+        Assert.Equal(profileImplementedFunctionalUnits, row.ProfileImplementedFunctionalUnits);
+        Assert.Equal(profileDeferredFunctionalUnits, row.ProfileDeferredFunctionalUnits);
+    }
+
+    private sealed record InteractionKeywordCoverageRow(
+        string Keyword,
+        int Entries,
+        int SpecImplementedEntries,
+        int FunctionalUnits,
+        int SpecImplementedFunctionalUnits,
+        int ProfileImplementedEntries,
+        int ProfileDeferredEntries,
+        int ProfileImplementedFunctionalUnits,
+        int ProfileDeferredFunctionalUnits);
 
     private static CardCombatKeywordProfile BuildCombatProfile(
         IReadOnlyList<BehaviorSpec> specs,

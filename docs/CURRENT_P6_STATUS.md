@@ -180,7 +180,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.4b | Done | Battle declaration GameHub core-path smoke. | GameHub/Room smoke passed. |
 | P6.4c | Planned | Remaining movement/battle/scoring boundary checks. | Conformance + GameHub/Room smoke where player-visible. |
 | P6.5a | Done | Standby reaction, Ambush reaction, and Echo representative GameHub smokes. | GameHub/Room smoke passed. |
-| P6.5b | Planned | Remaining standby/ambush/echo boundary triage. | Response-window conformance + zero-side-effect blocked/deferred checks. |
+| P6.5b | Done | Standby/Ambush/Echo keyword surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
 | P6.6 | Planned | Equipment/assemble/agile/forge/tempered batches. | P5 equipment invariant tests required. |
 | P6.7 | Planned | Experience/level/hunt/encourage batches. | Engine + conformance tests. |
 | P6.8 | Planned | Last Breath/ephemeral/replacement/trigger batches. | High-risk small batches. |
@@ -215,6 +215,9 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6.4a movement/scoring smoke progress: `2/2 GameHub core paths = 100.0%`.
 - P6.4b battle declaration smoke progress: `1/1 GameHub core path = 100.0%`.
 - P6.5a standby/ambush/echo smoke progress: `3/3 GameHub core paths = 100.0%`.
+- P6.5b interaction keyword surface triage: `95/95 keyword-surface entries = 100.0%`; `85/85 keyword-surface functional units = 100.0%`.
+  - Profile implemented boundary: `10/95 entries = 10.5%`, `10/85 functional units = 11.8%` (mana-only Echo representatives).
+  - Profile deferred boundary: `85/95 entries = 89.5%`, `75/85 functional units = 88.2%` (Standby, Ambush, and complex Echo surfaces).
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -477,6 +480,32 @@ P6.5a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `22/22`.
 - `git diff --check`: passed.
 
+## P6.5b Delivered
+
+- Added a P6 interaction keyword coverage matrix to `CardCatalogBaselineTests`.
+- Locked official keyword-surface counts and BehaviorSpec/profile boundaries:
+
+| Keyword | Entries | Spec implemented entries | Functional units | Spec implemented units | Profile implemented entries | Profile deferred entries | Profile implemented units | Profile deferred units |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 待命 | 53 | 47 | 43 | 41 | 0 | 53 | 0 | 43 |
+| 回响 | 24 | 22 | 24 | 22 | 10 | 14 | 10 | 14 |
+| 伏击 | 18 | 18 | 18 | 18 | 0 | 18 | 0 | 18 |
+
+- Deferred reason:
+  - `待命`: P4/P6 has representative hide/reveal/reaction paths and Room smoke, but broad target damage, per-card standby triggers, and hidden-choice flows remain deferred.
+  - `伏击`: P4/P6 has one Room-smoked representative battlefield reaction play, but broad Ambush target scopes and per-card combat triggers remain deferred.
+  - `回响`: mana-only Echo representatives are implemented; complex Echo costs or cards with other high-risk interaction keywords remain deferred unless their ordinary play effect already has a separate conformance path.
+- This batch does not change engine behavior or BehaviorSpec status counts; it prevents P6 from accidentally promoting deferred interaction surfaces into full `CONFORMANCE_PASS`.
+
+P6.5b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2589/2589`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `30/30`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `22/22`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.5a, then continue into P6.5b remaining standby/ambush/echo boundary triage and P6.6 equipment/assemble/agile/forge/tempered batches.
+Commit P6.5b, then continue into P6.6 equipment/assemble/agile/forge/tempered batches.
