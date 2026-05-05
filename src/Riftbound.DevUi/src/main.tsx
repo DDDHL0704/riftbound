@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import * as signalR from "@microsoft/signalr";
 import "./styles.css";
@@ -153,6 +153,27 @@ type BattleDraft = {
   defenderObjectIds: string;
   optionalCosts: string;
 };
+
+type BehaviorSpecDto = {
+  cardNo: string;
+  cardName: string;
+  cardCategoryName: string;
+  functionalUnitId: string;
+  status: string;
+  reason: string;
+  officialText: string;
+  templateIds?: string[];
+  implementedEffectKind?: string | null;
+  implementedByCardNo?: string | null;
+  keywords?: { keyword: string; rawText: string; value?: string | null }[];
+  targets?: { scope: string; minCount: number; maxCount?: number | null; text: string; optional?: boolean }[];
+  triggers?: { kind: string; timing: string; text: string; reason?: string }[];
+  activatedAbilities?: { costText: string; effectText: string; templateIds: string[]; status: string; reason: string }[];
+  staticAbilities?: { kind: string; text: string; status: string; reason: string }[];
+  effects?: { templateId: string; phrase: string; status: string; reason: string }[];
+};
+
+type CatalogFilter = "all" | "conformance-pass" | "manual-deferred" | "blocked";
 
 type ScenarioPreset = {
   id: string;
@@ -344,6 +365,11 @@ function App() {
   const [battleDraft, setBattleDraft] = useState(initialBattleDraft);
   const [fixtureDraft, setFixtureDraft] = useState("");
   const [fixtureStatus, setFixtureStatus] = useState("idle");
+  const [catalog, setCatalog] = useState<BehaviorSpecDto[]>([]);
+  const [catalogStatus, setCatalogStatus] = useState("loading");
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const [catalogFilter, setCatalogFilter] = useState<CatalogFilter>("conformance-pass");
+  const [selectedCardNo, setSelectedCardNo] = useState("");
   const connections = useRef<Record<PlayerKey, signalR.HubConnection | null>>({ p1: null, p2: null });
   const playersRef = useRef(initialPlayers);
   const logCounter = useRef(1);
@@ -353,7 +379,36 @@ function App() {
   const latestSnapshot = activePlayer.snapshot ?? players.p1.snapshot ?? players.p2.snapshot;
   const roomSummary = useMemo(() => summarizeRoom(latestSnapshot), [latestSnapshot]);
   const visibleObjectIds = useMemo(() => collectVisibleObjectIds(latestSnapshot), [latestSnapshot]);
+  const catalogSummary = useMemo(() => summarizeCatalog(catalog), [catalog]);
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadCatalog() {
+      setCatalogStatus("loading");
+      try {
+        const response = await fetch(`${apiBase(serverUrl)}/catalog/behavior-specs`, { signal: controller.signal });
+        if (!response.ok) {
+          throw new Error(`catalog request failed: ${response.status}`);
+        }
+        const specs = (await response.json()) as BehaviorSpecDto[];
+        if (!controller.signal.aborted) {
+          setCatalog(specs);
+          setSelectedCardNo((current) => current || specs.find((spec) => spec.status === "implemented")?.cardNo || specs[0]?.cardNo || "");
+          setCatalogStatus(`loaded ${specs.length}`);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setCatalogStatus(errorToText(error));
+        }
+      }
+    }
+
+    void loadCatalog();
+
+    return () => controller.abort();
+  }, [serverUrl]);
 
   function updatePlayer(key: PlayerKey, updater: (state: PlayerState) => PlayerState) {
     setPlayers((current) => {
@@ -817,6 +872,18 @@ function App() {
       </section>
 
       <MatchTelemetry players={players} snapshot={latestSnapshot} roomId={roomId} />
+
+      <CardCatalogPanel
+        specs={catalog}
+        status={catalogStatus}
+        summary={catalogSummary}
+        query={catalogQuery}
+        filter={catalogFilter}
+        selectedCardNo={selectedCardNo}
+        onQuery={setCatalogQuery}
+        onFilter={setCatalogFilter}
+        onSelect={setSelectedCardNo}
+      />
 
       <section className="players-grid">
         {playerKeys.map((key) => (
@@ -1552,6 +1619,179 @@ function MatchTelemetry({
   );
 }
 
+function CardCatalogPanel({
+  specs,
+  status,
+  summary,
+  query,
+  filter,
+  selectedCardNo,
+  onQuery,
+  onFilter,
+  onSelect
+}: {
+  specs: BehaviorSpecDto[];
+  status: string;
+  summary: Record<string, number>;
+  query: string;
+  filter: CatalogFilter;
+  selectedCardNo: string;
+  onQuery: (query: string) => void;
+  onFilter: (filter: CatalogFilter) => void;
+  onSelect: (cardNo: string) => void;
+}) {
+  const filtered = useMemo(() => filterCatalog(specs, query, filter), [specs, query, filter]);
+  const selected = specs.find((spec) => spec.cardNo === selectedCardNo) ?? filtered[0] ?? specs[0];
+  const visible = filtered.slice(0, 80);
+
+  return (
+    <section className="catalog-panel" data-testid="card-catalog">
+      <div className="section-title">
+        <div>
+          <p className="eyebrow">Card Catalog</p>
+          <h2>图鉴与卡牌详情</h2>
+        </div>
+        <span>{status}</span>
+      </div>
+
+      <div className="catalog-toolbar">
+        <label>
+          Search
+          <input
+            data-testid="catalog-search"
+            value={query}
+            onChange={(event) => onQuery(event.target.value)}
+            placeholder="card no, name, rule text"
+            spellCheck={false}
+          />
+        </label>
+        <label>
+          Status
+          <select data-testid="catalog-filter" value={filter} onChange={(event) => onFilter(event.target.value as CatalogFilter)}>
+            <option value="conformance-pass">CONFORMANCE_PASS</option>
+            <option value="manual-deferred">P6 manual deferred</option>
+            <option value="blocked">Blocked / unimplemented</option>
+            <option value="all">All statuses</option>
+          </select>
+        </label>
+        <div className="catalog-counts" data-testid="catalog-counts">
+          <span>CONFORMANCE_PASS {summary.implemented ?? 0}</span>
+          <span>Manual deferred {summary["manual-rule-required"] ?? 0}</span>
+          <span>Blocked {summary.unimplemented ?? 0}</span>
+        </div>
+      </div>
+
+      <div className="catalog-layout">
+        <div className="catalog-list" data-testid="catalog-results">
+          <div className="catalog-list-summary">
+            <strong>{filtered.length}</strong>
+            <span>showing {visible.length}</span>
+          </div>
+          {visible.length === 0 ? (
+            <div className="empty-row">No catalog cards match this filter.</div>
+          ) : (
+            visible.map((spec) => (
+              <button
+                className={spec.cardNo === selected?.cardNo ? "catalog-card selected" : "catalog-card"}
+                data-testid={`catalog-card-${cssSafeId(spec.cardNo)}`}
+                key={spec.cardNo}
+                onClick={() => onSelect(spec.cardNo)}
+              >
+                <strong>{spec.cardName || spec.cardNo}</strong>
+                <span>{spec.cardNo}</span>
+                <StatusBadgeView spec={spec} />
+              </button>
+            ))
+          )}
+        </div>
+
+        <CardDetail spec={selected} />
+      </div>
+    </section>
+  );
+}
+
+function CardDetail({ spec }: { spec?: BehaviorSpecDto }) {
+  if (!spec) {
+    return (
+      <section className="card-detail" data-testid="card-detail">
+        <div className="empty-row">Select a card.</div>
+      </section>
+    );
+  }
+
+  const isManual = spec.status === "manual-rule-required";
+
+  return (
+    <section className="card-detail" data-testid="card-detail">
+      <div className="card-detail-header">
+        <div>
+          <p className="eyebrow">{spec.cardCategoryName}</p>
+          <h2>{spec.cardName || spec.cardNo}</h2>
+          <span>{spec.cardNo}</span>
+        </div>
+        <StatusBadgeView spec={spec} />
+      </div>
+
+      {isManual ? (
+        <div className="catalog-boundary" data-testid="catalog-deferred-boundary">
+          P6 manual deferred: this legend/battlefield or non-PLAY_CARD surface is blocked from P7 playable controls until a backend domain implements it.
+        </div>
+      ) : null}
+
+      <dl className="detail-grid">
+        <div>
+          <dt>Functional unit</dt>
+          <dd>{spec.functionalUnitId}</dd>
+        </div>
+        <div>
+          <dt>Implemented by</dt>
+          <dd>{spec.implementedByCardNo ?? "-"}</dd>
+        </div>
+        <div>
+          <dt>Effect kind</dt>
+          <dd>{spec.implementedEffectKind ?? "-"}</dd>
+        </div>
+        <div>
+          <dt>Templates</dt>
+          <dd>{spec.templateIds?.length ? spec.templateIds.join(", ") : "-"}</dd>
+        </div>
+      </dl>
+
+      <section className="card-text-block">
+        <h3>Official Text</h3>
+        <p>{spec.officialText || "No official rule text."}</p>
+      </section>
+      <section className="card-text-block">
+        <h3>Behavior Reason</h3>
+        <p>{spec.reason}</p>
+      </section>
+
+      <div className="spec-pill-grid">
+        <SpecPills title="Keywords" values={(spec.keywords ?? []).map((item) => item.value ? `${item.keyword} ${item.value}` : item.keyword)} />
+        <SpecPills title="Targets" values={(spec.targets ?? []).map((item) => `${item.scope} ${item.minCount}-${item.maxCount ?? item.minCount}`)} />
+        <SpecPills title="Triggers" values={(spec.triggers ?? []).map((item) => `${item.kind}: ${item.timing}`)} />
+        <SpecPills title="Effects" values={(spec.effects ?? []).map((item) => `${item.templateId}: ${statusLabel(item.status)}`)} />
+      </div>
+    </section>
+  );
+}
+
+function StatusBadgeView({ spec }: { spec: BehaviorSpecDto }) {
+  return <span className={`catalog-status ${catalogStatusClass(spec.status)}`}>{statusLabel(spec.status)}</span>;
+}
+
+function SpecPills({ title, values }: { title: string; values: string[] }) {
+  return (
+    <section className="spec-pill-section">
+      <h3>{title}</h3>
+      <div className="spec-pills">
+        {values.length === 0 ? <span>none</span> : values.slice(0, 12).map((value) => <span key={value}>{value}</span>)}
+      </div>
+    </section>
+  );
+}
+
 function PlayerPanel({
   playerKey,
   state,
@@ -1755,6 +1995,67 @@ function summarizeRoom(snapshot?: SnapshotDto) {
     { label: "Stack", value: String(snapshot.stack?.length ?? 0) },
     { label: "Winner", value: String(snapshot.timing?.winnerPlayerId ?? "-") }
   ];
+}
+
+function summarizeCatalog(specs: BehaviorSpecDto[]) {
+  return specs.reduce<Record<string, number>>((counts, spec) => {
+    counts[spec.status] = (counts[spec.status] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function filterCatalog(specs: BehaviorSpecDto[], query: string, filter: CatalogFilter) {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  return specs.filter((spec) => {
+    if (filter === "conformance-pass" && spec.status !== "implemented") {
+      return false;
+    }
+    if (filter === "manual-deferred" && spec.status !== "manual-rule-required") {
+      return false;
+    }
+    if (filter === "blocked" && spec.status !== "unimplemented") {
+      return false;
+    }
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return [spec.cardNo, spec.cardName, spec.cardCategoryName, spec.officialText, spec.reason, ...(spec.templateIds ?? [])]
+      .join(" ")
+      .toLocaleLowerCase()
+      .includes(normalizedQuery);
+  });
+}
+
+function statusLabel(status: string) {
+  if (status === "implemented") {
+    return "CONFORMANCE_PASS";
+  }
+  if (status === "manual-rule-required") {
+    return "P6 MANUAL DEFERRED";
+  }
+  if (status === "unimplemented") {
+    return "BLOCKED";
+  }
+  return status;
+}
+
+function catalogStatusClass(status: string) {
+  if (status === "implemented") {
+    return "pass";
+  }
+  if (status === "manual-rule-required") {
+    return "manual";
+  }
+  return "blocked";
+}
+
+function cssSafeId(value: string) {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "-");
+}
+
+function apiBase(serverUrl: string) {
+  return serverUrl.replace(/\/+$/, "");
 }
 
 function collectTimelineEvents(players: Record<PlayerKey, PlayerState>): TimelineEvent[] {

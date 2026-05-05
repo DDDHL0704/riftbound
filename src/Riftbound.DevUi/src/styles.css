@@ -89,6 +89,7 @@ label {
 .room-strip,
 .desk-panel,
 .workbench-panel,
+.catalog-panel,
 .player-panel,
 .prompt-panel,
 .intent-panel,
@@ -694,6 +695,196 @@ h3 {
 
 .replay-panel {
   align-content: start;
+}
+
+.catalog-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.catalog-toolbar {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) 220px minmax(360px, 0.9fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.catalog-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.catalog-counts span,
+.catalog-status,
+.spec-pills span {
+  border: 1px solid #d4c7b6;
+  border-radius: 999px;
+  background: #f5efe6;
+  color: #4d463e;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.catalog-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.82fr) minmax(520px, 1.18fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.catalog-list {
+  display: grid;
+  gap: 6px;
+  max-height: 620px;
+  overflow: auto;
+}
+
+.catalog-list-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e3d9cb;
+  border-radius: 6px;
+  background: #fbf7ee;
+  padding: 8px;
+}
+
+.catalog-card {
+  display: grid;
+  gap: 4px;
+  min-height: 72px;
+  border-color: #c4b6a2;
+  background: #fffdf9;
+  color: #20211f;
+  text-align: left;
+}
+
+.catalog-card:hover:not(:disabled),
+.catalog-card.selected {
+  border-color: #1f6b5d;
+  background: #eaf5ee;
+}
+
+.catalog-card span {
+  color: #5e564c;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.catalog-status {
+  width: fit-content;
+}
+
+.catalog-status.pass {
+  border-color: #78a98a;
+  background: #eef8f0;
+  color: #276042;
+}
+
+.catalog-status.manual {
+  border-color: #b8a063;
+  background: #fff8dc;
+  color: #6d5622;
+}
+
+.catalog-status.blocked {
+  border-color: #bd765f;
+  background: #fff1eb;
+  color: #873f2a;
+}
+
+.card-detail {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #e3d9cb;
+  border-radius: 8px;
+  background: #fffdf9;
+  padding: 12px;
+}
+
+.card-detail-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-detail-header span {
+  color: #5e564c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.catalog-boundary {
+  border: 1px solid #b8a063;
+  border-radius: 6px;
+  background: #fff8dc;
+  color: #6d5622;
+  padding: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.detail-grid div,
+.card-text-block,
+.spec-pill-section {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #e3d9cb;
+  border-radius: 6px;
+  background: #fbf7ee;
+  padding: 8px;
+}
+
+.detail-grid dt {
+  color: #766c60;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.detail-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.card-text-block h3,
+.spec-pill-section h3 {
+  font-size: 12px;
+}
+
+.card-text-block p {
+  margin: 0;
+  color: #4d463e;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.spec-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.spec-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .player-panel {

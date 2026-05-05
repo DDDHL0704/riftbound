@@ -161,11 +161,11 @@ Core P7 smoke path:
 | P7.4 | Done | Payment and target-selection UX, response windows, spell-duel surface. | Browser smoke: target and response flow. |
 | P7.5 | Done | Status badges, equipment attachment strip, damage/temp power/exhaustion/combat/shield/swift/ephemeral/control markers. | Browser visual smoke passed. |
 | P7.6 | Done | Product event log, match report, replay/spectator entry with explicit backend boundary. | Browser smoke passed: report and boundary. |
-| P7.7 | Planned | Catalog and card detail browser with BehaviorSpec status and deferred labels. | Browser smoke: catalog/detail filtering. |
+| P7.7 | Done | Catalog and card detail browser with BehaviorSpec status and deferred labels. | Browser smoke passed: catalog/detail filtering. |
 | P7.8 | Planned | Product polish, loading/empty/error/disconnect states, stable desktop sizing. | Browser visual smoke. |
 | P7.x | Planned | Final full validation, status sync, clean status, commit. | Browser smoke + full backend test gate. |
 
-Current P7 progress: `7/10 batches = 70.0%`; estimated remaining batches: `3`.
+Current P7 progress: `8/10 batches = 80.0%`; estimated remaining batches: `2`.
 
 ## Validation Policy
 
@@ -281,6 +281,21 @@ P7.6 validation:
 - Browser smoke: passed with `battle-score` + prompt `END_TURN`; telemetry showed `21 events`, `BURNOUT_APPLIED`, `MATCH_WON`, report status `FINISHED`, winner `P1`, and disabled replay/spectator buttons.
 - `git diff --check`: passed.
 
+## P7.7 Delivered
+
+- Added a card catalog panel backed by `/catalog/behavior-specs`.
+- Defaulted the catalog to `CONFORMANCE_PASS` cards and exposed filters for `P6 manual deferred`, `blocked/unimplemented`, and all statuses.
+- Added card detail surfaces for official text, BehaviorSpec reason, functional unit id, implemented effect kind/card, templates, keywords, targets, triggers, and effects.
+- Marked manual deferred legend/battlefield cards with `P6 MANUAL DEFERRED` and an explicit boundary that they are blocked from P7 playable controls until backend domains exist.
+- Kept catalog browsing read-only; it does not create commands or alter ActionPrompt behavior.
+
+P7.7 validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- Browser smoke: passed; catalog loaded `1009` specs, showed `CONFORMANCE_PASS 846`, `Manual deferred 163`, and a manual legend detail with the P7 blocked boundary.
+- `git diff --check`: passed.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
@@ -325,3 +340,9 @@ P7.6 validation:
   - Operation path: reload Web URL -> set room id -> `双人入座` -> `双方准备` -> seed `battle-score` -> P1 prompt `END_TURN`.
   - Event summary: product event log showed `21 events`, including `TURN_END_DECLARED`, `TURN_START_BEGAN`, multiple `BURNOUT_APPLIED`, and `MATCH_WON`.
   - Final snapshot summary: roomStatus `FINISHED`, turn `#76`, active player `P2`, winner `P1`, P1 score `8`, P2 score `0`; replay and spectator entry buttons were visible and disabled with a deferred backend boundary.
+- P7.7 catalog/card detail smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - Operation path: reload Web URL -> wait for catalog load -> verify `CONFORMANCE_PASS` counts -> switch filter to `P6 manual deferred` -> open first manual card detail.
+  - Catalog summary: loaded `1009` BehaviorSpecs; `CONFORMANCE_PASS 846`, `Manual deferred 163`, `Blocked 0`.
+  - Detail summary: selected manual deferred legend `FND-249/298` 不灭狂雷; detail showed functional unit `FU-fd15be558d`, official text, BehaviorSpec reason `Category '传奇' requires a dedicated non-PLAY_CARD rule domain before template execution.`, and the P7 blocked-from-playable-controls boundary.
