@@ -203,6 +203,7 @@ public static class OfficialRuleDomainBehaviorCatalog
 {
     public const string RuneResourceDomainEffectKind = "RUNE_RESOURCE_DOMAIN";
     public const string TokenFactoryDomainEffectKind = "TOKEN_FACTORY_DOMAIN";
+    public const string LegendActionDomainEffectKind = "LEGEND_ACTION_DOMAIN";
 
     public static IReadOnlyList<ImplementedCardBehavior> MergeWithNonPlayCardDomains(
         IReadOnlyList<OfficialCard> cards,
@@ -225,10 +226,18 @@ public static class OfficialRuleDomainBehaviorCatalog
                 TokenFactoryDomainEffectKind,
                 card.CardName))
             .ToArray();
+        var legendActionBehaviors = cards
+            .Where(IsImplementedLegendActionCard)
+            .Select(card => new ImplementedCardBehavior(
+                card.CardNo,
+                LegendActionDomainEffectKind,
+                card.CardName))
+            .ToArray();
 
         return playCardBehaviors
             .Concat(runeBehaviors)
             .Concat(tokenBehaviors)
+            .Concat(legendActionBehaviors)
             .ToArray();
     }
 
@@ -244,6 +253,26 @@ public static class OfficialRuleDomainBehaviorCatalog
         ArgumentNullException.ThrowIfNull(card);
 
         return card.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal);
+    }
+
+    public static bool IsImplementedLegendActionCard(OfficialCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+
+        return card.CardNo is "FND-259/298"
+            or "OGN·259/298"
+            or "OGN·305*/298"
+            or "OGN·305/298"
+            or "OGN·257/298"
+            or "OGN·304*/298"
+            or "OGN·304/298"
+            or "UNL-203/219"
+            or "UNL-237*/219"
+            or "UNL-237/219"
+            or "FND-265/298"
+            or "OGN·265/298"
+            or "OGN·308*/298"
+            or "OGN·308/298";
     }
 }
 
@@ -411,6 +440,12 @@ public static class BehaviorSpecCatalogBuilder
                     OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind,
                     StringComparison.Ordinal) =>
                 $"Mapped to the P6 token factory domain: generated token category '{card.CardCategoryName}' has an explicit official token identity binding; token cards remain outside PLAY_CARD.",
+            BehaviorImplementationStatuses.Implemented when implementation is not null
+                && string.Equals(
+                    implementation.EffectKind,
+                    OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind,
+                    StringComparison.Ordinal) =>
+                "Mapped to the P7.9 legend action domain: LEGEND_ACT validates source legend, exhaustion, costs, targets, and server-authoritative effects; legend cards remain outside PLAY_CARD.",
             BehaviorImplementationStatuses.Implemented when implementation is not null
                 && string.Equals(implementation.CardNo, card.CardNo, StringComparison.Ordinal) =>
                 $"Mapped directly to existing P2 hand-written behavior '{implementation.EffectKind}'.",

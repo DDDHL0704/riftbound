@@ -23506,6 +23506,99 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActMovesFriendlyUnitWithYasuo()
+    {
+        var state = LegendActiveAbilityState("FND-259/298", "P1-LEGEND-YASUO", mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-yasuo-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-YASUO",
+                "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:2"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-YASUO"].IsExhausted);
+        Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActAcceptsYasuoReprintFunctionalUnit()
+    {
+        var state = LegendActiveAbilityState("OGN·305/298", "P1-LEGEND-YASUO-REPRINT", mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-yasuo-reprint-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-YASUO-REPRINT",
+                "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:2"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-YASUO-REPRINT"].IsExhausted);
+        Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
+    public async Task P79LegendActGrantsBoonWithLeeSin()
+    {
+        var state = LegendActiveAbilityState("OGN·257/298", "P1-LEGEND-LEE-SIN", mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-lee-sin-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-LEE-SIN",
+                "LEGEND_PAY_1_EXHAUST_GRANT_BOON",
+                ["P1-LEGEND-BASE-UNIT"],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-LEE-SIN"].IsExhausted);
+        var target = result.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal(3, target.Power);
+        Assert.Contains(CardObjectTags.Boon, target.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendActCreatesMinionWithViktor()
+    {
+        var state = LegendActiveAbilityState("FND-265/298", "P1-LEGEND-VIKTOR", mana: 1);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-viktor-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-VIKTOR",
+                "LEGEND_PAY_1_EXHAUST_CREATE_MINION",
+                [],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-VIKTOR"].IsExhausted);
+        Assert.Contains("P1-LEGEND-VIKTOR-TOKEN-001", result.State.PlayerZones["P1"].Base);
+        var token = result.State.CardObjects["P1-LEGEND-VIKTOR-TOKEN-001"];
+        Assert.Equal(1, token.Power);
+        Assert.Contains(CardObjectTags.UnitCard, token.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P6BattlefieldEffectCatalogAuditsDeferredSurfacesAgainstOfficialText()
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
@@ -33465,6 +33558,65 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2"] = 0
             }
         };
+    }
+
+    private static MatchState LegendActiveAbilityState(string sourceCardNo, string sourceObjectId, int mana)
+    {
+        return new MatchState(
+            "p7-9-legend-active-room",
+            0,
+            906,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P1",
+            MatchPhases.Main,
+            TimingStates.NeutralOpen,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(mana, 0),
+                ["P2"] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-LEGEND-BASE-UNIT"],
+                    Battlefields = ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                    LegendZone = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-BASE-UNIT"] = new(
+                    "P1-LEGEND-BASE-UNIT",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-BATTLEFIELD-UNIT"] = new(
+                    "P1-LEGEND-BATTLEFIELD-UNIT",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
     }
 
     private static MatchState P4SpellDuelFocusState()

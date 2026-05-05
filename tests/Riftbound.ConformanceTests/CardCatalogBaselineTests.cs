@@ -76,8 +76,8 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1009, report.OfficialEntries);
         Assert.Equal(1009, report.BehaviorSpecs);
         Assert.Empty(report.MissingReasonCardNos);
-        Assert.Equal(846, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
-        Assert.Equal(163, report.StatusCounts[BehaviorImplementationStatuses.ManualRuleRequired]);
+        Assert.Equal(860, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
+        Assert.Equal(149, report.StatusCounts[BehaviorImplementationStatuses.ManualRuleRequired]);
         Assert.False(report.StatusCounts.ContainsKey(BehaviorImplementationStatuses.Unimplemented));
         Assert.Contains(BehaviorImplementationStatuses.Implemented, report.StatusCounts.Keys);
         Assert.Contains(BehaviorImplementationStatuses.ManualRuleRequired, report.StatusCounts.Keys);
@@ -107,6 +107,11 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(BehaviorImplementationStatuses.Implemented, tokenSpec.Status);
         Assert.Equal(OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind, tokenSpec.ImplementedEffectKind);
         Assert.Contains("P6 token factory domain", tokenSpec.Reason, StringComparison.Ordinal);
+
+        var legendActionSpec = Assert.Single(specs, spec => string.Equals(spec.CardNo, "UNL-237/219", StringComparison.Ordinal));
+        Assert.Equal(BehaviorImplementationStatuses.Implemented, legendActionSpec.Status);
+        Assert.Equal(OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind, legendActionSpec.ImplementedEffectKind);
+        Assert.Contains("P7.9 legend action domain", legendActionSpec.Reason, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -205,14 +210,14 @@ public sealed class CardCatalogBaselineTests
         var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
 
         Assert.Equal(811, coverage.FunctionalUnits);
-        Assert.Equal(713, coverage.ImplementedUnits);
-        Assert.Equal(98, coverage.ManualRuleRequiredUnits);
+        Assert.Equal(717, coverage.ImplementedUnits);
+        Assert.Equal(94, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.Equal(113, coverage.DuplicateGroups);
-        Assert.Equal(74, coverage.ImplementedDuplicateGroups);
-        Assert.Equal(207, coverage.ImplementedDuplicateEntries);
-        Assert.Equal(39, coverage.PendingDuplicateGroups);
-        Assert.Equal(104, coverage.PendingDuplicateEntries);
+        Assert.Equal(78, coverage.ImplementedDuplicateGroups);
+        Assert.Equal(221, coverage.ImplementedDuplicateEntries);
+        Assert.Equal(35, coverage.PendingDuplicateGroups);
+        Assert.Equal(90, coverage.PendingDuplicateEntries);
 
         var implementedDuplicateRows = coverage.Units
             .Where(row => row.IsDuplicateGroup
@@ -250,7 +255,7 @@ public sealed class CardCatalogBaselineTests
                 BehaviorTemplateIds.Stun
             ]);
 
-        AssertFamily(report, BehaviorTemplateIds.Draw, 131, 105, 26, 0, 114, 99, 15);
+        AssertFamily(report, BehaviorTemplateIds.Draw, 131, 108, 23, 0, 114, 100, 14);
         AssertFamily(report, BehaviorTemplateIds.Damage, 148, 141, 7, 0, 129, 124, 5);
         AssertFamily(report, BehaviorTemplateIds.Destroy, 127, 119, 8, 0, 118, 113, 5);
         AssertFamily(report, BehaviorTemplateIds.Stun, 33, 30, 3, 0, 29, 28, 1);
@@ -280,11 +285,11 @@ public sealed class CardCatalogBaselineTests
             ]);
 
         AssertFamily(report, BehaviorTemplateIds.Recall, 49, 39, 10, 0, 43, 36, 7);
-        AssertFamily(report, BehaviorTemplateIds.Move, 136, 117, 19, 0, 111, 101, 10);
+        AssertFamily(report, BehaviorTemplateIds.Move, 136, 121, 15, 0, 111, 102, 9);
         AssertFamily(report, BehaviorTemplateIds.Recycle, 63, 55, 8, 0, 51, 45, 6);
         AssertFamily(report, BehaviorTemplateIds.Banish, 11, 8, 3, 0, 9, 8, 1);
-        AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 256, 36, 0, 230, 209, 21);
-        AssertFamily(report, BehaviorTemplateIds.Boon, 66, 51, 15, 0, 48, 41, 7);
+        AssertFamily(report, BehaviorTemplateIds.TempMight, 292, 259, 33, 0, 230, 210, 20);
+        AssertFamily(report, BehaviorTemplateIds.Boon, 66, 54, 12, 0, 48, 42, 6);
         Assert.All(report.Families, family =>
         {
             Assert.Equal(family.Entries, family.ImplementedEntries + family.ManualRuleRequiredEntries + family.UnimplementedEntries);
@@ -472,12 +477,12 @@ public sealed class CardCatalogBaselineTests
             experienceReport,
             BehaviorTemplateIds.GainExperience,
             entries: 51,
-            implementedEntries: 43,
-            manualRuleRequiredEntries: 8,
+            implementedEntries: 46,
+            manualRuleRequiredEntries: 5,
             unimplementedEntries: 0,
             functionalUnits: 47,
-            implementedFunctionalUnits: 43,
-            pendingFunctionalUnits: 4);
+            implementedFunctionalUnits: 44,
+            pendingFunctionalUnits: 3);
         Assert.Equal(6, experienceRows.Count(row => HasExperienceBehavior(row.Definition)));
         Assert.Equal(6, experienceUnitGroups.Count(group => group.Any(row => HasExperienceBehavior(row.Definition))));
         Assert.All(rows, row =>
@@ -551,12 +556,12 @@ public sealed class CardCatalogBaselineTests
             timingRows,
             TimingSurfaceNames.Trigger,
             entries: 530,
-            specImplementedEntries: 432,
-            manualRuleRequiredEntries: 98,
+            specImplementedEntries: 435,
+            manualRuleRequiredEntries: 95,
             unimplementedEntries: 0,
             functionalUnits: 423,
-            specImplementedFunctionalUnits: 361,
-            pendingFunctionalUnits: 62);
+            specImplementedFunctionalUnits: 362,
+            pendingFunctionalUnits: 61);
         AssertTimingSurfaceCoverage(
             timingRows,
             TimingSurfaceNames.Replacement,
@@ -599,16 +604,28 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(44, unitGroups.Length);
         Assert.Equal(40, legendSpecs.Select(spec => spec.CardName).Distinct(StringComparer.Ordinal).Count());
         Assert.Equal(
-            106,
+            92,
             legendSpecs.Count(spec => string.Equals(
                 spec.Status,
                 BehaviorImplementationStatuses.ManualRuleRequired,
                 StringComparison.Ordinal)));
         Assert.Equal(
-            44,
+            40,
             unitGroups.Count(group => group.All(spec => string.Equals(
                 spec.Status,
                 BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal))));
+        Assert.Equal(
+            14,
+            legendSpecs.Count(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Implemented,
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            4,
+            unitGroups.Count(group => group.Any(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Implemented,
                 StringComparison.Ordinal))));
         Assert.Equal(106, legendSpecs.Count(spec => !string.IsNullOrWhiteSpace(spec.OfficialText)));
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 47, functionalUnits: 18);
@@ -618,7 +635,48 @@ public sealed class CardCatalogBaselineTests
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 48, functionalUnits: 20);
         AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 71, functionalUnits: 30);
 
-        Assert.All(legendSpecs, spec =>
+        var implementedLegendActionSpecs = legendSpecs
+            .Where(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Implemented,
+                StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(
+            [
+                "FND-259/298",
+                "FND-265/298",
+                "OGN·257/298",
+                "OGN·259/298",
+                "OGN·265/298",
+                "OGN·304*/298",
+                "OGN·304/298",
+                "OGN·305*/298",
+                "OGN·305/298",
+                "OGN·308*/298",
+                "OGN·308/298",
+                "UNL-203/219",
+                "UNL-237*/219",
+                "UNL-237/219"
+            ],
+            implementedLegendActionSpecs
+                .Select(spec => spec.CardNo)
+                .Order(StringComparer.Ordinal)
+                .ToArray());
+        Assert.All(implementedLegendActionSpecs, spec =>
+        {
+            Assert.Equal(OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind, spec.ImplementedEffectKind);
+            Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedByCardNo));
+            Assert.Contains("P7.9 legend action domain", spec.Reason, StringComparison.Ordinal);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out _));
+        });
+
+        var manualLegendSpecs = legendSpecs
+            .Where(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal))
+            .ToArray();
+        Assert.All(manualLegendSpecs, spec =>
         {
             Assert.Contains("dedicated non-PLAY_CARD rule domain", spec.Reason, StringComparison.Ordinal);
             Assert.Null(spec.ImplementedEffectKind);
@@ -683,8 +741,8 @@ public sealed class CardCatalogBaselineTests
 
         Assert.Equal(1009, specs.Count);
         Assert.Equal(811, coverage.FunctionalUnits);
-        Assert.Equal(713, coverage.ImplementedUnits);
-        Assert.Equal(98, coverage.ManualRuleRequiredUnits);
+        Assert.Equal(717, coverage.ImplementedUnits);
+        Assert.Equal(94, coverage.ManualRuleRequiredUnits);
         Assert.Equal(0, coverage.UnimplementedUnits);
         Assert.DoesNotContain(specs, spec => string.Equals(
             spec.Status,
@@ -703,9 +761,9 @@ public sealed class CardCatalogBaselineTests
             .Order(StringComparer.Ordinal)
             .ToArray();
         Assert.Equal(["传奇", "战场"], manualCategories);
-        Assert.Equal(163, manualSpecs.Length);
+        Assert.Equal(149, manualSpecs.Length);
         Assert.Equal(
-            98,
+            94,
             manualSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
         Assert.All(manualSpecs, spec =>
         {
@@ -722,22 +780,26 @@ public sealed class CardCatalogBaselineTests
                 BehaviorImplementationStatuses.Implemented,
                 StringComparison.Ordinal))
             .ToArray();
-        Assert.Equal(846, implementedSpecs.Length);
+        Assert.Equal(860, implementedSpecs.Length);
         Assert.All(implementedSpecs, spec =>
         {
             Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedEffectKind));
             Assert.False(string.IsNullOrWhiteSpace(spec.ImplementedByCardNo));
-            var isP6NonPlayDomain = string.Equals(
+            var isImplementedNonPlayDomain = string.Equals(
                     spec.ImplementedEffectKind,
                     OfficialRuleDomainBehaviorCatalog.RuneResourceDomainEffectKind,
                     StringComparison.Ordinal)
                 || string.Equals(
                     spec.ImplementedEffectKind,
                     OfficialRuleDomainBehaviorCatalog.TokenFactoryDomainEffectKind,
+                    StringComparison.Ordinal)
+                || string.Equals(
+                    spec.ImplementedEffectKind,
+                    OfficialRuleDomainBehaviorCatalog.LegendActionDomainEffectKind,
                     StringComparison.Ordinal);
             Assert.True(
-                isP6NonPlayDomain || CardBehaviorRegistry.TryGetByCardNo(spec.ImplementedByCardNo!, out _),
-                $"{spec.CardNo} has implemented effect {spec.ImplementedEffectKind} without registry or P6 domain coverage.");
+                isImplementedNonPlayDomain || CardBehaviorRegistry.TryGetByCardNo(spec.ImplementedByCardNo!, out _),
+                $"{spec.CardNo} has implemented effect {spec.ImplementedEffectKind} without registry or non-PLAY_CARD domain coverage.");
         });
 
         Assert.Equal(5, P6LegendAbilityCatalog.GetDeferredSurfaces().Count);

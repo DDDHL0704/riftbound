@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | Planned | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. First active-ability slice migrated `4/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -201,7 +201,14 @@ Final P7.9 gate:
 - P7.9.3 status: done.
 - P7.9.4 status: done.
 - P7.9.5 status: done.
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`.
+- P7.9.6 status: in progress.
+- P7.9.6 active-ability slice: done.
+- Current functional-unit implementation: `717/811 = 88.4%`.
+- Current manual deferred boundary: `94/811 = 11.6%`.
+- Remaining manual domains:
+  - `传奇`: `40` functional units / `92` entries
+  - `战场`: `54` functional units / `57` entries
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `1` committed legend rule slice is complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -341,3 +348,47 @@ P7.9.5 validation:
   - Event log summary: `LEGEND_ABILITY_ACTIVATED`, `EXPERIENCE_SPENT`, `LEGEND_EXHAUSTED`, `CARD_DRAWN`
   - Final snapshot summary: P1 experience `0`; `P1-LEGEND-POPPY` exhausted; P1 hand contains `P1-LEGEND-DRAW-001`; P1 main deck count `0`
   - Browser screenshot capture was attempted through the in-app Browser API, but the Browser CDP `Page.captureScreenshot` command timed out repeatedly. DOM/state smoke still verified the visible operation path and final state.
+
+## P7.9.6 Active-Ability Slice Delivered
+
+This is the first committed rule slice inside the broader P7.9.6 legend-domain batch. P7.9.6 remains in progress until all remaining legend functional units are closed.
+
+- Expanded `LEGEND_ACT` from the single Poppy representative into a reusable legend active-ability path.
+- Added implemented server-authoritative abilities:
+  - Yasuo / 疾风剑豪: pay `2` mana, exhaust legend, move a controlled unit between battlefield and base.
+  - Lee Sin / 盲僧: pay `1` mana, exhaust legend, grant boon to a controlled unit.
+  - Poppy / 圣锤之毅: spend `3` experience, exhaust legend, draw `1`.
+  - Viktor / 奥术先驱: pay `1` mana, exhaust legend, create a `1` power unit token in base.
+- Accepted same-functional-unit legend reprints/variants for those abilities:
+  - `FND-259/298`, `OGN·259/298`, `OGN·305*/298`, `OGN·305/298`
+  - `OGN·257/298`, `OGN·304*/298`, `OGN·304/298`
+  - `UNL-203/219`, `UNL-237*/219`, `UNL-237/219`
+  - `FND-265/298`, `OGN·265/298`, `OGN·308*/298`, `OGN·308/298`
+- Added `legend-active-actions` dev seed and UI defaults so the product workbench can exercise the active legend path from server prompt choices.
+- Added server prompt candidates for implemented legend sources, ability modes, controlled-unit targets, and required mana/experience costs.
+- Migrated the first legend action domain slice in `BehaviorSpec`:
+  - Implemented functional units: `717/811`
+  - Manual deferred functional units: `94/811`
+  - Implemented official entries: `860/1009`
+  - Manual deferred official entries: `149/1009`
+  - Legend action domain implemented: `4` functional units / `14` entries
+  - Remaining legend manual deferred: `40` functional units / `92` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active-ability validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2513/2513`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2620/2620`.
+- `git diff --check`: passed.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-9-legend-active-1777962540842`
+  - Operation path: reload Web URL -> set server URL to `5089` -> set room id -> `join-both` -> `ready-both` -> open dev tools -> `Legend Actions` seed -> submit default Yasuo `LEGEND_ACT`
+  - Event log summary: `LEGEND_ABILITY_ACTIVATED`, `COST_PAID`, `LEGEND_EXHAUSTED`, `UNIT_MOVED_TO_BASE`
+  - Final snapshot summary: tick `906`; P1 active; P1 base count `2`; P1 battlefield count `0`; `P1-LEGEND-BATTLEFIELD-UNIT` moved into base; match remains `IN_PROGRESS`
+  - Screenshot note: Browser operation path and DOM/state verification passed. The in-app Browser screenshot APIs (`playwright.screenshot` and `cua.get_visible_screenshot`) timed out in this environment, matching the prior P7.9.5 screenshot limitation.

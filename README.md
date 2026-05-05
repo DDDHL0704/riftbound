@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：已完成到 P7.9.5，新增 `LEGEND_ACT` 代表路径和页面操作；下一步进入 P7.9.6 分批关闭传奇功能单元。P6 仍有 `98/811` 个 manual deferred 功能单元，全部集中在传奇/战场；P7.9 以关闭这些缺口为核心验收。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成首个传奇主动技能小批次，`LEGEND_ACT` 现在覆盖 4 个传奇功能单元 / 14 个官方条目；当前实现 `717/811` 个功能单元，manual deferred 剩余 `94/811`，全部集中在传奇/战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 
@@ -87,7 +87,7 @@ npm run dev
 
 - `docs/CURRENT_P7_9_STATUS.md`：当前短交接，记录 P7.9 本地产品版全卡可玩目标、缺口审计、批次计划、验证门禁和进度。
 - `docs/CURRENT_P7_STATUS.md`：P7 产品级 Web 对战完成状态、Browser smoke 和最终验证。
-- `docs/CURRENT_P6_STATUS.md`：P6 全卡状态矩阵，包含当前 `713/811` implemented 与 `98/811` manual deferred 边界。
+- `docs/CURRENT_P6_STATUS.md`：P6 全卡状态矩阵，保留 P6 final 的 `713/811` implemented 与 `98/811` manual deferred 边界；P7.9 当前数字以 `docs/CURRENT_P7_9_STATUS.md` 为准。
 - `docs/CURRENT_P4_STATUS.md`：P4 高频关键词/基础模板候选、风险分层、P4.1-P4.392 完成状态、最终验证和下一阶段边界。
 - `docs/CURRENT_P3_STATUS.md`：当前短交接，记录 P3 卡牌数据、BehaviorSpec、解析管线、模板骨架和验证状态。
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。

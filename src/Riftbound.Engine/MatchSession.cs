@@ -984,7 +984,7 @@ internal static class ActionPromptBuilder
                 .ToArray(),
             "LEGEND_ACT" => zones.LegendZone
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    && string.Equals(cardObject.CardNo, "UNL-237/219", StringComparison.Ordinal)
+                    && IsImplementedLegendActionCardNo(cardObject.CardNo)
                     && !cardObject.IsExhausted)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented legend action source"))
                 .ToArray(),
@@ -1011,6 +1011,10 @@ internal static class ActionPromptBuilder
                     && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                     && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal))
                 .Select(objectId => ObjectChoice(state, objectId, "opposing battlefield defender candidate"))
+                .ToArray(),
+            "LEGEND_ACT" => ControlledBoardObjects(state, playerId)
+                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled unit target"))
                 .ToArray(),
             _ => null
         };
@@ -1049,7 +1053,10 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("BATTLEFIELD_UNIT_POWER_MINUS_4", "战场单位战力 -4")
             ],
             "LEGEND_ACT" => [
-                new ActionPromptChoiceDto("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", "花费 3 经验并横置：抽 1 张")
+                new ActionPromptChoiceDto("LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT", "支付 2 并横置：移动友方单位"),
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_GRANT_BOON", "支付 1 并横置：给予友方单位增益"),
+                new ActionPromptChoiceDto("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", "花费 3 经验并横置：抽 1 张"),
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_MINION", "支付 1 并横置：打出 1 战力随从")
             ],
             _ => null
         };
@@ -1067,7 +1074,11 @@ internal static class ActionPromptBuilder
             ],
             "ASSEMBLE_EQUIPMENT" => [new ActionPromptChoiceDto("ASSEMBLE_RED", "装配红色符能")],
             "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
-            "LEGEND_ACT" => [new ActionPromptChoiceDto("SPEND_EXPERIENCE:3", "支付 3 经验")],
+            "LEGEND_ACT" => [
+                new ActionPromptChoiceDto("SPEND_MANA:1", "支付 1 法力"),
+                new ActionPromptChoiceDto("SPEND_MANA:2", "支付 2 法力"),
+                new ActionPromptChoiceDto("SPEND_EXPERIENCE:3", "支付 3 经验")
+            ],
             _ => null
         };
     }
@@ -1125,6 +1136,24 @@ internal static class ActionPromptBuilder
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
             && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
             && cardObject.Tags.Contains(tag, StringComparer.Ordinal);
+    }
+
+    private static bool IsImplementedLegendActionCardNo(string? cardNo)
+    {
+        return cardNo is "FND-259/298"
+            or "OGN·259/298"
+            or "OGN·305*/298"
+            or "OGN·305/298"
+            or "OGN·257/298"
+            or "OGN·304*/298"
+            or "OGN·304/298"
+            or "UNL-203/219"
+            or "UNL-237*/219"
+            or "UNL-237/219"
+            or "FND-265/298"
+            or "OGN·265/298"
+            or "OGN·308*/298"
+            or "OGN·308/298";
     }
 
     private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)
@@ -2159,6 +2188,7 @@ public sealed class MatchSession : IMatchSession
             "status-showcase" => BuildStatusShowcaseScenario(current, seed),
             "resource-experience" => BuildResourceExperienceScenario(current, seed),
             "legend-act" => BuildLegendActScenario(current, seed),
+            "legend-active-actions" => BuildLegendActiveActionsScenario(current, seed),
             "lifecycle-ephemeral" => BuildLifecycleEphemeralScenario(current, seed),
             "lifecycle-last-breath" => BuildLifecycleLastBreathScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
@@ -2611,6 +2641,58 @@ public sealed class MatchSession : IMatchSession
                 [seed.P2] = 0
             }
         };
+    }
+
+    private static MatchState BuildLegendActiveActionsScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603307906,
+            906,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(4, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-LEGEND-DRAW-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    baseZone: ["P1-LEGEND-BASE-UNIT"],
+                    battlefields: ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                    legendZone:
+                    [
+                        "P1-LEGEND-YASUO",
+                        "P1-LEGEND-LEE-SIN",
+                        "P1-LEGEND-POPPY",
+                        "P1-LEGEND-VIKTOR"
+                    ],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-YASUO"] = new("P1-LEGEND-YASUO", cardNo: "FND-259/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-LEE-SIN"] = new("P1-LEGEND-LEE-SIN", cardNo: "OGN·257/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-POPPY"] = new("P1-LEGEND-POPPY", cardNo: "UNL-237/219", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-VIKTOR"] = new("P1-LEGEND-VIKTOR", cardNo: "FND-265/298", ownerId: seed.P1, controllerId: seed.P1, tags: ["CARD_TYPE:LEGEND"]),
+                ["P1-LEGEND-BASE-UNIT"] = new("P1-LEGEND-BASE-UNIT", power: 2, tags: [CardObjectTags.UnitCard], ownerId: seed.P1, controllerId: seed.P1),
+                ["P1-LEGEND-BATTLEFIELD-UNIT"] = new("P1-LEGEND-BATTLEFIELD-UNIT", power: 3, tags: [CardObjectTags.UnitCard], ownerId: seed.P1, controllerId: seed.P1),
+                ["P1-LEGEND-DRAW-001"] = new("P1-LEGEND-DRAW-001", cardNo: "SFD·125/221", ownerId: seed.P1, controllerId: seed.P1, power: 3, tags: [CardObjectTags.UnitCard])
+            }) with
+            {
+                PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [seed.P1] = 3,
+                    [seed.P2] = 0
+                }
+            };
     }
 
     private static MatchState BuildLifecycleEphemeralScenario(MatchState current, DevScenarioSeed seed)

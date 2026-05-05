@@ -46,10 +46,23 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DiscardHandCardOptionalCostPrefix = "DISCARD_HAND_CARD:";
     private const string SpendPowerOptionalCostPrefix = "SPEND_POWER:";
     private const string SpendExperienceOptionalCostPrefix = "SPEND_EXPERIENCE:";
+    private const string SpendManaOptionalCostPrefix = "SPEND_MANA:";
+    private const string YasuoLegendCardNo = "FND-259/298";
+    private const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
+    private const int YasuoLegendManaCost = 2;
+    private const string YasuoLegendManaCostToken = "SPEND_MANA:2";
+    private const string LeeSinLegendCardNo = "OGN·257/298";
+    private const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
+    private const int LeeSinLegendManaCost = 1;
+    private const string LeeSinLegendManaCostToken = "SPEND_MANA:1";
     private const string PoppyLegendCardNo = "UNL-237/219";
     private const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
     private const int PoppyLegendExperienceCost = 3;
     private const string PoppyLegendExperienceCostToken = "SPEND_EXPERIENCE:3";
+    private const string ViktorLegendCardNo = "FND-265/298";
+    private const string ViktorLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_MINION";
+    private const int ViktorLegendManaCost = 1;
+    private const string ViktorLegendManaCostToken = "SPEND_MANA:1";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -926,6 +939,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         LegendActCommand command)
     {
+        if (!TryGetLegendAbility(command.AbilityId, out var ability))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT ability is not implemented yet.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
             || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
             || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -937,28 +958,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed);
         }
 
-        if (!string.Equals(command.AbilityId, PoppyLegendAbilityId, StringComparison.Ordinal))
+        var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
+        if (targetObjectIds.Count != ability.RequiredTargetCount)
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT ability is not implemented yet.",
-                ErrorCodes.UnsupportedCardBehavior);
-        }
-
-        if (command.TargetObjectIds.Count != 0)
-        {
-            return RejectWithCorePrompts(
-                state,
-                "Poppy's legend draw ability does not accept targets.",
+                $"{ability.DisplayName} requires {ability.RequiredTargetCount} target(s).",
                 ErrorCodes.InvalidTarget);
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (!optionalCosts.SequenceEqual([PoppyLegendExperienceCostToken], StringComparer.Ordinal))
+        if (!optionalCosts.SequenceEqual([ability.RequiredCostToken], StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
-                "Poppy's legend draw ability requires SPEND_EXPERIENCE:3.",
+                $"{ability.DisplayName} requires {ability.RequiredCostToken}.",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -981,11 +995,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!string.Equals(sourceState.CardNo, PoppyLegendCardNo, StringComparison.Ordinal))
+        if (!ability.SourceCardNos.Contains(sourceState.CardNo, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT source does not expose Poppy's implemented legend draw ability.",
+                "LEGEND_ACT source does not expose the requested implemented legend ability.",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -997,42 +1011,85 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var currentExperience = NormalizeExperienceForSeats(state);
-        if (!currentExperience.TryGetValue(intent.PlayerId, out var experience)
-            || experience < PoppyLegendExperienceCost)
+        if (ability.RequiresFriendlyUnitTarget
+            && (!IsControlledFieldObject(state, intent.PlayerId, targetObjectIds[0])
+                || !CardObjectHasTag(state.CardObjects, targetObjectIds[0], CardObjectTags.UnitCard)))
         {
             return RejectWithCorePrompts(
                 state,
-                "Not enough experience to activate Poppy's legend draw ability.",
+                $"{ability.DisplayName} target must be a controlled field unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < ability.ManaCost)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Not enough mana to activate {ability.DisplayName}.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var currentExperience = NormalizeExperienceForSeats(state);
+        if (ability.ExperienceCost > 0
+            && (!currentExperience.TryGetValue(intent.PlayerId, out var experience)
+                || experience < ability.ExperienceCost))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Not enough experience to activate {ability.DisplayName}.",
                 ErrorCodes.InsufficientCost);
         }
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var playerExperience = PayExperienceCosts(state, intent.PlayerId, PoppyLegendExperienceCost);
-        var playerScores = NormalizeScoresForSeats(state);
+        var runePools = PayRuneCosts(state, intent.PlayerId, ability.ManaCost, 0);
+        var playerExperience = PayExperienceCosts(state, intent.PlayerId, ability.ExperienceCost);
+        IReadOnlyDictionary<string, int> playerScores = NormalizeScoresForSeats(state);
+        var winnerPlayerId = state.WinnerPlayerId;
+        var rngCursor = state.RngCursor;
         var events = new List<GameEvent>
         {
             new(
                 "LEGEND_ABILITY_ACTIVATED",
-                $"{intent.PlayerId} 使用传奇行动",
+                $"{intent.PlayerId} 使用{ability.DisplayName}",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
-                    ["cardNo"] = PoppyLegendCardNo,
+                    ["cardNo"] = sourceState.CardNo,
                     ["abilityId"] = command.AbilityId
-                }),
-            new(
-                "EXPERIENCE_SPENT",
-                $"{intent.PlayerId} 支付 {PoppyLegendExperienceCost} 经验",
+                })
+        };
+        if (ability.ManaCost > 0)
+        {
+            events.Add(new GameEvent(
+                "COST_PAID",
+                $"{intent.PlayerId} 支付{ability.DisplayName}费用",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
-                    ["amount"] = PoppyLegendExperienceCost,
+                    ["mana"] = ability.ManaCost,
+                    ["power"] = 0,
+                    ["abilityId"] = command.AbilityId
+                }));
+        }
+
+        if (ability.ExperienceCost > 0)
+        {
+            events.Add(new GameEvent(
+                "EXPERIENCE_SPENT",
+                $"{intent.PlayerId} 支付 {ability.ExperienceCost} 经验",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["amount"] = ability.ExperienceCost,
                     ["remainingExperience"] = playerExperience[intent.PlayerId],
                     ["abilityId"] = command.AbilityId
-                }),
+                }));
+        }
+
+        events.Add(
             new(
                 "LEGEND_EXHAUSTED",
                 $"{command.SourceObjectId} 横置",
@@ -1041,8 +1098,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["abilityId"] = command.AbilityId
-                })
-        };
+                }));
 
         cardObjects[command.SourceObjectId] = sourceState with
         {
@@ -1051,26 +1107,64 @@ public sealed class CoreRuleEngine : IRuleEngine
             ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
         };
 
-        var drawApplication = ApplyDrawToPlayer(
-            state,
-            playerZones,
-            playerScores,
-            intent.PlayerId,
-            1,
-            state.RngCursor,
-            events);
+        switch (ability.EffectKind)
+        {
+            case LegendAbilityEffectKinds.DrawOne:
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    intent.PlayerId,
+                    1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+                break;
+            }
+            case LegendAbilityEffectKinds.MoveFriendlyUnit:
+                MoveLegendTargetBetweenBaseAndBattlefield(
+                    playerZones,
+                    targetObjectIds[0],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.GrantBoon:
+                GrantLegendBoon(
+                    cardObjects,
+                    targetObjectIds[0],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.CreateMinion:
+                CreateLegendMinion(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
+        }
 
         var nextState = state with
         {
             Tick = state.Tick + 1,
             ActivePlayerId = intent.PlayerId,
+            RunePools = runePools,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
-            PlayerScores = drawApplication.PlayerScores,
-            RngCursor = drawApplication.RngCursor,
-            Status = drawApplication.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
-            WinnerPlayerId = drawApplication.WinnerPlayerId ?? state.WinnerPlayerId
+            PlayerScores = playerScores,
+            RngCursor = rngCursor,
+            Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
+            WinnerPlayerId = winnerPlayerId
         };
 
         return new ResolutionResult(
@@ -1080,6 +1174,175 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool TryGetLegendAbility(
+        string abilityId,
+        out LegendAbilityDefinition ability)
+    {
+        ability = abilityId switch
+        {
+            YasuoLegendAbilityId => new LegendAbilityDefinition(
+                YasuoLegendAbilityId,
+                [YasuoLegendCardNo, "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
+                "亚索传奇移动技能",
+                YasuoLegendManaCost,
+                0,
+                YasuoLegendManaCostToken,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.MoveFriendlyUnit),
+            LeeSinLegendAbilityId => new LegendAbilityDefinition(
+                LeeSinLegendAbilityId,
+                [LeeSinLegendCardNo, "OGN·304*/298", "OGN·304/298"],
+                "李青传奇增益技能",
+                LeeSinLegendManaCost,
+                0,
+                LeeSinLegendManaCostToken,
+                1,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.GrantBoon),
+            PoppyLegendAbilityId => new LegendAbilityDefinition(
+                PoppyLegendAbilityId,
+                ["UNL-203/219", "UNL-237*/219", PoppyLegendCardNo],
+                "波比传奇抽牌技能",
+                0,
+                PoppyLegendExperienceCost,
+                PoppyLegendExperienceCostToken,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.DrawOne),
+            ViktorLegendAbilityId => new LegendAbilityDefinition(
+                ViktorLegendAbilityId,
+                [ViktorLegendCardNo, "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
+                "维克托传奇随从技能",
+                ViktorLegendManaCost,
+                0,
+                ViktorLegendManaCostToken,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.CreateMinion),
+            _ => default!
+        };
+
+        return ability is not null;
+    }
+
+    private static void MoveLegendTargetBetweenBaseAndBattlefield(
+        Dictionary<string, PlayerZones> playerZones,
+        string targetObjectId,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        var location = FindFieldObjectLocation(playerZones, targetObjectId);
+        if (location is null)
+        {
+            return;
+        }
+
+        var destinationZone = string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
+            ? MoveUnitBattlefieldZone
+            : MoveUnitBaseZone;
+        RemoveFieldObjectFromLocation(
+            playerZones,
+            location.Value.PlayerId,
+            location.Value.Zone,
+            targetObjectId);
+        AddFieldObjectToLocation(playerZones, playerId, destinationZone, targetObjectId);
+        events.Add(new GameEvent(
+            string.Equals(destinationZone, MoveUnitBaseZone, StringComparison.Ordinal)
+                ? "UNIT_MOVED_TO_BASE"
+                : "UNIT_MOVED_TO_BATTLEFIELD",
+            $"{targetObjectId} 被传奇技能移动",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = location.Value.Zone,
+                ["destinationZone"] = destinationZone
+            }));
+    }
+
+    private static void GrantLegendBoon(
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return;
+        }
+
+        var alreadyHadBoon = targetState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
+        var nextTags = targetState.Tags
+            .Concat([CardObjectTags.Boon])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+        cardObjects[targetObjectId] = targetState with
+        {
+            Power = alreadyHadBoon ? targetState.Power : targetState.Power + 1,
+            Tags = nextTags
+        };
+        events.Add(new GameEvent(
+            "BOON_GRANTED",
+            $"{targetObjectId} 获得增益",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["targetObjectId"] = targetObjectId,
+                ["alreadyHadBoon"] = alreadyHadBoon,
+                ["power"] = alreadyHadBoon ? targetState.Power : targetState.Power + 1
+            }));
+    }
+
+    private static void CreateLegendMinion(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, sourceObjectId, 1);
+        cardObjects[tokenObjectId] = new CardObjectState(
+            tokenObjectId,
+            power: 1,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: playerId,
+            controllerId: playerId);
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{sourceObjectId} 打出随从",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenName"] = "随从",
+                ["power"] = 1,
+                ["destinationZone"] = "BASE",
+                ["tokenTags"] = new[] { CardObjectTags.UnitCard }
+            }));
     }
 
     private static ResolutionResult ResolveXerathDamageAbility(
@@ -10344,6 +10607,25 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record BattleDamageAssignmentTarget(
         string ObjectId,
         string Role);
+
+    private sealed record LegendAbilityDefinition(
+        string AbilityId,
+        IReadOnlyList<string> SourceCardNos,
+        string DisplayName,
+        int ManaCost,
+        int ExperienceCost,
+        string RequiredCostToken,
+        int RequiredTargetCount,
+        bool RequiresFriendlyUnitTarget,
+        string EffectKind);
+
+    private static class LegendAbilityEffectKinds
+    {
+        public const string DrawOne = "DRAW_ONE";
+        public const string MoveFriendlyUnit = "MOVE_FRIENDLY_UNIT";
+        public const string GrantBoon = "GRANT_BOON";
+        public const string CreateMinion = "CREATE_MINION";
+    }
 
     private sealed record PlayCardPlan(
         CardBehaviorDefinition Behavior,

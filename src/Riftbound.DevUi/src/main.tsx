@@ -393,6 +393,18 @@ const scenarioPresets: ScenarioPreset[] = [
     }
   },
   {
+    id: "legend-active-actions",
+    title: "Legend Actions",
+    description: "P1 has Yasuo, Lee Sin, Poppy, Viktor, mana, experience, and friendly unit targets.",
+    command: {
+      cmdType: "LEGEND_ACT",
+      sourceObjectId: "P1-LEGEND-YASUO",
+      abilityId: "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+      targetObjectIds: ["P1-LEGEND-BATTLEFIELD-UNIT"],
+      optionalCosts: ["SPEND_MANA:2"]
+    }
+  },
+  {
     id: "specified-hand",
     title: "Specified Hand",
     description: "P1 receives multiple known playable cards for ad hoc fixture replay.",
@@ -750,6 +762,14 @@ function App() {
         abilityId: "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
         targetObjectIds: "",
         optionalCosts: "SPEND_EXPERIENCE:3"
+      });
+    }
+    if (preset.id === "legend-active-actions") {
+      setLegendDraft({
+        sourceObjectId: "P1-LEGEND-YASUO",
+        abilityId: "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+        targetObjectIds: "P1-LEGEND-BATTLEFIELD-UNIT",
+        optionalCosts: "SPEND_MANA:2"
       });
     }
   }
@@ -1772,6 +1792,12 @@ function CommandWorkbench({
         </div>
         <ChoiceChipRow title="服务端传奇" testIdPrefix="legend-source-choice" choices={legendCandidate?.sources} onPick={(choice) => onLegendDraft({ ...legendDraft, sourceObjectId: choice.id })} />
         <ChoiceChipRow title="服务端能力" testIdPrefix="legend-ability-choice" choices={legendCandidate?.modes} onPick={(choice) => onLegendDraft({ ...legendDraft, abilityId: choice.id })} />
+        <ChoiceChipRow
+          title="服务端目标"
+          testIdPrefix="legend-target-choice"
+          choices={legendCandidate?.targets}
+          onPick={(choice) => onLegendDraft({ ...legendDraft, targetObjectIds: toggleListValue(legendDraft.targetObjectIds, choice.id).join(", ") })}
+        />
         <ChoiceChipRow title="服务端费用" testIdPrefix="legend-cost-choice" choices={legendCandidate?.optionalCosts} onPick={(choice) => onLegendDraft({ ...legendDraft, optionalCosts: choice.id })} />
         <button data-testid="submit-legend-act" disabled={!canLegendAct} onClick={onSubmitLegend}>
           Submit LEGEND_ACT
