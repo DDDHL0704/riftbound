@@ -23716,6 +23716,59 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActJaxAttachesUnattachedArmament()
+    {
+        var state = JaxLegendActiveAbilityState("SFD·193/221", "P1-LEGEND-JAX", mana: 1, armamentAttachedToObjectId: null);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-jax-attach-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-JAX",
+                "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT",
+                ["P1-LEGEND-BASE-UNIT", "P1-JAX-ARMAMENT"],
+                ["SPEND_MANA:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-JAX"].IsExhausted);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-JAX-ARMAMENT"].AttachedToObjectId);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        var attachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+        Assert.Equal("P1-JAX-ARMAMENT", attachedEvent.Payload["equipmentObjectId"]);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", attachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79LegendActJaxReattachesAttachedArmament()
+    {
+        var state = JaxLegendActiveAbilityState(
+            "SFD·245/221",
+            "P1-LEGEND-JAX-REPRINT",
+            mana: 0,
+            armamentAttachedToObjectId: "P1-LEGEND-BATTLEFIELD-UNIT");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-jax-reattach-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-JAX-REPRINT",
+                "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT",
+                ["P1-LEGEND-BASE-UNIT", "P1-JAX-ARMAMENT"],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects["P1-LEGEND-JAX-REPRINT"].IsExhausted);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-JAX-ARMAMENT"].AttachedToObjectId);
+        var reattachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-BATTLEFIELD-UNIT", reattachedEvent.Payload["previousAttachedToObjectId"]);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", reattachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -34573,6 +34626,33 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-LEGEND-EPHEMERAL-UNIT",
             power: 1,
             tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState JaxLegendActiveAbilityState(
+        string sourceCardNo,
+        string sourceObjectId,
+        int mana,
+        string? armamentAttachedToObjectId)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base = playerZones["P1"].Base.Concat(["P1-JAX-ARMAMENT"]).ToArray()
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-JAX-ARMAMENT"] = new(
+            "P1-JAX-ARMAMENT",
+            cardNo: "SFD·022/221",
+            tags: [CardObjectTags.EquipmentCard, "武装"],
+            attachedToObjectId: armamentAttachedToObjectId,
             ownerId: "P1",
             controllerId: "P1");
         return state with

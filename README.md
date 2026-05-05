@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成三个传奇主动技能小批次、六个自动触发小批次（含 Jinx/Draven/Garen/Lux/Annie 与 Volibear/Fiora 强力单位召符文），以及 Rumble/Lucian/OGS Master Yi/Ahri/UNL Master Yi 五个静态传奇小批次，传奇规则域现在覆盖 22 个传奇功能单元 / 52 个官方条目；当前实现 `735/811` 个功能单元，manual deferred 剩余 `76/811`，全部集中在传奇/战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成四个传奇主动技能小批次（含 Jax 武装贴附/重贴附）、六个自动触发小批次（含 Jinx/Draven/Garen/Lux/Annie 与 Volibear/Fiora 强力单位召符文），以及 Rumble/Lucian/OGS Master Yi/Ahri/UNL Master Yi 五个静态传奇小批次，传奇规则域现在覆盖 23 个传奇功能单元 / 54 个官方条目；当前实现 `736/811` 个功能单元，manual deferred 剩余 `75/811`，全部集中在传奇/战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 

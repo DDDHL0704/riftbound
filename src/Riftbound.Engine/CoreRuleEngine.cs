@@ -76,6 +76,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
     private const int PykeLegendManaCost = 1;
     private const string PykeLegendManaCostToken = "SPEND_MANA:1";
+    private const string JaxSpiritforgedLegendCardNo = "SFD·193/221";
+    private const string JaxLegendAttachAbilityId = "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT";
+    private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
+    private const int JaxLegendAttachManaCost = 1;
+    private const string JaxLegendAttachManaCostToken = "SPEND_MANA:1";
     private const string JinxLegendCardNo = "FND-251/298";
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
@@ -1096,6 +1101,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (ability.RequiresArmamentSecondTarget
+            && !IsValidLegendArmamentSecondTarget(state, intent.PlayerId, targetObjectIds[0], targetObjectIds[1], ability))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} equipment target must satisfy its implemented legend target restrictions.",
+                ErrorCodes.InvalidTarget);
+        }
+
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < manaCost)
         {
@@ -1246,6 +1260,28 @@ public sealed class CoreRuleEngine : IRuleEngine
                     isExhausted: true,
                     events);
                 break;
+            case LegendAbilityEffectKinds.AttachArmament:
+                AttachOrReattachLegendArmament(
+                    cardObjects,
+                    targetObjectIds[0],
+                    targetObjectIds[1],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    isReattach: false,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.ReattachArmament:
+                AttachOrReattachLegendArmament(
+                    cardObjects,
+                    targetObjectIds[0],
+                    targetObjectIds[1],
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    isReattach: true,
+                    events);
+                break;
             case LegendAbilityEffectKinds.CreateMinion:
                 CreateLegendMinion(
                     playerZones,
@@ -1378,6 +1414,31 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresFriendlyUnitTarget: true,
                 LegendAbilityEffectKinds.ReturnBattlefieldUnitAndCreateCoin,
                 RequiresBattlefieldTarget: true),
+            JaxLegendAttachAbilityId => new LegendAbilityDefinition(
+                JaxLegendAttachAbilityId,
+                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                "武器大师传奇贴附技能",
+                JaxLegendAttachManaCost,
+                0,
+                JaxLegendAttachManaCostToken,
+                2,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.AttachArmament,
+                RequiresArmamentSecondTarget: true,
+                RequiresUnattachedArmamentSecondTarget: true),
+            JaxLegendReattachAbilityId => new LegendAbilityDefinition(
+                JaxLegendReattachAbilityId,
+                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                "武器大师传奇重贴附技能",
+                0,
+                0,
+                string.Empty,
+                2,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.ReattachArmament,
+                RequiresArmamentSecondTarget: true,
+                RequiresAttachedArmamentSecondTarget: true,
+                RequiresDifferentArmamentHost: true),
             LilliaLegendAbilityId => new LegendAbilityDefinition(
                 LilliaLegendAbilityId,
                 [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
@@ -1444,6 +1505,38 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return !ability.RequiresExhaustedTarget
             || (state.CardObjects.TryGetValue(targetObjectId, out var targetState) && targetState.IsExhausted);
+    }
+
+    private static bool IsValidLegendArmamentSecondTarget(
+        MatchState state,
+        string playerId,
+        string unitObjectId,
+        string equipmentObjectId,
+        LegendAbilityDefinition ability)
+    {
+        if (string.Equals(unitObjectId, equipmentObjectId, StringComparison.Ordinal)
+            || !IsControlledFieldObject(state, playerId, equipmentObjectId)
+            || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            || equipmentState.IsFaceDown
+            || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var isAttached = !string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId);
+        if (ability.RequiresUnattachedArmamentSecondTarget && isAttached)
+        {
+            return false;
+        }
+
+        if (ability.RequiresAttachedArmamentSecondTarget && !isAttached)
+        {
+            return false;
+        }
+
+        return !ability.RequiresDifferentArmamentHost
+            || !string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
     }
 
     private static void MoveLegendTargetBetweenBaseAndBattlefield(
@@ -1599,6 +1692,43 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["originZone"] = location.Value.Zone,
                 ["ownerPlayerId"] = ownerPlayerId,
                 ["destinationZone"] = "HAND"
+            }));
+    }
+
+    private static void AttachOrReattachLegendArmament(
+        Dictionary<string, CardObjectState> cardObjects,
+        string unitObjectId,
+        string equipmentObjectId,
+        string playerId,
+        string sourceObjectId,
+        string abilityId,
+        bool isReattach,
+        List<GameEvent> events)
+    {
+        if (!cardObjects.TryGetValue(equipmentObjectId, out var equipmentState))
+        {
+            return;
+        }
+
+        var previousAttachedToObjectId = equipmentState.AttachedToObjectId;
+        cardObjects[equipmentObjectId] = equipmentState with
+        {
+            AttachedToObjectId = unitObjectId
+        };
+        events.Add(new GameEvent(
+            isReattach ? "EQUIPMENT_REATTACHED" : "EQUIPMENT_ATTACHED",
+            isReattach ? $"{sourceObjectId} 重贴附武装" : $"{sourceObjectId} 贴附武装",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["unitObjectId"] = unitObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["controllerId"] = playerId,
+                ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? playerId : equipmentState.OwnerId,
+                ["attachedToObjectId"] = unitObjectId,
+                ["previousAttachedToObjectId"] = previousAttachedToObjectId
             }));
     }
 
@@ -11682,6 +11812,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         string EffectKind,
         bool RequiresBattlefieldTarget = false,
         bool RequiresExhaustedTarget = false,
+        bool RequiresArmamentSecondTarget = false,
+        bool RequiresUnattachedArmamentSecondTarget = false,
+        bool RequiresAttachedArmamentSecondTarget = false,
+        bool RequiresDifferentArmamentHost = false,
         string ManaCostReductionKind = "");
 
     private static class LegendAbilityEffectKinds
@@ -11691,6 +11825,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string GrantBoon = "GRANT_BOON";
         public const string GrantRoam = "GRANT_ROAM";
         public const string ReturnBattlefieldUnitAndCreateCoin = "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN";
+        public const string AttachArmament = "ATTACH_ARMAMENT";
+        public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
     }

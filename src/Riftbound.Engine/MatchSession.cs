@@ -1013,8 +1013,10 @@ internal static class ActionPromptBuilder
                 .Select(objectId => ObjectChoice(state, objectId, "opposing battlefield defender candidate"))
                 .ToArray(),
             "LEGEND_ACT" => ControlledBoardObjects(state, playerId)
-                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
-                .Select(objectId => ObjectChoice(state, objectId, "controlled unit target"))
+                .Where(objectId =>
+                    IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
+                    || IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.EquipmentCard))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled unit/equipment target"))
                 .ToArray(),
             _ => null
         };
@@ -1061,6 +1063,8 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON", "花费 1 经验并横置：给予友方单位增益"),
                 new ActionPromptChoiceDto("LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE", "花费 2 经验并横置：移动休眠友方单位回基地"),
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN", "支付 1 并横置：召回战场友方单位并打出金币"),
+                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT", "支付 1 并横置：贴附未贴附武装"),
+                new ActionPromptChoiceDto("LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT", "横置：重贴附已贴附武装"),
                 new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵")
             ],
             _ => null
@@ -1172,6 +1176,8 @@ internal static class ActionPromptBuilder
             or "UNL-185/219"
             or "UNL-228/219"
             or "UNL-228*/219"
+            or "SFD·193/221"
+            or "SFD·245/221"
             or "UNL-189/219"
             or "UNL-230*/219"
             or "UNL-230/219";
