@@ -122,6 +122,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RengarLegendCardNo = "UNL-183/219";
     private const string LeonaOriginLegendCardNo = "OGN·261/298";
     private const string SivirSpiritforgedLegendCardNo = "SFD·203/221";
+    private const string JhinLegendCardNo = "UNL-181/219";
+    private const string JhinBanishedHighCostSpellMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
+    private const int JhinHighCostSpellManaThreshold = 4;
+    private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
@@ -1901,6 +1905,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardNo is SivirSpiritforgedLegendCardNo or "SFD·250/221";
     }
 
+    private static bool IsJhinLegendCardNo(string? cardNo)
+    {
+        return cardNo is JhinLegendCardNo or "UNL-226/219" or "UNL-226*/219";
+    }
+
     private static bool ControllerHasAzirLegend(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -1932,6 +1941,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && (string.IsNullOrWhiteSpace(legendState.ControllerId)
                     || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
                 && IsLeonaLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool ControllerHasJhinLegend(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        return playerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(objectId =>
+                cardObjects.TryGetValue(objectId, out var legendState)
+                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && IsJhinLegendCardNo(legendState.CardNo));
     }
 
     private static bool TryGetRengarLegend(
@@ -5400,6 +5422,132 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return [];
+    }
+
+    private static JhinHighCostSpellTriggerResult ResolveJhinHighCostSpellTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        StackItemState stackItem,
+        CardBehaviorDefinition behavior,
+        long rngCursor)
+    {
+        if (behavior.ManaCost < JhinHighCostSpellManaThreshold
+            || !ControllerHasJhinLegend(playerZones, cardObjects, stackItem.ControllerId)
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal)
+            || !playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
+        {
+            return new JhinHighCostSpellTriggerResult(false, [], playerScores, null, rngCursor);
+        }
+
+        var events = new List<GameEvent>();
+        var trackedTags = sourceState.Tags
+            .Concat([JhinBanishedHighCostSpellMarker])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+        cardObjects[stackItem.SourceObjectId] = sourceState with { Tags = trackedTags };
+        controllerZones = controllerZones with
+        {
+            Banished = controllerZones.Banished.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
+                ? controllerZones.Banished
+                : controllerZones.Banished.Concat([stackItem.SourceObjectId]).ToArray()
+        };
+        playerZones[stackItem.ControllerId] = controllerZones;
+        events.Add(new GameEvent(
+            "LEGEND_TRIGGER_RESOLVED",
+            $"{stackItem.ControllerId} 的戏命师放逐高费法术",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["cardNo"] = stackItem.CardNo,
+                ["trigger"] = "HIGH_COST_SPELL_BANISHED"
+            }));
+
+        var trackedSpellObjectIds = controllerZones.Banished
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var spellState)
+                && spellState.Tags.Contains(JhinBanishedHighCostSpellMarker, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        if (trackedSpellObjectIds.Length < JhinCompletionSpellCount)
+        {
+            return new JhinHighCostSpellTriggerResult(true, events, playerScores, null, rngCursor);
+        }
+
+        var completedSpellObjectIds = trackedSpellObjectIds
+            .Take(JhinCompletionSpellCount)
+            .ToArray();
+        controllerZones = playerZones[stackItem.ControllerId];
+        playerZones[stackItem.ControllerId] = controllerZones with
+        {
+            Banished = controllerZones.Banished
+                .Where(objectId => !completedSpellObjectIds.Contains(objectId, StringComparer.Ordinal))
+                .ToArray(),
+            Graveyard = controllerZones.Graveyard
+                .Concat(completedSpellObjectIds)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray()
+        };
+        foreach (var objectId in completedSpellObjectIds)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var completedState))
+            {
+                continue;
+            }
+
+            cardObjects[objectId] = completedState with
+            {
+                Tags = completedState.Tags
+                    .Where(tag => !string.Equals(tag, JhinBanishedHighCostSpellMarker, StringComparison.Ordinal))
+                    .ToArray()
+            };
+        }
+
+        events.Add(new GameEvent(
+            "LEGEND_TRIGGER_RESOLVED",
+            $"{stackItem.ControllerId} 的戏命师完成四张法术放逐",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["cardNo"] = stackItem.CardNo,
+                ["trigger"] = "FOUR_HIGH_COST_SPELLS_COMPLETED",
+                ["spellObjectIds"] = completedSpellObjectIds
+            }));
+        var runeCallResult = CallRunes(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            JhinCompletionSpellCount);
+        events.Add(new GameEvent(
+            "RUNES_CALLED",
+            $"{stackItem.ControllerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+            }));
+
+        var drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            stackItem.ControllerId,
+            1,
+            rngCursor,
+            events);
+        return new JhinHighCostSpellTriggerResult(
+            true,
+            events,
+            drawApplication.PlayerScores,
+            drawApplication.WinnerPlayerId,
+            drawApplication.RngCursor);
     }
 
     private static bool IsPowerfulUnitRuneLegendCardNo(string? cardNo)
@@ -8936,9 +9084,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             destroyedUnitOwnerIds));
+        var jhinTrigger = ResolveJhinHighCostSpellTrigger(
+            state,
+            playerZones,
+            cardObjects,
+            playerScores,
+            stackItem,
+            behavior,
+            rngCursor);
+        events.AddRange(jhinTrigger.Events);
+        playerScores = jhinTrigger.PlayerScores;
+        winnerPlayerId = jhinTrigger.WinnerPlayerId ?? winnerPlayerId;
+        rngCursor = jhinTrigger.RngCursor;
 
         if (!behavior.PlaysSourceToBaseAsEquipment
             && !behavior.PlaysSourceToBaseAsUnit
+            && !jhinTrigger.HandledSourceMovement
             && playerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
         {
             if (behavior.BanishesSourceOnResolution)
@@ -13088,6 +13249,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private sealed record RuneCallResult(
         IReadOnlyList<string> CalledRuneObjectIds);
+
+    private sealed record JhinHighCostSpellTriggerResult(
+        bool HandledSourceMovement,
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyDictionary<string, int> PlayerScores,
+        string? WinnerPlayerId,
+        long RngCursor);
 
     private sealed record FieldRemovalResult(
         string OwnerPlayerId,

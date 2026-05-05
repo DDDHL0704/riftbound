@@ -24375,6 +24375,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerJhinCompletesFourthBanishedHighCostSpell()
+    {
+        var state = JhinHighCostSpellCompletionState("UNL-181/219", "P1-LEGEND-JHIN");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-jhin-play-ruination", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-JHIN-RUINATION", "UNL-180/219", []),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-jhin-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-jhin-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        var p1Zones = p2Pass.State.PlayerZones["P1"];
+        Assert.Contains("P1-JHIN-RUINATION", p1Zones.Graveyard);
+        Assert.Contains("P1-JHIN-BANISHED-001", p1Zones.Graveyard);
+        Assert.Contains("P1-JHIN-BANISHED-002", p1Zones.Graveyard);
+        Assert.Contains("P1-JHIN-BANISHED-003", p1Zones.Graveyard);
+        Assert.DoesNotContain("P1-JHIN-RUINATION", p1Zones.Banished);
+        Assert.Contains("P1-JHIN-RUNE-001", p1Zones.Base);
+        Assert.Contains("P1-JHIN-RUNE-004", p1Zones.Base);
+        Assert.Contains("P1-JHIN-DRAW-001", p1Zones.Hand);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "HIGH_COST_SPELL_BANISHED", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "FOUR_HIGH_COST_SPELLS_COMPLETED", StringComparison.Ordinal));
+        var runeEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Equal(4, runeEvent.Payload["count"]);
+        var drawEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(1, drawEvent.Payload["count"]);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -35446,6 +35491,67 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1"] = RunePool.Empty,
                 ["P2"] = new(2, 0)
             },
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState JhinHighCostSpellCompletionState(string sourceCardNo, string sourceObjectId)
+    {
+        const string jhinMarker = "JHIN_BANISHED_HIGH_COST_SPELL";
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 9);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-JHIN-RUINATION"],
+            Banished =
+            [
+                "P1-JHIN-BANISHED-001",
+                "P1-JHIN-BANISHED-002",
+                "P1-JHIN-BANISHED-003"
+            ],
+            RuneDeck =
+            [
+                "P1-JHIN-RUNE-001",
+                "P1-JHIN-RUNE-002",
+                "P1-JHIN-RUNE-003",
+                "P1-JHIN-RUNE-004"
+            ],
+            MainDeck = ["P1-JHIN-DRAW-001"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-JHIN-RUINATION"] = new(
+            "P1-JHIN-RUINATION",
+            cardNo: "UNL-180/219",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        foreach (var objectId in playerZones["P1"].Banished)
+        {
+            cardObjects[objectId] = new(
+                objectId,
+                cardNo: "UNL-017/219",
+                tags: [CardObjectTags.SpellCard, jhinMarker],
+                ownerId: "P1",
+                controllerId: "P1");
+        }
+
+        foreach (var objectId in playerZones["P1"].RuneDeck)
+        {
+            cardObjects[objectId] = new(
+                objectId,
+                tags: [CardObjectTags.RuneCard],
+                ownerId: "P1",
+                controllerId: "P1");
+        }
+
+        cardObjects["P1-JHIN-DRAW-001"] = new(
+            "P1-JHIN-DRAW-001",
+            cardNo: "UNL-001/219",
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
             PlayerZones = playerZones,
             CardObjects = cardObjects
         };
