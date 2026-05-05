@@ -13,6 +13,116 @@ public sealed record BehaviorSpecCatalogReport(
     IReadOnlyDictionary<string, int> StatusCounts,
     IReadOnlyList<string> MissingReasonCardNos);
 
+public sealed record FunctionalUnitBehaviorCoverageReport(
+    int FunctionalUnits,
+    int ImplementedUnits,
+    int ManualRuleRequiredUnits,
+    int UnimplementedUnits,
+    int DuplicateGroups,
+    int ImplementedDuplicateGroups,
+    int ImplementedDuplicateEntries,
+    int PendingDuplicateGroups,
+    int PendingDuplicateEntries,
+    IReadOnlyList<FunctionalUnitBehaviorCoverageRow> Units);
+
+public sealed record FunctionalUnitBehaviorCoverageRow(
+    string FunctionalUnitId,
+    string RepresentativeNo,
+    string Name,
+    string Category,
+    int Size,
+    string Status,
+    IReadOnlyList<string> CardNos,
+    string? ImplementedByCardNo,
+    string? ImplementedEffectKind)
+{
+    public bool IsDuplicateGroup => Size > 1;
+}
+
+public static class FunctionalUnitBehaviorCoverageReporter
+{
+    public static FunctionalUnitBehaviorCoverageReport Build(
+        IReadOnlyList<FunctionalUnit> units,
+        IReadOnlyList<BehaviorSpec> specs)
+    {
+        ArgumentNullException.ThrowIfNull(units);
+        ArgumentNullException.ThrowIfNull(specs);
+
+        var specsByCardNo = specs.ToDictionary(spec => spec.CardNo, StringComparer.Ordinal);
+        var rows = units
+            .Select(unit => BuildRow(unit, specsByCardNo))
+            .OrderBy(row => row.FunctionalUnitId, StringComparer.Ordinal)
+            .ToArray();
+
+        var implementedUnits = rows.Count(row => string.Equals(
+            row.Status,
+            BehaviorImplementationStatuses.Implemented,
+            StringComparison.Ordinal));
+        var manualRuleRequiredUnits = rows.Count(row => string.Equals(
+            row.Status,
+            BehaviorImplementationStatuses.ManualRuleRequired,
+            StringComparison.Ordinal));
+        var unimplementedUnits = rows.Count(row => string.Equals(
+            row.Status,
+            BehaviorImplementationStatuses.Unimplemented,
+            StringComparison.Ordinal));
+        var duplicateGroups = rows.Where(row => row.IsDuplicateGroup).ToArray();
+        var implementedDuplicateGroups = duplicateGroups
+            .Where(row => string.Equals(row.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .ToArray();
+        var pendingDuplicateGroups = duplicateGroups
+            .Where(row => !string.Equals(row.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .ToArray();
+
+        return new FunctionalUnitBehaviorCoverageReport(
+            rows.Length,
+            implementedUnits,
+            manualRuleRequiredUnits,
+            unimplementedUnits,
+            duplicateGroups.Length,
+            implementedDuplicateGroups.Length,
+            implementedDuplicateGroups.Sum(row => row.Size),
+            pendingDuplicateGroups.Length,
+            pendingDuplicateGroups.Sum(row => row.Size),
+            rows);
+    }
+
+    private static FunctionalUnitBehaviorCoverageRow BuildRow(
+        FunctionalUnit unit,
+        IReadOnlyDictionary<string, BehaviorSpec> specsByCardNo)
+    {
+        var unitSpecs = unit.Cards
+            .Select(card => specsByCardNo.TryGetValue(card.CardNo, out var spec)
+                ? spec
+                : throw new InvalidOperationException($"Card {card.CardNo} is missing a BehaviorSpec."))
+            .ToArray();
+        var implementedSpec = unitSpecs
+            .FirstOrDefault(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Implemented,
+                StringComparison.Ordinal));
+        var status = implementedSpec is not null
+            ? BehaviorImplementationStatuses.Implemented
+            : unitSpecs.Any(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal))
+                ? BehaviorImplementationStatuses.ManualRuleRequired
+                : BehaviorImplementationStatuses.Unimplemented;
+
+        return new FunctionalUnitBehaviorCoverageRow(
+            unit.Id,
+            unit.RepresentativeNo,
+            unit.Name,
+            unit.Category,
+            unit.Size,
+            status,
+            unit.Cards.Select(card => card.CardNo).ToArray(),
+            implementedSpec?.ImplementedByCardNo,
+            implementedSpec?.ImplementedEffectKind);
+    }
+}
+
 public static class OfficialRuleDomainBehaviorCatalog
 {
     public const string RuneResourceDomainEffectKind = "RUNE_RESOURCE_DOMAIN";

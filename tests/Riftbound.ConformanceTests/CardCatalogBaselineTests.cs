@@ -133,6 +133,46 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var coverage = FunctionalUnitBehaviorCoverageReporter.Build(units, specs);
+
+        Assert.Equal(811, coverage.FunctionalUnits);
+        Assert.Equal(700, coverage.ImplementedUnits);
+        Assert.Equal(98, coverage.ManualRuleRequiredUnits);
+        Assert.Equal(13, coverage.UnimplementedUnits);
+        Assert.Equal(113, coverage.DuplicateGroups);
+        Assert.Equal(74, coverage.ImplementedDuplicateGroups);
+        Assert.Equal(207, coverage.ImplementedDuplicateEntries);
+        Assert.Equal(39, coverage.PendingDuplicateGroups);
+        Assert.Equal(104, coverage.PendingDuplicateEntries);
+
+        var implementedDuplicateRows = coverage.Units
+            .Where(row => row.IsDuplicateGroup
+                && string.Equals(row.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .ToArray();
+        Assert.All(implementedDuplicateRows, row =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(row.ImplementedByCardNo));
+            Assert.False(string.IsNullOrWhiteSpace(row.ImplementedEffectKind));
+            Assert.Contains(row.ImplementedByCardNo!, row.CardNos);
+        });
+
+        var pendingDuplicateCategories = coverage.Units
+            .Where(row => row.IsDuplicateGroup
+                && !string.Equals(row.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .Select(row => row.Category)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["传奇", "战场"], pendingDuplicateCategories);
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);

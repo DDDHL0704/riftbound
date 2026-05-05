@@ -169,7 +169,7 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | --- | --- | --- | --- |
 | P6.0 | Done | Audit/status file, risk layering, first migration plan. | Full P6 gate passed. |
 | P6.1a | Done | Rune resource-domain mapping: 6 functional units / 48 entries. | Existing P2 rune conformance fixtures + `CardCatalogBaselineTests`. |
-| P6.1b | Planned | Same-text variant/reprint audit for already implemented functional units. | Catalog status matrix + no duplicate rule handlers. |
+| P6.1b | Done | Same-text variant/reprint audit for already implemented functional units. | Catalog status matrix + no duplicate rule handlers. |
 | P6.2a | Planned | Draw/damage/destroy/stun existing-template promotion. | Conformance fixtures for representative paths. |
 | P6.2b | Planned | Recall/move/recycle/banish/temp might/boon existing-template promotion. | Conformance fixtures for representative paths. |
 | P6.3 | Planned | Swift/reaction/spell-duel batches. | GameHub/Room smoke required. |
@@ -190,6 +190,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 
 - P6.0 audit progress: `1/1 audit slice = 100.0%`.
 - P6.1a rune resource-domain progress: `6/6 rune functional units = 100.0%`; `48/48 rune entries = 100.0%`.
+- P6.1b same-text/reprint audit progress: `74/113 duplicate groups = 65.5%` are already covered by shared implementation; remaining `39/113 = 34.5%` are legend/battlefield duplicate groups for P6.9/P6.10.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -241,6 +242,29 @@ P6.1a validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
 - `git diff --check`: passed.
 
+## P6.1b Delivered
+
+- Added `FunctionalUnitBehaviorCoverageReporter` to aggregate BehaviorSpec status by functional unit.
+- Locked the P6 duplicate/reprint matrix:
+  - duplicate groups: `113`
+  - duplicate entries: `311`
+  - already implemented duplicate groups: `74`
+  - already implemented duplicate entries: `207`
+  - pending duplicate groups: `39`
+  - pending duplicate entries: `104`
+- Confirmed every implemented duplicate group has one shared `implementedByCardNo` inside its functional-unit card list, so variants/reprints do not need duplicated rule handlers.
+- Confirmed pending duplicate groups are only `传奇` and `战场`, which remain assigned to P6.9/P6.10.
+- This batch does not change `CoreRuleEngine` behavior and does not close additional functional units; it formalizes the low-risk mapping/audit surface for completion checks.
+
+P6.1b validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2576/2576`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2493/2493`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `25/25`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `16/16`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.1a, then continue into P6.1b same-text variant/reprint audit for already implemented functional units.
+Commit P6.1b, then continue into P6.2a draw/damage/destroy/stun existing-template promotion.
