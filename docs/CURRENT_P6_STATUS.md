@@ -190,7 +190,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.8b | Done | Last Breath + Ephemeral representative Room smokes. | GameHub/Room smoke passed. |
 | P6.9a | Done | Legend active/passive surface matrix and manual boundary triage. | Catalog domain matrix passed. |
 | P6.9b | Done | Legend representative activated-ability blocked surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests passed. |
-| P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
+| P6.10a | Done | Battlefield rule-domain surface matrix and manual boundary triage. | Catalog domain matrix passed. |
+| P6.10b | Planned | Battlefield representative blocked/deferred surfaces. | Dedicated non-`PLAY_CARD` zero-side-effect tests. |
 | P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
 | P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
 | P6.x | Planned | Completion audit and final verification. | Full suite, focused suites, status matrix, no unexpected dirty files. |
@@ -247,6 +248,12 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Static/keyword surfaces: `48/106 entries = 45.3%`, `20/44 units = 45.5%`.
   - Template keyword hits: `71/106 entries = 67.0%`, `30/44 units = 68.2%`, but none are promoted because legends need a dedicated non-`PLAY_CARD` domain.
 - P6.9b legend activated-ability blocked surface progress: `5/47 activated legend entries = 10.6%` representative surfaces audited; `5/5 zero-side-effect direct engine rejections = 100.0%`.
+- P6.10a battlefield surface triage: `57/57 battlefield entries = 100.0%` statused in the matrix; `54/54 battlefield functional units = 100.0%` remain explicit `manual-rule-required`.
+  - Activated ability surfaces: `3/57 entries = 5.3%`, `3/54 units = 5.6%`.
+  - Trigger surfaces: `40/57 entries = 70.2%`, `39/54 units = 72.2%`.
+  - Replacement surfaces: `1/57 entries = 1.8%`, `1/54 units = 1.9%`.
+  - Static/keyword surfaces: `11/57 entries = 19.3%`, `10/54 units = 18.5%`.
+  - Template keyword hits: `34/57 entries = 59.6%`, `34/54 units = 63.0%`, but none are promoted because battlefields need a dedicated non-`PLAY_CARD` domain.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -761,6 +768,40 @@ P6.9b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.10a Delivered
+
+- Added a P6 battlefield rule-domain surface matrix to `CardCatalogBaselineTests`.
+- Locked current battlefield surface counts:
+
+| Surface | Entries | Functional units |
+| --- | ---: | ---: |
+| all battlefield entries | 57 | 54 |
+| unique battlefield names | 54 | n/a |
+| official text present | 57 | 54 |
+| activated abilities | 3 | 3 |
+| triggers | 40 | 39 |
+| replacements | 1 | 1 |
+| static abilities | 11 | 10 |
+| keyword surfaces | 11 | 10 |
+| template keyword hits | 34 | 34 |
+
+- Boundary assertions:
+  - every battlefield entry stays `manual-rule-required`;
+  - no battlefield entry has `ImplementedEffectKind` or `ImplementedByCardNo`;
+  - no battlefield entry is accepted by `CardBehaviorRegistry`;
+  - parsed template hits are status-only evidence and do not enter `PLAY_CARD` or template execution.
+- Deferred reason: battlefield cards are non-`PLAY_CARD` location/effect objects with control, conquest/hold/defense triggers, start-step effects, static restrictions, replacement behavior, and local modifiers. P6.10 must handle them in tiny dedicated batches or keep zero-side-effect blocked/deferred boundaries.
+- This batch does not change engine behavior or BehaviorSpec status counts.
+
+P6.10a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2604/2604`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2501/2501`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `35/35`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.9b, then continue into P6.10 battlefield effect batches.
+Commit P6.10a, then continue into P6.10b battlefield representative blocked/deferred surfaces.

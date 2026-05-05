@@ -548,14 +548,60 @@ public sealed class CardCatalogBaselineTests
                 BehaviorImplementationStatuses.ManualRuleRequired,
                 StringComparison.Ordinal))));
         Assert.Equal(106, legendSpecs.Count(spec => !string.IsNullOrWhiteSpace(spec.OfficialText)));
-        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 47, functionalUnits: 18);
-        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 58, functionalUnits: 23);
-        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 3, functionalUnits: 1);
-        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 48, functionalUnits: 20);
-        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 48, functionalUnits: 20);
-        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 71, functionalUnits: 30);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 47, functionalUnits: 18);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 58, functionalUnits: 23);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 3, functionalUnits: 1);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 48, functionalUnits: 20);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 48, functionalUnits: 20);
+        AssertRuleDomainSurface(legendSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 71, functionalUnits: 30);
 
         Assert.All(legendSpecs, spec =>
+        {
+            Assert.Contains("dedicated non-PLAY_CARD rule domain", spec.Reason, StringComparison.Ordinal);
+            Assert.Null(spec.ImplementedEffectKind);
+            Assert.Null(spec.ImplementedByCardNo);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out _));
+        });
+    }
+
+    [Fact]
+    public async Task P6BattlefieldRuleDomainSurfacesReportManualBoundaryCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var battlefieldSpecs = specs
+            .Where(spec => string.Equals(spec.CardCategoryName, "战场", StringComparison.Ordinal))
+            .ToArray();
+        var unitGroups = battlefieldSpecs
+            .GroupBy(spec => spec.FunctionalUnitId, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(57, battlefieldSpecs.Length);
+        Assert.Equal(54, unitGroups.Length);
+        Assert.Equal(54, battlefieldSpecs.Select(spec => spec.CardName).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(
+            57,
+            battlefieldSpecs.Count(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            54,
+            unitGroups.Count(group => group.All(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal))));
+        Assert.Equal(57, battlefieldSpecs.Count(spec => !string.IsNullOrWhiteSpace(spec.OfficialText)));
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 3, functionalUnits: 3);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 40, functionalUnits: 39);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 1, functionalUnits: 1);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 11, functionalUnits: 10);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 11, functionalUnits: 10);
+        AssertRuleDomainSurface(battlefieldSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 34, functionalUnits: 34);
+
+        Assert.All(battlefieldSpecs, spec =>
         {
             Assert.Contains("dedicated non-PLAY_CARD rule domain", spec.Reason, StringComparison.Ordinal);
             Assert.Null(spec.ImplementedEffectKind);
@@ -2513,7 +2559,7 @@ public sealed class CardCatalogBaselineTests
         int SpecImplementedFunctionalUnits,
         int PendingFunctionalUnits);
 
-    private static void AssertLegendSurface(
+    private static void AssertRuleDomainSurface(
         IReadOnlyList<BehaviorSpec> specs,
         IReadOnlyList<IGrouping<string, BehaviorSpec>> unitGroups,
         Func<BehaviorSpec, bool> predicate,
