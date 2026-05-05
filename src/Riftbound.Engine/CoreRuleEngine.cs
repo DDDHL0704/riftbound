@@ -115,6 +115,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int PowerfulUnitPowerThreshold = 5;
     private const string RengarLegendCardNo = "UNL-183/219";
     private const string LeonaOriginLegendCardNo = "OGN·261/298";
+    private const string SivirSpiritforgedLegendCardNo = "SFD·203/221";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
@@ -1790,6 +1791,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardNo is LeonaOriginLegendCardNo or "OGN·306/298" or "OGN·306*/298";
     }
 
+    private static bool IsSivirLegendCardNo(string? cardNo)
+    {
+        return cardNo is SivirSpiritforgedLegendCardNo or "SFD·250/221";
+    }
+
     private static bool ControllerHasAzirLegend(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -1881,6 +1887,38 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             legendObjectId = objectId;
             legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo) ? LeonaOriginLegendCardNo : legendState.CardNo;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetSivirLegend(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = default!;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || (!string.IsNullOrWhiteSpace(candidate.ControllerId)
+                    && !string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal))
+                || !IsSivirLegendCardNo(candidate.CardNo))
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
             return true;
         }
 
@@ -5092,6 +5130,142 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         value = stringValue;
         return !string.IsNullOrWhiteSpace(value);
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveSivirRuneRecycledGoldTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        IReadOnlyList<GameEvent> stackEvents)
+    {
+        if (!TryGetSivirLegend(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                out var legendObjectId,
+                out var legendState)
+            || legendState.IsExhausted
+            || !StackEventsRecycledControllerRune(cardObjects, stackItem.ControllerId, stackEvents))
+        {
+            return [];
+        }
+
+        cardObjects[legendObjectId] = legendState with { IsExhausted = true };
+        var events = new List<GameEvent>
+        {
+            new(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{stackItem.ControllerId} 的战争女神回收符文触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = "RUNE_RECYCLED_CREATE_GOLD"
+                }),
+            new(
+                "LEGEND_EXHAUSTED",
+                $"{legendObjectId} 变为休眠状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "RUNE_RECYCLED_CREATE_GOLD"
+                })
+        };
+        CreateLegendEquipmentToken(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            legendObjectId,
+            "LEGEND_TRIGGER_RUNE_RECYCLED_CREATE_GOLD",
+            "金币",
+            [CardObjectTags.EquipmentCard],
+            isExhausted: true,
+            events);
+        return events;
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveSivirEnemyDestroyedReadyTriggers(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> destroyedUnitOwnerIds)
+    {
+        if (destroyedUnitOwnerIds.Count == 0)
+        {
+            return [];
+        }
+
+        var events = new List<GameEvent>();
+        foreach (var playerId in playerZones.Keys.OrderBy(playerId => playerId, StringComparer.Ordinal))
+        {
+            if (!destroyedUnitOwnerIds.Any(ownerId => !string.Equals(ownerId, playerId, StringComparison.Ordinal))
+                || !TryGetSivirLegend(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    out var legendObjectId,
+                    out var legendState)
+                || !legendState.IsExhausted)
+            {
+                continue;
+            }
+
+            cardObjects[legendObjectId] = legendState with { IsExhausted = false };
+            events.Add(new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的战争女神敌方单位被摧毁触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = "ENEMY_UNIT_DESTROYED_READY"
+                }));
+            events.Add(new GameEvent(
+                "LEGEND_READIED",
+                $"{legendObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "ENEMY_UNIT_DESTROYED_READY"
+                }));
+        }
+
+        return events;
+    }
+
+    private static bool StackEventsRecycledControllerRune(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<GameEvent> stackEvents)
+    {
+        return stackEvents.Any(gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && TryGetPayloadString(gameEvent, "playerId", out var recyclePlayerId)
+            && string.Equals(recyclePlayerId, playerId, StringComparison.Ordinal)
+            && PayloadStringValues(gameEvent, "cardIds")
+                .Any(cardId => cardObjects.TryGetValue(cardId, out var cardState)
+                    && cardState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)));
+    }
+
+    private static IReadOnlyList<string> PayloadStringValues(GameEvent gameEvent, string key)
+    {
+        if (!gameEvent.Payload.TryGetValue(key, out var rawValue)
+            || rawValue is string)
+        {
+            return [];
+        }
+
+        if (rawValue is IEnumerable<string> stringValues)
+        {
+            return stringValues
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+        }
+
+        return [];
     }
 
     private static bool IsPowerfulUnitRuneLegendCardNo(string? cardNo)
@@ -8619,6 +8793,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             stackItem,
             events));
+        events.AddRange(ResolveSivirRuneRecycledGoldTrigger(
+            playerZones,
+            cardObjects,
+            stackItem,
+            events));
+        events.AddRange(ResolveSivirEnemyDestroyedReadyTriggers(
+            playerZones,
+            cardObjects,
+            destroyedUnitOwnerIds));
 
         if (!behavior.PlaysSourceToBaseAsEquipment
             && !behavior.PlaysSourceToBaseAsUnit
@@ -10665,6 +10848,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["playerId"] = playerId,
                 ["sourceObjectId"] = sourceObjectId,
+                ["cardIds"] = randomizedRecycledCardIds,
                 ["count"] = randomizedRecycledCardIds.Count
             }));
 
@@ -10749,6 +10933,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = sourceObjectId,
+                    ["cardIds"] = randomizedRecycledCardIds,
                     ["count"] = randomizedRecycledCardIds.Count
                 }));
         }

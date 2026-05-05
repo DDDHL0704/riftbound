@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `28/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `29/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -203,14 +203,14 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `7` done.
-- P7.9.6 automatic-trigger slices: `8` done.
+- P7.9.6 automatic-trigger slices: `9` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `741/811 = 91.4%`.
-- Current manual deferred boundary: `70/811 = 8.6%`.
+- Current functional-unit implementation: `742/811 = 91.5%`.
+- Current manual deferred boundary: `69/811 = 8.5%`.
 - Remaining manual domains:
-  - `传奇`: `16` functional units / `37` entries
+  - `传奇`: `15` functional units / `35` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `7` legend active-ability slices, `8` automatic-trigger slices, and `6` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `7` legend active-ability slices, `9` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -1063,3 +1063,34 @@ P7.9.6 automatic-trigger slice 8 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend rule slice. It extends the same server-authoritative `PLAY_CARD` target-splitting model used by Rengar; later prompt/UI work will expose the extra trigger target as a click path.
+
+## P7.9.6 Automatic-Trigger Slice 9 Delivered
+
+This is the twenty-first committed rule slice inside P7.9.6. It adds Sivir / 战争女神's rune-recycle and enemy-destroyed triggers.
+
+- Added Sivir legend trigger support for:
+  - `SFD·203/221`
+  - `SFD·250/221`
+- Reuses existing `CARDS_RECYCLED` events to detect when the Sivir controller recycles a rune, exhausts the legend, and creates a dormant `金币` equipment token in base.
+- Reuses existing destroyed-unit ownership tracking to ready each exhausted Sivir whose enemy unit is destroyed, including opponent-controlled stack items that destroy their own unit.
+- Expanded recycle event payloads with `cardIds` where needed so the backend can distinguish recycled rune cards without frontend inference.
+- Migrated this legend trigger slice in `BehaviorSpec`:
+  - Implemented functional units: `742/811`
+  - Manual deferred functional units: `69/811`
+  - Implemented official entries: `917/1009`
+  - Manual deferred official entries: `92/1009`
+  - Legend rule-domain implemented: `29` functional units / `71` entries
+  - Remaining legend manual deferred: `15` functional units / `35` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger slice 9 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendTriggerSivir"`: passed `40/40`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2549/2549`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2656/2656`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend rule slice. It consumes existing server events and emits snapshot/event updates; later prompt/UI work will only display those authoritative results.

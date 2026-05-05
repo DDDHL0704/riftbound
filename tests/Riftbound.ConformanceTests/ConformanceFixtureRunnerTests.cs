@@ -24145,6 +24145,111 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerSivirCreatesDormantGoldWhenControllerRecyclesRune()
+    {
+        var state = SivirRuneRecycleState("SFD·203/221", "P1-LEGEND-SIVIR");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sivir-play-scrying-shell", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SCRYING-SHELL", "UNL-161/219", ["P1-SIVIR-RUNE-RECYCLE"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-sivir-rune-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-sivir-rune-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.True(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        Assert.Contains("P1-LEGEND-SIVIR-TOKEN-001", p2Pass.State.PlayerZones["P1"].Base);
+        var token = p2Pass.State.CardObjects["P1-LEGEND-SIVIR-TOKEN-001"];
+        Assert.True(token.IsExhausted);
+        Assert.Contains(CardObjectTags.EquipmentCard, token.Tags);
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "RUNE_RECYCLED_CREATE_GOLD", StringComparison.Ordinal));
+        Assert.Equal("SFD·203/221", triggerEvent.Payload["legendCardNo"]);
+        var tokenEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("金币", tokenEvent.Payload["tokenName"]);
+        Assert.Equal(true, tokenEvent.Payload["isExhausted"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerSivirReadiesWhenEnemyUnitDestroyed()
+    {
+        var state = SivirEnemyDestroyState("SFD·250/221", "P1-LEGEND-SIVIR-REPRINT");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sivir-play-hunt", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-HUNT-THE-WEAK", "UNL-159/219", ["P2-SIVIR-DESTROY-TARGET"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-sivir-destroy-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-sivir-destroy-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.False(p2Pass.State.CardObjects["P1-LEGEND-SIVIR-REPRINT"].IsExhausted);
+        Assert.Equal(["P2-SIVIR-DESTROY-TARGET"], p2Pass.State.PlayerZones["P2"].Graveyard);
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ENEMY_UNIT_DESTROYED_READY", StringComparison.Ordinal));
+        Assert.Equal("SFD·250/221", triggerEvent.Payload["legendCardNo"]);
+        Assert.Contains(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerSivirReadiesWhenOpponentDestroysOwnUnit()
+    {
+        var state = SivirOpponentSelfDestroyState("SFD·203/221", "P1-LEGEND-SIVIR");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sivir-p2-play-hunt", "P2", "PLAY_CARD"),
+            new PlayCardCommand("P2-SPELL-HUNT-THE-WEAK", "UNL-159/219", ["P2-SIVIR-SELF-DESTROY-TARGET"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-sivir-self-destroy-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-p7-9-sivir-self-destroy-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.False(p1Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        Assert.Contains("P2-SIVIR-SELF-DESTROY-TARGET", p1Pass.State.PlayerZones["P2"].Graveyard);
+        var triggerEvent = Assert.Single(p1Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ENEMY_UNIT_DESTROYED_READY", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal("SFD·203/221", triggerEvent.Payload["legendCardNo"]);
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -35060,6 +35165,110 @@ public sealed class ConformanceFixtureRunnerTests
             controllerId: "P2");
         return state with
         {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState SivirRuneRecycleState(string sourceCardNo, string sourceObjectId)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 2);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-SCRYING-SHELL"],
+            MainDeck = ["P1-SIVIR-RUNE-RECYCLE"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-SCRYING-SHELL"] = new(
+            "P1-SCRYING-SHELL",
+            cardNo: "UNL-161/219",
+            tags: [CardObjectTags.EquipmentCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects["P1-SIVIR-RUNE-RECYCLE"] = new(
+            "P1-SIVIR-RUNE-RECYCLE",
+            tags: [CardObjectTags.RuneCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState SivirEnemyDestroyState(string sourceCardNo, string sourceObjectId)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 2);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-SPELL-HUNT-THE-WEAK"]
+        };
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Battlefields = ["P2-SIVIR-DESTROY-TARGET"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            IsExhausted = true
+        };
+        cardObjects["P1-SPELL-HUNT-THE-WEAK"] = new(
+            "P1-SPELL-HUNT-THE-WEAK",
+            cardNo: "UNL-159/219",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        cardObjects["P2-SIVIR-DESTROY-TARGET"] = new(
+            "P2-SIVIR-DESTROY-TARGET",
+            power: 3,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P2",
+            controllerId: "P2");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState SivirOpponentSelfDestroyState(string sourceCardNo, string sourceObjectId)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 0);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P2"] = PlayerZones.Empty with
+        {
+            Hand = ["P2-SPELL-HUNT-THE-WEAK"],
+            Battlefields = ["P2-SIVIR-SELF-DESTROY-TARGET"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[sourceObjectId] = cardObjects[sourceObjectId] with
+        {
+            IsExhausted = true
+        };
+        cardObjects["P2-SPELL-HUNT-THE-WEAK"] = new(
+            "P2-SPELL-HUNT-THE-WEAK",
+            cardNo: "UNL-159/219",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P2",
+            controllerId: "P2");
+        cardObjects["P2-SIVIR-SELF-DESTROY-TARGET"] = new(
+            "P2-SIVIR-SELF-DESTROY-TARGET",
+            power: 3,
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P2",
+            controllerId: "P2");
+        return state with
+        {
+            ActivePlayerId = "P2",
+            TurnPlayerId = "P2",
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(2, 0)
+            },
             PlayerZones = playerZones,
             CardObjects = cardObjects
         };
