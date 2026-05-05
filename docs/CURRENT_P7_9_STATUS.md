@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static event model, and representative effects. Battlefield slices migrated `3/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `51/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, and representative effects. Battlefield slices migrated `5/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `49/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-3 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-4 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `3` done.
-- Current functional-unit implementation: `760/811 = 93.7%`.
-- Current manual deferred boundary: `51/811 = 6.3%`.
+- P7.9.7 battlefield foundation slices: `4` done.
+- Current functional-unit implementation: `762/811 = 94.0%`.
+- Current manual deferred boundary: `49/811 = 6.0%`.
 - Remaining manual domains:
-  - `战场`: `51` functional units / `54` entries
+  - `战场`: `49` functional units / `52` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -1548,3 +1548,36 @@ P7.9.7 battlefield foundation slice 3 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destination and `DECLARE_BATTLE` object-id submit path, including server-emitted static combat bonus events.
+
+## P7.9.7 Battlefield Foundation Slice 4 Delivered
+
+This is the fourth rule slice inside P7.9.7. It adds deterministic held-battlefield token/resource effects that reuse the battlefield-object destination path and `BATTLEFIELD_HELD` event model.
+
+- Added implemented battlefield cards:
+  - `OGN·275/298`: when the controller holds this battlefield, the backend creates a `1` power `随从` unit token in that player's base using official token identity `OGN·271/298`.
+  - `SFD·219/221`: when the controller holds this battlefield, the backend calls one dormant rune for each player in holder-first order.
+- Event stream additions:
+  - `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_HELD_CREATE_MINION`
+  - `UNIT_TOKEN_CREATED` with `tokenCardNo`, `tokenObjectId`, `power`, and destination payloads
+  - `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE`
+  - `RUNES_CALLED` for each affected player
+- Added `battlefield-held-minion` and `battlefield-held-runes` local development seeds plus GameHub coverage for prompt destination exposure and submitted object-id battle resolution.
+- Migrated these battlefield held-trigger slices in `BehaviorSpec`:
+  - Implemented functional units: `762/811`
+  - Manual deferred functional units: `49/811`
+  - Implemented official entries: `957/1009`
+  - Manual deferred official entries: `52/1009`
+  - Battlefield rule-domain implemented: `5` functional units / `5` entries
+  - Remaining battlefield manual deferred: `49` functional units / `52` entries
+
+P7.9.7 battlefield foundation slice 4 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHeld"`: passed `6/6`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2585/2585`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `33/33`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2697/2697`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt seed slice. GameHub coverage verifies the structured battlefield destinations and `DECLARE_BATTLE` object-id submit paths for both held-token and held-rune effects.

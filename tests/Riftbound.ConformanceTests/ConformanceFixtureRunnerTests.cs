@@ -25727,6 +25727,78 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldCreatesMinionInBase()
+    {
+        var state = BattlefieldHeldMinionState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-minion", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-UNITY-SANCTUM",
+                ["P1-BATTLEFIELD-MINION-ATTACKER"],
+                ["P2-BATTLEFIELD-MINION-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_MINION", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-UNITY-SANCTUM", triggerEvent.Payload["battlefieldObjectId"]);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P2"].Base);
+        Assert.Equal("P2-BATTLEFIELD-UNITY-SANCTUM-TOKEN-001", tokenObjectId);
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.Equal("OGN·271/298", tokenState.CardNo);
+        Assert.Equal(1, tokenState.Power);
+        Assert.Equal("P2", tokenState.OwnerId);
+        Assert.Equal("P2", tokenState.ControllerId);
+        Assert.Contains(CardObjectTags.UnitCard, tokenState.Tags);
+        var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal(tokenObjectId, tokenEvent.Payload["tokenObjectId"]);
+        Assert.Equal("OGN·271/298", tokenEvent.Payload["tokenCardNo"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldCallsRunesForEachPlayer()
+    {
+        var state = BattlefieldHeldRunesState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-runes", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-CONFETTI-TREE",
+                ["P1-BATTLEFIELD-RUNES-ATTACKER"],
+                ["P2-BATTLEFIELD-RUNES-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-CONFETTI-TREE", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Empty(result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Empty(result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Contains("P1-BATTLEFIELD-RUNE-001", result.State.PlayerZones["P1"].Base);
+        Assert.Contains("P2-BATTLEFIELD-RUNE-001", result.State.PlayerZones["P2"].Base);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-RUNE-001"].IsExhausted);
+        Assert.True(result.State.CardObjects["P2-BATTLEFIELD-RUNE-001"].IsExhausted);
+        var runeEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, runeEvents.Length);
+        Assert.Contains(runeEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal)
+            && Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["runeObjectIds"]).Contains("P1-BATTLEFIELD-RUNE-001", StringComparer.Ordinal));
+        Assert.Contains(runeEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
+            && Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["runeObjectIds"]).Contains("P2-BATTLEFIELD-RUNE-001", StringComparer.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPowerAddsOneToBattleParticipants()
     {
         var state = BattlefieldStaticPowerState();
@@ -36601,6 +36673,86 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CONQUER-DEFENDER",
                     power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldMinionState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-MINION-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNITY-SANCTUM", "P2-BATTLEFIELD-MINION-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MINION-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-MINION-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-UNITY-SANCTUM"] = new(
+                    "P2-BATTLEFIELD-UNITY-SANCTUM",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-MINION-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-MINION-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldRunesState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    RuneDeck = ["P1-BATTLEFIELD-RUNE-001"],
+                    Battlefields = ["P1-BATTLEFIELD-RUNES-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    RuneDeck = ["P2-BATTLEFIELD-RUNE-001"],
+                    Battlefields = ["P2-BATTLEFIELD-CONFETTI-TREE", "P2-BATTLEFIELD-RUNES-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RUNES-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RUNES-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-CONFETTI-TREE"] = new(
+                    "P2-BATTLEFIELD-CONFETTI-TREE",
+                    cardNo: "SFD·219/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-RUNES-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-RUNES-DEFENDER",
+                    power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

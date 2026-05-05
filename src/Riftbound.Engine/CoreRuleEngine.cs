@@ -142,10 +142,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ReksaiLegendCardNo = "SFD·187/221";
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string BrushBattlefieldTokenCardNo = "UNL·T03";
+    private const string DemaciaMinionTokenCardNo = "OGN·271/298";
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
+    private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
+    private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -3799,6 +3802,45 @@ public sealed class CoreRuleEngine : IRuleEngine
                     rngCursor = battlefieldDrawApplication.RngCursor;
                 }
 
+                var battlefieldMinionEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldCreateMinionTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        battlefieldMinionEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldMinionEvents);
+                }
+
+                var battlefieldRuneEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldEachPlayerCallRuneTrigger(
+                        state,
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        battlefieldRuneEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldRuneEvents);
+                }
+
                 var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
                     IsObjectOnField(playerZones, defenderObjectId)
                     && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
@@ -5503,6 +5545,131 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldCreateMinionTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHoldCreateMinionCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并打出随从",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_CREATE_MINION",
+                ["sourceObjectId"] = sourceObjectId,
+                ["tokenName"] = "随从"
+            }));
+        CreateBattlefieldMinionTokenInBase(
+            playerZones,
+            cardObjects,
+            playerId,
+            battlefieldObjectId,
+            events);
+        return true;
+    }
+
+    private static bool TryResolveBattlefieldHeldEachPlayerCallRuneTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHoldEachPlayerCallRuneCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并让每名玩家召出符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_EACH_PLAYER_CALL_RUNE",
+                ["sourceObjectId"] = sourceObjectId
+            }));
+
+        foreach (var runePlayerId in ControllerAndOtherPlayerIds(state, playerId))
+        {
+            var runeCallResult = CallRunes(
+                playerZones,
+                cardObjects,
+                runePlayerId,
+                1);
+            events.Add(new GameEvent(
+                "RUNES_CALLED",
+                $"{runePlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = runePlayerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                    ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray()
+                }));
+        }
+
+        return true;
+    }
+
+    private static void CreateBattlefieldMinionTokenInBase(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldObjectId,
+        List<GameEvent> events)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !P6TokenFactoryCatalog.TryGetByCardNo(DemaciaMinionTokenCardNo, out var tokenDefinition))
+        {
+            return;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
+        cardObjects[tokenObjectId] = tokenDefinition.CreateObject(
+            tokenObjectId,
+            playerId,
+            playerId);
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base.Concat([tokenObjectId]).ToArray()
+        };
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{battlefieldObjectId} 打出随从",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["abilityId"] = "BATTLEFIELD_HELD_CREATE_MINION",
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenDefinition.CardNo,
+                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["power"] = tokenDefinition.DefaultPower,
+                ["destinationZone"] = "BASE",
+                ["tokenTags"] = tokenDefinition.Tags.ToArray()
+            }));
+    }
+
     private static bool TryResolveBattlefieldConquerMillTwoTrigger(
         Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -5584,9 +5751,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
-        return IsBattlefieldHoldDrawCardNo(cardNo)
+        return IsBattlefieldHoldCreateMinionCardNo(cardNo)
+            || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
+            || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo);
+    }
+
+    private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHoldDrawCardNo(string? cardNo)
@@ -5597,6 +5771,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHoldEachPlayerCallRuneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldAllUnitsPowerPlusOneCardNo(string? cardNo)

@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成三个战场对象/战斗结果切片（`OGN·280/298` 据守抽牌、`SFD·212/221` 征服弃置主牌堆顶两张、`OGN·294/298` 此处单位静态战力 +1、`DECLARE_BATTLE` 战场对象目的地、GameHub prompt 覆盖）。当前实现 `760/811` 个功能单元，manual deferred 剩余 `51/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成五个战场对象/战斗结果切片（`OGN·275/298` 据守打出随从、`OGN·280/298` 据守抽牌、`SFD·212/221` 征服弃置主牌堆顶两张、`SFD·219/221` 据守双方召符文、`OGN·294/298` 此处单位静态战力 +1、`DECLARE_BATTLE` 战场对象目的地、GameHub prompt 覆盖）。当前实现 `762/811` 个功能单元，manual deferred 剩余 `49/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 
