@@ -20,15 +20,6 @@ public static class P6BattlefieldEffectCatalog
     private static readonly P6DeferredBattlefieldEffectSurface[] DeferredSurfaces =
     [
         new(
-            "BATTLEFIELD_DEFERRED_GRANT_UNIT_EXHAUST_GAIN_EXPERIENCE",
-            "UNL-213/219",
-            "Mutation Garden unit experience skill grant",
-            "此处的单位获得“{{横置}}：获得1经验。”",
-            ActivatedGrantSurfaceKind,
-            IsActivatedCommandSurface: true,
-            TargetCount: 0,
-            "P6.10 keeps battlefield-granted unit activated abilities deferred until battlefield locality, granted source validation, exhaustion, and experience gain can be validated outside PLAY_CARD."),
-        new(
             "BATTLEFIELD_DEFERRED_GRANT_LEGEND_EXHAUST_ATTACH_WEAPON",
             "SFD·208/221",
             "Poro Forge legend weapon attach skill grant",

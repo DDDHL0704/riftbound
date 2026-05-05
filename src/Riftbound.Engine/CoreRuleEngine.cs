@@ -189,11 +189,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
+    private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
+    private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldSandSoldierManaCost = 1;
@@ -1335,6 +1337,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerIntent intent,
         ActivateAbilityCommand command)
     {
+        if (string.Equals(command.AbilityId, BattlefieldUnitGainExperienceAbilityId, StringComparison.Ordinal))
+        {
+            return ResolveBattlefieldUnitGainExperienceAbility(state, intent, command);
+        }
+
         if (!P4ActivatedAbilityCatalog.TryGetByAbilityId(command.AbilityId, out var ability))
         {
             return RejectWithCorePrompts(
@@ -1456,6 +1463,143 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = stackItem.EffectKind,
                     ["abilityId"] = command.AbilityId
                 })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveBattlefieldUnitGainExperienceAbility(
+        MatchState state,
+        PlayerIntent intent,
+        ActivateAbilityCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Battlefield unit experience ability is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (NormalizeTargetObjectIds(command.TargetObjectIds).Count != 0
+            || NormalizeOptionalCosts(command.OptionalCosts).Count != 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Battlefield unit experience ability does not accept targets or optional costs.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Battlefields.Contains(command.SourceObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
+            || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !string.Equals(sourceState.ControllerId, intent.PlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Battlefield unit experience ability source must be a controlled battlefield unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (sourceState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Battlefield unit experience ability source must be active.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
+            !string.Equals(objectId, command.SourceObjectId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var battlefieldState)
+            && IsBattlefieldGrantUnitExperienceCardNo(battlefieldState.CardNo)
+            && (string.IsNullOrWhiteSpace(battlefieldState.ControllerId)
+                || string.Equals(battlefieldState.ControllerId, intent.PlayerId, StringComparison.Ordinal)));
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldCardState))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "No implemented Mutation Garden battlefield grants that unit ability.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = sourceState with
+        {
+            IsExhausted = true,
+            OwnerId = string.IsNullOrWhiteSpace(sourceState.OwnerId) ? intent.PlayerId : sourceState.OwnerId,
+            ControllerId = string.IsNullOrWhiteSpace(sourceState.ControllerId) ? intent.PlayerId : sourceState.ControllerId
+        };
+        var playerExperience = NormalizeExperienceForSeats(state);
+        playerExperience[intent.PlayerId] = playerExperience.TryGetValue(intent.PlayerId, out var currentExperience)
+            ? currentExperience + 1
+            : 1;
+        var events = new List<GameEvent>
+        {
+            new(
+                "ABILITY_ACTIVATED",
+                $"{intent.PlayerId} 激活蜕变花园授予的经验能力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["battlefieldCardNo"] = battlefieldCardState.CardNo
+                }),
+            new(
+                "UNIT_EXHAUSTED",
+                $"{command.SourceObjectId} 横置",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["battlefieldObjectId"] = battlefieldObjectId
+                }),
+            new(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 通过蜕变花园获得经验",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["battlefieldCardNo"] = battlefieldCardState.CardNo,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = command.AbilityId,
+                    ["trigger"] = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE"
+                }),
+            new(
+                "EXPERIENCE_GAINED",
+                $"{intent.PlayerId} 获得 1 经验",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = sourceState.CardNo,
+                    ["amount"] = 1,
+                    ["totalExperience"] = playerExperience[intent.PlayerId],
+                    ["abilityId"] = command.AbilityId,
+                    ["battlefieldObjectId"] = battlefieldObjectId
+                })
+        };
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            ActivePlayerId = intent.PlayerId,
+            CardObjects = cardObjects,
+            PlayerExperience = playerExperience
         };
 
         return new ResolutionResult(
@@ -8192,6 +8336,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
             || IsBattlefieldSpellPowerBonusCardNo(cardNo)
+            || IsBattlefieldGrantUnitExperienceCardNo(cardNo)
             || IsBattlefieldHighCostSpellInsightCardNo(cardNo)
             || IsBattlefieldPlayUnitPayOneBoonCardNo(cardNo)
             || IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardNo)
@@ -8404,6 +8549,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldSpellPowerBonusCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldGrantUnitExperienceCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)

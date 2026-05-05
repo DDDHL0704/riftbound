@@ -26810,6 +26810,55 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityExhaustsSourceAndGainsExperience()
+    {
+        var state = BattlefieldUnitExperienceAbilityState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-ability", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.PlayerExperience["P1"]);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        var trigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-MUTATION-GARDEN", trigger.Payload["battlefieldObjectId"]);
+        var experienceEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        Assert.Equal(1, experienceEvent.Payload["amount"]);
+        Assert.Equal(1, experienceEvent.Payload["totalExperience"]);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityRejectsWithoutMutationGarden()
+    {
+        var state = BattlefieldUnitExperienceAbilityState(includeMutationGarden: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-ability-missing-garden", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79BattlefieldTargetDamageBonusAddsOneToSpellDamage()
     {
         var state = BattlefieldTargetDamageBonusState();
@@ -27728,7 +27777,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var surfaces = P6BattlefieldEffectCatalog.GetDeferredSurfaces();
 
-        Assert.Equal(5, surfaces.Count);
+        Assert.Equal(4, surfaces.Count);
         Assert.Contains(surfaces, surface => surface.IsActivatedCommandSurface);
         Assert.Contains(surfaces, surface => !surface.IsActivatedCommandSurface);
         Assert.Contains(surfaces, surface => string.Equals(
@@ -39557,6 +39606,44 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-BATTLEFIELD-LOST-LIBRARY",
                     cardNo: "UNL-211/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldUnitExperienceAbilityState(bool includeMutationGarden = true)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = includeMutationGarden
+                        ? ["P1-BATTLEFIELD-MUTATION-GARDEN", "P1-BATTLEFIELD-EXPERIENCE-UNIT"]
+                        : ["P1-BATTLEFIELD-EXPERIENCE-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MUTATION-GARDEN"] = new(
+                    "P1-BATTLEFIELD-MUTATION-GARDEN",
+                    cardNo: "UNL-213/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-EXPERIENCE-UNIT"] = new(
+                    "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                    cardNo: "SFD·001/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1")
             }

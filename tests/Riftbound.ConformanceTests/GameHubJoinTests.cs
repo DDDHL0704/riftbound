@@ -2214,6 +2214,57 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilitySeedOffersActivateAbilityAndGainsExperience()
+    {
+        const string roomId = "p7-9-battlefield-unit-experience-ability";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-unit-experience-ability", "seed-p7-9-battlefield-unit-experience-ability");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var abilityCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.True(abilityCandidate.Enabled);
+        Assert.Contains(abilityCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLEFIELD-EXPERIENCE-UNIT", StringComparison.Ordinal));
+        Assert.Contains(abilityCandidate.Modes ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE", StringComparison.Ordinal));
+
+        var activateClients = new RecordingHubClients();
+        var command = JsonDocument.Parse("""
+            {
+              "cmdType": "ACTIVATE_ABILITY",
+              "sourceObjectId": "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+              "abilityId": "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+              "targetObjectIds": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(activateClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-unit-experience-ability", command);
+
+        Assert.Empty(activateClients.CallerClient.Errors);
+        var events = EventsFor(activateClients);
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE", StringComparison.Ordinal));
+        Assert.Contains(events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        var snapshot = SnapshotFor(activateClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        Assert.Equal(1, Assert.IsType<int>(p1["experience"]));
+        var objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unit = Assert.IsType<Dictionary<string, object?>>(objects["P1-BATTLEFIELD-EXPERIENCE-UNIT"]);
+        Assert.True(Assert.IsType<bool>(unit["isExhausted"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldTargetDamageBonusSeedAddsOneDamageOnResolution()
     {
         const string roomId = "p7-9-battlefield-target-damage-bonus";

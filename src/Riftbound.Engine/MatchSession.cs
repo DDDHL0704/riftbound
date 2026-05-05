@@ -952,12 +952,14 @@ internal static class ActionPromptBuilder
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
+    private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
+    private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
         MatchState state,
@@ -1008,7 +1010,9 @@ internal static class ActionPromptBuilder
         var destinations = DestinationsFor(state, playerId, action);
         var modes = ModesFor(action);
         var optionalCosts = OptionalCostsFor(action);
-        var hasRequiredChoices = !string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
+        var requiresSourceChoices = string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
+            || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal);
+        var hasRequiredChoices = !requiresSourceChoices
             || sources?.Count > 0;
         var enabled = promptActionable
             && !string.Equals(action, "WAIT", StringComparison.Ordinal)
@@ -1044,6 +1048,11 @@ internal static class ActionPromptBuilder
                     || CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out _))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented PLAY_CARD source"))
                 .ToArray(),
+            "ACTIVATE_ABILITY" => zones.Base
+                .Concat(zones.Battlefields)
+                .Where(objectId => IsImplementedActivatedAbilitySource(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "implemented activated ability source"))
+                .ToArray(),
             "MOVE_UNIT" => zones.Base
                 .Concat(zones.Battlefields)
                 .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
@@ -1077,6 +1086,9 @@ internal static class ActionPromptBuilder
         {
             "PLAY_CARD" => PublicBoardObjects(state)
                 .Select(objectId => ObjectChoice(state, objectId, "server validates card target scope on submit"))
+                .ToArray(),
+            "ACTIVATE_ABILITY" => PublicBoardObjects(state)
+                .Select(objectId => ObjectChoice(state, objectId, "server validates ability target scope on submit"))
                 .ToArray(),
             "ASSEMBLE_EQUIPMENT" => ControlledBoardObjects(state, playerId)
                 .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
@@ -1131,6 +1143,11 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("AMBUSH", "伏击"),
                 new ActionPromptChoiceDto("HASTE_READY", "急速活跃"),
                 new ActionPromptChoiceDto("BATTLEFIELD_UNIT_POWER_MINUS_4", "战场单位战力 -4")
+            ],
+            "ACTIVATE_ABILITY" => [
+                new ActionPromptChoiceDto("PAY_2_RED_DOUBLE_POWER", "蔚：支付 2 法力和 1 符能，战力翻倍"),
+                new ActionPromptChoiceDto("PAY_RED_EXHAUST_DAMAGE_3", "泽拉斯：横置并支付符能，造成 3 点伤害"),
+                new ActionPromptChoiceDto(BattlefieldUnitGainExperienceAbilityId, "蜕变花园：横置单位，获得 1 经验")
             ],
             "LEGEND_ACT" => [
                 new ActionPromptChoiceDto("LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT", "支付 2 并横置：移动友方单位"),
@@ -1191,6 +1208,12 @@ internal static class ActionPromptBuilder
             {
                 ["sourcePolicy"] = "implemented-card-behavior-only",
                 ["targetPolicy"] = "server-validates-target-scope-on-submit"
+            },
+            "ACTIVATE_ABILITY" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "implemented-activated-ability-only",
+                ["abilityPolicy"] = "server-validates-activated-ability-on-submit",
+                ["targetPolicy"] = "server-validates-ability-target-scope-on-submit"
             },
             "MOVE_UNIT" => new Dictionary<string, object?>
             {
@@ -1254,6 +1277,38 @@ internal static class ActionPromptBuilder
             && cardObject.Tags.Contains(tag, StringComparer.Ordinal);
     }
 
+    private static bool IsImplementedActivatedAbilitySource(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var p4Source = P4ActivatedAbilityCatalog.GetAll().Any(ability =>
+            string.Equals(cardObject.CardNo, ability.SourceCardNo, StringComparison.Ordinal)
+            && (!ability.RequiresBattlefieldSource || zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            && (!ability.ExhaustsSourceAsCost || !cardObject.IsExhausted));
+        if (p4Source)
+        {
+            return true;
+        }
+
+        return zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
+            && !cardObject.IsExhausted
+            && zones.Battlefields.Any(battlefieldObjectId =>
+                !string.Equals(battlefieldObjectId, objectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+                && string.Equals(battlefieldState.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
+                && (string.IsNullOrWhiteSpace(battlefieldState.ControllerId)
+                    || string.Equals(battlefieldState.ControllerId, playerId, StringComparison.Ordinal)));
+    }
+
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
@@ -1300,6 +1355,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldPlayUnitPayOneBoonCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal)
@@ -1698,12 +1754,14 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
+    private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo = "UNL-215/219";
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
+    private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
 
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
@@ -2469,6 +2527,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-friendly-spell-draw" => BuildBattlefieldFriendlySpellDrawScenario(current, seed),
             "battlefield-spell-power-bonus" => BuildBattlefieldSpellPowerBonusScenario(current, seed),
             "battlefield-high-cost-spell-insight" => BuildBattlefieldHighCostSpellInsightScenario(current, seed),
+            "battlefield-unit-experience-ability" => BuildBattlefieldUnitExperienceAbilityScenario(current, seed),
             "battlefield-play-unit-boon" => BuildBattlefieldPlayUnitBoonScenario(current, seed),
             "battlefield-first-unit-move-other" => BuildBattlefieldFirstUnitMoveOtherScenario(current, seed),
             "battlefield-target-damage-bonus" => BuildBattlefieldTargetDamageBonusScenario(current, seed),
@@ -4301,6 +4360,50 @@ public sealed class MatchSession : IMatchSession
                     "P1-BATTLEFIELD-LOST-LIBRARY",
                     cardNo: BattlefieldHighCostSpellInsightCardNo,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldUnitExperienceAbilityScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303075,
+            175,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-MUTATION-GARDEN", "P1-BATTLEFIELD-EXPERIENCE-UNIT"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MUTATION-GARDEN"] = new(
+                    "P1-BATTLEFIELD-MUTATION-GARDEN",
+                    cardNo: BattlefieldGrantUnitExperienceCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-EXPERIENCE-UNIT"] = new(
+                    "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                    cardNo: "SFD·001/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
