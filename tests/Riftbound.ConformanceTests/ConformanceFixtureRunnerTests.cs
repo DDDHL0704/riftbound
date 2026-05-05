@@ -26475,6 +26475,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticPreventsUnitPlayToBattlefield()
+    {
+        var state = BattlefieldPreventPlayUnitsState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-static-prevent-play-units", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                "UNL-021/219",
+                [],
+                Mode: "AMBUSH",
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(
+            "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
+            result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNL-GLOOMY-APOTHECARY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-FALLING-ROCKS", "P1-BATTLEFIELD-FRIENDLY-001"],
+            result.State.PlayerZones["P1"].Battlefields);
+        Assert.Single(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38596,6 +38627,56 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             }
+        };
+    }
+
+    private static MatchState BattlefieldPreventPlayUnitsState()
+    {
+        return PunishmentState(mana: 3) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNL-GLOOMY-APOTHECARY"],
+                    Battlefields = ["P1-BATTLEFIELD-FALLING-ROCKS", "P1-BATTLEFIELD-FRIENDLY-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNL-GLOOMY-APOTHECARY"] = new(
+                    "P1-HAND-UNL-GLOOMY-APOTHECARY",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardInteractionKeywordNames.Ambush],
+                    manaCost: 3,
+                    cardNo: "UNL-021/219"),
+                ["P1-BATTLEFIELD-FALLING-ROCKS"] = new(
+                    "P1-BATTLEFIELD-FALLING-ROCKS",
+                    cardNo: "SFD·216/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-FRIENDLY-001"] = new(
+                    "P1-BATTLEFIELD-FRIENDLY-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-0-P2-SPELL-PROBE",
+                    "P2",
+                    "P2-SPELL-PROBE",
+                    "PENDING_TEST_SPELL",
+                    "TEST-000",
+                    [])
+            ]
         };
     }
 

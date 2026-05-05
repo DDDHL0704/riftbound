@@ -1817,6 +1817,46 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticPreventPlayUnitsSeedRejectsAmbushToBattlefield()
+    {
+        const string roomId = "p7-9-battlefield-static-prevent-play-units";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-static-prevent-play-units", "seed-p7-9-battlefield-static-prevent-play-units");
+
+        var playClients = new RecordingHubClients();
+        var ambushPlay = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-HAND-UNL-GLOOMY-APOTHECARY",
+              "cardNo": "UNL-021/219",
+              "targetObjectIds": [],
+              "mode": "AMBUSH",
+              "destination": "BATTLEFIELD:P1-MAIN"
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-static-prevent-play-units", ambushPlay);
+
+        var error = Assert.Single(playClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.InvalidTarget, payload.Code);
+        Assert.Equal(
+            "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
+            payload.Message);
+    }
+
+    [Fact]
     public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
     {
         const string roomId = "p7-9-battlefield-move-power";

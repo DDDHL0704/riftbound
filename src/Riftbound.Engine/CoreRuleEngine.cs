@@ -182,6 +182,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
+    private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -541,6 +542,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 AmbushUnsupportedMessage,
                 ErrorCodes.UnsupportedCommand);
+        }
+
+        if (HasBattlefieldStaticPreventUnitPlayToBattlefield(state, intent.PlayerId, destination))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
+                ErrorCodes.InvalidTarget);
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
@@ -7656,7 +7665,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldMovedUnitPowerPlusOneCardNo(cardNo)
             || IsBattlefieldHeldSevenUnitsWinCardNo(cardNo)
             || IsBattlefieldPreventMoveToBaseCardNo(cardNo)
-            || IsBattlefieldStaticRoamCardNo(cardNo);
+            || IsBattlefieldStaticRoamCardNo(cardNo)
+            || IsBattlefieldPreventUnitPlayCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7829,6 +7839,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldStaticRoamCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldPreventUnitPlayCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldPreventUnitPlayCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -9720,6 +9735,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
             && IsBattlefieldPreventMoveToBaseCardNo(cardObject.CardNo));
+    }
+
+    private static bool HasBattlefieldStaticPreventUnitPlayToBattlefield(
+        MatchState state,
+        string playerId,
+        string destination)
+    {
+        return destination.StartsWith($"{MoveUnitBattlefieldZone}:", StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldPreventUnitPlayCardNo(cardObject.CardNo));
     }
 
     private static IReadOnlyList<GameEvent> ApplyBattlefieldMovedUnitPowerPlusOne(
