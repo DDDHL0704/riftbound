@@ -25759,6 +25759,38 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerRecyclesRune()
+    {
+        var state = BattlefieldConquerRecycleRuneState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-recycle-rune", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-THUNDER-RUNE",
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"],
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-MAIN-001", "P1-BATTLEFIELD-RECYCLE-RUNE-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-BATTLEFIELD-RECYCLE-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-THUNDER-RUNE", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-RECYCLE-RUNE-001", triggerEvent.Payload["targetObjectId"]);
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-THUNDER-RUNE", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-RECYCLE-RUNE-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+        Assert.Equal("BASE", recycleEvent.Payload["sourceZone"]);
+        Assert.Equal("MAIN_DECK", recycleEvent.Payload["destinationZone"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldEphemeralDefenderGainsSteadfast()
     {
         var state = BattlefieldEphemeralSteadfastState();
@@ -36817,6 +36849,52 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DISCARD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerRecycleRuneState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-MAIN-001"],
+                    Base = ["P1-BATTLEFIELD-RECYCLE-RUNE-001"],
+                    Battlefields = ["P1-BATTLEFIELD-THUNDER-RUNE", "P1-BATTLEFIELD-RECYCLE-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-RECYCLE-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-THUNDER-RUNE"] = new(
+                    "P1-BATTLEFIELD-THUNDER-RUNE",
+                    cardNo: "OGN·287/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RECYCLE-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-RECYCLE-RUNE-001"] = new(
+                    "P1-BATTLEFIELD-RECYCLE-RUNE-001",
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-RECYCLE-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

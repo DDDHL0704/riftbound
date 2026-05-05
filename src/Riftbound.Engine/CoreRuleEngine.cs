@@ -152,6 +152,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
     private const string BattlefieldDefenderSteadfastTwoCardNo = "OGN·279/298";
+    private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
@@ -3715,6 +3716,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 attackerObjectId,
                 combatEvents);
+            var battlefieldRecycleRuneTrigger = ResolveBattlefieldConquerRecycleRuneTrigger(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                rngCursor);
+            rngCursor = battlefieldRecycleRuneTrigger.RngCursor;
+            combatEvents.AddRange(battlefieldRecycleRuneTrigger.Events);
             if (TryResolveBattlefieldConquerDiscardDrawTrigger(
                     state,
                     playerZones,
@@ -5855,6 +5865,67 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static RecycleResult ResolveBattlefieldConquerRecycleRuneTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerRecycleRuneCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var recycledRuneObjectId = zones.Base.FirstOrDefault(objectId =>
+            cardObjects.TryGetValue(objectId, out var cardObject)
+            && IsRuneObject(objectId, cardObject)) ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(recycledRuneObjectId))
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Base = zones.Base
+                .Where(objectId => !string.Equals(objectId, recycledRuneObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            MainDeck = zones.MainDeck.Concat([recycledRuneObjectId]).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并回收符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_RECYCLE_RUNE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = recycledRuneObjectId
+            }));
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{playerId} 回收 1 枚符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["cardIds"] = new[] { recycledRuneObjectId },
+                ["count"] = 1,
+                ["sourceZone"] = "BASE",
+                ["destinationZone"] = "MAIN_DECK"
+            }));
+
+        return new RecycleResult(events, rngCursor);
+    }
+
     private static bool TryResolveBattlefieldConquerDiscardDrawTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -5956,6 +6027,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
             || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
             || IsBattlefieldDefenderSteadfastTwoCardNo(cardNo)
+            || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -5992,6 +6064,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDefenderSteadfastTwoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDefenderSteadfastTwoCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerRecycleRuneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerRecycleRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
