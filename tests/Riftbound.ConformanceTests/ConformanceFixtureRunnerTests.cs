@@ -25730,6 +25730,35 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldMovesSurvivingDefenderToBase()
+    {
+        var state = BattlefieldHeldMoveToBaseState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-move-to-base", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-REHEARSAL-HALL",
+                ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"],
+                ["P2-BATTLEFIELD-REHEARSAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-REHEARSAL-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-REHEARSAL-DEFENDER", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-REHEARSAL-DEFENDER"], result.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-REHEARSAL-HALL"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.False(result.State.CardObjects["P2-BATTLEFIELD-REHEARSAL-DEFENDER"].IsDefending);
+    }
+
+    [Fact]
     public async Task P79BattlefieldDefendMovesChosenSurvivingDefenderToBase()
     {
         var state = BattlefieldDefendMoveToBaseState();
@@ -37167,6 +37196,45 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-BOON-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BOON-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldMoveToBaseState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-REHEARSAL-HALL", "P2-BATTLEFIELD-REHEARSAL-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-REHEARSAL-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-REHEARSAL-HALL"] = new(
+                    "P2-BATTLEFIELD-REHEARSAL-HALL",
+                    cardNo: "UNL-207/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-REHEARSAL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-REHEARSAL-DEFENDER",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

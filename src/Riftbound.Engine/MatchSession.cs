@@ -895,6 +895,7 @@ public sealed record ResolutionResult(
 internal static class ActionPromptBuilder
 {
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
+    private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
@@ -1213,6 +1214,7 @@ internal static class ActionPromptBuilder
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldEphemeralUnitsSteadfastCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldHeldMoveUnitToBaseCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldCreateMinionCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldCallRuneCardNo, StringComparison.Ordinal)
@@ -1585,6 +1587,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 public sealed class MatchSession : IMatchSession
 {
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
+    private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
@@ -2347,6 +2350,7 @@ public sealed class MatchSession : IMatchSession
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
+            "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
             "battlefield-held-minion" => BuildBattlefieldHeldMinionScenario(current, seed),
             "battlefield-held-draw" => BuildBattlefieldHeldDrawScenario(current, seed),
             "battlefield-held-boon" => BuildBattlefieldHeldBoonScenario(current, seed),
@@ -3167,6 +3171,56 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattlefieldHeldMoveToBaseScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303046,
+            116,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-REHEARSAL-HALL", "P2-BATTLEFIELD-REHEARSAL-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-REHEARSAL-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-REHEARSAL-HALL"] = new(
+                    "P2-BATTLEFIELD-REHEARSAL-HALL",
+                    cardNo: BattlefieldHeldMoveUnitToBaseCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-REHEARSAL-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-REHEARSAL-DEFENDER",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,

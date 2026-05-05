@@ -146,6 +146,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SettLegendCardNo = "OGN·269/298";
     private const int SettLegendManaCost = 1;
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
+    private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
@@ -4073,6 +4074,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                     combatEvents.AddRange(battlefieldBoonEvents);
                 }
 
+                var battlefieldMoveEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldMoveUnitToBaseTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds,
+                        battlefieldMoveEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldMoveEvents);
+                }
+
                 var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
                     IsObjectOnField(playerZones, defenderObjectId)
                     && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
@@ -6025,6 +6046,61 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldMoveUnitToBaseTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        IReadOnlyList<string> defenderObjectIds,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldMoveUnitToBaseCardNo(battlefieldState.CardNo)
+            || !TryGetFirstBattlefieldZoneUnit(cardObjects, playerZones, defenderObjectIds.Concat([sourceObjectId]), out var targetObjectId))
+        {
+            return false;
+        }
+
+        if (!TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var targetPlayerId)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        cardObjects[targetObjectId] = targetState with
+        {
+            IsAttacking = false,
+            IsDefending = false
+        };
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并将单位移动到基地",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId
+            }));
+        events.Add(new GameEvent(
+            "UNIT_MOVED_TO_BASE",
+            $"{targetObjectId} 因据守战场移动到基地",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = targetPlayerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = MoveUnitBattlefieldZone,
+                ["destinationZone"] = MoveUnitBaseZone,
+                ["reason"] = "BATTLEFIELD_HELD_MOVE_UNIT_TO_BASE"
+            }));
+        return true;
+    }
+
     private static bool TryGetFirstSurvivingBattlefieldUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -6037,6 +6113,32 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (cardObjects.TryGetValue(candidateObjectId, out var candidate)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && IsObjectOnField(playerZones, candidateObjectId))
+            {
+                targetObjectId = candidateObjectId;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryGetFirstBattlefieldZoneUnit(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IEnumerable<string> candidateObjectIds,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        foreach (var candidateObjectId in candidateObjectIds
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            var location = FindFieldObjectLocation(playerZones, candidateObjectId);
+            if (location is not null
+                && string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && cardObjects.TryGetValue(candidateObjectId, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
             {
                 targetObjectId = candidateObjectId;
                 return true;
@@ -7029,6 +7131,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
         return IsBattlefieldEphemeralUnitsSteadfastCardNo(cardNo)
+            || IsBattlefieldHeldMoveUnitToBaseCardNo(cardNo)
             || IsBattlefieldHoldCreateMinionCardNo(cardNo)
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldHoldCallRuneCardNo(cardNo)
@@ -7053,6 +7156,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldEphemeralUnitsSteadfastCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldMoveUnitToBaseCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldMoveUnitToBaseCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
