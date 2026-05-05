@@ -25950,6 +25950,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerReadyLegendPaysOne()
+    {
+        var state = BattlefieldConquerReadyLegendState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-legend", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-LEGEND-HALL",
+                ["P1-BATTLEFIELD-READY-ATTACKER"],
+                ["P2-BATTLEFIELD-READY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-READY-TARGET"].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-LEGEND-READY-TARGET", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -37157,6 +37184,53 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-ISOLATED-DEFENDER"] = new(
                     "P2-BATTLEFIELD-ISOLATED-DEFENDER",
                     power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerReadyLegendState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-LEGEND-HALL", "P1-BATTLEFIELD-READY-ATTACKER"],
+                    LegendZone = ["P1-LEGEND-READY-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-READY-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-LEGEND-HALL"] = new(
+                    "P1-BATTLEFIELD-LEGEND-HALL",
+                    cardNo: "SFD·210/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-READY-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-READY-TARGET"] = new(
+                    "P1-LEGEND-READY-TARGET",
+                    cardNo: "SFD·195/221",
+                    isExhausted: true,
+                    tags: ["CARD_TYPE:LEGEND"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-READY-DEFENDER",
+                    power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")

@@ -155,7 +155,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerRecycleRuneCardNo = "OGN·287/298";
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
+    private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
+    private const int BattlefieldReadyLegendManaCost = 1;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3752,6 +3754,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId;
                 rngCursor = battlefieldDiscardDrawApplication.RngCursor;
             }
+            var battlefieldReadyLegendTrigger = ResolveBattlefieldConquerPayOneReadyLegendTrigger(
+                playerZones,
+                cardObjects,
+                runePools,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId);
+            runePools = battlefieldReadyLegendTrigger.RunePools;
+            combatEvents.AddRange(battlefieldReadyLegendTrigger.Events);
 
             combatEvents.AddRange(ResolveViLegendOverkillConquerTrigger(
                 playerZones,
@@ -4998,6 +5009,36 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool TryGetFirstExhaustedLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool IsIreliaLegendCardNo(string? cardNo)
     {
         return cardNo is IreliaLegendCardNo or "SFD·195a/221·P" or "SFD·246/221";
@@ -6107,6 +6148,75 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static (IReadOnlyDictionary<string, RunePool> RunePools, IReadOnlyList<GameEvent> Events)
+        ResolveBattlefieldConquerPayOneReadyLegendTrigger(
+            IReadOnlyDictionary<string, PlayerZones> playerZones,
+            Dictionary<string, CardObjectState> cardObjects,
+            IReadOnlyDictionary<string, RunePool> runePools,
+            string playerId,
+            string battlefieldId,
+            string sourceObjectId)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerPayOneReadyLegendCardNo(battlefieldState.CardNo)
+            || !TryGetFirstExhaustedLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState))
+        {
+            return (runePools, []);
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < BattlefieldReadyLegendManaCost)
+        {
+            return (runePools, []);
+        }
+
+        var nextRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        nextRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - BattlefieldReadyLegendManaCost
+        };
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = false
+        };
+
+        return (nextRunePools,
+        [
+            new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{playerId} 征服战场并让传奇变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["battlefieldCardNo"] = battlefieldState.CardNo,
+                    ["trigger"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND",
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["legendObjectId"] = legendObjectId
+                }),
+            new GameEvent(
+                "COST_PAID",
+                $"{playerId} 支付传奇殿堂征服触发费用",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["mana"] = BattlefieldReadyLegendManaCost,
+                    ["power"] = 0,
+                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                }),
+            new GameEvent(
+                "LEGEND_READIED",
+                $"{legendObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND"
+                })
+        ]);
+    }
+
     private static bool TryGetBattlefieldCardObject(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -6147,6 +6257,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerRecycleRuneCardNo(cardNo)
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(cardNo)
+            || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -6198,6 +6309,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerPayOneReadyLegendCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
