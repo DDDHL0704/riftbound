@@ -140,6 +140,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RenataGoldBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
     private const string LeblancLegendCardNo = "UNL-199/219";
     private const string ReksaiLegendCardNo = "SFD·187/221";
+    private const string IvernLegendCardNo = "UNL-195/219";
+    private const string BrushBattlefieldTokenCardNo = "UNL·T03";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3693,6 +3695,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 rngCursor);
             rngCursor = reksaiConquerTrigger.RngCursor;
             combatEvents.AddRange(reksaiConquerTrigger.Events);
+            if (TryResolveIvernLegendBrushTrigger(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    "BATTLEFIELD_CONQUERED_REPLACE_WITH_BRUSH",
+                    out var ivernConquerEvents))
+            {
+                combatEvents.AddRange(ivernConquerEvents);
+            }
             if (winnerPlayerId is null
                 && CountControlledBattlefieldUnits(playerZones, cardObjects, intent.PlayerId) >= 4
                 && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, intent.PlayerId, out var garenLegendCardNo))
@@ -3757,6 +3770,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                         attackerObjectId,
                         defenderObjectIds);
                     combatEvents.AddRange(leblancHeldEvents);
+                }
+
+                if (TryResolveIvernLegendBrushTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        "BATTLEFIELD_HELD_REPLACE_WITH_BRUSH",
+                        out var ivernHeldEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(ivernHeldEvents);
                 }
 
                 if (TryGetActiveVexLegend(playerZones, cardObjects, battleWinnerPlayerId, out var vexLegendObjectId, out var vexLegendState))
@@ -4810,6 +4842,145 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsReksaiLegendCardNo(string? cardNo)
     {
         return cardNo is ReksaiLegendCardNo or "SFD·243/221";
+    }
+
+    private static bool TryResolveIvernLegendBrushTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string battleSourceObjectId,
+        string trigger,
+        out IReadOnlyList<GameEvent> events)
+    {
+        events = [];
+        if (!TryGetActiveIvernLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
+        var tokenState = P6TokenFactoryCatalog.TryGetByCardNo(BrushBattlefieldTokenCardNo, out var definition)
+            ? definition.CreateObject(tokenObjectId, playerId, playerId)
+            : new CardObjectState(
+                tokenObjectId,
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                cardNo: BrushBattlefieldTokenCardNo,
+                ownerId: playerId,
+                controllerId: playerId);
+        var tokenTags = tokenState.Tags
+            .Concat(["草丛", $"REPLACES_BATTLEFIELD:{battlefieldId}"])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(tag => tag, StringComparer.Ordinal)
+            .ToArray();
+
+        cardObjects[legendObjectId] = legendState with
+        {
+            IsExhausted = true
+        };
+        cardObjects[tokenObjectId] = tokenState with
+        {
+            Tags = tokenTags
+        };
+        playerZones[playerId] = zones with
+        {
+            Battlefields = zones.Battlefields.Contains(tokenObjectId, StringComparer.Ordinal)
+                ? zones.Battlefields
+                : zones.Battlefields.Concat([tokenObjectId]).ToArray()
+        };
+
+        events =
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{playerId} 的翠神因战场结果触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendState.CardNo,
+                    ["trigger"] = trigger,
+                    ["sourceObjectId"] = battleSourceObjectId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenCardNo"] = BrushBattlefieldTokenCardNo
+                }),
+            new GameEvent(
+                "LEGEND_EXHAUSTED",
+                $"{legendObjectId} 变为休眠状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["reason"] = trigger
+                }),
+            new GameEvent(
+                "BATTLEFIELD_TOKEN_CREATED",
+                $"{legendObjectId} 将战场替换为草丛",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["tokenObjectId"] = tokenObjectId,
+                    ["tokenCardNo"] = BrushBattlefieldTokenCardNo,
+                    ["tokenName"] = "草丛",
+                    ["battlefieldId"] = battlefieldId,
+                    ["destinationZone"] = "BATTLEFIELD",
+                    ["tokenTags"] = tokenTags,
+                    ["trigger"] = trigger
+                }),
+            new GameEvent(
+                "BATTLEFIELD_REPLACED",
+                $"{battlefieldId} 被草丛替换",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = legendObjectId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["replacementTokenObjectId"] = tokenObjectId,
+                    ["replacementTokenCardNo"] = BrushBattlefieldTokenCardNo,
+                    ["replacementTokenName"] = "草丛",
+                    ["trigger"] = trigger
+                })
+        ];
+        return true;
+    }
+
+    private static bool TryGetActiveIvernLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsIvernLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsIvernLegendCardNo(string? cardNo)
+    {
+        return cardNo is IvernLegendCardNo or "UNL-233/219" or "UNL-233*/219";
     }
 
     private static bool TryResolveLeblancLegendImageTrigger(

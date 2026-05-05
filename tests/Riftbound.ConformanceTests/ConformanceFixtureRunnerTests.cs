@@ -25490,6 +25490,94 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerIvernCreatesBrushBattlefieldTokenOnConquer()
+    {
+        var state = IvernBattlefieldResultState("UNL-195/219", "P1-LEGEND-IVERN", controllerHolds: false, legendExhausted: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ivern-battlefield-conquer", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-IVERN-ATTACKER"],
+                ["P2-IVERN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-IVERN"].IsExhausted);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P1"].Battlefields, objectId =>
+            objectId.StartsWith("P1-LEGEND-IVERN-TOKEN-", StringComparison.Ordinal));
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.Equal("UNL·T03", tokenState.CardNo);
+        Assert.Contains("CARD_TYPE:BATTLEFIELD", tokenState.Tags);
+        Assert.Contains("草丛", tokenState.Tags);
+        Assert.Contains("REPLACES_BATTLEFIELD:BATTLEFIELD:P1-MAIN", tokenState.Tags);
+        Assert.DoesNotContain(CardObjectTags.UnitCard, tokenState.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_REPLACE_WITH_BRUSH", StringComparison.Ordinal));
+        Assert.Equal("UNL-195/219", triggerEvent.Payload["legendCardNo"]);
+        Assert.Equal(tokenObjectId, triggerEvent.Payload["tokenObjectId"]);
+        var replacementEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_REPLACED", StringComparison.Ordinal));
+        Assert.Equal(tokenObjectId, replacementEvent.Payload["replacementTokenObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerIvernCreatesBrushBattlefieldTokenOnHold()
+    {
+        var state = IvernBattlefieldResultState("UNL-233/219", "P2-LEGEND-IVERN-REPRINT", controllerHolds: true, legendExhausted: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ivern-battlefield-held", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-IVERN-ATTACKER"],
+                ["P2-IVERN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-IVERN-REPRINT"].IsExhausted);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P2"].Battlefields, objectId =>
+            objectId.StartsWith("P2-LEGEND-IVERN-REPRINT-TOKEN-", StringComparison.Ordinal));
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.Equal("UNL·T03", tokenState.CardNo);
+        Assert.Contains("草丛", tokenState.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("草丛", tokenEvent.Payload["tokenName"]);
+        Assert.Equal("BATTLEFIELD_HELD_REPLACE_WITH_BRUSH", tokenEvent.Payload["trigger"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerIvernRequiresActiveLegend()
+    {
+        var state = IvernBattlefieldResultState("UNL-233*/219", "P2-LEGEND-IVERN-ALT", controllerHolds: true, legendExhausted: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ivern-battlefield-held-exhausted", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-IVERN-ATTACKER"],
+                ["P2-IVERN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-IVERN-ALT"].IsExhausted);
+        Assert.DoesNotContain(result.State.PlayerZones["P2"].Battlefields, objectId =>
+            objectId.StartsWith("P2-LEGEND-IVERN-ALT-TOKEN-", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_REPLACE_WITH_BRUSH", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -36114,6 +36202,52 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-REKSAI-KEEP",
                     cardNo: "UNL-001/219",
                     ownerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState IvernBattlefieldResultState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool controllerHolds,
+        bool legendExhausted)
+    {
+        var legendControllerId = controllerHolds ? "P2" : "P1";
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-IVERN-ATTACKER"],
+                    LegendZone = controllerHolds ? [] : [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-IVERN-DEFENDER"],
+                    LegendZone = controllerHolds ? [sourceObjectId] : []
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-IVERN-ATTACKER"] = new(
+                    "P1-IVERN-ATTACKER",
+                    power: controllerHolds ? 1 : 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-IVERN-DEFENDER"] = new(
+                    "P2-IVERN-DEFENDER",
+                    power: controllerHolds ? 4 : 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: legendExhausted,
+                    ownerId: legendControllerId,
+                    controllerId: legendControllerId)
             }
         };
     }
