@@ -383,6 +383,7 @@ public static class OfficialRuleDomainBehaviorCatalog
         return card.CardNo is "OGN·275/298"
             or "OGN·280/298"
             or "OGN·294/298"
+            or "OGN·298/298"
             or "SFD·212/221"
             or "SFD·219/221";
     }

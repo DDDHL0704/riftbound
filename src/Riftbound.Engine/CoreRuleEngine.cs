@@ -150,6 +150,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
     private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
+    private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3677,6 +3678,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 battlefieldId,
                 attackerObjectId,
                 combatEvents);
+            if (TryResolveBattlefieldConquerDiscardDrawTrigger(
+                    state,
+                    playerZones,
+                    cardObjects,
+                    playerScores,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    rngCursor,
+                    combatEvents,
+                    out var battlefieldDiscardDrawApplication))
+            {
+                playerScores = battlefieldDiscardDrawApplication.PlayerScores;
+                winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId;
+                rngCursor = battlefieldDiscardDrawApplication.RngCursor;
+            }
+
             combatEvents.AddRange(ResolveViLegendOverkillConquerTrigger(
                 playerZones,
                 cardObjects,
@@ -5721,6 +5739,70 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerDiscardDrawTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerDiscardDrawCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并弃牌抽牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_DISCARD_DRAW",
+                ["sourceObjectId"] = sourceObjectId,
+                ["drawCount"] = 1
+            }));
+
+        if (playerZones.TryGetValue(playerId, out var zones)
+            && zones.Hand.Count > 0)
+        {
+            var discardedObjectId = zones.Hand.First();
+            if (TryDiscardCardFromHand(playerZones, playerId, discardedObjectId))
+            {
+                events.Add(new GameEvent(
+                    "CARD_DISCARDED",
+                    $"{playerId} 因征服战场弃置手牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["sourceObjectId"] = battlefieldObjectId,
+                        ["targetObjectId"] = discardedObjectId,
+                        ["reason"] = "BATTLEFIELD_CONQUERED_DISCARD_DRAW",
+                        ["destinationZone"] = "GRAVEYARD"
+                    }));
+            }
+        }
+
+        drawApplication = ApplyDrawToPlayer(
+            state,
+            playerZones,
+            playerScores,
+            playerId,
+            1,
+            rngCursor,
+            events);
+        return true;
+    }
+
     private static bool TryGetBattlefieldCardObject(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -5755,7 +5837,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
-            || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo);
+            || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo)
+            || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
     private static bool IsBattlefieldHoldCreateMinionCardNo(string? cardNo)
@@ -5781,6 +5864,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldAllUnitsPowerPlusOneCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldAllUnitsPowerPlusOneCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal);
     }
 
     private static bool PlayerWithinWinningScoreDistance(

@@ -25727,6 +25727,38 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerDiscardsThenDraws()
+    {
+        var state = BattlefieldConquerDiscardDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-discard-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-ZAUN-SUMP",
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"],
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DISCARD_DRAW", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ZAUN-SUMP", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DISCARD-001", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["count"], 1));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -36672,6 +36704,51 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CONQUER-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerDiscardDrawState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-BATTLEFIELD-DRAW-001"],
+                    Hand = ["P1-BATTLEFIELD-DISCARD-001"],
+                    Battlefields = ["P1-BATTLEFIELD-ZAUN-SUMP", "P1-BATTLEFIELD-DISCARD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DISCARD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ZAUN-SUMP"] = new(
+                    "P1-BATTLEFIELD-ZAUN-SUMP",
+                    cardNo: "OGN·298/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-DISCARD-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-DISCARD-001"] = new(
+                    "P1-BATTLEFIELD-DISCARD-001",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DISCARD-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
