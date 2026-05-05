@@ -927,6 +927,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
+    private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
@@ -1274,6 +1275,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldDefendRevealSpellCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldConquerReadyTwoRunesAtEndCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerDrawForOtherBattlefieldsCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo, StringComparison.Ordinal)
@@ -1673,6 +1675,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
+    private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
@@ -2483,6 +2486,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-defend-move-to-base" => BuildBattlefieldDefendMoveToBaseScenario(current, seed),
             "battlefield-isolated-defender" => BuildBattlefieldIsolatedDefenderScenario(current, seed),
             "battlefield-conquer-ready-legend" => BuildBattlefieldConquerReadyLegendScenario(current, seed),
+            "battlefield-conquer-ready-runes-end" => BuildBattlefieldConquerReadyRunesEndScenario(current, seed),
             "battlefield-conquer-draw-other" => BuildBattlefieldConquerDrawOtherScenario(current, seed),
             "battlefield-conquer-powerful-draw" => BuildBattlefieldConquerPowerfulDrawScenario(current, seed),
             "battlefield-conquer-sand-soldier" => BuildBattlefieldConquerSandSoldierScenario(current, seed),
@@ -5140,6 +5144,69 @@ public sealed class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattlefieldConquerReadyRunesEndScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303054,
+            124,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-DECK-001"],
+                    baseZone: ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
+                    battlefields: ["P1-BATTLEFIELD-MOUNT-TARGON", "P1-BATTLEFIELD-RUNE-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-BATTLEFIELD-RUNE-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new(
+                    "P1-BATTLEFIELD-MOUNT-TARGON",
+                    cardNo: BattlefieldConquerReadyTwoRunesAtEndCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RUNE-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-RUNE-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P1-BATTLEFIELD-READY-RUNE-001"] = new(
+                    "P1-BATTLEFIELD-READY-RUNE-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-READY-RUNE-002"] = new(
+                    "P1-BATTLEFIELD-READY-RUNE-002",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
             });
     }
 

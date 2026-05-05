@@ -26130,6 +26130,54 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerReadyRunesAtEndSchedulesAndReadiesRunes()
+    {
+        var state = BattlefieldConquerReadyRunesEndState();
+        var engine = new CoreRuleEngine();
+
+        var battleResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-runes", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-MOUNT-TARGON",
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"],
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(battleResult.Accepted);
+        Assert.True(battleResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-001"].IsExhausted);
+        Assert.True(battleResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-002"].IsExhausted);
+        Assert.Equal(2, battleResult.State.UntilEndOfTurnEffects.Count(effectId =>
+            effectId.StartsWith("BATTLEFIELD_CONQUER_READY_RUNE_AT_END:", StringComparison.Ordinal)));
+        var scheduleEvent = Assert.Single(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduleEvent.Payload["runeObjectIds"]));
+
+        var endResult = await engine.ResolveAsync(
+            battleResult.State,
+            new PlayerIntent("intent-p7-9-battlefield-ready-runes-end", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(endResult.Accepted);
+        Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-001"].IsExhausted);
+        Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-002"].IsExhausted);
+        Assert.DoesNotContain(endResult.State.UntilEndOfTurnEffects, effectId =>
+            effectId.StartsWith("BATTLEFIELD_CONQUER_READY_RUNE_AT_END:", StringComparison.Ordinal));
+        Assert.Contains(endResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
+        var readyEvent = Assert.Single(endResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNE_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
+        Assert.Equal(2, readyEvent.Payload["count"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerDrawsForOtherControlledBattlefields()
     {
         var state = BattlefieldConquerDrawOtherState();
@@ -38701,6 +38749,64 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-READY-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerReadyRunesEndState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
+                    Battlefields = ["P1-BATTLEFIELD-MOUNT-TARGON", "P1-BATTLEFIELD-RUNE-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002"],
+                    Battlefields = ["P2-BATTLEFIELD-RUNE-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MOUNT-TARGON"] = new(
+                    "P1-BATTLEFIELD-MOUNT-TARGON",
+                    cardNo: "OGN·289/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RUNE-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-RUNE-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-BATTLEFIELD-READY-RUNE-001"] = new(
+                    "P1-BATTLEFIELD-READY-RUNE-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-READY-RUNE-002"] = new(
+                    "P1-BATTLEFIELD-READY-RUNE-002",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-MAIN-001"] = new(
+                    "P2-MAIN-001",
                     ownerId: "P2",
                     controllerId: "P2")
             }

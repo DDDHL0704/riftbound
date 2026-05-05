@@ -164,6 +164,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDefendRevealSpellCardNo = "SFD·215/221";
     private const string BattlefieldIsolatedDefenderSteadfastMinusTwoCardNo = "UNL-210/219";
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
+    private const string BattlefieldConquerReadyTwoRunesAtEndCardNo = "OGN·289/298";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
@@ -204,6 +205,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
     private const string BattlefieldFirstUnitPlayedMoveOtherToBaseUsedEffectPrefix = "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:";
+    private const string BattlefieldConquerReadyRuneAtEndEffectPrefix = "BATTLEFIELD_CONQUER_READY_RUNE_AT_END:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
@@ -4090,6 +4092,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 runePools = battlefieldSandSoldierRunePools;
             }
+            if (TryResolveBattlefieldConquerReadyTwoRunesAtEndTrigger(
+                    playerZones,
+                    cardObjects,
+                    untilEndOfTurnEffects,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    combatEvents,
+                    out var battlefieldReadyRuneUntilEndOfTurnEffects))
+            {
+                untilEndOfTurnEffects = battlefieldReadyRuneUntilEndOfTurnEffects;
+            }
             TryResolveBattlefieldConquerReadyEquipmentTrigger(
                 playerZones,
                 cardObjects,
@@ -7765,6 +7779,129 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool TryResolveBattlefieldConquerReadyTwoRunesAtEndTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        const string abilityId = "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END";
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerReadyTwoRunesAtEndCardNo(battlefieldState.CardNo)
+            || !TryGetFirstRuneObjectsInBase(playerZones, cardObjects, playerId, requiredCount: 2, out var runeObjectIds))
+        {
+            return false;
+        }
+
+        var effectIds = runeObjectIds
+            .Select(runeObjectId => BuildBattlefieldConquerReadyRuneAtEndEffectId(playerId, battlefieldObjectId, runeObjectId))
+            .ToArray();
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects
+            .Concat(effectIds)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并选择回合结束重置符文",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = abilityId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["runeObjectIds"] = runeObjectIds,
+                ["effectIds"] = effectIds
+            }));
+        events.Add(new GameEvent(
+            "RUNE_READY_SCHEDULED",
+            $"{playerId} 选择 {runeObjectIds.Count} 枚符文在回合结束时变为活跃状态",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["abilityId"] = abilityId,
+                ["runeObjectIds"] = runeObjectIds,
+                ["effectIds"] = effectIds
+            }));
+        return true;
+    }
+
+    private static bool TryGetFirstRuneObjectsInBase(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        int requiredCount,
+        out IReadOnlyList<string> runeObjectIds)
+    {
+        runeObjectIds = [];
+        if (requiredCount <= 0
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var candidates = zones.Base
+            .Where(objectId =>
+                cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsRuneObject(objectId, cardObject))
+            .Take(requiredCount)
+            .ToArray();
+        if (candidates.Length < requiredCount)
+        {
+            return false;
+        }
+
+        runeObjectIds = candidates;
+        return true;
+    }
+
+    private static string BuildBattlefieldConquerReadyRuneAtEndEffectId(
+        string playerId,
+        string battlefieldObjectId,
+        string runeObjectId)
+    {
+        return $"{BattlefieldConquerReadyRuneAtEndEffectPrefix}{playerId}:{battlefieldObjectId}:{runeObjectId}";
+    }
+
+    private static bool TryParseBattlefieldConquerReadyRuneAtEndEffectId(
+        string effectId,
+        out string playerId,
+        out string battlefieldObjectId,
+        out string runeObjectId)
+    {
+        playerId = string.Empty;
+        battlefieldObjectId = string.Empty;
+        runeObjectId = string.Empty;
+        if (string.IsNullOrWhiteSpace(effectId)
+            || !effectId.StartsWith(BattlefieldConquerReadyRuneAtEndEffectPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var parts = effectId[BattlefieldConquerReadyRuneAtEndEffectPrefix.Length..].Split(':');
+        if (parts.Length != 3
+            || string.IsNullOrWhiteSpace(parts[0])
+            || string.IsNullOrWhiteSpace(parts[1])
+            || string.IsNullOrWhiteSpace(parts[2]))
+        {
+            return false;
+        }
+
+        playerId = parts[0];
+        battlefieldObjectId = parts[1];
+        runeObjectId = parts[2];
+        return true;
+    }
+
     private static bool TryResolveBattlefieldConquerReadyEquipmentTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -8032,6 +8169,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldDefendRevealSpellCardNo(cardNo)
             || IsBattlefieldIsolatedDefenderSteadfastMinusTwoCardNo(cardNo)
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
+            || IsBattlefieldConquerReadyTwoRunesAtEndCardNo(cardNo)
             || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
@@ -8149,6 +8287,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPayOneReadyLegendCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPayOneReadyLegendCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerReadyTwoRunesAtEndCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerReadyTwoRunesAtEndCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(string? cardNo)
@@ -9219,10 +9362,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             ? state.ExtraTurnPlayerId
             : NextPlayerId(state);
         var controlReturnResult = ReturnTemporaryControlAtEndTurn(state);
+        var turnEndCardObjectsBeforeCleanup = controlReturnResult.CardObjects.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        var battlefieldEndTurnRuneEvents = ReadyRunesForBattlefieldAtTurnEnd(
+            controlReturnResult.PlayerZones,
+            turnEndCardObjectsBeforeCleanup,
+            state.UntilEndOfTurnEffects,
+            state.TurnPlayerId);
         var cleanupState = state with
         {
             PlayerZones = controlReturnResult.PlayerZones,
-            CardObjects = controlReturnResult.CardObjects
+            CardObjects = turnEndCardObjectsBeforeCleanup
         };
         var cleanupResult = ApplyTurnEndCleanup(cleanupState);
         var turnEndCardObjects = cleanupResult.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -9246,7 +9398,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             ExtraTurnPlayerId = null
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
-        var events = BuildTurnEndEvents(state, intent.PlayerId, nextPlayerId, cleanupResult, controlReturnResult.Events)
+        var events = BuildTurnEndEvents(
+                state,
+                intent.PlayerId,
+                nextPlayerId,
+                cleanupResult,
+                controlReturnResult.Events.Concat(battlefieldEndTurnRuneEvents).ToArray())
             .Concat(annieTurnEndEvents)
             .Concat(turnStartResult.Events)
             .ToArray();
@@ -9513,6 +9670,87 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["objectIds"] = readiedRuneObjectIds
                 })
         ];
+    }
+
+    private static IReadOnlyList<GameEvent> ReadyRunesForBattlefieldAtTurnEnd(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string turnPlayerId)
+    {
+        if (!playerZones.TryGetValue(turnPlayerId, out var zones))
+        {
+            return [];
+        }
+
+        var runeObjectIdsByBattlefield = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var effectId in untilEndOfTurnEffects.Distinct(StringComparer.Ordinal))
+        {
+            if (!TryParseBattlefieldConquerReadyRuneAtEndEffectId(
+                    effectId,
+                    out var playerId,
+                    out var battlefieldObjectId,
+                    out var runeObjectId)
+                || !string.Equals(playerId, turnPlayerId, StringComparison.Ordinal)
+                || !zones.Base.Contains(runeObjectId, StringComparer.Ordinal)
+                || !cardObjects.TryGetValue(runeObjectId, out var runeState)
+                || !IsRuneObject(runeObjectId, runeState))
+            {
+                continue;
+            }
+
+            cardObjects[runeObjectId] = runeState with
+            {
+                IsExhausted = false
+            };
+            if (!runeObjectIdsByBattlefield.TryGetValue(battlefieldObjectId, out var runeObjectIds))
+            {
+                runeObjectIds = [];
+                runeObjectIdsByBattlefield[battlefieldObjectId] = runeObjectIds;
+            }
+            runeObjectIds.Add(runeObjectId);
+        }
+
+        if (runeObjectIdsByBattlefield.Count == 0)
+        {
+            return [];
+        }
+
+        var events = new List<GameEvent>();
+        foreach (var (battlefieldObjectId, runeObjectIds) in runeObjectIdsByBattlefield.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var distinctRuneObjectIds = runeObjectIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray();
+            var battlefieldCardNo = cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+                ? battlefieldState.CardNo
+                : null;
+            events.Add(new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{turnPlayerId} 的战场回合结束重置符文",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = turnPlayerId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["battlefieldCardNo"] = battlefieldCardNo,
+                    ["trigger"] = "BATTLEFIELD_END_TURN_READY_RUNES",
+                    ["runeObjectIds"] = distinctRuneObjectIds
+                }));
+            events.Add(new GameEvent(
+                "RUNE_READIED",
+                $"{turnPlayerId} 让 {distinctRuneObjectIds.Length} 枚符文变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = turnPlayerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["reason"] = "BATTLEFIELD_END_TURN_READY_RUNES",
+                    ["count"] = distinctRuneObjectIds.Length,
+                    ["objectIds"] = distinctRuneObjectIds
+                }));
+        }
+
+        return events;
     }
 
     private static bool IsRuneObject(string objectId, CardObjectState cardObject)

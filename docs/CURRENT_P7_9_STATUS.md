@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 9 remaining | 10 remaining | P7.9.7 has migrated `45/54` battlefield FUs / `47/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 8 remaining | 9 remaining | P7.9.7 has migrated `46/54` battlefield FUs / `48/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `45/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `9` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `46/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `8` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -206,11 +206,11 @@ Final P7.9 gate:
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `44` done.
-- Current functional-unit implementation: `802/811 = 98.9%`.
-- Current manual deferred boundary: `9/811 = 1.1%`.
+- P7.9.7 battlefield foundation slices: `45` done.
+- Current functional-unit implementation: `803/811 = 99.0%`.
+- Current manual deferred boundary: `8/811 = 1.0%`.
 - Remaining manual domains:
-  - `战场`: `9` functional units / `10` entries
+  - `战场`: `8` functional units / `9` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2862,3 +2862,36 @@ P7.9.7 battlefield foundation slice 44 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/conquest Sand Soldier battlefield slice. GameHub coverage verifies the seed, authoritative `DECLARE_BATTLE` path, returned unit, paid mana, created token event, and snapshot zone update.
+
+## P7.9.7 Battlefield Foundation Slice 45 Delivered
+
+This is the forty-fifth rule slice inside P7.9.7. It adds a conquest trigger that schedules two runes to ready at end of turn.
+
+- Added implemented battlefield card:
+  - `OGN·289/298`: when a player conquers this battlefield object, choose two runes and ready them at end of turn.
+- Server-authoritative delayed rune readiness changes:
+  - The `DECLARE_BATTLE` conquest pipeline now checks `OGN·289/298` and deterministically selects the first two rune objects in the conquering player's base.
+  - The backend records `BATTLEFIELD_CONQUER_READY_RUNE_AT_END:{playerId}:{battlefieldObjectId}:{runeObjectId}` until end of turn and emits `BATTLEFIELD_TRIGGER_RESOLVED` plus `RUNE_READY_SCHEDULED`.
+  - `ResolveEndTurn` now processes those battlefield EOT markers before generic cleanup clears until-end-of-turn effects, sets the selected rune objects to active, and emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_END_TURN_READY_RUNES` plus `RUNE_READIED`.
+  - Boundary note: the official text is optional and location-specific. Until P7.9 adds richer prompted triggered-choice UI, this representative selects the first two available rune objects in base and only fires when two runes exist; the UI remains event/snapshot-authoritative.
+- Added `battlefield-conquer-ready-runes-end` local development seed plus GameHub coverage for declaring battle at `P1-BATTLEFIELD-MOUNT-TARGON`, observing scheduled runes, submitting `END_TURN`, and observing both runes readied in the snapshot.
+- Migrated this battlefield delayed rune-readiness slice in `BehaviorSpec`:
+  - Implemented functional units: `803/811`
+  - Manual deferred functional units: `8/811`
+  - Implemented official entries: `1000/1009`
+  - Manual deferred official entries: `9/1009`
+  - Battlefield rule-domain implemented: `46` functional units / `48` entries
+  - Remaining battlefield manual deferred: `8` functional units / `9` entries
+  - Trigger/timing-surface coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 45 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldConquerReadyRunes"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2636/2636`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `74/74`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2789/2789`.
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/delayed-rune-readiness battlefield slice. GameHub coverage verifies the seed, authoritative `DECLARE_BATTLE` path, scheduled EOT marker behavior, `END_TURN`, rune-readied event, and snapshot readiness update.

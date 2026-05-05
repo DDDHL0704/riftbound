@@ -1306,6 +1306,72 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerReadyRunesEndSeedSchedulesAndReadiesRunes()
+    {
+        const string roomId = "p7-9-battlefield-ready-runes-end";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-conquer-ready-runes-end", "seed-p7-9-battlefield-ready-runes-end");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P1-BATTLEFIELD-MOUNT-TARGON", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P1-BATTLEFIELD-MOUNT-TARGON",
+              "attackerObjectIds": ["P1-BATTLEFIELD-RUNE-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-RUNE-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-runes", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        Assert.Contains(EventsFor(battleClients), gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END", StringComparison.Ordinal));
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var battleP1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var battleObjects = Assert.IsType<Dictionary<string, object?>>(battleP1["objects"]);
+        Assert.True(Assert.IsType<bool>(Assert.IsType<Dictionary<string, object?>>(battleObjects["P1-BATTLEFIELD-READY-RUNE-001"])["isExhausted"]));
+        Assert.True(Assert.IsType<bool>(Assert.IsType<Dictionary<string, object?>>(battleObjects["P1-BATTLEFIELD-READY-RUNE-002"])["isExhausted"]));
+
+        var endClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ready-runes-end", endTurn);
+
+        Assert.Empty(endClients.CallerClient.Errors);
+        Assert.Contains(EventsFor(endClients), gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
+        var readyEvent = Assert.Single(EventsFor(endClients), gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNE_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_END_TURN_READY_RUNES", StringComparison.Ordinal));
+        Assert.Equal(2, readyEvent.Payload["count"]);
+
+        var endSnapshot = SnapshotFor(endClients, "P1");
+        var endP1 = Assert.IsType<Dictionary<string, object?>>(endSnapshot.Players["P1"]);
+        var endObjects = Assert.IsType<Dictionary<string, object?>>(endP1["objects"]);
+        Assert.False(Assert.IsType<bool>(Assert.IsType<Dictionary<string, object?>>(endObjects["P1-BATTLEFIELD-READY-RUNE-001"])["isExhausted"]));
+        Assert.False(Assert.IsType<bool>(Assert.IsType<Dictionary<string, object?>>(endObjects["P1-BATTLEFIELD-READY-RUNE-002"])["isExhausted"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerDrawOtherSeedOffersBattlefieldDestinationAndDraws()
     {
         const string roomId = "p7-9-battlefield-draw-other";
