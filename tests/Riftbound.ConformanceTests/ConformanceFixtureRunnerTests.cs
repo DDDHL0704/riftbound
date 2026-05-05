@@ -26220,6 +26220,65 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerSandSoldierPaysOneReturnsUnitAndCreatesToken()
+    {
+        var state = BattlefieldConquerSandSoldierState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-sand-soldier", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-EMPEROR-SHRINE",
+                ["P1-BATTLEFIELD-SAND-ATTACKER"],
+                ["P2-BATTLEFIELD-SAND-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", result.State.CardObjects.Keys);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-SAND-ATTACKER", triggerEvent.Payload["returnedObjectId"]);
+        var tokenEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
+        var tokenObjectId = Assert.IsType<string>(tokenEvent.Payload["tokenObjectId"]);
+        Assert.Contains(tokenObjectId, result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal("SFD·T02", result.State.CardObjects[tokenObjectId].CardNo);
+        Assert.Equal(2, result.State.CardObjects[tokenObjectId].Power);
+        Assert.Contains(CardObjectTags.SandSoldier, result.State.CardObjects[tokenObjectId].Tags);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerSandSoldierSkipsWhenManaUnavailable()
+    {
+        var state = BattlefieldConquerSandSoldierState(mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-sand-soldier-no-mana", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-EMPEROR-SHRINE",
+                ["P1-BATTLEFIELD-SAND-ATTACKER"],
+                ["P2-BATTLEFIELD-SAND-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Contains("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-SAND-ATTACKER", result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.State.CardObjects.Values, cardObject => string.Equals(cardObject.CardNo, "SFD·T02", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerReadiesAndDetachesEquipment()
     {
         var state = BattlefieldConquerReadyEquipmentState();
@@ -38802,6 +38861,45 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerSandSoldierState(int mana = 1)
+    {
+        return PunishmentState(mana: mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-EMPEROR-SHRINE", "P1-BATTLEFIELD-SAND-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-SAND-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-EMPEROR-SHRINE"] = new(
+                    "P1-BATTLEFIELD-EMPEROR-SHRINE",
+                    cardNo: "SFD·207/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-SAND-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-SAND-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-SAND-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

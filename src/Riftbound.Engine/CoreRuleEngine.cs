@@ -166,6 +166,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerPayOneReadyLegendCardNo = "SFD·210/221";
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
+    private const string BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo = "SFD·207/221";
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
     private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
@@ -194,6 +195,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
+    private const int BattlefieldSandSoldierManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
     private const int BattlefieldHeldScorePowerCost = 4;
     private const int BattlefieldHeldSevenUnitsWinThreshold = 7;
@@ -4076,6 +4078,18 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 runePools = battlefieldGoldRunePools;
             }
+            if (TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger(
+                    playerZones,
+                    cardObjects,
+                    runePools,
+                    intent.PlayerId,
+                    battlefieldId,
+                    attackerObjectId,
+                    combatEvents,
+                    out var battlefieldSandSoldierRunePools))
+            {
+                runePools = battlefieldSandSoldierRunePools;
+            }
             TryResolveBattlefieldConquerReadyEquipmentTrigger(
                 playerZones,
                 cardObjects,
@@ -7604,6 +7618,153 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerPayOneReturnUnitCreateSandSoldierTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools)
+    {
+        const string abilityId = "BATTLEFIELD_CONQUERED_PAY_1_RETURN_UNIT_CREATE_SAND_SOLDIER";
+        nextRunePools = runePools;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(battlefieldState.CardNo)
+            || !TryGetFirstControlledBattlefieldUnit(
+                playerZones,
+                cardObjects,
+                playerId,
+                sourceObjectId,
+                out var targetObjectId)
+            || !P6TokenFactoryCatalog.TryGetByCardNo(SandSoldierTokenCardNo, out var tokenDefinition))
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Mana < BattlefieldSandSoldierManaCost)
+        {
+            return false;
+        }
+
+        if (!TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var ownerPlayerId, out _))
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[playerId] = currentPool with
+        {
+            Mana = currentPool.Mana - BattlefieldSandSoldierManaCost
+        };
+        nextRunePools = mutableRunePools;
+
+        var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, battlefieldObjectId, 1);
+        var tokenState = tokenDefinition.CreateObject(tokenObjectId, playerId, playerId);
+        tokenState = tokenState with
+        {
+            Tags = ApplyAzirSandSoldierTemperedTags(
+                playerZones,
+                cardObjects,
+                playerId,
+                tokenState.Tags)
+        };
+        cardObjects[tokenObjectId] = tokenState;
+        var zones = playerZones[playerId];
+        playerZones[playerId] = zones with
+        {
+            Battlefields = zones.Battlefields.Concat([tokenObjectId]).ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并打出黄沙士兵",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = abilityId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["returnedObjectId"] = targetObjectId,
+                ["ownerPlayerId"] = ownerPlayerId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenState.CardNo
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付帝王神坛征服触发费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["mana"] = BattlefieldSandSoldierManaCost,
+                ["power"] = 0,
+                ["reason"] = abilityId
+            }));
+        events.Add(new GameEvent(
+            "UNIT_RETURNED_TO_HAND",
+            $"{targetObjectId} 返回手牌",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["ownerPlayerId"] = ownerPlayerId,
+                ["reason"] = abilityId
+            }));
+        events.Add(new GameEvent(
+            "UNIT_TOKEN_CREATED",
+            $"{battlefieldObjectId} 打出黄沙士兵",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["abilityId"] = abilityId,
+                ["tokenObjectId"] = tokenObjectId,
+                ["tokenCardNo"] = tokenState.CardNo,
+                ["tokenName"] = tokenDefinition.TokenFamilyName,
+                ["power"] = tokenState.Power,
+                ["destinationZone"] = "BATTLEFIELD",
+                ["tokenTags"] = tokenState.Tags.ToArray(),
+                ["azirTempered"] = tokenState.Tags.Contains(CardEquipmentKeywordNames.Tempered, StringComparer.Ordinal)
+            }));
+        return true;
+    }
+
+    private static bool TryGetFirstControlledBattlefieldUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string preferredObjectId,
+        out string targetObjectId)
+    {
+        targetObjectId = string.Empty;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var candidateObjectIds = new[] { preferredObjectId }
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal);
+        foreach (var candidateObjectId in candidateObjectIds)
+        {
+            if (cardObjects.TryGetValue(candidateObjectId, out var candidate)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
+                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+            {
+                targetObjectId = candidateObjectId;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool TryResolveBattlefieldConquerReadyEquipmentTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -7873,6 +8034,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerPayOneReadyLegendCardNo(cardNo)
             || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
+            || IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(cardNo)
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
             || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo)
@@ -7997,6 +8159,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPowerfulPayOneDrawCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPowerfulPayOneDrawCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerPayOneReturnUnitCreateSandSoldierCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerPayOneCreateGoldCardNo(string? cardNo)
