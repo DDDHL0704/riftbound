@@ -2625,6 +2625,7 @@ public sealed class MatchSession : IMatchSession
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battle-prompt-filter" => BuildBattlePromptFilterScenario(current, seed),
+            "battle-multi-defender" => BuildBattleMultiDefenderScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
             "battlefield-held-minion" => BuildBattlefieldHeldMinionScenario(current, seed),
@@ -3431,6 +3432,55 @@ public sealed class MatchSession : IMatchSession
                     "P2-BATTLE-PROMPT-EQUIPMENT",
                     cardNo: "SFD·011/221",
                     tags: [CardObjectTags.EquipmentCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattleMultiDefenderScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303072,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLE-MULTI-VOLIBEAR"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    battlefields: ["P2-BATTLE-MULTI-LEBLANC", "P2-BATTLE-MULTI-KITTEN"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-MULTI-VOLIBEAR"] = new(
+                    "P1-BATTLE-MULTI-VOLIBEAR",
+                    cardNo: "OGN·158/298",
+                    power: 10,
+                    tags: [CardObjectTags.UnitCard, "坚守3", "壁垒"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-MULTI-LEBLANC"] = new(
+                    "P2-BATTLE-MULTI-LEBLANC",
+                    cardNo: "UNL-090/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "后排"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-MULTI-KITTEN"] = new(
+                    "P2-BATTLE-MULTI-KITTEN",
+                    cardNo: "UNL-036/219",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });

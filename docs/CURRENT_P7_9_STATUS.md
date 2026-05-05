@@ -152,7 +152,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Done | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, battle-destroyed recall replacement, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, battlefield-granted LEGEND_ACT armament attach, battlefield-granted extra standby destination, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and held-battlefield activation of supported unit conquest effects. Battlefield slices migrated all `54/54` battlefield FUs. | Focused conformance + GameHub tests. |
 | P7.9.8 | Done / absorbed | The planned remaining-battlefield batch was absorbed by P7.9.7 slice 53; no battlefield manual functional unit remains. | Functional-unit coverage tests. |
-| P7.9.9 | In progress | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, and UI operation. Slice 1 tightened `DECLARE_BATTLE` prompt candidates to legal battlefield unit sources/defenders only; slice 2 exposed the combat prompt filter seed in the UI and verified the page path with Browser smoke. | Conformance + Browser smoke. |
+| P7.9.9 | In progress | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, and UI operation. Slice 1 tightened `DECLARE_BATTLE` prompt candidates to legal battlefield unit sources/defenders only; slice 2 exposed the combat prompt filter seed in the UI and verified the page path with Browser smoke; slice 3 adds a multi-defender battle seed and verifies one attacker/two defender prompt chips plus authoritative battle submission in the browser. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
 | P7.9.x | Planned | Final audit: `811/811` functional units implemented, no manual deferred, full tests, Browser smoke, clean status. | Full final validation and commit. |
@@ -204,16 +204,16 @@ Final P7.9 gate:
 - P7.9.6 status: done.
 - P7.9.7 status: done; battlefield foundation slices 1-53 done.
 - P7.9.8 status: done / absorbed; no remaining battlefield functional-unit batch is needed.
-- P7.9.9 status: in progress; combat completeness slices 1-2 done.
+- P7.9.9 status: in progress; combat completeness slices 1-3 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
 - P7.9.7 battlefield foundation slices: `53` done.
-- P7.9.9 combat completeness slices: `2` done.
+- P7.9.9 combat completeness slices: `3` done.
 - Current functional-unit implementation: `811/811 = 100.0%`.
 - Current manual deferred boundary: `0/811 = 0.0%`.
 - Remaining manual domains: none.
-- Overall P7.9 progress: `9/13 top-level batches = 69.2%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, and P7.9.9 has started with combat prompt legality hardening.
+- Overall P7.9 progress: `9/13 top-level batches = 69.2%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, and P7.9.9 now covers combat prompt legality plus a browser-verified multi-defender battle operation path.
 - Estimated remaining top-level batches: `4` (`P7.9.9` finish, `P7.9.10`, `P7.9.11`, final audit).
 
 ## P7.9.0 Delivered
@@ -3227,3 +3227,37 @@ P7.9.9 combat completeness slice 2 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `83/83`.
 - `git diff --check`: passed.
+
+## P7.9.9 Combat Completeness Slice 3 Delivered
+
+This is the third combat-completeness slice inside P7.9.9. It adds a browser-verifiable multi-defender battle path for the current authoritative combat-assignment shape.
+
+- Backend/local seed changes:
+  - Added `battle-multi-defender` local development seed.
+  - The seed sets up P1 with one legal attacker and P2 with two legal battlefield defenders: one `后排` unit and one `壁垒` unit.
+  - Structured `DECLARE_BATTLE` prompt metadata continues to advertise one attacker, up to two defenders, and the current `requires-bulwark-or-back-row-assignment-keyword` multi-defender policy.
+- Frontend changes:
+  - Added `Multi Defender Battle` to the local development seed list.
+  - The seed fills a server-submittable `DECLARE_BATTLE` draft with one attacker, two defenders, and the existing `COMBAT_ASSIGNMENT` optional cost marker.
+  - The UI still does not decide battle legality or damage assignment; it only displays prompt candidates and submits the selected intent.
+- GameHub coverage:
+  - Added `P79CombatMultiDefenderSeedAssignsBulwarkBeforeBackRow`.
+  - The test verifies the server prompt exposes the expected one attacker/two defender candidates, accepts the `DECLARE_BATTLE` intent, emits combat damage assignment roles, and resolves the final battlefield/graveyard snapshot.
+  - Focused backend verification covers `BULWARK_FIRST` for `P2-BATTLE-MULTI-KITTEN` and `BACK_ROW_LAST` for `P2-BATTLE-MULTI-LEBLANC`.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL used for current-code smoke: `http://127.0.0.1:5089`
+  - Room ID: `p7-9-combat-multi-smoke-1778019884005`
+  - Operation path: set server URL to `5089`, set room id, joined both players, readied both players, opened development tools, clicked `Multi Defender Battle`, verified one attacker candidate and two defender candidates, then submitted `DECLARE_BATTLE`.
+  - Candidate summary: attacker `P1-BATTLE-MULTI-VOLIBEAR` count `1`; defender `P2-BATTLE-MULTI-LEBLANC` count `1`; defender `P2-BATTLE-MULTI-KITTEN` count `1`; submit button was enabled before submit.
+  - Event log summary: `BATTLE_DECLARED` was visible, followed by multiple `DAMAGE_APPLIED` events.
+  - Final snapshot summary: room remained `IN_PROGRESS`, turn `#1`, active player `P1`; the visible battle desk/report showed the multi-defender objects moving out of the battlefield after combat.
+  - Screenshot verification: visible viewport captured through the in-app browser after the submitted battle.
+
+P7.9.9 combat completeness slice 3 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79CombatMultiDefenderSeedAssignsBulwarkBeforeBackRow"`: passed `1/1`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `84/84`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- Browser smoke through the in-app browser: passed.

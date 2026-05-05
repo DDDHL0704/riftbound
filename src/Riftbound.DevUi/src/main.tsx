@@ -413,6 +413,18 @@ const scenarioPresets: ScenarioPreset[] = [
     }
   },
   {
+    id: "battle-multi-defender",
+    title: "Multi Defender Battle",
+    description: "P1 attacks into Bulwark and Back Row defenders with server assignment order.",
+    command: {
+      cmdType: "DECLARE_BATTLE",
+      battlefieldId: "BATTLEFIELD:P1-MAIN",
+      attackerObjectIds: ["P1-BATTLE-MULTI-VOLIBEAR"],
+      defenderObjectIds: ["P2-BATTLE-MULTI-LEBLANC", "P2-BATTLE-MULTI-KITTEN"],
+      optionalCosts: ["COMBAT_ASSIGNMENT"]
+    }
+  },
+  {
     id: "legend-act",
     title: "Legend Act",
     description: "P1 has Poppy legend, 3 experience, and one card to draw.",

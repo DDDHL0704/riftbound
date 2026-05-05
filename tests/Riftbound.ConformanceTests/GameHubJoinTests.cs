@@ -640,6 +640,67 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79CombatMultiDefenderSeedAssignsBulwarkBeforeBackRow()
+    {
+        const string roomId = "p7-9-combat-multi-defender";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battle-multi-defender", "seed-p7-9-combat-multi-defender");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-MULTI-VOLIBEAR", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-LEBLANC", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-KITTEN", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
+        Assert.Equal("requires-bulwark-or-back-row-assignment-keyword", metadata["multiDefenderPolicy"]);
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-MULTI-VOLIBEAR"],
+              "defenderObjectIds": ["P2-BATTLE-MULTI-LEBLANC", "P2-BATTLE-MULTI-KITTEN"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-defender", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLE-MULTI-KITTEN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "BULWARK_FIRST", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 1));
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLE-MULTI-LEBLANC", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "BACK_ROW_LAST", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 2));
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(
+            ["P2-BATTLE-MULTI-KITTEN", "P2-BATTLE-MULTI-LEBLANC"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldDrawSeedOffersBattlefieldDestinationAndDraws()
     {
         const string roomId = "p7-9-battlefield-held-draw";
