@@ -39,6 +39,82 @@ public sealed record FunctionalUnitBehaviorCoverageRow(
     public bool IsDuplicateGroup => Size > 1;
 }
 
+public sealed record BehaviorTemplateFamilyCoverageReport(
+    IReadOnlyList<BehaviorTemplateFamilyCoverageRow> Families);
+
+public sealed record BehaviorTemplateFamilyCoverageRow(
+    string TemplateId,
+    int Entries,
+    int ImplementedEntries,
+    int ManualRuleRequiredEntries,
+    int UnimplementedEntries,
+    int FunctionalUnits,
+    int ImplementedFunctionalUnits,
+    int PendingFunctionalUnits,
+    IReadOnlyList<string> PendingCategories);
+
+public static class BehaviorTemplateFamilyCoverageReporter
+{
+    public static BehaviorTemplateFamilyCoverageReport Build(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<string> templateIds)
+    {
+        ArgumentNullException.ThrowIfNull(specs);
+        ArgumentNullException.ThrowIfNull(templateIds);
+
+        var rows = templateIds
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .Select(templateId => BuildRow(specs, templateId))
+            .ToArray();
+
+        return new BehaviorTemplateFamilyCoverageReport(rows);
+    }
+
+    private static BehaviorTemplateFamilyCoverageRow BuildRow(
+        IReadOnlyList<BehaviorSpec> specs,
+        string templateId)
+    {
+        var familySpecs = specs
+            .Where(spec => spec.TemplateIds.Contains(templateId, StringComparer.Ordinal))
+            .ToArray();
+        var unitGroups = familySpecs
+            .GroupBy(spec => spec.FunctionalUnitId, StringComparer.Ordinal)
+            .ToArray();
+        var implementedUnitCount = unitGroups.Count(group => group.Any(spec => string.Equals(
+            spec.Status,
+            BehaviorImplementationStatuses.Implemented,
+            StringComparison.Ordinal)));
+        var pendingUnitCount = unitGroups.Length - implementedUnitCount;
+        var pendingCategories = familySpecs
+            .Where(spec => !string.Equals(spec.Status, BehaviorImplementationStatuses.Implemented, StringComparison.Ordinal))
+            .Select(spec => spec.CardCategoryName)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+
+        return new BehaviorTemplateFamilyCoverageRow(
+            templateId,
+            familySpecs.Length,
+            familySpecs.Count(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Implemented,
+                StringComparison.Ordinal)),
+            familySpecs.Count(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal)),
+            familySpecs.Count(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.Unimplemented,
+                StringComparison.Ordinal)),
+            unitGroups.Length,
+            implementedUnitCount,
+            pendingUnitCount,
+            pendingCategories);
+    }
+}
+
 public static class FunctionalUnitBehaviorCoverageReporter
 {
     public static FunctionalUnitBehaviorCoverageReport Build(

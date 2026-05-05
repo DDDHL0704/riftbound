@@ -173,6 +173,33 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6HighFrequencyTemplateFamiliesReportEntryAndFunctionalUnitCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var report = BehaviorTemplateFamilyCoverageReporter.Build(
+            specs,
+            [
+                BehaviorTemplateIds.Draw,
+                BehaviorTemplateIds.Damage,
+                BehaviorTemplateIds.Destroy,
+                BehaviorTemplateIds.Stun
+            ]);
+
+        AssertFamily(report, BehaviorTemplateIds.Draw, 131, 105, 26, 0, 114, 99, 15);
+        AssertFamily(report, BehaviorTemplateIds.Damage, 148, 141, 7, 0, 129, 124, 5);
+        AssertFamily(report, BehaviorTemplateIds.Destroy, 127, 115, 8, 4, 118, 109, 9);
+        AssertFamily(report, BehaviorTemplateIds.Stun, 33, 30, 3, 0, 29, 28, 1);
+        Assert.All(report.Families, family =>
+        {
+            Assert.Equal(family.Entries, family.ImplementedEntries + family.ManualRuleRequiredEntries + family.UnimplementedEntries);
+            Assert.Equal(family.FunctionalUnits, family.ImplementedFunctionalUnits + family.PendingFunctionalUnits);
+            Assert.True(family.ImplementedEntries > 0, $"{family.TemplateId} should have an implemented representative.");
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -1483,6 +1510,30 @@ public sealed class CardCatalogBaselineTests
     private static OfficialCard Card(OfficialCardCatalog catalog, string cardNo)
     {
         return catalog.Cards.Single(card => string.Equals(card.CardNo, cardNo, StringComparison.Ordinal));
+    }
+
+    private static void AssertFamily(
+        BehaviorTemplateFamilyCoverageReport report,
+        string templateId,
+        int entries,
+        int implementedEntries,
+        int manualRuleRequiredEntries,
+        int unimplementedEntries,
+        int functionalUnits,
+        int implementedFunctionalUnits,
+        int pendingFunctionalUnits)
+    {
+        var family = Assert.Single(report.Families, candidate => string.Equals(
+            candidate.TemplateId,
+            templateId,
+            StringComparison.Ordinal));
+        Assert.Equal(entries, family.Entries);
+        Assert.Equal(implementedEntries, family.ImplementedEntries);
+        Assert.Equal(manualRuleRequiredEntries, family.ManualRuleRequiredEntries);
+        Assert.Equal(unimplementedEntries, family.UnimplementedEntries);
+        Assert.Equal(functionalUnits, family.FunctionalUnits);
+        Assert.Equal(implementedFunctionalUnits, family.ImplementedFunctionalUnits);
+        Assert.Equal(pendingFunctionalUnits, family.PendingFunctionalUnits);
     }
 
     private static CardCombatKeywordProfile BuildCombatProfile(
