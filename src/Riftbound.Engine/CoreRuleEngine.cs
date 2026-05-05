@@ -159,6 +159,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
+    private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -221,6 +222,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerReadyRuneAtEndEffectPrefix = "BATTLEFIELD_CONQUER_READY_RUNE_AT_END:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
+    private const string UnitConquestReadySelfOnceEffectPrefix = "UNIT_CONQUEST_READY_SELF_ONCE:";
     private const string BattlefieldDestroyedInBattleRecallEffectId = "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
@@ -4871,6 +4873,35 @@ public sealed class CoreRuleEngine : IRuleEngine
                     untilEndOfTurnEffects = battlefieldNextSpellEchoUntilEndOfTurnEffects;
                 }
 
+                var battlefieldUnitConquestEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger(
+                        state,
+                        playerZones,
+                        cardObjects,
+                        playerScores,
+                        untilEndOfTurnEffects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        rngCursor,
+                        battlefieldUnitConquestEvents,
+                        out var battlefieldUnitConquestDrawApplication,
+                        out var battlefieldUnitConquestUntilEndOfTurnEffects))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldUnitConquestEvents);
+                    playerScores = battlefieldUnitConquestDrawApplication.PlayerScores;
+                    winnerPlayerId = battlefieldUnitConquestDrawApplication.WinnerPlayerId ?? winnerPlayerId;
+                    rngCursor = battlefieldUnitConquestDrawApplication.RngCursor;
+                    untilEndOfTurnEffects = battlefieldUnitConquestUntilEndOfTurnEffects;
+                }
+
                 var battlefieldBoonEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldGrantBoonTrigger(
                         playerZones,
@@ -7448,6 +7479,430 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldActivateUnitConquestEffectsTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        IReadOnlyList<string> untilEndOfTurnEffects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+    {
+        const string trigger = "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS";
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldActivateConquestEffectsCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        var unitObjectIds = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var unitState)
+                && unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !unitState.IsFaceDown
+                && (string.IsNullOrWhiteSpace(unitState.ControllerId)
+                    || string.Equals(unitState.ControllerId, playerId, StringComparison.Ordinal))
+                && HasBattlefieldHeldArenaUnitConquestEffect(unitState.CardNo))
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        if (unitObjectIds.Length == 0)
+        {
+            return false;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守清算人竞技场并激活单位征服效果",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = trigger,
+                ["sourceObjectId"] = sourceObjectId,
+                ["activatedUnitObjectIds"] = unitObjectIds
+            }));
+
+        var nextPlayerScores = playerScores;
+        string? winnerPlayerId = null;
+        var nextRngCursor = rngCursor;
+        foreach (var unitObjectId in unitObjectIds)
+        {
+            if (!cardObjects.TryGetValue(unitObjectId, out var unitState))
+            {
+                continue;
+            }
+
+            if (IsBadPoroUnitConquestGoldCardNo(unitState.CardNo))
+            {
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_CREATE_DORMANT_GOLD",
+                    battlefieldObjectId,
+                    trigger);
+                CreateLegendEquipmentToken(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    unitObjectId,
+                    "UNIT_CONQUEST_CREATE_DORMANT_GOLD",
+                    "金币",
+                    [CardObjectTags.EquipmentCard, "金币", "反应"],
+                    isExhausted: true,
+                    events);
+                continue;
+            }
+
+            if (IsKaisaUnitConquestDrawCardNo(unitState.CardNo))
+            {
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_DRAW_ONE",
+                    battlefieldObjectId,
+                    trigger);
+                var drawResult = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    nextPlayerScores,
+                    playerId,
+                    1,
+                    nextRngCursor,
+                    events);
+                nextPlayerScores = drawResult.PlayerScores;
+                winnerPlayerId = drawResult.WinnerPlayerId ?? winnerPlayerId;
+                nextRngCursor = drawResult.RngCursor;
+                continue;
+            }
+
+            if (IsQiyanaUnitConquestDrawOrRuneCardNo(unitState.CardNo))
+            {
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE",
+                    battlefieldObjectId,
+                    trigger);
+                if (playerZones.TryGetValue(playerId, out var currentZones)
+                    && currentZones.MainDeck.Count > 0)
+                {
+                    var drawResult = ApplyDrawToPlayer(
+                        state,
+                        playerZones,
+                        nextPlayerScores,
+                        playerId,
+                        1,
+                        nextRngCursor,
+                        events);
+                    nextPlayerScores = drawResult.PlayerScores;
+                    winnerPlayerId = drawResult.WinnerPlayerId ?? winnerPlayerId;
+                    nextRngCursor = drawResult.RngCursor;
+                }
+                else
+                {
+                    var runeCallResult = CallRunes(playerZones, cardObjects, playerId, 1);
+                    events.Add(new GameEvent(
+                        "RUNES_CALLED",
+                        $"{playerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张符文",
+                        new Dictionary<string, object?>
+                        {
+                            ["playerId"] = playerId,
+                            ["sourceObjectId"] = unitObjectId,
+                            ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                            ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
+                            ["reason"] = "UNIT_CONQUEST_DRAW_ONE_OR_CALL_RUNE"
+                        }));
+                }
+
+                continue;
+            }
+
+            if (IsSettUnitConquestSelfBoonCardNo(unitState.CardNo))
+            {
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_GRANT_SELF_BOON",
+                    battlefieldObjectId,
+                    trigger);
+                GrantLegendBoon(
+                    cardObjects,
+                    unitObjectId,
+                    playerId,
+                    unitObjectId,
+                    "UNIT_CONQUEST_GRANT_SELF_BOON",
+                    events);
+                continue;
+            }
+
+            if (IsLucianUnitConquestReadyCardNo(unitState.CardNo))
+            {
+                var readyEffectId = BuildUnitConquestReadySelfOnceEffectId(playerId, unitObjectId);
+                if (nextUntilEndOfTurnEffects.Contains(readyEffectId, StringComparer.Ordinal))
+                {
+                    continue;
+                }
+
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN",
+                    battlefieldObjectId,
+                    trigger);
+                nextUntilEndOfTurnEffects = AddUntilEndOfTurnEffect(nextUntilEndOfTurnEffects, readyEffectId);
+                var wasExhausted = unitState.IsExhausted;
+                cardObjects[unitObjectId] = unitState with
+                {
+                    IsExhausted = false
+                };
+                events.Add(new GameEvent(
+                    "UNIT_READIED",
+                    $"{unitObjectId} 因征服效果变为活跃状态",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["sourceObjectId"] = unitObjectId,
+                        ["targetObjectId"] = unitObjectId,
+                        ["wasExhausted"] = wasExhausted,
+                        ["isExhausted"] = false,
+                        ["effectId"] = readyEffectId,
+                        ["reason"] = "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN"
+                    }));
+                continue;
+            }
+
+            if (IsFriendlyBoonUnitConquestCardNo(unitState.CardNo)
+                && TryGetFirstControlledBattlefieldUnit(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    unitObjectId,
+                    out var boonTargetObjectId))
+            {
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_GRANT_FRIENDLY_BOON",
+                    battlefieldObjectId,
+                    trigger,
+                    boonTargetObjectId);
+                GrantLegendBoon(
+                    cardObjects,
+                    boonTargetObjectId,
+                    playerId,
+                    unitObjectId,
+                    "UNIT_CONQUEST_GRANT_FRIENDLY_BOON",
+                    events);
+                continue;
+            }
+
+            if (IsFriendlyPowerUnitConquestCardNo(unitState.CardNo)
+                && TryGetFirstControlledBattlefieldUnit(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    unitObjectId,
+                    out var powerTargetObjectId)
+                && cardObjects.TryGetValue(powerTargetObjectId, out var powerTargetState))
+            {
+                const int powerDelta = 8;
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN",
+                    battlefieldObjectId,
+                    trigger,
+                    powerTargetObjectId);
+                cardObjects[powerTargetObjectId] = powerTargetState with
+                {
+                    Power = powerTargetState.Power + powerDelta,
+                    UntilEndOfTurnPowerModifier = powerTargetState.UntilEndOfTurnPowerModifier + powerDelta
+                };
+                events.Add(new GameEvent(
+                    "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                    $"{unitObjectId} 的征服效果临时修正战力",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = playerId,
+                        ["sourceObjectId"] = unitObjectId,
+                        ["targetObjectId"] = powerTargetObjectId,
+                        ["powerDelta"] = powerDelta,
+                        ["appliedPowerDelta"] = powerDelta,
+                        ["resultingPower"] = powerTargetState.Power + powerDelta,
+                        ["reason"] = "UNIT_CONQUEST_FRIENDLY_PLUS_8_THIS_TURN"
+                    }));
+                continue;
+            }
+
+            if (IsDestroyEquipmentBoonUnitConquestCardNo(unitState.CardNo)
+                && TryGetFirstFieldEquipment(playerZones, cardObjects, out var equipmentObjectId))
+            {
+                AddUnitConquestEffectActivatedEvent(
+                    events,
+                    playerId,
+                    unitObjectId,
+                    unitState.CardNo,
+                    "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
+                    battlefieldObjectId,
+                    trigger,
+                    equipmentObjectId);
+                var stackItem = new StackItemState(
+                    $"unit-conquest-{unitObjectId}",
+                    playerId,
+                    unitObjectId,
+                    "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
+                    unitState.CardNo,
+                    [equipmentObjectId]);
+                if (TryDestroyTarget(playerZones, cardObjects, equipmentObjectId, out var removalResult))
+                {
+                    events.Add(BuildFieldRemovalEvent(
+                        "单位征服效果",
+                        stackItem,
+                        equipmentObjectId,
+                        removalResult,
+                        "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON"));
+                    GrantLegendBoon(
+                        cardObjects,
+                        unitObjectId,
+                        playerId,
+                        unitObjectId,
+                        "UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON",
+                        events);
+                }
+            }
+        }
+
+        drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+        return true;
+    }
+
+    private static void AddUnitConquestEffectActivatedEvent(
+        List<GameEvent> events,
+        string playerId,
+        string unitObjectId,
+        string? unitCardNo,
+        string effectId,
+        string battlefieldObjectId,
+        string reason,
+        string? targetObjectId = null)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["playerId"] = playerId,
+            ["sourceObjectId"] = unitObjectId,
+            ["unitObjectId"] = unitObjectId,
+            ["unitCardNo"] = unitCardNo,
+            ["effectId"] = effectId,
+            ["battlefieldObjectId"] = battlefieldObjectId,
+            ["reason"] = reason
+        };
+        if (!string.IsNullOrWhiteSpace(targetObjectId))
+        {
+            payload["targetObjectId"] = targetObjectId;
+        }
+
+        events.Add(new GameEvent(
+            "UNIT_CONQUEST_EFFECT_ACTIVATED",
+            $"{unitObjectId} 的征服效果已激活",
+            payload));
+    }
+
+    private static bool TryGetFirstFieldEquipment(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        out string equipmentObjectId)
+    {
+        equipmentObjectId = playerZones
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
+                && objectState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .FirstOrDefault() ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(equipmentObjectId);
+    }
+
+    private static bool HasBattlefieldHeldArenaUnitConquestEffect(string? cardNo)
+    {
+        return IsBadPoroUnitConquestGoldCardNo(cardNo)
+            || IsKaisaUnitConquestDrawCardNo(cardNo)
+            || IsQiyanaUnitConquestDrawOrRuneCardNo(cardNo)
+            || IsSettUnitConquestSelfBoonCardNo(cardNo)
+            || IsLucianUnitConquestReadyCardNo(cardNo)
+            || IsFriendlyBoonUnitConquestCardNo(cardNo)
+            || IsFriendlyPowerUnitConquestCardNo(cardNo)
+            || IsDestroyEquipmentBoonUnitConquestCardNo(cardNo);
+    }
+
+    private static bool IsBadPoroUnitConquestGoldCardNo(string? cardNo)
+    {
+        return cardNo is "UNL-222/219" or "SFD·069/221";
+    }
+
+    private static bool IsKaisaUnitConquestDrawCardNo(string? cardNo)
+    {
+        return cardNo is "OGN·039/298" or "OGN·039a/298";
+    }
+
+    private static bool IsQiyanaUnitConquestDrawOrRuneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, "OGN·155/298", StringComparison.Ordinal);
+    }
+
+    private static bool IsSettUnitConquestSelfBoonCardNo(string? cardNo)
+    {
+        return cardNo is "SFD·232/221" or "SFD·232*/221" or "OGN·164/298" or "OGN·164a/298";
+    }
+
+    private static bool IsLucianUnitConquestReadyCardNo(string? cardNo)
+    {
+        return cardNo is "SFD·113/221" or "SFD·113a/221";
+    }
+
+    private static bool IsFriendlyBoonUnitConquestCardNo(string? cardNo)
+    {
+        return cardNo is "UNL-029/219" or "UNL-029a/219";
+    }
+
+    private static bool IsFriendlyPowerUnitConquestCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, "UNL-027/219", StringComparison.Ordinal);
+    }
+
+    private static bool IsDestroyEquipmentBoonUnitConquestCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, "OGN·056/298", StringComparison.Ordinal);
+    }
+
+    private static string BuildUnitConquestReadySelfOnceEffectId(string playerId, string unitObjectId)
+    {
+        return $"{UnitConquestReadySelfOnceEffectPrefix}{playerId}:{unitObjectId}";
+    }
+
     private static bool TryGetFirstSurvivingBattlefieldUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -8939,6 +9394,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
             || IsBattlefieldExtraStandbyCardNo(cardNo)
+            || IsBattlefieldHeldActivateConquestEffectsCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
@@ -9037,6 +9493,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldExtraStandbyCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldExtraStandbyAltCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldActivateConquestEffectsCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)

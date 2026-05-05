@@ -921,6 +921,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
+    private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -1390,6 +1391,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal)
             || IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
+            || string.Equals(cardObject.CardNo, BattlefieldHeldActivateConquestEffectsCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal)
@@ -1810,6 +1812,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
     private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
+    private const string BattlefieldHeldActivateConquestEffectsCardNo = "OGN·286/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -2621,6 +2624,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-static-equipment-cost-reduction" => BuildBattlefieldStaticEquipmentCostReductionScenario(current, seed),
             "battlefield-legend-attach-armament" => BuildBattlefieldLegendAttachArmamentScenario(current, seed),
             "battlefield-extra-standby" => BuildBattlefieldExtraStandbyScenario(current, seed),
+            "battlefield-held-activate-conquest" => BuildBattlefieldHeldActivateConquestScenario(current, seed),
             "battlefield-friendly-spell-draw" => BuildBattlefieldFriendlySpellDrawScenario(current, seed),
             "battlefield-spell-power-bonus" => BuildBattlefieldSpellPowerBonusScenario(current, seed),
             "battlefield-high-cost-spell-insight" => BuildBattlefieldHighCostSpellInsightScenario(current, seed),
@@ -4521,6 +4525,71 @@ public sealed class MatchSession : IMatchSession
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldHeldActivateConquestScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303070,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-BATTLEFIELD-RECKONER-DRAW-001"],
+                    battlefields:
+                    [
+                        "P2-BATTLEFIELD-RECKONER-ARENA",
+                        "P2-BATTLEFIELD-BAD-PORO",
+                        "P2-BATTLEFIELD-KAISA"
+                    ],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-RECKONER-ARENA"] = new(
+                    "P2-BATTLEFIELD-RECKONER-ARENA",
+                    cardNo: BattlefieldHeldActivateConquestEffectsCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-BAD-PORO"] = new(
+                    "P2-BATTLEFIELD-BAD-PORO",
+                    cardNo: "UNL-222/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "魄罗", "海盗"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-KAISA"] = new(
+                    "P2-BATTLEFIELD-KAISA",
+                    cardNo: "OGN·039/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-RECKONER-DRAW-001"] = new(
+                    "P2-BATTLEFIELD-RECKONER-DRAW-001",
+                    cardNo: "SFD·001/221",
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

@@ -27650,6 +27650,77 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsCreatesGoldAndDraws()
+    {
+        var state = BattlefieldHeldActivateConquestState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-activate-conquest", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-BAD-PORO"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-RECKONER-ARENA", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(
+            ["P2-BATTLEFIELD-BAD-PORO", "P2-BATTLEFIELD-KAISA"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_CREATE_DORMANT_GOLD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-BAD-PORO", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "UNIT_CONQUEST_CREATE_DORMANT_GOLD", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-RECKONER-DRAW-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Contains(result.State.PlayerZones["P2"].Base, objectId =>
+            objectId.StartsWith("P2-BATTLEFIELD-BAD-PORO-TOKEN-", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon()
+    {
+        var state = BattlefieldHeldActivateConquestReadinessState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-activate-conquest-ready-boon", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-LUCIAN"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P2-BATTLEFIELD-LUCIAN"].IsExhausted);
+        Assert.Contains(
+            "UNIT_CONQUEST_READY_SELF_ONCE:P2:P2-BATTLEFIELD-LUCIAN",
+            result.State.UntilEndOfTurnEffects);
+        var sett = result.State.CardObjects["P2-BATTLEFIELD-SETT"];
+        Assert.Equal(5, sett.Power);
+        Assert.Contains(CardObjectTags.Boon, sett.Tags);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-SETT", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldNextSpellEchoRepeatsSpellAndConsumesMarker()
     {
         var state = PunishmentState(mana: 0) with
@@ -40695,6 +40766,129 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-PILTOVER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PILTOVER-DEFENDER",
                     power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldActivateConquestState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-RECKONER-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-BATTLEFIELD-RECKONER-DRAW-001"],
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-RECKONER-ARENA",
+                        "P2-BATTLEFIELD-BAD-PORO",
+                        "P2-BATTLEFIELD-KAISA"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-RECKONER-ARENA"] = new(
+                    "P2-BATTLEFIELD-RECKONER-ARENA",
+                    cardNo: "OGN·286/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-BAD-PORO"] = new(
+                    "P2-BATTLEFIELD-BAD-PORO",
+                    cardNo: "UNL-222/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "魄罗", "海盗"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-KAISA"] = new(
+                    "P2-BATTLEFIELD-KAISA",
+                    cardNo: "OGN·039/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-RECKONER-DRAW-001"] = new(
+                    "P2-BATTLEFIELD-RECKONER-DRAW-001",
+                    cardNo: "SFD·001/221",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldActivateConquestReadinessState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-RECKONER-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-RECKONER-ARENA",
+                        "P2-BATTLEFIELD-LUCIAN",
+                        "P2-BATTLEFIELD-SETT"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-RECKONER-ARENA"] = new(
+                    "P2-BATTLEFIELD-RECKONER-ARENA",
+                    cardNo: "OGN·286/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-LUCIAN"] = new(
+                    "P2-BATTLEFIELD-LUCIAN",
+                    cardNo: "SFD·113/221",
+                    isExhausted: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-SETT"] = new(
+                    "P2-BATTLEFIELD-SETT",
+                    cardNo: "OGN·164/298",
+                    power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
