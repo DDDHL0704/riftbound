@@ -176,7 +176,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.3b | Done | Swift spell-duel timing expansion for 6 simple official spell representatives. | Conformance + catalog profile tests passed. |
 | P6.3c | Done | Reaction priority-window timing expansion for 6 simple official spell representatives. | Conformance + catalog profile tests passed. |
 | P6.3d | Planned | Remaining reaction/standby/ambush boundary triage. | Conformance + zero-side-effect blocked/deferred checks. |
-| P6.4 | Planned | Movement/battle/scoring batches. | GameHub/Room smoke required. |
+| P6.4a | Done | Movement + burnout scoring/win GameHub core-path smoke. | GameHub/Room smoke passed. |
+| P6.4b | Planned | Movement/battle/scoring behavior expansion and remaining boundary checks. | Conformance + GameHub/Room smoke where player-visible. |
 | P6.5 | Planned | Standby/ambush/echo batches. | Response-window conformance required. |
 | P6.6 | Planned | Equipment/assemble/agile/forge/tempered batches. | P5 equipment invariant tests required. |
 | P6.7 | Planned | Experience/level/hunt/encourage batches. | Engine + conformance tests. |
@@ -209,6 +210,7 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
 - P6.3a response-window smoke progress: `1/1 GameHub smoke = 100.0%`.
 - P6.3b swift spell-duel timing expansion: `6/6 selected official swift spell representatives = 100.0%`.
 - P6.3c reaction priority-window timing expansion: `6/6 selected official reaction spell representatives = 100.0%`.
+- P6.4a movement/scoring smoke progress: `2/2 GameHub core paths = 100.0%`.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -394,6 +396,32 @@ P6.3c validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `17/17`.
 - `git diff --check`: passed.
 
+## P6.4a Delivered
+
+- Added a GameHub/Room smoke covering two P6.4 core paths from development seeds.
+- Movement smoke:
+  - Local URL: N/A; in-memory SignalR `GameHub` smoke with no browser/server listener.
+  - Room ID: `p6-4a-movement-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(movement)` -> `SubmitIntent(PLAY_CARD Ride the Wind, OGN·173/298, target P1-BATTLEFIELD-UNIT-001)` -> `PASS_PRIORITY(P1)` -> `PASS_PRIORITY(P2)`.
+  - Observed events: `STACK_ITEM_ADDED`, `PRIORITY_PASSED`, `STACK_ITEM_RESOLVED`, `UNIT_MOVED_TO_BASE`.
+  - Final snapshot summary: `P1-BATTLEFIELD-UNIT-001` is in P1 base after resolution.
+- Scoring/win smoke:
+  - Local URL: N/A; in-memory SignalR `GameHub` smoke with no browser/server listener.
+  - Room ID: `p6-4a-score-core`.
+  - Operation path: `JoinRoom(P1/P2)` -> `SeedScenario(battle-score)` -> `SubmitIntent(END_TURN by P1)`.
+  - Observed events: `TURN_END_DECLARED`, `TURN_PLAYER_ADVANCED`, `TURN_START_BEGAN`, `BURNOUT_APPLIED`, `MATCH_WON`.
+  - Final snapshot summary: turn advances to `76`, active player is `P2`, `winnerPlayerId = P1`, room status is `FINISHED`, and P1 score is `8`.
+- This batch does not change engine behavior or BehaviorSpec status counts; it locks the player-visible Room path for movement and the current burnout-to-win scoring path before broader P6.4 expansion.
+
+P6.4a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2584/2584`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `29/29`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `18/18`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.3c, then continue into P6.3d remaining reaction/standby/ambush boundary triage.
+Commit P6.4a, then continue into P6.4b movement/battle/scoring behavior expansion and boundary checks.

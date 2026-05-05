@@ -427,6 +427,95 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6MovementAndScoreSeedsBroadcastCoreSnapshotsInDevelopment()
+    {
+        var movementRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        const string movementRoomId = "p6-4a-movement-core";
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", movementRegistry)
+            .JoinRoom(movementRoomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", movementRegistry)
+            .JoinRoom(movementRoomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                movementRegistry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(movementRoomId, "P1", "movement", "seed-p6-movement");
+
+        var playMovementClients = new RecordingHubClients();
+        var rideTheWind = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-RIDE-THE-WIND",
+              "cardNo": "OGN·173/298",
+              "targetObjectIds": ["P1-BATTLEFIELD-UNIT-001"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playMovementClients, new RecordingGroupManager(), "connection-1", movementRegistry)
+            .SubmitIntent(movementRoomId, "P1", "intent-p6-ride-the-wind", rideTheWind);
+        Assert.Empty(playMovementClients.CallerClient.Errors);
+        Assert.Contains(EventsFor(playMovementClients), gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+
+        var passMovementP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passMovementP1Clients, new RecordingGroupManager(), "connection-1", movementRegistry)
+            .SubmitIntent(movementRoomId, "P1", "intent-p6-movement-p1-pass", passPriority);
+        Assert.Empty(passMovementP1Clients.CallerClient.Errors);
+        Assert.Contains(EventsFor(passMovementP1Clients), gameEvent => string.Equals(gameEvent.Kind, "PRIORITY_PASSED", StringComparison.Ordinal));
+
+        var passMovementP2Clients = new RecordingHubClients();
+        var passPriorityAgain = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passMovementP2Clients, new RecordingGroupManager(), "connection-2", movementRegistry)
+            .SubmitIntent(movementRoomId, "P2", "intent-p6-movement-p2-pass", passPriorityAgain);
+        Assert.Empty(passMovementP2Clients.CallerClient.Errors);
+        var movementEvents = EventsFor(passMovementP2Clients);
+        Assert.Contains(movementEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(movementEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
+        var movementSnapshot = SnapshotFor(passMovementP2Clients, "P1");
+        var movementP1 = Assert.IsType<Dictionary<string, object?>>(movementSnapshot.Players["P1"]);
+        var movementP1Zones = Assert.IsType<Dictionary<string, object?>>(movementP1["zones"]);
+        Assert.Contains("P1-BATTLEFIELD-UNIT-001", Assert.IsAssignableFrom<IReadOnlyList<string>>(movementP1Zones["base"]));
+
+        var scoreRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        const string scoreRoomId = "p6-4a-score-core";
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", scoreRegistry)
+            .JoinRoom(scoreRoomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", scoreRegistry)
+            .JoinRoom(scoreRoomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                scoreRegistry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(scoreRoomId, "P1", "battle-score", "seed-p6-battle-score");
+
+        var scoreClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(scoreClients, new RecordingGroupManager(), "connection-1", scoreRegistry)
+            .SubmitIntent(scoreRoomId, "P1", "intent-p6-score-end-turn", endTurn);
+
+        Assert.Empty(scoreClients.CallerClient.Errors);
+        var scoreEvents = EventsFor(scoreClients);
+        Assert.Contains(scoreEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_END_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(scoreEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
+        Assert.Contains(scoreEvents, gameEvent => string.Equals(gameEvent.Kind, "TURN_START_BEGAN", StringComparison.Ordinal));
+        Assert.Contains(scoreEvents, gameEvent => string.Equals(gameEvent.Kind, "BURNOUT_APPLIED", StringComparison.Ordinal));
+        Assert.Contains(scoreEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        var scoreSnapshot = SnapshotFor(scoreClients, "P1");
+        Assert.Equal(76, scoreSnapshot.TurnNumber);
+        Assert.Equal("P2", scoreSnapshot.ActivePlayerId);
+        Assert.Equal("P1", scoreSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal("FINISHED", scoreSnapshot.Timing["roomStatus"]);
+        var scoreP1 = Assert.IsType<Dictionary<string, object?>>(scoreSnapshot.Players["P1"]);
+        Assert.Equal(8, Assert.IsType<int>(scoreP1["score"]));
+        var scoreP2Prompt = PromptFor(scoreClients, "P2");
+        Assert.False(scoreP2Prompt.Actionable);
+        Assert.Contains("WAIT", scoreP2Prompt.Actions);
+    }
+
+    [Fact]
     public async Task SeedScenarioIsRejectedOutsideDevelopment()
     {
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
@@ -483,6 +572,18 @@ public sealed class GameHubJoinTests
     {
         return Assert.IsType<ActionPromptDto>(
             Assert.Single(clients.GroupClient.Prompts, message => string.Equals(message.PlayerId, playerId, StringComparison.Ordinal)).Payload);
+    }
+
+    private static IReadOnlyList<GameEvent> EventsFor(RecordingHubClients clients)
+    {
+        return Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(
+            Assert.Single(clients.GroupClient.EventMessages).Payload);
+    }
+
+    private static SnapshotDto SnapshotFor(RecordingHubClients clients, string playerId)
+    {
+        return Assert.IsType<SnapshotDto>(
+            Assert.Single(clients.GroupClient.Snapshots, message => string.Equals(message.PlayerId, playerId, StringComparison.Ordinal)).Payload);
     }
 
     private sealed class RecordingGameClient : IGameClient
