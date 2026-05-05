@@ -130,6 +130,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int JhinHighCostSpellManaThreshold = 4;
     private const string ViLegendCardNo = "UNL-187/219";
     private const int ViLegendOverkillThreshold = 3;
+    private const string VexLegendCardNo = "UNL-193/219";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3645,32 +3646,86 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defenderObjectIds,
                 defendingPlayerId,
                 intent.PlayerId,
-                out var battleWinnerPlayerId)
-            && TryGetDravenLegendCardNo(playerZones, cardObjects, battleWinnerPlayerId, out var dravenLegendCardNo))
+                out var battleWinnerPlayerId))
         {
-            combatEvents.Add(new GameEvent(
-                "LEGEND_TRIGGER_RESOLVED",
-                $"{battleWinnerPlayerId} 的荣耀行刑官因赢得战斗触发",
-                new Dictionary<string, object?>
+            if (!string.IsNullOrWhiteSpace(defendingPlayerId)
+                && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal)
+                && TryGetActiveVexLegend(playerZones, cardObjects, battleWinnerPlayerId, out var vexLegendObjectId, out var vexLegendState))
+            {
+                combatEvents.Add(new GameEvent(
+                    "BATTLEFIELD_HELD",
+                    $"{battleWinnerPlayerId} 据守战场",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = battleWinnerPlayerId,
+                        ["battlefieldId"] = battlefieldId,
+                        ["sourceObjectId"] = attackerObjectId,
+                        ["defenderObjectIds"] = defenderObjectIds.ToArray()
+                    }));
+                cardObjects[vexLegendObjectId] = vexLegendState with
                 {
-                    ["playerId"] = battleWinnerPlayerId,
-                    ["legendCardNo"] = dravenLegendCardNo,
-                    ["trigger"] = "BATTLE_WON_DRAW_ONE",
-                    ["sourceObjectId"] = attackerObjectId,
-                    ["attackerObjectId"] = attackerObjectId,
-                    ["defenderObjectIds"] = defenderObjectIds.ToArray()
-                }));
-            var drawApplication = ApplyDrawToPlayer(
-                state,
-                playerZones,
-                playerScores,
-                battleWinnerPlayerId,
-                1,
-                rngCursor,
-                combatEvents);
-            playerScores = drawApplication.PlayerScores;
-            winnerPlayerId = drawApplication.WinnerPlayerId;
-            rngCursor = drawApplication.RngCursor;
+                    IsExhausted = true
+                };
+                combatEvents.Add(new GameEvent(
+                    "LEGEND_TRIGGER_RESOLVED",
+                    $"{battleWinnerPlayerId} 的愁云使者因据守战场触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = battleWinnerPlayerId,
+                        ["legendObjectId"] = vexLegendObjectId,
+                        ["legendCardNo"] = vexLegendState.CardNo,
+                        ["trigger"] = "BATTLEFIELD_HELD_DRAW_ONE",
+                        ["sourceObjectId"] = attackerObjectId,
+                        ["battlefieldId"] = battlefieldId
+                    }));
+                combatEvents.Add(new GameEvent(
+                    "LEGEND_EXHAUSTED",
+                    $"{vexLegendObjectId} 变为休眠状态",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = battleWinnerPlayerId,
+                        ["sourceObjectId"] = vexLegendObjectId,
+                        ["reason"] = "BATTLEFIELD_HELD_DRAW_ONE"
+                    }));
+                var vexDrawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    battleWinnerPlayerId,
+                    1,
+                    rngCursor,
+                    combatEvents);
+                playerScores = vexDrawApplication.PlayerScores;
+                winnerPlayerId = vexDrawApplication.WinnerPlayerId;
+                rngCursor = vexDrawApplication.RngCursor;
+            }
+
+            if (TryGetDravenLegendCardNo(playerZones, cardObjects, battleWinnerPlayerId, out var dravenLegendCardNo))
+            {
+                combatEvents.Add(new GameEvent(
+                    "LEGEND_TRIGGER_RESOLVED",
+                    $"{battleWinnerPlayerId} 的荣耀行刑官因赢得战斗触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = battleWinnerPlayerId,
+                        ["legendCardNo"] = dravenLegendCardNo,
+                        ["trigger"] = "BATTLE_WON_DRAW_ONE",
+                        ["sourceObjectId"] = attackerObjectId,
+                        ["attackerObjectId"] = attackerObjectId,
+                        ["defenderObjectIds"] = defenderObjectIds.ToArray()
+                    }));
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    battleWinnerPlayerId,
+                    1,
+                    rngCursor,
+                    combatEvents);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
         }
 
         var nextState = state with
@@ -4212,6 +4267,42 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryGetActiveVexLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsVexLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsVexLegendCardNo(string? cardNo)
+    {
+        return cardNo is VexLegendCardNo or "UNL-232/219" or "UNL-232*/219";
     }
 
     private static int CountControlledBattlefieldUnits(

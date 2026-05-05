@@ -25041,6 +25041,58 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerVexDrawsWhenControllerHoldsBattlefield()
+    {
+        var state = VexBattlefieldHoldState("UNL-193/219", "P2-LEGEND-VEX", legendExhausted: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-vex-battlefield-held", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-VEX-ATTACKER"],
+                ["P2-VEX-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-VEX"].IsExhausted);
+        Assert.Equal(["P2-VEX-DRAW-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_DRAW_ONE", StringComparison.Ordinal));
+        Assert.Equal("UNL-193/219", triggerEvent.Payload["legendCardNo"]);
+        var drawEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal("P2", drawEvent.Payload["playerId"]);
+        Assert.Equal(1, drawEvent.Payload["count"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerVexRequiresActiveLegend()
+    {
+        var state = VexBattlefieldHoldState("UNL-232/219", "P2-LEGEND-VEX-REPRINT", legendExhausted: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-vex-battlefield-held-rejected", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-VEX-ATTACKER"],
+                ["P2-VEX-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-VEX-REPRINT"].IsExhausted);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_DRAW_ONE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -35305,6 +35357,55 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-VI-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState VexBattlefieldHoldState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool legendExhausted)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-VEX-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-VEX-DEFENDER"],
+                    LegendZone = [sourceObjectId],
+                    MainDeck = ["P2-VEX-DRAW-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-VEX-ATTACKER"] = new(
+                    "P1-VEX-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-VEX-DEFENDER"] = new(
+                    "P2-VEX-DEFENDER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: legendExhausted,
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-VEX-DRAW-001"] = new(
+                    "P2-VEX-DRAW-001",
+                    cardNo: "UNL-001/219",
                     ownerId: "P2",
                     controllerId: "P2")
             }
