@@ -82,6 +82,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
     private const int JaxLegendAttachManaCost = 1;
     private const string JaxLegendAttachManaCostToken = "SPEND_MANA:1";
+    private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
     private const string DariusOriginLegendCardNo = "OGN·253/298";
     private const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
     private const int DariusLegendManaGain = 1;
@@ -155,6 +156,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
+    private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -1733,7 +1735,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!ability.SourceCardNos.Contains(sourceState.CardNo, StringComparer.Ordinal))
+        if (!LegendAbilitySourceHasAbility(state, intent.PlayerId, sourceState.CardNo, ability))
         {
             return RejectWithCorePrompts(
                 state,
@@ -2002,6 +2004,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 break;
             }
             case LegendAbilityEffectKinds.AttachArmament:
+                AddBattlefieldGrantedLegendAbilityEventIfNeeded(
+                    playerZones,
+                    cardObjects,
+                    intent.PlayerId,
+                    command.SourceObjectId,
+                    targetObjectIds[0],
+                    targetObjectIds[1],
+                    ability,
+                    events);
                 AttachOrReattachLegendArmament(
                     cardObjects,
                     targetObjectIds[0],
@@ -2161,6 +2172,62 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static bool LegendAbilitySourceHasAbility(
+        MatchState state,
+        string playerId,
+        string? sourceCardNo,
+        LegendAbilityDefinition ability)
+    {
+        return ability.SourceCardNos.Contains(sourceCardNo, StringComparer.Ordinal)
+            || (!string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldCardNo)
+                && PlayerControlsBattlefieldCard(state, playerId, ability.RequiredControlledBattlefieldCardNo));
+    }
+
+    private static bool PlayerControlsBattlefieldCard(
+        MatchState state,
+        string playerId,
+        string cardNo)
+    {
+        return TryGetControlledBattlefieldCardObject(
+            state.PlayerZones,
+            state.CardObjects,
+            playerId,
+            cardNo,
+            out _,
+            out _);
+    }
+
+    private static bool TryGetControlledBattlefieldCardObject(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string cardNo,
+        out string battlefieldObjectId,
+        out CardObjectState battlefieldState)
+    {
+        battlefieldObjectId = string.Empty;
+        battlefieldState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.Battlefields)
+        {
+            if (cardObjects.TryGetValue(objectId, out var candidate)
+                && string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal)
+                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
+                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+            {
+                battlefieldObjectId = objectId;
+                battlefieldState = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool PendingStackSourceHasTag(MatchState state, string tag)
     {
         return state.StackItems.Any(stackItem =>
@@ -2282,6 +2349,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RequiresArmamentSecondTarget: true,
                 RequiresAttachedArmamentSecondTarget: true,
                 RequiresDifferentArmamentHost: true),
+            BattlefieldGrantedLegendAttachArmamentAbilityId => new LegendAbilityDefinition(
+                BattlefieldGrantedLegendAttachArmamentAbilityId,
+                [],
+                "魄罗熔炉传奇贴附技能",
+                0,
+                0,
+                string.Empty,
+                2,
+                RequiresFriendlyUnitTarget: true,
+                LegendAbilityEffectKinds.AttachArmament,
+                RequiresArmamentSecondTarget: true,
+                RequiredControlledBattlefieldCardNo: BattlefieldGrantLegendAttachArmamentCardNo),
             DariusLegendAbilityId => new LegendAbilityDefinition(
                 DariusLegendAbilityId,
                 [DariusOriginLegendCardNo, "OGN·302/298", "OGN·302*/298"],
@@ -2985,13 +3064,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var previousAttachedToObjectId = equipmentState.AttachedToObjectId;
+        var isActuallyReattach = isReattach || !string.IsNullOrWhiteSpace(previousAttachedToObjectId);
         cardObjects[equipmentObjectId] = equipmentState with
         {
             AttachedToObjectId = unitObjectId
         };
         events.Add(new GameEvent(
-            isReattach ? "EQUIPMENT_REATTACHED" : "EQUIPMENT_ATTACHED",
-            isReattach ? $"{sourceObjectId} 重贴附武装" : $"{sourceObjectId} 贴附武装",
+            isActuallyReattach ? "EQUIPMENT_REATTACHED" : "EQUIPMENT_ATTACHED",
+            isActuallyReattach ? $"{sourceObjectId} 重贴附武装" : $"{sourceObjectId} 贴附武装",
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
@@ -3003,6 +3083,44 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? playerId : equipmentState.OwnerId,
                 ["attachedToObjectId"] = unitObjectId,
                 ["previousAttachedToObjectId"] = previousAttachedToObjectId
+            }));
+    }
+
+    private static void AddBattlefieldGrantedLegendAbilityEventIfNeeded(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string sourceObjectId,
+        string unitObjectId,
+        string equipmentObjectId,
+        LegendAbilityDefinition ability,
+        List<GameEvent> events)
+    {
+        if (string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldCardNo)
+            || !TryGetControlledBattlefieldCardObject(
+                playerZones,
+                cardObjects,
+                playerId,
+                ability.RequiredControlledBattlefieldCardNo,
+                out var battlefieldObjectId,
+                out var battlefieldState))
+        {
+            return;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 通过魄罗熔炉贴附武装",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT",
+                ["sourceObjectId"] = sourceObjectId,
+                ["unitObjectId"] = unitObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["abilityId"] = ability.AbilityId
             }));
     }
 
@@ -8719,6 +8837,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHeldReturnHeroCardNo(cardNo)
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
+            || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
@@ -8806,6 +8925,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldDestroyedInBattleRecallCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldGrantLegendAttachArmamentCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)
@@ -19531,7 +19655,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresPendingSpellStackItem = false,
         bool RequiresPendingEquipmentStackItem = false,
         bool RequiresEzrealEnemyTargetsThisTurn = false,
-        bool RequiresPendingFriendlyUnitTarget = false);
+        bool RequiresPendingFriendlyUnitTarget = false,
+        string RequiredControlledBattlefieldCardNo = "");
 
     private static class LegendAbilityEffectKinds
     {

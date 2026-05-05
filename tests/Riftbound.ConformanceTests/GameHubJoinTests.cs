@@ -3068,6 +3068,72 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldLegendAttachArmamentSeedOffersLegendActionAndAttaches()
+    {
+        const string roomId = "p7-9-battlefield-legend-attach-armament";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-legend-attach-armament", "seed-p7-9-battlefield-legend-attach-armament");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var legendCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+        Assert.True(legendCandidate.Enabled);
+        Assert.Contains(legendCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-LEGEND-PORO-FORGE", StringComparison.Ordinal));
+        Assert.Contains(
+            legendCandidate.Modes ?? [],
+            choice => string.Equals(choice.Id, "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD", StringComparison.Ordinal));
+
+        var actClients = new RecordingHubClients();
+        var legendAct = JsonDocument.Parse("""
+            {
+              "cmdType": "LEGEND_ACT",
+              "sourceObjectId": "P1-LEGEND-PORO-FORGE",
+              "abilityId": "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD",
+              "targetObjectIds": ["P1-UNIT-PORO-FORGE-TARGET", "P1-EQUIPMENT-PORO-FORGE-ARMAMENT"],
+              "optionalCosts": []
+            }
+            """).RootElement.Clone();
+        await CreateHub(actClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-legend-attach-armament", legendAct);
+
+        Assert.Empty(actClients.CallerClient.Errors);
+        var actEvents = EventsFor(actClients);
+        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
+        Assert.Contains(actEvents, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.Contains(actEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-PORO-FORGE", StringComparison.Ordinal));
+        Assert.Contains(actEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-EQUIPMENT-PORO-FORGE-ARMAMENT", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["attachedToObjectId"] as string, "P1-UNIT-PORO-FORGE-TARGET", StringComparison.Ordinal));
+
+        var actSnapshot = SnapshotFor(actClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(actSnapshot.Players["P1"]);
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var legendObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-LEGEND-PORO-FORGE"]);
+        Assert.Equal(true, legendObject["isExhausted"]);
+        var armamentObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-EQUIPMENT-PORO-FORGE-ARMAMENT"]);
+        Assert.Equal("P1-UNIT-PORO-FORGE-TARGET", armamentObject["attachedToObjectId"]);
+        Assert.Null(actSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.InProgress, actSnapshot.Timing["roomStatus"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldSevenUnitsSeedOffersBattlefieldDestinationAndWins()
     {
         const string roomId = "p7-9-battlefield-held-seven-units-win";

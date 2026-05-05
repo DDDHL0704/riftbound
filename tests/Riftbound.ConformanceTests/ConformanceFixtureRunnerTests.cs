@@ -23769,6 +23769,83 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldForgeGrantsLegendArmamentAttach()
+    {
+        var state = BattlefieldLegendAttachArmamentState(includeForge: true, armamentAttachedToObjectId: null);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-forge-legend-attach", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-PORO-FORGE",
+                "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD",
+                ["P1-LEGEND-BASE-UNIT", "P1-PORO-FORGE-ARMAMENT"],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-PORO-FORGE", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("SFD·208/221", triggerEvent.Payload["battlefieldCardNo"]);
+        var attachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_ATTACHED", StringComparison.Ordinal));
+        Assert.Equal("P1-PORO-FORGE-ARMAMENT", attachedEvent.Payload["equipmentObjectId"]);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", attachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldForgeReattachesControlledArmament()
+    {
+        var state = BattlefieldLegendAttachArmamentState(
+            includeForge: true,
+            armamentAttachedToObjectId: "P1-LEGEND-BATTLEFIELD-UNIT");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-forge-legend-reattach", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-PORO-FORGE",
+                "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD",
+                ["P1-LEGEND-BASE-UNIT", "P1-PORO-FORGE-ARMAMENT"],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONTROLLED_LEGEND_ATTACH_ARMAMENT", StringComparison.Ordinal));
+        var reattachedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_REATTACHED", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-BATTLEFIELD-UNIT", reattachedEvent.Payload["previousAttachedToObjectId"]);
+        Assert.Equal("P1-LEGEND-BASE-UNIT", reattachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldForgeLegendAttachRejectedWithoutControlledForge()
+    {
+        var state = BattlefieldLegendAttachArmamentState(includeForge: false, armamentAttachedToObjectId: null);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-forge-legend-attach-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-PORO-FORGE",
+                "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD",
+                ["P1-LEGEND-BASE-UNIT", "P1-PORO-FORGE-ARMAMENT"],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.False(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task P79LegendActDariusGainsManaAfterAnotherCardThisTurn()
     {
         var state = LegendActiveAbilityState("OGN·253/298", "P1-LEGEND-DARIUS", mana: 0) with
@@ -41223,6 +41300,42 @@ public sealed class ConformanceFixtureRunnerTests
             attachedToObjectId: armamentAttachedToObjectId,
             ownerId: "P1",
             controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState BattlefieldLegendAttachArmamentState(bool includeForge, string? armamentAttachedToObjectId)
+    {
+        var state = LegendActiveAbilityState("UNL-237/219", "P1-LEGEND-PORO-FORGE", mana: 0);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base = playerZones["P1"].Base.Concat(["P1-PORO-FORGE-ARMAMENT"]).ToArray(),
+            Battlefields = includeForge
+                ? playerZones["P1"].Battlefields.Concat(["P1-BATTLEFIELD-PORO-FORGE"]).ToArray()
+                : playerZones["P1"].Battlefields
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-PORO-FORGE-ARMAMENT"] = new(
+            "P1-PORO-FORGE-ARMAMENT",
+            cardNo: "SFD·022/221",
+            tags: [CardObjectTags.EquipmentCard, "武装"],
+            attachedToObjectId: armamentAttachedToObjectId,
+            ownerId: "P1",
+            controllerId: "P1");
+        if (includeForge)
+        {
+            cardObjects["P1-BATTLEFIELD-PORO-FORGE"] = new(
+                "P1-BATTLEFIELD-PORO-FORGE",
+                cardNo: "SFD·208/221",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1");
+        }
+
         return state with
         {
             PlayerZones = playerZones,

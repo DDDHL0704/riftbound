@@ -918,6 +918,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
+    private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -964,6 +965,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
+    private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
         MatchState state,
@@ -1073,7 +1075,8 @@ internal static class ActionPromptBuilder
                 .ToArray(),
             "LEGEND_ACT" => zones.LegendZone
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    && IsImplementedLegendActionCardNo(cardObject.CardNo)
+                    && (IsImplementedLegendActionCardNo(cardObject.CardNo)
+                        || PlayerControlsBattlefieldCard(state, playerId, BattlefieldGrantLegendAttachArmamentCardNo))
                     && !cardObject.IsExhausted)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented legend action source"))
                 .ToArray(),
@@ -1172,7 +1175,8 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL", "法术反应横置：获得 1 符能"),
                 new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT", "装备反应横置：获得 1 符能"),
                 new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS", "反应横置：抽 1 张"),
-                new ActionPromptChoiceDto("LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT", "反应支付 1 并横置：重置被选为目标的友方单位")
+                new ActionPromptChoiceDto("LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT", "反应支付 1 并横置：重置被选为目标的友方单位"),
+                new ActionPromptChoiceDto(BattlefieldGrantedLegendAttachArmamentAbilityId, "魄罗熔炉横置：贴附受控武装")
             ],
             _ => null
         };
@@ -1270,6 +1274,16 @@ internal static class ActionPromptBuilder
             : [];
     }
 
+    private static bool PlayerControlsBattlefieldCard(MatchState state, string playerId, string cardNo)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
+                && (string.IsNullOrWhiteSpace(cardObject.ControllerId)
+                    || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)));
+    }
+
     private static bool IsControlledObjectWithTag(
         MatchState state,
         string playerId,
@@ -1325,6 +1339,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldHeldReturnHeroCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal)
@@ -1730,6 +1745,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
+    private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -2539,6 +2555,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-static-echo-cost-reduction" => BuildBattlefieldStaticEchoCostReductionScenario(current, seed),
             "battlefield-held-next-spell-echo" => BuildBattlefieldHeldNextSpellEchoScenario(current, seed),
             "battlefield-static-equipment-cost-reduction" => BuildBattlefieldStaticEquipmentCostReductionScenario(current, seed),
+            "battlefield-legend-attach-armament" => BuildBattlefieldLegendAttachArmamentScenario(current, seed),
             "battlefield-friendly-spell-draw" => BuildBattlefieldFriendlySpellDrawScenario(current, seed),
             "battlefield-spell-power-bonus" => BuildBattlefieldSpellPowerBonusScenario(current, seed),
             "battlefield-high-cost-spell-insight" => BuildBattlefieldHighCostSpellInsightScenario(current, seed),
@@ -4342,6 +4359,58 @@ public sealed class MatchSession : IMatchSession
                 ["P1-BATTLEFIELD-ORNN-FORGE"] = new(
                     "P1-BATTLEFIELD-ORNN-FORGE",
                     cardNo: BattlefieldEquipmentCostReductionCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldLegendAttachArmamentScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303068,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    baseZone: ["P1-UNIT-PORO-FORGE-TARGET", "P1-EQUIPMENT-PORO-FORGE-ARMAMENT"],
+                    battlefields: ["P1-BATTLEFIELD-PORO-FORGE"],
+                    legendZone: ["P1-LEGEND-PORO-FORGE"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-PORO-FORGE"] = new(
+                    "P1-LEGEND-PORO-FORGE",
+                    cardNo: "UNL-237/219",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-PORO-FORGE-TARGET"] = new(
+                    "P1-UNIT-PORO-FORGE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-EQUIPMENT-PORO-FORGE-ARMAMENT"] = new(
+                    "P1-EQUIPMENT-PORO-FORGE-ARMAMENT",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-PORO-FORGE"] = new(
+                    "P1-BATTLEFIELD-PORO-FORGE",
+                    cardNo: BattlefieldGrantLegendAttachArmamentCardNo,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
