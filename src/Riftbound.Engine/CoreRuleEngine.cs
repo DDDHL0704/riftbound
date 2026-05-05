@@ -185,6 +185,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
+    private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -193,6 +194,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
+    private const string BattlefieldFriendlySpellDrawUsedEffectPrefix = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
 
@@ -341,6 +343,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             targetObjectIds);
+        var battlefieldFriendlySpellDrawSourceObjectId = TryGetBattlefieldFriendlySpellDrawSourceObjectId(
+                state,
+                intent.PlayerId,
+                behavior,
+                targetObjectIds,
+                out var spellDrawSourceObjectId)
+            ? spellDrawSourceObjectId
+            : string.Empty;
+        if (!string.IsNullOrWhiteSpace(battlefieldFriendlySpellDrawSourceObjectId))
+        {
+            untilEndOfTurnEffects = AddUntilEndOfTurnEffect(
+                untilEndOfTurnEffects,
+                BuildBattlefieldFriendlySpellDrawUsedEffectId(
+                    intent.PlayerId,
+                    battlefieldFriendlySpellDrawSourceObjectId));
+        }
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -492,6 +510,33 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerScores = luxDrawApplication.PlayerScores;
             winnerPlayerId = luxDrawApplication.WinnerPlayerId;
             rngCursor = luxDrawApplication.RngCursor;
+        }
+
+        if (!string.IsNullOrWhiteSpace(battlefieldFriendlySpellDrawSourceObjectId))
+        {
+            events.Add(new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 因幻梦之树抽一张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["battlefieldObjectId"] = battlefieldFriendlySpellDrawSourceObjectId,
+                    ["battlefieldCardNo"] = BattlefieldFriendlySpellDrawCardNo,
+                    ["trigger"] = "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE",
+                    ["playedCardNo"] = command.CardNo,
+                    ["targetObjectIds"] = targetObjectIds.ToArray()
+                }));
+            var battlefieldDrawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                playerScores,
+                intent.PlayerId,
+                1,
+                rngCursor,
+                events);
+            playerScores = battlefieldDrawApplication.PlayerScores;
+            winnerPlayerId = battlefieldDrawApplication.WinnerPlayerId ?? winnerPlayerId;
+            rngCursor = battlefieldDrawApplication.RngCursor;
         }
 
         events.Add(
@@ -989,6 +1034,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{PlayedEquipmentThisTurnEffectPrefix}{playerId}";
     }
 
+    private static string BuildBattlefieldFriendlySpellDrawUsedEffectId(string playerId, string sourceObjectId)
+    {
+        return $"{BattlefieldFriendlySpellDrawUsedEffectPrefix}{playerId}:{sourceObjectId}";
+    }
+
     private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
@@ -1000,6 +1050,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return state.UntilEndOfTurnEffects.Contains(
             BuildPlayedEquipmentThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static bool BattlefieldFriendlySpellDrawUsedThisTurn(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BuildBattlefieldFriendlySpellDrawUsedEffectId(playerId, sourceObjectId),
             StringComparer.Ordinal);
     }
 
@@ -7699,7 +7759,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldStaticRoamCardNo(cardNo)
             || IsBattlefieldPreventUnitPlayCardNo(cardNo)
             || IsBattlefieldEchoCostReductionCardNo(cardNo)
-            || IsBattlefieldEquipmentCostReductionCardNo(cardNo);
+            || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
+            || IsBattlefieldFriendlySpellDrawCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7887,6 +7948,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldEquipmentCostReductionCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldFriendlySpellDrawCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldFriendlySpellDrawCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -11066,6 +11132,35 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return Math.Min(1, behavior.ManaCost);
+    }
+
+    private static bool TryGetBattlefieldFriendlySpellDrawSourceObjectId(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds,
+        out string sourceObjectId)
+    {
+        sourceObjectId = string.Empty;
+        if (behavior.PlaysSourceToBaseAsUnit
+            || behavior.PlaysSourceToBaseAsEquipment
+            || targetObjectIds.Count == 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !targetObjectIds.Any(targetObjectId =>
+                IsControlledBattlefieldObject(state, playerId, targetObjectId)
+                && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)))
+        {
+            return false;
+        }
+
+        sourceObjectId = zones.Battlefields
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldFriendlySpellDrawCardNo(cardObject.CardNo)
+                && !BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault() ?? string.Empty;
+
+        return !string.IsNullOrWhiteSpace(sourceObjectId);
     }
 
     private static bool ControllerPlayedAnotherCardThisTurn(MatchState state, string playerId)

@@ -26559,6 +26559,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFriendlySpellTargetDrawsOnce()
+    {
+        var state = BattlefieldFriendlySpellDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-friendly-spell-draw", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SAVAGE-STRENGTH",
+                "SFD·034/221",
+                ["P1-BATTLEFIELD-ALLY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-MAIN-DRAWN"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal([], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(
+            result.State.UntilEndOfTurnEffects,
+            effectId => string.Equals(
+                effectId,
+                "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:P1:P1-BATTLEFIELD-DREAMTREE",
+                StringComparison.Ordinal));
+        var trigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-DREAMTREE", trigger.Payload["battlefieldObjectId"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["count"], 1));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["cardNo"] as string, "SFD·034/221", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldFriendlySpellTargetDoesNotDrawTwiceThisTurn()
+    {
+        var state = BattlefieldFriendlySpellDrawState() with
+        {
+            UntilEndOfTurnEffects = ["BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:P1:P1-BATTLEFIELD-DREAMTREE"]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-friendly-spell-draw-second", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SAVAGE-STRENGTH",
+                "SFD·034/221",
+                ["P1-BATTLEFIELD-ALLY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-MAIN-DRAWN"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38787,6 +38848,49 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-ORNN-FORGE"] = new(
                     "P1-BATTLEFIELD-ORNN-FORGE",
                     cardNo: "SFD·213/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldFriendlySpellDrawState()
+    {
+        return PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-MAIN-DRAWN"],
+                    Hand = ["P1-SPELL-SAVAGE-STRENGTH"],
+                    Battlefields = ["P1-BATTLEFIELD-DREAMTREE", "P1-BATTLEFIELD-ALLY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-SAVAGE-STRENGTH"] = new(
+                    "P1-SPELL-SAVAGE-STRENGTH",
+                    cardNo: "SFD·034/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-DRAWN"] = new(
+                    "P1-MAIN-DRAWN",
+                    cardNo: "SFD·001/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-ALLY"] = new(
+                    "P1-BATTLEFIELD-ALLY",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    power: 2),
+                ["P1-BATTLEFIELD-DREAMTREE"] = new(
+                    "P1-BATTLEFIELD-DREAMTREE",
+                    cardNo: "OGN·292/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1")
