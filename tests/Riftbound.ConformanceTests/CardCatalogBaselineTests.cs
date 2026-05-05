@@ -519,6 +519,52 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task P6LegendRuleDomainSurfacesReportManualBoundaryCoverage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+
+        var legendSpecs = specs
+            .Where(spec => string.Equals(spec.CardCategoryName, "传奇", StringComparison.Ordinal))
+            .ToArray();
+        var unitGroups = legendSpecs
+            .GroupBy(spec => spec.FunctionalUnitId, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(106, legendSpecs.Length);
+        Assert.Equal(44, unitGroups.Length);
+        Assert.Equal(40, legendSpecs.Select(spec => spec.CardName).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(
+            106,
+            legendSpecs.Count(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal)));
+        Assert.Equal(
+            44,
+            unitGroups.Count(group => group.All(spec => string.Equals(
+                spec.Status,
+                BehaviorImplementationStatuses.ManualRuleRequired,
+                StringComparison.Ordinal))));
+        Assert.Equal(106, legendSpecs.Count(spec => !string.IsNullOrWhiteSpace(spec.OfficialText)));
+        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.ActivatedAbilities.Count > 0, entries: 47, functionalUnits: 18);
+        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.Triggers.Count > 0, entries: 58, functionalUnits: 23);
+        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.Replacements.Count > 0, entries: 3, functionalUnits: 1);
+        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.StaticAbilities.Count > 0, entries: 48, functionalUnits: 20);
+        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.Keywords.Count > 0, entries: 48, functionalUnits: 20);
+        AssertLegendSurface(legendSpecs, unitGroups, spec => spec.TemplateIds.Count > 0, entries: 71, functionalUnits: 30);
+
+        Assert.All(legendSpecs, spec =>
+        {
+            Assert.Contains("dedicated non-PLAY_CARD rule domain", spec.Reason, StringComparison.Ordinal);
+            Assert.Null(spec.ImplementedEffectKind);
+            Assert.Null(spec.ImplementedByCardNo);
+            Assert.False(CardBehaviorRegistry.TryGetByCardNo(spec.CardNo, out _));
+        });
+    }
+
+    [Fact]
     public async Task RuleTextParserExtractsMinimumP3Fields()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -2466,6 +2512,17 @@ public sealed class CardCatalogBaselineTests
         int FunctionalUnits,
         int SpecImplementedFunctionalUnits,
         int PendingFunctionalUnits);
+
+    private static void AssertLegendSurface(
+        IReadOnlyList<BehaviorSpec> specs,
+        IReadOnlyList<IGrouping<string, BehaviorSpec>> unitGroups,
+        Func<BehaviorSpec, bool> predicate,
+        int entries,
+        int functionalUnits)
+    {
+        Assert.Equal(entries, specs.Count(predicate));
+        Assert.Equal(functionalUnits, unitGroups.Count(group => group.Any(predicate)));
+    }
 
     private static CardCombatKeywordProfile BuildCombatProfile(
         IReadOnlyList<BehaviorSpec> specs,

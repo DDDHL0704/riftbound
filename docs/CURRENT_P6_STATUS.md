@@ -188,7 +188,8 @@ P6.0 is audit/status only. It does not change engine behavior and must not chang
 | P6.7b | Done | Experience gain + level threshold Room-visible representative smoke. | GameHub/Room smoke passed. |
 | P6.8a | Done | Lifecycle/trigger/replacement surface matrix and deferred boundary triage. | Catalog profile matrix passed. |
 | P6.8b | Done | Last Breath + Ephemeral representative Room smokes. | GameHub/Room smoke passed. |
-| P6.9 | Planned | Legend active/passive batches. | Dedicated non-`PLAY_CARD` domain tests. |
+| P6.9a | Done | Legend active/passive surface matrix and manual boundary triage. | Catalog domain matrix passed. |
+| P6.9b | Planned | Legend representative active/passive tiny batches or explicit blocked surfaces. | Dedicated non-`PLAY_CARD` domain tests. |
 | P6.10 | Planned | Battlefield effect batches. | Battlefield/domain tests and smoke where player-visible. |
 | P6.11 | Planned | Token and copy factory batches. | Token object factory tests. |
 | P6.12 | Planned | Unique complex cards, one card or tiny group at a time. | Full relevant gates per card. |
@@ -239,6 +240,12 @@ Initial estimated remaining implementation/audit batches after P6.0: at least `1
   - Trigger timing surface: `530` entries / `423` functional units; `358/423 = 84.6%` units have implemented specs and `65/423 = 15.4%` remain pending.
   - Replacement timing surface: `28` entries / `24` functional units; `21/24 = 87.5%` units have implemented specs and `3/24 = 12.5%` remain pending.
 - P6.8b lifecycle Room smoke progress: `2/2 GameHub core paths = 100.0%`.
+- P6.9a legend surface triage: `106/106 legend entries = 100.0%` statused in the matrix; `44/44 legend functional units = 100.0%` remain explicit `manual-rule-required`.
+  - Activated ability surfaces: `47/106 entries = 44.3%`, `18/44 units = 40.9%`.
+  - Trigger surfaces: `58/106 entries = 54.7%`, `23/44 units = 52.3%`.
+  - Replacement surfaces: `3/106 entries = 2.8%`, `1/44 units = 2.3%`.
+  - Static/keyword surfaces: `48/106 entries = 45.3%`, `20/44 units = 45.5%`.
+  - Template keyword hits: `71/106 entries = 67.0%`, `30/44 units = 68.2%`, but none are promoted because legends need a dedicated non-`PLAY_CARD` domain.
 - P6 implementation progress: `700/811 functional units = 86.3%`.
 - P6 non-`PLAY_CARD` backlog remaining after P6.1a: `111/811 functional units = 13.7%`.
 - P6 official-entry status coverage: `1009/1009 entries = 100.0%`, with `176/1009 entries = 17.4%` still requiring P6 implementation or explicit final blocked/deferred reason.
@@ -689,6 +696,41 @@ P6.8b validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
 - `git diff --check`: passed.
 
+## P6.9a Delivered
+
+- Added a P6 legend rule-domain surface matrix to `CardCatalogBaselineTests`.
+- Corrected the P6.9 boundary after auditing the current official catalog snapshot: all `106` legend entries have official rules text and must remain `manual-rule-required` until a dedicated legend active/passive domain is implemented or each surface receives an explicit blocked/deferred reason.
+- Locked current legend surface counts:
+
+| Surface | Entries | Functional units |
+| --- | ---: | ---: |
+| all legend entries | 106 | 44 |
+| unique legend names | 40 | n/a |
+| official text present | 106 | 44 |
+| activated abilities | 47 | 18 |
+| triggers | 58 | 23 |
+| replacements | 3 | 1 |
+| static abilities | 48 | 20 |
+| keyword surfaces | 48 | 20 |
+| template keyword hits | 71 | 30 |
+
+- Boundary assertions:
+  - every legend entry stays `manual-rule-required`;
+  - no legend entry has `ImplementedEffectKind` or `ImplementedByCardNo`;
+  - no legend entry is accepted by `CardBehaviorRegistry`;
+  - parsed template hits are status-only evidence and do not enter `PLAY_CARD` or template execution.
+- Deferred reason: legend cards are non-`PLAY_CARD` active/passive identity objects with triggers, activated abilities, replacements, and static effects. P6.9 must handle them in tiny dedicated batches or keep zero-side-effect blocked/deferred boundaries.
+- This batch does not change engine behavior or BehaviorSpec status counts.
+
+P6.9a validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2597/2597`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2495/2495`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `34/34`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `26/26`.
+- `git diff --check`: passed.
+
 ## Next Step
 
-Commit P6.8b, then continue into P6.9 legend active/passive batches.
+Commit P6.9a, then continue into P6.9b legend representative active/passive or blocked-surface batches.
