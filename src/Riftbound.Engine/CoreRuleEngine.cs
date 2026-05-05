@@ -81,6 +81,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
+    private const string RumbleLegendCardNo = "SFD·181/221";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -2431,14 +2432,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         var combatEvents = new List<GameEvent>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
-        var attackerCombatPower = ResolveBattleCombatPower(attackerState, true, out var assaultBonus);
+        var attackerCombatPower = ResolveBattleCombatPower(
+            state,
+            playerZones,
+            attackerObjectId,
+            attackerState,
+            true,
+            out var assaultBonus);
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
         var remainingAttackerDamage = attackerCombatPower;
         for (var defenderIndex = 0; defenderIndex < defenderAssignments.Count && remainingAttackerDamage > 0; defenderIndex++)
         {
             var assignment = defenderAssignments[defenderIndex];
             var defenderState = defenderStates[assignment.ObjectId];
-            var defenderCombatPower = ResolveBattleCombatPower(defenderState, false, out _);
+            var defenderCombatPower = ResolveBattleCombatPower(
+                state,
+                playerZones,
+                assignment.ObjectId,
+                defenderState,
+                false,
+                out _);
             var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
             var damageAmount = defenderIndex == defenderAssignments.Count - 1
                 ? remainingAttackerDamage
@@ -2474,7 +2487,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var assignment in defenderAssignments)
         {
             var defenderState = defenderStates[assignment.ObjectId];
-            var defenderCombatPower = ResolveBattleCombatPower(defenderState, false, out var steadfastBonus);
+            var defenderCombatPower = ResolveBattleCombatPower(
+                state,
+                playerZones,
+                assignment.ObjectId,
+                defenderState,
+                false,
+                out var steadfastBonus);
             if (defenderCombatPower <= 0)
             {
                 continue;
@@ -2658,6 +2677,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static int ResolveBattleCombatPower(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
         CardObjectState cardObject,
         bool isAttacking,
         out int keywordBonus)
@@ -2665,7 +2687,39 @@ public sealed class CoreRuleEngine : IRuleEngine
         keywordBonus = CombatKeywordAmount(
             cardObject.Tags,
             isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast);
+        if (!isAttacking && HasRumbleLegendMechanicalSteadfastBonus(state, playerZones, objectId, cardObject))
+        {
+            keywordBonus += 1;
+        }
+
         return Math.Max(0, cardObject.Power + keywordBonus);
+    }
+
+    private static bool HasRumbleLegendMechanicalSteadfastBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!cardObject.Tags.Contains("机械", StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
+        {
+            return false;
+        }
+
+        return zones.LegendZone.Any(legendObjectId =>
+            state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+            && IsRumbleLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool IsRumbleLegendCardNo(string? cardNo)
+    {
+        return cardNo is RumbleLegendCardNo or "SFD·240/221";
     }
 
     private static int CombatKeywordAmount(

@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger slices migrated `10/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static slices migrated `11/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -204,12 +204,13 @@ Final P7.9 gate:
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `3` done.
 - P7.9.6 automatic-trigger slices: `1` done.
-- Current functional-unit implementation: `723/811 = 89.1%`.
-- Current manual deferred boundary: `88/811 = 10.9%`.
+- P7.9.6 static legend slices: `1` done.
+- Current functional-unit implementation: `724/811 = 89.3%`.
+- Current manual deferred boundary: `87/811 = 10.7%`.
 - Remaining manual domains:
-  - `传奇`: `34` functional units / `76` entries
+  - `传奇`: `33` functional units / `74` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices and `1` automatic-trigger slice are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `3` legend active-ability slices, `1` automatic-trigger slice, and `1` static legend slice are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -511,3 +512,36 @@ P7.9.6 active-ability slice 3 validation:
   - Event log summary: `LEGEND_ABILITY_ACTIVATED`, `COST_PAID`, `LEGEND_EXHAUSTED`, `UNIT_TOKEN_CREATED`
   - Final snapshot summary: match remains `IN_PROGRESS`; P1 mana `0`; `P1-LEGEND-LILLIA` exhausted; P1 base contains `P1-LEGEND-LILLIA-TOKEN-001`; token card no `UNL·T07`.
   - Screenshot note: Browser DOM/state smoke passed. The in-app Browser screenshot call timed out after `15s`, consistent with the prior screenshot limitation in this environment.
+
+## P7.9.6 Static Legend Slice Delivered
+
+This is the fifth committed rule slice inside P7.9.6. It closes the first legend static keyword surface without adding any frontend legality rule: combat damage remains resolved entirely by `CoreRuleEngine`.
+
+- Added Rumble / 机械公敌 legend static ability:
+  - your controlled `机械` units get `坚守` while defending
+  - the bonus is calculated during `DECLARE_BATTLE` combat-power resolution
+  - the `DAMAGE_APPLIED` event payload exposes `keyword = 坚守`, `keywordBonus = 1`, and the resulting `combatPower`
+- Accepted same-functional-unit legend entries:
+  - `SFD·181/221`
+  - `SFD·240/221`
+- Added representative conformance coverage for a mechanical defender under Rumble receiving `+1` defensive combat power and dealing the increased damage back to the attacker.
+- Migrated this legend static slice in `BehaviorSpec`:
+  - Implemented functional units: `724/811`
+  - Manual deferred functional units: `87/811`
+  - Implemented official entries: `878/1009`
+  - Manual deferred official entries: `131/1009`
+  - Legend rule-domain implemented: `11` functional units / `32` entries
+  - Remaining legend manual deferred: `33` functional units / `74` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 static legend slice validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendStaticRumble"`: passed `38/38`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2521/2521`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2628/2628`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this rule-only slice because Rumble is a passive combat static effect and this batch introduced no new UI operation path. The battle UI continues to submit `DECLARE_BATTLE` through server prompt candidates; the new legality and power result only appears in server events/snapshot.

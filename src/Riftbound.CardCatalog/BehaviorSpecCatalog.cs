@@ -288,7 +288,9 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "OGN·301/298"
             or "UNL-189/219"
             or "UNL-230*/219"
-            or "UNL-230/219";
+            or "UNL-230/219"
+            or "SFD·181/221"
+            or "SFD·240/221";
     }
 }
 
