@@ -3134,6 +3134,74 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldExtraStandbySeedOffersBandleDestinationAndHides()
+    {
+        const string roomId = "p7-9-battlefield-extra-standby";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-extra-standby", "seed-p7-9-battlefield-extra-standby");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var hideCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.True(hideCandidate.Enabled);
+        Assert.Contains(hideCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-STANDBY-BANDLE-TEEMO", StringComparison.Ordinal));
+        Assert.Contains(hideCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE", StringComparison.Ordinal));
+        Assert.Contains(hideCandidate.OptionalCosts ?? [], choice => string.Equals(choice.Id, "STANDBY_A", StringComparison.Ordinal));
+
+        var hideClients = new RecordingHubClients();
+        var hideCard = JsonDocument.Parse("""
+            {
+              "cmdType": "HIDE_CARD",
+              "sourceObjectId": "P1-STANDBY-BANDLE-TEEMO",
+              "cardNo": "OGN·121/298",
+              "destination": "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE",
+              "optionalCosts": ["STANDBY_A"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(hideClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-extra-standby", hideCard);
+
+        Assert.Empty(hideClients.CallerClient.Errors);
+        var hideEvents = EventsFor(hideClients);
+        Assert.Contains(hideEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-BANDLE-TREE", StringComparison.Ordinal));
+        Assert.Contains(hideEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_HIDDEN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["destinationZone"] as string, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["battlefieldObjectId"] as string, "P1-BATTLEFIELD-BANDLE-TREE", StringComparison.Ordinal));
+
+        var hideSnapshot = SnapshotFor(hideClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(hideSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-BANDLE-TREE", "P1-STANDBY-BANDLE-TEEMO"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var hiddenObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-STANDBY-BANDLE-TEEMO"]);
+        Assert.Equal(true, hiddenObject["isFaceDown"]);
+        var p1RunePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(p1RunePool["mana"]));
+        Assert.Null(hideSnapshot.Timing["winnerPlayerId"]);
+        Assert.Equal(MatchStatuses.InProgress, hideSnapshot.Timing["roomStatus"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldSevenUnitsSeedOffersBattlefieldDestinationAndWins()
     {
         const string roomId = "p7-9-battlefield-held-seven-units-win";

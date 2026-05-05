@@ -157,6 +157,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
+    private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
+    private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -3539,13 +3541,41 @@ public sealed class CoreRuleEngine : IRuleEngine
         var usesFreeStandbyHideCost = optionalCosts.Count == 1
             && string.Equals(optionalCosts[0], StandbyHideFreeOptionalCost, StringComparison.Ordinal)
             && HasFreeStandbyHidePermission(state, intent.PlayerId);
+        var usesBattlefieldExtraStandby = TryParseBattlefieldDestination(destination, out var extraStandbyBattlefieldObjectId);
         if (!string.Equals(destination, StandbyHideDestination, StringComparison.Ordinal)
-            || (!usesStandardStandbyHideCost && !usesTeemoStandbyHideCost && !usesFreeStandbyHideCost))
+            && !usesBattlefieldExtraStandby)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"Unsupported standby hide destination for {behavior.DisplayName}.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!usesStandardStandbyHideCost && !usesTeemoStandbyHideCost && !usesFreeStandbyHideCost)
         {
             return RejectWithCorePrompts(
                 state,
                 $"Unsupported standby hide cost for {behavior.DisplayName}.",
                 ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        var extraStandbyBattlefieldState = new CardObjectState();
+        if (usesBattlefieldExtraStandby)
+        {
+            if (!TryGetBattlefieldExtraStandbyObject(
+                state.PlayerZones,
+                state.CardObjects,
+                intent.PlayerId,
+                extraStandbyBattlefieldObjectId,
+                out var resolvedBattlefieldState))
+            {
+                return RejectWithCorePrompts(
+                    state,
+                    "HIDE_CARD battlefield destination requires a controlled Bandle Tree battlefield.",
+                    ErrorCodes.InvalidTarget);
+            }
+
+            extraStandbyBattlefieldState = resolvedBattlefieldState;
         }
 
         var existingState = state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
@@ -3587,12 +3617,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         var runePools = PayRuneCosts(state, intent.PlayerId, standbyHideManaCost, 0);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
         var nextZones = playerZones[intent.PlayerId];
-        playerZones[intent.PlayerId] = nextZones with
+        if (usesBattlefieldExtraStandby)
         {
-            Base = nextZones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
-                ? nextZones.Base
-                : nextZones.Base.Concat([command.SourceObjectId]).ToArray()
-        };
+            playerZones[intent.PlayerId] = nextZones with
+            {
+                Battlefields = nextZones.Battlefields.Contains(command.SourceObjectId, StringComparer.Ordinal)
+                    ? nextZones.Battlefields
+                    : nextZones.Battlefields.Concat([command.SourceObjectId]).ToArray()
+            };
+        }
+        else
+        {
+            playerZones[intent.PlayerId] = nextZones with
+            {
+                Base = nextZones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
+                    ? nextZones.Base
+                    : nextZones.Base.Concat([command.SourceObjectId]).ToArray()
+            };
+        }
 
         var hiddenState = existingState with
         {
@@ -3638,19 +3680,43 @@ public sealed class CoreRuleEngine : IRuleEngine
             new(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {standbyHideManaCost} 点费用",
-                costPaidPayload),
-            new(
-                "CARD_HIDDEN",
-                $"{intent.PlayerId} 正面朝下放置一张待命牌",
+                costPaidPayload)
+        };
+        if (usesBattlefieldExtraStandby)
+        {
+            events.Add(new GameEvent(
+                "BATTLEFIELD_TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 通过班德尔树额外布置待命牌",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = intent.PlayerId,
+                    ["battlefieldObjectId"] = extraStandbyBattlefieldObjectId,
+                    ["battlefieldCardNo"] = extraStandbyBattlefieldState?.CardNo,
+                    ["trigger"] = "BATTLEFIELD_EXTRA_STANDBY_ARRANGED",
                     ["sourceObjectId"] = command.SourceObjectId,
-                    ["destination"] = destination,
-                    ["destinationZone"] = "BASE",
-                    ["isFaceDown"] = true
-                })
+                    ["destination"] = destination
+                }));
+        }
+
+        var hiddenPayload = new Dictionary<string, object?>
+        {
+            ["playerId"] = intent.PlayerId,
+            ["sourceObjectId"] = command.SourceObjectId,
+            ["destination"] = destination,
+            ["destinationZone"] = usesBattlefieldExtraStandby ? "BATTLEFIELD" : "BASE",
+            ["isFaceDown"] = true
         };
+        if (usesBattlefieldExtraStandby)
+        {
+            hiddenPayload["battlefieldObjectId"] = extraStandbyBattlefieldObjectId;
+            hiddenPayload["battlefieldCardNo"] = extraStandbyBattlefieldState?.CardNo;
+        }
+
+        events.Add(
+            new GameEvent(
+                "CARD_HIDDEN",
+                $"{intent.PlayerId} 正面朝下放置一张待命牌",
+                hiddenPayload));
 
         return new ResolutionResult(
             true,
@@ -3666,6 +3732,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             FreeStandbyHideEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool TryGetBattlefieldExtraStandbyObject(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldObjectId,
+        out CardObjectState battlefieldState)
+    {
+        battlefieldState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal)
+            || !cardObjects.TryGetValue(battlefieldObjectId, out var candidate)
+            || !IsBattlefieldExtraStandbyCardNo(candidate.CardNo)
+            || (!string.IsNullOrWhiteSpace(candidate.ControllerId)
+                && !string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+        {
+            return false;
+        }
+
+        battlefieldState = candidate;
+        return true;
     }
 
     private static bool HasTeemoStandbyHidePermission(MatchState state, string playerId)
@@ -3687,6 +3775,18 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string FreeStandbyHideEffectId(string playerId)
     {
         return $"{FreeStandbyHideEffectPrefix}{playerId}";
+    }
+
+    private static bool TryParseBattlefieldDestination(string destination, out string battlefieldObjectId)
+    {
+        battlefieldObjectId = string.Empty;
+        if (!destination.StartsWith(DeclareBattleBattlefieldPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        battlefieldObjectId = destination[DeclareBattleBattlefieldPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(battlefieldObjectId);
     }
 
     private static ResolutionResult ResolveMoveUnit(
@@ -8838,6 +8938,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
             || IsBattlefieldDestroyedInBattleRecallCardNo(cardNo)
             || IsBattlefieldGrantLegendAttachArmamentCardNo(cardNo)
+            || IsBattlefieldExtraStandbyCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
@@ -8930,6 +9031,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldGrantLegendAttachArmamentCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldExtraStandbyCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldExtraStandbyCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, BattlefieldExtraStandbyAltCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)

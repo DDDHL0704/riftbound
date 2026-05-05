@@ -398,6 +398,8 @@ public static class OfficialRuleDomainBehaviorCatalog
             or "OGN·276a/298"
             or "OGN·275/298"
             or "OGN·277/298"
+            or "OGN·278/298"
+            or "OGN·278a/298"
             or "OGN·279/298"
             or "OGN·280/298"
             or "OGN·281/298"

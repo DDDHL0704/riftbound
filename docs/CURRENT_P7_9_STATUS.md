@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 2 remaining | 3 remaining | P7.9.7 has migrated `52/54` battlefield FUs / `54/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 1 remaining | 1 remaining | P7.9.7 has migrated `53/54` battlefield FUs / `56/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, battle-destroyed recall replacement, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, battlefield-granted LEGEND_ACT armament attach, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `52/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `2` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, end-turn rune readiness, hero-zone return, battle-destroyed recall replacement, static movement restrictions/roam, movement-trigger power, unit-play restrictions, first-unit-play movement trigger, conquer-return Sand Soldier trigger, battlefield-granted ACTIVATE_ABILITY experience, battlefield-granted LEGEND_ACT armament attach, battlefield-granted extra standby destination, unit-returned Ghost Bay rune trigger, pre-third-turn battlefield score delay, held-next-spell Echo trigger, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, target spell/skill damage bonuses, unit-play boon trigger, held unit-cost increases, and representative effects. Battlefield slices migrated `53/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batch for the remaining `1` battlefield unit, or split into smaller committed slices if needed. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-51 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-52 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `51` done.
-- Current functional-unit implementation: `809/811 = 99.8%`.
-- Current manual deferred boundary: `2/811 = 0.2%`.
+- P7.9.7 battlefield foundation slices: `52` done.
+- Current functional-unit implementation: `810/811 = 99.9%`.
+- Current manual deferred boundary: `1/811 = 0.1%`.
 - Remaining manual domains:
-  - `战场`: `2` functional units / `3` entries
+  - `战场`: `1` functional unit / `1` entry
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -3103,3 +3103,39 @@ P7.9.7 battlefield foundation slice 51 validation:
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2807/2807`.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/battlefield-granted-legend-action slice. GameHub coverage verifies the seed, prompt candidate exposure, authoritative `LEGEND_ACT` path, trigger/equipment events, and snapshot attachment boundary.
+
+## P7.9.7 Battlefield Foundation Slice 52 Delivered
+
+This is the fifty-second rule slice inside P7.9.7. It adds Bandle Tree's extra standby arrangement destination for both official art entries.
+
+- Added implemented battlefield cards:
+  - `OGN·278/298`
+  - `OGN·278a/298`
+- Server-authoritative standby changes:
+  - `HIDE_CARD` now accepts a `BATTLEFIELD:{battlefieldObjectId}` destination only when that object is a controlled Bandle Tree battlefield.
+  - The backend keeps the normal standby hide cost validation, removes the card from hand, places the face-down standby unit into the player's battlefield zone, and emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_EXTRA_STANDBY_ARRANGED`.
+  - Normal `STANDBY` hiding to base remains unchanged; unsupported non-Bandle battlefield destinations are rejected by the server.
+- Prompt/GameHub changes:
+  - Structured `ActionPrompt` now exposes implemented standby hand sources for `HIDE_CARD`.
+  - `HIDE_CARD` destinations include `STANDBY` plus controlled Bandle Tree battlefield destinations, and optional costs include the existing standby hide cost tokens.
+  - Added `battlefield-extra-standby` local development seed plus GameHub coverage for seeing the prompt candidate, submitting `HIDE_CARD`, and observing the face-down standby card in the battlefield snapshot.
+- Migrated this duplicate battlefield standby slice in `BehaviorSpec`:
+  - Implemented functional units: `810/811`
+  - Manual deferred functional units: `1/811`
+  - Implemented official entries: `1008/1009`
+  - Manual deferred official entries: `1/1009`
+  - Battlefield rule-domain implemented: `53` functional units / `56` entries
+  - Remaining battlefield manual deferred: `1` functional unit / `1` entry
+
+P7.9.7 battlefield foundation slice 52 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldBandleTree"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldExtraStandby"`: passed `1/1`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2651/2651`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `81/81`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2811/2811`.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/battlefield-extra-standby slice. GameHub coverage verifies the seed, prompt candidate exposure, authoritative `HIDE_CARD` path, trigger/hidden-card events, and snapshot battlefield placement boundary.

@@ -12,7 +12,7 @@
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成五十二个战场对象/战斗结果功能单元，最新新增 `SFD·208/221` 魄罗熔炉：控制该战场时，友方传奇获得横置并将受控武装贴附到受控单位上的 `LEGEND_ACT` 能力；既有 `UNL-206/219` 鲜血祭坛战斗摧毁替代、`UNL-216/219` 皮城学院据守后让下一个法术获得 Echo、`SFD·209/221` 遗忘丰碑阻止前三回合战场得分、`UNL-214/219` 鬼影湾返回单位后叫符文、`UNL-213/219` 蜕变花园授予战场单位 `ACTIVATE_ABILITY`、`OGN·289/298` 征服后重置符文，以及 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `809/811` 个功能单元，manual deferred 剩余 `2/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
+- 当前推进 P7.9 本地产品版全卡可玩：P7.9.6 已完成全部传奇规则域，P7.9.7 已进入战场规则域并完成五十三个战场对象/战斗结果功能单元，最新新增 `OGN·278/298` / `OGN·278a/298` 班德尔树：控制该战场时，`HIDE_CARD` 可选择额外的班德尔树战场目的地布置待命牌；既有 `SFD·208/221` 魄罗熔炉授予友方传奇贴附武装、`UNL-206/219` 鲜血祭坛战斗摧毁替代、`UNL-216/219` 皮城学院据守后让下一个法术获得 Echo、`SFD·209/221` 遗忘丰碑阻止前三回合战场得分，以及 `UNL` / `OGN` / `SFD` 多个战场代表效果均已由后端结算。当前实现 `810/811` 个功能单元，manual deferred 剩余 `1/811`，全部集中在战场。详见 `docs/CURRENT_P7_9_STATUS.md`。
 
 ## 新窗口接手
 

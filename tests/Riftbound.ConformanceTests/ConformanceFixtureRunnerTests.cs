@@ -29865,6 +29865,120 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("manaCost", redactedObject.Keys);
     }
 
+    [Theory]
+    [InlineData("OGN·278/298")]
+    [InlineData("OGN·278a/298")]
+    public async Task P79BattlefieldBandleTreeArrangesExtraStandbyCard(string battlefieldCardNo)
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-BANDLE-STANDBY"],
+                    Battlefields = ["P1-BATTLEFIELD-BANDLE-TREE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-BANDLE-STANDBY"] = new(
+                    "P1-HAND-BANDLE-STANDBY",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
+                    "P1-BATTLEFIELD-BANDLE-TREE",
+                    cardNo: battlefieldCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-bandle-tree-extra-standby", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-BANDLE-STANDBY",
+                "OGN·121/298",
+                "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-BATTLEFIELD-BANDLE-TREE", "P1-HAND-BANDLE-STANDBY"], result.State.PlayerZones["P1"].Battlefields);
+        var hiddenCard = result.State.CardObjects["P1-HAND-BANDLE-STANDBY"];
+        Assert.True(hiddenCard.IsFaceDown);
+        Assert.Equal("OGN·121/298", hiddenCard.CardNo);
+        Assert.Contains(CardObjectTags.Standby, hiddenCard.Tags);
+        Assert.Equal(["COST_PAID", "BATTLEFIELD_TRIGGER_RESOLVED", "CARD_HIDDEN"], result.Events.Select(evt => evt.Kind));
+        var triggerEvent = Assert.Single(result.Events, evt =>
+            string.Equals(evt.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(evt.Payload["trigger"] as string, "BATTLEFIELD_EXTRA_STANDBY_ARRANGED", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-BANDLE-TREE", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(battlefieldCardNo, triggerEvent.Payload["battlefieldCardNo"]);
+        var hiddenEvent = Assert.Single(result.Events, evt => string.Equals(evt.Kind, "CARD_HIDDEN", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD", hiddenEvent.Payload["destinationZone"]);
+        Assert.Equal("P1-BATTLEFIELD-BANDLE-TREE", hiddenEvent.Payload["battlefieldObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldBandleTreeRejectsExtraStandbyWithoutControlledTree()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-BANDLE-STANDBY"],
+                    Battlefields = ["P1-BATTLEFIELD-BANDLE-TREE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-BANDLE-STANDBY"] = new(
+                    "P1-HAND-BANDLE-STANDBY",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
+                    "P1-BATTLEFIELD-BANDLE-TREE",
+                    cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-bandle-tree-extra-standby-rejected", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-BANDLE-STANDBY",
+                "OGN·121/298",
+                "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-BANDLE-STANDBY"], result.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain("P1-HAND-BANDLE-STANDBY", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.Events);
+    }
+
     [Fact]
     public async Task P4HideCardCommandRejectsInsufficientStandbyCost()
     {
@@ -30173,7 +30287,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby hide cost for 提莫.", result.ErrorMessage);
+        Assert.Equal("Unsupported standby hide destination for 提莫.", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);

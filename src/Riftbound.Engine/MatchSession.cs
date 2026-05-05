@@ -919,6 +919,8 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
+    private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
+    private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -1017,7 +1019,8 @@ internal static class ActionPromptBuilder
         var modes = ModesFor(action);
         var optionalCosts = OptionalCostsFor(action);
         var requiresSourceChoices = string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
-            || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal);
+            || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
+            || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal);
         var hasRequiredChoices = !requiresSourceChoices
             || sources?.Count > 0;
         var enabled = promptActionable
@@ -1053,6 +1056,10 @@ internal static class ActionPromptBuilder
                     || string.IsNullOrWhiteSpace(cardObject.CardNo)
                     || CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out _))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented PLAY_CARD source"))
+                .ToArray(),
+            "HIDE_CARD" => zones.Hand
+                .Where(objectId => IsImplementedStandbyHideSource(state, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "implemented standby source"))
                 .ToArray(),
             "ACTIVATE_ABILITY" => zones.Base
                 .Concat(zones.Battlefields)
@@ -1128,6 +1135,11 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("BASE", "基地"),
                 new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
             ],
+            "HIDE_CARD" => [
+                new ActionPromptChoiceDto("STANDBY", "待命"),
+                .. ControlledBattlefieldExtraStandbyObjects(state, playerId)
+                    .Select(objectId => BattlefieldDestinationChoice(state, objectId, "班德尔树额外待命目的地"))
+            ],
             "MOVE_UNIT" => [
                 new ActionPromptChoiceDto("BASE", "基地"),
                 new ActionPromptChoiceDto("BATTLEFIELD", "战场"),
@@ -1192,6 +1204,11 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("ROAM", "游走"),
                 new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 战力符能")
             ],
+            "HIDE_CARD" => [
+                new ActionPromptChoiceDto("STANDBY_A", "支付 1 法力布置待命"),
+                new ActionPromptChoiceDto("STANDBY_FREE", "免费布置待命"),
+                new ActionPromptChoiceDto("STANDBY_TEEMO_MANA", "提莫布置待命")
+            ],
             "MOVE_UNIT" => [new ActionPromptChoiceDto("ROAM", "游走")],
             "ASSEMBLE_EQUIPMENT" => [new ActionPromptChoiceDto("ASSEMBLE_RED", "装配红色符能")],
             "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
@@ -1216,6 +1233,11 @@ internal static class ActionPromptBuilder
             {
                 ["sourcePolicy"] = "implemented-card-behavior-only",
                 ["targetPolicy"] = "server-validates-target-scope-on-submit"
+            },
+            "HIDE_CARD" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "implemented-standby-card-only",
+                ["destinationPolicy"] = "server-validates-standby-or-bandle-tree-battlefield"
             },
             "ACTIVATE_ABILITY" => new Dictionary<string, object?>
             {
@@ -1258,6 +1280,33 @@ internal static class ActionPromptBuilder
             .SelectMany(zones => zones.Battlefields)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldCardObject(cardObject));
+    }
+
+    private static IEnumerable<string> ControlledBattlefieldExtraStandbyObjects(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Battlefields.Where(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
+                && (string.IsNullOrWhiteSpace(cardObject.ControllerId)
+                    || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)))
+            : [];
+    }
+
+    private static bool IsImplementedStandbyHideSource(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+            && HasDelimitedTag(behavior.SourceUnitTags, CardObjectTags.Standby);
+    }
+
+    private static bool HasDelimitedTag(string values, string tag)
+    {
+        return !string.IsNullOrWhiteSpace(values)
+            && values
+                .Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Contains(tag, StringComparer.Ordinal);
     }
 
     private static IEnumerable<string> ControlledBoardObjects(MatchState state, string playerId)
@@ -1340,6 +1389,7 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldDestroyedInBattleRecallCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldGrantLegendAttachArmamentCardNo, StringComparison.Ordinal)
+            || IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
             || string.Equals(cardObject.CardNo, BattlefieldConquerConsumeBoonDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHoldEachPlayerCallRuneCardNo, StringComparison.Ordinal)
@@ -1384,6 +1434,12 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldFirstUnitPlayedMoveOtherToBaseCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldTargetSpellSkillDamageBonusCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldHeldUnitCostIncreaseCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldExtraStandbyCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldExtraStandbyCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, BattlefieldExtraStandbyAltCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsImplementedLegendActionCardNo(string? cardNo)
@@ -1446,6 +1502,12 @@ internal static class ActionPromptBuilder
             ? string.IsNullOrWhiteSpace(cardObject.CardNo) ? objectId : $"{cardObject.CardNo} / {objectId}"
             : objectId;
         return new ActionPromptChoiceDto(objectId, label, reason);
+    }
+
+    private static ActionPromptChoiceDto BattlefieldDestinationChoice(MatchState state, string objectId, string reason)
+    {
+        var choice = ObjectChoice(state, objectId, reason);
+        return new ActionPromptChoiceDto($"BATTLEFIELD:{objectId}", choice.Label, choice.Reason);
     }
 
     private static string LabelFor(string action)
@@ -1746,6 +1808,8 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldDestroyedInBattleRecallCardNo = "UNL-206/219";
     private const string BattlefieldGrantLegendAttachArmamentCardNo = "SFD·208/221";
+    private const string BattlefieldExtraStandbyCardNo = "OGN·278/298";
+    private const string BattlefieldExtraStandbyAltCardNo = "OGN·278a/298";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -2556,6 +2620,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-held-next-spell-echo" => BuildBattlefieldHeldNextSpellEchoScenario(current, seed),
             "battlefield-static-equipment-cost-reduction" => BuildBattlefieldStaticEquipmentCostReductionScenario(current, seed),
             "battlefield-legend-attach-armament" => BuildBattlefieldLegendAttachArmamentScenario(current, seed),
+            "battlefield-extra-standby" => BuildBattlefieldExtraStandbyScenario(current, seed),
             "battlefield-friendly-spell-draw" => BuildBattlefieldFriendlySpellDrawScenario(current, seed),
             "battlefield-spell-power-bonus" => BuildBattlefieldSpellPowerBonusScenario(current, seed),
             "battlefield-high-cost-spell-insight" => BuildBattlefieldHighCostSpellInsightScenario(current, seed),
@@ -4411,6 +4476,48 @@ public sealed class MatchSession : IMatchSession
                 ["P1-BATTLEFIELD-PORO-FORGE"] = new(
                     "P1-BATTLEFIELD-PORO-FORGE",
                     cardNo: BattlefieldGrantLegendAttachArmamentCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldExtraStandbyScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303069,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    hand: ["P1-STANDBY-BANDLE-TEEMO"],
+                    battlefields: ["P1-BATTLEFIELD-BANDLE-TREE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-STANDBY-BANDLE-TEEMO"] = new(
+                    "P1-STANDBY-BANDLE-TEEMO",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
+                    "P1-BATTLEFIELD-BANDLE-TREE",
+                    cardNo: BattlefieldExtraStandbyCardNo,
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
