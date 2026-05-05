@@ -187,6 +187,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
+    private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -494,6 +495,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             behavior,
             stackItem,
             events);
+        var battlefieldInsightResult = TryResolveBattlefieldHighCostSpellInsightTrigger(
+            state,
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            behavior,
+            stackItem,
+            plan.TotalManaCost,
+            rngCursor);
+        events.AddRange(battlefieldInsightResult.Events);
+        rngCursor = battlefieldInsightResult.RngCursor;
 
         if (TryGetLuxHighCostSpellDrawCardNo(playerZones, cardObjects, intent.PlayerId, behavior, out var luxLegendCardNo))
         {
@@ -7770,7 +7782,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldEchoCostReductionCardNo(cardNo)
             || IsBattlefieldEquipmentCostReductionCardNo(cardNo)
             || IsBattlefieldFriendlySpellDrawCardNo(cardNo)
-            || IsBattlefieldSpellPowerBonusCardNo(cardNo);
+            || IsBattlefieldSpellPowerBonusCardNo(cardNo)
+            || IsBattlefieldHighCostSpellInsightCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7968,6 +7981,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldSpellPowerBonusCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldSpellPowerBonusCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHighCostSpellInsightCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHighCostSpellInsightCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -11234,6 +11252,76 @@ public sealed class CoreRuleEngine : IRuleEngine
             out var powerEvent);
         events.Add(powerEvent);
         return true;
+    }
+
+    private static RecycleResult TryResolveBattlefieldHighCostSpellInsightTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        int paidMana,
+        long rngCursor)
+    {
+        var events = new List<GameEvent>();
+        if (!IsSpellPlayBehavior(behavior)
+            || paidMana < 4
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.MainDeck.Count == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var sourceObjectId = zones.Battlefields
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldHighCostSpellInsightCardNo(cardObject.CardNo))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(sourceObjectId))
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var recycledCardIds = zones.MainDeck.Take(1).ToArray();
+        var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
+            recycledCardIds,
+            state.Seed,
+            rngCursor,
+            sourceObjectId);
+        playerZones[playerId] = zones with
+        {
+            MainDeck = zones.MainDeck
+                .Skip(recycledCardIds.Length)
+                .Concat(randomizedRecycledCardIds)
+                .ToArray()
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 因失落书库洞察并回收顶部牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldObjectId"] = sourceObjectId,
+                ["battlefieldCardNo"] = BattlefieldHighCostSpellInsightCardNo,
+                ["trigger"] = "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE",
+                ["playedCardNo"] = stackItem.CardNo,
+                ["paidMana"] = paidMana,
+                ["recycledCardIds"] = randomizedRecycledCardIds.ToArray()
+            }));
+        events.Add(new GameEvent(
+            "CARDS_RECYCLED",
+            $"{playerId} 洞察并回收 1 张牌",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["cardIds"] = randomizedRecycledCardIds.ToArray(),
+                ["count"] = randomizedRecycledCardIds.Count,
+                ["reason"] = "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE"
+            }));
+        return new RecycleResult(events, rngCursor);
     }
 
     private static bool IsSpellPlayBehavior(CardBehaviorDefinition behavior)

@@ -74,7 +74,7 @@ The hard blocker for "all cards fully playable" is not the P7 UI. It is the rema
 | Domain | Functional units | Entries | P7 disposition | P7.9 target |
 | --- | ---: | ---: | --- | --- |
 | Legends | 0 remaining | 0 remaining | P7.9.6 implemented all `44/44` legend FUs / `106/106` entries | Keep prompt/UI operation coverage green |
-| Battlefields | 15 remaining | 16 remaining | P7.9.7 has migrated `39/54` battlefield FUs / `41/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
+| Battlefields | 14 remaining | 15 remaining | P7.9.7 has migrated `40/54` battlefield FUs / `42/57` entries | Implement battlefield control, hold/conquer/scoring effects, battlefield triggers/static effects, prompt exposure, conformance, UI operation |
 
 Related rule surfaces to re-check while closing the manual domains:
 
@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, and representative effects. Battlefield slices migrated `39/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `15` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage/destroy-draw, hero-zone return, static movement restrictions/roam, movement-trigger power, unit-play restrictions, echo/equipment cost reductions, friendly spell targeting draws, spell-play power triggers, high-cost spell insight/recycle, and representative effects. Battlefield slices migrated `40/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `14` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-38 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-39 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `38` done.
-- Current functional-unit implementation: `796/811 = 98.2%`.
-- Current manual deferred boundary: `15/811 = 1.8%`.
+- P7.9.7 battlefield foundation slices: `39` done.
+- Current functional-unit implementation: `797/811 = 98.3%`.
+- Current manual deferred boundary: `14/811 = 1.7%`.
 - Remaining manual domains:
-  - `战场`: `15` functional units / `16` entries
+  - `战场`: `14` functional units / `15` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2662,3 +2662,36 @@ P7.9.7 battlefield foundation slice 38 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/spell-power battlefield slice. GameHub coverage verifies the seed, authoritative battlefield trigger event, temporary power event, and snapshot object modifier.
+
+## P7.9.7 Battlefield Foundation Slice 39 Delivered
+
+This is the thirty-ninth rule slice inside P7.9.7. It adds a high-cost spell battlefield insight trigger.
+
+- Added implemented battlefield card:
+  - `UNL-211/219`: if this battlefield is controlled, when that player plays a spell and spends at least `4` mana, perform insight; the representative backend path recycles the top main-deck card.
+- Server-authoritative high-cost spell insight changes:
+  - `PLAY_CARD` detects spell plays through the existing server-side spell behavior boundary and uses the actual paid mana total from the play plan.
+  - The trigger only fires when the player has `UNL-211/219` in their battlefield zone, pays at least `4` mana, and has a main-deck card available to inspect/recycle.
+  - The backend moves the top main-deck card to the bottom of the main deck, emits `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE`, and emits `CARDS_RECYCLED` with reason `BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE`.
+  - Boundary note: the official insight choice is optional. Until P7.9 adds richer prompted sub-choices for triggered insight decisions, this representative uses a deterministic "recycle the top card" path so server snapshots, event logs, GameHub seeds, and UI operation remain authoritative and testable.
+- Added `battlefield-high-cost-spell-insight` local development seed plus GameHub coverage for submitting `UNL-066/219` and observing the authoritative battlefield trigger, recycle event, and stack item.
+- Migrated this battlefield trigger/recycle slice in `BehaviorSpec`:
+  - Implemented functional units: `797/811`
+  - Manual deferred functional units: `14/811`
+  - Implemented official entries: `994/1009`
+  - Manual deferred official entries: `15/1009`
+  - Battlefield rule-domain implemented: `40` functional units / `42` entries
+  - Remaining battlefield manual deferred: `14` functional units / `15` entries
+  - Trigger, timing-surface, and recycle-template coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 39 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `1` transient MSBuild cache warning during a parallel run, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHighCostSpellInsight"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2625/2625`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `68/68`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2772/2772`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/high-cost-insight battlefield slice. GameHub coverage verifies the seed, authoritative battlefield trigger event, recycle event, stack item creation, and snapshot main-deck boundary.

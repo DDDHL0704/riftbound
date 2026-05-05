@@ -26649,6 +26649,60 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHighCostSpellInsightRecyclesTopCardOnPaidFourPlusSpell()
+    {
+        var state = BattlefieldHighCostSpellInsightState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-high-cost-spell-insight", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-MOONFALL",
+                "UNL-066/219",
+                ["P2-BATTLEFIELD-ENEMY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-MAIN-KEEPER", "P1-INSIGHT-RECYCLE"], result.State.PlayerZones["P1"].MainDeck);
+        var trigger = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-LOST-LIBRARY", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal("UNL-066/219", trigger.Payload["playedCardNo"]);
+        Assert.Equal(7, trigger.Payload["paidMana"]);
+        Assert.Equal(["P1-INSIGHT-RECYCLE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(trigger.Payload["recycledCardIds"]));
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal(["P1-INSIGHT-RECYCLE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHighCostSpellInsightSkipsLowCostSpell()
+    {
+        var state = BattlefieldHighCostSpellInsightState(
+            mana: 2,
+            sourceObjectId: "P1-SPELL-SAVAGE-STRENGTH",
+            cardNo: "SFD·034/221");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-high-cost-spell-insight-low-cost", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SAVAGE-STRENGTH",
+                "SFD·034/221",
+                ["P2-BATTLEFIELD-ENEMY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-INSIGHT-RECYCLE", "P1-MAIN-KEEPER"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseDelaysBurnoutWin()
     {
         var state = BattlefieldWinningScoreState();
@@ -38957,6 +39011,60 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-BATTLEFIELD-WASTE-HALL"] = new(
                     "P1-BATTLEFIELD-WASTE-HALL",
                     cardNo: "UNL-205/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHighCostSpellInsightState(
+        int mana = 7,
+        string sourceObjectId = "P1-SPELL-MOONFALL",
+        string cardNo = "UNL-066/219")
+    {
+        return PunishmentState(mana: mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-INSIGHT-RECYCLE", "P1-MAIN-KEEPER"],
+                    Hand = [sourceObjectId],
+                    Battlefields = ["P1-BATTLEFIELD-LOST-LIBRARY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-ENEMY"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: cardNo,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-INSIGHT-RECYCLE"] = new(
+                    "P1-INSIGHT-RECYCLE",
+                    cardNo: "SFD·001/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MAIN-KEEPER"] = new(
+                    "P1-MAIN-KEEPER",
+                    cardNo: "SFD·002/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-ENEMY"] = new(
+                    "P2-BATTLEFIELD-ENEMY",
+                    cardNo: "SFD·001/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2",
+                    power: 2),
+                ["P1-BATTLEFIELD-LOST-LIBRARY"] = new(
+                    "P1-BATTLEFIELD-LOST-LIBRARY",
+                    cardNo: "UNL-211/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1")

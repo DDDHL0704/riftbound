@@ -2043,6 +2043,57 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHighCostSpellInsightSeedRecyclesTopCardOnSpellPlay()
+    {
+        const string roomId = "p7-9-battlefield-high-cost-spell-insight";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-high-cost-spell-insight", "seed-p7-9-battlefield-high-cost-spell-insight");
+
+        var playClients = new RecordingHubClients();
+        var moonfall = JsonDocument.Parse("""
+            {
+              "cmdType": "PLAY_CARD",
+              "sourceObjectId": "P1-SPELL-MOONFALL",
+              "cardNo": "UNL-066/219",
+              "targetObjectIds": ["P2-BATTLEFIELD-ENEMY"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-high-cost-spell-insight", moonfall);
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var events = EventsFor(playClients);
+        var trigger = Assert.Single(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-LOST-LIBRARY", trigger.Payload["battlefieldObjectId"]);
+        Assert.Equal("UNL-066/219", trigger.Payload["playedCardNo"]);
+        Assert.Equal(7, trigger.Payload["paidMana"]);
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["count"], 1));
+        Assert.Contains(events, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["cardNo"] as string, "UNL-066/219", StringComparison.Ordinal));
+
+        var p1Snapshot = SnapshotFor(playClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(2, Assert.IsType<int>(p1Zones["mainDeckCount"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldMovePowerSeedMovesUnitAndAppliesBonus()
     {
         const string roomId = "p7-9-battlefield-move-power";
