@@ -146,6 +146,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int SettLegendManaCost = 1;
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
+    private const string BattlefieldAllUnitsPowerPlusOneCardNo = "OGN·294/298";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3524,6 +3525,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             true,
             0,
             defendingPlayerId,
+            battlefieldId,
             out var assaultBonus,
             out var attackerStaticPowerBonus);
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
@@ -3542,6 +3544,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 false,
                 defendingUnitCount,
                 null,
+                battlefieldId,
                 out _,
                 out _);
             var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
@@ -3589,6 +3592,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 false,
                 defendingUnitCount,
                 null,
+                battlefieldId,
                 out var steadfastBonus,
                 out var defenderStaticPowerBonus);
             if (defenderCombatPower <= 0)
@@ -4105,6 +4109,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool isAttacking,
         int defendingUnitCount,
         string? defendingPlayerId,
+        string battlefieldId,
         out int keywordBonus,
         out int staticPowerBonus)
     {
@@ -4134,8 +4139,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
+        staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static int ResolveBattlefieldAllUnitsPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string battlefieldId,
+        CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && IsBattlefieldAllUnitsPowerPlusOneCardNo(battlefieldState.CardNo)
+            ? 1
+            : 0;
     }
 
     private static string? ResolveSingleDefendingPlayerId(
@@ -5566,7 +5585,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsImplementedBattlefieldCardNo(string? cardNo)
     {
         return IsBattlefieldHoldDrawCardNo(cardNo)
-            || IsBattlefieldConquerMillTwoCardNo(cardNo);
+            || IsBattlefieldConquerMillTwoCardNo(cardNo)
+            || IsBattlefieldAllUnitsPowerPlusOneCardNo(cardNo);
     }
 
     private static bool IsBattlefieldHoldDrawCardNo(string? cardNo)
@@ -5577,6 +5597,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerMillTwoCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerMillTwoCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldAllUnitsPowerPlusOneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldAllUnitsPowerPlusOneCardNo, StringComparison.Ordinal);
     }
 
     private static bool PlayerWithinWinningScoreDistance(

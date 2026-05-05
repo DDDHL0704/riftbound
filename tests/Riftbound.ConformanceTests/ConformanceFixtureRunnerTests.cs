@@ -25727,6 +25727,46 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticPowerAddsOneToBattleParticipants()
+    {
+        var state = BattlefieldStaticPowerState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-static-power", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-POWER-PLUS",
+                ["P1-BATTLEFIELD-STATIC-ATTACKER"],
+                ["P2-BATTLEFIELD-STATIC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-STATIC-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-STATIC-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-STATIC-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-STATIC-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(3, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, defenderDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
+        Assert.Contains("P1-BATTLEFIELD-POWER-PLUS", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-STATIC-ATTACKER"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-BATTLEFIELD-STATIC-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -36561,6 +36601,45 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CONQUER-DEFENDER",
                     power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldStaticPowerState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-POWER-PLUS", "P1-BATTLEFIELD-STATIC-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-STATIC-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-POWER-PLUS"] = new(
+                    "P1-BATTLEFIELD-POWER-PLUS",
+                    cardNo: "OGN·294/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-STATIC-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-STATIC-ATTACKER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-STATIC-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-STATIC-DEFENDER",
+                    power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
