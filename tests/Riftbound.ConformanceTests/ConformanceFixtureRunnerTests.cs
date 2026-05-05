@@ -26563,6 +26563,38 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(result.State.WinnerPlayerId);
     }
 
+    [Fact]
+    public async Task P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone()
+    {
+        var state = BattlefieldHeldReturnHeroState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-return-hero", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-HALLOWED-TOMB",
+                ["P1-BATTLEFIELD-TOMB-ATTACKER"],
+                ["P2-BATTLEFIELD-TOMB-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-HALLOWED-TOMB", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P2-HERO-TOMB-RETURN", triggerEvent.Payload["targetObjectId"]);
+        var returnEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_CHAMPION_ZONE", StringComparison.Ordinal));
+        Assert.Equal("P2-HERO-TOMB-RETURN", returnEvent.Payload["targetObjectId"]);
+        Assert.Equal("GRAVEYARD", returnEvent.Payload["originZone"]);
+        Assert.Equal("CHAMPION", returnEvent.Payload["destinationZone"]);
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(["P2-HERO-TOMB-RETURN"], result.State.PlayerZones["P2"].ChampionZone);
+        Assert.False(result.State.CardObjects["P2-HERO-TOMB-RETURN"].IsExhausted);
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
     [Theory]
     [InlineData("OGN·293/298")]
     [InlineData("OGN·293a/298")]
@@ -38550,6 +38582,54 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldReturnHeroState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-TOMB-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-HALLOWED-TOMB", "P2-BATTLEFIELD-TOMB-DEFENDER"],
+                    Graveyard = ["P2-HERO-TOMB-RETURN"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-TOMB-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-TOMB-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-HALLOWED-TOMB"] = new(
+                    "P2-BATTLEFIELD-HALLOWED-TOMB",
+                    cardNo: "OGN·281/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-TOMB-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-TOMB-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-HERO-TOMB-RETURN"] = new(
+                    "P2-HERO-TOMB-RETURN",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "CARD_CATEGORY:英雄单位"],
+                    ownerId: "P2",
+                    controllerId: "P2",
+                    isExhausted: true,
+                    damage: 2)
             }
         };
     }

@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage, and representative effects. Battlefield slices migrated `29/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `25` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, turn-start damage, hero-zone return, and representative effects. Battlefield slices migrated `30/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `24` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,13 +202,13 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-28 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-29 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `28` done.
-- Current functional-unit implementation: `786/811 = 96.9%`.
-- Current manual deferred boundary: `25/811 = 3.1%`.
+- P7.9.7 battlefield foundation slices: `29` done.
+- Current functional-unit implementation: `787/811 = 97.0%`.
+- Current manual deferred boundary: `24/811 = 3.0%`.
 - Remaining manual domains:
   - `战场`: `26` functional units / `27` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
@@ -2338,3 +2338,35 @@ P7.9.7 battlefield foundation slice 28 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated yet for this backend/turn-start battlefield slice. GameHub coverage verifies the seed, authoritative event ordering, damage/destruction events, and snapshot boundary.
+
+## P7.9.7 Battlefield Foundation Slice 29 Delivered
+
+This is the twenty-ninth rule slice inside P7.9.7. It adds a held-battlefield hero-zone return trigger.
+
+- Added implemented battlefield card:
+  - `OGN·281/298`: when a player holds this battlefield and that player's champion zone is empty, the backend returns a representative owned unit card from that player's graveyard to the champion zone.
+- Server-authoritative hero-zone return changes:
+  - The held trigger runs on the existing `DECLARE_BATTLE` battle-winner path after the defender successfully holds the battlefield.
+  - The mutation emits `BATTLEFIELD_HELD`, `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD`, and `UNIT_RETURNED_TO_CHAMPION_ZONE`.
+  - Boundary note: the current card object model does not persist full official `英雄单位` category metadata for every unit object; this representative uses server-owned unit/card-object state and test seed category tags while adding no frontend inference.
+- Added `battlefield-held-return-hero` local development seed plus GameHub coverage for prompt destination exposure, battle declaration, hero-zone return event delivery, and final graveyard/champion-zone snapshot.
+- Migrated this battlefield held return slice in `BehaviorSpec`:
+  - Implemented functional units: `787/811`
+  - Manual deferred functional units: `24/811`
+  - Implemented official entries: `984/1009`
+  - Manual deferred official entries: `25/1009`
+  - Battlefield rule-domain implemented: `30` functional units / `32` entries
+  - Remaining battlefield manual deferred: `24` functional units / `25` entries
+  - Recall template and trigger coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 29 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone|FullyQualifiedName~P79BattlefieldHeldReturnHeroSeedOffersBattlefieldDestinationAndReturnsHero"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2613/2613`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `58/58`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2750/2750`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/hero-zone return battlefield slice. GameHub coverage verifies the seed, authoritative prompt destination, return event, and snapshot boundary.

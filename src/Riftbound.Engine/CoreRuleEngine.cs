@@ -152,6 +152,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
+    private const string BattlefieldHeldReturnHeroCardNo = "OGN·281/298";
     private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
@@ -4175,6 +4176,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                     combatEvents.AddRange(battlefieldMoveEvents);
                 }
 
+                var battlefieldReturnHeroEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldReturnHeroTrigger(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        battlefieldReturnHeroEvents))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldReturnHeroEvents);
+                }
+
                 var leblancCopySourceObjectId = defenderObjectIds.FirstOrDefault(defenderObjectId =>
                     IsObjectOnField(playerZones, defenderObjectId)
                     && CardObjectHasTag(cardObjects, defenderObjectId, CardObjectTags.UnitCard)) ?? string.Empty;
@@ -6183,6 +6203,79 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldReturnHeroTrigger(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldReturnHeroCardNo(battlefieldState.CardNo)
+            || !playerZones.TryGetValue(playerId, out var zones)
+            || zones.ChampionZone.Count > 0)
+        {
+            return false;
+        }
+
+        var targetObjectId = zones.Graveyard
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(targetObjectId)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState))
+        {
+            return false;
+        }
+
+        playerZones[playerId] = zones with
+        {
+            Graveyard = RemoveFromZone(zones.Graveyard, targetObjectId),
+            ChampionZone = zones.ChampionZone.Contains(targetObjectId, StringComparer.Ordinal)
+                ? zones.ChampionZone
+                : zones.ChampionZone.Concat([targetObjectId]).ToArray()
+        };
+        cardObjects[targetObjectId] = targetState with
+        {
+            ControllerId = playerId,
+            Damage = 0,
+            IsAttacking = false,
+            IsDefending = false,
+            IsExhausted = false
+        };
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并让英雄返回英雄区域",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD",
+                ["sourceObjectId"] = sourceObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = "GRAVEYARD",
+                ["destinationZone"] = "CHAMPION"
+            }));
+        events.Add(new GameEvent(
+            "UNIT_RETURNED_TO_CHAMPION_ZONE",
+            $"{targetObjectId} 返回英雄区域",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = battlefieldObjectId,
+                ["targetObjectId"] = targetObjectId,
+                ["originZone"] = "GRAVEYARD",
+                ["destinationZone"] = "CHAMPION",
+                ["reason"] = "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD"
+            }));
+        return true;
+    }
+
     private static bool TryResolveBattlefieldHeldPayPowerScoreTrigger(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -7502,6 +7595,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldHoldCallRuneCardNo(cardNo)
             || IsBattlefieldHoldGrantBoonCardNo(cardNo)
+            || IsBattlefieldHeldReturnHeroCardNo(cardNo)
             || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
@@ -7555,6 +7649,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldGrantBoonCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldReturnHeroCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldReturnHeroCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldHeldPayPowerScoreCardNo(string? cardNo)
