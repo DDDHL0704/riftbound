@@ -365,6 +365,14 @@ public sealed class GameHubJoinTests
         var p1View = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1View["zones"]);
         Assert.Contains("P1-UNIT-MIGHTY-FAERIE", Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+
+        var p1Prompt = PromptFor(clients, "P1");
+        var playCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(playCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-UNIT-MIGHTY-FAERIE", StringComparison.Ordinal));
+        Assert.Contains(playCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal));
+        Assert.NotNull(playCandidate.Metadata);
+        Assert.Contains(playCandidate.Metadata, entry => string.Equals(entry.Key, "sourcePolicy", StringComparison.Ordinal));
     }
 
     [Fact]

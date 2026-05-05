@@ -511,6 +511,7 @@ h3 {
 .scenario-panel,
 .selection-mode-panel,
 .intent-summary-panel,
+.prompt-candidate-panel,
 .play-card-panel,
 .command-panel,
 .response-panel,
@@ -694,6 +695,49 @@ h3 {
 .intent-summary-list {
   display: grid;
   gap: 6px;
+}
+
+.prompt-candidate-list {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.prompt-candidate-list article {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #dbe4e6;
+  border-radius: 6px;
+  background: #f8fbfa;
+  padding: 8px;
+}
+
+.prompt-candidate-list header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.prompt-candidate-list header span,
+.choice-preview span {
+  color: #5d7077;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.choice-preview {
+  display: grid;
+  gap: 2px;
+}
+
+.choice-preview p {
+  margin: 0;
+  color: #2f4a51;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .response-grid {

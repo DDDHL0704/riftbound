@@ -907,7 +907,7 @@ internal static class ActionPromptBuilder
             .ToArray();
         var promptId = $"{state.RoomId}:{state.Tick}:{playerId}:{string.Join(",", normalizedActions)}";
         var candidates = normalizedActions
-            .Select(action => BuildCandidate(action, actionable, reason))
+            .Select(action => BuildCandidate(state, playerId, action, actionable, reason))
             .ToArray();
 
         return new ActionPromptDto(
@@ -921,6 +921,8 @@ internal static class ActionPromptBuilder
     }
 
     private static ActionPromptCandidateDto BuildCandidate(
+        MatchState state,
+        string playerId,
         string action,
         bool promptActionable,
         string promptReason)
@@ -930,7 +932,183 @@ internal static class ActionPromptBuilder
             action,
             LabelFor(action),
             enabled,
-            enabled ? promptReason : DisabledReasonFor(action, promptReason));
+            enabled ? promptReason : DisabledReasonFor(action, promptReason),
+            SourcesFor(state, playerId, action),
+            TargetsFor(state, playerId, action),
+            DestinationsFor(state, playerId, action),
+            ModesFor(action),
+            OptionalCostsFor(action),
+            MetadataFor(action));
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? SourcesFor(
+        MatchState state,
+        string playerId,
+        string action)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return null;
+        }
+
+        return action switch
+        {
+            "PLAY_CARD" => zones.Hand
+                .Where(objectId => !state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    || string.IsNullOrWhiteSpace(cardObject.CardNo)
+                    || CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out _))
+                .Select(objectId => ObjectChoice(state, objectId, "implemented PLAY_CARD source"))
+                .ToArray(),
+            "MOVE_UNIT" => zones.Base
+                .Concat(zones.Battlefields)
+                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled unit"))
+                .ToArray(),
+            "ASSEMBLE_EQUIPMENT" => zones.Base
+                .Concat(zones.Battlefields)
+                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.EquipmentCard))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled equipment"))
+                .ToArray(),
+            "DECLARE_BATTLE" => zones.Battlefields
+                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled battlefield unit"))
+                .ToArray(),
+            _ => null
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? TargetsFor(
+        MatchState state,
+        string playerId,
+        string action)
+    {
+        return action switch
+        {
+            "PLAY_CARD" => PublicBoardObjects(state)
+                .Select(objectId => ObjectChoice(state, objectId, "server validates card target scope on submit"))
+                .ToArray(),
+            "ASSEMBLE_EQUIPMENT" => ControlledBoardObjects(state, playerId)
+                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled unit host"))
+                .ToArray(),
+            "DECLARE_BATTLE" => PublicBoardObjects(state)
+                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal))
+                .Select(objectId => ObjectChoice(state, objectId, "opposing battlefield defender candidate"))
+                .ToArray(),
+            _ => null
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? DestinationsFor(
+        MatchState state,
+        string playerId,
+        string action)
+    {
+        return action switch
+        {
+            "PLAY_CARD" => [
+                new ActionPromptChoiceDto("BASE", "基地"),
+                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
+            ],
+            "MOVE_UNIT" => [
+                new ActionPromptChoiceDto("BASE", "基地"),
+                new ActionPromptChoiceDto("BATTLEFIELD", "战场"),
+                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
+            ],
+            "DECLARE_BATTLE" => state.Seats.Keys
+                .Select(seatPlayerId => new ActionPromptChoiceDto($"BATTLEFIELD:{seatPlayerId}-MAIN", $"{seatPlayerId} 主战场"))
+                .ToArray(),
+            _ => null
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? ModesFor(string action)
+    {
+        return action switch
+        {
+            "PLAY_CARD" => [
+                new ActionPromptChoiceDto("AMBUSH", "伏击"),
+                new ActionPromptChoiceDto("HASTE_READY", "急速活跃"),
+                new ActionPromptChoiceDto("BATTLEFIELD_UNIT_POWER_MINUS_4", "战场单位战力 -4")
+            ],
+            _ => null
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? OptionalCostsFor(string action)
+    {
+        return action switch
+        {
+            "PLAY_CARD" => [
+                new ActionPromptChoiceDto("ECHO", "回响"),
+                new ActionPromptChoiceDto("STANDBY_REVEAL_0", "待命揭示"),
+                new ActionPromptChoiceDto("ROAM", "游走"),
+                new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 战力符能")
+            ],
+            "ASSEMBLE_EQUIPMENT" => [new ActionPromptChoiceDto("ASSEMBLE_RED", "装配红色符能")],
+            "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
+            _ => null
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?>? MetadataFor(string action)
+    {
+        return action switch
+        {
+            "PLAY_CARD" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "implemented-card-behavior-only",
+                ["targetPolicy"] = "server-validates-target-scope-on-submit"
+            },
+            "MOVE_UNIT" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "controlled-unit"
+            },
+            "ASSEMBLE_EQUIPMENT" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "controlled-equipment",
+                ["targetPolicy"] = "controlled-unit-host"
+            },
+            "DECLARE_BATTLE" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "controlled-battlefield-unit",
+                ["targetPolicy"] = "opposing-battlefield-unit"
+            },
+            _ => null
+        };
+    }
+
+    private static IEnumerable<string> PublicBoardObjects(MatchState state)
+    {
+        return state.PlayerZones.Values.SelectMany(zones => zones.Base.Concat(zones.Battlefields));
+    }
+
+    private static IEnumerable<string> ControlledBoardObjects(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base.Concat(zones.Battlefields)
+            : [];
+    }
+
+    private static bool IsControlledObjectWithTag(
+        MatchState state,
+        string playerId,
+        string objectId,
+        string tag)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && cardObject.Tags.Contains(tag, StringComparer.Ordinal);
+    }
+
+    private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)
+    {
+        var label = state.CardObjects.TryGetValue(objectId, out var cardObject)
+            ? string.IsNullOrWhiteSpace(cardObject.CardNo) ? objectId : $"{cardObject.CardNo} / {objectId}"
+            : objectId;
+        return new ActionPromptChoiceDto(objectId, label, reason);
     }
 
     private static string LabelFor(string action)

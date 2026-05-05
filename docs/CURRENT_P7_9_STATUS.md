@@ -146,7 +146,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.0 | Done | Audit, current status file, `START_HERE`, README, and master plan synchronization. | `git diff --check`; docs-only commit. |
 | P7.9.1 | Done | Backward-compatible structured `ActionPrompt` contract design and first DTO/test slice. | Build + prompt serialization tests. |
 | P7.9.2 | Done | Product operation shell: hide dev tools by default, click-to-source/target scaffolding, action summary. | Frontend build + Browser smoke. |
-| P7.9.3 | Planned | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
+| P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Planned | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Planned | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Planned | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
@@ -196,8 +196,8 @@ Final P7.9 gate:
 ## Current Progress
 
 - P7.9.0 status: done.
-- Overall P7.9 progress: `3/13 top-level batches = 23.1%`.
-- Estimated remaining top-level batches: `10`.
+- Overall P7.9 progress: `4/13 top-level batches = 30.8%`.
+- Estimated remaining top-level batches: `9`.
 
 ## P7.9.0 Delivered
 
@@ -250,3 +250,27 @@ P7.9.2 validation:
   - Room ID: `p7-1777959564489`
   - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `join-both` -> `ready-both` -> open dev tools -> `seed-basic-play`
   - UI summary: `桌面点击模式` and `待提交操作` visible; `Scenario Seeds`, `Fixture Draft`, and raw JSON hidden before opening dev tools; debug prompt contains `promptId`, `snapshotTick`, and `candidates`.
+
+## P7.9.3 Delivered
+
+- Expanded structured prompt candidates with backend-generated choice hints for current core actions:
+  - `PLAY_CARD`: hand source candidates, board target candidates, base/battlefield destinations, common mode hints, optional cost hints
+  - `MOVE_UNIT`: controlled unit sources and movement destinations
+  - `ASSEMBLE_EQUIPMENT`: controlled equipment sources, controlled unit host targets, assemble cost hint
+  - `DECLARE_BATTLE`: controlled battlefield attacker sources, opposing defender targets, battlefield destinations, combat assignment cost hint
+- Kept the existing `actions` list intact.
+- Added metadata policies to make clear that prompt choices are server-provided hints and final legality is still validated on submit.
+- Added a Web panel that shows structured server candidates in player-readable groups.
+- Added GameHub assertions for seeded prompt candidate sources, destinations, and metadata.
+
+P7.9.3 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `27/27`.
+- Browser smoke:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Temporary current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-1777959880566`
+  - Operation path: reload Web URL -> set server URL to `5089` -> `new-room` -> `join-both` -> `ready-both` -> open dev tools -> `seed-basic-play`
+  - UI summary: `服务端候选` showed `PLAY_CARD` with source `P1-UNIT-MIGHTY-FAERIE`, destinations `基地`/`己方主战场`, modes, and optional costs; debug prompt JSON included `sources`, `destinations`, and `optionalCosts`.

@@ -1340,6 +1340,7 @@ function CommandWorkbench({
       </div>
 
       <ResponseWindowPanel snapshot={snapshot} prompt={activePlayer.prompt} />
+      <PromptCandidatePanel candidates={promptCandidates} />
 
       <SelectionModePanel selectionIntent={selectionIntent} onSelectionIntent={onSelectionIntent} />
       <IntentSummaryPanel
@@ -1626,6 +1627,50 @@ function CommandWorkbench({
       </section>
       ) : null}
     </section>
+  );
+}
+
+function PromptCandidatePanel({ candidates }: { candidates: ActionPromptCandidateDto[] }) {
+  const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
+  return (
+    <section className="prompt-candidate-panel" data-testid="prompt-candidates">
+      <div className="section-title">
+        <h3>服务端候选</h3>
+        <span>{actionableCandidates.length} actions</span>
+      </div>
+      <div className="prompt-candidate-list">
+        {actionableCandidates.length === 0 ? (
+          <div className="empty-row">等待服务端开放可执行候选</div>
+        ) : (
+          actionableCandidates.map((candidate) => (
+            <article key={candidate.action}>
+              <header>
+                <strong>{candidate.label}</strong>
+                <span>{candidate.action}</span>
+              </header>
+              <ChoicePreview title="来源" choices={candidate.sources} />
+              <ChoicePreview title="目标" choices={candidate.targets} />
+              <ChoicePreview title="目的地" choices={candidate.destinations} />
+              <ChoicePreview title="模式" choices={candidate.modes} />
+              <ChoicePreview title="费用" choices={candidate.optionalCosts} />
+            </article>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+function ChoicePreview({ title, choices }: { title: string; choices?: ActionPromptChoiceDto[] }) {
+  if (!choices?.length) {
+    return null;
+  }
+
+  return (
+    <div className="choice-preview">
+      <span>{title}</span>
+      <p>{choices.slice(0, 6).map((choice) => choice.label).join("，")}</p>
+    </div>
   );
 }
 
