@@ -150,8 +150,8 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
 | P7.9.6 | Done | Legend functional-unit batches complete. Active/reaction, automatic-trigger/replacement, and static slices migrated `44/44` legend FUs. | Functional-unit coverage tests. |
-| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, and representative effects. Battlefield slices migrated `25/54` battlefield FUs. | Focused conformance + GameHub tests. |
-| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `29` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
+| P7.9.7 | In progress | Battlefield domain foundation: battlefield object destinations, hold/conquer/static/resource-token event model, selected battlefield targets, top-deck reveal branches, score/rune statics, and representative effects. Battlefield slices migrated `26/54` battlefield FUs. | Focused conformance + GameHub tests. |
+| P7.9.8 | Planned | Battlefield functional-unit batches until all remaining `28` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
 | P7.9.10 | Planned | Full-card catalog and page operation integration: no playable card hidden by manual/deferred status. | `CardCatalogBaselineTests` updated and green. |
 | P7.9.11 | Planned | Visual polish, event report, local replay/spectator read-only boundary, accessibility and keyboard/mouse pass. | Frontend build + Browser visual smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: done.
-- P7.9.7 status: in progress; battlefield foundation slices 1-24 done.
+- P7.9.7 status: in progress; battlefield foundation slices 1-25 done.
 - P7.9.6 active-ability slices: `10` done.
 - P7.9.6 automatic-trigger/replacement slices: `17` done.
 - P7.9.6 static legend slices: `6` done.
-- P7.9.7 battlefield foundation slices: `24` done.
-- Current functional-unit implementation: `782/811 = 96.4%`.
-- Current manual deferred boundary: `29/811 = 3.6%`.
+- P7.9.7 battlefield foundation slices: `25` done.
+- Current functional-unit implementation: `783/811 = 96.5%`.
+- Current manual deferred boundary: `28/811 = 3.5%`.
 - Remaining manual domains:
-  - `战场`: `29` functional units / `31` entries
+  - `战场`: `28` functional units / `30` entries
 - Overall P7.9 progress: `7/13 top-level batches = 53.8%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries.
 - Estimated remaining top-level batches: `6`.
 
@@ -2210,3 +2210,35 @@ P7.9.7 battlefield foundation slice 24 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/static snapshot slice. GameHub coverage verifies the seed, authoritative score event, score snapshot, and room state.
+
+## P7.9.7 Battlefield Foundation Slice 25 Delivered
+
+This is the twenty-fifth rule slice inside P7.9.7. It adds the first held-battlefield score payment effect that spends `Power` instead of `Mana`.
+
+- Added implemented battlefield card:
+  - `SFD·214/221`: when a player holds this battlefield, the backend pays `4` power if available and grants that player `1` additional score.
+- Server-authoritative held score changes:
+  - The held trigger runs on the existing `DECLARE_BATTLE` battle-winner path after the defender successfully holds the battlefield.
+  - The mutation emits `BATTLEFIELD_HELD`, `BATTLEFIELD_TRIGGER_RESOLVED` with `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE`, `COST_PAID`, and `SCORE_GAINED`.
+  - Score win checks use the effective winning score; no frontend scoring or payment inference is added.
+- Added `battlefield-held-score` local development seed plus GameHub coverage for prompt destination exposure, battle declaration, power payment, score event, final score snapshot, and non-finished room state.
+- Migrated this battlefield held score/payment slice in `BehaviorSpec`:
+  - Implemented functional units: `783/811`
+  - Manual deferred functional units: `28/811`
+  - Implemented official entries: `979/1009`
+  - Manual deferred official entries: `30/1009`
+  - Battlefield rule-domain implemented: `26` functional units / `27` entries
+  - Remaining battlefield manual deferred: `28` functional units / `30` entries
+  - Timing trigger coverage moved forward by one implemented battlefield representative.
+
+P7.9.7 battlefield foundation slice 25 validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHeldPaysPowerToGainScore|FullyQualifiedName~P79BattlefieldHeldScoreSeedOffersBattlefieldDestinationAndGainsScore"`: passed `2/2`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2608/2608`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `54/54`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2741/2741`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated yet for this backend/battlefield-score slice. GameHub coverage verifies the seed, authoritative prompt destination, payment event, score snapshot, and room state.

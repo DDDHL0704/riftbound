@@ -26486,6 +26486,41 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldPaysPowerToGainScore()
+    {
+        var state = BattlefieldHeldScoreState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-ENERGY-HUB", triggerEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(4, triggerEvent.Payload["powerCost"]);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["power"], 4));
+        var scoreEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
+        Assert.Equal(1, scoreEvent.Payload["score"]);
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -38315,6 +38350,50 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-MAIN-001"] = new(
                     "P2-MAIN-001",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldHeldScoreState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 4)
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-ENERGY-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-ENERGY-HUB", "P2-BATTLEFIELD-ENERGY-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ENERGY-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-ENERGY-HUB"] = new(
+                    "P2-BATTLEFIELD-ENERGY-HUB",
+                    cardNo: "SFD·214/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-ENERGY-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
             }

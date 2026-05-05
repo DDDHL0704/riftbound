@@ -152,6 +152,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHoldDrawCardNo = "OGN·280/298";
     private const string BattlefieldHoldCallRuneCardNo = "OGN·288/298";
     private const string BattlefieldHoldGrantBoonCardNo = "OGN·283/298";
+    private const string BattlefieldHeldPayPowerScoreCardNo = "SFD·214/221";
     private const string BattlefieldConquerConsumeBoonDrawCardNo = "OGN·282/298";
     private const string BattlefieldConquerMillTwoCardNo = "SFD·212/221";
     private const string BattlefieldHoldEachPlayerCallRuneCardNo = "SFD·219/221";
@@ -175,6 +176,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
+    private const int BattlefieldHeldScorePowerCost = 4;
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -4068,6 +4070,34 @@ public sealed class CoreRuleEngine : IRuleEngine
                     combatEvents.AddRange(battlefieldSingleRuneEvents);
                 }
 
+                var battlefieldScoreEvents = new List<GameEvent>();
+                if (TryResolveBattlefieldHeldPayPowerScoreTrigger(
+                        playerZones,
+                        cardObjects,
+                        runePools,
+                        playerScores,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        EffectiveWinningScore(playerZones, cardObjects),
+                        battlefieldScoreEvents,
+                        out var battlefieldScoreRunePools,
+                        out var battlefieldScorePlayerScores,
+                        out var battlefieldScoreWinnerPlayerId))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(battlefieldScoreEvents);
+                    runePools = battlefieldScoreRunePools;
+                    playerScores = battlefieldScorePlayerScores;
+                    winnerPlayerId = battlefieldScoreWinnerPlayerId ?? winnerPlayerId;
+                }
+
                 var battlefieldBoonEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldGrantBoonTrigger(
                         playerZones,
@@ -6116,6 +6146,100 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldHeldPayPowerScoreTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        int winningScore,
+        List<GameEvent> events,
+        out IReadOnlyDictionary<string, RunePool> nextRunePools,
+        out IReadOnlyDictionary<string, int> nextPlayerScores,
+        out string? winnerPlayerId)
+    {
+        nextRunePools = runePools;
+        nextPlayerScores = playerScores;
+        winnerPlayerId = null;
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
+        {
+            return false;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
+        if (currentPool.Power < BattlefieldHeldScorePowerCost)
+        {
+            return false;
+        }
+
+        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        mutableRunePools[playerId] = currentPool with
+        {
+            Power = currentPool.Power - BattlefieldHeldScorePowerCost
+        };
+        var mutablePlayerScores = playerZones.Keys.ToDictionary(
+            scorePlayerId => scorePlayerId,
+            scorePlayerId => playerScores.TryGetValue(scorePlayerId, out var currentScore) ? currentScore : 0,
+            StringComparer.Ordinal);
+        mutablePlayerScores[playerId] = mutablePlayerScores.TryGetValue(playerId, out var score) ? score + 1 : 1;
+        winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 据守战场并支付能量获得分数",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                ["sourceObjectId"] = sourceObjectId,
+                ["powerCost"] = BattlefieldHeldScorePowerCost,
+                ["amount"] = 1,
+                ["score"] = mutablePlayerScores[playerId]
+            }));
+        events.Add(new GameEvent(
+            "COST_PAID",
+            $"{playerId} 支付能量枢纽据守触发费用",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["mana"] = 0,
+                ["power"] = BattlefieldHeldScorePowerCost,
+                ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE"
+            }));
+        events.Add(new GameEvent(
+            "SCORE_GAINED",
+            $"{playerId} 获得 1 分",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["amount"] = 1,
+                ["score"] = mutablePlayerScores[playerId],
+                ["reason"] = "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE",
+                ["sourceObjectId"] = battlefieldObjectId
+            }));
+        if (winnerPlayerId is not null)
+        {
+            events.Add(new GameEvent(
+                "MATCH_WON",
+                $"{winnerPlayerId} 达到获胜分数并获胜",
+                new Dictionary<string, object?>
+                {
+                    ["winnerPlayerId"] = winnerPlayerId,
+                    ["winningScore"] = winningScore
+                }));
+        }
+
+        nextRunePools = mutableRunePools;
+        nextPlayerScores = mutablePlayerScores;
+        return true;
+    }
+
     private static bool TryGetFirstSurvivingBattlefieldUnit(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
@@ -7211,6 +7335,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldHoldDrawCardNo(cardNo)
             || IsBattlefieldHoldCallRuneCardNo(cardNo)
             || IsBattlefieldHoldGrantBoonCardNo(cardNo)
+            || IsBattlefieldHeldPayPowerScoreCardNo(cardNo)
             || IsBattlefieldConquerConsumeBoonDrawCardNo(cardNo)
             || IsBattlefieldConquerMillTwoCardNo(cardNo)
             || IsBattlefieldHoldEachPlayerCallRuneCardNo(cardNo)
@@ -7260,6 +7385,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldHoldGrantBoonCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldHoldGrantBoonCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldHeldPayPowerScoreCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldHeldPayPowerScoreCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerConsumeBoonDrawCardNo(string? cardNo)
