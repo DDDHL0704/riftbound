@@ -23822,6 +23822,131 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActDianaGainsManaDuringSpellDuelFocus()
+    {
+        var state = LegendSpellDuelFocusState("UNL-197/219", "P1-LEGEND-DIANA");
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(["LEGEND_ACT", "PASS_FOCUS"], prompt.Actions);
+        Assert.Contains(prompt.Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
+            && candidate.Enabled);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-diana-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-DIANA",
+                "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.True(result.State.CardObjects["P1-LEGEND-DIANA"].IsExhausted);
+        var manaEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        Assert.Equal(1, manaEvent.Payload["mana"]);
+        Assert.Equal(1, manaEvent.Payload["manaAfter"]);
+    }
+
+    [Fact]
+    public async Task P79LegendActDianaRejectsOutsideSpellDuelFocus()
+    {
+        var state = LegendActiveAbilityState("UNL-234/219", "P1-LEGEND-DIANA-REPRINT", mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-diana-legend-act-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-DIANA-REPRINT",
+                "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-DIANA-REPRINT"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task P79LegendActKaisaGainsPowerInPriorityWindowForPendingSpell()
+    {
+        var state = LegendPriorityWindowState("OGN·247/298", "P1-LEGEND-KAISA", CardObjectTags.SpellCard);
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY"], prompt.Actions);
+        Assert.Contains(prompt.Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
+            && candidate.Enabled);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-kaisa-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-KAISA",
+                "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.True(result.State.CardObjects["P1-LEGEND-KAISA"].IsExhausted);
+        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(1, powerEvent.Payload["power"]);
+        Assert.Equal(1, powerEvent.Payload["powerAfter"]);
+    }
+
+    [Fact]
+    public async Task P79LegendActKaisaRequiresPendingSpellStackItem()
+    {
+        var state = LegendPriorityWindowState("OGN·299/298", "P1-LEGEND-KAISA-REPRINT", CardObjectTags.EquipmentCard);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-kaisa-legend-act-rejected", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-KAISA-REPRINT",
+                "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-KAISA-REPRINT"].IsExhausted);
+    }
+
+    [Fact]
+    public async Task P79LegendActOrnnGainsPowerInPriorityWindowForPendingEquipment()
+    {
+        var state = LegendPriorityWindowState("SFD·189/221", "P1-LEGEND-ORNN", CardObjectTags.EquipmentCard);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ornn-legend-act", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-ORNN",
+                "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        Assert.True(result.State.CardObjects["P1-LEGEND-ORNN"].IsExhausted);
+        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(1, powerEvent.Payload["power"]);
+        Assert.Equal(1, powerEvent.Payload["powerAfter"]);
+    }
+
+    [Fact]
     public async Task P79LegendActTeemoRecallsOwnedChampionZoneTeemoUnit()
     {
         var state = TeemoLegendRecallState("OGN·263/298", "P1-LEGEND-TEEMO", mana: 1);
@@ -35112,6 +35237,58 @@ public sealed class ConformanceFixtureRunnerTests
         return state with
         {
             PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState LegendSpellDuelFocusState(string sourceCardNo, string sourceObjectId)
+    {
+        return LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 0) with
+        {
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = "P1",
+            PassedFocusPlayerIds = [],
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            }
+        };
+    }
+
+    private static MatchState LegendPriorityWindowState(string sourceCardNo, string sourceObjectId, string pendingSourceTag)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 0);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-PENDING-SOURCE"] = new(
+            "P2-PENDING-SOURCE",
+            cardNo: string.Equals(pendingSourceTag, CardObjectTags.EquipmentCard, StringComparison.Ordinal)
+                ? "SFD·123/221"
+                : "UNL-159/219",
+            tags: [pendingSourceTag],
+            ownerId: "P2",
+            controllerId: "P2");
+        return state with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            PassedPriorityPlayerIds = [],
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-PENDING-LEGEND-RESOURCE",
+                    "P2",
+                    "P2-PENDING-SOURCE",
+                    "PENDING_LEGEND_RESOURCE_TEST",
+                    cardObjects["P2-PENDING-SOURCE"].CardNo,
+                    [],
+                    0)
+            ],
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
             CardObjects = cardObjects
         };
     }

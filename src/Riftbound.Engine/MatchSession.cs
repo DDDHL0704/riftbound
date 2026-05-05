@@ -851,7 +851,7 @@ public sealed record ResolutionResult(
                     ? "当前玩家可让过优先行动权"
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? ["PASS_PRIORITY"]
+                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_PRIORITY")
                     : ["WAIT"]));
         }
 
@@ -866,7 +866,7 @@ public sealed record ResolutionResult(
                     ? "当前玩家可让过焦点"
                     : "等待对手焦点行动",
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? ["PASS_FOCUS"]
+                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_FOCUS")
                     : ["WAIT"]));
         }
 
@@ -894,6 +894,17 @@ public sealed record ResolutionResult(
 
 internal static class ActionPromptBuilder
 {
+    public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
+        MatchState state,
+        string playerId,
+        string primaryAction)
+    {
+        var legendSources = SourcesFor(state, playerId, "LEGEND_ACT");
+        return legendSources?.Count > 0
+            ? ["LEGEND_ACT", primaryAction]
+            : [primaryAction];
+    }
+
     public static ActionPromptDto Build(
         MatchState state,
         string playerId,
@@ -1068,7 +1079,10 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA", "鼓舞并横置：获得 1 法力"),
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT", "支付 1 并横置：召回己方提莫单位"),
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT", "支付 1 并横置：打出黄沙士兵"),
-                new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵")
+                new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵"),
+                new ActionPromptChoiceDto("LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA", "法术对决横置：获得 1 法力"),
+                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL", "法术反应横置：获得 1 符能"),
+                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT", "装备反应横置：获得 1 符能")
             ],
             _ => null
         };
@@ -1197,6 +1211,14 @@ internal static class ActionPromptBuilder
             or "OGN·307*/298"
             or "SFD·197/221"
             or "SFD·247/221"
+            or "UNL-197/219"
+            or "UNL-234/219"
+            or "UNL-234*/219"
+            or "OGN·247/298"
+            or "OGN·299/298"
+            or "OGN·299*/298"
+            or "SFD·189/221"
+            or "SFD·244/221"
             or "UNL-189/219"
             or "UNL-230*/219"
             or "UNL-230/219";

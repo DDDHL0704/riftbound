@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `29/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `33/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -202,15 +202,15 @@ Final P7.9 gate:
 - P7.9.4 status: done.
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
-- P7.9.6 active-ability slices: `7` done.
+- P7.9.6 active-ability slices: `8` done.
 - P7.9.6 automatic-trigger slices: `9` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `742/811 = 91.5%`.
-- Current manual deferred boundary: `69/811 = 8.5%`.
+- Current functional-unit implementation: `746/811 = 92.0%`.
+- Current manual deferred boundary: `65/811 = 8.0%`.
 - Remaining manual domains:
-  - `传奇`: `15` functional units / `35` entries
+  - `传奇`: `11` functional units / `27` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `7` legend active-ability slices, `9` automatic-trigger slices, and `6` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `8` legend active-ability slices, `9` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -1094,3 +1094,43 @@ P7.9.6 automatic-trigger slice 9 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend rule slice. It consumes existing server events and emits snapshot/event updates; later prompt/UI work will only display those authoritative results.
+
+## P7.9.6 Active/Reaction Resource Slice 8 Delivered
+
+This is the twenty-second committed rule slice inside P7.9.6. It adds reaction-speed legend resource actions for Diana / 皎月女神, Kai'Sa / 虚空之女, and Ornn / 山隐之焰 through the existing server-authoritative `LEGEND_ACT` command.
+
+- Added Diana legend action support for:
+  - `UNL-197/219`
+  - `UNL-234/219`
+  - `UNL-234*/219`
+- Added Kai'Sa legend action support for:
+  - `OGN·247/298`
+  - `OGN·299/298`
+  - `OGN·299*/298`
+- Added Ornn legend action support for:
+  - `SFD·189/221`
+  - `SFD·244/221`
+- Split `LEGEND_ACT` timing validation into ordinary main-window, priority-window, and spell-duel-focus windows.
+- Exposed `LEGEND_ACT` prompt candidates in priority and spell-duel focus windows so the page can operate these reaction-resource legends from server prompts instead of frontend rules.
+- Kaisa validates that a pending stack source is a spell before granting `A`/power; Ornn validates that a pending stack source is equipment before granting `A`/power; Diana validates the spell-duel focus window before granting `1` mana.
+- Migrated this legend resource slice in `BehaviorSpec`:
+  - Implemented functional units: `746/811`
+  - Manual deferred functional units: `65/811`
+  - Implemented official entries: `925/1009`
+  - Manual deferred official entries: `84/1009`
+  - Legend rule-domain implemented: `33` functional units / `79` entries
+  - Remaining legend manual deferred: `11` functional units / `27` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 active/reaction resource slice 8 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendActDiana|FullyQualifiedName~P79LegendActKaisa|FullyQualifiedName~P79LegendActOrnn"`: passed `5/5`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests|FullyQualifiedName~P79LegendActDiana|FullyQualifiedName~P79LegendActKaisa|FullyQualifiedName~P79LegendActOrnn"`: passed `42/42`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2554/2554`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2661/2661`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend/prompt slice. The change is covered by conformance prompt assertions for priority and spell-duel focus windows; later UI smoke should verify reaction-window chips in the product workbench.

@@ -85,6 +85,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string DariusOriginLegendCardNo = "OGN·253/298";
     private const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
     private const int DariusLegendManaGain = 1;
+    private const string DianaLegendAbilityId = "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA";
+    private const int DianaLegendManaGain = 1;
+    private const string KaisaLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL";
+    private const int KaisaLegendPowerGain = 1;
+    private const string OrnnLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT";
+    private const int OrnnLegendPowerGain = 1;
     private const string TeemoOriginLegendCardNo = "OGN·263/298";
     private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
     private const int TeemoLegendManaCost = 1;
@@ -1139,14 +1145,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
-        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
-            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
-            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || state.StackItems.Count > 0)
+        if (!IsLegendAbilityTimingAllowed(state, intent.PlayerId, ability))
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT is only available during the active player's open main window.",
+                "LEGEND_ACT is not available in the current timing window for that ability.",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -1229,6 +1232,24 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 $"{ability.DisplayName} requires the controller to have played an armament this turn.",
                 ErrorCodes.InsufficientCost);
+        }
+
+        if (ability.RequiresPendingSpellStackItem
+            && !PendingStackSourceHasTag(state, CardObjectTags.SpellCard))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} requires a pending spell stack item.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (ability.RequiresPendingEquipmentStackItem
+            && !PendingStackSourceHasTag(state, CardObjectTags.EquipmentCard))
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"{ability.DisplayName} requires a pending equipment stack item.",
+                ErrorCodes.InvalidTarget);
         }
 
         if (ability.RequiresOwnedTeemoUnitTarget
@@ -1434,7 +1455,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 runePools = GainLegendMana(
                     runePools,
                     intent.PlayerId,
-                    DariusLegendManaGain,
+                    ability.ManaGainAmount,
+                    command.SourceObjectId,
+                    command.AbilityId,
+                    events);
+                break;
+            case LegendAbilityEffectKinds.GainPower:
+                runePools = GainLegendPower(
+                    runePools,
+                    intent.PlayerId,
+                    ability.PowerGainAmount,
                     command.SourceObjectId,
                     command.AbilityId,
                     events);
@@ -1499,6 +1529,42 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static bool IsLegendAbilityTimingAllowed(
+        MatchState state,
+        string playerId,
+        LegendAbilityDefinition ability)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return ability.TimingKind switch
+        {
+            LegendAbilityTimingKinds.MainOpen =>
+                string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+                && state.StackItems.Count == 0,
+            LegendAbilityTimingKinds.PriorityWindow =>
+                state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal),
+            LegendAbilityTimingKinds.SpellDuelFocus =>
+                state.StackItems.Count == 0
+                && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+                && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal),
+            _ => false
+        };
+    }
+
+    private static bool PendingStackSourceHasTag(MatchState state, string tag)
+    {
+        return state.StackItems.Any(stackItem =>
+            state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            && sourceState.Tags.Contains(tag, StringComparer.Ordinal));
     }
 
     private static bool TryGetLegendAbility(
@@ -1625,7 +1691,46 @@ public sealed class CoreRuleEngine : IRuleEngine
                 0,
                 RequiresFriendlyUnitTarget: false,
                 LegendAbilityEffectKinds.GainMana,
-                RequiresPlayedAnotherCardThisTurn: true),
+                RequiresPlayedAnotherCardThisTurn: true,
+                ManaGainAmount: DariusLegendManaGain),
+            DianaLegendAbilityId => new LegendAbilityDefinition(
+                DianaLegendAbilityId,
+                ["UNL-197/219", "UNL-234/219", "UNL-234*/219"],
+                "皎月女神传奇法术对决法力技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GainMana,
+                ManaGainAmount: DianaLegendManaGain,
+                TimingKind: LegendAbilityTimingKinds.SpellDuelFocus),
+            KaisaLegendAbilityId => new LegendAbilityDefinition(
+                KaisaLegendAbilityId,
+                ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],
+                "虚空之女传奇法术反应符能技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GainPower,
+                PowerGainAmount: KaisaLegendPowerGain,
+                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
+                RequiresPendingSpellStackItem: true),
+            OrnnLegendAbilityId => new LegendAbilityDefinition(
+                OrnnLegendAbilityId,
+                ["SFD·189/221", "SFD·244/221"],
+                "山隐之焰传奇装备反应符能技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                RequiresFriendlyUnitTarget: false,
+                LegendAbilityEffectKinds.GainPower,
+                PowerGainAmount: OrnnLegendPowerGain,
+                TimingKind: LegendAbilityTimingKinds.PriorityWindow,
+                RequiresPendingEquipmentStackItem: true),
             TeemoLegendAbilityId => new LegendAbilityDefinition(
                 TeemoLegendAbilityId,
                 [TeemoOriginLegendCardNo, "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
@@ -2076,6 +2181,35 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ["abilityId"] = abilityId,
                 ["mana"] = manaAmount,
                 ["manaAfter"] = nextPool.Mana
+            }));
+        return runePools;
+    }
+
+    private static Dictionary<string, RunePool> GainLegendPower(
+        IReadOnlyDictionary<string, RunePool> currentRunePools,
+        string playerId,
+        int powerAmount,
+        string sourceObjectId,
+        string abilityId,
+        List<GameEvent> events)
+    {
+        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(playerId, out var pool) ? pool : RunePool.Empty;
+        var nextPool = currentPool with
+        {
+            Power = currentPool.Power + powerAmount
+        };
+        runePools[playerId] = nextPool;
+        events.Add(new GameEvent(
+            "POWER_GAINED",
+            $"{playerId} 通过传奇技能获得 {powerAmount} 点符能",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = sourceObjectId,
+                ["abilityId"] = abilityId,
+                ["power"] = powerAmount,
+                ["powerAfter"] = nextPool.Power
             }));
         return runePools;
     }
@@ -12617,7 +12751,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? "当前玩家可让过优先行动权"
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? ["PASS_PRIORITY"]
+                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_PRIORITY")
                     : ["WAIT"]));
         }
 
@@ -12632,7 +12766,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? "当前玩家可让过焦点"
                     : "等待对手焦点行动",
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? ["PASS_FOCUS"]
+                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_FOCUS")
                     : ["WAIT"]));
         }
 
@@ -12878,7 +13012,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         bool RequiresPlayedAnotherCardThisTurn = false,
         bool RequiresPlayedArmamentThisTurn = false,
         bool RequiresOwnedTeemoUnitTarget = false,
-        string ManaCostReductionKind = "");
+        string ManaCostReductionKind = "",
+        int ManaGainAmount = 0,
+        int PowerGainAmount = 0,
+        string TimingKind = LegendAbilityTimingKinds.MainOpen,
+        bool RequiresPendingSpellStackItem = false,
+        bool RequiresPendingEquipmentStackItem = false);
 
     private static class LegendAbilityEffectKinds
     {
@@ -12890,10 +13029,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         public const string AttachArmament = "ATTACH_ARMAMENT";
         public const string ReattachArmament = "REATTACH_ARMAMENT";
         public const string GainMana = "GAIN_MANA";
+        public const string GainPower = "GAIN_POWER";
         public const string ReturnOwnedTeemoUnitToHand = "RETURN_OWNED_TEEMO_UNIT_TO_HAND";
         public const string CreateSandSoldier = "CREATE_SAND_SOLDIER";
         public const string CreateMinion = "CREATE_MINION";
         public const string CreateFaerie = "CREATE_FAERIE";
+    }
+
+    private static class LegendAbilityTimingKinds
+    {
+        public const string MainOpen = "MAIN_OPEN";
+        public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
     }
 
     private static class LegendAbilityManaCostReductionKinds
