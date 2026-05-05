@@ -26067,6 +26067,38 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerReadiesAndDetachesEquipment()
+    {
+        var state = BattlefieldConquerReadyEquipmentState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-equipment", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-MOONVEIL-ALTAR",
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"],
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_EQUIPMENT", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ARMAMENT", triggerEvent.Payload["equipmentObjectId"]);
+        Assert.Equal(true, triggerEvent.Payload["detachesArmament"]);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-ARMAMENT", StringComparison.Ordinal));
+        var detachEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_DETACHED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["equipmentObjectId"] as string, "P1-BATTLEFIELD-ARMAMENT", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-EQUIPMENT-HOST", detachEvent.Payload["previousAttachedToObjectId"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldCreatesMinionInBase()
     {
         var state = BattlefieldHeldMinionState();
@@ -37513,6 +37545,60 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldConquerReadyEquipmentState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BATTLEFIELD-EQUIPMENT-HOST", "P1-BATTLEFIELD-ARMAMENT"],
+                    Battlefields = ["P1-BATTLEFIELD-MOONVEIL-ALTAR", "P1-BATTLEFIELD-EQUIPMENT-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MOONVEIL-ALTAR"] = new(
+                    "P1-BATTLEFIELD-MOONVEIL-ALTAR",
+                    cardNo: "SFD·221/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-EQUIPMENT-HOST"] = new(
+                    "P1-BATTLEFIELD-EQUIPMENT-HOST",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-ARMAMENT"] = new(
+                    "P1-BATTLEFIELD-ARMAMENT",
+                    cardNo: "SFD·022/221",
+                    isExhausted: true,
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    attachedToObjectId: "P1-BATTLEFIELD-EQUIPMENT-HOST",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-EQUIPMENT-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",

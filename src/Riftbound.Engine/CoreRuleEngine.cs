@@ -160,6 +160,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerDrawForOtherBattlefieldsCardNo = "SFD·217/221";
     private const string BattlefieldConquerPowerfulPayOneDrawCardNo = "SFD·218/221";
     private const string BattlefieldConquerPayOneCreateGoldCardNo = "SFD·220/221";
+    private const string BattlefieldConquerReadyEquipmentCardNo = "SFD·221/221";
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
@@ -3800,6 +3801,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 runePools = battlefieldGoldRunePools;
             }
+            TryResolveBattlefieldConquerReadyEquipmentTrigger(
+                playerZones,
+                cardObjects,
+                intent.PlayerId,
+                battlefieldId,
+                attackerObjectId,
+                combatEvents);
             if (TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
                     state,
                     playerZones,
@@ -6488,6 +6496,107 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool TryResolveBattlefieldConquerReadyEquipmentTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        string sourceObjectId,
+        List<GameEvent> events)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !IsBattlefieldConquerReadyEquipmentCardNo(battlefieldState.CardNo)
+            || !TryGetFirstExhaustedFriendlyEquipment(playerZones, cardObjects, playerId, out var equipmentObjectId, out var equipmentState))
+        {
+            return false;
+        }
+
+        var previousAttachedToObjectId = equipmentState.AttachedToObjectId;
+        var detachesArmament = equipmentState.Tags.Contains("武装", StringComparer.Ordinal)
+            && !string.IsNullOrWhiteSpace(previousAttachedToObjectId);
+        cardObjects[equipmentObjectId] = equipmentState with
+        {
+            IsExhausted = false,
+            AttachedToObjectId = detachesArmament ? null : equipmentState.AttachedToObjectId
+        };
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_TRIGGER_RESOLVED",
+            $"{playerId} 征服战场并重置装备",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["battlefieldObjectId"] = battlefieldObjectId,
+                ["battlefieldCardNo"] = battlefieldState.CardNo,
+                ["trigger"] = "BATTLEFIELD_CONQUERED_READY_EQUIPMENT",
+                ["sourceObjectId"] = sourceObjectId,
+                ["equipmentObjectId"] = equipmentObjectId,
+                ["detachesArmament"] = detachesArmament
+            }));
+        events.Add(new GameEvent(
+            "EQUIPMENT_READIED",
+            $"{equipmentObjectId} 变为活跃状态",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["sourceObjectId"] = equipmentObjectId,
+                ["reason"] = "BATTLEFIELD_CONQUERED_READY_EQUIPMENT",
+                ["wasExhausted"] = equipmentState.IsExhausted,
+                ["isExhausted"] = false
+            }));
+        if (detachesArmament)
+        {
+            events.Add(new GameEvent(
+                "EQUIPMENT_DETACHED",
+                $"{equipmentObjectId} 从单位卸除",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = battlefieldObjectId,
+                    ["abilityId"] = "BATTLEFIELD_CONQUERED_READY_EQUIPMENT",
+                    ["unitObjectId"] = previousAttachedToObjectId,
+                    ["equipmentObjectId"] = equipmentObjectId,
+                    ["controllerId"] = playerId,
+                    ["ownerId"] = string.IsNullOrWhiteSpace(equipmentState.OwnerId) ? playerId : equipmentState.OwnerId,
+                    ["previousAttachedToObjectId"] = previousAttachedToObjectId
+                }));
+        }
+
+        return true;
+    }
+
+    private static bool TryGetFirstExhaustedFriendlyEquipment(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string equipmentObjectId,
+        out CardObjectState equipmentState)
+    {
+        equipmentObjectId = string.Empty;
+        equipmentState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.Base.Concat(zones.Battlefields).OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || !candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            equipmentObjectId = objectId;
+            equipmentState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool TryResolveBattlefieldConquerDrawForOtherBattlefieldsTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -6591,6 +6700,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerDrawForOtherBattlefieldsCardNo(cardNo)
             || IsBattlefieldConquerPowerfulPayOneDrawCardNo(cardNo)
             || IsBattlefieldConquerPayOneCreateGoldCardNo(cardNo)
+            || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo);
     }
 
@@ -6667,6 +6777,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsBattlefieldConquerPayOneCreateGoldCardNo(string? cardNo)
     {
         return string.Equals(cardNo, BattlefieldConquerPayOneCreateGoldCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldConquerReadyEquipmentCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldConquerReadyEquipmentCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsBattlefieldConquerDiscardDrawCardNo(string? cardNo)
