@@ -149,7 +149,7 @@ The P7 UI is usable, but P7.9 needs to remove remaining product friction:
 | P7.9.3 | Done | Structured prompt candidates for core actions: ready, pass, end turn, play card, move, assemble, battle. | Focused GameHub tests + Browser smoke. |
 | P7.9.4 | Done | Click-first cost, target, response-window, and battle declaration flow from prompt candidates. | Browser smoke: play, target, cost, pass, battle. |
 | P7.9.5 | Done | Legend domain foundation: `LEGEND_ACT` command contract, blocked-to-implemented migration path, representative conformance. | Focused conformance + GameHub tests. |
-| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `38/44` legend FUs. | Functional-unit coverage tests. |
+| P7.9.6 | In progress | Legend functional-unit batches until all `44/44` legend units are implemented or split into smaller committed slices. Active/trigger/static/replacement slices migrated `39/44` legend FUs. | Functional-unit coverage tests. |
 | P7.9.7 | Planned | Battlefield domain foundation: battlefield objects/control/hold/conquer event model and representative effects. | Focused conformance + GameHub tests. |
 | P7.9.8 | Planned | Battlefield functional-unit batches until all `54/54` battlefield units are implemented or split into smaller committed slices. | Functional-unit coverage tests. |
 | P7.9.9 | Planned | Combat completeness pass: multi-unit battles, damage assignment, scoring, conquest/hold triggers, UI operation. | Conformance + Browser smoke. |
@@ -203,14 +203,14 @@ Final P7.9 gate:
 - P7.9.5 status: done.
 - P7.9.6 status: in progress.
 - P7.9.6 active-ability slices: `10` done.
-- P7.9.6 automatic-trigger slices: `12` done.
+- P7.9.6 automatic-trigger slices: `13` done.
 - P7.9.6 static legend slices: `6` done.
-- Current functional-unit implementation: `751/811 = 92.6%`.
-- Current manual deferred boundary: `60/811 = 7.4%`.
+- Current functional-unit implementation: `752/811 = 92.7%`.
+- Current manual deferred boundary: `59/811 = 7.3%`.
 - Remaining manual domains:
-  - `传奇`: `6` functional units / `13` entries
+  - `传奇`: `5` functional units / `11` entries
   - `战场`: `54` functional units / `57` entries
-- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `10` legend active/reaction slices, `12` automatic-trigger slices, and `6` static legend slices are complete.
+- Overall P7.9 progress: `6/13 top-level batches = 46.2%`; inside P7.9.6, `10` legend active/reaction slices, `13` automatic-trigger slices, and `6` static legend slices are complete.
 - Estimated remaining top-level batches: `7`.
 
 ## P7.9.0 Delivered
@@ -1294,3 +1294,35 @@ P7.9.6 active/reaction ready slice 10 validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `git diff --check`: passed.
 - Browser smoke: not repeated for this backend/prompt rule slice. It reuses the existing priority-window `LEGEND_ACT` and `DECLARE_BATTLE` UI paths and emits authoritative prompt/event/snapshot changes; the next significant frontend flow batch should smoke the newly exposed Irelia mode.
+
+## P7.9.6 Automatic-Trigger Slice 13 Delivered
+
+This is the twenty-eighth committed rule slice inside P7.9.6. It adds Renata Glasc / 炼金男爵's battlefield-hold Gold trigger and near-victory Gold bonus marker.
+
+- Added Renata legend trigger support for:
+  - `SFD·201/221`
+  - `SFD·249/221`
+- Generalized the defender-wins battle path so `BATTLEFIELD_HELD` is emitted once when any implemented held-battlefield legend trigger resolves.
+- When the defending player wins a battle and controls an active Renata legend, the backend exhausts Renata and creates a dormant `金币` equipment token in that player's base.
+- When Renata's controller is within `3` points of the winning score, the created Gold token receives `RENATA_GOLD_EXTRA_1_MANA`, and the trigger event exposes `renataGoldExtraManaActive = true`.
+- The trigger is skipped when Renata is already exhausted; no frontend rule inference is added.
+- Migrated this legend trigger/static marker slice in `BehaviorSpec`:
+  - Implemented functional units: `752/811`
+  - Manual deferred functional units: `59/811`
+  - Implemented official entries: `941/1009`
+  - Manual deferred official entries: `68/1009`
+  - Legend rule-domain implemented: `39` functional units / `95` entries
+  - Remaining legend manual deferred: `5` functional units / `11` entries
+  - Remaining battlefield manual deferred: `54` functional units / `57` entries
+
+P7.9.6 automatic-trigger slice 13 validation:
+
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed, `0` warnings, `0` errors.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendTriggerRenata"`: passed `3/3`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CardCatalogBaselineTests"`: passed `37/37`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"`: passed `2568/2568`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`: passed `28/28`.
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`: passed `2675/2675`.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `git diff --check`: passed.
+- Browser smoke: not repeated for this backend battle-trigger rule slice. It reuses existing `DECLARE_BATTLE` UI flow and emits authoritative event/snapshot changes; later UI polish should render the Renata Gold bonus marker in card/token detail.

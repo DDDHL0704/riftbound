@@ -135,6 +135,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string ViLegendCardNo = "UNL-187/219";
     private const int ViLegendOverkillThreshold = 3;
     private const string VexLegendCardNo = "UNL-193/219";
+    private const string RenataLegendCardNo = "SFD·201/221";
+    private const int RenataGoldBonusWinningScoreDistance = 3;
+    private const string RenataGoldBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
     private const int JhinCompletionSpellCount = 4;
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -3706,55 +3709,108 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var battleWinnerPlayerId))
         {
             if (!string.IsNullOrWhiteSpace(defendingPlayerId)
-                && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal)
-                && TryGetActiveVexLegend(playerZones, cardObjects, battleWinnerPlayerId, out var vexLegendObjectId, out var vexLegendState))
+                && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal))
             {
-                combatEvents.Add(new GameEvent(
-                    "BATTLEFIELD_HELD",
-                    $"{battleWinnerPlayerId} 据守战场",
-                    new Dictionary<string, object?>
-                    {
-                        ["playerId"] = battleWinnerPlayerId,
-                        ["battlefieldId"] = battlefieldId,
-                        ["sourceObjectId"] = attackerObjectId,
-                        ["defenderObjectIds"] = defenderObjectIds.ToArray()
-                    }));
-                cardObjects[vexLegendObjectId] = vexLegendState with
+                var battlefieldHeldEventEmitted = false;
+                if (TryGetActiveVexLegend(playerZones, cardObjects, battleWinnerPlayerId, out var vexLegendObjectId, out var vexLegendState))
                 {
-                    IsExhausted = true
-                };
-                combatEvents.Add(new GameEvent(
-                    "LEGEND_TRIGGER_RESOLVED",
-                    $"{battleWinnerPlayerId} 的愁云使者因据守战场触发",
-                    new Dictionary<string, object?>
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    cardObjects[vexLegendObjectId] = vexLegendState with
                     {
-                        ["playerId"] = battleWinnerPlayerId,
-                        ["legendObjectId"] = vexLegendObjectId,
-                        ["legendCardNo"] = vexLegendState.CardNo,
-                        ["trigger"] = "BATTLEFIELD_HELD_DRAW_ONE",
-                        ["sourceObjectId"] = attackerObjectId,
-                        ["battlefieldId"] = battlefieldId
-                    }));
-                combatEvents.Add(new GameEvent(
-                    "LEGEND_EXHAUSTED",
-                    $"{vexLegendObjectId} 变为休眠状态",
-                    new Dictionary<string, object?>
+                        IsExhausted = true
+                    };
+                    combatEvents.Add(new GameEvent(
+                        "LEGEND_TRIGGER_RESOLVED",
+                        $"{battleWinnerPlayerId} 的愁云使者因据守战场触发",
+                        new Dictionary<string, object?>
+                        {
+                            ["playerId"] = battleWinnerPlayerId,
+                            ["legendObjectId"] = vexLegendObjectId,
+                            ["legendCardNo"] = vexLegendState.CardNo,
+                            ["trigger"] = "BATTLEFIELD_HELD_DRAW_ONE",
+                            ["sourceObjectId"] = attackerObjectId,
+                            ["battlefieldId"] = battlefieldId
+                        }));
+                    combatEvents.Add(new GameEvent(
+                        "LEGEND_EXHAUSTED",
+                        $"{vexLegendObjectId} 变为休眠状态",
+                        new Dictionary<string, object?>
+                        {
+                            ["playerId"] = battleWinnerPlayerId,
+                            ["sourceObjectId"] = vexLegendObjectId,
+                            ["reason"] = "BATTLEFIELD_HELD_DRAW_ONE"
+                        }));
+                    var vexDrawApplication = ApplyDrawToPlayer(
+                        state,
+                        playerZones,
+                        playerScores,
+                        battleWinnerPlayerId,
+                        1,
+                        rngCursor,
+                        combatEvents);
+                    playerScores = vexDrawApplication.PlayerScores;
+                    winnerPlayerId = vexDrawApplication.WinnerPlayerId;
+                    rngCursor = vexDrawApplication.RngCursor;
+                }
+
+                if (TryGetActiveRenataLegend(playerZones, cardObjects, battleWinnerPlayerId, out var renataLegendObjectId, out var renataLegendState))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    cardObjects[renataLegendObjectId] = renataLegendState with
                     {
-                        ["playerId"] = battleWinnerPlayerId,
-                        ["sourceObjectId"] = vexLegendObjectId,
-                        ["reason"] = "BATTLEFIELD_HELD_DRAW_ONE"
-                    }));
-                var vexDrawApplication = ApplyDrawToPlayer(
-                    state,
-                    playerZones,
-                    playerScores,
-                    battleWinnerPlayerId,
-                    1,
-                    rngCursor,
-                    combatEvents);
-                playerScores = vexDrawApplication.PlayerScores;
-                winnerPlayerId = vexDrawApplication.WinnerPlayerId;
-                rngCursor = vexDrawApplication.RngCursor;
+                        IsExhausted = true
+                    };
+                    var renataGoldBonusActive = PlayerWithinWinningScoreDistance(
+                        playerScores,
+                        battleWinnerPlayerId,
+                        RenataGoldBonusWinningScoreDistance);
+                    combatEvents.Add(new GameEvent(
+                        "LEGEND_TRIGGER_RESOLVED",
+                        $"{battleWinnerPlayerId} 的炼金男爵因据守战场触发",
+                        new Dictionary<string, object?>
+                        {
+                            ["playerId"] = battleWinnerPlayerId,
+                            ["legendObjectId"] = renataLegendObjectId,
+                            ["legendCardNo"] = renataLegendState.CardNo,
+                            ["trigger"] = "BATTLEFIELD_HELD_CREATE_GOLD",
+                            ["sourceObjectId"] = attackerObjectId,
+                            ["battlefieldId"] = battlefieldId,
+                            ["renataGoldExtraManaActive"] = renataGoldBonusActive
+                        }));
+                    combatEvents.Add(new GameEvent(
+                        "LEGEND_EXHAUSTED",
+                        $"{renataLegendObjectId} 变为休眠状态",
+                        new Dictionary<string, object?>
+                        {
+                            ["playerId"] = battleWinnerPlayerId,
+                            ["sourceObjectId"] = renataLegendObjectId,
+                            ["reason"] = "BATTLEFIELD_HELD_CREATE_GOLD"
+                        }));
+                    CreateLegendEquipmentToken(
+                        playerZones,
+                        cardObjects,
+                        battleWinnerPlayerId,
+                        renataLegendObjectId,
+                        "LEGEND_TRIGGER_BATTLEFIELD_HELD_CREATE_GOLD",
+                        "金币",
+                        renataGoldBonusActive
+                            ? [CardObjectTags.EquipmentCard, "金币", "反应", RenataGoldBonusTag]
+                            : [CardObjectTags.EquipmentCard, "金币", "反应"],
+                        isExhausted: true,
+                        combatEvents);
+                }
             }
 
             if (TryGetDravenLegendCardNo(playerZones, cardObjects, battleWinnerPlayerId, out var dravenLegendCardNo))
@@ -4501,6 +4557,77 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsVexLegendCardNo(string? cardNo)
     {
         return cardNo is VexLegendCardNo or "UNL-232/219" or "UNL-232*/219";
+    }
+
+    private static bool TryGetActiveRenataLegend(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out CardObjectState legendState)
+    {
+        legendObjectId = string.Empty;
+        legendState = new CardObjectState();
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !IsRenataLegendCardNo(candidate.CardNo)
+                || candidate.IsExhausted)
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendState = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsRenataLegendCardNo(string? cardNo)
+    {
+        return cardNo is RenataLegendCardNo or "SFD·249/221";
+    }
+
+    private static void AddBattlefieldHeldEventIfNeeded(
+        List<GameEvent> events,
+        ref bool battlefieldHeldEventEmitted,
+        string playerId,
+        string battlefieldId,
+        string attackerObjectId,
+        IReadOnlyList<string> defenderObjectIds)
+    {
+        if (battlefieldHeldEventEmitted)
+        {
+            return;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLEFIELD_HELD",
+            $"{playerId} 据守战场",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = playerId,
+                ["battlefieldId"] = battlefieldId,
+                ["sourceObjectId"] = attackerObjectId,
+                ["defenderObjectIds"] = defenderObjectIds.ToArray()
+            }));
+        battlefieldHeldEventEmitted = true;
+    }
+
+    private static bool PlayerWithinWinningScoreDistance(
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        int distance)
+    {
+        return playerScores.TryGetValue(playerId, out var score)
+            && score >= WinningScore - distance;
     }
 
     private static int CountControlledBattlefieldUnits(

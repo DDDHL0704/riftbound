@@ -25190,6 +25190,88 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerRenataCreatesDormantGoldWhenControllerHoldsBattlefield()
+    {
+        var state = RenataBattlefieldHoldState("SFD·201/221", "P2-LEGEND-RENATA", legendExhausted: false, score: 5);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-renata-battlefield-held", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-RENATA-ATTACKER"],
+                ["P2-RENATA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-RENATA"].IsExhausted);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P2"].Base);
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.True(tokenState.IsExhausted);
+        Assert.Contains(CardObjectTags.EquipmentCard, tokenState.Tags);
+        Assert.Contains("金币", tokenState.Tags);
+        Assert.Contains("反应", tokenState.Tags);
+        Assert.Contains("RENATA_GOLD_EXTRA_1_MANA", tokenState.Tags);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_GOLD", StringComparison.Ordinal));
+        Assert.Equal(true, triggerEvent.Payload["renataGoldExtraManaActive"]);
+        var tokenEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+        Assert.Equal("金币", tokenEvent.Payload["tokenName"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerRenataGoldBonusRequiresScoreWithinThree()
+    {
+        var state = RenataBattlefieldHoldState("SFD·249/221", "P2-LEGEND-RENATA-REPRINT", legendExhausted: false, score: 4);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-renata-battlefield-held-no-bonus", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-RENATA-ATTACKER"],
+                ["P2-RENATA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var tokenObjectId = Assert.Single(result.State.PlayerZones["P2"].Base);
+        var tokenState = result.State.CardObjects[tokenObjectId];
+        Assert.DoesNotContain("RENATA_GOLD_EXTRA_1_MANA", tokenState.Tags);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_GOLD", StringComparison.Ordinal));
+        Assert.Equal(false, triggerEvent.Payload["renataGoldExtraManaActive"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerRenataRequiresActiveLegend()
+    {
+        var state = RenataBattlefieldHoldState("SFD·201/221", "P2-LEGEND-RENATA", legendExhausted: true, score: 5);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-renata-battlefield-held-rejected", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-RENATA-ATTACKER"],
+                ["P2-RENATA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P2-LEGEND-RENATA"].IsExhausted);
+        Assert.Empty(result.State.PlayerZones["P2"].Base);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_CREATE_GOLD", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -35596,6 +35678,55 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-IRELIA-DEFENDER",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState RenataBattlefieldHoldState(
+        string sourceCardNo,
+        string sourceObjectId,
+        bool legendExhausted,
+        int score)
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-RENATA-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-RENATA-DEFENDER"],
+                    LegendZone = [sourceObjectId]
+                }
+            },
+            PlayerScores = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = score
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RENATA-ATTACKER"] = new(
+                    "P1-RENATA-ATTACKER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-RENATA-DEFENDER"] = new(
+                    "P2-RENATA-DEFENDER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: sourceCardNo,
+                    isExhausted: legendExhausted,
                     ownerId: "P2",
                     controllerId: "P2")
             }
