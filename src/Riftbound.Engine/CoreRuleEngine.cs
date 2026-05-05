@@ -113,7 +113,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string VolibearFoundationLegendCardNo = "FND-249/298";
     private const string FioraSpiritforgedLegendCardNo = "SFD·205/221";
     private const int PowerfulUnitPowerThreshold = 5;
+    private const string RengarLegendCardNo = "UNL-183/219";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
+    private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -238,6 +240,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId));
+        var untilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
+            state.UntilEndOfTurnEffects,
+            intent.PlayerId,
+            behavior);
+        untilEndOfTurnEffects = MarkRengarUnitPlayedTriggerTarget(
+            untilEndOfTurnEffects,
+            stackItem,
+            plan.RengarUnitPlayedTargetObjectId);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -246,10 +256,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             PlayerExperience = playerExperience,
             PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
-            UntilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
-                state.UntilEndOfTurnEffects,
-                intent.PlayerId,
-                behavior),
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PlayerZones = playerZones,
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
@@ -869,6 +876,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             BuildPlayedArmamentThisTurnEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> MarkRengarUnitPlayedTriggerTarget(
+        IReadOnlyList<string> existingEffectIds,
+        StackItemState stackItem,
+        string targetObjectId)
+    {
+        return string.IsNullOrWhiteSpace(targetObjectId)
+            ? existingEffectIds
+            : AddUntilEndOfTurnEffect(
+                existingEffectIds,
+                $"{RengarUnitPlayedTargetEffectPrefix}{stackItem.StackItemId}:{targetObjectId}");
     }
 
     private static bool IsQueuedOnPlaySourcePowerTrigger(CardBehaviorDefinition behavior)
@@ -1743,6 +1762,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardNo is AzirSpiritforgedLegendCardNo or "SFD·247/221";
     }
 
+    private static bool IsRengarLegendCardNo(string? cardNo)
+    {
+        return cardNo is RengarLegendCardNo or "UNL-227/219" or "UNL-227*/219";
+    }
+
     private static bool ControllerHasAzirLegend(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -1754,6 +1778,48 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && (string.IsNullOrWhiteSpace(legendState.ControllerId)
                     || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
                 && IsAzirLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool ControllerHasRengarLegend(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var legendState)
+                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && IsRengarLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool TryGetRengarLegend(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        out string legendObjectId,
+        out string legendCardNo)
+    {
+        legendObjectId = string.Empty;
+        legendCardNo = RengarLegendCardNo;
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.LegendZone)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var legendState)
+                || (!string.IsNullOrWhiteSpace(legendState.ControllerId)
+                    && !string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                || !IsRengarLegendCardNo(legendState.CardNo))
+            {
+                continue;
+            }
+
+            legendObjectId = objectId;
+            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo) ? RengarLegendCardNo : legendState.CardNo;
+            return true;
+        }
+
+        return false;
     }
 
     private static IReadOnlyList<string> ApplyAzirSandSoldierTemperedTags(
@@ -4041,6 +4107,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
+        var rengarUnitPlayedTargetObjectId = ExtractRengarUnitPlayedTriggerTarget(
+            state,
+            intent.PlayerId,
+            command.SourceObjectId,
+            behavior,
+            targetObjectIds,
+            out targetObjectIds);
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
@@ -4061,6 +4134,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             rejection = RejectWithCorePrompts(
                 state,
                 $"{behavior.DisplayName} requires {DescribeTargetCount(state, intent.PlayerId, behavior)} {DescribeTargetScope(behavior.TargetScope)} target(s).",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(rengarUnitPlayedTargetObjectId)
+            && !IsValidRengarUnitPlayedTriggerTarget(
+                state,
+                command.SourceObjectId,
+                rengarUnitPlayedTargetObjectId))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                "Rengar legend trigger target must be a unit on the board or the played source unit.",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -4272,7 +4358,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             exhaustedOptionalCostTargetObjectIds,
             destroyedAdditionalCostTargetObjectIds,
             returnedAdditionalCostTargetObjectIds,
-            discardedOptionalCostTargetObjectIds);
+            discardedOptionalCostTargetObjectIds,
+            rengarUnitPlayedTargetObjectId);
         return true;
     }
 
@@ -4762,6 +4849,74 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return [];
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveRengarUnitPlayedPowerTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem)
+    {
+        if (!TryGetRengarUnitPlayedTarget(state, stackItem.StackItemId, out var targetObjectId)
+            || !TryGetRengarLegend(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                out var legendObjectId,
+                out var legendCardNo)
+            || !cardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || targetState.IsFaceDown)
+        {
+            return [];
+        }
+
+        var nextTargetState = targetState with
+        {
+            Power = targetState.Power + 1,
+            UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier + 1
+        };
+        cardObjects[targetObjectId] = nextTargetState;
+        return
+        [
+            new GameEvent(
+                "LEGEND_TRIGGER_RESOLVED",
+                $"{stackItem.ControllerId} 的傲之追猎者打出单位触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = stackItem.ControllerId,
+                    ["legendObjectId"] = legendObjectId,
+                    ["legendCardNo"] = legendCardNo,
+                    ["trigger"] = "UNIT_PLAYED_POWER_PLUS_1",
+                    ["playedUnitObjectId"] = stackItem.SourceObjectId,
+                    ["targetObjectId"] = targetObjectId
+                }),
+            new GameEvent(
+                "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                $"{targetObjectId} 本回合战力 +1",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = legendObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["powerDelta"] = 1,
+                    ["appliedPowerDelta"] = 1,
+                    ["minimumPower"] = 0,
+                    ["resultingPower"] = nextTargetState.Power,
+                    ["reason"] = "UNIT_PLAYED_POWER_PLUS_1"
+                })
+        ];
+    }
+
+    private static bool TryGetRengarUnitPlayedTarget(
+        MatchState state,
+        string stackItemId,
+        out string targetObjectId)
+    {
+        var prefix = $"{RengarUnitPlayedTargetEffectPrefix}{stackItemId}:";
+        var effectId = state.UntilEndOfTurnEffects.FirstOrDefault(id =>
+            id.StartsWith(prefix, StringComparison.Ordinal));
+        targetObjectId = string.IsNullOrWhiteSpace(effectId) ? string.Empty : effectId[prefix.Length..];
+        return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
     private static bool IsPowerfulUnitRuneLegendCardNo(string? cardNo)
@@ -6253,6 +6408,54 @@ public sealed class CoreRuleEngine : IRuleEngine
             : $"{minTargetCount}-{maxTargetCount}";
     }
 
+    private static string ExtractRengarUnitPlayedTriggerTarget(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds,
+        out IReadOnlyList<string> behaviorTargetObjectIds)
+    {
+        behaviorTargetObjectIds = targetObjectIds;
+        if (!behavior.PlaysSourceToBaseAsUnit
+            || !ControllerHasRengarLegend(state, playerId))
+        {
+            return string.Empty;
+        }
+
+        if (targetObjectIds.Count == 0
+            || HasValidTargetCount(state, playerId, behavior, targetObjectIds))
+        {
+            return string.Empty;
+        }
+
+        var behaviorTargetCandidates = targetObjectIds.Take(targetObjectIds.Count - 1).ToArray();
+        if (!HasValidTargetCount(state, playerId, behavior, behaviorTargetCandidates))
+        {
+            return string.Empty;
+        }
+
+        var triggerTargetObjectId = targetObjectIds[^1];
+        behaviorTargetObjectIds = behaviorTargetCandidates;
+        return triggerTargetObjectId;
+    }
+
+    private static bool IsValidRengarUnitPlayedTriggerTarget(
+        MatchState state,
+        string sourceObjectId,
+        string targetObjectId)
+    {
+        if (string.Equals(targetObjectId, sourceObjectId, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return FindFieldObjectLocation(state.PlayerZones, targetObjectId) is not null
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !targetState.IsFaceDown;
+    }
+
     private static string DescribeTargetScope(string targetScope)
     {
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
@@ -6408,6 +6611,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem.ControllerId,
                 stackItem.SourceObjectId));
+            events.AddRange(ResolveRengarUnitPlayedPowerTrigger(
+                state,
+                playerZones,
+                cardObjects,
+                stackItem));
         }
 
         if (behavior.GainExperienceOnPlay > 0)
@@ -12258,7 +12466,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> ExhaustedOptionalCostTargetObjectIds,
         IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> ReturnedAdditionalCostTargetObjectIds,
-        IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds);
+        IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds,
+        string RengarUnitPlayedTargetObjectId);
 
     private sealed record StackResolutionResult(
         IReadOnlyDictionary<string, PlayerZones> PlayerZones,

@@ -23985,6 +23985,83 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerRengarGivesUnitPlusOneAfterUnitPlayed()
+    {
+        var state = RengarLegendUnitPlayState("UNL-183/219", "P1-LEGEND-RENGAR");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rengar-play-unit", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-PLUCKY-PORO", "UNL-220/219", ["P1-LEGEND-BASE-UNIT"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+        var stackItem = Assert.Single(playResult.State.StackItems);
+        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Contains(playResult.State.UntilEndOfTurnEffects, effectId =>
+            effectId.StartsWith("RENGAR_UNIT_PLAYED_TARGET:", StringComparison.Ordinal)
+            && effectId.EndsWith(":P1-LEGEND-BASE-UNIT", StringComparison.Ordinal));
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-p7-9-rengar-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-rengar-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.Contains("P1-UNIT-PLUCKY-PORO", p2Pass.State.PlayerZones["P1"].Base);
+        var target = p2Pass.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal(3, target.Power);
+        Assert.Equal(1, target.UntilEndOfTurnPowerModifier);
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.Equal("UNL-183/219", triggerEvent.Payload["legendCardNo"]);
+        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-BASE-UNIT", powerEvent.Payload["targetObjectId"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerRengarRejectsNonUnitTriggerTarget()
+    {
+        var state = RengarLegendUnitPlayState("UNL-227*/219", "P1-LEGEND-RENGAR-REPRINT");
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base = playerZones["P1"].Base.Concat(["P1-RENGAR-EQUIPMENT"]).ToArray()
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-RENGAR-EQUIPMENT"] = new(
+            "P1-RENGAR-EQUIPMENT",
+            tags: [CardObjectTags.EquipmentCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        state = state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rengar-invalid-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-PLUCKY-PORO", "UNL-220/219", ["P1-RENGAR-EQUIPMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Contains("P1-UNIT-PLUCKY-PORO", result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerJinxDrawsAtTurnStartWhenHandBelowTwo()
     {
         var state = JinxLegendTurnStartState();
@@ -34842,6 +34919,28 @@ public sealed class ConformanceFixtureRunnerTests
             "P1-LEGEND-EPHEMERAL-UNIT",
             power: 1,
             tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+            ownerId: "P1",
+            controllerId: "P1");
+        return state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+    }
+
+    private static MatchState RengarLegendUnitPlayState(string sourceCardNo, string sourceObjectId)
+    {
+        var state = LegendActiveAbilityState(sourceCardNo, sourceObjectId, mana: 2);
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-UNIT-PLUCKY-PORO"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-UNIT-PLUCKY-PORO"] = new(
+            "P1-UNIT-PLUCKY-PORO",
+            cardNo: "UNL-220/219",
+            tags: [CardObjectTags.UnitCard, "魄罗", "法盾"],
             ownerId: "P1",
             controllerId: "P1");
         return state with

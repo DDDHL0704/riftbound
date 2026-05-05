@@ -483,7 +483,7 @@ flowchart LR
 
 ## 14. P7.9：本地产品版全卡可玩
 
-状态：P7 已完成；P7.9 正在 P7.9.6，`LEGEND_ACT` 已打通结构化提示、页面操作和七个传奇主动技能小批次（含 Jax 武装贴附/重贴附、Darius 鼓舞资源、Teemo 召回/待命替代与 Azir 武装后打出黄沙士兵），并已补入六个自动触发小批次（含 Jinx/Draven/Garen/Lux/Annie 与 Volibear/Fiora 强力单位召符文）与 Rumble/Lucian/OGS Master Yi/Ahri/UNL Master Yi/Azir 静态传奇小批次；当前实现 `739/811` 功能单元，manual deferred 剩余 `72/811`。当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
+状态：P7 已完成；P7.9 正在 P7.9.6，`LEGEND_ACT` 已打通结构化提示、页面操作和七个传奇主动技能小批次（含 Jax 武装贴附/重贴附、Darius 鼓舞资源、Teemo 召回/待命替代与 Azir 武装后打出黄沙士兵），并已补入七个自动触发小批次（含 Jinx/Draven/Garen/Lux/Annie、Volibear/Fiora 强力单位召符文与 Rengar 打出单位 S+1）与 Rumble/Lucian/OGS Master Yi/Ahri/UNL Master Yi/Azir 静态传奇小批次；当前实现 `740/811` 功能单元，manual deferred 剩余 `71/811`。当前短交接和批次计划见 `docs/CURRENT_P7_9_STATUS.md`。
 
 目标：
 
@@ -500,7 +500,7 @@ flowchart LR
    - 默认隐藏 raw JSON、fixture draft 和 scenario seed，只保留本地开发折叠入口。
 3. 传奇规则域：
    - 实现 `LEGEND_ACT` 命令、传奇主动/被动/静态/触发能力、身份效果和 UI 操作入口。
-   - P7.9.6 已迁移 `26/44` 个传奇功能单元；继续关闭剩余 `18` 个传奇 manual deferred 功能单元。
+   - P7.9.6 已迁移 `27/44` 个传奇功能单元；继续关闭剩余 `17` 个传奇 manual deferred 功能单元。
 4. 战场规则域：
    - 实现战场控制、据守、征服、得分、战场触发/静态/奖励效果和 UI 操作入口。
    - 关闭 P6 中 `54` 个战场 manual deferred 功能单元。
@@ -623,7 +623,7 @@ Browser Use 阶段性测试：
 1. 以 `docs/CURRENT_P7_9_STATUS.md` 为当前状态文件，按批次更新进度、验证和提交。
 2. 先做结构化 `ActionPrompt` 兼容层，再让 UI 消费 prompt candidates。
 3. 把手填 objectId/JSON 的产品路径替换为点击式来源、目标、费用、目的地和模式选择。
-4. 分批补齐传奇和战场规则域，最终关闭当前剩余 `72/811` manual deferred 功能单元。
+4. 分批补齐传奇和战场规则域，最终关闭当前剩余 `71/811` manual deferred 功能单元。
 5. 每个显著 UI 批次跑 Browser smoke；每个规则批次补 conformance、GameHub 或 engine 测试。
 
 已完成的 P1 底座项：
