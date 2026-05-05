@@ -933,6 +933,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
+    private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
         MatchState state,
@@ -1254,7 +1255,8 @@ internal static class ActionPromptBuilder
             || string.Equals(cardObject.CardNo, BattlefieldConquerDiscardDrawCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldConquerOverkillCreateWarhawkCardNo, StringComparison.Ordinal)
             || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-            || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
+            || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal)
+            || string.Equals(cardObject.CardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsImplementedLegendActionCardNo(string? cardNo)
@@ -1630,6 +1632,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldConquerDiscardDrawCardNo = "OGN·298/298";
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldWinningScoreSeedCardNo = "OGN·276/298";
+    private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
 
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
@@ -2380,6 +2383,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-conquer-boon-draw" => BuildBattlefieldConquerBoonDrawScenario(current, seed),
             "battlefield-conquer-warhawk" => BuildBattlefieldConquerWarhawkScenario(current, seed),
             "battlefield-winning-score" => BuildBattlefieldWinningScoreScenario(current, seed),
+            "battlefield-first-turn-rune" => BuildBattlefieldFirstTurnRuneScenario(current, seed),
             "battlefield-conquer-mill" => BuildBattlefieldConquerMillScenario(current, seed),
             "battlefield-conquer-discard-draw" => BuildBattlefieldConquerDiscardDrawScenario(current, seed),
             "battlefield-conquer-recycle-rune" => BuildBattlefieldConquerRecycleRuneScenario(current, seed),
@@ -3451,6 +3455,47 @@ public sealed class MatchSession : IMatchSession
                     [seed.P2] = 0
                 }
             };
+    }
+
+    private static MatchState BuildBattlefieldFirstTurnRuneScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303049,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLEFIELD-RUNE-OBELISK"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck:
+                    [
+                        "P2-RUNE-001",
+                        "P2-RUNE-002",
+                        "P2-RUNE-003",
+                        "P2-RUNE-004"
+                    ],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RUNE-OBELISK"] = new(
+                    "P1-BATTLEFIELD-RUNE-OBELISK",
+                    cardNo: BattlefieldFirstTurnExtraRuneCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
     }
 
     private static MatchState BuildBattlefieldConquerMillScenario(MatchState current, DevScenarioSeed seed)

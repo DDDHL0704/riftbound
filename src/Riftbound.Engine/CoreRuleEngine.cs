@@ -170,6 +170,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerOverkillCreateWarhawkCardNo = "UNL-217/219";
     private const string BattlefieldIncreaseWinningScoreCardNo = "OGN·276/298";
     private const string BattlefieldIncreaseWinningScoreAltCardNo = "OGN·276a/298";
+    private const string BattlefieldFirstTurnExtraRuneCardNo = "OGN·284/298";
     private const int BattlefieldReadyLegendManaCost = 1;
     private const int BattlefieldPowerfulDrawManaCost = 1;
     private const int BattlefieldGoldManaCost = 1;
@@ -7225,7 +7226,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || IsBattlefieldConquerReadyEquipmentCardNo(cardNo)
             || IsBattlefieldConquerDiscardDrawCardNo(cardNo)
             || IsBattlefieldConquerOverkillCreateWarhawkCardNo(cardNo)
-            || IsBattlefieldIncreaseWinningScoreCardNo(cardNo);
+            || IsBattlefieldIncreaseWinningScoreCardNo(cardNo)
+            || IsBattlefieldFirstTurnExtraRuneCardNo(cardNo);
     }
 
     private static bool IsBattlefieldEphemeralUnitsSteadfastCardNo(string? cardNo)
@@ -7342,6 +7344,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(cardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsBattlefieldFirstTurnExtraRuneCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, BattlefieldFirstTurnExtraRuneCardNo, StringComparison.Ordinal);
     }
 
     private static int EffectiveWinningScore(MatchState state)
@@ -16187,7 +16194,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static int RuneCallCount(MatchState state)
     {
-        return IsSecondActionPlayersFirstTurn(state) ? 3 : 2;
+        var baseRuneCount = IsSecondActionPlayersFirstTurn(state) ? 3 : 2;
+        return baseRuneCount + BattlefieldFirstTurnExtraRuneCount(state);
     }
 
     private static bool IsSecondActionPlayersFirstTurn(MatchState state)
@@ -16195,6 +16203,27 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.TurnNumber == 2
             && state.Seats.TryGetValue(state.TurnPlayerId, out var seat)
             && string.Equals(seat, "P2", StringComparison.Ordinal);
+    }
+
+    private static int BattlefieldFirstTurnExtraRuneCount(MatchState state)
+    {
+        if (!IsTurnPlayersFirstTurn(state))
+        {
+            return 0;
+        }
+
+        return state.PlayerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Count(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldFirstTurnExtraRuneCardNo(cardObject.CardNo));
+    }
+
+    private static bool IsTurnPlayersFirstTurn(MatchState state)
+    {
+        var players = SeatPlayerIds(state);
+        var turnPlayerIndex = Array.IndexOf(players, state.TurnPlayerId);
+        return turnPlayerIndex >= 0
+            && state.TurnNumber == turnPlayerIndex + 1;
     }
 
     private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones)

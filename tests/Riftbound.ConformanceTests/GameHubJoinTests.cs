@@ -1773,6 +1773,43 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldFirstTurnRuneSeedCallsFourthRune()
+    {
+        const string roomId = "p7-9-battlefield-first-turn-rune";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-first-turn-rune", "seed-p7-9-battlefield-first-turn-rune");
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-first-turn-rune", endTurn);
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var endTurnEvents = EventsFor(endTurnClients);
+        var runeEvent = Assert.Single(endTurnEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Equal("P2", runeEvent.Payload["playerId"]);
+        Assert.Equal(4, runeEvent.Payload["count"]);
+
+        var p2Snapshot = SnapshotFor(endTurnClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Equal(
+            ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["base"]));
+        Assert.Equal(0, Assert.IsType<int>(p2Zones["runeDeckCount"]));
+    }
+
+    [Fact]
     public async Task P6EchoStackSeedBroadcastsRepeatedDrawInDevelopment()
     {
         const string roomId = "p6-5a-echo-stack-core";

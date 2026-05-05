@@ -26439,6 +26439,28 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticFirstTurnRuneCallsOneExtraRune()
+    {
+        var state = BattlefieldFirstTurnRuneState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-first-turn-rune", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Empty(result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(
+            ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"],
+            result.State.PlayerZones["P2"].Base);
+        var runeEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Equal("P2", runeEvent.Payload["playerId"]);
+        Assert.Equal(4, runeEvent.Payload["count"]);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLuxDrawsWhenControllerPlaysHighCostSpell()
     {
         var state = PunishmentState(mana: 6) with
@@ -38200,6 +38222,41 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BURNOUT-RECYCLE-001",
                     ownerId: "P2",
                     controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldFirstTurnRuneState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            TurnNumber = 1,
+            ActivePlayerId = "P1",
+            TurnPlayerId = "P1",
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-RUNE-OBELISK"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003", "P2-RUNE-004"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-RUNE-OBELISK"] = new(
+                    "P1-BATTLEFIELD-RUNE-OBELISK",
+                    cardNo: "OGN·284/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-MAIN-001"] = new(
+                    "P2-MAIN-001",
+                    ownerId: "P2",
+                    controllerId: "P2"),
             }
         };
     }
