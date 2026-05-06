@@ -2721,7 +2721,7 @@ body {
 }
 
 .product-card-list.hand .product-card {
-  min-height: 122px;
+  min-height: 148px;
 }
 
 .product-card:hover:not(:disabled) {
@@ -2808,21 +2808,6 @@ body {
   color: #8b3226;
 }
 
-.product-card-art {
-  display: block;
-  height: 44px;
-  border: 1px solid rgba(22, 45, 49, 0.12);
-  border-radius: 6px;
-  background-color: rgba(8, 20, 23, 0.18);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-
-.product-card-list.hand .product-card-art {
-  height: 72px;
-}
-
 .product-card.unit {
   border-color: rgba(49, 160, 125, 0.62);
   background: linear-gradient(180deg, #eef8ed, #d1e4dc);
@@ -2905,6 +2890,27 @@ body {
   font-size: 9px;
   font-weight: 900;
   line-height: 1.1;
+}
+
+.product-card-rules {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+  color: #263c40;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.product-card-rules span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.product-card-list.compact .product-card-rules span {
+  -webkit-line-clamp: 1;
 }
 
 .product-status-badges .combat,

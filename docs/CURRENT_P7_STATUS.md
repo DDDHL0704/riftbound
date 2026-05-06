@@ -332,6 +332,13 @@ P7.8 validation:
 - Official art loading has an explicit system notice boundary: loading state is shown while fetching, and failure degrades to the existing text card face without changing game rules or server state.
 - Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed. Local service health checks returned `200` for `http://127.0.0.1:5173/` and `http://127.0.0.1:5088/health`. Browser fallback smoke opened the local page and the official gallery page; Computer Use could verify first-screen rendering but did not dispatch product UI clicks reliably in this turn, so this follow-up is covered by build plus service health and code-path inspection.
 
+## P7 Follow-up Text Card Face
+
+- Superseded the runtime official-art experiment: the product battle table now uses the existing text card face only and no longer fetches official card images.
+- Enriched text card faces with local authoritative catalog data from `/catalog/behavior-specs`: cards display `法力费用`, `符能费用`, current/printed `战力`, damage, ownership, status badges, and a compact official rules text excerpt.
+- Full card rules text is preserved in the card tooltip, while the visible face uses clamped Chinese text to keep the product table readable.
+- Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed. `curl http://127.0.0.1:5088/catalog/behavior-specs?cardNo=SFD%C2%B7125/221` confirmed `cost.mana`, `cost.returnEnergy`, `cost.power`, and `officialText` are available from the local backend. Browser fallback smoke refreshed `http://127.0.0.1:5173/` and verified the first screen still renders without any official-card-art loading notice.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
