@@ -10,7 +10,7 @@
 
 当前服务端已经具备产品原型可用的联机房间、服务端权威提交、按玩家视角发送 snapshot/prompt、动作幂等、开发场景、相当数量的代表性卡牌效果和 conformance fixture 覆盖。但如果按自查文档的最终门槛判断为“完整符合官方核心规则、所有官方卡牌均可页面操作且不误导为 CONFORMANCE_PASS”，目前仍存在 P0 级缺口。
 
-最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。尤其是官方开局、战场精确位置/控制权/待命区、通用清理任务队列、法术对决/战斗完整流程、彩色符能支付、连续效果层与全卡牌文字映射仍需要补齐。
+最关键的结论是：当前实现更接近“代表性规则引擎 + 大量 fixture 与产品 UI smoke”，还不是完整官方规则状态机。官方 deck/opening/mulligan、对象位置、typed 符能、窗口状态、持续效果视图、关键词覆盖报告和 spectator replay redaction 已有服务端路径；但完整战场控制/待命任务状态机、通用清理任务队列、法术对决/战斗完整生命周期、全路径官方费用模型、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行仍需要补齐。
 
 ## 2026-05-06 开发进度更新
 
@@ -279,9 +279,11 @@
 
 ### P2-002 文档状态需要重新分层
 
+当前状态：**RESOLVED FOR THIS AUDIT / 当前报告已按产品、fixture、官方完整规则三层拆分口径**
+
 `docs/CURRENT_P7_9_STATUS.md:76` 到 `docs/CURRENT_P7_9_STATUS.md:78` 记录 legend/battlefield 已 0 remaining，`docs/CURRENT_P7_9_STATUS.md:153` 到 `docs/CURRENT_P7_9_STATUS.md:158` 记录 P7.9 全完成；但本次核心规则自查显示这些结论只适合描述当前产品/fixture 口径，不能直接等同“官方完整核心规则 READY”。
 
-建议补充一份状态口径说明：
+当前口径说明：
 - `Product UI playable smoke`: 当前 P7 页面可用性。
 - `Conformance fixture pass`: 当前 fixture 全绿。
 - `Official full rules ready`: 本报告结论为 NOT READY。
@@ -292,34 +294,34 @@
 | --- | --- | --- |
 | 服务端权威/幂等/非法命令不落状态 | PASS | `MatchSession.SubmitAsync` 串行且仅 accepted 更新状态。 |
 | 双人房间/重连/snapshot/prompt | PASS | `GameHub` 具备 join/reconnect/request snapshot/submit flow。 |
-| 隐藏手牌/面朝下对象 | PASS | 手牌、face-down 与随机 seed/rngCursor 均已从普通玩家视角裁剪。 |
-| 官方 deck/opening/mulligan | FAIL | 无正式 deck validator 与官方开局状态机。 |
+| 隐藏手牌/面朝下对象 | PASS | 手牌、face-down、随机 seed/rngCursor 与 spectator replay frame 均已裁剪。 |
+| 官方 deck/opening/mulligan | RISKY | 已有 `SUBMIT_DECK -> READY -> MULLIGAN` 正式路径、deck validator 和 Hub smoke；仍需前端正式入口与更多非法 deck 负例矩阵。 |
 | 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations` 与 `BattlefieldStates` 权威派生视图；仍缺完整 battlefield/standby/control task 状态机。 |
 | FEPR/优先权/焦点 | RISKY | 有 `TurnWindowState`、`SpellDuelState`、focus/prompt；仍缺完整 pending task/state machine。 |
-| 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD typed 符能第一批已接入，但通用支付来源/目标语法仍不足。 |
+| 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD 与代表性非出牌路径已 typed-power aware，但通用支付来源/目标语法仍不足。 |
 | 通用清理检查 | RISKY | 已有 `PendingCleanupTasks` 与移动/栈结算后的致命伤害 cleanup loop；仍缺覆盖全部状态变化的统一任务队列。 |
 | 移动/战场控制 | RISKY | 精确移动可写回 object location，战场状态可表达争夺；完整控制权改变/征服/据守仍待状态机化。 |
 | 法术对决 | RISKY | 已有显式 `SpellDuelState` 与焦点恢复；仍缺完整 spell duel lifecycle。 |
 | 战斗 | RISKY | 已有显式 `BattleState` 参与者视图；当前仍是 direct/minimal declare battle，不是官方 battle task。 |
 | 计分/胜负 | RISKY | 有部分得分/胜负实现；依赖战场控制与 cleanup 的完整性不足。 |
-| 连续效果层 | FAIL | 直接修改对象数值，缺少 layer/timestamp/dependency。 |
-| 关键词 | RISKY/FAIL | 多个关键词 profile 仍标识 recognized/deferred。 |
-| 全卡牌效果 | RISKY | BehaviorSpec 全 pass 口径与内部 deferred/规则模型缺口冲突。 |
-| 日志/replay/观战 | RISKY | 有 journal/recovery，普通 snapshot 不再泄漏随机状态；仍缺少严格 action-log replay 和 spectator redaction。 |
+| 连续效果层 | RISKY | 已有 `ContinuousEffectState`、`basePower`、`effectivePower` 视图；仍缺完整 LayerEngine/timestamp/dependency 重算。 |
+| 关键词 | RISKY | 已有 `KeywordCoverageReporter` 暴露 implemented/delegated/deferred 边界；多个关键词族仍需真实执行矩阵。 |
+| 全卡牌效果 | RISKY | BehaviorSpec 已降义为 representative-rule-pass 且 full-official-rule-pass=0；仍需逐卡提升证据。 |
+| 日志/replay/观战 | RISKY | 有 journal/recovery、普通 snapshot 随机裁剪与 spectator replay redaction；仍缺严格 action-log replay final-state 校验。 |
 
 ## 建议下一步开发顺序
 
-1. 已完成第一批：冻结并重命名当前 `CONFORMANCE_PASS` 口径，避免把 fixture/domain pass 当成 full official rules pass。
-2. 实现官方 deck/opening/mulligan，这是后续所有本地测试和 UI 对局的基础。
-3. 重构 board model：battlefield state、unit location、standby、control/contest/conquer/hold。
-4. 建立 cleanup task queue，把移动、进场、离场、伤害、战力变化、战场控制变化统一纳入。
-5. 在 task queue 上重做 spell duel 和 battle state machine。
-6. 扩展 typed payment engine，支持所有彩色符能、任意符能、普通费用、额外/可选费用与 rune/legend/battlefield 支付来源。
-7. 引入 continuous effect layer engine。
-8. 逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
+1. 已完成：冻结并重命名当前 `CONFORMANCE_PASS` 口径，避免把 fixture/domain pass 当成 full official rules pass。
+2. 已完成第一批：官方 deck/opening/mulligan、Hub smoke、legacy ready 生产边界。
+3. 已完成第一批：board object location、battlefield state、pending cleanup/turn window/spell duel/battle/continuous effect/keyword coverage/spectator replay 的服务端显式视图。
+4. 下一步：重构完整 board task model：standby、control/contest/conquer/hold 与 battlefield pending task 生命周期。
+5. 下一步：建立通用 cleanup task queue，把移动、进场、离场、伤害、战力变化、战场控制变化统一纳入。
+6. 下一步：在 task queue 上重做 spell duel 和 battle state machine。
+7. 下一步：扩展 typed payment engine 到 rune/legend/battlefield/keyword 全路径，支持替代费用、减费/加费、额外/可选费用。
+8. 下一步：引入完整 continuous effect LayerEngine，并逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 
 ## 最终验收口径
 
 在完成上述 P0/P1 之前，不建议把服务端声明为“完整符合五个官方规则文件”。推荐当前对外口径为：
 
-> 当前服务端可支撑本地双人对战原型、服务端权威结算、代表性规则与大量 conformance fixture；但完整官方核心规则仍处于 NOT READY，自查发现官方开局、精确战场模型、通用清理任务队列、法术对决/战斗状态机、彩色符能和连续效果层需要继续开发。
+> 当前服务端可支撑本地双人对战原型、服务端权威结算、正式 deck/opening/mulligan 入口、代表性规则与大量 conformance fixture；但完整官方核心规则仍处于 NOT READY，自查剩余风险集中在完整战场/待命/控制权任务状态机、通用清理任务队列、法术对决/战斗状态机、全路径官方费用模型、连续效果 LayerEngine 与逐关键词/逐卡牌完整执行。
