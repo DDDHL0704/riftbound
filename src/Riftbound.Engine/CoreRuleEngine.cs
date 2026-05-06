@@ -3950,11 +3950,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             sourceState.CardNo,
             [command.SourceObjectId],
             optionalCosts: optionalCosts);
-        var lethalCleanup = ApplyLethalDamageCleanup(
+        var lethalCleanup = RunStateBasedCleanupLoop(
             playerZones,
             cardObjects,
             cleanupStackItem,
-            new HashSet<string>(StringComparer.Ordinal),
             state.RunePools);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
@@ -4206,11 +4205,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             sourceState.CardNo,
             [command.SourceObjectId],
             optionalCosts: optionalCosts);
-        var lethalCleanup = ApplyLethalDamageCleanup(
+        var lethalCleanup = RunStateBasedCleanupLoop(
             playerZones,
             cardObjects,
             cleanupStackItem,
-            new HashSet<string>(StringComparer.Ordinal),
             state.RunePools);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
@@ -10610,11 +10608,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             var resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds;
             if (stackResolution.WinnerPlayerId is null)
             {
-                var postStackCleanup = ApplyLethalDamageCleanup(
+                var postStackCleanup = RunStateBasedCleanupLoop(
                     resolvedPlayerZones,
                     resolvedCardObjects,
                     resolvedItem,
-                    new HashSet<string>(StringComparer.Ordinal),
                     resolvedRunePools);
                 resolvedRunePools = postStackCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
                 postStackCleanupEvents = postStackCleanup.Events.ToArray();
@@ -19404,6 +19401,52 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && cardObject.Power >= minimumPower);
     }
 
+    private static StateBasedCleanupResult RunStateBasedCleanupLoop(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        IReadOnlyDictionary<string, RunePool> runePools,
+        string? battlefieldId = null)
+    {
+        var events = new List<GameEvent>();
+        var destroyedObjectIds = new List<string>();
+        var destroyedUnitOwnerIds = new List<string>();
+        var nextRunePools = runePools;
+
+        for (var pass = 0; pass < 32; pass++)
+        {
+            var cleanup = ApplyLethalDamageCleanup(
+                playerZones,
+                cardObjects,
+                stackItem,
+                new HashSet<string>(StringComparer.Ordinal),
+                nextRunePools,
+                battlefieldId);
+            if (cleanup.Events.Count == 0 && cleanup.DestroyedObjectIds.Count == 0)
+            {
+                break;
+            }
+
+            events.AddRange(cleanup.Events);
+            destroyedObjectIds.AddRange(cleanup.DestroyedObjectIds);
+            destroyedUnitOwnerIds.AddRange(cleanup.DestroyedUnitOwnerIds);
+            nextRunePools = cleanup.RunePools;
+        }
+
+        return new StateBasedCleanupResult(
+            events,
+            destroyedObjectIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray(),
+            destroyedUnitOwnerIds
+                .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                .ToArray(),
+            nextRunePools);
+    }
+
     private static LethalDamageCleanupResult ApplyLethalDamageCleanup(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -20856,6 +20899,12 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private sealed record LethalDamageCleanupResult(
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> DestroyedObjectIds,
+        IReadOnlyList<string> DestroyedUnitOwnerIds,
+        IReadOnlyDictionary<string, RunePool> RunePools);
+
+    private sealed record StateBasedCleanupResult(
         IReadOnlyList<GameEvent> Events,
         IReadOnlyList<string> DestroyedObjectIds,
         IReadOnlyList<string> DestroyedUnitOwnerIds,

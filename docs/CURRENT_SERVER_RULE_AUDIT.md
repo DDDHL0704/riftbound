@@ -26,8 +26,10 @@
 - P0-003 第二批已落地：结算链项目结算后新增统一状态性致命清理兜底。即使某个栈项目本身是无行为/未映射或单卡 resolver 漏接局部 cleanup，只要结算后场上存在伤害大于等于战力的单位，服务端会将其清理入对应非场地区域、同步 `ObjectLocations` 并记录 `UNIT_DESTROYED`。
 - P0-005 第一批已落地：`RunePool` 新增 `PowerByTrait` typed 符能池和 `TotalPower` 视图；`PLAY_CARD` 支付计划可区分任意符能与指定特性符能，`SPEND_POWER:red:2` / `SPEND_POWER:红色:2` 等 token 会校验并只扣对应特性，旧的泛化 `power` fixture 仍兼容。snapshot 的 `runePool` 继续提供总 `power`，同时新增 `untypedPower` 与 `powerByTrait` 给 UI 展示支付来源。
 - P1-003 第一批已落地：`BehaviorSpec` 新增 `ConformanceTier` / `ConformanceReason`，将当前 `implemented` 明确降义为 `representative-rule-pass`，并在 API summary、图鉴详情和基线测试中断言 `full-official-rule-pass = 0`。产品 UI 不再把 `implemented` 文案展示为“官方完整一致性通过”。
+- P0-002 第三批已落地：新增 `BattlefieldState` 权威派生状态视图与 `MatchState.BattlefieldStates`，从服务端 `PlayerZones`、`ObjectLocations`、`CardObjects` 统一表达战场牌、控制者、占据单位、占据方控制者、待命对象、面朝下待命数量和争夺状态；snapshot 的 lanes.battlefields 改为复用该服务端状态视图。
+- P0-003 第三批已落地：新增 `CleanupTaskState` / `MatchState.PendingCleanupTasks`，能显式列出致命伤害单位清理与战场争夺检查任务；移动和结算链结算后的致命伤害清理由单次 helper 升级为 `RunStateBasedCleanupLoop`，重复执行直到当前状态性致命伤害任务稳定。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -69,16 +71,17 @@
 
 ### P0-002 战场、待命区、控制权和单位位置模型不足
 
-当前状态：**PARTIALLY RESOLVED / 对象位置索引和战场 snapshot 视图已落地，权威战场任务状态机仍待建模**
+当前状态：**PARTIALLY RESOLVED / 对象位置索引、权威派生战场状态和 snapshot 视图已落地，完整战场任务状态机仍待建模**
 
 规则依据：自查文档 4、10；核心规则关于基地、战场、待命区、战场控制权、占领/争夺、单位移动与区域归属的要求。
 
 代码位置：
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `ObjectLocationState` 与 `MatchState.ObjectLocations`，snapshot 会输出对象 `location`，`SnapshotDto.Lanes.battlefields` 会投影战场牌、控制者、占据单位、待命占位、面朝下待命数量与争夺状态。
+- `src/Riftbound.Engine/MatchSession.cs` 新增 `BattlefieldState` 与 `MatchState.BattlefieldStates`，snapshot 复用该服务端状态视图，而不是自行重算 UI 专用结构。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 的打出、结算、移动、调度、召符文路径开始同步 `ObjectLocations`。
 - 仍缺：每个战场的 controller、contested/held/conquered 状态、occupants、standby、pending duel/battle 统一模型。
 
-现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；snapshot 也能稳定展示每个已知战场的占据/争夺/待命视图。但战场本身仍没有完整控制权/占据/征服/待命子区域权威状态机，因此 P0-002 仍只能降级为部分解决。
+现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；`MatchState.BattlefieldStates` 能从服务端状态统一暴露已知战场的占据/争夺/待命视图。但战场本身仍没有完整控制权变更、占据、征服、战斗/法术对决 pending 生命周期，因此 P0-002 仍只能降级为部分解决。
 
 最小复现场景：在两个友方战场之间提交精确 `MOVE_UNIT` 游走。当前结果会写回 `ObjectLocations[source].BattlefieldObjectId`；如果客户端提交的 origin 与权威位置不一致，服务端会拒绝。
 
@@ -93,7 +96,7 @@
 
 ### P0-003 通用清理检查与任务队列缺失
 
-当前状态：**PARTIALLY RESOLVED / 移动后与栈结算后状态清理已接入，完整统一任务队列仍缺失**
+当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task 视图与致命伤害 cleanup loop 已接入，完整统一任务队列仍缺失**
 
 规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。
 
@@ -101,8 +104,10 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs:18896` 有局部 `ApplyLethalDamageCleanup`。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:19362` 有回合结束清理。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:10641` 的 `ResolveEndTurn` 只在回合结束路径调用 `ApplyTurnEndCleanup`，然后直接 `ResolveTurnStart`。
+- `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingCleanupTasks`，当前可显式暴露致命伤害清理和战场争夺检查任务。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害清理直到稳定。
 
-现象：当前清理仍是分散在战斗、伤害、回合结束、移动等局部路径里的 helper，不是官方意义上的“所有状态变化后统一检查并重复”的任务队列。移动后和栈项目结算后至少会跑一次致命伤害清理并同步位置，但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
+现象：当前清理仍是分散在战斗、伤害、回合结束、移动等局部路径里的 helper，不是官方意义上的“所有状态变化后统一检查并重复”的任务队列。移动后和栈项目结算后会运行状态性致命伤害 cleanup loop 并同步位置；`PendingCleanupTasks` 已能列出待处理的致命伤害与战场争夺任务。但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
 
 最小复现场景：移动一个已经带致命伤害的单位，当前会移动后清理到废牌堆；结算一个无行为栈项目时，如果场上已有致命伤害单位，也会在栈结算后被状态性清理兜底摧毁。但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
 
@@ -274,11 +279,11 @@
 | 双人房间/重连/snapshot/prompt | PASS | `GameHub` 具备 join/reconnect/request snapshot/submit flow。 |
 | 隐藏手牌/面朝下对象 | PASS | 手牌、face-down 与随机 seed/rngCursor 均已从普通玩家视角裁剪。 |
 | 官方 deck/opening/mulligan | FAIL | 无正式 deck validator 与官方开局状态机。 |
-| 区域/对象/控制权/战场位置 | FAIL | 缺少精确 battlefield/standby/control/location 模型。 |
+| 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations` 与 `BattlefieldStates` 权威派生视图；仍缺完整 battlefield/standby/control task 状态机。 |
 | FEPR/优先权/焦点 | RISKY | 有 timingState/focus/prompt，但缺少完整 pending task/state machine。 |
 | 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD typed 符能第一批已接入，但通用支付来源/目标语法仍不足。 |
-| 通用清理检查 | FAIL | 只有局部 cleanup helper，无全局 cleanup loop。 |
-| 移动/战场控制 | FAIL | 事件可描述移动，但状态无法表达具体战场位置/控制权。 |
+| 通用清理检查 | RISKY | 已有 `PendingCleanupTasks` 与移动/栈结算后的致命伤害 cleanup loop；仍缺覆盖全部状态变化的统一任务队列。 |
+| 移动/战场控制 | RISKY | 精确移动可写回 object location，战场状态可表达争夺；完整控制权改变/征服/据守仍待状态机化。 |
 | 法术对决 | FAIL | 缺少完整 spell duel lifecycle。 |
 | 战斗 | FAIL | 当前是 direct/minimal declare battle，不是官方 battle task。 |
 | 计分/胜负 | RISKY | 有部分得分/胜负实现；依赖战场控制与 cleanup 的完整性不足。 |

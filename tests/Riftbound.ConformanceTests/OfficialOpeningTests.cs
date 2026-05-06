@@ -323,6 +323,11 @@ public sealed class OfficialOpeningTests
                 ["P1-DAMAGED-UNIT"] = new("P1", "BASE")
             });
 
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "P1-DAMAGED-UNIT", StringComparison.Ordinal));
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-move-cleanup", "P1", "MOVE_UNIT"),
@@ -339,6 +344,9 @@ public sealed class OfficialOpeningTests
         Assert.DoesNotContain("P1-DAMAGED-UNIT", result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-DAMAGED-UNIT"], result.State.PlayerZones["P1"].Graveyard);
         Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-DAMAGED-UNIT"].Zone);
+        Assert.DoesNotContain(
+            result.State.PendingCleanupTasks,
+            task => string.Equals(task.ObjectId, "P1-DAMAGED-UNIT", StringComparison.Ordinal));
     }
 
     private static void AssertValid(OfficialDecklist decklist, OfficialCardCatalog catalog)

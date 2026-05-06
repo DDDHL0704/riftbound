@@ -568,6 +568,78 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews()
+    {
+        var state = new MatchState(
+            "battlefield-authority-room",
+            12,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "A-UNIT-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["B-UNIT-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["A-UNIT-1"] = new(
+                    "A-UNIT-1",
+                    damage: 2,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["B-UNIT-1"] = new(
+                    "B-UNIT-1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "bob",
+                    controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["A-UNIT-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["B-UNIT-1"] = new("bob", "BATTLEFIELD", "BF-1")
+            });
+
+        var battlefield = Assert.Single(state.BattlefieldStates.Values);
+        Assert.Equal("BF-1", battlefield.BattlefieldObjectId);
+        Assert.Equal("CONTESTED", battlefield.Status);
+        Assert.Equal(["alice", "bob"], battlefield.OccupantControllerIds);
+        Assert.Equal(["A-UNIT-1", "B-UNIT-1"], battlefield.OccupantObjectIds);
+
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "A-UNIT-1", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void SnapshotsRedactOpponentFaceDownObjects()
     {
         var state = new MatchState(

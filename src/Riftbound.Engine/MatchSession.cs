@@ -190,6 +190,26 @@ public sealed record ObjectLocationState(
     }
 }
 
+public sealed record BattlefieldState(
+    string BattlefieldObjectId,
+    string ZonePlayerId,
+    string? CardNo,
+    string? ControllerId,
+    string Status,
+    bool Contested,
+    IReadOnlyList<string> OccupantObjectIds,
+    IReadOnlyList<string> OccupantControllerIds,
+    IReadOnlyList<string> StandbyObjectIds,
+    int FaceDownStandbyCount);
+
+public sealed record CleanupTaskState(
+    string TaskId,
+    string Kind,
+    string Reason,
+    string? PlayerId = null,
+    string? ObjectId = null,
+    string? BattlefieldObjectId = null);
+
 public sealed record CardObjectState
 {
     [JsonConstructor]
@@ -502,6 +522,10 @@ public sealed record MatchState
 
     public IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations { get; init; }
 
+    public IReadOnlyDictionary<string, BattlefieldState> BattlefieldStates => BuildBattlefieldStates(this);
+
+    public IReadOnlyList<CleanupTaskState> PendingCleanupTasks => BuildPendingCleanupTasks(this);
+
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerExperience { get; init; }
@@ -627,6 +651,136 @@ public sealed record MatchState
             .Where(entry => !string.IsNullOrWhiteSpace(entry.Value.PlayerId)
                 && !string.IsNullOrWhiteSpace(entry.Value.Zone))
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, BattlefieldState> BuildBattlefieldStates(MatchState state)
+    {
+        var result = new Dictionary<string, BattlefieldState>(StringComparer.Ordinal);
+        foreach (var (zonePlayerId, zones) in state.PlayerZones
+            .OrderBy(entry => state.Seats.TryGetValue(entry.Key, out var seat) ? seat : entry.Key, StringComparer.Ordinal))
+        {
+            foreach (var battlefieldObjectId in zones.Battlefields
+                .Where(objectId => IsBattlefieldCardStateObject(state.CardObjects, objectId)))
+            {
+                var battlefieldObject = state.CardObjects.TryGetValue(battlefieldObjectId, out var knownBattlefieldObject)
+                    ? knownBattlefieldObject
+                    : new CardObjectState(battlefieldObjectId);
+                var occupantObjectIds = state.ObjectLocations
+                    .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                        && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                        && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
+                        && state.CardObjects.TryGetValue(entry.Key, out var cardObject)
+                        && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                    .Select(entry => entry.Key)
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                    .ToArray();
+                var standbyObjectIds = occupantObjectIds
+                    .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                        && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)))
+                    .ToArray();
+                var occupantControllerIds = occupantObjectIds
+                    .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                        ? cardObject.ControllerId ?? string.Empty
+                        : string.Empty)
+                    .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
+                    .ToArray();
+                var contested = occupantControllerIds.Length > 1;
+                var controllerId = string.IsNullOrWhiteSpace(battlefieldObject.ControllerId)
+                    ? null
+                    : battlefieldObject.ControllerId;
+
+                result[battlefieldObjectId] = new BattlefieldState(
+                    battlefieldObjectId,
+                    zonePlayerId,
+                    battlefieldObject.CardNo,
+                    controllerId,
+                    contested ? "CONTESTED" : controllerId is null ? "UNCONTROLLED" : "CONTROLLED",
+                    contested,
+                    occupantObjectIds,
+                    occupantControllerIds,
+                    standbyObjectIds,
+                    standbyObjectIds.Count(objectId =>
+                        state.CardObjects.TryGetValue(objectId, out var cardObject) && cardObject.IsFaceDown));
+            }
+        }
+
+        return result;
+    }
+
+    private static IReadOnlyList<CleanupTaskState> BuildPendingCleanupTasks(MatchState state)
+    {
+        var tasks = new List<CleanupTaskState>();
+        foreach (var (objectId, cardObject) in state.CardObjects
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (cardObject.Power <= 0
+                || cardObject.Damage < cardObject.Power
+                || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location))
+            {
+                continue;
+            }
+
+            tasks.Add(new CleanupTaskState(
+                $"cleanup:lethal:{objectId}",
+                "DESTROY_LETHAL_UNIT",
+                "LETHAL_DAMAGE",
+                location.PlayerId,
+                objectId,
+                state.ObjectLocations.TryGetValue(objectId, out var objectLocation)
+                    ? objectLocation.BattlefieldObjectId
+                    : null));
+        }
+
+        foreach (var battlefield in state.BattlefieldStates.Values.Where(battlefield => battlefield.Contested))
+        {
+            tasks.Add(new CleanupTaskState(
+                $"cleanup:battlefield-contested:{battlefield.BattlefieldObjectId}",
+                "BATTLEFIELD_CONTESTED",
+                "BATTLEFIELD_CONTROL_CHECK",
+                battlefield.ZonePlayerId,
+                null,
+                battlefield.BattlefieldObjectId));
+        }
+
+        return tasks
+            .OrderBy(task => task.TaskId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static bool IsBattlefieldCardStateObject(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        return cardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal);
+    }
+
+    private static bool TryFindFieldObjectLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out (string PlayerId, string Zone) location)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BASE");
+                return true;
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, "BATTLEFIELD");
+                return true;
+            }
+        }
+
+        location = default;
+        return false;
     }
 
     private static IReadOnlyDictionary<string, int> NormalizePlayerScores(
@@ -960,58 +1114,35 @@ public sealed record ResolutionResult(
 
     private static IReadOnlyList<Dictionary<string, object?>> BuildBattlefieldStateSnapshotView(MatchState state)
     {
-        return state.PlayerZones
-            .OrderBy(entry => state.Seats.TryGetValue(entry.Key, out var seat) ? seat : entry.Key, StringComparer.Ordinal)
-            .SelectMany(entry => entry.Value.Battlefields.Select(objectId => (PlayerId: entry.Key, ObjectId: objectId)))
-            .Where(entry => IsBattlefieldCardSnapshotObject(state, entry.ObjectId))
-            .Select(entry => BuildSingleBattlefieldStateSnapshotView(state, entry.PlayerId, entry.ObjectId))
+        return state.BattlefieldStates.Values
+            .Select(entry => BuildSingleBattlefieldStateSnapshotView(state, entry))
             .ToArray();
     }
 
     private static Dictionary<string, object?> BuildSingleBattlefieldStateSnapshotView(
         MatchState state,
-        string zonePlayerId,
-        string battlefieldObjectId)
+        BattlefieldState battlefield)
     {
-        var battlefieldObject = state.CardObjects.TryGetValue(battlefieldObjectId, out var knownBattlefieldObject)
-            ? knownBattlefieldObject
-            : new CardObjectState(battlefieldObjectId);
-        var occupantObjectIds = state.ObjectLocations
-            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
-                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
-                && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
-                && state.CardObjects.TryGetValue(entry.Key, out var cardObject)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-            .Select(entry => entry.Key)
+        var pendingTaskKinds = state.PendingCleanupTasks
+            .Where(task => string.Equals(task.BattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal))
+            .Select(task => task.Kind)
             .Distinct(StringComparer.Ordinal)
-            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .OrderBy(kind => kind, StringComparer.Ordinal)
             .ToArray();
-        var standbyObjectIds = occupantObjectIds
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)))
-            .ToArray();
-        var controllerIds = occupantObjectIds
-            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.ControllerId : string.Empty)
-            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
-        var contested = controllerIds.Length > 1;
-        var controllerId = string.IsNullOrWhiteSpace(battlefieldObject.ControllerId)
-            ? null
-            : battlefieldObject.ControllerId;
 
         return new Dictionary<string, object?>
         {
-            ["battlefieldObjectId"] = battlefieldObjectId,
-            ["zonePlayerId"] = zonePlayerId,
-            ["cardNo"] = battlefieldObject.CardNo,
-            ["controllerId"] = controllerId,
-            ["status"] = contested ? "CONTESTED" : controllerId is null ? "UNCONTROLLED" : "CONTROLLED",
-            ["contested"] = contested,
-            ["occupantObjectIds"] = occupantObjectIds,
-            ["standbyObjectIds"] = standbyObjectIds,
-            ["faceDownStandbyCount"] = standbyObjectIds.Count(objectId =>
-                state.CardObjects.TryGetValue(objectId, out var cardObject) && cardObject.IsFaceDown)
+            ["battlefieldObjectId"] = battlefield.BattlefieldObjectId,
+            ["zonePlayerId"] = battlefield.ZonePlayerId,
+            ["cardNo"] = battlefield.CardNo,
+            ["controllerId"] = battlefield.ControllerId,
+            ["status"] = battlefield.Status,
+            ["contested"] = battlefield.Contested,
+            ["occupantObjectIds"] = battlefield.OccupantObjectIds,
+            ["occupantControllerIds"] = battlefield.OccupantControllerIds,
+            ["standbyObjectIds"] = battlefield.StandbyObjectIds,
+            ["faceDownStandbyCount"] = battlefield.FaceDownStandbyCount,
+            ["pendingTaskKinds"] = pendingTaskKinds
         };
     }
 
