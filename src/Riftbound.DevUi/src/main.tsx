@@ -242,6 +242,7 @@ type CardQuickAction = {
   detail: string;
   sourceObjectId?: string;
   targetObjectId?: string;
+  origin?: string;
   destination?: string;
   mode?: string;
   optionalCost?: string;
@@ -1227,7 +1228,14 @@ function App() {
     }
 
     if (selectionIntent === "move-source") {
-      setMoveDraft((current) => ({ ...current, sourceObjectId: objectId }));
+      const origin = objectCoarseZone(latestSnapshot, objectId);
+      setMoveDraft((current) => ({
+        ...current,
+        sourceObjectId: objectId,
+        origin: origin ?? current.origin,
+        destination: moveDefaultDestinationForOrigin(origin) ?? current.destination,
+        optionalCosts: ""
+      }));
       return;
     }
 
@@ -1318,7 +1326,8 @@ function App() {
         ...current,
         sourceObjectId: objectId,
         origin: origin ?? current.origin,
-        destination: origin === "BASE" ? "BATTLEFIELD" : origin === "BATTLEFIELD" ? "BASE" : current.destination
+        destination: moveDefaultDestinationForOrigin(origin) ?? current.destination,
+        optionalCosts: ""
       }));
       setSelectionIntent("move-source");
       return;
@@ -1391,7 +1400,7 @@ function App() {
     setWorkbenchOpen(false);
 
     if (action.kind === "move-submit") {
-      const origin = objectCoarseZone(latestSnapshot, sourceObjectId) ?? moveDraft.origin;
+      const origin = action.origin ?? objectCoarseZone(latestSnapshot, sourceObjectId) ?? moveDraft.origin;
       const draft: MoveUnitDraft = {
         ...moveDraft,
         sourceObjectId,
@@ -1989,6 +1998,7 @@ function ProductActionPanel(props: {
   };
   const operationReady = operationDraftIsComplete(props.operationMode, operationDrafts);
   const operationEnabled = Boolean(currentOperationCandidate?.enabled);
+  const operationFeedback = commandFeedbackText(props.activePlayer);
 
   function handlePromptCandidate(candidate: ActionPromptCandidateDto) {
     const mode = operationModeForAction(candidate.action);
@@ -2098,6 +2108,11 @@ function ProductActionPanel(props: {
           </button>
           <span>{operationSubmitHint(props.operationMode, operationEnabled, operationReady)}</span>
         </div>
+        {operationFeedback ? (
+          <div className={operationFeedback.tone === "error" ? "operation-server-feedback error" : "operation-server-feedback"}>
+            {operationFeedback.text}
+          </div>
+        ) : null}
       </section>
 
       <section className="quick-test-dock" aria-label="本地测试入口">
@@ -5200,14 +5215,20 @@ function buildCardQuickActions(
       for (const source of sources) {
         const sourceId = objectIdFromChoice(source);
         for (const moveDestination of destinations) {
+          const movePlan = moveQuickPlanForDestination(snapshot, sourceId, moveDestination.id);
+          if (!movePlan) {
+            continue;
+          }
+
           pushCardQuickAction(actionsByObject, sourceId, {
             id: `quick-move-${sourceId}-${moveDestination.id}`,
             kind: "move-submit",
             label: `移动到${choiceDisplayLabel(moveDestination, cardNamesByNo)}`,
             detail: "点这张单位牌后直接提交移动命令",
             sourceObjectId: sourceId,
-            destination: moveDestination.id,
-            optionalCost
+            origin: movePlan.origin,
+            destination: movePlan.destination,
+            optionalCost: movePlan.optionalCost
           });
         }
       }
@@ -5685,7 +5706,8 @@ function applyCandidateDefaults(
       ...context.moveDraft,
       sourceObjectId: source?.id ?? context.moveDraft.sourceObjectId,
       origin: origin ?? context.moveDraft.origin,
-      destination: destination?.id ?? context.moveDraft.destination
+      destination: destination?.id ?? moveDefaultDestinationForOrigin(origin) ?? context.moveDraft.destination,
+      optionalCosts: ""
     });
     return;
   }
@@ -5878,6 +5900,44 @@ function operationSubmitHint(mode: OperationMode, enabled: boolean, ready: boole
   return "已选齐，点击后交给服务端校验并结算。";
 }
 
+function commandFeedbackText(player: PlayerState) {
+  const latest = player.commandLog[0];
+  if (!latest) {
+    return undefined;
+  }
+
+  if (latest.method === "Error") {
+    const error = player.errors[0]?.payload;
+    return {
+      tone: "error",
+      text: error?.message ? `服务端拒绝：${error.message}` : "服务端拒绝了当前命令。"
+    };
+  }
+
+  if (latest.status === "failed") {
+    return {
+      tone: "error",
+      text: `提交失败：${commandPayloadText(latest.payload)}`
+    };
+  }
+
+  return undefined;
+}
+
+function commandPayloadText(payload: unknown) {
+  if (typeof payload === "string") {
+    return payload;
+  }
+  if (payload && typeof payload === "object" && "message" in payload && typeof payload.message === "string") {
+    return payload.message;
+  }
+  try {
+    return JSON.stringify(payload);
+  } catch {
+    return String(payload);
+  }
+}
+
 function operationObjectLabel(
   objectIds: string | undefined,
   snapshot: SnapshotDto | undefined,
@@ -5935,6 +5995,32 @@ function objectCoarseZone(snapshot: SnapshotDto | undefined, objectId: string) {
     if (zones.battlefields?.includes(objectId)) {
       return "BATTLEFIELD";
     }
+  }
+
+  return undefined;
+}
+
+function moveDefaultDestinationForOrigin(origin: string | undefined) {
+  if (origin === "BASE") {
+    return "BATTLEFIELD";
+  }
+  if (origin === "BATTLEFIELD") {
+    return "BASE";
+  }
+  return undefined;
+}
+
+function moveQuickPlanForDestination(
+  snapshot: SnapshotDto | undefined,
+  sourceObjectId: string,
+  destination: string
+): { origin: string; destination: string; optionalCost?: string } | undefined {
+  const origin = objectCoarseZone(snapshot, sourceObjectId);
+  if (origin === "BASE" && destination === "BATTLEFIELD") {
+    return { origin, destination };
+  }
+  if (origin === "BATTLEFIELD" && destination === "BASE") {
+    return { origin, destination };
   }
 
   return undefined;
