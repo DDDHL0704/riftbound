@@ -21706,6 +21706,90 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralOpen, result.FinalState.TimingState);
     }
 
+    [Fact]
+    public async Task P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell()
+    {
+        var state = new MatchState(
+            "p7-spell-duel-reaction-counter-room",
+            1,
+            12,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(2, 0)
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-NIGHTFALL-LULLABY"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            priorityPlayerId: "P2",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-SPELL-DUEL-001",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-001"],
+                    2,
+                    timingContext: TimingStates.SpellDuelOpen)
+            ]);
+
+        var engine = new CoreRuleEngine();
+        var playReaction = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-nightfall", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-NIGHTFALL-LULLABY",
+                "UNL-190/219",
+                ["STACK-SPELL-DUEL-001"]),
+            CancellationToken.None);
+        Assert.True(playReaction.Accepted, playReaction.ErrorMessage);
+        Assert.Equal(TimingStates.SpellDuelOpen, playReaction.State.StackItems[^1].TimingContext);
+
+        var p2Pass = await engine.ResolveAsync(
+            playReaction.State,
+            new PlayerIntent("intent-nightfall-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+
+        var p1Pass = await engine.ResolveAsync(
+            p2Pass.State,
+            new PlayerIntent("intent-nightfall-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.Empty(p1Pass.State.StackItems);
+        Assert.Equal(TimingStates.SpellDuelOpen, p1Pass.State.TimingState);
+        Assert.Equal("P1", p1Pass.State.FocusPlayerId);
+        Assert.Equal("P1", p1Pass.State.ActivePlayerId);
+        Assert.Contains(p1Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_COUNTERED", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-wind-wall-counter-spell.fixture.json")]
     [InlineData("p2-preflight-play-blazing-drake-no-optional-haste.fixture.json")]

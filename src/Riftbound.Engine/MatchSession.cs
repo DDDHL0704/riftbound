@@ -606,7 +606,8 @@ public sealed record MatchState
                 item.EffectRepeatCount,
                 item.OptionalCosts,
                 item.PlayedAfterAnotherCardThisTurn,
-                item.Destination))
+                item.Destination,
+                item.TimingContext))
             .ToArray();
     }
 

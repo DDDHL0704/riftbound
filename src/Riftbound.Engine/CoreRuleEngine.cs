@@ -380,7 +380,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
-            timingContext: state.TimingState);
+            timingContext: StackTimingContextForNewStackItem(state));
         var untilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
             state.UntilEndOfTurnEffects,
             intent.PlayerId,
@@ -744,7 +744,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             [],
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
             destination: destination,
-            timingContext: state.TimingState);
+            timingContext: StackTimingContextForNewStackItem(state));
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -10118,7 +10118,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 behavior.DamageAmount,
                 1,
                 optionalCosts,
-                playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId));
+                playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
+                timingContext: StackTimingContextForNewStackItem(state));
         }
 
         var nextState = state with
@@ -11870,6 +11871,20 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId => playerId,
             playerId => state.PlayerZones.TryGetValue(playerId, out var zones) ? zones : PlayerZones.Empty,
             StringComparer.Ordinal);
+    }
+
+    private static string StackTimingContextForNewStackItem(MatchState state)
+    {
+        if (state.StackItems.Count > 0)
+        {
+            var inheritedContext = state.StackItems[^1].TimingContext;
+            if (!string.IsNullOrWhiteSpace(inheritedContext))
+            {
+                return inheritedContext;
+            }
+        }
+
+        return state.TimingState;
     }
 
     private static Dictionary<string, ObjectLocationState> ReconcileObjectLocations(
