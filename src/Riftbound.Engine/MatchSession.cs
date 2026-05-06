@@ -221,6 +221,13 @@ public sealed record BattlefieldTaskState(
     string? ActingPlayerId,
     IReadOnlyList<string> StackItemIds);
 
+public sealed record PendingTaskQueueState(
+    bool HasTasks,
+    bool IsBlocking,
+    string Phase,
+    string? ActiveTaskId,
+    IReadOnlyList<CleanupTaskState> Tasks);
+
 public sealed record TurnWindowState(
     string State,
     bool IsSpellDuel,
@@ -583,6 +590,8 @@ public sealed record MatchState
     public IReadOnlyList<CleanupTaskState> PendingCleanupTasks => BuildPendingCleanupTasks(this);
 
     public IReadOnlyList<BattlefieldTaskState> BattlefieldTasks => BuildBattlefieldTaskStates(this);
+
+    public PendingTaskQueueState PendingTaskQueue => BuildPendingTaskQueue(this);
 
     public IReadOnlyList<ContinuousEffectState> ContinuousEffects => BuildContinuousEffectStates(this);
 
@@ -989,6 +998,46 @@ public sealed record MatchState
         return tasks;
     }
 
+    private static PendingTaskQueueState BuildPendingTaskQueue(MatchState state)
+    {
+        var tasks = state.PendingCleanupTasks
+            .OrderBy(task => PendingTaskSortKey(task.Kind))
+            .ThenBy(task => task.TaskId, StringComparer.Ordinal)
+            .ToArray();
+        var activeTask = tasks.FirstOrDefault();
+        var phase = activeTask is null
+            ? "IDLE"
+            : IsStateBasedCleanupTask(activeTask.Kind)
+                ? "STATE_BASED_CLEANUP"
+                : "BATTLEFIELD_TASKS";
+
+        return new PendingTaskQueueState(
+            tasks.Length > 0,
+            tasks.Length > 0,
+            phase,
+            activeTask?.TaskId,
+            tasks);
+    }
+
+    private static int PendingTaskSortKey(string kind)
+    {
+        return kind switch
+        {
+            "DESTROY_LETHAL_UNIT" => 0,
+            "DESTROY_ZERO_POWER_UNIT" => 1,
+            "BATTLEFIELD_CONTESTED" => 10,
+            "START_SPELL_DUEL" => 20,
+            "START_BATTLE" => 30,
+            _ => 100
+        };
+    }
+
+    private static bool IsStateBasedCleanupTask(string kind)
+    {
+        return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal);
+    }
+
     private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
@@ -1292,6 +1341,7 @@ public sealed record ResolutionResult(
                 ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
                 ["battle"] = BuildBattleSnapshotView(state.BattleState),
                 ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
+                ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state.PendingTaskQueue),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                 ["winningScore"] = EffectiveWinningScore(state),
@@ -1409,6 +1459,31 @@ public sealed record ResolutionResult(
             ["participantObjectIds"] = task.ParticipantObjectIds,
             ["actingPlayerId"] = task.ActingPlayerId,
             ["stackItemIds"] = task.StackItemIds
+        };
+    }
+
+    private static Dictionary<string, object?> BuildPendingTaskQueueSnapshotView(PendingTaskQueueState queue)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["hasTasks"] = queue.HasTasks,
+            ["isBlocking"] = queue.IsBlocking,
+            ["phase"] = queue.Phase,
+            ["activeTaskId"] = queue.ActiveTaskId,
+            ["tasks"] = queue.Tasks.Select(BuildCleanupTaskSnapshotView).ToArray()
+        };
+    }
+
+    private static Dictionary<string, object?> BuildCleanupTaskSnapshotView(CleanupTaskState task)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["taskId"] = task.TaskId,
+            ["kind"] = task.Kind,
+            ["reason"] = task.Reason,
+            ["playerId"] = task.PlayerId,
+            ["objectId"] = task.ObjectId,
+            ["battlefieldObjectId"] = task.BattlefieldObjectId
         };
     }
 

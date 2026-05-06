@@ -666,6 +666,13 @@ public sealed class ConformanceFixtureShapeTests
                 Assert.Equal(["alice", "bob"], task.ParticipantControllerIds);
                 Assert.Equal(["A-UNIT-1", "B-UNIT-1"], task.ParticipantObjectIds);
             });
+        Assert.True(state.PendingTaskQueue.HasTasks);
+        Assert.True(state.PendingTaskQueue.IsBlocking);
+        Assert.Equal("STATE_BASED_CLEANUP", state.PendingTaskQueue.Phase);
+        Assert.Equal("cleanup:lethal:A-UNIT-1", state.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["DESTROY_LETHAL_UNIT", "BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+            state.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
 
         var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
         var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
@@ -673,6 +680,13 @@ public sealed class ConformanceFixtureShapeTests
             battlefieldTasks,
             task => Assert.Equal("START_SPELL_DUEL", Assert.IsType<string>(task["kind"])),
             task => Assert.Equal("START_BATTLE", Assert.IsType<string>(task["kind"])));
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(taskQueue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.Equal("cleanup:lethal:A-UNIT-1", Assert.IsType<string>(taskQueue["activeTaskId"]));
+        var taskQueueItems = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        Assert.Equal(4, taskQueueItems.Count);
     }
 
     [Fact]
