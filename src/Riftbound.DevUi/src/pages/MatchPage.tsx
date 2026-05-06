@@ -1,5 +1,8 @@
 import { RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { AppRoute } from "../app/router";
+import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
+import { InspectedCard } from "../components/cards/CardFace";
 import { ActionPanel } from "../components/match/ActionPanel";
 import { BattlefieldArea } from "../components/match/BattlefieldArea";
 import { EventLog } from "../components/match/EventLog";
@@ -19,6 +22,7 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
   const players = Object.entries(snapshot?.players ?? {});
   const self = players.find(([playerId]) => playerId === settings.playerId);
   const opponents = players.filter(([playerId]) => playerId !== settings.playerId);
+  const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
 
   return (
     <div className="match-page">
@@ -35,11 +39,11 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
         </aside>
         <main className="play-surface">
           {opponents.map(([playerId, player]) => (
-            <PlayerBoard key={playerId} perspectivePlayerId={settings.playerId} player={player} playerId={playerId} specs={specByNo} />
+            <PlayerBoard key={playerId} onInspectCard={setInspectedCard} perspectivePlayerId={settings.playerId} player={player} playerId={playerId} specs={specByNo} />
           ))}
-          <BattlefieldArea snapshot={snapshot} specs={specByNo} />
+          <BattlefieldArea onInspectCard={setInspectedCard} snapshot={snapshot} specs={specByNo} />
           {self ? (
-            <PlayerBoard perspectivePlayerId={settings.playerId} player={self[1]} playerId={self[0]} specs={specByNo} />
+            <PlayerBoard onInspectCard={setInspectedCard} perspectivePlayerId={settings.playerId} player={self[1]} playerId={self[0]} specs={specByNo} />
           ) : (
             <div className="empty-panel">还没有自己的玩家视角。请先在房间页入座。</div>
           )}
@@ -56,6 +60,7 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
           />
         </aside>
       </div>
+      <CardDetailDrawer card={inspectedCard} onClose={() => setInspectedCard(undefined)} />
     </div>
   );
 }

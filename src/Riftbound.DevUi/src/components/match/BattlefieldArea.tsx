@@ -1,10 +1,10 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { SnapshotDto } from "../../types/protocol";
 import { asArray, asRecord, asString } from "../../utils/collections";
-import { CardFace } from "../cards/CardFace";
+import { CardFace, InspectedCard } from "../cards/CardFace";
 import { StatusPill } from "../ui/StatusPill";
 
-export function BattlefieldArea({ snapshot, specs }: { snapshot?: SnapshotDto; specs: Record<string, BehaviorSpec> }) {
+export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectCard: (card: InspectedCard) => void; snapshot?: SnapshotDto; specs: Record<string, BehaviorSpec> }) {
   const lanes = asRecord(snapshot?.lanes);
   const battlefields = asArray<Record<string, unknown>>(lanes.battlefields);
 
@@ -32,7 +32,18 @@ export function BattlefieldArea({ snapshot, specs }: { snapshot?: SnapshotDto; s
                 </div>
                 <StatusPill tone={field.contested ? "warn" : "neutral"}>{field.contested ? "争夺中" : `控制：${asString(field.controllerId, "无人")}`}</StatusPill>
               </header>
-              <CardFace compact object={{ cardNo, objectId: asString(field.battlefieldObjectId, "") }} spec={specs[cardNo]} />
+              <CardFace
+                compact
+                object={{
+                  cardNo,
+                  controllerId: asString(field.controllerId, ""),
+                  objectId: asString(field.battlefieldObjectId, ""),
+                  ownerId: asString(field.zonePlayerId, "")
+                }}
+                objectId={asString(field.battlefieldObjectId, "")}
+                onInspect={onInspectCard}
+                spec={specs[cardNo]}
+              />
               <div className="battlefield-occupants">
                 <div>
                   <strong>单位</strong>

@@ -10,25 +10,41 @@ type CardFaceProps = {
   spec?: BehaviorSpec;
   compact?: boolean;
   selected?: boolean;
+  onInspect?: (card: InspectedCard) => void;
 };
 
-export function CardFace({ objectId, object, spec, compact = false, selected = false }: CardFaceProps) {
+export type InspectedCard = {
+  objectId?: string;
+  object?: CardObjectView;
+  spec?: BehaviorSpec;
+};
+
+export function CardFace({ objectId, object, spec, compact = false, selected = false, onInspect }: CardFaceProps) {
   const hidden = isHiddenObject(object) && !spec;
+  const Container = onInspect ? "button" : "article";
+  const containerProps = onInspect
+    ? {
+        type: "button" as const,
+        onClick: () => onInspect({ objectId, object, spec })
+      }
+    : {};
+
   if (hidden) {
     return (
-      <article className={`card-face card-back ${selected ? "is-selected" : ""}`}>
+      <Container className={`card-face card-back ${selected ? "is-selected" : ""}`} {...containerProps}>
         <div className="card-frame-top">未公开</div>
         <strong>卡背</strong>
         <span>{objectId ?? "隐藏对象"}</span>
-      </article>
+      </Container>
     );
   }
 
   const title = spec?.cardName ?? object?.cardNo ?? objectId ?? "未知卡牌";
   const power = object?.effectivePower ?? object?.power ?? object?.basePower;
+  const states = objectStateLabels(object);
 
   return (
-    <article className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`}>
+    <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`} {...containerProps}>
       <div className="card-frame-top">
         <span>{spec?.cardCategoryName ?? "对象"}</span>
         <span>{spec?.cardNo ?? object?.cardNo ?? objectId}</span>
@@ -38,7 +54,13 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
         <StatusPill tone="info">{costText(spec)}</StatusPill>
         {power != null && <StatusPill tone={object?.damage ? "warn" : "neutral"}>战力 {power}</StatusPill>}
       </div>
-      {!compact && (
+      {compact ? (
+        <div className="card-mini-meta">
+          <span>属 {object?.ownerId ?? "?"}</span>
+          <span>控 {object?.controllerId ?? "?"}</span>
+          <span>{states.length ? states.slice(0, 2).join("、") : "正常"}</span>
+        </div>
+      ) : (
         <>
           <p className="card-rules">{spec?.officialText || "服务端未提供卡面规则文本。"}</p>
           <div className="card-keywords">{keywordsText(spec)}</div>
@@ -46,12 +68,31 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
             <span>所属：{object?.ownerId ?? "未知"}</span>
             <span>控制：{object?.controllerId ?? "未知"}</span>
             {object?.damage != null && <span>伤害：{object.damage}</span>}
+            {states.map((state) => <span key={state}>{state}</span>)}
           </div>
           <StatusPill tone={spec?.conformanceTier === "full-official-rule-pass" ? "good" : "warn"}>
             {statusLabel(spec?.status)}
           </StatusPill>
         </>
       )}
-    </article>
+    </Container>
   );
+}
+
+export function objectStateLabels(object?: CardObjectView): string[] {
+  if (!object) {
+    return [];
+  }
+
+  return [
+    object.isExhausted ? "横置" : "",
+    object.isAttacking ? "攻击中" : "",
+    object.isDefending ? "防守中" : "",
+    object.isFaceDown ? "面朝下" : "",
+    object.attachedToObjectId ? `贴附到 ${object.attachedToObjectId}` : "",
+    object.damage != null && object.damage > 0 ? `${object.damage} 伤害` : "",
+    object.basePower != null && object.effectivePower != null && object.basePower !== object.effectivePower
+      ? `基础 ${object.basePower} / 有效 ${object.effectivePower}`
+      : ""
+  ].filter(Boolean);
 }

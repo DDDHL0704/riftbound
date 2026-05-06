@@ -1,7 +1,7 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { PlayerSnapshotView } from "../../types/protocol";
 import { runePoolText } from "../../utils/formatters";
-import { CardFace } from "../cards/CardFace";
+import { CardFace, InspectedCard } from "../cards/CardFace";
 import { StatusPill } from "../ui/StatusPill";
 
 type PlayerBoardProps = {
@@ -9,9 +9,10 @@ type PlayerBoardProps = {
   player: PlayerSnapshotView;
   perspectivePlayerId: string;
   specs: Record<string, BehaviorSpec>;
+  onInspectCard: (card: InspectedCard) => void;
 };
 
-export function PlayerBoard({ playerId, player, perspectivePlayerId, specs }: PlayerBoardProps) {
+export function PlayerBoard({ playerId, player, perspectivePlayerId, specs, onInspectCard }: PlayerBoardProps) {
   const own = playerId === perspectivePlayerId;
   const zones = player.zones ?? {};
   const objects = player.objects ?? {};
@@ -30,10 +31,10 @@ export function PlayerBoard({ playerId, player, perspectivePlayerId, specs }: Pl
         </div>
       </header>
       <div className="resource-line">{runePoolText(player.runePool)}</div>
-      <ZoneStrip title="传奇" ids={zones.legendZone ?? []} objects={objects} specs={specs} compact />
-      <ZoneStrip title="英雄" ids={zones.championZone ?? []} objects={objects} specs={specs} compact />
-      <ZoneStrip title="基地" ids={zones.base ?? []} objects={objects} specs={specs} compact />
-      <ZoneStrip title={own ? "手牌" : "对手手牌"} ids={own ? zones.hand ?? [] : hiddenCards(player.handSize ?? zones.handHidden ?? 0)} objects={objects} specs={specs} compact />
+      <ZoneStrip onInspectCard={onInspectCard} title="传奇" ids={zones.legendZone ?? []} objects={objects} specs={specs} compact />
+      <ZoneStrip onInspectCard={onInspectCard} title="英雄" ids={zones.championZone ?? []} objects={objects} specs={specs} compact />
+      <ZoneStrip onInspectCard={onInspectCard} title="基地" ids={zones.base ?? []} objects={objects} specs={specs} compact />
+      <ZoneStrip onInspectCard={onInspectCard} title={own ? "手牌" : "对手手牌"} ids={own ? zones.hand ?? [] : hiddenCards(player.handSize ?? zones.handHidden ?? 0)} objects={objects} specs={specs} compact />
       <div className="zone-counts">
         <span>主牌堆 {zones.mainDeckCount ?? 0}</span>
         <span>符文牌堆 {zones.runeDeckCount ?? 0}</span>
@@ -48,12 +49,14 @@ function ZoneStrip({
   title,
   ids,
   objects,
+  onInspectCard,
   specs,
   compact
 }: {
   title: string;
   ids: string[];
   objects: NonNullable<PlayerSnapshotView["objects"]>;
+  onInspectCard: (card: InspectedCard) => void;
   specs: Record<string, BehaviorSpec>;
   compact?: boolean;
 }) {
@@ -67,7 +70,7 @@ function ZoneStrip({
         {ids.length === 0 && <span className="empty-hint">无公开对象</span>}
         {ids.map((id) => {
           const object = objects[id];
-          return <CardFace compact={compact} key={id} object={object} objectId={id} spec={object?.cardNo ? specs[object.cardNo] : undefined} />;
+          return <CardFace compact={compact} key={id} object={object} objectId={id} onInspect={onInspectCard} spec={object?.cardNo ? specs[object.cardNo] : undefined} />;
         })}
       </div>
     </div>
