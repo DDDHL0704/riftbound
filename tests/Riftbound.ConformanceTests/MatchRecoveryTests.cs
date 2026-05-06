@@ -340,6 +340,90 @@ public sealed class MatchRecoveryTests
             error => error.Contains("disagrees with authoritative state active player", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
+    {
+        var state = new MatchState(
+            "room-a",
+            5,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            seed: 260330,
+            rngCursor: 9,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Hand = ["A-HAND-1"],
+                    Base = ["A-FACEDOWN-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Hand = ["B-HAND-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["A-HAND-1"] = new("A-HAND-1", power: 4, cardNo: "SFD·125/221", tags: [CardObjectTags.UnitCard]),
+                ["B-HAND-1"] = new("B-HAND-1", power: 3, cardNo: "SFD·126/221", tags: [CardObjectTags.UnitCard]),
+                ["A-FACEDOWN-1"] = new(
+                    "A-FACEDOWN-1",
+                    power: 5,
+                    isFaceDown: true,
+                    cardNo: "OGN·173/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            });
+        var entry = new MatchJournalEntry(
+            "room-a",
+            "alice",
+            "intent-1",
+            "PLAY_CARD",
+            null,
+            4,
+            5,
+            7,
+            8,
+            true,
+            null,
+            state,
+            [new GameEvent("CARD_PLAYED", "测试事件", new Dictionary<string, object?>())],
+            ResolutionResult.BuildSnapshots(state),
+            ResolutionResult.BuildPrompts(state),
+            DateTimeOffset.UtcNow);
+
+        var frame = MatchReplayRedactor.BuildSpectatorFrame(entry);
+
+        Assert.Equal("room-a", frame.RoomId);
+        Assert.Equal(5, frame.Tick);
+        Assert.Equal(8, frame.EventSequence);
+        Assert.DoesNotContain("seed", frame.SpectatorSnapshot.Timing.Keys);
+        Assert.DoesNotContain("rngCursor", frame.SpectatorSnapshot.Timing.Keys);
+
+        var aliceView = Assert.IsType<Dictionary<string, object?>>(frame.SpectatorSnapshot.Players["alice"]);
+        var aliceZones = Assert.IsType<Dictionary<string, object?>>(aliceView["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(aliceZones["hand"]));
+        Assert.Equal(1, Assert.IsType<int>(aliceZones["handHidden"]));
+        var aliceObjects = Assert.IsType<Dictionary<string, object?>>(aliceView["objects"]);
+        Assert.DoesNotContain("A-HAND-1", aliceObjects.Keys);
+        var faceDown = Assert.IsType<Dictionary<string, object?>>(aliceObjects["A-FACEDOWN-1"]);
+        Assert.True(Assert.IsType<bool>(faceDown["isFaceDown"]));
+        Assert.DoesNotContain("cardNo", faceDown.Keys);
+        Assert.DoesNotContain("tags", faceDown.Keys);
+        Assert.DoesNotContain("power", faceDown.Keys);
+
+        var bobView = Assert.IsType<Dictionary<string, object?>>(frame.SpectatorSnapshot.Players["bob"]);
+        var bobZones = Assert.IsType<Dictionary<string, object?>>(bobView["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(bobZones["hand"]));
+        Assert.Equal(1, Assert.IsType<int>(bobZones["handHidden"]));
+    }
+
     private static RecoveredEvent RecoveredEvent(long sequence, string kind)
     {
         return new RecoveredEvent(

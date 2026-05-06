@@ -49,6 +49,28 @@ public sealed record MatchRecoveryFrame(
         Events.Where(gameEvent => gameEvent.Sequence > ReplayFromEventSequence).ToArray();
 }
 
+public sealed record MatchReplayFrame(
+    string RoomId,
+    long Tick,
+    long EventSequence,
+    IReadOnlyList<GameEvent> Events,
+    SnapshotDto SpectatorSnapshot);
+
+public static class MatchReplayRedactor
+{
+    public static MatchReplayFrame BuildSpectatorFrame(MatchJournalEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+
+        return new MatchReplayFrame(
+            entry.RoomId,
+            entry.CompletedTick,
+            entry.CompletedEventSequence,
+            entry.Events,
+            ResolutionResult.BuildSpectatorSnapshot(entry.AuthoritativeState));
+    }
+}
+
 public interface IMatchRecoveryStore
 {
     ValueTask<MatchRecoveryFrame?> LoadAsync(string roomId, CancellationToken cancellationToken);

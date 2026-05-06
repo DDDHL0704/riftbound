@@ -32,8 +32,9 @@
 - P0-005 第二批已落地：装备装配、Vi 双倍战力技能、Xerath 伤害技能等非 `PLAY_CARD` 支付路径的资源校验已改为 typed-power aware；泛化符能费用现在既可由普通 `Power` 支付，也可由 `PowerByTrait` 中任意可用特性符能支付并正确扣除，避免只有出牌路径支持彩色符能。
 - P1-001 第一批已落地：新增 `ContinuousEffectState` 服务端派生视图，按 `RULE_TEXT` / `POWER_MODIFIER` 层公开全局与对象级直到回合结束效果；snapshot 中每个公开对象新增 `basePower` / `effectivePower`，timing 新增 `continuousEffects`，UI 不再需要从临时战力聚合字段自行反推基础战力。
 - P1-002 第一批已落地：新增 `KeywordCoverageReporter`，将权限/战斗/资源/装备/生命周期/交互六类关键词的 implemented、representative、delegated、recognized-deferred 状态汇总为服务端报告；API `/catalog/summary`、`/catalog/p3-status` 和新增 `/catalog/keyword-coverage` 均会暴露 keyword coverage，产品侧可直接禁用或提示 deferred 关键词能力。
+- P1-004 第二批已落地：新增 `ResolutionResult.BuildSpectatorSnapshot` 与 `MatchReplayRedactor.BuildSpectatorFrame`，从权威 journal entry 生成观战/回放 frame 时统一使用 spectator redaction；手牌、面朝下对象详情和随机 seed/rngCursor 不会进入观战 replay snapshot。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` 覆盖非出牌路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2839/2839`、`ConformanceFixtureRunnerTests 2660/2660`、`ConformanceFixtureShapeTests 36/36`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState` 覆盖观战回放 redaction；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` 覆盖非出牌路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2840/2840`、`ConformanceFixtureRunnerTests 2660/2660`、`ConformanceFixtureShapeTests 36/36`、`MatchRecoveryTests 14/14`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -241,24 +242,26 @@
 
 ### P1-004 隐藏信息与 replay 边界仍需加固
 
-当前状态：**PARTIALLY RESOLVED / 普通 snapshot 随机状态泄漏已修，严格 action-log replay 仍待补**
+当前状态：**PARTIALLY RESOLVED / 普通 snapshot 与 spectator replay redaction 已修，严格 action-log replay 仍待补**
 
 规则依据：自查文档 2、18；客户端不得得到能预测未来随机信息的私密状态；replay/观战要区分公开信息与玩家私有视角。
 
 代码位置：
-- `src/Riftbound.Engine/MatchSession.cs:640` 到 `src/Riftbound.Engine/MatchSession.cs:657` 的 snapshot timing 中对所有玩家暴露 `seed` 和 `rngCursor`。
-- `src/Riftbound.Engine/MatchSession.cs:2438` 到 `src/Riftbound.Engine/MatchSession.cs:2466` 的 `RestoreState` 优先恢复 authoritative state；没有 action-log replay 到相同最终状态的独立校验路径。
+- `src/Riftbound.Engine/MatchSession.cs` 的普通玩家 snapshot 已移除 `seed` 和 `rngCursor`，并新增 `BuildSpectatorSnapshot` 统一观战视角裁剪。
+- `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchReplayRedactor.BuildSpectatorFrame`，从权威 journal entry 生成观战/回放 frame 时不复用任一玩家私有视角。
+- `src/Riftbound.Engine/MatchSession.cs` 的 `RestoreState` 仍优先恢复 authoritative state；没有 action-log replay 到相同最终状态的独立校验路径。
 
-现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；剩余风险是 replay 更像恢复快照/权威状态，不是严格的命令日志重放和公开/私有视角重放模型。
+现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot。剩余风险是 replay 更像恢复快照/权威状态，不是严格的命令日志重放到最终状态的模型。
 
 建议修复：
 - 已完成：从普通玩家 snapshot 中移除 seed/rngCursor；如后续需要调试随机状态，应单独走 Development/debug stream，不能复用普通玩家 snapshot。
-- 建立 action log replay：从初始公开/私有边界 + 命令日志重放到最终 authoritative state，并提供 spectator redaction。
+- 已完成：从 journal entry 构建 spectator replay frame 时强制使用 spectator redaction。
+- 建立 action log replay：从初始公开/私有边界 + 命令日志重放到最终 authoritative state，并输出 spectator frame。
 
 建议测试：
 - 已新增：玩家 snapshot 不含 seed/rngCursor。
-- action log replay final state hash 等于实时 state hash。
-- spectator replay 不泄露手牌、牌库顺序、面朝下内容和未来随机。
+- 已新增：spectator replay 不泄露手牌、面朝下内容和未来随机 seed/rngCursor。
+- 待补：action log replay final state hash 等于实时 state hash。
 
 ## P2 问题
 

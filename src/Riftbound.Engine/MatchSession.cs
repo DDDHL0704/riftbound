@@ -1157,42 +1157,53 @@ public sealed record ResolutionResult(
 
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
     {
-        var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
-        return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
-        {
-            var players = state.Seats.ToDictionary(
-                entry => entry.Key,
-                entry => (object?)BuildPlayerSnapshotView(state, readyPlayers, playerId, entry.Key));
+        return state.Seats.Keys.ToDictionary(
+            playerId => playerId,
+            playerId => BuildSnapshotForViewer(state, playerId),
+            StringComparer.Ordinal);
+    }
 
-            return new SnapshotDto(
-                state.Tick,
-                state.TurnNumber,
-                state.ActivePlayerId,
-                players,
-                BuildLaneSnapshotView(state),
-                state.StackItems.Select(item => (object?)BuildStackItemSnapshotView(item)).ToArray(),
-                new Dictionary<string, object?>
-                {
-                    ["phase"] = state.Phase,
-                    ["timingState"] = state.TimingState,
-                    ["turnPlayerId"] = state.TurnPlayerId,
-                    ["priorityPlayerId"] = state.PriorityPlayerId,
-                    ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
-                    ["focusPlayerId"] = state.FocusPlayerId,
-                    ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
-                    ["winnerPlayerId"] = state.WinnerPlayerId,
-                    ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
-                    ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
-                    ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
-                    ["battle"] = BuildBattleSnapshotView(state.BattleState),
-                    ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
-                    ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
-                    ["winningScore"] = EffectiveWinningScore(state),
-                    ["roomStatus"] = state.Status,
-                    ["readyPlayerIds"] = state.ReadyPlayerIds
-                },
-                state.TimingState);
-        });
+    public static SnapshotDto BuildSpectatorSnapshot(MatchState state)
+    {
+        return BuildSnapshotForViewer(state, "__spectator__");
+    }
+
+    private static SnapshotDto BuildSnapshotForViewer(MatchState state, string viewerPlayerId)
+    {
+        var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
+        var players = state.Seats.ToDictionary(
+            entry => entry.Key,
+            entry => (object?)BuildPlayerSnapshotView(state, readyPlayers, viewerPlayerId, entry.Key),
+            StringComparer.Ordinal);
+
+        return new SnapshotDto(
+            state.Tick,
+            state.TurnNumber,
+            state.ActivePlayerId,
+            players,
+            BuildLaneSnapshotView(state),
+            state.StackItems.Select(item => (object?)BuildStackItemSnapshotView(item)).ToArray(),
+            new Dictionary<string, object?>
+            {
+                ["phase"] = state.Phase,
+                ["timingState"] = state.TimingState,
+                ["turnPlayerId"] = state.TurnPlayerId,
+                ["priorityPlayerId"] = state.PriorityPlayerId,
+                ["passedPriorityPlayerIds"] = state.PassedPriorityPlayerIds,
+                ["focusPlayerId"] = state.FocusPlayerId,
+                ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
+                ["winnerPlayerId"] = state.WinnerPlayerId,
+                ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
+                ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
+                ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
+                ["battle"] = BuildBattleSnapshotView(state.BattleState),
+                ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
+                ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
+                ["winningScore"] = EffectiveWinningScore(state),
+                ["roomStatus"] = state.Status,
+                ["readyPlayerIds"] = state.ReadyPlayerIds
+            },
+            state.TimingState);
     }
 
     private static int EffectiveWinningScore(MatchState state)
