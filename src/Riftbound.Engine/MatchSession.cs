@@ -873,18 +873,29 @@ public sealed record MatchState
         foreach (var (objectId, cardObject) in state.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            if (cardObject.Power <= 0
-                || cardObject.Damage < cardObject.Power
-                || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location))
             {
                 continue;
             }
 
+            if (cardObject.Power > 0 && cardObject.Damage < cardObject.Power)
+            {
+                continue;
+            }
+
+            var isZeroPower = cardObject.Power <= 0
+                && !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+                && !string.IsNullOrWhiteSpace(cardObject.ControllerId);
+            if (cardObject.Power <= 0 && !isZeroPower)
+            {
+                continue;
+            }
+
             tasks.Add(new CleanupTaskState(
-                $"cleanup:lethal:{objectId}",
-                "DESTROY_LETHAL_UNIT",
-                "LETHAL_DAMAGE",
+                isZeroPower ? $"cleanup:zero-power:{objectId}" : $"cleanup:lethal:{objectId}",
+                isZeroPower ? "DESTROY_ZERO_POWER_UNIT" : "DESTROY_LETHAL_UNIT",
+                isZeroPower ? "ZERO_POWER" : "LETHAL_DAMAGE",
                 location.PlayerId,
                 objectId,
                 state.ObjectLocations.TryGetValue(objectId, out var objectLocation)

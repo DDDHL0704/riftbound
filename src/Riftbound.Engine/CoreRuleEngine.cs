@@ -19493,9 +19493,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var nextRunePools = runePools;
-        var lethalObjectIds = cardObjects
-            .Where(entry => entry.Value.Power > 0
-                && ((entry.Value.Damage > 0
+        var stateBasedRemovalObjectIds = cardObjects
+            .Where(entry => ((entry.Value.Power <= 0
+                        && entry.Value.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                        && !string.IsNullOrWhiteSpace(entry.Value.OwnerId)
+                        && !string.IsNullOrWhiteSpace(entry.Value.ControllerId))
+                    || (entry.Value.Power > 0
+                        && entry.Value.Damage > 0
                         && entry.Value.Damage >= entry.Value.Power)
                     || damageTriggeredDestroyTargetObjectIds.Contains(entry.Key))
                 && IsObjectOnField(playerZones, entry.Key))
@@ -19503,10 +19507,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
 
-        foreach (var objectId in lethalObjectIds)
+        foreach (var objectId in stateBasedRemovalObjectIds)
         {
             var destroyReason = damageTriggeredDestroyTargetObjectIds.Contains(objectId)
                 ? "DAMAGE_TRIGGERED_DESTROY"
+                : cardObjects.TryGetValue(objectId, out var objectState) && objectState.Power <= 0
+                    ? "ZERO_POWER"
                 : "LETHAL_DAMAGE";
             if (nextRunePools is not null
                 && TryApplySettLegendDestroyReplacement(
@@ -19545,8 +19551,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            var removalDescription = destroyReason switch
+            {
+                "DAMAGE_TRIGGERED_DESTROY" => "伤害触发效果",
+                "ZERO_POWER" => "0 战力清理",
+                _ => "致命伤害"
+            };
             events.Add(BuildFieldRemovalEvent(
-                destroyReason == "DAMAGE_TRIGGERED_DESTROY" ? "伤害触发效果" : "致命伤害",
+                removalDescription,
                 stackItem,
                 objectId,
                 removalResult,
