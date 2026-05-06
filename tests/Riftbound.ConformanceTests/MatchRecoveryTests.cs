@@ -341,6 +341,51 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void MatchStateHashIsStableAcrossDictionaryInsertionOrder()
+    {
+        var first = new MatchState(
+            "room-a",
+            5,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with { Hand = ["A-HAND-1"] },
+                ["bob"] = PlayerZones.Empty with { Hand = ["B-HAND-1"] }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["A-HAND-1"] = new("A-HAND-1", power: 4, cardNo: "SFD·125/221", tags: [CardObjectTags.UnitCard]),
+                ["B-HAND-1"] = new("B-HAND-1", power: 3, cardNo: "SFD·126/221", tags: [CardObjectTags.UnitCard])
+            });
+        var second = first with
+        {
+            Seats = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["bob"] = "P2",
+                ["alice"] = "P1"
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["bob"] = first.PlayerZones["bob"],
+                ["alice"] = first.PlayerZones["alice"]
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["B-HAND-1"] = first.CardObjects["B-HAND-1"],
+                ["A-HAND-1"] = first.CardObjects["A-HAND-1"]
+            }
+        };
+
+        Assert.Equal(MatchStateHasher.Hash(first), MatchStateHasher.Hash(second));
+    }
+
+    [Fact]
     public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
     {
         var state = new MatchState(
@@ -403,6 +448,8 @@ public sealed class MatchRecoveryTests
         Assert.Equal("room-a", frame.RoomId);
         Assert.Equal(5, frame.Tick);
         Assert.Equal(8, frame.EventSequence);
+        Assert.Equal(MatchStateHasher.Hash(state), frame.AuthoritativeStateHash);
+        Assert.Matches("^[0-9a-f]{64}$", frame.AuthoritativeStateHash);
         Assert.DoesNotContain("seed", frame.SpectatorSnapshot.Timing.Keys);
         Assert.DoesNotContain("rngCursor", frame.SpectatorSnapshot.Timing.Keys);
 

@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Json;
 using Riftbound.Contracts;
 
@@ -54,6 +55,7 @@ public sealed record MatchReplayFrame(
     long Tick,
     long EventSequence,
     IReadOnlyList<GameEvent> Events,
+    string AuthoritativeStateHash,
     SnapshotDto SpectatorSnapshot);
 
 public static class MatchReplayRedactor
@@ -67,7 +69,68 @@ public static class MatchReplayRedactor
             entry.CompletedTick,
             entry.CompletedEventSequence,
             entry.Events,
+            MatchStateHasher.Hash(entry.AuthoritativeState),
             ResolutionResult.BuildSpectatorSnapshot(entry.AuthoritativeState));
+    }
+}
+
+public static class MatchStateHasher
+{
+    public static string Hash(MatchState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            WriteCanonicalValue(writer, JsonSerializer.SerializeToElement(state));
+        }
+
+        return Convert.ToHexString(SHA256.HashData(stream.ToArray())).ToLowerInvariant();
+    }
+
+    private static void WriteCanonicalValue(Utf8JsonWriter writer, JsonElement element)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                writer.WriteStartObject();
+                foreach (var property in element.EnumerateObject().OrderBy(property => property.Name, StringComparer.Ordinal))
+                {
+                    writer.WritePropertyName(property.Name);
+                    WriteCanonicalValue(writer, property.Value);
+                }
+
+                writer.WriteEndObject();
+                break;
+            case JsonValueKind.Array:
+                writer.WriteStartArray();
+                foreach (var item in element.EnumerateArray())
+                {
+                    WriteCanonicalValue(writer, item);
+                }
+
+                writer.WriteEndArray();
+                break;
+            case JsonValueKind.String:
+                writer.WriteStringValue(element.GetString());
+                break;
+            case JsonValueKind.Number:
+                writer.WriteRawValue(element.GetRawText());
+                break;
+            case JsonValueKind.True:
+                writer.WriteBooleanValue(true);
+                break;
+            case JsonValueKind.False:
+                writer.WriteBooleanValue(false);
+                break;
+            case JsonValueKind.Null:
+            case JsonValueKind.Undefined:
+                writer.WriteNullValue();
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported JSON value kind {element.ValueKind}.");
+        }
     }
 }
 
