@@ -7,6 +7,15 @@ public static class BehaviorImplementationStatuses
     public const string Unimplemented = "unimplemented";
 }
 
+public static class BehaviorConformanceTiers
+{
+    public const string RepresentativeRulePass = "representative-rule-pass";
+    public const string FixturePass = "fixture-pass";
+    public const string FullOfficialRulePass = "full-official-rule-pass";
+    public const string ManualBoundary = "manual-boundary";
+    public const string Blocked = "blocked";
+}
+
 public static class BehaviorTemplateIds
 {
     public const string Draw = "draw";
@@ -43,7 +52,9 @@ public sealed record BehaviorSpec(
     IReadOnlyList<EffectPhraseSpec> Effects,
     IReadOnlyList<string> TemplateIds,
     string? ImplementedEffectKind = null,
-    string? ImplementedByCardNo = null);
+    string? ImplementedByCardNo = null,
+    string ConformanceTier = BehaviorConformanceTiers.RepresentativeRulePass,
+    string ConformanceReason = "");
 
 public sealed record KeywordSpec(
     string Keyword,

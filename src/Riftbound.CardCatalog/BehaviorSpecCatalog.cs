@@ -11,6 +11,7 @@ public sealed record BehaviorSpecCatalogReport(
     int OfficialEntries,
     int BehaviorSpecs,
     IReadOnlyDictionary<string, int> StatusCounts,
+    IReadOnlyDictionary<string, int> ConformanceTierCounts,
     IReadOnlyList<string> MissingReasonCardNos);
 
 public sealed record FunctionalUnitBehaviorCoverageReport(
@@ -493,6 +494,10 @@ public static class BehaviorSpecCatalogBuilder
             .GroupBy(spec => spec.Status, StringComparer.Ordinal)
             .OrderBy(group => group.Key, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+        var conformanceTierCounts = specs
+            .GroupBy(spec => spec.ConformanceTier, StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
         var missingReasonCardNos = specs
             .Where(spec => string.IsNullOrWhiteSpace(spec.Reason))
             .Select(spec => spec.CardNo)
@@ -503,6 +508,7 @@ public static class BehaviorSpecCatalogBuilder
             specs.Count,
             specs.Count,
             statusCounts,
+            conformanceTierCounts,
             missingReasonCardNos);
     }
 
@@ -520,6 +526,8 @@ public static class BehaviorSpecCatalogBuilder
         var implementation = FindImplementation(card, unit, implementationByCardNo);
         var status = DetermineStatus(card, implementation);
         var reason = DetermineReason(card, unit, status, implementation);
+        var conformanceTier = DetermineConformanceTier(status, implementation);
+        var conformanceReason = DetermineConformanceReason(card, status, implementation, conformanceTier);
         var effects = ApplyEffectStatuses(parsed.Effects, status, implementation is not null);
         var activatedAbilities = ApplyActivatedAbilityStatuses(parsed.ActivatedAbilities, status);
         var staticAbilities = ApplyStaticAbilityStatuses(parsed.StaticAbilities, status, implementation is not null);
@@ -547,7 +555,9 @@ public static class BehaviorSpecCatalogBuilder
             effects,
             templateIds,
             implementation?.EffectKind,
-            implementation?.CardNo);
+            implementation?.CardNo,
+            conformanceTier,
+            conformanceReason);
     }
 
     private static ImplementedCardBehavior? FindImplementation(
@@ -628,6 +638,52 @@ public static class BehaviorSpecCatalogBuilder
             _ =>
                 $"Playable functional unit {unit.Id} has no existing registry mapping or template executor implementation."
         };
+    }
+
+    private static string DetermineConformanceTier(
+        string status,
+        ImplementedCardBehavior? implementation)
+    {
+        return status switch
+        {
+            BehaviorImplementationStatuses.Implemented when implementation is not null =>
+                BehaviorConformanceTiers.RepresentativeRulePass,
+            BehaviorImplementationStatuses.ManualRuleRequired =>
+                BehaviorConformanceTiers.ManualBoundary,
+            _ => BehaviorConformanceTiers.Blocked
+        };
+    }
+
+    private static string DetermineConformanceReason(
+        OfficialCard card,
+        string status,
+        ImplementedCardBehavior? implementation,
+        string conformanceTier)
+    {
+        if (string.Equals(conformanceTier, BehaviorConformanceTiers.RepresentativeRulePass, StringComparison.Ordinal)
+            && implementation is not null)
+        {
+            return card.CardCategoryName switch
+            {
+                "符文" =>
+                    "Representative rule pass: rune identity, rune call, pool payment, and end-turn clearing have server coverage, but complete official rune-skill payment windows are still tracked by the server rule audit.",
+                "传奇" =>
+                    "Representative rule pass: a LEGEND_ACT/domain route exists, but complete official legend ability timing, costs, targets, and deferred surfaces are still tracked by the server rule audit.",
+                "战场" =>
+                    "Representative rule pass: a battlefield rule-domain route exists, but complete battlefield control, contest, pending battle, and replacement state machines are still tracked by the server rule audit.",
+                _ when card.CardCategoryName.StartsWith("指示物", StringComparison.Ordinal) =>
+                    "Representative rule pass: token identity/factory coverage exists, but token copy timing, activated resources, and battlefield replacement surfaces are still tracked by the server rule audit.",
+                _ =>
+                    "Representative rule pass: this card has a server behavior or functional-unit representative and fixture coverage; it is not yet asserted as full official rules complete."
+            };
+        }
+
+        if (string.Equals(status, BehaviorImplementationStatuses.ManualRuleRequired, StringComparison.Ordinal))
+        {
+            return "Manual boundary: this card requires a dedicated non-PLAY_CARD rule domain before it can be exposed as a playable automated action.";
+        }
+
+        return "Blocked: no executable server behavior or representative fixture route is currently available.";
     }
 
     private static IReadOnlyList<EffectPhraseSpec> ApplyEffectStatuses(

@@ -75,7 +75,8 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
         summary.SavedLogicImplementations,
         schemaValid = schema.IsValid,
         schemaViolationCount = schema.Violations.Count,
-        behaviorStatusCounts = behaviorReport.StatusCounts
+        behaviorStatusCounts = behaviorReport.StatusCounts,
+        behaviorConformanceTierCounts = behaviorReport.ConformanceTierCounts
     });
 });
 
@@ -99,6 +100,7 @@ app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
         stability.IdsAreUnique,
         behaviorReport.BehaviorSpecs,
         behaviorReport.StatusCounts,
+        behaviorReport.ConformanceTierCounts,
         behaviorReport.MissingReasonCardNos
     });
 });

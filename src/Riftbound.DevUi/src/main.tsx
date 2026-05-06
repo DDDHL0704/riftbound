@@ -278,6 +278,8 @@ type BehaviorSpecDto = {
   functionalUnitId: string;
   status: string;
   reason: string;
+  conformanceTier?: string;
+  conformanceReason?: string;
   officialText: string;
   cost?: ParsedCostDto;
   templateIds?: string[];
@@ -4663,14 +4665,14 @@ function CardCatalogPanel({
         <label>
           状态
           <select data-testid="catalog-filter" value={filter} onChange={(event) => onFilter(event.target.value as CatalogFilter)}>
-            <option value="conformance-pass">可玩</option>
+            <option value="conformance-pass">代表性接入</option>
             <option value="manual-deferred">人工边界</option>
             <option value="blocked">已阻止</option>
             <option value="all">全部状态</option>
           </select>
         </label>
         <div className="catalog-counts" data-testid="catalog-counts">
-          <span>已通过 {implementedCount}/{specs.length}</span>
+          <span>代表性接入 {implementedCount}/{specs.length}</span>
           <span>人工边界 {manualDeferredCount}</span>
           <span>阻止 {blockedCount}</span>
           <span>当前 {filtered.length}</span>
@@ -4682,8 +4684,8 @@ function CardCatalogPanel({
         data-testid="catalog-playable-boundary"
       >
         {allSpecsConformancePass
-          ? `P7.9 全量可玩状态：${implementedCount}/${specs.length} 已通过一致性，0 个人工边界，0 个阻止项。`
-          : `图鉴审计状态：${implementedCount}/${specs.length} 已通过一致性，${manualDeferredCount} 个人工边界，${blockedCount} 个阻止项。`}
+          ? `图鉴代表性接入：${implementedCount}/${specs.length} 已有服务端代表路径；官方完整规则层级仍以详情中的规则层级为准。`
+          : `图鉴审计状态：${implementedCount}/${specs.length} 代表性接入，${manualDeferredCount} 个人工边界，${blockedCount} 个阻止项。`}
       </div>
 
       <div className="catalog-layout">
@@ -4748,6 +4750,10 @@ function CardDetail({ spec, compact = false }: { spec?: BehaviorSpecDto; compact
         <div>
           <dt>功能状态</dt>
           <dd>{statusLabel(spec.status)}</dd>
+        </div>
+        <div>
+          <dt>规则层级</dt>
+          <dd>{conformanceTierLabel(spec.conformanceTier)}</dd>
         </div>
         <div>
           <dt>操作入口</dt>
@@ -6219,7 +6225,7 @@ function filterCatalog(specs: BehaviorSpecDto[], query: string, filter: CatalogF
 
 function statusLabel(status: string) {
   if (status === "implemented") {
-    return "已通过一致性";
+    return "代表性已接入";
   }
   if (status === "manual-rule-required") {
     return "人工边界";
@@ -6281,13 +6287,37 @@ function promptReasonLabel(reason?: string) {
 }
 
 function behaviorReasonLabel(spec: BehaviorSpecDto) {
+  if (spec.conformanceTier === "full-official-rule-pass") {
+    return "这张卡已达到官方完整规则闭环，页面仍只会按服务端提示开放可执行操作。";
+  }
   if (spec.status === "implemented") {
-    return `这张卡已接入${catalogOperationSurface(spec)}，并通过后端一致性验证；页面只会按服务端提示开放可执行操作。`;
+    return spec.conformanceReason
+      ? `${conformanceTierLabel(spec.conformanceTier)}：${spec.conformanceReason}`
+      : `这张卡已接入${catalogOperationSurface(spec)}的代表性规则路径；页面只会按服务端提示开放可执行操作，不把它标记为官方完整规则闭环。`;
   }
   if (spec.status === "manual-rule-required") {
     return "这张卡仍属于人工规则边界，页面会明确标记并阻止它进入可玩按钮。";
   }
   return "这张卡当前被阻止进入可玩流程，需要后端规则和一致性证据补齐后再开放。";
+}
+
+function conformanceTierLabel(tier?: string) {
+  if (tier === "full-official-rule-pass") {
+    return "官方完整";
+  }
+  if (tier === "representative-rule-pass") {
+    return "代表性通过";
+  }
+  if (tier === "fixture-pass") {
+    return "Fixture 通过";
+  }
+  if (tier === "manual-boundary") {
+    return "人工边界";
+  }
+  if (tier === "blocked") {
+    return "已阻止";
+  }
+  return "规则层级";
 }
 
 function catalogOperationSurface(spec: BehaviorSpecDto) {

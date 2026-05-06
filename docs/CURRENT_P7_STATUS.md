@@ -1,6 +1,8 @@
 # Current P7 Status
 
-Last updated: 2026-05-05
+Last updated: 2026-05-06
+
+Update note: the later server-rule audit in `docs/CURRENT_SERVER_RULE_AUDIT.md` supersedes the older P7 wording that used `CONFORMANCE_PASS` as if it meant official full rules complete. The product catalog now distinguishes `implemented` representative coverage from `full-official-rule-pass`; as of the P1-003 audit fix, full official pass count is intentionally `0` until the remaining P0/P1 rule domains are complete.
 
 P7 goal:
 

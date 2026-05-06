@@ -25,8 +25,9 @@
 - P0-001 第三批已落地：新增 GameHub 级正式开局 smoke，覆盖 `SUBMIT_DECK -> READY -> OFFICIAL_OPENING_STARTED -> MULLIGAN -> MULLIGAN_PHASE_COMPLETED -> RUNES_CALLED -> MAIN`，确保 WebSocket/房间层不会绕过或吞掉服务端官方 deck/opening/mulligan 流程。
 - P0-003 第二批已落地：结算链项目结算后新增统一状态性致命清理兜底。即使某个栈项目本身是无行为/未映射或单卡 resolver 漏接局部 cleanup，只要结算后场上存在伤害大于等于战力的单位，服务端会将其清理入对应非场地区域、同步 `ObjectLocations` 并记录 `UNIT_DESTROYED`。
 - P0-005 第一批已落地：`RunePool` 新增 `PowerByTrait` typed 符能池和 `TotalPower` 视图；`PLAY_CARD` 支付计划可区分任意符能与指定特性符能，`SPEND_POWER:red:2` / `SPEND_POWER:红色:2` 等 token 会校验并只扣对应特性，旧的泛化 `power` fixture 仍兼容。snapshot 的 `runePool` 继续提供总 `power`，同时新增 `untypedPower` 与 `powerByTrait` 给 UI 展示支付来源。
+- P1-003 第一批已落地：`BehaviorSpec` 新增 `ConformanceTier` / `ConformanceReason`，将当前 `implemented` 明确降义为 `representative-rule-pass`，并在 API summary、图鉴详情和基线测试中断言 `full-official-rule-pass = 0`。产品 UI 不再把 `implemented` 文案展示为“官方完整一致性通过”。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -200,22 +201,25 @@
 
 ### P1-003 BehaviorSpec/CONFORMANCE_PASS 口径疑似过度乐观
 
+当前状态：**PARTIALLY RESOLVED / 已拆分代表性通过与官方完整通过，后续仍需逐条提升证据**
+
 规则依据：自查文档 16、19、21；BehaviorSpec 需要真实映射到可执行规则，不能用域级占位掩盖未实现细节。
 
 代码位置：
-- `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs:202` 到 `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs:250` 通过 rune/token/legend/battlefield domain 将非 PLAY_CARD 域合并为 implemented behavior。
-- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs:76` 到 `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs:83` 断言 `1009/1009` 全为 implemented。
-- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs:116` 到 `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs:144` 断言 `1009/1009 CONFORMANCE_PASS`、`811/811` functional units、0 manual/blocked。
+- `src/Riftbound.Contracts/BehaviorSpecs.cs` 新增 `BehaviorConformanceTiers` 和 `BehaviorSpec.ConformanceTier/ConformanceReason`。
+- `src/Riftbound.CardCatalog/BehaviorSpecCatalog.cs` 继续保留 `Status=implemented` 作为已有代表路径/fixture 口径，但 `ConformanceTier` 只标为 `representative-rule-pass`，没有标为 `full-official-rule-pass`。
+- `tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs` 不再断言 “CONFORMANCE_PASS = 官方完整”，而是断言 `1009/1009 representative-rule-pass` 与 `0 full-official-rule-pass`。
 - 但 `docs/CURRENT_P6_STATUS.md:894` 到 `docs/CURRENT_P6_STATUS.md:901` 仍记录 P6 final 为 `713/811` implemented、`98/811` manual deferred；`src/Riftbound.Engine/P6LegendAbilityCatalog.cs:13`、`src/Riftbound.Engine/P6BattlefieldEffectCatalog.cs:20` 也保留 deferred surfaces。
 
-现象：P7.9 文档与测试把目录推进到全 implemented，但底层规则模型仍存在 P0/P1 缺口。若 UI 以此作为“所有卡牌均完整可玩”的唯一依据，会误导用户。
+现象：P7.9 文档与旧测试曾把目录推进到全 implemented，但底层规则模型仍存在 P0/P1 缺口。现在 API/UI 可以展示“代表性通过”，并明确当前不是官方完整规则闭环；后续仍需要逐卡把代表性证据提升为完整规则证据。
 
 建议修复：
-- 将 `CONFORMANCE_PASS` 拆成至少三层：`FixturePass`、`RepresentativeRulePass`、`FullOfficialRulePass`。
-- 非 PLAY_CARD 域不要仅凭 domain 合并判定完整；需要逐条卡牌/功能单元映射到真实命令、状态机和测试。
+- 继续将非 PLAY_CARD 域逐条映射到真实命令、状态机和测试；只有对应 P0/P1 规则域完整后才允许提升到 `full-official-rule-pass`。
+- 逐步让 UI playable filter 从旧 `status=implemented` 迁移到“服务端 prompt candidate + conformance tier + deferred surface”三重门槛。
 
 建议测试：
-- 每个 BehaviorSpec 的 `ImplementedEffectKind` 必须能追溯到具体 resolver、prompt candidate、fixture 和官方文本锚点。
+- 已新增：每个 BehaviorSpec 必须有 `ConformanceTier/ConformanceReason`；当前 `full-official-rule-pass` 必须为 0。
+- 待补：每个 BehaviorSpec 的 `ImplementedEffectKind` 必须能追溯到具体 resolver、prompt candidate、fixture 和官方文本锚点。
 - 对 legend/battlefield/token/rune 域建立负例，防止占位 domain 把未实现能力标为 pass。
 
 ### P1-004 隐藏信息与 replay 边界仍需加固
@@ -285,7 +289,7 @@
 
 ## 建议下一步开发顺序
 
-1. 先冻结并重命名当前 `CONFORMANCE_PASS` 口径，避免把 fixture/domain pass 当成 full official rules pass。
+1. 已完成第一批：冻结并重命名当前 `CONFORMANCE_PASS` 口径，避免把 fixture/domain pass 当成 full official rules pass。
 2. 实现官方 deck/opening/mulligan，这是后续所有本地测试和 UI 对局的基础。
 3. 重构 board model：battlefield state、unit location、standby、control/contest/conquer/hold。
 4. 建立 cleanup task queue，把移动、进场、离场、伤害、战力变化、战场控制变化统一纳入。

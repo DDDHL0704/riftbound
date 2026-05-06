@@ -79,6 +79,8 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1009, report.StatusCounts[BehaviorImplementationStatuses.Implemented]);
         Assert.False(report.StatusCounts.ContainsKey(BehaviorImplementationStatuses.ManualRuleRequired));
         Assert.False(report.StatusCounts.ContainsKey(BehaviorImplementationStatuses.Unimplemented));
+        Assert.Equal(1009, report.ConformanceTierCounts[BehaviorConformanceTiers.RepresentativeRulePass]);
+        Assert.False(report.ConformanceTierCounts.ContainsKey(BehaviorConformanceTiers.FullOfficialRulePass));
         Assert.Contains(BehaviorImplementationStatuses.Implemented, report.StatusCounts.Keys);
         var allowedStatuses = new HashSet<string>(StringComparer.Ordinal)
         {
@@ -91,6 +93,8 @@ public sealed class CardCatalogBaselineTests
             Assert.True(allowedStatuses.Contains(spec.Status), $"Unexpected status '{spec.Status}' for {spec.CardNo}.");
             Assert.False(string.IsNullOrWhiteSpace(spec.FunctionalUnitId));
             Assert.False(string.IsNullOrWhiteSpace(spec.Reason));
+            Assert.False(string.IsNullOrWhiteSpace(spec.ConformanceTier));
+            Assert.False(string.IsNullOrWhiteSpace(spec.ConformanceReason));
         });
 
         var drawSpec = Assert.Single(specs, spec => string.Equals(spec.CardNo, "SFD·087/221", StringComparison.Ordinal));
@@ -114,7 +118,7 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
-    public async Task P79ProductCatalogExposesAllOfficialEntriesAsConformancePass()
+    public async Task P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var units = FunctionalUnitBuilder.Build(catalog.Cards);
@@ -134,6 +138,17 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(811, implementedSpecs.Select(spec => spec.FunctionalUnitId).Distinct(StringComparer.Ordinal).Count());
         Assert.Empty(manualDeferredSpecs);
         Assert.Empty(blockedSpecs);
+        Assert.Equal(
+            1009,
+            specs.Count(spec => string.Equals(
+                spec.ConformanceTier,
+                BehaviorConformanceTiers.RepresentativeRulePass,
+                StringComparison.Ordinal)));
+        Assert.DoesNotContain(specs, spec => string.Equals(
+            spec.ConformanceTier,
+            BehaviorConformanceTiers.FullOfficialRulePass,
+            StringComparison.Ordinal));
+        Assert.All(implementedSpecs, spec => Assert.Contains("Representative rule pass", spec.ConformanceReason, StringComparison.Ordinal));
         Assert.Equal(106, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "传奇", StringComparison.Ordinal)));
         Assert.Equal(57, implementedSpecs.Count(spec => string.Equals(spec.CardCategoryName, "战场", StringComparison.Ordinal)));
         Assert.All(implementedSpecs, spec =>

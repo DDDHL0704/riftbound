@@ -2,6 +2,8 @@
 
 Last updated: 2026-05-06
 
+Server-rule audit correction: `docs/CURRENT_SERVER_RULE_AUDIT.md` now supersedes the earlier P7.9 “全卡可玩 / CONFORMANCE_PASS” wording for official-rule readiness. The catalog still records implemented representative coverage, but `BehaviorSpec.ConformanceTier` separates that from `full-official-rule-pass`; current full official pass count is intentionally `0` until the remaining P0/P1 audit items are resolved.
+
 P7.9 working objective:
 
 > 完成 P7.9 本地产品版全卡可玩：在 P7 产品级 Web 对战基础上，补齐全部卡牌规则能力并让页面可操作；实现精美 UI、完整卡牌对战流程、结构化 ActionPrompt、点击式出牌/目标/费用/战斗/传奇/战场操作、全卡图鉴详情和本地回放/观战体验；关闭 P6 的 manual deferred 缺口，所有能力以后端权威规则和 prompt 为准，前端不裁决规则、不持有权威状态；同步所有相关状态文档，保持后端 full test、focused suites、前端 build、Browser smoke 和 clean status 全绿。
