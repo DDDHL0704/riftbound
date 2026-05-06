@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
-自查日期：2026-05-06  
-审计基准提交：`509af74`  
+自查日期：2026-05-06
+审计基准提交：`45bb446`
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,7 @@
 
 ## 2026-05-06 开发进度更新
 
+- 复审基线 `45bb446`：本轮自查整改后重新按 `docs/符文战场_服务端核心规则自查文档.md` 复核。结论仍为 **NOT READY**，但 P0 风险已进一步收窄：battlefield task 已有权威视图，replay frame 已有 authoritative state hash，battlefield trigger 支付已覆盖 typed power。剩余 NOT READY 根因集中在完整 battlefield/standby/control task 状态机、统一 cleanup task queue、由 task queue 驱动的 spell duel/battle lifecycle、全路径官方 PaymentEngine、完整 LayerEngine 与逐关键词/逐卡牌 full-official-rule-pass 证据。
 - P0-001 第一批已落地：新增 `SUBMIT_DECK`、`MULLIGAN` 协议命令，新增官方卡组校验器，新增正式 deck submit 入口，双方提交合法 deck 并 ready 后会进入正式 1v1 开局、随机回合顺序、双方传奇/英雄区域、每人 3 选 1 战场、主牌堆/符文牌堆洗牌、起手 4 张、按回合顺序调度，并在双方调度后进入第一个回合。
 - P0-002 第一批已落地：新增 `ObjectLocationState` 权威位置索引，snapshot 对公开对象输出 `location`，正式开局/调度/召符文/打出到结算链/结算后入场或入废牌堆/移动都会同步对象位置；精确战场游走会校验来源位置是否匹配服务端权威位置，并把目的战场写回状态。
 - P0-003 第一批已落地：`MOVE_UNIT` 和精确游走完成后会执行一次致命伤害清理，并将清理后的区域重新同步回 `ObjectLocations`，避免移动后的已摧毁单位继续留在战场位置索引中。
@@ -39,6 +40,7 @@
 - P0-005 第三批已落地：战场据守触发 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 现在也走 `CanPayRuneCosts` / `PayRuneCosts`，泛化 4 符能费用可以由 `PowerByTrait` 支付并正确扣除；这把 battlefield trigger payment 纳入 typed-power-aware 路径，不再只支持普通 `Power`。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
 - 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState` 覆盖观战回放 redaction 与 `AuthoritativeStateHash`；`MatchStateHashIsStableAcrossDictionaryInsertionOrder` 覆盖权威状态 hash 的字典顺序稳定性；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates`、`START_SPELL_DUEL`/`START_BATTLE`、`PendingCleanupTasks`、`BattlefieldTasks` 与 `timing.battlefieldTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` / `P79BattlefieldHeldPaysTypedPowerToGainScore` 覆盖非出牌与战场触发路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2842/2842`、`ConformanceFixtureRunnerTests 2661/2661`、`ConformanceFixtureShapeTests 36/36`、`MatchRecoveryTests 15/15`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
+- 复审验证记录：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2842/2842；`ConformanceFixtureRunnerTests` 2661/2661；`CardCatalogBaselineTests` 39/39；`GameHubJoinTests` 85/85；补充 `ConformanceFixtureShapeTests` 36/36 与 `MatchRecoveryTests` 15/15；`git diff --check` 通过；工作区仅剩预期未跟踪 `riftbound-dotnet.sln`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
