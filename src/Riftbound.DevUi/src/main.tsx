@@ -538,6 +538,7 @@ function App() {
   const roomSummary = useMemo(() => summarizeRoom(latestSnapshot), [latestSnapshot]);
   const visibleObjectIds = useMemo(() => collectVisibleObjectIds(latestSnapshot), [latestSnapshot]);
   const catalogSummary = useMemo(() => summarizeCatalog(catalog), [catalog]);
+  const cardNamesByNo = useMemo(() => buildCardNameMap(catalog), [catalog]);
   const systemNotices = useMemo(() => buildSystemNotices(players, catalogStatus), [players, catalogStatus]);
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
   const selectedObjectIds = useMemo(
@@ -1102,6 +1103,7 @@ function App() {
           activePlayerId={activePlayer.playerId}
           selectedObjectIds={selectedObjectIds}
           selectionIntent={selectionIntent}
+          cardNamesByNo={cardNamesByNo}
           onPickObject={handleObjectPick}
         />
         <CommandWorkbench
@@ -1116,6 +1118,7 @@ function App() {
           activateDraft={activateDraft}
           visibleObjectIds={visibleObjectIds}
           selectionIntent={selectionIntent}
+          cardNamesByNo={cardNamesByNo}
           devToolsOpen={devToolsOpen}
           fixtureText={fixtureText}
           fixtureStatus={fixtureStatus}
@@ -1218,12 +1221,14 @@ function BattleDesk({
   activePlayerId,
   selectedObjectIds,
   selectionIntent,
+  cardNamesByNo,
   onPickObject
 }: {
   snapshot?: SnapshotDto;
   activePlayerId: string;
   selectedObjectIds: Set<string>;
   selectionIntent: SelectionIntent;
+  cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
 }) {
   const players = Object.entries(snapshot?.players ?? {}).sort(([, left], [, right]) =>
@@ -1243,6 +1248,7 @@ function BattleDesk({
             playerId={playerId}
             player={player}
             selectedObjectIds={selectedObjectIds}
+            cardNamesByNo={cardNamesByNo}
             onPickObject={onPickObject}
           />
         ))}
@@ -1253,7 +1259,7 @@ function BattleDesk({
           <h3>结算栈</h3>
           <span>{snapshot?.stack?.length ?? 0}</span>
         </div>
-        <ObjectList ids={(snapshot?.stack ?? []).map((item, index) => stackLabel(item, index))} onPickObject={onPickObject} />
+        <ObjectList ids={(snapshot?.stack ?? []).map((item, index) => stackLabel(item, index))} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} />
       </section>
     </section>
   );
@@ -1263,11 +1269,13 @@ function PlayerDesk({
   playerId,
   player,
   selectedObjectIds,
+  cardNamesByNo,
   onPickObject
 }: {
   playerId: string;
   player: PlayerSummary;
   selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
 }) {
   const zones = player.zones ?? {};
@@ -1292,18 +1300,18 @@ function PlayerDesk({
         <span>手牌 {player.handSize ?? 0}</span>
       </div>
       <div className="identity-row">
-        <ZoneRow title="传奇" ids={zones.legendZone ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
-        <ZoneRow title="英雄" ids={zones.championZone ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
+        <ZoneRow title="传奇" ids={zones.legendZone ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} compact />
+        <ZoneRow title="英雄" ids={zones.championZone ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} compact />
       </div>
-      <ZoneRow title="手牌" ids={zones.hand ?? []} hiddenCount={zones.handHidden ?? 0} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
+      <ZoneRow title="手牌" ids={zones.hand ?? []} hiddenCount={zones.handHidden ?? 0} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} />
       <div className="battlefield-pair">
-        <ZoneRow title="战场 I" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 0)} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
-        <ZoneRow title="战场 II" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 1)} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
+        <ZoneRow title="战场 I" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 0)} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} />
+        <ZoneRow title="战场 II" ids={(zones.battlefields ?? []).filter((_, index) => index % 2 === 1)} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} />
       </div>
-      <ZoneRow title="基地" ids={zones.base ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
+      <ZoneRow title="基地" ids={zones.base ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} />
       <div className="zone-minor-grid">
-        <ZoneRow title="废牌堆" ids={zones.graveyard ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
-        <ZoneRow title="放逐区" ids={zones.banished ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} compact />
+        <ZoneRow title="废牌堆" ids={zones.graveyard ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} compact />
+        <ZoneRow title="放逐区" ids={zones.banished ?? []} objects={player.objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} compact />
       </div>
     </article>
   );
@@ -1315,6 +1323,7 @@ function ZoneRow({
   hiddenCount = 0,
   objects,
   selectedObjectIds,
+  cardNamesByNo,
   onPickObject,
   compact = false
 }: {
@@ -1323,6 +1332,7 @@ function ZoneRow({
   hiddenCount?: number;
   objects?: Record<string, ObjectView>;
   selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
   compact?: boolean;
 }) {
@@ -1333,7 +1343,7 @@ function ZoneRow({
         <strong>{hiddenCount > 0 ? hiddenCount : ids.length}</strong>
       </div>
       {hiddenCount > 0 ? <div className="hidden-card">{hiddenCount} 张隐藏手牌</div> : null}
-      <ObjectList ids={ids} objects={objects} selectedObjectIds={selectedObjectIds} onPickObject={onPickObject} />
+      <ObjectList ids={ids} objects={objects} selectedObjectIds={selectedObjectIds} cardNamesByNo={cardNamesByNo} onPickObject={onPickObject} />
     </section>
   );
 }
@@ -1342,11 +1352,13 @@ function ObjectList({
   ids,
   objects,
   selectedObjectIds,
+  cardNamesByNo,
   onPickObject
 }: {
   ids: string[];
   objects?: Record<string, ObjectView>;
   selectedObjectIds?: Set<string>;
+  cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
 }) {
   if (ids.length === 0) {
@@ -1364,7 +1376,7 @@ function ObjectList({
               onClick={() => onPickObject(id)}
               type="button"
             >
-              <span>{cardTitle(id, objects?.[id])}</span>
+              <span>{cardTitle(id, objects?.[id], cardNamesByNo)}</span>
               <ObjectMeta object={objects?.[id]} />
             </button>
             {attachments.length > 0 ? (
@@ -1376,7 +1388,7 @@ function ObjectList({
                     onClick={() => onPickObject(attachment.objectId ?? "")}
                     type="button"
                   >
-                    {attachment.cardNo ?? attachment.objectId}
+                    {cardDisplayName(attachment.cardNo, attachment.objectId ?? "装备", cardNamesByNo)}
                   </button>
                 ))}
               </div>
@@ -1441,6 +1453,7 @@ function CommandWorkbench({
   activateDraft,
   visibleObjectIds,
   selectionIntent,
+  cardNamesByNo,
   devToolsOpen,
   fixtureText,
   fixtureStatus,
@@ -1474,6 +1487,7 @@ function CommandWorkbench({
   activateDraft: ActivateDraft;
   visibleObjectIds: string[];
   selectionIntent: SelectionIntent;
+  cardNamesByNo: Record<string, string>;
   devToolsOpen: boolean;
   fixtureText: string;
   fixtureStatus: string;
@@ -1517,7 +1531,10 @@ function CommandWorkbench({
   const canLegendAct = Boolean(legendCandidate?.enabled && legendCandidate.sources?.length);
   const playTargetChoices: ActionPromptChoiceDto[] = playCandidate?.targets?.length
     ? playCandidate.targets
-    : visibleObjectIds.map((objectId): ActionPromptChoiceDto => ({ id: objectId, label: objectId }));
+    : visibleObjectIds.map((objectId): ActionPromptChoiceDto => ({
+        id: objectId,
+        label: objectChoiceLabel(snapshot, objectId, cardNamesByNo)
+      }));
   const playOptionalCostChoices: ActionPromptChoiceDto[] = playCandidate?.optionalCosts?.length
     ? playCandidate.optionalCosts
     : ["ECHO", "STANDBY_REVEAL_0", "ROAM", "SPEND_POWER:1"].map((cost): ActionPromptChoiceDto => ({ id: cost, label: optionalCostLabel(cost) }));
@@ -1548,7 +1565,7 @@ function CommandWorkbench({
     <section className="workbench-panel" data-testid="command-workbench">
       <div className="section-title">
         <h2>操作面板</h2>
-        <span>{activePlayer.prompt?.reason ?? "等待服务端提示"}</span>
+        <span>{promptReasonLabel(activePlayer.prompt?.reason) || "等待服务端提示"}</span>
       </div>
       <div className="workbench-controls">
         <label>
@@ -1566,7 +1583,7 @@ function CommandWorkbench({
               disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
               key={candidate.action}
               onClick={() => onPromptAction(candidate.action)}
-              title={candidate.reason}
+              title={promptReasonLabel(candidate.reason)}
               type="button"
             >
               {candidate.label}
@@ -1576,7 +1593,7 @@ function CommandWorkbench({
       </div>
 
       <ResponseWindowPanel snapshot={snapshot} prompt={activePlayer.prompt} />
-      <PromptCandidatePanel candidates={promptCandidates} />
+      <PromptCandidatePanel candidates={promptCandidates} cardNamesByNo={cardNamesByNo} />
 
       <SelectionModePanel selectionIntent={selectionIntent} onSelectionIntent={onSelectionIntent} />
       <IntentSummaryPanel
@@ -1666,9 +1683,9 @@ function CommandWorkbench({
             />
           </label>
         </div>
-        <ChoiceChipRow title="服务端来源" testIdPrefix="play-source-choice" choices={playCandidate?.sources} onPick={setPlaySource} />
-        <ChoiceChipRow title="服务端目的地" testIdPrefix="play-destination-choice" choices={playCandidate?.destinations} onPick={(choice) => onPlayDraft({ ...playDraft, destination: choice.id })} />
-        <ChoiceChipRow title="服务端模式" testIdPrefix="play-mode-choice" choices={playCandidate?.modes} onPick={(choice) => onPlayDraft({ ...playDraft, mode: choice.id })} />
+        <ChoiceChipRow title="服务端来源" testIdPrefix="play-source-choice" choices={playCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={setPlaySource} />
+        <ChoiceChipRow title="服务端目的地" testIdPrefix="play-destination-choice" choices={playCandidate?.destinations} cardNamesByNo={cardNamesByNo} onPick={(choice) => onPlayDraft({ ...playDraft, destination: choice.id })} />
+        <ChoiceChipRow title="服务端模式" testIdPrefix="play-mode-choice" choices={playCandidate?.modes} cardNamesByNo={cardNamesByNo} onPick={(choice) => onPlayDraft({ ...playDraft, mode: choice.id })} />
         <div className="target-palette">
           {playTargetChoices.map((choice) => (
             <button
@@ -1679,9 +1696,9 @@ function CommandWorkbench({
               onClick={() => {
                 togglePlayTarget(choice.id);
               }}
-              title={choice.reason}
+              title={promptReasonLabel(choice.reason)}
             >
-              {choiceDisplayLabel(choice)}
+              {choiceDisplayLabel(choice, cardNamesByNo)}
             </button>
           ))}
         </div>
@@ -1703,10 +1720,10 @@ function CommandWorkbench({
               data-testid={`cost-${cost.id.toLowerCase().replaceAll(":", "-")}`}
               key={cost.id}
               onClick={() => addOptionalCost(cost.id)}
-              title={cost.reason}
+              title={promptReasonLabel(cost.reason)}
               type="button"
             >
-            {choiceDisplayLabel(cost)}
+            {choiceDisplayLabel(cost, cardNamesByNo)}
             </button>
           ))}
         </div>
@@ -1777,15 +1794,16 @@ function CommandWorkbench({
             />
           </label>
         </div>
-        <ChoiceChipRow title="服务端来源" testIdPrefix="ability-source-choice" choices={activateCandidate?.sources} onPick={(choice) => onActivateDraft({ ...activateDraft, sourceObjectId: choice.id })} />
-        <ChoiceChipRow title="服务端能力" testIdPrefix="ability-id-choice" choices={activateCandidate?.modes} onPick={(choice) => onActivateDraft({ ...activateDraft, abilityId: choice.id })} />
+        <ChoiceChipRow title="服务端来源" testIdPrefix="ability-source-choice" choices={activateCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onActivateDraft({ ...activateDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端能力" testIdPrefix="ability-id-choice" choices={activateCandidate?.modes} cardNamesByNo={cardNamesByNo} onPick={(choice) => onActivateDraft({ ...activateDraft, abilityId: choice.id })} />
         <ChoiceChipRow
           title="服务端目标"
           testIdPrefix="ability-target-choice"
           choices={activateCandidate?.targets}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onActivateDraft({ ...activateDraft, targetObjectIds: toggleListValue(activateDraft.targetObjectIds, choice.id).join(", ") })}
         />
-        <ChoiceChipRow title="服务端费用" testIdPrefix="ability-cost-choice" choices={activateCandidate?.optionalCosts} onPick={(choice) => onActivateDraft({ ...activateDraft, optionalCosts: choice.id })} />
+        <ChoiceChipRow title="服务端费用" testIdPrefix="ability-cost-choice" choices={activateCandidate?.optionalCosts} cardNamesByNo={cardNamesByNo} onPick={(choice) => onActivateDraft({ ...activateDraft, optionalCosts: choice.id })} />
         <button data-testid="submit-activate-ability" disabled={!activateAbilityEnabled} onClick={onSubmitActivate}>
           提交激活
         </button>
@@ -1836,8 +1854,8 @@ function CommandWorkbench({
             />
           </label>
         </div>
-        <ChoiceChipRow title="服务端来源" testIdPrefix="move-source-choice" choices={moveCandidate?.sources} onPick={(choice) => onMoveDraft({ ...moveDraft, sourceObjectId: choice.id })} />
-        <ChoiceChipRow title="服务端目的地" testIdPrefix="move-destination-choice" choices={moveCandidate?.destinations} onPick={(choice) => onMoveDraft({ ...moveDraft, destination: choice.id })} />
+        <ChoiceChipRow title="服务端来源" testIdPrefix="move-source-choice" choices={moveCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onMoveDraft({ ...moveDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端目的地" testIdPrefix="move-destination-choice" choices={moveCandidate?.destinations} cardNamesByNo={cardNamesByNo} onPick={(choice) => onMoveDraft({ ...moveDraft, destination: choice.id })} />
         <button data-testid="submit-move-unit" disabled={!canMove} onClick={onSubmitMove}>
           提交移动
         </button>
@@ -1879,12 +1897,13 @@ function CommandWorkbench({
             />
           </label>
         </div>
-        <ChoiceChipRow title="服务端装备" testIdPrefix="assemble-source-choice" choices={assembleCandidate?.sources} onPick={(choice) => onAssembleDraft({ ...assembleDraft, sourceObjectId: choice.id })} />
-        <ChoiceChipRow title="服务端宿主" testIdPrefix="assemble-target-choice" choices={assembleCandidate?.targets} onPick={(choice) => onAssembleDraft({ ...assembleDraft, targetObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端装备" testIdPrefix="assemble-source-choice" choices={assembleCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onAssembleDraft({ ...assembleDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端宿主" testIdPrefix="assemble-target-choice" choices={assembleCandidate?.targets} cardNamesByNo={cardNamesByNo} onPick={(choice) => onAssembleDraft({ ...assembleDraft, targetObjectId: choice.id })} />
         <ChoiceChipRow
           title="服务端费用"
           testIdPrefix="assemble-cost-choice"
           choices={assembleCandidate?.optionalCosts}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onAssembleDraft({ ...assembleDraft, optionalCosts: choice.id })}
         />
         <button data-testid="submit-assemble-equipment" disabled={!canAssemble} onClick={onSubmitAssemble}>
@@ -1946,29 +1965,33 @@ function CommandWorkbench({
             />
           </label>
         </div>
-        <ChoiceChipRow title="服务端战场" testIdPrefix="battle-destination-choice" choices={battleCandidate?.destinations} onPick={(choice) => onBattleDraft({ ...battleDraft, battlefieldId: choice.id })} />
+        <ChoiceChipRow title="服务端战场" testIdPrefix="battle-destination-choice" choices={battleCandidate?.destinations} cardNamesByNo={cardNamesByNo} onPick={(choice) => onBattleDraft({ ...battleDraft, battlefieldId: choice.id })} />
         <ChoiceChipRow
           title="服务端攻击方"
           testIdPrefix="battle-attacker-choice"
           choices={battleCandidate?.sources}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onBattleDraft({ ...battleDraft, attackerObjectIds: toggleListValue(battleDraft.attackerObjectIds, choice.id).join(", ") })}
         />
         <ChoiceChipRow
           title="服务端防守方"
           testIdPrefix="battle-defender-choice"
           choices={battleCandidate?.targets}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onBattleDraft({ ...battleDraft, defenderObjectIds: toggleListValue(battleDraft.defenderObjectIds, choice.id).join(", ") })}
         />
         <ChoiceChipRow
           title="服务端战场目标"
           testIdPrefix="battlefield-target-choice"
           choices={battleCandidate?.targets}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onBattleDraft({ ...battleDraft, battlefieldTargetObjectIds: toggleListValue(battleDraft.battlefieldTargetObjectIds, choice.id).join(", ") })}
         />
         <ChoiceChipRow
           title="服务端费用"
           testIdPrefix="battle-cost-choice"
           choices={battleCandidate?.optionalCosts}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onBattleDraft({ ...battleDraft, optionalCosts: choice.id })}
         />
         <button data-testid="submit-declare-battle" disabled={!canDeclareBattle} onClick={onSubmitBattle}>
@@ -2021,15 +2044,16 @@ function CommandWorkbench({
             />
           </label>
         </div>
-        <ChoiceChipRow title="服务端传奇" testIdPrefix="legend-source-choice" choices={legendCandidate?.sources} onPick={(choice) => onLegendDraft({ ...legendDraft, sourceObjectId: choice.id })} />
-        <ChoiceChipRow title="服务端能力" testIdPrefix="legend-ability-choice" choices={legendCandidate?.modes} onPick={(choice) => onLegendDraft({ ...legendDraft, abilityId: choice.id })} />
+        <ChoiceChipRow title="服务端传奇" testIdPrefix="legend-source-choice" choices={legendCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onLegendDraft({ ...legendDraft, sourceObjectId: choice.id })} />
+        <ChoiceChipRow title="服务端能力" testIdPrefix="legend-ability-choice" choices={legendCandidate?.modes} cardNamesByNo={cardNamesByNo} onPick={(choice) => onLegendDraft({ ...legendDraft, abilityId: choice.id })} />
         <ChoiceChipRow
           title="服务端目标"
           testIdPrefix="legend-target-choice"
           choices={legendCandidate?.targets}
+          cardNamesByNo={cardNamesByNo}
           onPick={(choice) => onLegendDraft({ ...legendDraft, targetObjectIds: toggleListValue(legendDraft.targetObjectIds, choice.id).join(", ") })}
         />
-        <ChoiceChipRow title="服务端费用" testIdPrefix="legend-cost-choice" choices={legendCandidate?.optionalCosts} onPick={(choice) => onLegendDraft({ ...legendDraft, optionalCosts: choice.id })} />
+        <ChoiceChipRow title="服务端费用" testIdPrefix="legend-cost-choice" choices={legendCandidate?.optionalCosts} cardNamesByNo={cardNamesByNo} onPick={(choice) => onLegendDraft({ ...legendDraft, optionalCosts: choice.id })} />
         <button data-testid="submit-legend-act" disabled={!canLegendAct} onClick={onSubmitLegend}>
           提交传奇行动
         </button>
@@ -2057,13 +2081,19 @@ function CommandWorkbench({
   );
 }
 
-function PromptCandidatePanel({ candidates }: { candidates: ActionPromptCandidateDto[] }) {
+function PromptCandidatePanel({
+  candidates,
+  cardNamesByNo
+}: {
+  candidates: ActionPromptCandidateDto[];
+  cardNamesByNo: Record<string, string>;
+}) {
   const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
   return (
     <section className="prompt-candidate-panel" data-testid="prompt-candidates">
       <div className="section-title">
         <h3>服务端候选</h3>
-        <span>{actionableCandidates.length} actions</span>
+        <span>{actionableCandidates.length} 项可执行</span>
       </div>
       <div className="prompt-candidate-list">
         {actionableCandidates.length === 0 ? (
@@ -2073,13 +2103,13 @@ function PromptCandidatePanel({ candidates }: { candidates: ActionPromptCandidat
             <article key={candidate.action}>
               <header>
                 <strong>{candidate.label}</strong>
-                <span>{candidate.action}</span>
+                <span>{candidate.enabled ? "可执行" : "禁用"}</span>
               </header>
-              <ChoicePreview title="来源" choices={candidate.sources} />
-              <ChoicePreview title="目标" choices={candidate.targets} />
-              <ChoicePreview title="目的地" choices={candidate.destinations} />
-              <ChoicePreview title="模式" choices={candidate.modes} />
-              <ChoicePreview title="费用" choices={candidate.optionalCosts} />
+              <ChoicePreview title="来源" choices={candidate.sources} cardNamesByNo={cardNamesByNo} />
+              <ChoicePreview title="目标" choices={candidate.targets} cardNamesByNo={cardNamesByNo} />
+              <ChoicePreview title="目的地" choices={candidate.destinations} cardNamesByNo={cardNamesByNo} />
+              <ChoicePreview title="模式" choices={candidate.modes} cardNamesByNo={cardNamesByNo} />
+              <ChoicePreview title="费用" choices={candidate.optionalCosts} cardNamesByNo={cardNamesByNo} />
             </article>
           ))
         )}
@@ -2092,11 +2122,13 @@ function ChoiceChipRow({
   title,
   testIdPrefix,
   choices,
+  cardNamesByNo,
   onPick
 }: {
   title: string;
   testIdPrefix: string;
   choices?: ActionPromptChoiceDto[];
+  cardNamesByNo: Record<string, string>;
   onPick: (choice: ActionPromptChoiceDto) => void;
 }) {
   if (!choices?.length) {
@@ -2112,10 +2144,10 @@ function ChoiceChipRow({
             data-testid={`${testIdPrefix}-${cssSafeId(choice.id)}`}
             key={choice.id}
             onClick={() => onPick(choice)}
-            title={choice.reason}
+            title={promptReasonLabel(choice.reason)}
             type="button"
           >
-            {choiceDisplayLabel(choice)}
+            {choiceDisplayLabel(choice, cardNamesByNo)}
           </button>
         ))}
       </div>
@@ -2123,7 +2155,15 @@ function ChoiceChipRow({
   );
 }
 
-function ChoicePreview({ title, choices }: { title: string; choices?: ActionPromptChoiceDto[] }) {
+function ChoicePreview({
+  title,
+  choices,
+  cardNamesByNo
+}: {
+  title: string;
+  choices?: ActionPromptChoiceDto[];
+  cardNamesByNo: Record<string, string>;
+}) {
   if (!choices?.length) {
     return null;
   }
@@ -2131,16 +2171,16 @@ function ChoicePreview({ title, choices }: { title: string; choices?: ActionProm
   return (
     <div className="choice-preview">
       <span>{title}</span>
-      <p>{choices.slice(0, 6).map(choiceDisplayLabel).join("，")}</p>
+      <p>{choices.slice(0, 6).map((choice) => choiceDisplayLabel(choice, cardNamesByNo)).join("，")}</p>
     </div>
   );
 }
 
-function choiceDisplayLabel(choice: ActionPromptChoiceDto) {
+function choiceDisplayLabel(choice: ActionPromptChoiceDto, cardNamesByNo: Record<string, string> = {}) {
   if (!choice.label || choice.label === choice.id) {
     return optionalCostLabel(choice.id);
   }
-  return choice.label;
+  return labelWithCardName(choice.label, cardNamesByNo);
 }
 
 function optionalCostLabel(cost: string) {
@@ -2153,7 +2193,13 @@ function optionalCostLabel(cost: string) {
       "SPEND_MANA:1": "支付 1 法力",
       "SPEND_MANA:2": "支付 2 法力",
       "SPEND_MANA:3": "支付 3 法力",
+      "SPEND_MANA:4": "支付 4 法力",
+      "SPEND_EXPERIENCE:1": "支付 1 经验",
+      "SPEND_EXPERIENCE:2": "支付 2 经验",
       "SPEND_EXPERIENCE:3": "支付 3 经验",
+      STANDBY_A: "支付 1 法力布置待命",
+      STANDBY_FREE: "免费布置待命",
+      STANDBY_TEEMO_MANA: "提莫布置待命",
       COMBAT_ASSIGNMENT: "战斗分配",
       ASSEMBLE_RED: "红色装配"
     }[cost] ?? cost
@@ -2562,8 +2608,8 @@ function CardDetail({ spec, compact = false }: { spec?: BehaviorSpecDto; compact
 
       <dl className="detail-grid">
         <div>
-          <dt>功能单元</dt>
-          <dd>{spec.functionalUnitId}</dd>
+          <dt>功能状态</dt>
+          <dd>{statusLabel(spec.status)}</dd>
         </div>
         <div>
           <dt>操作入口</dt>
@@ -2575,11 +2621,11 @@ function CardDetail({ spec, compact = false }: { spec?: BehaviorSpecDto; compact
         </div>
         <div>
           <dt>效果类型</dt>
-          <dd>{spec.implementedEffectKind ?? "-"}</dd>
+          <dd>{spec.implementedEffectKind ? effectKindLabel(spec.implementedEffectKind) : "-"}</dd>
         </div>
         <div>
           <dt>模板</dt>
-          <dd>{spec.templateIds?.length ? spec.templateIds.join(", ") : "-"}</dd>
+          <dd>{spec.templateIds?.length ? spec.templateIds.map(effectKindLabel).join("、") : "-"}</dd>
         </div>
       </dl>
 
@@ -2590,7 +2636,7 @@ function CardDetail({ spec, compact = false }: { spec?: BehaviorSpecDto; compact
       {compact ? null : (
         <section className="card-text-block">
           <h3>行为说明</h3>
-          <p>{spec.reason}</p>
+          <p>{behaviorReasonLabel(spec)}</p>
         </section>
       )}
 
@@ -2713,7 +2759,7 @@ function PlayerDock({
                       data-testid={`${key}-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
                       disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
                       onClick={() => onPromptAction(key, candidate.action)}
-                      title={candidate.reason}
+                      title={promptReasonLabel(candidate.reason)}
                       type="button"
                     >
                       {candidate.label}
@@ -2958,14 +3004,18 @@ function EmptyDesk() {
 
 function promptCandidatesFor(prompt?: ActionPromptDto): ActionPromptCandidateDto[] {
   if (prompt?.candidates?.length) {
-    return prompt.candidates;
+    return prompt.candidates.map((candidate) => ({
+      ...candidate,
+      label: promptActionLabel(candidate.action),
+      reason: promptReasonLabel(candidate.reason)
+    }));
   }
 
   return (prompt?.actions ?? []).map((action) => ({
     action,
     label: promptActionLabel(action),
     enabled: Boolean(prompt?.actionable) && action !== "WAIT",
-    reason: prompt?.reason ?? ""
+    reason: promptReasonLabel(prompt?.reason)
   }));
 }
 
@@ -3159,6 +3209,15 @@ function summarizeCatalog(specs: BehaviorSpecDto[]) {
   }, {});
 }
 
+function buildCardNameMap(specs: BehaviorSpecDto[]) {
+  return specs.reduce<Record<string, string>>((names, spec) => {
+    if (spec.cardNo && spec.cardName) {
+      names[spec.cardNo] = spec.cardName;
+    }
+    return names;
+  }, {});
+}
+
 function filterCatalog(specs: BehaviorSpecDto[], query: string, filter: CatalogFilter) {
   const normalizedQuery = query.trim().toLocaleLowerCase();
   return specs.filter((spec) => {
@@ -3221,6 +3280,40 @@ function connectionStatusLabel(status: string) {
   );
 }
 
+function promptReasonLabel(reason?: string) {
+  if (!reason) {
+    return "";
+  }
+
+  const disabledPrompt = reason.match(/^当前 prompt 不允许执行 (.+)$/);
+  if (disabledPrompt) {
+    return `当前提示不允许执行${promptActionLabel(disabledPrompt[1])}`;
+  }
+
+  const missingCandidate = reason.match(/^(.+) 当前没有服务端可执行候选$/);
+  if (missingCandidate) {
+    return `${promptActionLabel(missingCandidate[1])} 当前没有服务端可执行候选`;
+  }
+
+  return (
+    {
+      "roomId and playerId are required": "需要房间编号和玩家编号",
+      "automatic rejoin": "自动重新入座",
+      "Invalid JSON": "原始命令不是有效 JSON"
+    }[reason] ?? reasonCodeLabel(reason)
+  );
+}
+
+function behaviorReasonLabel(spec: BehaviorSpecDto) {
+  if (spec.status === "implemented") {
+    return `这张卡已接入${catalogOperationSurface(spec)}，并通过后端一致性验证；页面只会按服务端提示开放可执行操作。`;
+  }
+  if (spec.status === "manual-rule-required") {
+    return "这张卡仍属于人工规则边界，页面会明确标记并阻止它进入可玩按钮。";
+  }
+  return "这张卡当前被阻止进入可玩流程，需要后端规则和一致性证据补齐后再开放。";
+}
+
 function catalogOperationSurface(spec: BehaviorSpecDto) {
   const effectKind = spec.implementedEffectKind ?? "";
   if (effectKind === "RUNE_RESOURCE_DOMAIN" || spec.cardCategoryName === "符文") {
@@ -3280,12 +3373,46 @@ function triggerTimingLabel(timing: string) {
 }
 
 function effectKindLabel(templateId: string) {
+  const labels: Record<string, string> = {
+    RUNE_RESOURCE_DOMAIN: "符文资源规则",
+    TOKEN_FACTORY_DOMAIN: "指示物生成规则",
+    LEGEND_ACTION_DOMAIN: "传奇行动规则",
+    BATTLEFIELD_RULE_DOMAIN: "战场规则",
+    DAMAGE: "造成伤害",
+    DRAW: "抽牌",
+    MOVE: "移动",
+    BUFF: "强化",
+    DESTROY: "摧毁",
+    STUN: "眩晕",
+    READY: "重置",
+    RECALL: "召回",
+    RECYCLE: "回收",
+    CREATE: "生成",
+    ATTACH: "贴附",
+    EQUIPMENT: "装备",
+    SPELLSHIELD: "法盾",
+    BARRIER: "屏障",
+    POWER: "战力",
+    SCORE: "得分",
+    EXPERIENCE: "经验",
+    RUNE: "符文",
+    UNIT: "单位",
+    TARGET: "目标",
+    HAND: "手牌",
+    BASE: "基地",
+    BATTLEFIELD: "战场",
+    LEGEND: "传奇"
+  };
+  const exact = labels[templateId];
+  if (exact) {
+    return exact;
+  }
+
   return templateId
-    .replaceAll("_", " ")
-    .replace("DAMAGE", "造成伤害")
-    .replace("DRAW", "抽牌")
-    .replace("MOVE", "移动")
-    .replace("BUFF", "强化");
+    .split("_")
+    .filter(Boolean)
+    .map((part) => labels[part] ?? part.toLocaleLowerCase())
+    .join(" / ");
 }
 
 function catalogStatusClass(status: string) {
@@ -3362,14 +3489,20 @@ function payloadKeyLabel(key: string) {
       assignmentRole: "分配角色",
       sourceObjectId: "来源",
       targetObjectId: "目标",
+      targetObjectIds: "目标",
       damage: "伤害",
       battlefieldId: "战场",
       playerId: "玩家",
+      controllerId: "控制者",
+      ownerId: "拥有者",
       trigger: "触发",
       cardNo: "卡号",
+      stackItemId: "结算项",
+      effectKind: "效果",
       score: "分数",
       amount: "数量",
-      reason: "原因"
+      reason: "原因",
+      preventedReason: "阻止原因"
     }[key] ?? key
   );
 }
@@ -3401,6 +3534,9 @@ function formatPayloadEntryValue(key: string, value: unknown): string {
   if (key === "assignmentRole") {
     return combatAssignmentRoleLabel(value);
   }
+  if (key.toLocaleLowerCase().includes("reason") && typeof value === "string") {
+    return reasonCodeLabel(value);
+  }
   return formatPayloadValue(value);
 }
 
@@ -3414,14 +3550,125 @@ function combatAssignmentRoleLabel(value: unknown): string {
   return formatPayloadValue(value);
 }
 
+function reasonCodeLabel(value: string) {
+  const labels: Record<string, string> = {
+    OPTIONAL_COST: "可选费用",
+    LETHAL_DAMAGE: "致命伤害",
+    MIGHTY_FAERIE_MOVE_PAYMENT_PLAY_UNIT: "大力仙灵支付移动出牌",
+    BATTLEFIELD_END_TURN_READY_RUNES: "回合结束重置符文",
+    BATTLEFIELD_CONQUERED_POWERFUL_PAY_1_DRAW: "征服后支付 1 抽牌",
+    BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE: "高费法术触发洞察回收",
+    BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE: "单位返回后支付 1 召唤符文",
+    BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON: "打出单位后支付 1 给予增益",
+    BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE: "首个单位入场后移动其他单位回基地",
+    BATTLEFIELD_FIRST_TURN_GAIN_SCORE: "首回合得分",
+    BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS: "回合开始对所有单位造成伤害",
+    BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW: "回合开始摧毁单位并抽牌",
+    BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE: "据守后支付 4 符能得分",
+    BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL: "战斗摧毁后支付 3 召回",
+    BATTLEFIELD_HELD_SEVEN_UNITS_WIN: "据守七个单位获胜",
+    BATTLEFIELD_CONQUERED_REVEAL_TOP_TWO_RECYCLE: "征服后揭示两张并回收",
+    BATTLEFIELD_UNIT_MOVED_POWER_PLUS_1: "单位移动后战力 +1",
+    UNIT_PLAYED_POWER_PLUS_1: "单位入场后战力 +1",
+    UNIT_CONQUEST_READY_SELF_ONCE_PER_TURN: "单位征服后每回合重置自身一次"
+  };
+
+  if (labels[value]) {
+    return labels[value];
+  }
+
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => reasonWordLabel(part))
+    .join("");
+}
+
+function reasonWordLabel(part: string) {
+  return (
+    {
+      BATTLEFIELD: "战场",
+      END: "结束",
+      TURN: "回合",
+      READY: "重置",
+      RUNES: "符文",
+      RUNE: "符文",
+      CONQUERED: "征服",
+      CONQUEST: "征服",
+      POWERFUL: "强力",
+      MIGHTY: "大力",
+      FAERIE: "仙灵",
+      PAY: "支付",
+      PAYMENT: "支付",
+      DRAW: "抽牌",
+      HIGH: "高",
+      COST: "费",
+      SPELL: "法术",
+      INSIGHT: "洞察",
+      RECYCLE: "回收",
+      UNIT: "单位",
+      RETURNED: "返回",
+      PLAY: "打出",
+      PLAYED: "入场",
+      GRANT: "给予",
+      BOON: "增益",
+      FIRST: "首次",
+      MOVE: "移动",
+      MOVED: "移动",
+      OTHER: "其他",
+      BASE: "基地",
+      GAIN: "获得",
+      SCORE: "分数",
+      DAMAGE: "伤害",
+      ALL: "全部",
+      UNITS: "单位",
+      DESTROY: "摧毁",
+      DESTROYED: "被摧毁",
+      HELD: "据守",
+      POWER: "符能",
+      BATTLE: "战斗",
+      RECALL: "召回",
+      SEVEN: "七个",
+      WIN: "获胜",
+      REVEAL: "揭示",
+      TOP: "牌堆顶",
+      TWO: "两张",
+      ONCE: "一次",
+      PER: "每",
+      SELF: "自身"
+    }[part] ?? part.toLocaleLowerCase()
+  );
+}
+
 function formatPayloadValue(value: unknown): string {
   if (Array.isArray(value)) {
-    return `[${value.map((item) => String(item)).join(", ")}]`;
+    return `[${value.map((item) => formatPayloadValue(item)).join(", ")}]`;
   }
   if (typeof value === "object" && value !== null) {
     return JSON.stringify(value);
   }
+  if (typeof value === "string") {
+    return displayCodeLabel(value);
+  }
   return String(value);
+}
+
+function displayCodeLabel(value: string) {
+  const actionLabel = promptActionLabel(value);
+  if (actionLabel !== value) {
+    return actionLabel;
+  }
+
+  const costLabel = optionalCostLabel(value);
+  if (costLabel !== value) {
+    return costLabel;
+  }
+
+  if (/^[A-Z0-9_:]+$/.test(value) && value.includes("_")) {
+    return reasonCodeLabel(value);
+  }
+
+  return value;
 }
 
 function buildPlayCardCommand(draft: PlayCardDraft) {
@@ -3587,8 +3834,34 @@ function stackLabel(item: unknown, index: number) {
   return `stack-${index + 1}`;
 }
 
-function cardTitle(objectId: string, object?: ObjectView) {
-  return object?.cardNo ? `${objectId} · ${object.cardNo}` : objectId;
+function objectChoiceLabel(snapshot: SnapshotDto | undefined, objectId: string, cardNamesByNo: Record<string, string>) {
+  return cardTitle(objectId, findObject(snapshot, objectId), cardNamesByNo);
+}
+
+function cardTitle(objectId: string, object: ObjectView | undefined, cardNamesByNo: Record<string, string>) {
+  return object?.cardNo ? `${cardDisplayName(object.cardNo, objectId, cardNamesByNo)} / ${objectId}` : objectId;
+}
+
+function cardDisplayName(cardNo: string | null | undefined, fallback: string, cardNamesByNo: Record<string, string>) {
+  if (!cardNo) {
+    return fallback;
+  }
+
+  const cardName = cardNamesByNo[cardNo];
+  return cardName ? `${cardName}（${cardNo}）` : cardNo;
+}
+
+function labelWithCardName(label: string, cardNamesByNo: Record<string, string>) {
+  const cardNo = extractCardNo(label);
+  if (!cardNo || !cardNamesByNo[cardNo]) {
+    return optionalCostLabel(label);
+  }
+
+  return label.replace(cardNo, `${cardNamesByNo[cardNo]}（${cardNo}）`);
+}
+
+function extractCardNo(value: string) {
+  return value.match(/[A-Z]{2,4}[·-]\d{3}[a-z*]?\/\d{3}/i)?.[0];
 }
 
 function attachedObjectsFor(objectId: string, objects?: Record<string, ObjectView>) {

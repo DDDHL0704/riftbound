@@ -3419,8 +3419,33 @@ Validation:
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
 - Browser smoke through the in-app browser:
   - Web URL: `http://127.0.0.1:5173/`
+  - Current-code API URL: `http://127.0.0.1:5090`
+  - Room ID: `p7-ui-cn-final-1778031392017`
+  - Operation path: reloaded the local Web UI after the source change, set server URL to `5090`, joined both players, readied both players, opened local dev tools only to seed the existing Basic Play scenario, submitted `PLAY_CARD`, and inspected the resulting product event log.
+  - Verified visible Chinese surfaces: prompt buttons `打出卡牌` / `让过` / `结束回合`, catalog count `已通过 1009/1009`, card/event text `P1 打出大力仙灵`, and translated payload labels `来源` / `结算项` / `控制者` / `目标` / `效果`.
+- Browser smoke through the in-app browser:
+  - Web URL: `http://127.0.0.1:5173/`
   - Current-code API URL: `http://127.0.0.1:5089`
   - Room ID: `p7-ui-polish-current-1778030703913`
   - Operation path: set server URL to `5089`, created a fresh room, joined both players, readied both players, switched operation tabs to battle and legend, opened the full catalog modal, verified Chinese UI surfaces and catalog counts, then closed the modal.
   - Catalog modal counts: `已通过 1009/1009`, `人工边界 0`, `阻止 0`, `当前 1009`.
   - Screenshot verification: visible viewport captured through the in-app browser after the modal check.
+
+## Post-P7.9 Chinese Card Surface Polish
+
+Date: 2026-05-06
+
+This is a follow-up to the local product UI polish batch, scoped only to local Web testing. It does not enter P8 production accounts, matchmaking, deployment, monitoring, risk control, mobile-specific work, complex AI, or production replay/spectator APIs.
+
+Delivered:
+
+- Battle desk cards now prefer the official Chinese catalog name from `BehaviorSpec` before showing the card number and object id.
+- Attached equipment chips now use the same Chinese card-name display.
+- ActionPrompt candidate buttons now render Chinese action labels even when the underlying protocol action remains an English enum.
+- Server-provided object choices are enriched on the frontend display path with Chinese card names when a card number is present.
+- Catalog detail hides raw internal functional-unit ids from the product surface and uses Chinese status, operation surface, effect, template, and behavior-boundary copy.
+- Event payload reason codes are translated into player-facing Chinese summaries while preserving the authoritative raw server payload in the underlying event model.
+
+Validation:
+
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
