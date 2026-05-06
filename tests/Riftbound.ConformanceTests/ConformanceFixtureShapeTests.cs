@@ -568,7 +568,7 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
-    public void MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews()
+    public async Task MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews()
     {
         var state = new MatchState(
             "battlefield-authority-room",
@@ -687,6 +687,21 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("cleanup:lethal:A-UNIT-1", Assert.IsType<string>(taskQueue["activeTaskId"]));
         var taskQueueItems = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
         Assert.Equal(4, taskQueueItems.Count);
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        Assert.False(prompts["alice"].Actionable);
+        Assert.Equal(["WAIT"], prompts["alice"].Actions);
+        Assert.Contains("DESTROY_LETHAL_UNIT", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("PLAY_CARD", prompts["alice"].Actions);
+
+        var blocked = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("blocked-end-turn", "alice", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+        Assert.False(blocked.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
+        Assert.Contains("DESTROY_LETHAL_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
     }
 
     [Fact]

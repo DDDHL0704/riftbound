@@ -240,6 +240,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
         }
 
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                ResolutionResult.BlockingPendingTaskQueueReason(state),
+                ErrorCodes.PhaseNotAllowed));
+        }
+
         if (command is EndTurnCommand
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
@@ -20575,6 +20583,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
                     ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_FOCUS")
                     : ["WAIT"]));
+        }
+
+        if (ResolutionResult.HasBlockingPendingTaskQueue(state))
+        {
+            var reason = ResolutionResult.BlockingPendingTaskQueueReason(state);
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                false,
+                reason,
+                ["WAIT"]));
         }
 
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(

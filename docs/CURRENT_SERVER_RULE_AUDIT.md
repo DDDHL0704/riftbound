@@ -17,7 +17,7 @@
 - 复审基线 `45bb446`：本轮自查整改后重新按 `docs/符文战场_服务端核心规则自查文档.md` 复核。结论仍为 **NOT READY**，但 P0 风险已进一步收窄：official opening/mulligan 边界已有测试矩阵，battlefield task 已有权威视图，replay frame 已有 authoritative state hash，battlefield trigger 支付已覆盖 typed power。剩余 NOT READY 根因集中在完整 battlefield/standby/control task 状态机、统一 cleanup task queue、由 task queue 驱动的 spell duel/battle lifecycle、全路径官方 PaymentEngine、完整 LayerEngine 与逐关键词/逐卡牌 full-official-rule-pass 证据。
 - P0-001 第一批已落地：新增 `SUBMIT_DECK`、`MULLIGAN` 协议命令，新增官方卡组校验器，新增正式 deck submit 入口，双方提交合法 deck 并 ready 后会进入正式 1v1 开局、随机回合顺序、双方传奇/英雄区域、每人 3 选 1 战场、主牌堆/符文牌堆洗牌、起手 4 张、按回合顺序调度，并在双方调度后进入第一个回合。
 - P0-002 第一批已落地：新增 `ObjectLocationState` 权威位置索引，snapshot 对公开对象输出 `location`，正式开局/调度/召符文/打出到结算链/结算后入场或入废牌堆/移动都会同步对象位置；精确战场游走会校验来源位置是否匹配服务端权威位置，并把目的战场写回状态。
-- P0-003 第一批已落地：`MOVE_UNIT` 和精确游走完成后会执行一次致命伤害清理，并将清理后的区域重新同步回 `ObjectLocations`，避免移动后的已摧毁单位继续留在战场位置索引中。
+- P0-003 第一批已落地：`MOVE_UNIT` 和精确游走完成后会执行一次致命伤害清理，并将清理后的区域重新同步回 `ObjectLocations`；若单位在行动前已经处于待清理致命状态，blocking pending task queue 会先拒绝移动，避免已摧毁单位继续行动。
 - P0-004 第一批已落地：`StackItemState` 记录入栈时机上下文；迅捷牌在 `SPELL_DUEL_OPEN` 焦点窗口打出并结算后，会回到 `SPELL_DUEL_OPEN` 并把焦点交给回合顺序下一名玩家，而不是错误关闭到普通开环；法术对决 prompt 也会在有可用来源时暴露 `PLAY_CARD`。
 - P0-004 第二批已落地：`MatchState` 归一化/恢复栈项目时保留 `TimingContext`，反应/反制牌入栈会继承现有栈顶的法术对决上下文；最后一个法术对决栈项目被反制后，结算仍会回到 `SPELL_DUEL_OPEN` 并把焦点交还给下一名玩家，避免由状态恢复或反应链造成的错误窗口关闭。
 - P1-004 第一批已落地：普通玩家 `SnapshotDto.Timing` 不再暴露 `seed` 和 `rngCursor`；服务端权威 `MatchState` 仍保留随机状态用于内部结算、恢复和日志，避免客户端通过 snapshot 推断牌库/随机顺序。
@@ -40,10 +40,11 @@
 - P0-005 第三批已落地：战场据守触发 `BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE` 现在也走 `CanPayRuneCosts` / `PayRuneCosts`，泛化 4 符能费用可以由 `PowerByTrait` 支付并正确扣除；这把 battlefield trigger payment 纳入 typed-power-aware 路径，不再只支持普通 `Power`。
 - P0-003 第五批已落地：状态性 cleanup loop 新增 0 战力现代权威单位清理；`PendingCleanupTasks` 会显式列出 `DESTROY_ZERO_POWER_UNIT`，栈结算后的统一清理会把有 owner/controller 的 0 战力场上单位移入废牌堆并记录 `ZERO_POWER`，同时保留旧 fixture 中无所有权信息的 0 power 占位对象兼容行为。
 - P0-003 第六批已落地：新增 `PendingTaskQueueState` 与 `MatchState.PendingTaskQueue`，把 `PendingCleanupTasks` 按官方清理优先级排序并公开 `hasTasks`、`isBlocking`、`phase`、`activeTaskId` 和 task 列表；snapshot timing 新增 `pendingTaskQueue`，后续 UI/状态机不再需要从多个数组自行拼装清理队列。
+- P0-003 第七批已落地：`ResolutionResult.BuildPrompts` 与 `CoreRuleEngine.ResolveAsync` 接入 blocking pending task queue；当当前权威状态存在待处理清理/战场任务且没有栈优先权或法术对决焦点窗口时，服务端 prompt 只返回 `WAIT`，并拒绝普通玩家命令，避免前端或客户端在 cleanup/task queue 阻塞期间继续出牌、移动或结束回合。
 - P0-001 第四批已落地：`OfficialDeckValidatorRejectsOfficialNegativeMatrix` 补齐基础官方构筑负例矩阵，覆盖英雄不在主牌、主牌非法类别、未知卡号、符文牌堆非符文、战场牌堆非战场、主牌/符文越出传奇特性等拒绝路径。
 - P0-001 第五批已落地：`OfficialMulliganRejectsInvalidSelectionsAndWrongPlayer` 与 `OfficialMulliganWithShortMainDeckDrawsAvailableCardsAndReturnsSetAside` 补齐起手调度边界，覆盖非当前调度玩家拒绝、最多 2 张、重复选择、非手牌选择、主牌堆不足时只抽可用牌并把搁置牌回收到主牌堆且不触发燃尽。
-- 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、官方构筑负例矩阵、正式开局、起手调度、调度非法选择/抽牌不足边界、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState` 覆盖观战回放 redaction 与 `AuthoritativeStateHash`；`MatchStateHashIsStableAcrossDictionaryInsertionOrder` 覆盖权威状态 hash 的字典顺序稳定性；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates`、`START_SPELL_DUEL`/`START_BATTLE`、`PendingCleanupTasks`、`BattlefieldTasks`、`PendingTaskQueue`、`timing.battlefieldTasks` 与 `timing.pendingTaskQueue`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` / `P7PostStackCleanupDestroysZeroPowerFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` / `P79BattlefieldHeldPaysTypedPowerToGainScore` 覆盖非出牌与战场触发路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2846/2846`、`OfficialOpeningTests 9/9`、`ConformanceFixtureRunnerTests 2662/2662`、`ConformanceFixtureShapeTests 36/36`、`MatchRecoveryTests 15/15`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
+- 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、官方构筑负例矩阵、正式开局、起手调度、调度非法选择/抽牌不足边界、精确战场位置写回/来源不匹配拒绝、待清理致命单位移动被 blocking queue 拒绝。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState` 覆盖观战回放 redaction 与 `AuthoritativeStateHash`；`MatchStateHashIsStableAcrossDictionaryInsertionOrder` 覆盖权威状态 hash 的字典顺序稳定性；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates`、`START_SPELL_DUEL`/`START_BATTLE`、`PendingCleanupTasks`、`BattlefieldTasks`、`PendingTaskQueue`、`timing.battlefieldTasks`、`timing.pendingTaskQueue`、blocking prompt 与 command guard；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` / `P7PostStackCleanupDestroysZeroPowerFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` / `P79BattlefieldHeldPaysTypedPowerToGainScore` 覆盖非出牌与战场触发路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2846/2846`、`OfficialOpeningTests 9/9`、`ConformanceFixtureRunnerTests 2662/2662`、`ConformanceFixtureShapeTests 36/36`、`MatchRecoveryTests 15/15`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
 - 复审验证记录：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2842/2842；`ConformanceFixtureRunnerTests` 2661/2661；`CardCatalogBaselineTests` 39/39；`GameHubJoinTests` 85/85；补充 `ConformanceFixtureShapeTests` 36/36 与 `MatchRecoveryTests` 15/15；`git diff --check` 通过；工作区仅剩预期未跟踪 `riftbound-dotnet.sln`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和调度边界”。
 
@@ -116,7 +117,7 @@
 
 ### P0-003 通用清理检查与任务队列缺失
 
-当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图与致命伤害/0 战力 cleanup loop 已接入，完整统一任务队列仍缺失**
+当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害/0 战力 cleanup loop 与 blocking guard 已接入，完整统一任务队列仍缺失**
 
 规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。
 
@@ -126,21 +127,21 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs:10641` 的 `ResolveEndTurn` 只在回合结束路径调用 `ApplyTurnEndCleanup`，然后直接 `ResolveTurnStart`。
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingCleanupTasks`，当前可显式暴露致命伤害、0 战力现代权威单位清理和战场争夺检查任务；`BattlefieldTasks` 可进一步暴露争夺后的 spell duel/battle 任务状态。
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingTaskQueue`，按状态性清理、战场争夺、法术对决启动、战斗启动的顺序公开当前 active task 和 blocking phase。
-- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害/0 战力清理直到稳定。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害/0 战力清理直到稳定；`ResolveAsync` 会在 blocking pending task queue 期间拒绝普通玩家命令。
 
-现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；有明确 owner/controller 的 0 战力场上单位也会在该 loop 中按 `ZERO_POWER` 清理；`PendingCleanupTasks` 已能列出待处理的致命伤害、0 战力、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
+现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；有明确 owner/controller 的 0 战力场上单位也会在该 loop 中按 `ZERO_POWER` 清理；`PendingCleanupTasks` 已能列出待处理的致命伤害、0 战力、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行，例如行动前已处于致命伤害待清理的单位不能再移动。但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
 
-最小复现场景：移动一个已经带致命伤害的单位，当前会移动后清理到废牌堆；结算一个无行为栈项目时，如果场上已有致命伤害单位或有 owner/controller 的 0 战力现代权威单位，也会在栈结算后被状态性清理兜底摧毁。但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
+最小复现场景：尝试移动一个已经带致命伤害的单位，当前会因 `DESTROY_LETHAL_UNIT` blocking task 被拒绝；结算一个无行为栈项目时，如果场上已有致命伤害单位或有 owner/controller 的 0 战力现代权威单位，也会在栈结算后被状态性清理兜底摧毁。但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
 
 建议修复：
 - 引入 `PendingTaskQueue` 与 `RunCleanupLoop`，统一处理致命伤害、0 战力、离场、战场控制变化、法术对决/战斗启动、胜负检查。
 - 所有命令、栈结算、触发结算、移动、进场/离场之后必须进入同一 cleanup loop。
 
 建议测试：
-- 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入同一 cleanup loop；0 战力现代权威单位清理进入同一 cleanup loop；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图。
+- 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入同一 cleanup loop；0 战力现代权威单位清理进入同一 cleanup loop；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图；待清理 blocking queue 会关闭普通 prompt 并拒绝普通命令。
 - 待补：战力变化产生的 0 战力对象应立即触发持久 task queue；替代效果、所有进出战场路径都触发同一持久 cleanup task queue。
 - cleanup loop 重复直到稳定。
-- cleanup 期间拒绝响应/行动窗口。
+- 已新增：cleanup/task queue 阻塞期间 prompt 只给 `WAIT`，普通命令被 `PhaseNotAllowed` 拒绝。
 
 ### P0-004 法术对决与战斗不是完整官方状态机
 

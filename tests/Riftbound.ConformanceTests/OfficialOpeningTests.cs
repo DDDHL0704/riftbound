@@ -463,7 +463,7 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
-    public async Task MoveUnitRunsLethalCleanupAndReconcilesObjectLocation()
+    public async Task MoveUnitRejectsWhenLethalCleanupTaskIsPending()
     {
         var state = new MatchState(
             "move-cleanup-room",
@@ -523,15 +523,13 @@ public sealed class OfficialOpeningTests
                 []),
             CancellationToken.None);
 
-        Assert.True(result.Accepted, result.ErrorMessage);
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
-        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
-        Assert.DoesNotContain("P1-DAMAGED-UNIT", result.State.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P1-DAMAGED-UNIT"], result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-DAMAGED-UNIT"].Zone);
-        Assert.DoesNotContain(
-            result.State.PendingCleanupTasks,
-            task => string.Equals(task.ObjectId, "P1-DAMAGED-UNIT", StringComparison.Ordinal));
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Contains("DESTROY_LETHAL_UNIT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(["P1-DAMAGED-UNIT"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("BASE", result.State.ObjectLocations["P1-DAMAGED-UNIT"].Zone);
     }
 
     private static void AssertValid(OfficialDecklist decklist, OfficialCardCatalog catalog)

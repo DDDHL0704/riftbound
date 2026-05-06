@@ -1298,6 +1298,33 @@ public sealed record ResolutionResult(
         return new ResolutionResult(false, error, state, [], BuildSnapshots(state), BuildPrompts(state), errorCode);
     }
 
+    public static bool HasBlockingPendingTaskQueue(MatchState state)
+    {
+        if (state.Status != MatchStatuses.InProgress
+            || string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal)
+            || string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal)
+            || HasOpenStackPriority(state)
+            || HasOpenSpellDuelFocus(state))
+        {
+            return false;
+        }
+
+        return state.PendingTaskQueue.IsBlocking;
+    }
+
+    public static string BlockingPendingTaskQueueReason(MatchState state)
+    {
+        var queue = state.PendingTaskQueue;
+        var activeTask = queue.Tasks.FirstOrDefault(task => string.Equals(task.TaskId, queue.ActiveTaskId, StringComparison.Ordinal))
+            ?? queue.Tasks.FirstOrDefault();
+        if (activeTask is null)
+        {
+            return "等待服务端处理任务队列";
+        }
+
+        return $"等待服务端处理任务队列：{activeTask.Kind} ({activeTask.TaskId})";
+    }
+
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)
     {
         return state.Seats.Keys.ToDictionary(
@@ -1793,7 +1820,7 @@ public sealed record ResolutionResult(
                     : ["WAIT"]));
         }
 
-        if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
+        if (HasOpenStackPriority(state))
         {
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
                 state,
@@ -1807,8 +1834,7 @@ public sealed record ResolutionResult(
                     : ["WAIT"]));
         }
 
-        if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
-            && !string.IsNullOrWhiteSpace(state.FocusPlayerId))
+        if (HasOpenSpellDuelFocus(state))
         {
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
                 state,
@@ -1820,6 +1846,17 @@ public sealed record ResolutionResult(
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
                     ? ActionPromptBuilder.SpellDuelFocusActions(state, playerId)
                     : ["WAIT"]));
+        }
+
+        if (HasBlockingPendingTaskQueue(state))
+        {
+            var reason = BlockingPendingTaskQueueReason(state);
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                false,
+                reason,
+                ["WAIT"]));
         }
 
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
@@ -1841,6 +1878,17 @@ public sealed record ResolutionResult(
                     "END_TURN"
                 ]
                 : ["WAIT"]));
+    }
+
+    private static bool HasOpenStackPriority(MatchState state)
+    {
+        return state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId);
+    }
+
+    private static bool HasOpenSpellDuelFocus(MatchState state)
+    {
+        return string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(state.FocusPlayerId);
     }
 
     public static string? OpeningMulliganPlayerId(MatchState state)
