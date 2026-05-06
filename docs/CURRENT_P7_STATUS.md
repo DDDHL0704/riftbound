@@ -339,6 +339,14 @@ P7.8 validation:
 - Full card rules text is preserved in the card tooltip, while the visible face uses clamped Chinese text to keep the product table readable.
 - Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed. `curl http://127.0.0.1:5088/catalog/behavior-specs?cardNo=SFD%C2%B7125/221` confirmed `cost.mana`, `cost.returnEnergy`, `cost.power`, and `officialText` are available from the local backend. Browser fallback smoke refreshed `http://127.0.0.1:5173/` and verified the first screen still renders without any official-card-art loading notice.
 
+## P7 Follow-up Complex Action UX
+
+- Clarified that right-side complex action buttons are mode selectors, not one-click rule execution: selecting `打出卡牌`, `移动单位`, `装配装备`, `声明战斗`, `激活能力`, or `传奇行动` now opens a visible `当前选择` coach with next-step instructions and current draft fields.
+- Operation tabs now select the matching desktop click intent and safely prefill unique server-provided source/target/destination/mode candidates, reducing the "clicked but nothing happened" feeling while still keeping all legal choices authoritative from `ActionPrompt`.
+- Cards that appear in enabled server candidates are now highlighted on the battle desk, with source/target styling so players can click the card itself and use its context menu instead of hunting through the right panel.
+- User-facing boundary: complex actions still require `提交打出` / `提交移动` / corresponding submit button after source/target/payment selection; the frontend does not execute or validate rules locally.
+- Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed; `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` passed with `0` warnings and `0` errors; `git diff --check` passed. Browser fallback smoke refreshed `http://127.0.0.1:5173/`, entered the existing `p7-1778041374444` match, clicked `移动单位`, verified the `当前选择 / 移动单位` coach, source/destination instructions, highlighted legal cards, and card context action `移动这个单位` filling the draft source.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:

@@ -2853,6 +2853,24 @@ body {
   box-shadow: 0 0 0 3px rgba(226, 186, 87, 0.72), 0 14px 22px rgba(0, 0, 0, 0.28);
 }
 
+.product-card.actionable-card {
+  outline: 2px solid rgba(226, 186, 87, 0.58);
+  outline-offset: 2px;
+}
+
+.product-card.action-source {
+  box-shadow: 0 0 0 2px rgba(226, 186, 87, 0.48), 0 12px 22px rgba(0, 0, 0, 0.3);
+}
+
+.product-card.action-target {
+  outline-style: dashed;
+  outline-color: rgba(102, 204, 177, 0.82);
+}
+
+.product-card.matching-selection {
+  filter: saturate(1.1) brightness(1.04);
+}
+
 .product-card-name {
   display: -webkit-box;
   overflow: hidden;
@@ -3391,6 +3409,87 @@ body {
 
 .product-workbench-drawer .operation-tabs button {
   min-height: 32px;
+}
+
+.operation-mode-coach {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(22, 45, 49, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 249, 232, 0.78);
+  padding: 10px;
+}
+
+.operation-mode-coach.ready {
+  border-color: rgba(31, 122, 103, 0.42);
+  background: rgba(230, 246, 238, 0.86);
+}
+
+.operation-mode-coach.blocked {
+  border-color: rgba(191, 76, 54, 0.24);
+  background: rgba(255, 238, 228, 0.72);
+}
+
+.operation-mode-coach header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.operation-mode-coach h3 {
+  margin: 0;
+  color: #162d31;
+  font-size: 15px;
+  line-height: 1.15;
+}
+
+.operation-mode-coach header > span {
+  border-radius: 999px;
+  background: rgba(22, 45, 49, 0.12);
+  color: #162d31;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.operation-mode-coach ol {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+  color: #31494d;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.operation-mode-draft {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.operation-mode-draft span {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  background: rgba(22, 45, 49, 0.09);
+  color: #53686d;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.operation-mode-draft strong {
+  overflow: hidden;
+  max-width: 130px;
+  color: #162d31;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .product-drawer .seat-dock,

@@ -193,6 +193,22 @@ type ActivateDraft = {
 
 type OperationMode = "play" | "ability" | "move" | "assemble" | "battle" | "legend";
 
+type CandidateDefaultsContext = {
+  snapshot?: SnapshotDto;
+  playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
+  activateDraft: ActivateDraft;
+  onPlayDraft: (draft: PlayCardDraft) => void;
+  onMoveDraft: (draft: MoveUnitDraft) => void;
+  onAssembleDraft: (draft: AssembleDraft) => void;
+  onBattleDraft: (draft: BattleDraft) => void;
+  onLegendDraft: (draft: LegendDraft) => void;
+  onActivateDraft: (draft: ActivateDraft) => void;
+};
+
 type CardContextRole = "source" | "target" | "destination";
 
 type CardContextAction = {
@@ -1657,6 +1673,7 @@ function ProductActionPanel(props: {
       props.onOperationMode(mode);
       props.onWorkbenchOpen(true);
       props.onSelectionIntent(defaultSelectionIntentForOperation(mode));
+      applyCandidateDefaults(mode, candidate, props);
       return;
     }
 
@@ -1706,7 +1723,7 @@ function ProductActionPanel(props: {
 
       <div className="action-boundary">
         <strong>{actionableCandidates.length}</strong>
-        <span>项服务端允许操作。复杂行动需要在下方选择来源、目标与费用后提交。</span>
+        <span>项服务端允许操作。点亮的复杂动作会进入操作模式；再点高亮卡牌或服务端候选，最后点提交。</span>
       </div>
 
       <details
@@ -2235,7 +2252,7 @@ function ProductCard({
   return (
     <article className="product-card-wrap">
       <button
-        className={productCardClassName(object, isHighlighted, perspectivePlayerId)}
+        className={productCardClassName(object, isHighlighted, perspectivePlayerId, contextActions, selectionIntent)}
         onClick={() => onContextObject(contextOpen ? "" : objectId)}
         title={productCardTooltip(objectId, object, spec, cardNamesByNo)}
         type="button"
@@ -2449,10 +2466,18 @@ function isUnitLikeSpec(spec: BehaviorSpecDto) {
   return spec.cardCategoryName.includes("单位");
 }
 
-function productCardClassName(object: ObjectView | undefined, selected: boolean, perspectivePlayerId: string) {
+function productCardClassName(
+  object: ObjectView | undefined,
+  selected: boolean,
+  perspectivePlayerId: string,
+  contextActions: CardContextAction[] = [],
+  selectionIntent?: SelectionIntent
+) {
   const classes = ["product-card"];
   const tags = object?.tags ?? [];
   const controllerId = object?.controllerId ?? object?.ownerId;
+  const hasSourceAction = contextActions.some((action) => action.role === "source");
+  const hasTargetAction = contextActions.some((action) => action.role === "target");
   if (controllerId) {
     classes.push(controllerId === perspectivePlayerId ? "own-card" : "enemy-card");
   }
@@ -2477,7 +2502,35 @@ function productCardClassName(object: ObjectView | undefined, selected: boolean,
   if (selected) {
     classes.push("selected");
   }
+  if (contextActions.length > 0) {
+    classes.push("actionable-card");
+  }
+  if (hasSourceAction) {
+    classes.push("action-source");
+  }
+  if (hasTargetAction) {
+    classes.push("action-target");
+  }
+  if (
+    (hasSourceAction && selectionIntentWantsRole(selectionIntent, "source"))
+    || (hasTargetAction && selectionIntentWantsRole(selectionIntent, "target"))
+  ) {
+    classes.push("matching-selection");
+  }
   return classes.join(" ");
+}
+
+function selectionIntentWantsRole(intent: SelectionIntent | undefined, role: CardContextRole) {
+  if (!intent) {
+    return false;
+  }
+  if (role === "source") {
+    return intent.endsWith("source") || intent === "battle-attacker";
+  }
+  if (role === "target") {
+    return intent.endsWith("target") || intent === "battle-defender";
+  }
+  return false;
 }
 
 function cardControllerBadge(object: ObjectView | undefined, perspectivePlayerId: string) {
@@ -2810,6 +2863,7 @@ function CommandWorkbench({
   const assembleCandidate = candidateFor(promptCandidates, "ASSEMBLE_EQUIPMENT");
   const battleCandidate = candidateFor(promptCandidates, "DECLARE_BATTLE");
   const legendCandidate = candidateFor(promptCandidates, "LEGEND_ACT");
+  const currentOperationCandidate = candidateFor(promptCandidates, operationActionForMode(operationMode));
   const activateAbilityEnabled = Boolean(activateCandidate?.enabled && activateCandidate.sources?.length);
   const canLegendAct = Boolean(legendCandidate?.enabled && legendCandidate.sources?.length);
   const playTargetChoices: ActionPromptChoiceDto[] = playCandidate?.targets?.length
@@ -2844,11 +2898,32 @@ function CommandWorkbench({
     });
   }
 
+  function selectOperationMode(mode: OperationMode, candidate = candidateFor(promptCandidates, operationActionForMode(mode))) {
+    onOperationMode(mode);
+    onSelectionIntent(defaultSelectionIntentForOperation(mode));
+    if (candidate) {
+      applyCandidateDefaults(mode, candidate, {
+        snapshot,
+        playDraft,
+        moveDraft,
+        assembleDraft,
+        battleDraft,
+        legendDraft,
+        activateDraft,
+        onPlayDraft,
+        onMoveDraft,
+        onAssembleDraft,
+        onBattleDraft,
+        onLegendDraft,
+        onActivateDraft
+      });
+    }
+  }
+
   function handleWorkbenchCandidate(candidate: ActionPromptCandidateDto) {
     const mode = operationModeForAction(candidate.action);
     if (mode) {
-      onOperationMode(mode);
-      onSelectionIntent(defaultSelectionIntentForOperation(mode));
+      selectOperationMode(mode, candidate);
       return;
     }
 
@@ -2907,13 +2982,25 @@ function CommandWorkbench({
             className={operationMode === tab.id ? "selected" : ""}
             data-testid={`operation-tab-${tab.id}`}
             key={tab.id}
-            onClick={() => onOperationMode(tab.id)}
+            onClick={() => selectOperationMode(tab.id)}
             type="button"
           >
             {tab.label}
           </button>
         ))}
       </div>
+
+      <OperationModeCoach
+        mode={operationMode}
+        candidate={currentOperationCandidate}
+        selectionIntent={selectionIntent}
+        playDraft={playDraft}
+        moveDraft={moveDraft}
+        assembleDraft={assembleDraft}
+        battleDraft={battleDraft}
+        legendDraft={legendDraft}
+        activateDraft={activateDraft}
+      />
 
       {operationMode === "play" ? (
       <section className="play-card-panel">
@@ -3407,6 +3494,63 @@ function CommandWorkbench({
         <pre data-testid="fixture-draft">{fixtureText}</pre>
       </section>
       ) : null}
+    </section>
+  );
+}
+
+function OperationModeCoach({
+  mode,
+  candidate,
+  selectionIntent,
+  playDraft,
+  moveDraft,
+  assembleDraft,
+  battleDraft,
+  legendDraft,
+  activateDraft
+}: {
+  mode: OperationMode;
+  candidate?: ActionPromptCandidateDto;
+  selectionIntent: SelectionIntent;
+  playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
+  activateDraft: ActivateDraft;
+}) {
+  const actionLabel = promptActionLabel(operationActionForMode(mode));
+  const enabled = Boolean(candidate?.enabled);
+  const draftSummary = operationDraftSummary(mode, {
+    playDraft,
+    moveDraft,
+    assembleDraft,
+    battleDraft,
+    legendDraft,
+    activateDraft
+  });
+
+  return (
+    <section className={enabled ? "operation-mode-coach ready" : "operation-mode-coach blocked"} data-testid="operation-mode-coach">
+      <header>
+        <div>
+          <p className="eyebrow">当前选择</p>
+          <h3>{actionLabel}</h3>
+        </div>
+        <span>{enabled ? "服务端允许" : "当前不可执行"}</span>
+      </header>
+      <ol>
+        {operationModeSteps(mode, candidate, selectionIntent).map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+      <div className="operation-mode-draft" aria-label="当前草稿">
+        {draftSummary.map((item) => (
+          <span key={item.label}>
+            {item.label} <strong>{item.value || "-"}</strong>
+          </span>
+        ))}
+      </div>
     </section>
   );
 }
@@ -4534,18 +4678,18 @@ function coachSteps(
     return ["当前只有“结束回合”合法", "点“结束回合”推进到下一名玩家", "要测出牌、移动、装备或战斗，可载入下方对应局面"];
   }
   return [
-    "优先点上方亮起的服务端动作",
-    "复杂动作先展开“目标选择与提交”，选择来源、目标和费用",
-    "提交后看日志与桌面状态是否按服务端快照更新"
+    "点亮的服务端动作只会进入对应操作模式",
+    "再点桌面上的高亮卡牌或服务端候选来填来源、目标和费用",
+    "最后点提交按钮，日志与桌面会按服务端快照更新"
   ];
 }
 
 function guidedActionStatus(prompt: ActionPromptDto | undefined, candidate: ActionPromptCandidateDto | undefined) {
   if (candidate?.enabled) {
-    if (directPromptActions.has(candidate.action)) {
-      return { label: "当前可点", detail: promptReasonLabel(candidate.reason), tone: "ready" };
+    if (operationModeForAction(candidate.action)) {
+      return { label: "进入操作模式", detail: "点后选择高亮卡牌或服务端候选，再点对应提交按钮。", tone: "ready" };
     }
-    return { label: "可在下方提交", detail: "展开“目标选择与提交”，按服务端来源、目标和费用填写后提交。", tone: "ready" };
+    return { label: "当前可点", detail: promptReasonLabel(candidate.reason), tone: "ready" };
   }
   if (candidate) {
     return {
@@ -4607,6 +4751,19 @@ function operationModeForAction(action: string): OperationMode | undefined {
   )[action];
 }
 
+function operationActionForMode(mode: OperationMode) {
+  return (
+    {
+      play: "PLAY_CARD",
+      ability: "ACTIVATE_ABILITY",
+      move: "MOVE_UNIT",
+      assemble: "ASSEMBLE_EQUIPMENT",
+      battle: "DECLARE_BATTLE",
+      legend: "LEGEND_ACT"
+    } satisfies Record<OperationMode, string>
+  )[mode];
+}
+
 function defaultSelectionIntentForOperation(mode: OperationMode): SelectionIntent {
   return (
     {
@@ -4618,6 +4775,178 @@ function defaultSelectionIntentForOperation(mode: OperationMode): SelectionInten
       legend: "legend-source"
     } satisfies Record<OperationMode, SelectionIntent>
   )[mode];
+}
+
+function applyCandidateDefaults(
+  mode: OperationMode,
+  candidate: ActionPromptCandidateDto,
+  context: CandidateDefaultsContext
+) {
+  if (!candidate.enabled) {
+    return;
+  }
+
+  const source = onlyChoice(candidate.sources);
+  const target = onlyChoice(candidate.targets);
+  const destination = onlyChoice(candidate.destinations);
+  const actionMode = onlyChoice(candidate.modes);
+
+  if (mode === "play") {
+    const object = source ? findObject(context.snapshot, source.id) : undefined;
+    context.onPlayDraft({
+      ...context.playDraft,
+      sourceObjectId: source?.id ?? context.playDraft.sourceObjectId,
+      cardNo: object?.cardNo ?? context.playDraft.cardNo,
+      targetObjectIds: target?.id ?? context.playDraft.targetObjectIds,
+      destination: destination?.id ?? context.playDraft.destination,
+      mode: actionMode?.id ?? context.playDraft.mode
+    });
+    return;
+  }
+
+  if (mode === "move") {
+    const origin = source ? objectCoarseZone(context.snapshot, source.id) : undefined;
+    context.onMoveDraft({
+      ...context.moveDraft,
+      sourceObjectId: source?.id ?? context.moveDraft.sourceObjectId,
+      origin: origin ?? context.moveDraft.origin,
+      destination: destination?.id ?? context.moveDraft.destination
+    });
+    return;
+  }
+
+  if (mode === "assemble") {
+    context.onAssembleDraft({
+      ...context.assembleDraft,
+      sourceObjectId: source?.id ?? context.assembleDraft.sourceObjectId,
+      targetObjectId: target?.id ?? context.assembleDraft.targetObjectId
+    });
+    return;
+  }
+
+  if (mode === "battle") {
+    context.onBattleDraft({
+      ...context.battleDraft,
+      battlefieldId: destination?.id ?? context.battleDraft.battlefieldId,
+      attackerObjectIds: source?.id ?? context.battleDraft.attackerObjectIds,
+      defenderObjectIds: target?.id ?? context.battleDraft.defenderObjectIds
+    });
+    return;
+  }
+
+  if (mode === "legend") {
+    context.onLegendDraft({
+      ...context.legendDraft,
+      sourceObjectId: source?.id ?? context.legendDraft.sourceObjectId,
+      abilityId: actionMode?.id ?? context.legendDraft.abilityId,
+      targetObjectIds: target?.id ?? context.legendDraft.targetObjectIds
+    });
+    return;
+  }
+
+  context.onActivateDraft({
+    ...context.activateDraft,
+    sourceObjectId: source?.id ?? context.activateDraft.sourceObjectId,
+    abilityId: actionMode?.id ?? context.activateDraft.abilityId,
+    targetObjectIds: target?.id ?? context.activateDraft.targetObjectIds
+  });
+}
+
+function onlyChoice(choices?: ActionPromptChoiceDto[]) {
+  return choices?.length === 1 ? choices[0] : undefined;
+}
+
+function operationModeSteps(
+  mode: OperationMode,
+  candidate: ActionPromptCandidateDto | undefined,
+  selectionIntent: SelectionIntent
+) {
+  if (!candidate) {
+    return [
+      `服务端当前没有开放“${promptActionLabel(operationActionForMode(mode))}”。`,
+      "换到当前行动方视角，或载入对应测试局面。",
+      "灰色动作不会提交，避免前端越权裁决规则。"
+    ];
+  }
+  if (!candidate.enabled) {
+    return [
+      promptReasonLabel(candidate.reason) || "服务端认为当前局面不满足条件。",
+      "请先处理优先权、资源、来源或目标条件。",
+      "页面只允许提交服务端 ActionPrompt 开放的动作。"
+    ];
+  }
+
+  const currentPick = selectionIntentLabel(selectionIntent);
+  if (mode === "play") {
+    return ["先点高亮手牌或“服务端来源”选择要打出的牌。", "需要目标时点高亮目标；有目的地或模式时检查是否已带入。", "确认草稿后点“提交打出”。"];
+  }
+  if (mode === "move") {
+    return ["先点高亮的己方可移动单位，或点“服务端来源”。", "选择服务端目的地；若只有一个目的地，页面会自动带入。", "确认单位和目的地后点“提交移动”。"];
+  }
+  if (mode === "assemble") {
+    return ["先点高亮装备作为来源。", "再点可装配的高亮单位作为宿主。", "确认草稿后点“提交装配”。"];
+  }
+  if (mode === "battle") {
+    return ["先选择高亮攻击方。", "再选择防守方或战场目标，检查战场字段。", "确认攻防分配后点“提交战斗”。"];
+  }
+  if (mode === "legend") {
+    return ["先点高亮传奇来源。", "选择能力和目标；唯一服务端候选会自动带入。", "确认草稿后点“提交传奇行动”。"];
+  }
+  return [`当前桌面点击会作为“${currentPick}”。`, "先点高亮能力来源，再点合法目标。", "确认草稿后点“提交激活”。"];
+}
+
+function operationDraftSummary(
+  mode: OperationMode,
+  drafts: {
+    playDraft: PlayCardDraft;
+    moveDraft: MoveUnitDraft;
+    assembleDraft: AssembleDraft;
+    battleDraft: BattleDraft;
+    legendDraft: LegendDraft;
+    activateDraft: ActivateDraft;
+  }
+) {
+  if (mode === "play") {
+    return [
+      { label: "来源", value: drafts.playDraft.sourceObjectId },
+      { label: "目标", value: drafts.playDraft.targetObjectIds || "无" },
+      { label: "目的地", value: drafts.playDraft.destination },
+      { label: "费用", value: drafts.playDraft.optionalCosts || "无" }
+    ];
+  }
+  if (mode === "move") {
+    return [
+      { label: "单位", value: drafts.moveDraft.sourceObjectId },
+      { label: "来源区", value: drafts.moveDraft.origin },
+      { label: "去向", value: drafts.moveDraft.destination }
+    ];
+  }
+  if (mode === "assemble") {
+    return [
+      { label: "装备", value: drafts.assembleDraft.sourceObjectId },
+      { label: "宿主", value: drafts.assembleDraft.targetObjectId },
+      { label: "费用", value: drafts.assembleDraft.optionalCosts || "无" }
+    ];
+  }
+  if (mode === "battle") {
+    return [
+      { label: "战场", value: drafts.battleDraft.battlefieldId },
+      { label: "攻击方", value: drafts.battleDraft.attackerObjectIds },
+      { label: "防守方", value: drafts.battleDraft.defenderObjectIds }
+    ];
+  }
+  if (mode === "legend") {
+    return [
+      { label: "传奇", value: drafts.legendDraft.sourceObjectId },
+      { label: "能力", value: drafts.legendDraft.abilityId },
+      { label: "目标", value: drafts.legendDraft.targetObjectIds || "无" }
+    ];
+  }
+  return [
+    { label: "来源", value: drafts.activateDraft.sourceObjectId },
+    { label: "能力", value: drafts.activateDraft.abilityId },
+    { label: "目标", value: drafts.activateDraft.targetObjectIds || "无" }
+  ];
 }
 
 function selectionIntentLabel(intent: SelectionIntent) {
