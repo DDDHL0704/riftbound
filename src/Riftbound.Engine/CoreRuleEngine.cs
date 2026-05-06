@@ -361,7 +361,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(state, intent.PlayerId, plan.TotalManaCost, plan.TotalPowerCost);
+        var runePools = PayRuneCosts(
+            state,
+            intent.PlayerId,
+            plan.TotalManaCost,
+            plan.AnyPowerCost,
+            plan.PowerCostByTrait);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, plan.TotalExperienceCost);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
@@ -471,6 +476,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playerId"] = intent.PlayerId,
                     ["mana"] = plan.TotalManaCost,
                     ["power"] = plan.TotalPowerCost,
+                    ["powerByTrait"] = plan.PowerCostByTrait,
                     ["experience"] = plan.TotalExperienceCost,
                     ["baseMana"] = behavior.ManaCost,
                     ["costReductionMana"] = plan.CostReductionMana,
@@ -10330,6 +10336,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out var optionalCosts,
                 out var extraManaCost,
                 out var extraPowerCost,
+                out var extraPowerCostByTrait,
                 out var experienceCost,
                 out var optionalCostManaReduction,
                 out var effectRepeatCount,
@@ -10491,7 +10498,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             + extraManaCost
             + battlefieldHeldUnitCostIncreaseMana
             + spellshieldTaxMana;
-        var totalPowerCost = extraPowerCost;
+        var totalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum();
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
         if (currentPool.Mana < totalManaCost)
@@ -10503,7 +10510,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (currentPool.Power < totalPowerCost)
+        if (!CanPayPowerCost(currentPool, extraPowerCost, extraPowerCostByTrait))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -10529,6 +10536,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             zones,
             targetObjectIds,
             totalManaCost,
+            extraPowerCost,
+            extraPowerCostByTrait,
             totalPowerCost,
             totalExperienceCost,
             effectRepeatCount,
@@ -12206,17 +12215,95 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         string playerId,
         int manaCost,
-        int powerCost)
+        int powerCost,
+        IReadOnlyDictionary<string, int>? powerCostByTrait = null)
     {
         var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        runePools[playerId] = currentPool with
-        {
-            Mana = currentPool.Mana - manaCost,
-            Power = currentPool.Power - powerCost
-        };
+        var (remainingAnyPower, remainingPowerByTrait) = PayPowerCost(
+            currentPool,
+            powerCost,
+            powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        runePools[playerId] = new RunePool(
+            currentPool.Mana - manaCost,
+            remainingAnyPower,
+            remainingPowerByTrait);
 
         return runePools;
+    }
+
+    private static bool CanPayPowerCost(
+        RunePool pool,
+        int anyPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        if (anyPowerCost < 0)
+        {
+            return false;
+        }
+
+        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var cost in NormalizePowerCostByTrait(powerCostByTrait))
+        {
+            if (!remainingPowerByTrait.TryGetValue(cost.Key, out var available)
+                || available < cost.Value)
+            {
+                return false;
+            }
+
+            remainingPowerByTrait[cost.Key] = available - cost.Value;
+        }
+
+        return pool.Power + remainingPowerByTrait.Values.Sum() >= anyPowerCost;
+    }
+
+    private static (int AnyPower, IReadOnlyDictionary<string, int> PowerByTrait) PayPowerCost(
+        RunePool pool,
+        int anyPowerCost,
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        var remainingAnyPower = pool.Power;
+        var remainingPowerByTrait = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var cost in NormalizePowerCostByTrait(powerCostByTrait))
+        {
+            remainingPowerByTrait[cost.Key] -= cost.Value;
+        }
+
+        var remainingAnyCost = anyPowerCost;
+        var paidFromAny = Math.Min(remainingAnyPower, remainingAnyCost);
+        remainingAnyPower -= paidFromAny;
+        remainingAnyCost -= paidFromAny;
+
+        foreach (var trait in remainingPowerByTrait.Keys.OrderBy(key => key, StringComparer.Ordinal).ToArray())
+        {
+            if (remainingAnyCost <= 0)
+            {
+                break;
+            }
+
+            var paidFromTrait = Math.Min(remainingPowerByTrait[trait], remainingAnyCost);
+            remainingPowerByTrait[trait] -= paidFromTrait;
+            remainingAnyCost -= paidFromTrait;
+        }
+
+        return (
+            remainingAnyPower,
+            remainingPowerByTrait
+                .Where(entry => entry.Value > 0)
+                .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal));
+    }
+
+    private static IReadOnlyDictionary<string, int> NormalizePowerCostByTrait(
+        IReadOnlyDictionary<string, int> powerCostByTrait)
+    {
+        return powerCostByTrait
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Value > 0)
+            .GroupBy(entry => RuneTrait.Normalize(entry.Key), StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(entry => Math.Max(0, entry.Value)),
+                StringComparer.Ordinal);
     }
 
     private static Dictionary<string, PlayerZones> RemoveSourceCardFromHand(
@@ -13013,6 +13100,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         out IReadOnlyList<string> normalizedOptionalCosts,
         out int extraManaCost,
         out int extraPowerCost,
+        out IReadOnlyDictionary<string, int> extraPowerCostByTrait,
         out int experienceCost,
         out int optionalCostManaReduction,
         out int effectRepeatCount,
@@ -13024,6 +13112,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         normalizedOptionalCosts = NormalizeOptionalCosts(optionalCosts);
         extraManaCost = 0;
         extraPowerCost = 0;
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
         experienceCost = 0;
         optionalCostManaReduction = 0;
         effectRepeatCount = 1;
@@ -13123,9 +13212,20 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (normalizedOptionalCosts.Count == 1
             && behavior.DamageAmountFromOptionalPowerCost
-            && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost))
+            && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait))
         {
-            extraPowerCost = powerCost;
+            if (string.IsNullOrWhiteSpace(powerTrait))
+            {
+                extraPowerCost = powerCost;
+            }
+            else
+            {
+                extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [powerTrait] = powerCost
+                };
+            }
+
             return true;
         }
 
@@ -13259,18 +13359,39 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
-    private static bool TryParseSpendPowerOptionalCost(string optionalCost, out int powerCost)
+    private static bool TryParseSpendPowerOptionalCost(
+        string optionalCost,
+        out int powerCost,
+        out string powerTrait)
     {
         powerCost = 0;
+        powerTrait = string.Empty;
         if (!optionalCost.StartsWith(SpendPowerOptionalCostPrefix, StringComparison.Ordinal))
         {
             return false;
         }
 
-        return int.TryParse(
-                optionalCost[SpendPowerOptionalCostPrefix.Length..].Trim(),
-                out powerCost)
-            && powerCost >= 0;
+        var rawCost = optionalCost[SpendPowerOptionalCostPrefix.Length..].Trim();
+        var parts = rawCost
+            .Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 1)
+        {
+            return int.TryParse(parts[0], out powerCost) && powerCost >= 0;
+        }
+
+        if (parts.Length == 2 && int.TryParse(parts[0], out powerCost) && powerCost >= 0)
+        {
+            powerTrait = RuneTrait.Normalize(parts[1]);
+            return !string.IsNullOrWhiteSpace(powerTrait);
+        }
+
+        if (parts.Length == 2 && int.TryParse(parts[1], out powerCost) && powerCost >= 0)
+        {
+            powerTrait = RuneTrait.Normalize(parts[0]);
+            return !string.IsNullOrWhiteSpace(powerTrait);
+        }
+
+        return false;
     }
 
     private static bool TryParseSpendExperienceOptionalCost(string optionalCost, out int experienceCost)
@@ -20671,6 +20792,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         PlayerZones SourceZones,
         IReadOnlyList<string> TargetObjectIds,
         int TotalManaCost,
+        int AnyPowerCost,
+        IReadOnlyDictionary<string, int> PowerCostByTrait,
         int TotalPowerCost,
         int TotalExperienceCost,
         int EffectRepeatCount,

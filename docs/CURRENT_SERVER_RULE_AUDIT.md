@@ -24,8 +24,9 @@
 - P0-002 第二批已落地：`SnapshotDto.Lanes` 新增 `battlefields` 状态视图，从服务端权威 `ObjectLocations` 和 `CardObjects` 推导战场牌、控制者、占据单位、待命占位、面朝下待命数量与争夺状态，给 UI 和后续 cleanup/battle task 提供稳定服务端投影。
 - P0-001 第三批已落地：新增 GameHub 级正式开局 smoke，覆盖 `SUBMIT_DECK -> READY -> OFFICIAL_OPENING_STARTED -> MULLIGAN -> MULLIGAN_PHASE_COMPLETED -> RUNES_CALLED -> MAIN`，确保 WebSocket/房间层不会绕过或吞掉服务端官方 deck/opening/mulligan 流程。
 - P0-003 第二批已落地：结算链项目结算后新增统一状态性致命清理兜底。即使某个栈项目本身是无行为/未映射或单卡 resolver 漏接局部 cleanup，只要结算后场上存在伤害大于等于战力的单位，服务端会将其清理入对应非场地区域、同步 `ObjectLocations` 并记录 `UNIT_DESTROYED`。
+- P0-005 第一批已落地：`RunePool` 新增 `PowerByTrait` typed 符能池和 `TotalPower` 视图；`PLAY_CARD` 支付计划可区分任意符能与指定特性符能，`SPEND_POWER:red:2` / `SPEND_POWER:红色:2` 等 token 会校验并只扣对应特性，旧的泛化 `power` fixture 仍兼容。snapshot 的 `runePool` 继续提供总 `power`，同时新增 `untypedPower` 与 `powerByTrait` 给 UI 展示支付来源。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -142,24 +143,27 @@
 
 ### P0-005 彩色符能、普通费用、符能费用与资源技能模型不足
 
+当前状态：**PARTIALLY RESOLVED / typed pool 与 PLAY_CARD 指定特性支付已落地，符文/传奇/战场技能支付来源仍待统一**
+
 规则依据：自查文档 8、15；核心规则关于 `A/C`、阵营符能、费用支付、符文技能、可选费用、Spellshield/Encourage/Echo/Haste 等费用分支。
 
 代码位置：
-- `src/Riftbound.Engine/MatchSession.cs:41` 的 `RunePool` 只有 `Mana` 和泛化 `Power` 两个整数。
+- `src/Riftbound.Engine/MatchSession.cs` 的 `RunePool` 已升级为 `Mana` + 泛化 `Power` + `PowerByTrait`，并通过 `RuneTrait.Normalize` 支持中英文颜色别名。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:10141` 的出牌计划从 `CardBehaviorRegistry` 获取行为并做局部费用计算。
-- `src/Riftbound.Engine/CoreRuleEngine.cs:10403` 到 `src/Riftbound.Engine/CoreRuleEngine.cs:10418` 只计算总 mana 和总 power。
-- `src/Riftbound.Engine/CoreRuleEngine.cs:10419` 到 `src/Riftbound.Engine/CoreRuleEngine.cs:10434` 只比较泛化资源是否足够。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 的 `PLAY_CARD` 支付计划已可记录任意符能与指定特性符能，并通过 `PayRuneCosts` / `CanPayPowerCost` 校验与扣费。
+- 仍缺：符文技能、传奇技能、战场技能、装备装配、Haste/Echo/Spellshield 等所有支付路径都统一进入同一个 typed payment engine。
 
-现象：服务端无法表达官方彩色符能支付、任意符能、同阵营符能、多符能费用组合，以及支付窗口中由 rune/legend/battlefield/skill 产生的复杂支付来源选择。
+现象：服务端现在可以在 `PLAY_CARD` 的可选符能支付中表达并校验指定特性，例如 `SPEND_POWER:red:2` 会要求红色符能并只扣红色；旧 fixtures 的泛化 `power` 仍按任意符能兼容。但同阵营符能、多符能组合，以及由 rune/legend/battlefield/skill 产生的复杂支付来源选择仍未统一。
 
-最小复现场景：需要 `[A]`、`[C]`、同阵营 Haste 支付、Spellshield 多目标加税或 Echo 复杂费用的牌，当前费用系统只能看到 `Power` 总量，无法判断具体颜色合法性。
+最小复现场景：P1 拥有 `powerByTrait.red = 2` 时打出《弹幕时间》并提交 `SPEND_POWER:red:2` 会成功入栈且只消耗红色；如果只有 `powerByTrait.blue = 3`，同一命令会以 `INSUFFICIENT_COST` 拒绝且手牌、资源和结算链不变。需要 `[A]`、`[C]`、同阵营 Haste 支付、Spellshield 多目标加税或 Echo 复杂费用的更广路径仍未完整。
 
 建议修复：
-- 将 `RunePool` 升级为 typed pool，例如 `Mana` + `PowerByTrait` + `AnyPower`，并建立支付计划/支付来源记录。
-- 所有支付都通过统一 `PaymentEngine` 校验，支持普通费用、符能费用、额外/可选费用、替代费用、减费/加费、符文技能。
+- 继续把所有支付都通过统一 `PaymentEngine` 校验，支持普通费用、符能费用、额外/可选费用、替代费用、减费/加费、符文技能。
+- 为 `CardBehaviorDefinition` 或 BehaviorSpec 费用模型补充官方颜色需求，而不是只靠客户端传入 `SPEND_POWER:<trait>:<amount>`。
 
 建议测试：
-- `[A]`、`[C]`、单阵营/多阵营费用、Haste 彩色支付、Spellshield 多目标加税、Echo 费用、支付失败不改变状态。
+- 已新增：指定红色符能支付成功扣对应 trait；指定红色但只有蓝色时拒绝且状态不变。
+- 待补：`[A]`、`[C]`、单阵营/多阵营费用、Haste 彩色支付、Spellshield 多目标加税、Echo 费用、支付失败不改变状态。
 
 ## P1 问题
 
@@ -268,7 +272,7 @@
 | 官方 deck/opening/mulligan | FAIL | 无正式 deck validator 与官方开局状态机。 |
 | 区域/对象/控制权/战场位置 | FAIL | 缺少精确 battlefield/standby/control/location 模型。 |
 | FEPR/优先权/焦点 | RISKY | 有 timingState/focus/prompt，但缺少完整 pending task/state machine。 |
-| 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；彩色符能和通用支付/目标语法不足。 |
+| 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD typed 符能第一批已接入，但通用支付来源/目标语法仍不足。 |
 | 通用清理检查 | FAIL | 只有局部 cleanup helper，无全局 cleanup loop。 |
 | 移动/战场控制 | FAIL | 事件可描述移动，但状态无法表达具体战场位置/控制权。 |
 | 法术对决 | FAIL | 缺少完整 spell duel lifecycle。 |
@@ -286,7 +290,7 @@
 3. 重构 board model：battlefield state、unit location、standby、control/contest/conquer/hold。
 4. 建立 cleanup task queue，把移动、进场、离场、伤害、战力变化、战场控制变化统一纳入。
 5. 在 task queue 上重做 spell duel 和 battle state machine。
-6. 重做 typed payment engine，支持彩色符能、任意符能、普通费用、额外/可选费用与 rune/legend/battlefield 支付来源。
+6. 扩展 typed payment engine，支持所有彩色符能、任意符能、普通费用、额外/可选费用与 rune/legend/battlefield 支付来源。
 7. 引入 continuous effect layer engine。
 8. 逐关键词、逐卡牌把 `Representative/FixturePass` 提升到 `FullOfficialRulePass`。
 

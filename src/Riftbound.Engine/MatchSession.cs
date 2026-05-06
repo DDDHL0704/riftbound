@@ -41,9 +41,125 @@ public static class TimingStates
     public const string SpellDuelClosed = "SPELL_DUEL_CLOSED";
 }
 
-public sealed record RunePool(int Mana, int Power)
+public sealed record RunePool
 {
+    private static readonly IReadOnlyDictionary<string, int> EmptyPowerByTrait =
+        new Dictionary<string, int>(StringComparer.Ordinal);
+
+    [JsonConstructor]
+    public RunePool(
+        int mana,
+        int power,
+        IReadOnlyDictionary<string, int>? powerByTrait = null)
+    {
+        Mana = Math.Max(0, mana);
+        Power = Math.Max(0, power);
+        PowerByTrait = NormalizePowerByTrait(powerByTrait);
+    }
+
     public static RunePool Empty { get; } = new(0, 0);
+
+    public int Mana { get; init; }
+
+    public int Power { get; init; }
+
+    public IReadOnlyDictionary<string, int> PowerByTrait { get; init; }
+
+    [JsonIgnore]
+    public int TotalPower => Power + PowerByTrait.Values.Sum();
+
+    public bool Equals(RunePool? other)
+    {
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return other is not null
+            && Mana == other.Mana
+            && Power == other.Power
+            && PowerByTrait.Count == other.PowerByTrait.Count
+            && PowerByTrait.All(entry =>
+                other.PowerByTrait.TryGetValue(entry.Key, out var otherValue)
+                && entry.Value == otherValue);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Mana);
+        hash.Add(Power);
+        foreach (var entry in PowerByTrait.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            hash.Add(entry.Key);
+            hash.Add(entry.Value);
+        }
+
+        return hash.ToHashCode();
+    }
+
+    private static IReadOnlyDictionary<string, int> NormalizePowerByTrait(
+        IReadOnlyDictionary<string, int>? powerByTrait)
+    {
+        var normalized = (powerByTrait ?? EmptyPowerByTrait)
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Value > 0)
+            .GroupBy(entry => RuneTrait.Normalize(entry.Key), StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(entry => Math.Max(0, entry.Value)),
+                StringComparer.Ordinal);
+
+        return normalized.Count == 0
+            ? EmptyPowerByTrait
+            : normalized;
+    }
+}
+
+public static class RuneTrait
+{
+    public const string Red = "red";
+    public const string Green = "green";
+    public const string Blue = "blue";
+    public const string Yellow = "yellow";
+    public const string Orange = "orange";
+    public const string Purple = "purple";
+
+    private static readonly IReadOnlyDictionary<string, string> Aliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["red"] = Red,
+            ["红"] = Red,
+            ["红色"] = Red,
+            ["green"] = Green,
+            ["绿"] = Green,
+            ["绿色"] = Green,
+            ["blue"] = Blue,
+            ["蓝"] = Blue,
+            ["蓝色"] = Blue,
+            ["yellow"] = Yellow,
+            ["黄"] = Yellow,
+            ["黄色"] = Yellow,
+            ["orange"] = Orange,
+            ["橙"] = Orange,
+            ["橙色"] = Orange,
+            ["purple"] = Purple,
+            ["紫"] = Purple,
+            ["紫色"] = Purple
+        };
+
+    public static string Normalize(string? trait)
+    {
+        if (string.IsNullOrWhiteSpace(trait))
+        {
+            return string.Empty;
+        }
+
+        var normalized = trait.Trim();
+        return Aliases.TryGetValue(normalized, out var alias)
+            ? alias
+            : normalized.ToLowerInvariant();
+    }
 }
 
 public sealed record PlayerZones(
@@ -790,12 +906,16 @@ public sealed record ResolutionResult(
                 ? new Dictionary<string, object?>
                 {
                     ["mana"] = runePool.Mana,
-                    ["power"] = runePool.Power
+                    ["power"] = runePool.TotalPower,
+                    ["untypedPower"] = runePool.Power,
+                    ["powerByTrait"] = runePool.PowerByTrait
                 }
                 : new Dictionary<string, object?>
                 {
                     ["mana"] = 0,
-                    ["power"] = 0
+                    ["power"] = 0,
+                    ["untypedPower"] = 0,
+                    ["powerByTrait"] = new Dictionary<string, int>(StringComparer.Ordinal)
                 },
             ["zones"] = BuildZoneSnapshotView(zones, ownView),
             ["objects"] = BuildObjectSnapshotView(state, VisibleObjectIds(zones, ownView), ownView)

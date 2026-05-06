@@ -1293,6 +1293,114 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    1,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 2,
+                        [RuneTrait.Blue] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BULLET-TIME"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BULLET-TIME-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bullet-time-red-power", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: ["SPEND_POWER:red:2"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
+        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(2, costEvent.Payload["power"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
+        Assert.Equal(2, powerByTrait[RuneTrait.Red]);
+    }
+
+    [Fact]
+    public async Task P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    1,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Blue] = 3
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BULLET-TIME"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BULLET-TIME-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bullet-time-missing-red-power", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: ["SPEND_POWER:red:2"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(3, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal(["P1-SPELL-BULLET-TIME"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPortalpalRescueBanishPlayBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(
