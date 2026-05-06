@@ -1,6 +1,6 @@
 # Current P7.9 Status
 
-Last updated: 2026-05-05
+Last updated: 2026-05-06
 
 P7.9 working objective:
 
@@ -218,6 +218,38 @@ Final P7.9 gate:
 - Remaining manual domains: none.
 - Overall P7.9 progress: `13/13 top-level batches = 100.0%`; P7.9.6 legend domain is complete at `44/44` functional units / `106/106` entries, P7.9.7 battlefield domain is complete at `54/54` functional units / `57/57` entries, P7.9.9 combat completeness is done, P7.9.10 full catalog/page-detail integration is done, P7.9.11 product polish is done, and the final audit passed.
 - Estimated remaining top-level batches: `0`.
+
+## Post-P7.9 Product Battle Page Redesign
+
+Status: done on 2026-05-06.
+
+Purpose:
+
+- Replace the previous compressed development-console default screen with a product-grade battle page closer to a finished Web card game.
+- Keep all rule authority on the server and keep the existing local test/debug capabilities available, but move them behind right-side drawers and folded panels.
+
+Changes:
+
+- Default UI is now a single product battle page with a top HUD, room summary strip, full-height arena, right-side control drawer, and no marketing landing page.
+- The arena shows opponent on top, current player on bottom, two battlefield lanes, side zones for legend/champion/base, center response/stack well, and a bottom hand shelf.
+- Action UI now starts with a clean server `ActionPrompt` spotlight and prompt-derived buttons. The detailed target/cost/submit workbench is folded under `目标选择与提交`.
+- Seat controls, event log/report/replay boundary, and card catalog/detail views are available through right drawer tabs instead of occupying the main battlefield.
+- The page remains Chinese-facing: room labels, prompt/action labels, card catalog, rule text, event log, report, and operation surfaces are displayed in Chinese.
+- Fixed a grid-row height bug where the arena collapsed after `SystemNotice` disappeared; product page rows are now explicitly placed.
+
+Browser smoke:
+
+- URL: `http://127.0.0.1:5173/`
+- Server URL: `http://127.0.0.1:5088`
+- Room ID: `p7-1778033003149`
+- Path: reload page -> create room -> `双人入座` -> `双方准备` -> verify product arena -> open `图鉴` drawer -> open `日志` drawer.
+- Result: room reached `对局中`, active player `P1`, timing `普通行动窗口`; product arena stayed full-height with P2 top/P1 bottom, two lanes, side zones, hand shelf, prompt-derived action buttons, catalog detail, and event log/report visible.
+- Event log summary: `P1 已准备`, `P2 已准备`, `双方已准备，比赛开始`.
+
+Validation:
+
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed.
 
 ## P7.9.0 Delivered
 

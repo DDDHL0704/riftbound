@@ -225,6 +225,7 @@ type BehaviorSpecDto = {
 };
 
 type CatalogFilter = "all" | "conformance-pass" | "manual-deferred" | "blocked";
+type ProductPanel = "actions" | "setup" | "log" | "catalog";
 
 type ScenarioPreset = {
   id: string;
@@ -520,6 +521,7 @@ function App() {
   const [activateDraft, setActivateDraft] = useState(initialActivateDraft);
   const [selectionIntent, setSelectionIntent] = useState<SelectionIntent>("play-target");
   const [devToolsOpen, setDevToolsOpen] = useState(false);
+  const [productPanel, setProductPanel] = useState<ProductPanel>("actions");
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [fixtureDraft, setFixtureDraft] = useState("");
   const [fixtureStatus, setFixtureStatus] = useState("idle");
@@ -1028,15 +1030,15 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
-      <section className="top-bar" aria-label="连接设置">
-        <div>
-          <p className="eyebrow">本地产品版对战</p>
+    <main className="product-shell">
+      <section className="product-hud" aria-label="本地对战入口">
+        <div className="product-brand">
+          <p className="eyebrow">本地产品级对战</p>
           <h1>符文战场</h1>
-          <span className="subtitle">服务端权威双人对战房间</span>
+          <span className="subtitle">服务端权威双人卡牌对战</span>
         </div>
         <label>
-          服务器地址
+          服务器
           <input
             data-testid="server-url"
             value={serverUrl}
@@ -1045,7 +1047,7 @@ function App() {
           />
         </label>
         <label>
-          房间编号
+          房间
           <input
             data-testid="room-id"
             value={roomId}
@@ -1054,7 +1056,7 @@ function App() {
           />
         </label>
         <label>
-          操作视角
+          视角
           <select
             data-testid="active-player"
             value={activeKey}
@@ -1064,31 +1066,33 @@ function App() {
             <option value="p2">P2</option>
           </select>
         </label>
-        <button data-testid="new-room" onClick={() => void newRoom()}>
-          新房间
-        </button>
-        <button data-testid="join-both" onClick={() => void runForBoth(connectAndJoin)}>
-          双人入座
-        </button>
-        <button data-testid="ready-both" onClick={() => void runForBoth(ready)}>
-          双方准备
-        </button>
-        <button data-testid="snapshot-both" onClick={() => void runForBoth(requestSnapshot)}>
-          同步状态
-        </button>
-        <button
-          className={devToolsOpen ? "secondary-toggle active" : "secondary-toggle"}
-          data-testid="toggle-dev-tools"
-          onClick={() => setDevToolsOpen((current) => !current)}
-          type="button"
-        >
-          开发工具
-        </button>
+        <div className="product-hud-actions">
+          <button data-testid="new-room" onClick={() => void newRoom()} type="button">
+            新房间
+          </button>
+          <button data-testid="join-both" onClick={() => void runForBoth(connectAndJoin)} type="button">
+            双人入座
+          </button>
+          <button data-testid="ready-both" onClick={() => void runForBoth(ready)} type="button">
+            双方准备
+          </button>
+          <button data-testid="snapshot-both" onClick={() => void runForBoth(requestSnapshot)} type="button">
+            同步
+          </button>
+          <button
+            className={devToolsOpen ? "secondary-toggle active" : "secondary-toggle"}
+            data-testid="toggle-dev-tools"
+            onClick={() => setDevToolsOpen((current) => !current)}
+            type="button"
+          >
+            高级
+          </button>
+        </div>
       </section>
 
-      <section className="room-strip" aria-label="房间摘要">
+      <section className="product-room-strip" aria-label="房间摘要">
         {roomSummary.map((item) => (
-          <div className="metric" key={item.label}>
+          <div className="product-metric" key={item.label}>
             <span>{item.label}</span>
             <strong>{item.value}</strong>
           </div>
@@ -1097,8 +1101,8 @@ function App() {
 
       <SystemNotice notices={systemNotices} />
 
-      <section className="game-table-layout" aria-label="对战桌面">
-        <BattleDesk
+      <section className="product-stage" aria-label="产品级对战桌面">
+        <ProductBattleArena
           snapshot={latestSnapshot}
           activePlayerId={activePlayer.playerId}
           selectedObjectIds={selectedObjectIds}
@@ -1106,69 +1110,95 @@ function App() {
           cardNamesByNo={cardNamesByNo}
           onPickObject={handleObjectPick}
         />
-        <CommandWorkbench
-          activeKey={activeKey}
-          activePlayer={activePlayer}
-          snapshot={latestSnapshot}
-          playDraft={playDraft}
-          moveDraft={moveDraft}
-          assembleDraft={assembleDraft}
-          battleDraft={battleDraft}
-          legendDraft={legendDraft}
-          activateDraft={activateDraft}
-          visibleObjectIds={visibleObjectIds}
-          selectionIntent={selectionIntent}
-          cardNamesByNo={cardNamesByNo}
-          devToolsOpen={devToolsOpen}
-          fixtureText={fixtureText}
-          fixtureStatus={fixtureStatus}
-          onActiveKey={setActiveKey}
-          onSelectionIntent={setSelectionIntent}
-          onPlayDraft={setPlayDraft}
-          onMoveDraft={setMoveDraft}
-          onAssembleDraft={setAssembleDraft}
-          onBattleDraft={setBattleDraft}
-          onLegendDraft={setLegendDraft}
-          onActivateDraft={setActivateDraft}
-          onSubmitPlayCard={() => void submitPlayCardDraft()}
-          onSubmitMove={() => void submitMoveDraft()}
-          onSubmitAssemble={() => void submitAssembleDraft()}
-          onSubmitBattle={() => void submitBattleDraft()}
-          onSubmitLegend={() => void submitLegendDraft()}
-          onSubmitActivate={() => void submitActivateDraft()}
-          onPromptAction={(action) => void submitPromptAction(activeKey, action)}
-          onSeedScenario={(preset) => void seedScenario(preset)}
-          onRefreshFixture={refreshFixtureDraft}
-          onCopyFixture={() => void copyFixtureDraft()}
-        />
 
-        <aside className="side-rail" aria-label="对局信息">
-          <PlayerDock
-            players={players}
-            devToolsOpen={devToolsOpen}
-            onPatch={(key, patch) => updatePlayer(key, (current) => ({ ...current, ...patch }))}
-            onJoin={(key) => void connectAndJoin(key)}
-            onReconnect={(key) => void reconnect(key)}
-            onDisconnect={(key) => void disconnect(key)}
-            onReady={(key) => void ready(key)}
-            onSnapshot={(key) => void requestSnapshot(key)}
-            onPromptAction={(key, action) => void submitPromptAction(key, action)}
-            onSubmitJson={(key) => void submitJsonIntent(key)}
-          />
-          <MatchTelemetry players={players} snapshot={latestSnapshot} roomId={roomId} />
-          <CardCatalogPanel
-            specs={catalog}
-            status={catalogStatus}
-            summary={catalogSummary}
-            query={catalogQuery}
-            filter={catalogFilter}
-            selectedCardNo={selectedCardNo}
-            onQuery={setCatalogQuery}
-            onFilter={setCatalogFilter}
-            onSelect={setSelectedCardNo}
-            compact
-            onOpenFull={() => setCatalogOpen(true)}
-          />
+        <aside className="product-drawer" aria-label="对战控制台">
+          <div className="product-panel-tabs" data-testid="product-panel-tabs">
+            <button className={productPanel === "actions" ? "selected" : ""} onClick={() => setProductPanel("actions")} type="button">
+              操作
+            </button>
+            <button className={productPanel === "setup" ? "selected" : ""} onClick={() => setProductPanel("setup")} type="button">
+              席位
+            </button>
+            <button className={productPanel === "log" ? "selected" : ""} onClick={() => setProductPanel("log")} type="button">
+              日志
+            </button>
+            <button className={productPanel === "catalog" ? "selected" : ""} onClick={() => setProductPanel("catalog")} type="button">
+              图鉴
+            </button>
+          </div>
+
+          {productPanel === "actions" ? (
+            <ProductActionPanel
+              activeKey={activeKey}
+              activePlayer={activePlayer}
+              snapshot={latestSnapshot}
+              playDraft={playDraft}
+              moveDraft={moveDraft}
+              assembleDraft={assembleDraft}
+              battleDraft={battleDraft}
+              legendDraft={legendDraft}
+              activateDraft={activateDraft}
+              visibleObjectIds={visibleObjectIds}
+              selectionIntent={selectionIntent}
+              cardNamesByNo={cardNamesByNo}
+              devToolsOpen={devToolsOpen}
+              fixtureText={fixtureText}
+              fixtureStatus={fixtureStatus}
+              onActiveKey={setActiveKey}
+              onSelectionIntent={setSelectionIntent}
+              onPlayDraft={setPlayDraft}
+              onMoveDraft={setMoveDraft}
+              onAssembleDraft={setAssembleDraft}
+              onBattleDraft={setBattleDraft}
+              onLegendDraft={setLegendDraft}
+              onActivateDraft={setActivateDraft}
+              onSubmitPlayCard={() => void submitPlayCardDraft()}
+              onSubmitMove={() => void submitMoveDraft()}
+              onSubmitAssemble={() => void submitAssembleDraft()}
+              onSubmitBattle={() => void submitBattleDraft()}
+              onSubmitLegend={() => void submitLegendDraft()}
+              onSubmitActivate={() => void submitActivateDraft()}
+              onPromptAction={(action) => void submitPromptAction(activeKey, action)}
+              onSeedScenario={(preset) => void seedScenario(preset)}
+              onRefreshFixture={refreshFixtureDraft}
+              onCopyFixture={() => void copyFixtureDraft()}
+            />
+          ) : null}
+
+          {productPanel === "setup" ? (
+            <PlayerDock
+              players={players}
+              devToolsOpen={devToolsOpen}
+              onPatch={(key, patch) => updatePlayer(key, (current) => ({ ...current, ...patch }))}
+              onJoin={(key) => void connectAndJoin(key)}
+              onReconnect={(key) => void reconnect(key)}
+              onDisconnect={(key) => void disconnect(key)}
+              onReady={(key) => void ready(key)}
+              onSnapshot={(key) => void requestSnapshot(key)}
+              onPromptAction={(key, action) => void submitPromptAction(key, action)}
+              onSubmitJson={(key) => void submitJsonIntent(key)}
+            />
+          ) : null}
+
+          {productPanel === "log" ? (
+            <MatchTelemetry players={players} snapshot={latestSnapshot} roomId={roomId} />
+          ) : null}
+
+          {productPanel === "catalog" ? (
+            <CardCatalogPanel
+              specs={catalog}
+              status={catalogStatus}
+              summary={catalogSummary}
+              query={catalogQuery}
+              filter={catalogFilter}
+              selectedCardNo={selectedCardNo}
+              onQuery={setCatalogQuery}
+              onFilter={setCatalogFilter}
+              onSelect={setSelectedCardNo}
+              compact
+              onOpenFull={() => setCatalogOpen(true)}
+            />
+          ) : null}
         </aside>
       </section>
 
@@ -1214,6 +1244,597 @@ function SystemNotice({ notices }: { notices: string[] }) {
       ))}
     </section>
   );
+}
+
+function ProductBattleArena({
+  snapshot,
+  activePlayerId,
+  selectedObjectIds,
+  selectionIntent,
+  cardNamesByNo,
+  onPickObject
+}: {
+  snapshot?: SnapshotDto;
+  activePlayerId: string;
+  selectedObjectIds: Set<string>;
+  selectionIntent: SelectionIntent;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+}) {
+  const seats = productSeats(snapshot, activePlayerId);
+  const bottomSeat = seats.find((seat) => seat.playerId === activePlayerId) ?? seats[seats.length - 1];
+  const topSeat = seats.find((seat) => seat.playerId !== bottomSeat?.playerId) ?? seats[0];
+  const timing = timingLabel(String(snapshot?.timing?.timingState ?? snapshot?.turnState ?? "-"));
+  const stackLabels = (snapshot?.stack ?? []).map((item, index) => stackLabel(item, index));
+
+  return (
+    <section className="product-arena" data-testid="battle-desk" aria-label="产品级对战桌面">
+      <div className="arena-glow" aria-hidden="true" />
+      {snapshot && topSeat && bottomSeat ? (
+        <>
+          <ProductPlayerBanner
+            seat={topSeat}
+            activePlayerId={snapshot.activePlayerId}
+            perspective="opponent"
+          />
+
+          <section className="product-board" aria-label="战场区域">
+            <ProductSupportZones
+              seat={topSeat}
+              selectedObjectIds={selectedObjectIds}
+              cardNamesByNo={cardNamesByNo}
+              onPickObject={onPickObject}
+              compact
+            />
+
+            <div className="product-lane-mat">
+              <ProductLane
+                title="左战场"
+                opponent={topSeat}
+                player={bottomSeat}
+                laneIndex={0}
+                selectedObjectIds={selectedObjectIds}
+                cardNamesByNo={cardNamesByNo}
+                onPickObject={onPickObject}
+              />
+              <ProductStackWell timing={timing} stackLabels={stackLabels} />
+              <ProductLane
+                title="右战场"
+                opponent={topSeat}
+                player={bottomSeat}
+                laneIndex={1}
+                selectedObjectIds={selectedObjectIds}
+                cardNamesByNo={cardNamesByNo}
+                onPickObject={onPickObject}
+              />
+            </div>
+
+            <ProductSupportZones
+              seat={bottomSeat}
+              selectedObjectIds={selectedObjectIds}
+              cardNamesByNo={cardNamesByNo}
+              onPickObject={onPickObject}
+            />
+          </section>
+
+          <ProductPlayerBanner
+            seat={bottomSeat}
+            activePlayerId={snapshot.activePlayerId}
+            perspective="player"
+            selectionIntent={selectionIntent}
+          />
+          <ProductHandShelf
+            seat={bottomSeat}
+            selectedObjectIds={selectedObjectIds}
+            cardNamesByNo={cardNamesByNo}
+            onPickObject={onPickObject}
+          />
+        </>
+      ) : (
+        <ProductEmptyArena />
+      )}
+    </section>
+  );
+}
+
+function ProductActionPanel(props: {
+  activeKey: PlayerKey;
+  activePlayer: PlayerState;
+  snapshot?: SnapshotDto;
+  playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
+  activateDraft: ActivateDraft;
+  visibleObjectIds: string[];
+  selectionIntent: SelectionIntent;
+  cardNamesByNo: Record<string, string>;
+  devToolsOpen: boolean;
+  fixtureText: string;
+  fixtureStatus: string;
+  onActiveKey: (key: PlayerKey) => void;
+  onSelectionIntent: (intent: SelectionIntent) => void;
+  onPlayDraft: (draft: PlayCardDraft) => void;
+  onMoveDraft: (draft: MoveUnitDraft) => void;
+  onAssembleDraft: (draft: AssembleDraft) => void;
+  onBattleDraft: (draft: BattleDraft) => void;
+  onLegendDraft: (draft: LegendDraft) => void;
+  onActivateDraft: (draft: ActivateDraft) => void;
+  onSubmitPlayCard: () => void;
+  onSubmitMove: () => void;
+  onSubmitAssemble: () => void;
+  onSubmitBattle: () => void;
+  onSubmitLegend: () => void;
+  onSubmitActivate: () => void;
+  onPromptAction: (action: string) => void;
+  onSeedScenario: (preset: ScenarioPreset) => void;
+  onRefreshFixture: () => void;
+  onCopyFixture: () => void;
+}) {
+  const prompt = props.activePlayer.prompt;
+  const candidates = promptCandidatesFor(prompt);
+  const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
+
+  return (
+    <section className="product-action-panel" aria-label="当前操作">
+      <div className="action-spotlight">
+        <div>
+          <p className="eyebrow">当前提示</p>
+          <h2>{prompt?.actionable ? "轮到你行动" : "等待服务器提示"}</h2>
+          <span>{promptReasonLabel(prompt?.reason) || "所有可点击操作均来自服务端 ActionPrompt。"}</span>
+        </div>
+        <div className="prompt-version">
+          <span>状态</span>
+          <strong>{prompt?.snapshotTick ?? "-"}</strong>
+        </div>
+      </div>
+
+      <div className="product-prompt-actions" data-testid="product-prompt-actions">
+        {candidates.length === 0 ? (
+          <div className="product-prompt-empty">等待服务端候选</div>
+        ) : (
+          candidates.map((candidate) => (
+            <button
+              className={candidate.enabled ? "primary-action" : ""}
+              data-testid={`product-action-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
+              disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
+              key={candidate.action}
+              onClick={() => props.onPromptAction(candidate.action)}
+              title={candidate.enabled ? promptReasonLabel(candidate.reason) : promptReasonLabel(candidate.reason)}
+              type="button"
+            >
+              {candidate.label}
+            </button>
+          ))
+        )}
+      </div>
+
+      <div className="action-boundary">
+        <strong>{actionableCandidates.length}</strong>
+        <span>项服务端允许操作。复杂行动需要在下方选择来源、目标与费用后提交。</span>
+      </div>
+
+      <details className="product-workbench-drawer">
+        <summary>
+          <span>目标选择与提交</span>
+          <strong>{selectionIntentLabel(props.selectionIntent)}</strong>
+        </summary>
+        <CommandWorkbench {...props} />
+      </details>
+    </section>
+  );
+}
+
+type ProductSeat = {
+  playerId: string;
+  player: PlayerSummary;
+};
+
+function productSeats(snapshot: SnapshotDto | undefined, activePlayerId: string): ProductSeat[] {
+  const seats = Object.entries(snapshot?.players ?? {})
+    .map(([playerId, player]) => ({ playerId, player }))
+    .sort((left, right) => String(left.player.seat ?? "").localeCompare(String(right.player.seat ?? "")));
+
+  if (seats.length <= 1) {
+    return seats;
+  }
+
+  const activeSeat = seats.find((seat) => seat.playerId === activePlayerId);
+  if (!activeSeat) {
+    return seats;
+  }
+
+  return [...seats.filter((seat) => seat.playerId !== activePlayerId), activeSeat];
+}
+
+function ProductPlayerBanner({
+  seat,
+  activePlayerId,
+  perspective,
+  selectionIntent
+}: {
+  seat: ProductSeat;
+  activePlayerId: string;
+  perspective: "player" | "opponent";
+  selectionIntent?: SelectionIntent;
+}) {
+  const player = seat.player;
+  const zones = player.zones ?? {};
+  const isActive = seat.playerId === activePlayerId;
+
+  return (
+    <header className={isActive ? `product-player-banner ${perspective} active` : `product-player-banner ${perspective}`}>
+      <div className="player-portrait">
+        <span>{player.seat ?? seat.playerId.slice(0, 2).toUpperCase()}</span>
+      </div>
+      <div className="player-title">
+        <span>{perspective === "player" ? "当前视角" : "对手"}</span>
+        <strong>{seat.playerId}</strong>
+      </div>
+      <div className="player-resource-strip">
+        <ProductResource label="分数" value={player.score ?? 0} />
+        <ProductResource label="法力" value={player.runePool?.mana ?? 0} />
+        <ProductResource label="符能" value={player.runePool?.power ?? 0} />
+        <ProductResource label="经验" value={player.experience ?? 0} />
+        <ProductResource label="主牌" value={zones.mainDeckCount ?? 0} />
+        <ProductResource label="符文" value={zones.runeDeckCount ?? 0} />
+        <ProductResource label="手牌" value={player.handSize ?? zones.hand?.length ?? 0} />
+      </div>
+      <div className="turn-indicator">
+        <span>{isActive ? "行动方" : "等待"}</span>
+        <strong>{selectionIntent ? selectionIntentLabel(selectionIntent) : "服务端状态"}</strong>
+      </div>
+    </header>
+  );
+}
+
+function ProductResource({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function ProductSupportZones({
+  seat,
+  selectedObjectIds,
+  cardNamesByNo,
+  onPickObject,
+  compact = false
+}: {
+  seat: ProductSeat;
+  selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+  compact?: boolean;
+}) {
+  const zones = seat.player.zones ?? {};
+  return (
+    <aside className={compact ? "product-support-zones compact" : "product-support-zones"}>
+      <ProductMiniZone
+        title="传奇"
+        ids={zones.legendZone ?? []}
+        objects={seat.player.objects}
+        selectedObjectIds={selectedObjectIds}
+        cardNamesByNo={cardNamesByNo}
+        onPickObject={onPickObject}
+      />
+      <ProductMiniZone
+        title="英雄"
+        ids={zones.championZone ?? []}
+        objects={seat.player.objects}
+        selectedObjectIds={selectedObjectIds}
+        cardNamesByNo={cardNamesByNo}
+        onPickObject={onPickObject}
+      />
+      <ProductMiniZone
+        title="基地"
+        ids={zones.base ?? []}
+        objects={seat.player.objects}
+        selectedObjectIds={selectedObjectIds}
+        cardNamesByNo={cardNamesByNo}
+        onPickObject={onPickObject}
+        wide
+      />
+    </aside>
+  );
+}
+
+function ProductMiniZone({
+  title,
+  ids,
+  objects,
+  selectedObjectIds,
+  cardNamesByNo,
+  onPickObject,
+  wide = false
+}: {
+  title: string;
+  ids: string[];
+  objects?: Record<string, ObjectView>;
+  selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+  wide?: boolean;
+}) {
+  return (
+    <section className={wide ? "product-mini-zone wide" : "product-mini-zone"}>
+      <div>
+        <span>{title}</span>
+        <strong>{ids.length}</strong>
+      </div>
+      <ProductCardList
+        ids={ids}
+        objects={objects}
+        selectedObjectIds={selectedObjectIds}
+        cardNamesByNo={cardNamesByNo}
+        onPickObject={onPickObject}
+        compact
+      />
+    </section>
+  );
+}
+
+function ProductLane({
+  title,
+  opponent,
+  player,
+  laneIndex,
+  selectedObjectIds,
+  cardNamesByNo,
+  onPickObject
+}: {
+  title: string;
+  opponent: ProductSeat;
+  player: ProductSeat;
+  laneIndex: number;
+  selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+}) {
+  return (
+    <section className="product-lane" aria-label={title}>
+      <div className="lane-title">
+        <span>{title}</span>
+        <strong>战场</strong>
+      </div>
+      <ProductCardList
+        ids={laneIds(opponent.player.zones?.battlefields ?? [], laneIndex)}
+        objects={opponent.player.objects}
+        selectedObjectIds={selectedObjectIds}
+        cardNamesByNo={cardNamesByNo}
+        onPickObject={onPickObject}
+      />
+      <div className="lane-centerline" aria-hidden="true" />
+      <ProductCardList
+        ids={laneIds(player.player.zones?.battlefields ?? [], laneIndex)}
+        objects={player.player.objects}
+        selectedObjectIds={selectedObjectIds}
+        cardNamesByNo={cardNamesByNo}
+        onPickObject={onPickObject}
+      />
+    </section>
+  );
+}
+
+function ProductStackWell({ timing, stackLabels }: { timing: string; stackLabels: string[] }) {
+  return (
+    <section className="product-stack-well" aria-label="响应窗口">
+      <span>{timing}</span>
+      <strong>结算栈 {stackLabels.length}</strong>
+      <div>
+        {stackLabels.length === 0 ? <em>空</em> : stackLabels.slice(0, 4).map((label) => <em key={label}>{label}</em>)}
+      </div>
+    </section>
+  );
+}
+
+function ProductHandShelf({
+  seat,
+  selectedObjectIds,
+  cardNamesByNo,
+  onPickObject
+}: {
+  seat: ProductSeat;
+  selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+}) {
+  const zones = seat.player.zones ?? {};
+  const handIds = zones.hand ?? [];
+  return (
+    <section className="product-hand-shelf" aria-label="手牌">
+      <div className="hand-title">
+        <span>手牌</span>
+        <strong>{handIds.length || zones.handHidden || 0}</strong>
+      </div>
+      {zones.handHidden && handIds.length === 0 ? (
+        <div className="product-card-back-row">
+          {Array.from({ length: Math.min(zones.handHidden, 7) }).map((_, index) => (
+            <div className="product-card-back" key={index}>符文</div>
+          ))}
+        </div>
+      ) : (
+        <ProductCardList
+          ids={handIds}
+          objects={seat.player.objects}
+          selectedObjectIds={selectedObjectIds}
+          cardNamesByNo={cardNamesByNo}
+          onPickObject={onPickObject}
+          hand
+        />
+      )}
+    </section>
+  );
+}
+
+function ProductCardList({
+  ids,
+  objects,
+  selectedObjectIds,
+  cardNamesByNo,
+  onPickObject,
+  compact = false,
+  hand = false
+}: {
+  ids: string[];
+  objects?: Record<string, ObjectView>;
+  selectedObjectIds: Set<string>;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+  compact?: boolean;
+  hand?: boolean;
+}) {
+  if (ids.length === 0) {
+    return <div className="product-empty-zone">空</div>;
+  }
+
+  return (
+    <div className={hand ? "product-card-list hand" : compact ? "product-card-list compact" : "product-card-list"}>
+      {ids.map((id) => (
+        <ProductCard
+          key={id}
+          objectId={id}
+          object={objects?.[id]}
+          attachments={attachedObjectsFor(id, objects)}
+          selected={selectedObjectIds.has(id)}
+          cardNamesByNo={cardNamesByNo}
+          onPickObject={onPickObject}
+          compact={compact}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ProductCard({
+  objectId,
+  object,
+  attachments,
+  selected,
+  cardNamesByNo,
+  onPickObject,
+  compact = false
+}: {
+  objectId: string;
+  object?: ObjectView;
+  attachments: (ObjectView & { objectId?: string })[];
+  selected: boolean;
+  cardNamesByNo: Record<string, string>;
+  onPickObject: (objectId: string) => void;
+  compact?: boolean;
+}) {
+  const badges = object ? statusBadges(object).slice(0, compact ? 2 : 4) : [];
+  const stats = object ? productCardStats(object) : [];
+
+  return (
+    <article className="product-card-wrap">
+      <button
+        className={productCardClassName(object, selected)}
+        onClick={() => onPickObject(objectId)}
+        type="button"
+      >
+        <span className="product-card-name">{productCardName(objectId, object, cardNamesByNo)}</span>
+        {compact ? null : <small>{object?.cardNo ?? objectId}</small>}
+        {stats.length > 0 ? (
+          <div className="product-card-stats">
+            {stats.map((stat) => <span key={stat}>{stat}</span>)}
+          </div>
+        ) : null}
+        {badges.length > 0 ? (
+          <div className="product-status-badges">
+            {badges.map((badge) => <span className={badge.tone ?? ""} key={badge.label}>{badge.label}</span>)}
+          </div>
+        ) : null}
+      </button>
+      {attachments.length > 0 ? (
+        <div className="product-attachments">
+          {attachments.slice(0, 3).map((attachment) => (
+            <button
+              key={attachment.objectId}
+              onClick={() => onPickObject(attachment.objectId ?? "")}
+              type="button"
+            >
+              {productCardName(attachment.objectId ?? "装备", attachment, cardNamesByNo)}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function ProductEmptyArena() {
+  return (
+    <section className="product-empty-arena">
+      <div>
+        <p className="eyebrow">等待对局</p>
+        <h2>创建房间后让双方入座并准备</h2>
+        <span>这里会展示正式对战桌面、两条战场、基地、手牌、传奇、英雄和服务端下发的可执行操作。</span>
+      </div>
+    </section>
+  );
+}
+
+function laneIds(ids: string[], laneIndex: number) {
+  return ids.filter((_, index) => index % 2 === laneIndex);
+}
+
+function productCardName(objectId: string, object: ObjectView | undefined, cardNamesByNo: Record<string, string>) {
+  if (object?.isFaceDown) {
+    return "盖放卡牌";
+  }
+  if (object?.cardNo && cardNamesByNo[object.cardNo]) {
+    return cardNamesByNo[object.cardNo];
+  }
+  if (object?.cardNo) {
+    return object.cardNo;
+  }
+  return objectId;
+}
+
+function productCardStats(object: ObjectView) {
+  const stats: string[] = [];
+  if (object.power !== undefined) {
+    stats.push(`战力 ${effectivePower(object)}`);
+  }
+  if (object.damage && object.damage > 0) {
+    stats.push(`伤害 ${object.damage}`);
+  }
+  if (object.manaCost !== undefined) {
+    stats.push(`费用 ${object.manaCost}`);
+  }
+  return stats;
+}
+
+function productCardClassName(object: ObjectView | undefined, selected: boolean) {
+  const classes = ["product-card"];
+  const tags = object?.tags ?? [];
+  if (tags.some((tag) => tag.includes("UNIT"))) {
+    classes.push("unit");
+  }
+  if (tags.some((tag) => tag.includes("EQUIPMENT") || tag.includes("武装"))) {
+    classes.push("equipment");
+  }
+  if (object?.isFaceDown) {
+    classes.push("face-down");
+  }
+  if (object?.isExhausted) {
+    classes.push("exhausted");
+  }
+  if (object?.isAttacking || object?.isDefending) {
+    classes.push("combat");
+  }
+  if (object?.ownerId && object.controllerId && object.ownerId !== object.controllerId) {
+    classes.push("controlled");
+  }
+  if (selected) {
+    classes.push("selected");
+  }
+  return classes.join(" ");
 }
 
 function BattleDesk({
