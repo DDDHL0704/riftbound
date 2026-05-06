@@ -1,0 +1,31 @@
+:root {
+  --bg-main: #151817;
+  --bg-canvas: #1d2421;
+  --bg-panel: rgba(247, 241, 229, 0.95);
+  --bg-panel-strong: #fffaf0;
+  --bg-ink: #22231f;
+  --border-subtle: rgba(223, 197, 138, 0.36);
+  --border-active: #d7ad55;
+  --text-primary: #f9f2e2;
+  --text-ink: #242420;
+  --text-secondary: #cabf9f;
+  --text-muted: #8f8a76;
+  --accent-gold: #d7ad55;
+  --accent-blue: #5ba7b9;
+  --accent-red: #b5544a;
+  --accent-green: #4e9b68;
+  --accent-purple: #8d6fb7;
+  --danger: #c9473f;
+  --warning: #d59633;
+  --success: #49a76c;
+  --player-me: #4e9b68;
+  --player-opponent: #b5544a;
+  --battlefield-neutral: #7d7460;
+  --battlefield-contested: #d59633;
+  color: var(--text-primary);
+  background: var(--bg-main);
+  font-family:
+    Inter, "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}

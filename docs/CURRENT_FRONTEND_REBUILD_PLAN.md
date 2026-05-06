@@ -25,7 +25,7 @@
 
 ## 2. 当前前端现状
 
-现有前端位于 `src/Riftbound.DevUi`，技术栈为 React 19 + TypeScript + Vite + SignalR。
+现有前端位于 `src/Riftbound.DevUi`，技术栈为 React 19 + TypeScript + Vite + SignalR。新的前端需求文档没有要求更换技术栈，且仓库已有可用 Vite/React 构建，因此本轮沿用该栈；新增 `lucide-react` 作为轻量图标库，不引入重 UI 框架或 Next.js。
 
 现状问题：
 
@@ -68,7 +68,7 @@
 
 ### Batch 1：需求与现状审计
 
-状态：进行中。
+状态：完成。
 
 交付：
 
@@ -83,27 +83,30 @@
 
 ### Batch 2：前端清理与新架构
 
-目标：
+状态：完成。
+
+交付：
 
 - 删除旧 `main.tsx` 巨型 UI 和旧 CSS 组织方式，保留 Vite/React/SignalR 构建配置与 package lock。
 - 建立全新目录：
   - `src/app`
   - `src/components`
-  - `src/features/cards`
-  - `src/features/lobby`
-  - `src/features/match`
+  - `src/pages`
   - `src/services`
   - `src/stores`
   - `src/types`
   - `src/utils`
   - `src/styles`
-- 建立 adapter：真实 SignalR/REST 接入、snapshot normalizer、prompt/action mapper、hidden-info guard。
-- 建立中文产品级页面壳：首页、图鉴、房间、对战桌面基础布局。
+- 建立真实 REST/SignalR adapter：`ApiClient`、`MatchSocket`、catalog store、settings store、match controller。
+- 建立中文产品级页面壳：首页、大厅、房间、对战桌面、图鉴、卡组、设置。
+- 首批桌面只渲染服务端 snapshot / prompt / candidate / event，不保留旧 JSON 调试台和客户端规则裁决入口。
 
 验收：
 
-- `npm run build`
-- Browser smoke：打开本地 Web URL，确认首页/图鉴/房间/对战桌面基础可渲染且无旧调试主界面。
+- `source ../../scripts/dev-env.sh && npm run build`：通过。
+- Browser Use smoke：打开 `http://127.0.0.1:5173/`、`/cards`、`/lobby`、创建房间、入座、提交测试卡组、ready、进入 `/matches/{roomId}` 并重连同步 snapshot；控制台无 error/warn。
+- Smoke 发现并修复对战桌面横向溢出，右侧行动面板已在 1248px 浏览器宽度内完整可见。
+- Smoke 发现并修复首次随机玩家名不持久化导致刷新后重连身份变化的问题。
 
 ### Batch 3：服务端能力矩阵与正式房间闭环
 
@@ -158,15 +161,16 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**12%**
+估算整体进度：**20%**
 
 已经完成：
 
 - 必读资料和五个 PDF 已确认。
 - 真实前端栈、服务端接口、关键状态视图和测试入口已确认。
 - 当前 NOT READY 根因已落到本文的前端硬约束和后续批次。
+- 旧 Dev UI 已清理，新的 React/Vite 前端架构、中文页面壳、REST/SignalR adapter 和基础对战桌面已落地。
 
-预计剩余批次数：**至少 10 批**
+预计剩余批次数：**至少 9 批**
 
 原因：
 
