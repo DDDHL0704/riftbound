@@ -10594,8 +10594,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
-            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, stackResolution.PlayerZones);
-            ApplyResolvedStackSourceLocation(objectLocations, stackResolution.PlayerZones, resolvedItem);
+            var resolvedPlayerZones = stackResolution.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            var resolvedCardObjects = stackResolution.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            var resolvedRunePools = stackResolution.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            var postStackCleanupEvents = Array.Empty<GameEvent>();
+            var resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds;
+            if (stackResolution.WinnerPlayerId is null)
+            {
+                var postStackCleanup = ApplyLethalDamageCleanup(
+                    resolvedPlayerZones,
+                    resolvedCardObjects,
+                    resolvedItem,
+                    new HashSet<string>(StringComparer.Ordinal),
+                    resolvedRunePools);
+                resolvedRunePools = postStackCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                postStackCleanupEvents = postStackCleanup.Events.ToArray();
+                resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds
+                    .Concat(postStackCleanup.DestroyedUnitOwnerIds)
+                    .Where(ownerId => !string.IsNullOrWhiteSpace(ownerId))
+                    .Distinct(StringComparer.Ordinal)
+                    .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
+                    .ToArray();
+            }
+
+            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
+            ApplyResolvedStackSourceLocation(objectLocations, resolvedPlayerZones, resolvedItem);
             var returnsToSpellDuel = nextStack.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
             var nextFocusPlayerId = returnsToSpellDuel
@@ -10616,17 +10639,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = [],
                 StackItems = nextStack,
-                PlayerZones = stackResolution.PlayerZones,
+                PlayerZones = resolvedPlayerZones,
                 ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
                 PlayerExperience = stackResolution.PlayerExperience,
-                RunePools = stackResolution.RunePools,
-                CardObjects = stackResolution.CardObjects,
+                RunePools = resolvedRunePools,
+                CardObjects = resolvedCardObjects,
                 UntilEndOfTurnEffects = stackResolution.UntilEndOfTurnEffects,
                 RngCursor = stackResolution.RngCursor,
                 DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
                     state.DestroyedUnitOwnerIdsThisTurn,
-                    stackResolution.DestroyedUnitOwnerIds),
+                    resolvedDestroyedUnitOwnerIds),
                 Status = stackResolution.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                 WinnerPlayerId = stackResolution.WinnerPlayerId ?? state.WinnerPlayerId,
                 ExtraTurnPlayerId = stackResolution.ExtraTurnPlayerId ?? state.ExtraTurnPlayerId,
@@ -10644,6 +10667,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["effectKind"] = resolvedItem.EffectKind
                 }));
             events.AddRange(stackResolution.Events);
+            events.AddRange(postStackCleanupEvents);
         }
         else
         {

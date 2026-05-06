@@ -23,8 +23,9 @@
 - P0-001 第二批已落地：新增 `MatchSessionOptions.AllowLegacyReadyWithoutDeck`；API 在非 Development 环境创建房间时关闭 legacy no-deck ready，正式/生产房间必须先 `SUBMIT_DECK` 才能 `READY`。Development 与既有测试默认保留 legacy ready，用于开发 seed 和旧 fixtures。
 - P0-002 第二批已落地：`SnapshotDto.Lanes` 新增 `battlefields` 状态视图，从服务端权威 `ObjectLocations` 和 `CardObjects` 推导战场牌、控制者、占据单位、待命占位、面朝下待命数量与争夺状态，给 UI 和后续 cleanup/battle task 提供稳定服务端投影。
 - P0-001 第三批已落地：新增 GameHub 级正式开局 smoke，覆盖 `SUBMIT_DECK -> READY -> OFFICIAL_OPENING_STARTED -> MULLIGAN -> MULLIGAN_PHASE_COMPLETED -> RUNES_CALLED -> MAIN`，确保 WebSocket/房间层不会绕过或吞掉服务端官方 deck/opening/mulligan 流程。
+- P0-003 第二批已落地：结算链项目结算后新增统一状态性致命清理兜底。即使某个栈项目本身是无行为/未映射或单卡 resolver 漏接局部 cleanup，只要结算后场上存在伤害大于等于战力的单位，服务端会将其清理入对应非场地区域、同步 `ObjectLocations` 并记录 `UNIT_DESTROYED`。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -90,7 +91,7 @@
 
 ### P0-003 通用清理检查与任务队列缺失
 
-当前状态：**PARTIALLY RESOLVED / 移动后致命伤害清理已接入，统一任务队列仍缺失**
+当前状态：**PARTIALLY RESOLVED / 移动后与栈结算后状态清理已接入，完整统一任务队列仍缺失**
 
 规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。
 
@@ -99,9 +100,9 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs:19362` 有回合结束清理。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:10641` 的 `ResolveEndTurn` 只在回合结束路径调用 `ApplyTurnEndCleanup`，然后直接 `ResolveTurnStart`。
 
-现象：当前清理仍是分散在战斗、伤害、回合结束、移动等局部路径里的 helper，不是官方意义上的“所有状态变化后统一检查并重复”的任务队列。移动后至少会跑一次致命伤害清理并同步位置，但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
+现象：当前清理仍是分散在战斗、伤害、回合结束、移动等局部路径里的 helper，不是官方意义上的“所有状态变化后统一检查并重复”的任务队列。移动后和栈项目结算后至少会跑一次致命伤害清理并同步位置，但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
 
-最小复现场景：移动一个已经带致命伤害的单位，当前会移动后清理到废牌堆；但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
+最小复现场景：移动一个已经带致命伤害的单位，当前会移动后清理到废牌堆；结算一个无行为栈项目时，如果场上已有致命伤害单位，也会在栈结算后被状态性清理兜底摧毁。但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
 
 建议修复：
 - 引入 `PendingTaskQueue` 与 `RunCleanupLoop`，统一处理致命伤害、0 战力、离场、战场控制变化、法术对决/战斗启动、胜负检查。

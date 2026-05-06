@@ -326,6 +326,73 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PostStackCleanupDestroysPreExistingLethalFieldUnit()
+    {
+        var state = new MatchState(
+            "p7-post-stack-cleanup-room",
+            1,
+            1,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-LETHAL-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LETHAL-UNIT"] = new(
+                    "P1-LETHAL-UNIT",
+                    damage: 2,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P2",
+            passedPriorityPlayerIds: ["P1"],
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-NOOP-CLEANUP",
+                    "P1",
+                    "P1-SPELL-NOOP",
+                    "UNKNOWN_NOOP_EFFECT")
+            ],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-LETHAL-UNIT"] = new("P1", "BASE")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-pass-cleanup", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain("P1-LETHAL-UNIT", result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-LETHAL-UNIT"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-LETHAL-UNIT"].Zone);
+        Assert.Equal(["P1"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPunishmentThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(
