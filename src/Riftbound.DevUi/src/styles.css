@@ -1234,3 +1234,702 @@ pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* P7.9 local product shell: keep the battle flow on one desktop viewport. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  min-width: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(16, 33, 36, 0.94), rgba(24, 45, 42, 0.9)),
+    repeating-linear-gradient(135deg, rgba(232, 197, 115, 0.08) 0 1px, transparent 1px 24px),
+    #102124;
+}
+
+button {
+  border-color: #b68d3f;
+  background: linear-gradient(180deg, #d5a851, #996a23);
+  color: #fffaf0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 8px 18px rgba(18, 24, 25, 0.18);
+}
+
+button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #e4ba68, #ad7a2e);
+}
+
+button:disabled {
+  border-color: #496167;
+  background: #24363a;
+  color: #91a5a7;
+  box-shadow: none;
+}
+
+input,
+select,
+textarea {
+  border-color: rgba(211, 184, 119, 0.42);
+  background: rgba(246, 240, 222, 0.96);
+}
+
+.app-shell {
+  height: 100%;
+  grid-template-rows: 68px 48px 34px minmax(0, 1fr);
+  gap: 9px;
+  overflow: hidden;
+  padding: 10px;
+  color: #f6f0de;
+}
+
+.top-bar,
+.room-strip,
+.desk-panel,
+.workbench-panel,
+.catalog-panel,
+.player-panel,
+.prompt-panel,
+.intent-panel,
+.debug-block,
+.side-rail,
+.seat-dock {
+  border-color: rgba(214, 181, 103, 0.32);
+  background: rgba(246, 240, 222, 0.94);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.55) inset;
+}
+
+.top-bar {
+  grid-template-columns: minmax(150px, 1fr) minmax(150px, 0.86fr) minmax(130px, 0.76fr) 82px repeat(5, minmax(58px, auto));
+  gap: 9px;
+  align-items: center;
+  padding: 10px 12px;
+  color: #173034;
+}
+
+.top-bar label {
+  color: #38535a;
+}
+
+.eyebrow {
+  color: #aa493b;
+}
+
+h1 {
+  color: #173034;
+  font-size: 26px;
+}
+
+h2,
+h3 {
+  color: #173034;
+}
+
+.subtitle {
+  color: #486267;
+}
+
+.room-strip {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  color: #173034;
+}
+
+.metric {
+  padding: 8px 12px;
+  border-color: rgba(84, 108, 112, 0.22);
+}
+
+.metric strong {
+  font-size: 15px;
+}
+
+.system-notice {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-color: rgba(214, 181, 103, 0.26);
+  background: rgba(23, 48, 52, 0.74);
+  color: #f6f0de;
+}
+
+.system-notice span {
+  border-color: rgba(213, 168, 81, 0.55);
+  background: rgba(213, 168, 81, 0.16);
+  color: #f8e9bd;
+}
+
+.game-table-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.36fr) minmax(0, 0.88fr) minmax(0, 0.76fr);
+  gap: 10px;
+  min-height: 0;
+}
+
+.desk-panel,
+.workbench-panel,
+.side-rail {
+  min-height: 0;
+  color: #173034;
+  overflow: hidden;
+}
+
+.desk-panel,
+.workbench-panel {
+  padding: 10px;
+}
+
+.desk-panel {
+  background:
+    linear-gradient(180deg, rgba(246, 240, 222, 0.95), rgba(236, 225, 196, 0.95)),
+    repeating-linear-gradient(90deg, rgba(170, 73, 59, 0.05) 0 1px, transparent 1px 18px);
+}
+
+.lane-board {
+  height: calc(100% - 74px);
+  min-height: 0;
+  gap: 10px;
+}
+
+.desk-player {
+  min-height: 0;
+  overflow: hidden;
+  gap: 7px;
+  border-color: rgba(23, 48, 52, 0.2);
+  background:
+    linear-gradient(180deg, rgba(23, 48, 52, 0.06), rgba(255, 255, 255, 0.58)),
+    #f7f0dc;
+}
+
+.desk-player header {
+  min-height: 46px;
+}
+
+.score-box {
+  border-color: rgba(170, 73, 59, 0.34);
+  background: #fff5dc;
+}
+
+.resource-row {
+  gap: 5px;
+}
+
+.resource-row span,
+.action-chip,
+.target-palette button,
+.stack-tags span {
+  border-color: rgba(23, 48, 52, 0.18);
+  background: rgba(24, 105, 91, 0.1);
+  color: #173034;
+  padding: 4px 7px;
+}
+
+.zone-row {
+  min-height: 70px;
+  gap: 5px;
+  padding: 7px;
+  border-color: rgba(23, 48, 52, 0.16);
+  background: rgba(255, 251, 238, 0.78);
+}
+
+.zone-row.compact {
+  min-height: 50px;
+}
+
+.object-list {
+  gap: 5px;
+  overflow: hidden;
+}
+
+.object-cell {
+  width: min(132px, 100%);
+}
+
+.object-card {
+  min-height: 66px;
+  border-radius: 7px;
+  border-color: rgba(23, 48, 52, 0.24);
+  border-left-width: 6px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(231, 239, 235, 0.94)),
+    #edf4f7;
+  box-shadow: 0 9px 18px rgba(13, 28, 31, 0.13);
+}
+
+.object-card.unit {
+  border-left-color: #1f7a67;
+}
+
+.object-card.equipment {
+  border-left-color: #bd8734;
+}
+
+.object-card.in-combat {
+  outline: 2px solid rgba(170, 73, 59, 0.72);
+}
+
+.object-card.selected {
+  outline: 3px solid rgba(213, 168, 81, 0.72);
+  box-shadow: 0 0 0 3px rgba(213, 168, 81, 0.18), 0 12px 22px rgba(13, 28, 31, 0.18);
+}
+
+.stack-strip,
+.scenario-panel,
+.selection-mode-panel,
+.intent-summary-panel,
+.prompt-candidate-panel,
+.play-card-panel,
+.command-panel,
+.response-panel,
+.fixture-panel,
+.event-log-panel,
+.report-panel,
+.replay-panel {
+  gap: 7px;
+  padding: 8px;
+  border-color: rgba(23, 48, 52, 0.16);
+  background: rgba(255, 251, 238, 0.78);
+}
+
+.workbench-panel {
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.workbench-controls {
+  align-items: end;
+}
+
+.workbench-controls label {
+  max-width: 108px;
+}
+
+.action-chips {
+  max-height: 66px;
+  overflow: hidden;
+}
+
+.response-grid,
+.intent-summary-grid {
+  gap: 6px;
+}
+
+.response-grid div,
+.intent-summary-grid div,
+.intent-summary-list div,
+.report-summary div,
+.player-report,
+.replay-boundary-summary div {
+  border-color: rgba(23, 48, 52, 0.14);
+  background: rgba(255, 255, 255, 0.48);
+  padding: 6px;
+}
+
+.prompt-candidate-list {
+  max-height: 112px;
+}
+
+.selection-mode-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.selection-mode-grid button,
+.operation-tabs button {
+  min-height: 28px;
+  padding: 5px 7px;
+  border-color: rgba(23, 48, 52, 0.18);
+  background: rgba(24, 105, 91, 0.11);
+  color: #173034;
+  box-shadow: none;
+}
+
+.selection-mode-grid button.selected,
+.operation-tabs button.selected {
+  border-color: #d5a851;
+  background: #173034;
+  color: #f8e9bd;
+}
+
+.operation-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.play-card-panel,
+.command-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.target-palette,
+.prompt-candidate-list,
+.catalog-list,
+.event-list {
+  scrollbar-width: thin;
+}
+
+.target-palette {
+  max-height: 64px;
+}
+
+.side-rail {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  color: #173034;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-rows: 92px 48px 34px minmax(0, 1fr);
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .top-bar {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 0.85fr) 66px 64px 64px 64px 64px 64px;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+  button {
+    min-height: 30px;
+    padding: 5px 7px;
+    font-size: 11px;
+  }
+
+  input,
+  select {
+    padding: 6px 7px;
+    font-size: 11px;
+  }
+
+  label {
+    font-size: 11px;
+  }
+
+  .room-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .metric {
+    padding: 6px;
+  }
+
+  .metric span {
+    font-size: 9px;
+  }
+
+  .metric strong {
+    min-height: 16px;
+    font-size: 11px;
+  }
+
+  .game-table-layout {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr) minmax(0, 0.82fr);
+    gap: 6px;
+  }
+
+  .desk-panel,
+  .workbench-panel,
+  .side-rail {
+    padding: 7px;
+  }
+
+  .lane-board {
+    gap: 6px;
+  }
+
+  .desk-player {
+    padding: 7px;
+  }
+
+  .resource-row span,
+  .action-chip,
+  .target-palette button,
+  .stack-tags span {
+    padding: 3px 5px;
+    font-size: 9px;
+  }
+
+  .identity-row,
+  .battlefield-pair,
+  .zone-minor-grid {
+    gap: 5px;
+  }
+
+  .zone-row {
+    min-height: 56px;
+    padding: 5px;
+  }
+
+  .object-card {
+    min-height: 54px;
+    padding: 5px;
+  }
+
+  .object-card span,
+  .object-card small {
+    font-size: 9px;
+  }
+
+  .status-badges {
+    display: none;
+  }
+
+  .selection-mode-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .operation-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .operation-tabs button {
+    white-space: nowrap;
+  }
+
+  .intent-summary-panel {
+    display: none;
+  }
+
+  .prompt-candidate-panel {
+    max-height: 112px;
+  }
+
+  .play-card-panel .form-grid,
+  .command-panel .form-grid {
+    display: none;
+  }
+
+  .side-rail {
+    gap: 6px;
+  }
+
+  .seat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .seat-card {
+    gap: 5px;
+    padding: 6px;
+  }
+
+  .seat-card label,
+  .seat-stats {
+    display: none;
+  }
+
+  .side-rail .event-list {
+    max-height: 96px;
+  }
+
+  .catalog-panel.compact .catalog-list {
+    display: none;
+  }
+
+  .catalog-panel.compact .card-detail {
+    max-height: 126px;
+  }
+}
+
+.seat-dock {
+  display: grid;
+  gap: 8px;
+  padding: 9px;
+}
+
+.seat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.seat-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid rgba(23, 48, 52, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 251, 238, 0.78);
+  padding: 8px;
+}
+
+.seat-card header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.compact-actions button,
+.prompt-actions button {
+  min-height: 28px;
+  padding: 5px 7px;
+}
+
+.seat-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin: 0;
+}
+
+.seat-stats div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(23, 48, 52, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 5px;
+}
+
+.seat-stats dt {
+  color: #607277;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.seat-stats dd {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.compact-json textarea {
+  min-height: 72px;
+}
+
+.side-rail .telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  min-height: 0;
+}
+
+.side-rail .event-list {
+  max-height: 150px;
+}
+
+.side-rail .report-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.side-rail .player-report-list {
+  grid-template-columns: 1fr;
+}
+
+.side-rail .replay-panel p {
+  display: none;
+}
+
+.catalog-panel.compact {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.catalog-panel.compact .catalog-toolbar {
+  grid-template-columns: minmax(0, 1fr) 118px;
+}
+
+.catalog-panel.compact .catalog-counts {
+  grid-column: 1 / -1;
+}
+
+.catalog-panel.compact .catalog-layout {
+  grid-template-columns: 1fr;
+  min-height: 0;
+}
+
+.catalog-panel.compact .catalog-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-height: 112px;
+}
+
+.catalog-panel.compact .catalog-card {
+  min-height: 54px;
+  padding: 7px;
+}
+
+.catalog-panel.compact .card-detail {
+  max-height: 178px;
+  overflow: hidden;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 8px;
+}
+
+.section-actions button {
+  min-height: 28px;
+  padding: 5px 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(9, 18, 20, 0.72);
+  padding: 24px;
+}
+
+.modal-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(1280px, calc(100vw - 48px));
+  height: min(820px, calc(100vh - 48px));
+  min-height: 0;
+  border: 1px solid rgba(214, 181, 103, 0.42);
+  border-radius: 10px;
+  background: #f6f0de;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+  padding: 12px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+}
+
+.modal-panel .catalog-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modal-panel .catalog-layout {
+  min-height: 0;
+}
+
+.modal-panel .catalog-list,
+.modal-panel .card-detail {
+  max-height: none;
+  overflow: auto;
+}

@@ -191,6 +191,8 @@ type ActivateDraft = {
   optionalCosts: string;
 };
 
+type OperationMode = "play" | "ability" | "move" | "assemble" | "battle" | "legend";
+
 type SelectionIntent =
   | "play-source"
   | "play-target"
@@ -253,18 +255,26 @@ type TimelineEvent = {
 const playerKeys: PlayerKey[] = ["p1", "p2"];
 const replayableActions = new Set(["READY", "PASS", "PASS_PRIORITY", "PASS_FOCUS", "END_TURN"]);
 const directPromptActions = new Set([...replayableActions, "PLAY_CARD", "ACTIVATE_ABILITY", "LEGEND_ACT"]);
+const operationTabs: { id: OperationMode; label: string }[] = [
+  { id: "play", label: "出牌" },
+  { id: "ability", label: "能力" },
+  { id: "move", label: "移动" },
+  { id: "assemble", label: "装备" },
+  { id: "battle", label: "战斗" },
+  { id: "legend", label: "传奇" }
+];
 
 const selectionIntentOptions: SelectionIntentOption[] = [
-  { id: "play-source", label: "出牌来源", hint: "点击手牌或可见对象填入 PLAY_CARD source" },
-  { id: "play-target", label: "出牌目标", hint: "点击对象加入或移除 PLAY_CARD targets" },
-  { id: "move-source", label: "移动单位", hint: "点击要移动的单位填入 MOVE_UNIT source" },
-  { id: "assemble-source", label: "装备来源", hint: "点击装备填入 ASSEMBLE source" },
-  { id: "assemble-target", label: "装备目标", hint: "点击宿主填入 ASSEMBLE target" },
+  { id: "play-source", label: "出牌来源", hint: "点击手牌或可见对象作为出牌来源" },
+  { id: "play-target", label: "出牌目标", hint: "点击对象加入或移除出牌目标" },
+  { id: "move-source", label: "移动单位", hint: "点击要移动的单位" },
+  { id: "assemble-source", label: "装备来源", hint: "点击要装配的装备" },
+  { id: "assemble-target", label: "装备目标", hint: "点击装备宿主" },
   { id: "battle-attacker", label: "攻击方", hint: "点击单位加入战斗攻击方" },
   { id: "battle-defender", label: "防守方", hint: "点击单位加入战斗防守方" },
-  { id: "legend-source", label: "传奇来源", hint: "点击传奇填入 LEGEND_ACT source" },
-  { id: "ability-source", label: "能力来源", hint: "点击单位填入 ACTIVATE_ABILITY source" },
-  { id: "ability-target", label: "能力目标", hint: "点击对象加入或移除 ACTIVATE_ABILITY targets" }
+  { id: "legend-source", label: "传奇来源", hint: "点击传奇作为行动来源" },
+  { id: "ability-source", label: "能力来源", hint: "点击单位作为能力来源" },
+  { id: "ability-target", label: "能力目标", hint: "点击对象加入或移除能力目标" }
 ];
 
 const defaultServerUrl = localStorage.getItem("riftbound.devUi.serverUrl") ?? "http://127.0.0.1:5088";
@@ -319,8 +329,8 @@ const initialActivateDraft: ActivateDraft = {
 const scenarioPresets: ScenarioPreset[] = [
   {
     id: "basic-play",
-    title: "Basic Play",
-    description: "P1 hand has Mighty Faerie and 4 mana.",
+    title: "基础出牌",
+    description: "P1 手牌有强力妖精，并拥有 4 点法力。",
     command: {
       cmdType: "PLAY_CARD",
       sourceObjectId: "P1-UNIT-MIGHTY-FAERIE",
@@ -330,8 +340,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "movement",
-    title: "Movement",
-    description: "P1 can play Ride the Wind on a friendly battlefield unit.",
+    title: "移动测试",
+    description: "P1 可对友方战场单位打出乘风而行。",
     command: {
       cmdType: "PLAY_CARD",
       sourceObjectId: "P1-SPELL-RIDE-THE-WIND",
@@ -341,8 +351,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "spell-duel",
-    title: "Spell Window",
-    description: "P1 can play Hextech Ray against a P2 battlefield unit.",
+    title: "法术窗口",
+    description: "P1 可对 P2 战场单位打出海克斯射线。",
     command: {
       cmdType: "PLAY_CARD",
       sourceObjectId: "P1-SPELL-HEXTECH-RAY",
@@ -352,8 +362,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "equipment",
-    title: "Equipment",
-    description: "P1 hand has Long Sword and 2 mana.",
+    title: "装备测试",
+    description: "P1 手牌有长剑，并拥有 2 点法力。",
     command: {
       cmdType: "PLAY_CARD",
       sourceObjectId: "P1-EQUIPMENT-LONG-SWORD",
@@ -363,16 +373,16 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "status-showcase",
-    title: "Status Showcase",
-    description: "Seeded snapshot for equipment attachment, control, damage, shields, and temporary states.",
+    title: "状态展示",
+    description: "预置贴附、控制权、伤害、法盾和临时状态。",
     command: {
       cmdType: "PASS"
     }
   },
   {
     id: "control",
-    title: "Control",
-    description: "P1 can play Hostile Takeover on an exhausted P2 unit.",
+    title: "控制权",
+    description: "P1 可对已横置的 P2 单位打出敌意接管。",
     command: {
       cmdType: "PLAY_CARD",
       sourceObjectId: "P1-SPELL-HOSTILE-TAKEOVER",
@@ -382,16 +392,16 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "battle-score",
-    title: "Battle Score",
-    description: "Seeds battlefield objects and an empty P2 rune deck for END_TURN score smoke.",
+    title: "战斗得分",
+    description: "预置战场对象和空 P2 符文牌堆，用于结束回合得分测试。",
     command: {
       cmdType: "END_TURN"
     }
   },
   {
     id: "battle-declare",
-    title: "Battle Declare",
-    description: "P1 attacker and P2 defender are ready for combat declaration.",
+    title: "声明战斗",
+    description: "P1 攻击方与 P2 防守方已准备好声明战斗。",
     command: {
       cmdType: "DECLARE_BATTLE",
       battlefieldId: "BATTLEFIELD:P1-MAIN",
@@ -402,8 +412,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "battle-prompt-filter",
-    title: "Battle Prompt Filter",
-    description: "P1 sees only legal battlefield attacker and defender candidates.",
+    title: "战斗候选过滤",
+    description: "P1 只会看到服务端下发的合法攻击/防守候选。",
     command: {
       cmdType: "DECLARE_BATTLE",
       battlefieldId: "BATTLEFIELD:P1-MAIN",
@@ -414,8 +424,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "battle-multi-defender",
-    title: "Multi Defender Battle",
-    description: "P1 attacks into Bulwark and Back Row defenders with server assignment order.",
+    title: "多防守者战斗",
+    description: "P1 攻击壁垒与后排防守者，伤害顺序由服务端决定。",
     command: {
       cmdType: "DECLARE_BATTLE",
       battlefieldId: "BATTLEFIELD:P1-MAIN",
@@ -426,8 +436,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "legend-act",
-    title: "Legend Act",
-    description: "P1 has Poppy legend, 3 experience, and one card to draw.",
+    title: "传奇行动",
+    description: "P1 拥有波比传奇、3 点经验和可抽取卡牌。",
     command: {
       cmdType: "LEGEND_ACT",
       sourceObjectId: "P1-LEGEND-POPPY",
@@ -438,8 +448,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "legend-active-actions",
-    title: "Legend Actions",
-    description: "P1 has implemented legend action sources, mana, experience, and friendly unit targets.",
+    title: "传奇能力组合",
+    description: "P1 拥有已实现的传奇行动来源、法力、经验和友方单位目标。",
     command: {
       cmdType: "LEGEND_ACT",
       sourceObjectId: "P1-LEGEND-YASUO",
@@ -450,8 +460,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "battlefield-unit-experience-ability",
-    title: "Mutation Garden",
-    description: "P1 controls Mutation Garden and can exhaust a battlefield unit to gain experience.",
+    title: "蜕变花园",
+    description: "P1 控制蜕变花园，可横置战场单位获得经验。",
     command: {
       cmdType: "ACTIVATE_ABILITY",
       sourceObjectId: "P1-BATTLEFIELD-EXPERIENCE-UNIT",
@@ -461,8 +471,8 @@ const scenarioPresets: ScenarioPreset[] = [
   },
   {
     id: "specified-hand",
-    title: "Specified Hand",
-    description: "P1 receives multiple known playable cards for ad hoc fixture replay.",
+    title: "指定手牌",
+    description: "P1 获得多张已知可玩卡牌，用于临时复现场景。",
     command: {
       cmdType: "PLAY_CARD",
       sourceObjectId: "P1-SPELL-HEXTECH-RAY",
@@ -510,6 +520,7 @@ function App() {
   const [activateDraft, setActivateDraft] = useState(initialActivateDraft);
   const [selectionIntent, setSelectionIntent] = useState<SelectionIntent>("play-target");
   const [devToolsOpen, setDevToolsOpen] = useState(false);
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const [fixtureDraft, setFixtureDraft] = useState("");
   const [fixtureStatus, setFixtureStatus] = useState("idle");
   const [catalog, setCatalog] = useState<BehaviorSpecDto[]>([]);
@@ -1017,14 +1028,14 @@ function App() {
 
   return (
     <main className="app-shell">
-      <section className="top-bar" aria-label="Connection settings">
+      <section className="top-bar" aria-label="连接设置">
         <div>
-          <p className="eyebrow">P7 Web Battle</p>
+          <p className="eyebrow">本地产品版对战</p>
           <h1>符文战场</h1>
           <span className="subtitle">服务端权威双人对战房间</span>
         </div>
         <label>
-          Server URL
+          服务器地址
           <input
             data-testid="server-url"
             value={serverUrl}
@@ -1033,7 +1044,7 @@ function App() {
           />
         </label>
         <label>
-          Room ID
+          房间编号
           <input
             data-testid="room-id"
             value={roomId}
@@ -1042,7 +1053,7 @@ function App() {
           />
         </label>
         <label>
-          View
+          操作视角
           <select
             data-testid="active-player"
             value={activeKey}
@@ -1074,7 +1085,7 @@ function App() {
         </button>
       </section>
 
-      <section className="room-strip" aria-label="Room summary">
+      <section className="room-strip" aria-label="房间摘要">
         {roomSummary.map((item) => (
           <div className="metric" key={item.label}>
             <span>{item.label}</span>
@@ -1085,7 +1096,7 @@ function App() {
 
       <SystemNotice notices={systemNotices} />
 
-      <section className="workspace-grid">
+      <section className="game-table-layout" aria-label="对战桌面">
         <BattleDesk
           snapshot={latestSnapshot}
           activePlayerId={activePlayer.playerId}
@@ -1127,40 +1138,63 @@ function App() {
           onRefreshFixture={refreshFixtureDraft}
           onCopyFixture={() => void copyFixtureDraft()}
         />
-      </section>
 
-      <MatchTelemetry players={players} snapshot={latestSnapshot} roomId={roomId} />
-
-      <CardCatalogPanel
-        specs={catalog}
-        status={catalogStatus}
-        summary={catalogSummary}
-        query={catalogQuery}
-        filter={catalogFilter}
-        selectedCardNo={selectedCardNo}
-        onQuery={setCatalogQuery}
-        onFilter={setCatalogFilter}
-        onSelect={setSelectedCardNo}
-      />
-
-      <section className="players-grid">
-        {playerKeys.map((key) => (
-          <PlayerPanel
-            key={key}
-            playerKey={key}
-            state={players[key]}
-            onPatch={(patch) => updatePlayer(key, (current) => ({ ...current, ...patch }))}
-            onJoin={() => void connectAndJoin(key)}
-            onReconnect={() => void reconnect(key)}
-            onDisconnect={() => void disconnect(key)}
-            onReady={() => void ready(key)}
-            onSnapshot={() => void requestSnapshot(key)}
-            onPromptAction={(action) => void submitPromptAction(key, action)}
-            onSubmitJson={() => void submitJsonIntent(key)}
+        <aside className="side-rail" aria-label="对局信息">
+          <PlayerDock
+            players={players}
             devToolsOpen={devToolsOpen}
+            onPatch={(key, patch) => updatePlayer(key, (current) => ({ ...current, ...patch }))}
+            onJoin={(key) => void connectAndJoin(key)}
+            onReconnect={(key) => void reconnect(key)}
+            onDisconnect={(key) => void disconnect(key)}
+            onReady={(key) => void ready(key)}
+            onSnapshot={(key) => void requestSnapshot(key)}
+            onPromptAction={(key, action) => void submitPromptAction(key, action)}
+            onSubmitJson={(key) => void submitJsonIntent(key)}
           />
-        ))}
+          <MatchTelemetry players={players} snapshot={latestSnapshot} roomId={roomId} />
+          <CardCatalogPanel
+            specs={catalog}
+            status={catalogStatus}
+            summary={catalogSummary}
+            query={catalogQuery}
+            filter={catalogFilter}
+            selectedCardNo={selectedCardNo}
+            onQuery={setCatalogQuery}
+            onFilter={setCatalogFilter}
+            onSelect={setSelectedCardNo}
+            compact
+            onOpenFull={() => setCatalogOpen(true)}
+          />
+        </aside>
       </section>
+
+      {catalogOpen ? (
+        <div className="modal-backdrop" role="presentation">
+          <section className="modal-panel" aria-label="完整图鉴">
+            <div className="modal-header">
+              <div>
+                <p className="eyebrow">全卡图鉴</p>
+                <h2>卡牌与规则详情</h2>
+              </div>
+              <button className="secondary-toggle" data-testid="close-catalog-modal" onClick={() => setCatalogOpen(false)} type="button">
+                关闭
+              </button>
+            </div>
+            <CardCatalogPanel
+              specs={catalog}
+              status={catalogStatus}
+              summary={catalogSummary}
+              query={catalogQuery}
+              filter={catalogFilter}
+              selectedCardNo={selectedCardNo}
+              onQuery={setCatalogQuery}
+              onFilter={setCatalogFilter}
+              onSelect={setSelectedCardNo}
+            />
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
@@ -1199,8 +1233,8 @@ function BattleDesk({
   return (
     <section className="desk-panel" data-testid="battle-desk">
       <div className="section-title">
-        <h2>Battle Desk</h2>
-        <span>{snapshot ? `${selectionIntentLabel(selectionIntent)} / ${activePlayerId}` : "no snapshot"}</span>
+        <h2>对战桌面</h2>
+        <span>{snapshot ? `${selectionIntentLabel(selectionIntent)} / ${activePlayerId}` : "尚未同步状态"}</span>
       </div>
       <div className="lane-board">
         {players.map(([playerId, player]) => (
@@ -1216,7 +1250,7 @@ function BattleDesk({
       </div>
       <section className="stack-strip">
         <div className="section-title">
-          <h3>Stack</h3>
+          <h3>结算栈</h3>
           <span>{snapshot?.stack?.length ?? 0}</span>
         </div>
         <ObjectList ids={(snapshot?.stack ?? []).map((item, index) => stackLabel(item, index))} onPickObject={onPickObject} />
@@ -1245,7 +1279,7 @@ function PlayerDesk({
           <h3>{playerId}</h3>
         </div>
         <div className="score-box">
-          <span>Score</span>
+          <span>分数</span>
           <strong>{player.score ?? 0}</strong>
         </div>
       </header>
@@ -1316,7 +1350,7 @@ function ObjectList({
   onPickObject: (objectId: string) => void;
 }) {
   if (ids.length === 0) {
-    return <div className="empty-zone">empty</div>;
+    return <div className="empty-zone">空区域</div>;
   }
 
   return (
@@ -1334,7 +1368,7 @@ function ObjectList({
               <ObjectMeta object={objects?.[id]} />
             </button>
             {attachments.length > 0 ? (
-              <div className="attached-strip" aria-label={`${id} attached equipment`}>
+              <div className="attached-strip" aria-label={`${id} 贴附装备`}>
                 {attachments.map((attachment) => (
                   <button
                     className="attachment-chip"
@@ -1462,6 +1496,7 @@ function CommandWorkbench({
   onRefreshFixture: () => void;
   onCopyFixture: () => void;
 }) {
+  const [operationMode, setOperationMode] = useState<OperationMode>("play");
   const promptActions = activePlayer.prompt?.actions ?? [];
   const promptCandidates = promptCandidatesFor(activePlayer.prompt);
   const promptIsActionable = Boolean(activePlayer.prompt?.actionable);
@@ -1485,7 +1520,7 @@ function CommandWorkbench({
     : visibleObjectIds.map((objectId): ActionPromptChoiceDto => ({ id: objectId, label: objectId }));
   const playOptionalCostChoices: ActionPromptChoiceDto[] = playCandidate?.optionalCosts?.length
     ? playCandidate.optionalCosts
-    : ["ECHO", "STANDBY_REVEAL_0", "ROAM", "SPEND_POWER:1"].map((cost): ActionPromptChoiceDto => ({ id: cost, label: cost }));
+    : ["ECHO", "STANDBY_REVEAL_0", "ROAM", "SPEND_POWER:1"].map((cost): ActionPromptChoiceDto => ({ id: cost, label: optionalCostLabel(cost) }));
 
   function togglePlayTarget(objectId: string) {
     const next = selectedTargets.includes(objectId)
@@ -1512,12 +1547,12 @@ function CommandWorkbench({
   return (
     <section className="workbench-panel" data-testid="command-workbench">
       <div className="section-title">
-        <h2>Operation Panel</h2>
-        <span>{activePlayer.prompt?.reason ?? "no prompt"}</span>
+        <h2>操作面板</h2>
+        <span>{activePlayer.prompt?.reason ?? "等待服务端提示"}</span>
       </div>
       <div className="workbench-controls">
         <label>
-          Active client
+          当前玩家
           <select value={activeKey} onChange={(event) => onActiveKey(event.target.value as PlayerKey)}>
             <option value="p1">P1</option>
             <option value="p2">P2</option>
@@ -1555,14 +1590,29 @@ function CommandWorkbench({
         activateDraft={activateDraft}
       />
 
+      <div className="operation-tabs" data-testid="operation-tabs">
+        {operationTabs.map((tab) => (
+          <button
+            className={operationMode === tab.id ? "selected" : ""}
+            data-testid={`operation-tab-${tab.id}`}
+            key={tab.id}
+            onClick={() => setOperationMode(tab.id)}
+            type="button"
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {operationMode === "play" ? (
       <section className="play-card-panel">
         <div className="section-title">
-          <h3>PLAY_CARD Builder</h3>
-          <span>{canPlayCard ? "prompt allows PLAY_CARD" : "blocked by current prompt"}</span>
+          <h3>打出卡牌</h3>
+          <span>{canPlayCard ? "服务端允许打出卡牌" : "当前提示不允许"}</span>
         </div>
         <div className="form-grid">
           <label>
-            sourceObjectId
+            来源对象
             <input
               data-testid="play-source"
               value={playDraft.sourceObjectId}
@@ -1571,7 +1621,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            cardNo
+            卡牌编号
             <input
               data-testid="play-card-no"
               value={playDraft.cardNo}
@@ -1580,7 +1630,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            mode
+            模式
             <input
               data-testid="play-mode"
               value={playDraft.mode}
@@ -1589,7 +1639,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            targetObjectIds
+            目标对象
             <input
               data-testid="play-targets"
               value={playDraft.targetObjectIds}
@@ -1598,7 +1648,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            destination
+            目的地
             <input
               data-testid="play-destination"
               value={playDraft.destination}
@@ -1607,7 +1657,7 @@ function CommandWorkbench({
             />
           </label>
           <label className="wide-input">
-            optionalCosts
+            可选费用
             <input
               data-testid="play-optional-costs"
               value={playDraft.optionalCosts}
@@ -1631,7 +1681,7 @@ function CommandWorkbench({
               }}
               title={choice.reason}
             >
-              {choice.label}
+              {choiceDisplayLabel(choice)}
             </button>
           ))}
         </div>
@@ -1656,20 +1706,21 @@ function CommandWorkbench({
               title={cost.reason}
               type="button"
             >
-              {cost.label}
+            {choiceDisplayLabel(cost)}
             </button>
           ))}
         </div>
         <button data-testid="submit-play-card" disabled={!canPlayCard} onClick={onSubmitPlayCard}>
-          Submit PLAY_CARD
+          提交打出
         </button>
       </section>
+      ) : null}
 
       {devToolsOpen ? (
         <section className="scenario-panel">
           <div className="section-title">
-            <h3>Scenario Seeds</h3>
-            <span>development only</span>
+            <h3>本地场景</h3>
+            <span>仅调试使用</span>
           </div>
           <div className="scenario-grid">
             {scenarioPresets.map((preset) => (
@@ -1682,14 +1733,15 @@ function CommandWorkbench({
         </section>
       ) : null}
 
+      {operationMode === "ability" ? (
       <section className="command-panel">
         <div className="section-title">
-          <h3>ACTIVATE_ABILITY</h3>
-          <span>{activateAbilityEnabled ? "prompt allows ACTIVATE_ABILITY" : canActivateAbility ? "no implemented source" : "blocked by current prompt"}</span>
+          <h3>激活能力</h3>
+          <span>{activateAbilityEnabled ? "服务端允许激活能力" : canActivateAbility ? "暂无可用来源" : "当前提示不允许"}</span>
         </div>
         <div className="form-grid">
           <label>
-            sourceObjectId
+            来源对象
             <input
               data-testid="ability-source"
               value={activateDraft.sourceObjectId}
@@ -1698,7 +1750,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            abilityId
+            能力
             <input
               data-testid="ability-id"
               value={activateDraft.abilityId}
@@ -1707,7 +1759,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            targetObjectIds
+            目标对象
             <input
               data-testid="ability-targets"
               value={activateDraft.targetObjectIds}
@@ -1716,7 +1768,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            optionalCosts
+            可选费用
             <input
               data-testid="ability-optional-costs"
               value={activateDraft.optionalCosts}
@@ -1735,18 +1787,20 @@ function CommandWorkbench({
         />
         <ChoiceChipRow title="服务端费用" testIdPrefix="ability-cost-choice" choices={activateCandidate?.optionalCosts} onPick={(choice) => onActivateDraft({ ...activateDraft, optionalCosts: choice.id })} />
         <button data-testid="submit-activate-ability" disabled={!activateAbilityEnabled} onClick={onSubmitActivate}>
-          Submit ACTIVATE_ABILITY
+          提交激活
         </button>
       </section>
+      ) : null}
 
+      {operationMode === "move" ? (
       <section className="command-panel">
         <div className="section-title">
-          <h3>MOVE_UNIT</h3>
-          <span>{canMove ? "prompt allows MOVE_UNIT" : "blocked by current prompt"}</span>
+          <h3>移动单位</h3>
+          <span>{canMove ? "服务端允许移动" : "当前提示不允许"}</span>
         </div>
         <div className="form-grid">
           <label>
-            sourceObjectId
+            来源单位
             <input
               data-testid="move-source"
               value={moveDraft.sourceObjectId}
@@ -1755,7 +1809,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            origin
+            来源区域
             <input
               data-testid="move-origin"
               value={moveDraft.origin}
@@ -1764,7 +1818,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            destination
+            目的地
             <input
               data-testid="move-destination"
               value={moveDraft.destination}
@@ -1773,7 +1827,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            optionalCosts
+            可选费用
             <input
               data-testid="move-optional-costs"
               value={moveDraft.optionalCosts}
@@ -1785,18 +1839,20 @@ function CommandWorkbench({
         <ChoiceChipRow title="服务端来源" testIdPrefix="move-source-choice" choices={moveCandidate?.sources} onPick={(choice) => onMoveDraft({ ...moveDraft, sourceObjectId: choice.id })} />
         <ChoiceChipRow title="服务端目的地" testIdPrefix="move-destination-choice" choices={moveCandidate?.destinations} onPick={(choice) => onMoveDraft({ ...moveDraft, destination: choice.id })} />
         <button data-testid="submit-move-unit" disabled={!canMove} onClick={onSubmitMove}>
-          Submit MOVE_UNIT
+          提交移动
         </button>
       </section>
+      ) : null}
 
+      {operationMode === "assemble" ? (
       <section className="command-panel">
         <div className="section-title">
-          <h3>ASSEMBLE_EQUIPMENT</h3>
-          <span>{canAssemble ? "prompt allows ASSEMBLE_EQUIPMENT" : "blocked by current prompt"}</span>
+          <h3>装配装备</h3>
+          <span>{canAssemble ? "服务端允许装配" : "当前提示不允许"}</span>
         </div>
         <div className="form-grid">
           <label>
-            sourceObjectId
+            装备来源
             <input
               data-testid="assemble-source"
               value={assembleDraft.sourceObjectId}
@@ -1805,7 +1861,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            targetObjectId
+            装备宿主
             <input
               data-testid="assemble-target"
               value={assembleDraft.targetObjectId}
@@ -1814,7 +1870,7 @@ function CommandWorkbench({
             />
           </label>
           <label className="wide-input">
-            optionalCosts
+            可选费用
             <input
               data-testid="assemble-optional-costs"
               value={assembleDraft.optionalCosts}
@@ -1832,18 +1888,20 @@ function CommandWorkbench({
           onPick={(choice) => onAssembleDraft({ ...assembleDraft, optionalCosts: choice.id })}
         />
         <button data-testid="submit-assemble-equipment" disabled={!canAssemble} onClick={onSubmitAssemble}>
-          Submit ASSEMBLE_EQUIPMENT
+          提交装配
         </button>
       </section>
+      ) : null}
 
+      {operationMode === "battle" ? (
       <section className="command-panel">
         <div className="section-title">
-          <h3>DECLARE_BATTLE</h3>
-          <span>{canDeclareBattle ? "prompt allows DECLARE_BATTLE" : "blocked by current prompt"}</span>
+          <h3>声明战斗</h3>
+          <span>{canDeclareBattle ? "服务端允许声明战斗" : "当前提示不允许"}</span>
         </div>
         <div className="form-grid">
           <label>
-            battlefieldId
+            战场
             <input
               data-testid="battlefield-id"
               value={battleDraft.battlefieldId}
@@ -1852,7 +1910,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            attackerObjectIds
+            攻击方
             <input
               data-testid="battle-attackers"
               value={battleDraft.attackerObjectIds}
@@ -1861,7 +1919,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            defenderObjectIds
+            防守方
             <input
               data-testid="battle-defenders"
               value={battleDraft.defenderObjectIds}
@@ -1870,7 +1928,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            battlefieldTargetObjectIds
+            战场目标
             <input
               data-testid="battlefield-targets"
               value={battleDraft.battlefieldTargetObjectIds}
@@ -1879,7 +1937,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            optionalCosts
+            可选费用
             <input
               data-testid="battle-optional-costs"
               value={battleDraft.optionalCosts}
@@ -1914,18 +1972,20 @@ function CommandWorkbench({
           onPick={(choice) => onBattleDraft({ ...battleDraft, optionalCosts: choice.id })}
         />
         <button data-testid="submit-declare-battle" disabled={!canDeclareBattle} onClick={onSubmitBattle}>
-          Submit DECLARE_BATTLE
+          提交战斗
         </button>
       </section>
+      ) : null}
 
+      {operationMode === "legend" ? (
       <section className="command-panel">
         <div className="section-title">
-          <h3>LEGEND_ACT</h3>
-          <span>{canLegendAct ? "prompt allows LEGEND_ACT" : "blocked by current prompt"}</span>
+          <h3>传奇行动</h3>
+          <span>{canLegendAct ? "服务端允许传奇行动" : "当前提示不允许"}</span>
         </div>
         <div className="form-grid">
           <label>
-            sourceObjectId
+            传奇来源
             <input
               data-testid="legend-source"
               value={legendDraft.sourceObjectId}
@@ -1934,7 +1994,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            abilityId
+            能力
             <input
               data-testid="legend-ability"
               value={legendDraft.abilityId}
@@ -1943,7 +2003,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            targetObjectIds
+            目标对象
             <input
               data-testid="legend-targets"
               value={legendDraft.targetObjectIds}
@@ -1952,7 +2012,7 @@ function CommandWorkbench({
             />
           </label>
           <label>
-            optionalCosts
+            可选费用
             <input
               data-testid="legend-optional-costs"
               value={legendDraft.optionalCosts}
@@ -1971,22 +2031,23 @@ function CommandWorkbench({
         />
         <ChoiceChipRow title="服务端费用" testIdPrefix="legend-cost-choice" choices={legendCandidate?.optionalCosts} onPick={(choice) => onLegendDraft({ ...legendDraft, optionalCosts: choice.id })} />
         <button data-testid="submit-legend-act" disabled={!canLegendAct} onClick={onSubmitLegend}>
-          Submit LEGEND_ACT
+          提交传奇行动
         </button>
       </section>
+      ) : null}
 
       {devToolsOpen ? (
       <section className="fixture-panel">
         <div className="section-title">
-          <h3>Fixture Draft</h3>
+          <h3>Fixture 草稿</h3>
           <span>{fixtureStatus}</span>
         </div>
         <div className="button-row">
           <button data-testid="refresh-fixture" onClick={onRefreshFixture}>
-            Refresh Draft
+            刷新草稿
           </button>
           <button data-testid="copy-fixture" onClick={onCopyFixture}>
-            Copy Draft
+            复制草稿
           </button>
         </div>
         <pre data-testid="fixture-draft">{fixtureText}</pre>
@@ -2054,7 +2115,7 @@ function ChoiceChipRow({
             title={choice.reason}
             type="button"
           >
-            {choice.label}
+            {choiceDisplayLabel(choice)}
           </button>
         ))}
       </div>
@@ -2070,8 +2131,32 @@ function ChoicePreview({ title, choices }: { title: string; choices?: ActionProm
   return (
     <div className="choice-preview">
       <span>{title}</span>
-      <p>{choices.slice(0, 6).map((choice) => choice.label).join("，")}</p>
+      <p>{choices.slice(0, 6).map(choiceDisplayLabel).join("，")}</p>
     </div>
+  );
+}
+
+function choiceDisplayLabel(choice: ActionPromptChoiceDto) {
+  if (!choice.label || choice.label === choice.id) {
+    return optionalCostLabel(choice.id);
+  }
+  return choice.label;
+}
+
+function optionalCostLabel(cost: string) {
+  return (
+    {
+      ECHO: "回响",
+      STANDBY_REVEAL_0: "待命揭示",
+      ROAM: "游走",
+      "SPEND_POWER:1": "支付 1 战力符能",
+      "SPEND_MANA:1": "支付 1 法力",
+      "SPEND_MANA:2": "支付 2 法力",
+      "SPEND_MANA:3": "支付 3 法力",
+      "SPEND_EXPERIENCE:3": "支付 3 经验",
+      COMBAT_ASSIGNMENT: "战斗分配",
+      ASSEMBLE_RED: "红色装配"
+    }[cost] ?? cost
   );
 }
 
@@ -2127,27 +2212,27 @@ function IntentSummaryPanel({
 }) {
   const summaryRows = [
     {
-      label: "PLAY_CARD",
+      label: "打出卡牌",
       value: summarizeCommand(buildPlayCardCommand(playDraft))
     },
     {
-      label: "MOVE_UNIT",
+      label: "移动单位",
       value: summarizeCommand(buildMoveUnitCommand(moveDraft))
     },
     {
-      label: "ASSEMBLE",
+      label: "装配装备",
       value: summarizeCommand(buildAssembleCommand(assembleDraft))
     },
     {
-      label: "BATTLE",
+      label: "声明战斗",
       value: summarizeCommand(buildDeclareBattleCommand(battleDraft))
     },
     {
-      label: "ABILITY",
+      label: "激活能力",
       value: summarizeCommand(buildActivateAbilityCommand(activateDraft))
     },
     {
-      label: "LEGEND",
+      label: "传奇行动",
       value: summarizeCommand(buildLegendActCommand(legendDraft))
     }
   ];
@@ -2156,11 +2241,11 @@ function IntentSummaryPanel({
     <section className="intent-summary-panel" data-testid="intent-summary">
       <div className="section-title">
         <h3>待提交操作</h3>
-        <span>{prompt?.promptId ? `prompt ${prompt.promptId}` : selectionIntentLabel(selectionIntent)}</span>
+        <span>{prompt?.promptId ? `提示 ${prompt.promptId}` : selectionIntentLabel(selectionIntent)}</span>
       </div>
       <div className="intent-summary-grid">
         <div>
-          <span>Prompt tick</span>
+          <span>提示版本</span>
           <strong>{prompt?.snapshotTick ?? "-"}</strong>
         </div>
         <div>
@@ -2190,28 +2275,28 @@ function ResponseWindowPanel({ snapshot, prompt }: { snapshot?: SnapshotDto; pro
     <section className="response-panel" data-testid="response-window">
       <div className="section-title">
         <h3>响应窗口</h3>
-        <span>{prompt?.reason ?? "no prompt"}</span>
+        <span>{prompt?.reason ?? "等待服务端提示"}</span>
       </div>
       <div className="response-grid">
         <div>
-          <span>Timing</span>
-          <strong>{timingState}</strong>
+          <span>时点</span>
+          <strong>{timingLabel(timingState)}</strong>
         </div>
         <div>
-          <span>Priority</span>
+          <span>优先权</span>
           <strong>{priorityPlayerId}</strong>
         </div>
         <div>
-          <span>Focus</span>
+          <span>焦点</span>
           <strong>{focusPlayerId}</strong>
         </div>
         <div>
-          <span>Stack</span>
+          <span>结算栈</span>
           <strong>{stackLabels.length}</strong>
         </div>
       </div>
       <div className="stack-tags">
-        {stackLabels.length === 0 ? <span>stack empty</span> : stackLabels.map((label) => <span key={label}>{label}</span>)}
+        {stackLabels.length === 0 ? <span>结算栈为空</span> : stackLabels.map((label) => <span key={label}>{label}</span>)}
       </div>
     </section>
   );
@@ -2238,7 +2323,7 @@ function MatchTelemetry({
       <section className="event-log-panel" data-testid="event-log" aria-live="polite">
         <div className="section-title">
           <h2>事件日志</h2>
-          <span>{timeline.length} events</span>
+          <span>{timeline.length} 条事件</span>
         </div>
         <ol className="event-list">
           {timeline.length === 0 ? (
@@ -2246,7 +2331,7 @@ function MatchTelemetry({
           ) : (
             timeline.slice(0, 32).map((event) => (
               <li key={event.key}>
-                <span className="event-kind">{event.kind}</span>
+                <span className="event-kind">{eventKindLabel(event.kind)}</span>
                 <strong>{event.description}</strong>
                 <small>{eventPayloadSummary(event.payload)}</small>
               </li>
@@ -2258,23 +2343,23 @@ function MatchTelemetry({
       <section className="report-panel" data-testid="match-report">
         <div className="section-title">
           <h2>战报摘要</h2>
-          <span>{roomStatus}</span>
+          <span>{roomStatusLabel(roomStatus)}</span>
         </div>
         <div className="report-summary">
           <div>
-            <span>Room</span>
+            <span>房间</span>
             <strong>{roomId || "-"}</strong>
           </div>
           <div>
-            <span>Turn</span>
+            <span>回合</span>
             <strong>{snapshot ? `#${snapshot.turnNumber}` : "-"}</strong>
           </div>
           <div>
-            <span>Active</span>
+            <span>行动方</span>
             <strong>{snapshot?.activePlayerId ?? "-"}</strong>
           </div>
           <div>
-            <span>Winner</span>
+            <span>胜者</span>
             <strong>{winner}</strong>
           </div>
         </div>
@@ -2299,15 +2384,15 @@ function MatchTelemetry({
       <section className="replay-panel" data-testid="replay-spectator">
         <div className="section-title">
           <h2>回放 / 观战</h2>
-          <span>deferred boundary</span>
+          <span>本地只读边界</span>
         </div>
         <div className="replay-boundary-summary" data-testid="replay-boundary-summary">
           <div>
-            <span>Local events</span>
+            <span>本地事件</span>
             <strong>{timeline.length}</strong>
           </div>
           <div>
-            <span>Snapshot tick</span>
+            <span>状态版本</span>
             <strong>{snapshot?.tick ?? "-"}</strong>
           </div>
         </div>
@@ -2336,7 +2421,9 @@ function CardCatalogPanel({
   selectedCardNo,
   onQuery,
   onFilter,
-  onSelect
+  onSelect,
+  compact = false,
+  onOpenFull
 }: {
   specs: BehaviorSpecDto[];
   status: string;
@@ -2347,10 +2434,12 @@ function CardCatalogPanel({
   onQuery: (query: string) => void;
   onFilter: (filter: CatalogFilter) => void;
   onSelect: (cardNo: string) => void;
+  compact?: boolean;
+  onOpenFull?: () => void;
 }) {
   const filtered = useMemo(() => filterCatalog(specs, query, filter), [specs, query, filter]);
   const selected = filtered.find((spec) => spec.cardNo === selectedCardNo) ?? filtered[0] ?? specs[0];
-  const visible = filtered;
+  const visible = compact ? filtered.slice(0, 6) : filtered;
   const implementedCount = summary.implemented ?? 0;
   const manualDeferredCount = summary["manual-rule-required"] ?? 0;
   const blockedCount = summary.unimplemented ?? 0;
@@ -2360,40 +2449,47 @@ function CardCatalogPanel({
     && blockedCount === 0;
 
   return (
-    <section className="catalog-panel" data-testid="card-catalog">
+    <section className={compact ? "catalog-panel compact" : "catalog-panel"} data-testid="card-catalog">
       <div className="section-title">
         <div>
-          <p className="eyebrow">Card Catalog</p>
-          <h2>图鉴与卡牌详情</h2>
+          <p className="eyebrow">卡牌图鉴</p>
+          <h2>{compact ? "卡牌与规则" : "图鉴与卡牌详情"}</h2>
         </div>
-        <span>{status}</span>
+        <div className="section-actions">
+          <span>{catalogLoadStatusLabel(status)}</span>
+          {onOpenFull ? (
+            <button className="secondary-toggle" data-testid="open-catalog-modal" onClick={onOpenFull} type="button">
+              完整图鉴
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <div className="catalog-toolbar">
         <label>
-          Search
+          搜索卡牌
           <input
             data-testid="catalog-search"
             value={query}
             onChange={(event) => onQuery(event.target.value)}
-            placeholder="card no, name, rule text"
+            placeholder="输入卡号、名称或规则文本"
             spellCheck={false}
           />
         </label>
         <label>
-          Status
+          状态
           <select data-testid="catalog-filter" value={filter} onChange={(event) => onFilter(event.target.value as CatalogFilter)}>
-            <option value="conformance-pass">Playable</option>
-            <option value="manual-deferred">Manual audit</option>
-            <option value="blocked">Blocked audit</option>
-            <option value="all">All statuses</option>
+            <option value="conformance-pass">可玩</option>
+            <option value="manual-deferred">人工边界</option>
+            <option value="blocked">已阻止</option>
+            <option value="all">全部状态</option>
           </select>
         </label>
         <div className="catalog-counts" data-testid="catalog-counts">
-          <span>CONFORMANCE_PASS {implementedCount}/{specs.length}</span>
-          <span>Manual deferred {manualDeferredCount}</span>
-          <span>Blocked {blockedCount}</span>
-          <span>Visible {visible.length}</span>
+          <span>已通过 {implementedCount}/{specs.length}</span>
+          <span>人工边界 {manualDeferredCount}</span>
+          <span>阻止 {blockedCount}</span>
+          <span>当前 {filtered.length}</span>
         </div>
       </div>
 
@@ -2402,18 +2498,18 @@ function CardCatalogPanel({
         data-testid="catalog-playable-boundary"
       >
         {allSpecsConformancePass
-          ? `P7.9 全量可玩状态：${implementedCount}/${specs.length} CONFORMANCE_PASS，0 manual deferred，0 blocked。`
-          : `图鉴审计状态：${implementedCount}/${specs.length} CONFORMANCE_PASS，${manualDeferredCount} manual deferred，${blockedCount} blocked。`}
+          ? `P7.9 全量可玩状态：${implementedCount}/${specs.length} 已通过一致性，0 个人工边界，0 个阻止项。`
+          : `图鉴审计状态：${implementedCount}/${specs.length} 已通过一致性，${manualDeferredCount} 个人工边界，${blockedCount} 个阻止项。`}
       </div>
 
       <div className="catalog-layout">
         <div className="catalog-list" data-testid="catalog-results">
           <div className="catalog-list-summary">
             <strong>{filtered.length}</strong>
-            <span>showing all {visible.length}</span>
+            <span>{compact ? "显示前几项" : `显示 ${visible.length} 项`}</span>
           </div>
           {visible.length === 0 ? (
-            <div className="empty-row">No catalog cards match this filter.</div>
+            <div className="empty-row">没有符合条件的卡牌</div>
           ) : (
             visible.map((spec) => (
               <button
@@ -2430,17 +2526,17 @@ function CardCatalogPanel({
           )}
         </div>
 
-        <CardDetail spec={selected} />
+        <CardDetail spec={selected} compact={compact} />
       </div>
     </section>
   );
 }
 
-function CardDetail({ spec }: { spec?: BehaviorSpecDto }) {
+function CardDetail({ spec, compact = false }: { spec?: BehaviorSpecDto; compact?: boolean }) {
   if (!spec) {
     return (
       <section className="card-detail" data-testid="card-detail">
-        <div className="empty-row">Select a card.</div>
+        <div className="empty-row">请选择一张卡牌</div>
       </section>
     );
   }
@@ -2460,48 +2556,52 @@ function CardDetail({ spec }: { spec?: BehaviorSpecDto }) {
 
       {isManual ? (
         <div className="catalog-boundary" data-testid="catalog-deferred-boundary">
-          P6 manual deferred: this legend/battlefield or non-PLAY_CARD surface is blocked from P7 playable controls until a backend domain implements it.
+          P6 人工边界：这张卡在后端规则域实现前不会开放为可玩按钮。
         </div>
       ) : null}
 
       <dl className="detail-grid">
         <div>
-          <dt>Functional unit</dt>
+          <dt>功能单元</dt>
           <dd>{spec.functionalUnitId}</dd>
         </div>
         <div>
-          <dt>Operation surface</dt>
+          <dt>操作入口</dt>
           <dd>{catalogOperationSurface(spec)}</dd>
         </div>
         <div>
-          <dt>Implemented by</dt>
+          <dt>实现卡牌</dt>
           <dd>{spec.implementedByCardNo ?? "-"}</dd>
         </div>
         <div>
-          <dt>Effect kind</dt>
+          <dt>效果类型</dt>
           <dd>{spec.implementedEffectKind ?? "-"}</dd>
         </div>
         <div>
-          <dt>Templates</dt>
+          <dt>模板</dt>
           <dd>{spec.templateIds?.length ? spec.templateIds.join(", ") : "-"}</dd>
         </div>
       </dl>
 
       <section className="card-text-block">
-        <h3>Official Text</h3>
-        <p>{spec.officialText || "No official rule text."}</p>
+        <h3>官方规则文本</h3>
+        <p>{spec.officialText || "暂无官方规则文本。"}</p>
       </section>
-      <section className="card-text-block">
-        <h3>Behavior Reason</h3>
-        <p>{spec.reason}</p>
-      </section>
+      {compact ? null : (
+        <section className="card-text-block">
+          <h3>行为说明</h3>
+          <p>{spec.reason}</p>
+        </section>
+      )}
 
-      <div className="spec-pill-grid">
-        <SpecPills title="Keywords" values={(spec.keywords ?? []).map((item) => item.value ? `${item.keyword} ${item.value}` : item.keyword)} />
-        <SpecPills title="Targets" values={(spec.targets ?? []).map((item) => `${item.scope} ${item.minCount}-${item.maxCount ?? item.minCount}`)} />
-        <SpecPills title="Triggers" values={(spec.triggers ?? []).map((item) => `${item.kind}: ${item.timing}`)} />
-        <SpecPills title="Effects" values={(spec.effects ?? []).map((item) => `${item.templateId}: ${statusLabel(item.status)}`)} />
-      </div>
+      {compact ? null : (
+        <div className="spec-pill-grid">
+          <SpecPills title="关键词" values={(spec.keywords ?? []).map((item) => item.value ? `${item.keyword} ${item.value}` : item.keyword)} />
+          <SpecPills title="目标" values={(spec.targets ?? []).map((item) => `${targetScopeLabel(item.scope)} ${item.minCount}-${item.maxCount ?? item.minCount}`)} />
+          <SpecPills title="触发" values={(spec.triggers ?? []).map((item) => `${triggerKindLabel(item.kind)}：${triggerTimingLabel(item.timing)}`)} />
+          <SpecPills title="效果" values={(spec.effects ?? []).map((item) => `${effectKindLabel(item.templateId)}：${statusLabel(item.status)}`)} />
+        </div>
+      )}
     </section>
   );
 }
@@ -2515,7 +2615,140 @@ function SpecPills({ title, values }: { title: string; values: string[] }) {
     <section className="spec-pill-section">
       <h3>{title}</h3>
       <div className="spec-pills">
-        {values.length === 0 ? <span>none</span> : values.slice(0, 12).map((value) => <span key={value}>{value}</span>)}
+        {values.length === 0 ? <span>无</span> : values.slice(0, 12).map((value) => <span key={value}>{value}</span>)}
+      </div>
+    </section>
+  );
+}
+
+function PlayerDock({
+  players,
+  devToolsOpen,
+  onPatch,
+  onJoin,
+  onReconnect,
+  onDisconnect,
+  onReady,
+  onSnapshot,
+  onPromptAction,
+  onSubmitJson
+}: {
+  players: Record<PlayerKey, PlayerState>;
+  devToolsOpen: boolean;
+  onPatch: (key: PlayerKey, patch: Partial<PlayerState>) => void;
+  onJoin: (key: PlayerKey) => void;
+  onReconnect: (key: PlayerKey) => void;
+  onDisconnect: (key: PlayerKey) => void;
+  onReady: (key: PlayerKey) => void;
+  onSnapshot: (key: PlayerKey) => void;
+  onPromptAction: (key: PlayerKey, action: string) => void;
+  onSubmitJson: (key: PlayerKey) => void;
+}) {
+  return (
+    <section className="seat-dock" data-testid="seat-dock" aria-label="玩家席位">
+      <div className="section-title">
+        <h2>玩家席位</h2>
+        <span>入座、准备、重连</span>
+      </div>
+      <div className="seat-grid">
+        {playerKeys.map((key) => {
+          const state = players[key];
+          const promptCandidates = promptCandidatesFor(state.prompt);
+          return (
+            <article className="seat-card" data-testid={`${key}-panel`} key={key}>
+              <header>
+                <div>
+                  <p className="eyebrow">{state.label} 客户端</p>
+                  <h3>{state.playerId || state.label}</h3>
+                </div>
+                <StatusPill status={state.status} />
+              </header>
+              <label>
+                玩家编号
+                <input
+                  data-testid={`${key}-player-id`}
+                  value={state.playerId}
+                  onChange={(event) => onPatch(key, { playerId: event.target.value })}
+                  spellCheck={false}
+                />
+              </label>
+              <div className="button-row compact-actions">
+                <button data-testid={`${key}-join`} onClick={() => onJoin(key)} type="button">
+                  入座
+                </button>
+                <button data-testid={`${key}-ready`} onClick={() => onReady(key)} type="button">
+                  准备
+                </button>
+                <button data-testid={`${key}-reconnect`} onClick={() => onReconnect(key)} type="button">
+                  重连
+                </button>
+                <button data-testid={`${key}-disconnect`} onClick={() => onDisconnect(key)} type="button">
+                  断开
+                </button>
+                <button data-testid={`${key}-snapshot`} onClick={() => onSnapshot(key)} type="button">
+                  同步
+                </button>
+              </div>
+              <dl className="seat-stats">
+                <div>
+                  <dt>座位</dt>
+                  <dd>{state.session?.seat ?? "-"}</dd>
+                </div>
+                <div>
+                  <dt>提示</dt>
+                  <dd>{state.prompt?.actionable ? "可行动" : "等待"} / {state.prompt?.snapshotTick ?? "-"}</dd>
+                </div>
+                <div>
+                  <dt>重连</dt>
+                  <dd>{connectionStatusLabel(state.reconnectStatus)}</dd>
+                </div>
+              </dl>
+              <div className="button-row prompt-actions">
+                {promptCandidates.length === 0 ? (
+                  <button disabled type="button">等待服务端提示</button>
+                ) : (
+                  promptCandidates.map((candidate) => (
+                    <button
+                      key={candidate.action}
+                      data-testid={`${key}-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
+                      disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
+                      onClick={() => onPromptAction(key, candidate.action)}
+                      title={candidate.reason}
+                      type="button"
+                    >
+                      {candidate.label}
+                    </button>
+                  ))
+                )}
+              </div>
+              {devToolsOpen ? (
+                <section className="intent-panel compact-json" aria-label={`${state.label} 原始命令`}>
+                  <div className="section-title">
+                    <h3>原始命令</h3>
+                    <span>本地调试</span>
+                  </div>
+                  <input
+                    data-testid={`${key}-intent-id`}
+                    className="intent-id"
+                    value={state.clientIntentId}
+                    placeholder="可选 intentId"
+                    onChange={(event) => onPatch(key, { clientIntentId: event.target.value })}
+                    spellCheck={false}
+                  />
+                  <textarea
+                    data-testid={`${key}-json-intent`}
+                    value={state.jsonIntent}
+                    onChange={(event) => onPatch(key, { jsonIntent: event.target.value })}
+                    spellCheck={false}
+                  />
+                  <button data-testid={`${key}-submit-json`} onClick={() => onSubmitJson(key)} type="button">
+                    提交原始命令
+                  </button>
+                </section>
+              ) : null}
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -2697,14 +2930,28 @@ function DebugBlock({
 }
 
 function StatusPill({ status }: { status: ConnectionStatus }) {
-  return <span className={`status-pill ${status}`}>{status}</span>;
+  return <span className={`status-pill ${status}`}>{connectionStateLabel(status)}</span>;
+}
+
+function connectionStateLabel(status: ConnectionStatus) {
+  return (
+    {
+      disconnected: "未连接",
+      connecting: "连接中",
+      connected: "已连接",
+      reconnecting: "重连中",
+      reconnected: "已重连",
+      closed: "已关闭",
+      error: "错误"
+    }[status] ?? status
+  );
 }
 
 function EmptyDesk() {
   return (
     <div className="empty-desk">
-      <strong>No player snapshot</strong>
-      <span>Join both clients to populate the desk.</span>
+      <strong>尚无玩家状态</strong>
+      <span>请先让两名玩家入座并准备。</span>
     </div>
   );
 }
@@ -2811,30 +3058,77 @@ function summarizeCommand(command: Record<string, unknown>) {
       }
       return value !== undefined && value !== null && value !== "";
     })
-    .map(([key, value]) => `${key}=${formatPayloadValue(value)}`);
-  return parts.length ? parts.join(" / ") : String(command.cmdType ?? "-");
+    .map(([key, value]) => `${commandFieldLabel(key)}=${formatPayloadValue(value)}`);
+  return parts.length ? parts.join(" / ") : promptActionLabel(String(command.cmdType ?? "-"));
+}
+
+function commandFieldLabel(key: string) {
+  return (
+    {
+      cmdType: "动作",
+      sourceObjectId: "来源",
+      cardNo: "卡号",
+      targetObjectIds: "目标",
+      mode: "模式",
+      optionalCosts: "费用",
+      destination: "目的地",
+      origin: "来源区域",
+      targetObjectId: "宿主",
+      battlefieldId: "战场",
+      attackerObjectIds: "攻击方",
+      defenderObjectIds: "防守方",
+      battlefieldTargetObjectIds: "战场目标",
+      abilityId: "能力"
+    }[key] ?? key
+  );
 }
 
 function summarizeRoom(snapshot?: SnapshotDto) {
   if (!snapshot) {
     return [
-      { label: "Status", value: "no snapshot" },
-      { label: "Turn", value: "-" },
-      { label: "Active", value: "-" },
-      { label: "Timing", value: "-" },
-      { label: "Stack", value: "-" },
-      { label: "Winner", value: "-" }
+      { label: "房间", value: "未同步" },
+      { label: "回合", value: "-" },
+      { label: "行动方", value: "-" },
+      { label: "时点", value: "-" },
+      { label: "结算栈", value: "-" },
+      { label: "胜者", value: "-" }
     ];
   }
 
   return [
-    { label: "Status", value: String(snapshot.timing?.roomStatus ?? snapshot.turnState ?? "-") },
-    { label: "Turn", value: `#${snapshot.turnNumber}` },
-    { label: "Active", value: snapshot.activePlayerId || "-" },
-    { label: "Timing", value: String(snapshot.timing?.timingState ?? snapshot.turnState ?? "-") },
-    { label: "Stack", value: String(snapshot.stack?.length ?? 0) },
-    { label: "Winner", value: String(snapshot.timing?.winnerPlayerId ?? "-") }
+    { label: "房间", value: roomStatusLabel(String(snapshot.timing?.roomStatus ?? snapshot.turnState ?? "-")) },
+    { label: "回合", value: `#${snapshot.turnNumber}` },
+    { label: "行动方", value: snapshot.activePlayerId || "-" },
+    { label: "时点", value: timingLabel(String(snapshot.timing?.timingState ?? snapshot.turnState ?? "-")) },
+    { label: "结算栈", value: String(snapshot.stack?.length ?? 0) },
+    { label: "胜者", value: String(snapshot.timing?.winnerPlayerId ?? "-") }
   ];
+}
+
+function roomStatusLabel(status: string) {
+  return (
+    {
+      EMPTY: "空房间",
+      SEATING: "入座中",
+      IN_PROGRESS: "对局中",
+      FINISHED: "已结束",
+      READY: "已准备"
+    }[status] ?? status
+  );
+}
+
+function timingLabel(timing: string) {
+  return (
+    {
+      ACTION: "行动窗口",
+      PRIORITY: "优先权",
+      FOCUS: "焦点",
+      COMBAT: "战斗",
+      CLEANUP: "清理",
+      START: "开始",
+      IN_PROGRESS: "进行中"
+    }[timing] ?? timing
+  );
 }
 
 function buildSystemNotices(players: Record<PlayerKey, PlayerState>, catalogStatus: string) {
@@ -2890,35 +3184,108 @@ function filterCatalog(specs: BehaviorSpecDto[], query: string, filter: CatalogF
 
 function statusLabel(status: string) {
   if (status === "implemented") {
-    return "CONFORMANCE_PASS";
+    return "已通过一致性";
   }
   if (status === "manual-rule-required") {
-    return "P6 MANUAL DEFERRED";
+    return "人工边界";
   }
   if (status === "unimplemented") {
-    return "BLOCKED";
+    return "已阻止";
   }
   return status;
+}
+
+function catalogLoadStatusLabel(status: string) {
+  if (status === "loading") {
+    return "加载中";
+  }
+  if (status.startsWith("loaded ")) {
+    return `已载入 ${status.replace("loaded ", "")} 张`;
+  }
+  return status;
+}
+
+function connectionStatusLabel(status: string) {
+  return (
+    {
+      idle: "待机",
+      retrying: "重试中",
+      "transport ready": "连接就绪",
+      joined: "已入座",
+      reconnected: "已重连",
+      closed: "已关闭",
+      starting: "连接中",
+      "manual stop": "手动断开",
+      "reconnecting with token": "凭令牌重连"
+    }[status] ?? status
+  );
 }
 
 function catalogOperationSurface(spec: BehaviorSpecDto) {
   const effectKind = spec.implementedEffectKind ?? "";
   if (effectKind === "RUNE_RESOURCE_DOMAIN" || spec.cardCategoryName === "符文") {
-    return "RUNE_RESOURCE domain";
+    return "符文资源";
   }
   if (effectKind === "TOKEN_FACTORY_DOMAIN" || spec.cardCategoryName.startsWith("指示物")) {
-    return "TOKEN_FACTORY domain";
+    return "指示物生成";
   }
   if (effectKind === "LEGEND_ACTION_DOMAIN" || spec.cardCategoryName === "传奇") {
-    return "LEGEND_ACT / legend domain";
+    return "传奇行动";
   }
   if (effectKind === "BATTLEFIELD_RULE_DOMAIN" || spec.cardCategoryName === "战场") {
-    return "DECLARE_BATTLE / battlefield domain";
+    return "战场规则";
   }
   if (spec.activatedAbilities?.length) {
-    return "ACTIVATE_ABILITY prompt";
+    return "激活能力";
   }
-  return "PLAY_CARD prompt";
+  return "打出卡牌";
+}
+
+function targetScopeLabel(scope: string) {
+  return (
+    {
+      any: "任意",
+      friendly: "友方",
+      enemy: "敌方",
+      unit: "单位",
+      battlefield: "战场",
+      hero: "英雄",
+      legend: "传奇"
+    }[scope] ?? scope
+  );
+}
+
+function triggerKindLabel(kind: string) {
+  return (
+    {
+      automatic: "自动",
+      activated: "激活",
+      replacement: "替代",
+      static: "静态"
+    }[kind] ?? kind
+  );
+}
+
+function triggerTimingLabel(timing: string) {
+  return (
+    {
+      "turn-start": "回合开始",
+      "turn-end": "回合结束",
+      play: "打出时",
+      battle: "战斗时",
+      conquest: "征服时",
+      hold: "据守时"
+    }[timing] ?? timing
+  );
+}
+
+function effectKindLabel(templateId: string) {
+  return templateId
+    .replaceAll("_", " ")
+    .replace("DAMAGE", "造成伤害")
+    .replace("DRAW", "抽牌")
+    .replace("MOVE", "移动")
+    .replace("BUFF", "强化");
 }
 
 function catalogStatusClass(status: string) {
@@ -2965,6 +3332,48 @@ function collectTimelineEvents(players: Record<PlayerKey, PlayerState>): Timelin
   return timeline.sort((left, right) => right.serverTick - left.serverTick || left.kind.localeCompare(right.kind));
 }
 
+function eventKindLabel(kind: string) {
+  return (
+    {
+      CARD_PLAYED: "打出卡牌",
+      PRIORITY_PASSED: "让过优先权",
+      FOCUS_PASSED: "让过焦点",
+      TURN_END_DECLARED: "宣告结束回合",
+      TURN_PLAYER_ADVANCED: "回合推进",
+      BATTLE_DECLARED: "声明战斗",
+      DAMAGE_APPLIED: "造成伤害",
+      LEGEND_ABILITY_ACTIVATED: "传奇行动",
+      ABILITY_ACTIVATED: "激活能力",
+      BATTLEFIELD_TRIGGER_RESOLVED: "战场触发",
+      COST_PAID: "支付费用",
+      RUNES_CALLED: "召唤符文",
+      SCORE_CHANGED: "分数变化",
+      MATCH_STARTED: "对局开始",
+      PLAYER_READY: "玩家准备",
+      PLAYER_JOINED: "玩家入座"
+    }[kind] ?? kind
+  );
+}
+
+function payloadKeyLabel(key: string) {
+  return (
+    {
+      assignmentIndex: "分配序号",
+      assignmentRole: "分配角色",
+      sourceObjectId: "来源",
+      targetObjectId: "目标",
+      damage: "伤害",
+      battlefieldId: "战场",
+      playerId: "玩家",
+      trigger: "触发",
+      cardNo: "卡号",
+      score: "分数",
+      amount: "数量",
+      reason: "原因"
+    }[key] ?? key
+  );
+}
+
 function eventPayloadSummary(payload: Record<string, unknown>) {
   const visibleEntries = Object.entries(payload)
     .filter(([, value]) => value !== undefined && value !== null && value !== "");
@@ -2984,8 +3393,8 @@ function eventPayloadSummary(payload: Record<string, unknown>) {
   ];
   const parts = orderedEntries
     .slice(0, 6)
-    .map(([key, value]) => `${key}: ${formatPayloadEntryValue(key, value)}`);
-  return parts.length > 0 ? parts.join(" / ") : "no payload";
+    .map(([key, value]) => `${payloadKeyLabel(key)}：${formatPayloadEntryValue(key, value)}`);
+  return parts.length > 0 ? parts.join(" / ") : "无载荷";
 }
 
 function formatPayloadEntryValue(key: string, value: unknown): string {
@@ -2997,10 +3406,10 @@ function formatPayloadEntryValue(key: string, value: unknown): string {
 
 function combatAssignmentRoleLabel(value: unknown): string {
   if (value === "BULWARK_FIRST") {
-    return "BULWARK_FIRST (壁垒优先)";
+    return "壁垒优先";
   }
   if (value === "BACK_ROW_LAST") {
-    return "BACK_ROW_LAST (后排最后)";
+    return "后排最后";
   }
   return formatPayloadValue(value);
 }
@@ -3338,7 +3747,20 @@ function formatJson(value: unknown) {
 }
 
 function errorToText(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("Failed to fetch")) {
+    return "无法连接服务器";
+  }
+  if (message.includes("not connected")) {
+    return "尚未连接";
+  }
+  if (message.includes("no reconnect token")) {
+    return "没有可用的重连令牌";
+  }
+  if (message.includes("Invalid JSON")) {
+    return message.replace("Invalid JSON", "JSON 格式错误");
+  }
+  return message;
 }
 
 function sessionStorageKey(roomId: string, playerId: string) {

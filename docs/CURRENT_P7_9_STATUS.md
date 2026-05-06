@@ -3386,3 +3386,41 @@ Final Browser smoke:
 - Final snapshot summary: room `IN_PROGRESS`, turn `#175`, active player `P1`, winner `-`, P1 score `0`, P2 score `0`, P1 battlefield `2`, P2 battlefield `0`, replay boundary `LOCAL EVENTS 44`, snapshot tick `11`.
 - Catalog boundary confirmed: `P7.9 全量可玩状态：1009/1009 CONFORMANCE_PASS，0 manual deferred，0 blocked。`
 - Screenshot verification: visible viewport captured through the in-app browser after final smoke.
+
+## Post-P7.9 Local Product UI Polish
+
+Date: 2026-05-06
+
+This is a local product polish batch after the P7.9 final audit. It does not enter P8 production accounts, matchmaking, deployment, monitoring, risk control, mobile-specific work, complex AI, or production replay/spectator APIs.
+
+Delivered:
+
+- Reworked the Dev UI from a vertically stacked workbench into a single-screen local product battle shell:
+  - top connection bar
+  - room summary strip
+  - left battle desk
+  - center server-prompt operation panel
+  - right seat / event / report / catalog rail
+- Added an operation tab bar so play, ability, move, equipment, battle, and legend operations are available without stacking every command form vertically.
+- Added a full catalog modal for dense card/rule browsing while keeping the primary battle view on one screen.
+- Localized the main visible UI copy to Chinese:
+  - connection controls
+  - player seat controls
+  - prompt buttons
+  - operation labels
+  - catalog filters/counts/status
+  - event kind and common payload labels
+  - common connection errors
+- Improved visual polish with a darker game-table frame, warmer card/table surfaces, stronger selected-card states, compact resource chips, and clearer modal styling.
+- Preserved the backend-authoritative boundary: all legal actions and choices still come from `ActionPrompt`; no frontend rule adjudication was added.
+
+Validation:
+
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
+- Browser smoke through the in-app browser:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Current-code API URL: `http://127.0.0.1:5089`
+  - Room ID: `p7-ui-polish-current-1778030703913`
+  - Operation path: set server URL to `5089`, created a fresh room, joined both players, readied both players, switched operation tabs to battle and legend, opened the full catalog modal, verified Chinese UI surfaces and catalog counts, then closed the modal.
+  - Catalog modal counts: `已通过 1009/1009`, `人工边界 0`, `阻止 0`, `当前 1009`.
+  - Screenshot verification: visible viewport captured through the in-app browser after the modal check.
