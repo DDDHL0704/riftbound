@@ -73,6 +73,58 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialDeckValidatorRejectsOfficialNegativeMatrix()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var valid = BuildValidDeck(catalog);
+        var legend = catalog.Cards.Single(card => string.Equals(card.CardNo, valid.LegendCardNo, StringComparison.Ordinal));
+        var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
+        var firstNonChampion = valid.MainDeck.First(cardNo => !string.Equals(cardNo, valid.ChampionCardNo, StringComparison.Ordinal));
+
+        AssertInvalid(valid with
+        {
+            MainDeck = ReplaceFirst(valid.MainDeck, valid.ChampionCardNo, firstNonChampion)
+        }, catalog, "mainDeck must contain one copy of championCardNo");
+
+        var runeCard = catalog.Cards.First(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal));
+        AssertInvalid(valid with
+        {
+            MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, runeCard.CardNo)
+        }, catalog, "has illegal category 符文");
+
+        AssertInvalid(valid with
+        {
+            MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, "UNKNOWN-000")
+        }, catalog, "mainDeck references unknown card UNKNOWN-000");
+
+        AssertInvalid(valid with
+        {
+            RuneDeck = ReplaceFirst(valid.RuneDeck, valid.RuneDeck[0], valid.ChampionCardNo)
+        }, catalog, "must be a 符文 card.");
+
+        AssertInvalid(valid with
+        {
+            Battlefields = ReplaceFirst(valid.Battlefields, valid.Battlefields[0], valid.ChampionCardNo)
+        }, catalog, "must be a 战场 card.");
+
+        var offTraitMainDeckCard = catalog.Cards
+            .Where(card => card.CardCategoryName is "单位" or "英雄单位" or "装备" or "法术")
+            .First(card => HasTraitsOutside(card, allowedColors));
+        AssertInvalid(valid with
+        {
+            MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, offTraitMainDeckCard.CardNo)
+        }, catalog, "has traits outside the selected legend traits");
+
+        var offTraitRune = catalog.Cards
+            .Where(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
+            .First(card => HasTraitsOutside(card, allowedColors));
+        AssertInvalid(valid with
+        {
+            RuneDeck = ReplaceFirst(valid.RuneDeck, valid.RuneDeck[0], offTraitRune.CardNo)
+        }, catalog, "has traits outside the selected legend traits");
+    }
+
+    [Fact]
     public async Task OfficialSubmittedDecksStartMulliganThenEnterFirstTurn()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
@@ -449,6 +501,12 @@ public sealed class OfficialOpeningTests
     {
         return card.CardColorList.All(color => string.Equals(color, "colorless", StringComparison.Ordinal)
             || allowedColors.Contains(color));
+    }
+
+    private static bool HasTraitsOutside(OfficialCard card, HashSet<string> allowedColors)
+    {
+        return card.CardColorList.Any(color => !string.Equals(color, "colorless", StringComparison.Ordinal)
+            && !allowedColors.Contains(color));
     }
 
     private static IReadOnlyList<string> ReplaceFirst(
