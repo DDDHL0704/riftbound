@@ -1458,6 +1458,20 @@ function ProductActionPanel(props: {
   const prompt = props.activePlayer.prompt;
   const candidates = promptCandidatesFor(prompt);
   const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
+  const [workbenchOpen, setWorkbenchOpen] = useState(false);
+  const [operationMode, setOperationMode] = useState<OperationMode>("play");
+
+  function handlePromptCandidate(candidate: ActionPromptCandidateDto) {
+    const mode = operationModeForAction(candidate.action);
+    if (mode) {
+      setOperationMode(mode);
+      setWorkbenchOpen(true);
+      props.onSelectionIntent(defaultSelectionIntentForOperation(mode));
+      return;
+    }
+
+    props.onPromptAction(candidate.action);
+  }
 
   return (
     <section className="product-action-panel" aria-label="当前操作">
@@ -1488,9 +1502,9 @@ function ProductActionPanel(props: {
             <button
               className={candidate.enabled ? "primary-action" : ""}
               data-testid={`product-action-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
-              disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
+              disabled={!candidate.enabled || (!replayableActions.has(candidate.action) && !operationModeForAction(candidate.action))}
               key={candidate.action}
-              onClick={() => props.onPromptAction(candidate.action)}
+              onClick={() => handlePromptCandidate(candidate)}
               title={candidate.enabled ? promptReasonLabel(candidate.reason) : promptReasonLabel(candidate.reason)}
               type="button"
             >
@@ -1505,12 +1519,16 @@ function ProductActionPanel(props: {
         <span>项服务端允许操作。复杂行动需要在下方选择来源、目标与费用后提交。</span>
       </div>
 
-      <details className="product-workbench-drawer">
+      <details
+        className="product-workbench-drawer"
+        open={workbenchOpen}
+        onToggle={(event) => setWorkbenchOpen(event.currentTarget.open)}
+      >
         <summary>
           <span>目标选择与提交</span>
           <strong>{selectionIntentLabel(props.selectionIntent)}</strong>
         </summary>
-        <CommandWorkbench {...props} />
+        <CommandWorkbench {...props} operationMode={operationMode} onOperationMode={setOperationMode} />
       </details>
     </section>
   );
@@ -2245,7 +2263,9 @@ function CommandWorkbench({
   onPromptAction,
   onSeedScenario,
   onRefreshFixture,
-  onCopyFixture
+  onCopyFixture,
+  operationMode,
+  onOperationMode
 }: {
   activeKey: PlayerKey;
   activePlayer: PlayerState;
@@ -2280,8 +2300,9 @@ function CommandWorkbench({
   onSeedScenario: (preset: ScenarioPreset) => void;
   onRefreshFixture: () => void;
   onCopyFixture: () => void;
+  operationMode: OperationMode;
+  onOperationMode: (mode: OperationMode) => void;
 }) {
-  const [operationMode, setOperationMode] = useState<OperationMode>("play");
   const promptActions = activePlayer.prompt?.actions ?? [];
   const promptCandidates = promptCandidatesFor(activePlayer.prompt);
   const promptIsActionable = Boolean(activePlayer.prompt?.actionable);
@@ -2332,6 +2353,17 @@ function CommandWorkbench({
     });
   }
 
+  function handleWorkbenchCandidate(candidate: ActionPromptCandidateDto) {
+    const mode = operationModeForAction(candidate.action);
+    if (mode) {
+      onOperationMode(mode);
+      onSelectionIntent(defaultSelectionIntentForOperation(mode));
+      return;
+    }
+
+    onPromptAction(candidate.action);
+  }
+
   return (
     <section className="workbench-panel" data-testid="command-workbench">
       <div className="section-title">
@@ -2351,9 +2383,9 @@ function CommandWorkbench({
             <button
               className={candidate.enabled ? "action-chip actionable" : "action-chip"}
               data-testid={`workbench-action-${candidate.action.toLowerCase().replaceAll("_", "-")}`}
-              disabled={!candidate.enabled || !directPromptActions.has(candidate.action)}
+              disabled={!candidate.enabled || (!replayableActions.has(candidate.action) && !operationModeForAction(candidate.action))}
               key={candidate.action}
-              onClick={() => onPromptAction(candidate.action)}
+              onClick={() => handleWorkbenchCandidate(candidate)}
               title={promptReasonLabel(candidate.reason)}
               type="button"
             >
@@ -2384,7 +2416,7 @@ function CommandWorkbench({
             className={operationMode === tab.id ? "selected" : ""}
             data-testid={`operation-tab-${tab.id}`}
             key={tab.id}
-            onClick={() => setOperationMode(tab.id)}
+            onClick={() => onOperationMode(tab.id)}
             type="button"
           >
             {tab.label}
@@ -3996,6 +4028,32 @@ function promptActionLabel(action: string) {
 
 function candidateFor(candidates: ActionPromptCandidateDto[], action: string) {
   return candidates.find((candidate) => candidate.action === action);
+}
+
+function operationModeForAction(action: string): OperationMode | undefined {
+  return (
+    {
+      PLAY_CARD: "play",
+      ACTIVATE_ABILITY: "ability",
+      MOVE_UNIT: "move",
+      ASSEMBLE_EQUIPMENT: "assemble",
+      DECLARE_BATTLE: "battle",
+      LEGEND_ACT: "legend"
+    } as Partial<Record<string, OperationMode>>
+  )[action];
+}
+
+function defaultSelectionIntentForOperation(mode: OperationMode): SelectionIntent {
+  return (
+    {
+      play: "play-source",
+      ability: "ability-source",
+      move: "move-source",
+      assemble: "assemble-source",
+      battle: "battle-attacker",
+      legend: "legend-source"
+    } satisfies Record<OperationMode, SelectionIntent>
+  )[mode];
 }
 
 function selectionIntentLabel(intent: SelectionIntent) {
