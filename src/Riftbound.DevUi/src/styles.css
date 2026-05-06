@@ -3011,6 +3011,148 @@ body {
   font-size: 18px;
 }
 
+.guided-coach {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(216, 171, 85, 0.34);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 231, 0.94), rgba(242, 230, 196, 0.9)),
+    #fff7df;
+  padding: 10px;
+}
+
+.guided-coach-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.guided-coach-header h3 {
+  color: #162d31;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.guided-coach-header > span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #162d31;
+  color: #fff5d3;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.coach-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: coach-step;
+}
+
+.coach-steps li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  color: #334d52;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.coach-steps li::before {
+  counter-increment: coach-step;
+  content: counter(coach-step);
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(22, 45, 49, 0.12);
+  color: #162d31;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.coach-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.coach-action-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid rgba(22, 45, 49, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.42);
+  padding: 8px;
+}
+
+.coach-action-card.ready {
+  border-color: rgba(31, 122, 103, 0.42);
+  background: rgba(232, 246, 238, 0.78);
+}
+
+.coach-action-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.coach-action-card strong {
+  overflow: hidden;
+  color: #162d31;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coach-action-card header span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(22, 45, 49, 0.1);
+  color: #415b60;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.coach-action-card.ready header span {
+  background: #1f7a67;
+  color: #f3fff9;
+}
+
+.coach-action-card p {
+  min-height: 32px;
+  margin: 0;
+  color: #52686d;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.coach-scenario-button {
+  min-height: 30px;
+  border-color: rgba(22, 45, 49, 0.2);
+  background: rgba(22, 45, 49, 0.08);
+  color: #173034;
+  padding: 5px 7px;
+  box-shadow: none;
+  font-size: 11px;
+}
+
+.coach-scenario-button:hover:not(:disabled) {
+  background: rgba(31, 122, 103, 0.16);
+}
+
 .product-prompt-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

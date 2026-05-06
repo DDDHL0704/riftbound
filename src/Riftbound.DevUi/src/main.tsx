@@ -234,6 +234,13 @@ type ScenarioPreset = {
   command: Record<string, unknown>;
 };
 
+type GuidedAction = {
+  action: string;
+  title: string;
+  description: string;
+  scenarioIds: string[];
+};
+
 type StatusBadge = {
   label: string;
   tone?: "combat" | "defense" | "warning" | "control" | "attachment";
@@ -263,6 +270,45 @@ const operationTabs: { id: OperationMode; label: string }[] = [
   { id: "assemble", label: "装备" },
   { id: "battle", label: "战斗" },
   { id: "legend", label: "传奇" }
+];
+
+const guidedActions: GuidedAction[] = [
+  {
+    action: "PLAY_CARD",
+    title: "打出卡牌",
+    description: "从手牌或服务端来源选择卡牌，再选择目标、目的地与费用。",
+    scenarioIds: ["test-decks", "basic-play"]
+  },
+  {
+    action: "ACTIVATE_ABILITY",
+    title: "激活能力",
+    description: "需要场上有可横置或可支付的能力来源。",
+    scenarioIds: ["battlefield-unit-experience-ability"]
+  },
+  {
+    action: "MOVE_UNIT",
+    title: "移动单位",
+    description: "需要服务端给出可移动单位和合法目的地。",
+    scenarioIds: ["movement"]
+  },
+  {
+    action: "ASSEMBLE_EQUIPMENT",
+    title: "装配装备",
+    description: "需要装备来源、宿主目标和对应装配费用。",
+    scenarioIds: ["equipment"]
+  },
+  {
+    action: "DECLARE_BATTLE",
+    title: "声明战斗",
+    description: "需要合法攻击方、防守方和战场分配。",
+    scenarioIds: ["battle-declare", "battle-multi-defender"]
+  },
+  {
+    action: "LEGEND_ACT",
+    title: "传奇行动",
+    description: "需要传奇来源、经验或法力等服务端认可的费用。",
+    scenarioIds: ["legend-act", "legend-active-actions"]
+  }
 ];
 
 const selectionIntentOptions: SelectionIntentOption[] = [
@@ -1427,6 +1473,13 @@ function ProductActionPanel(props: {
         </div>
       </div>
 
+      <GuidedActionCoach
+        snapshot={props.snapshot}
+        prompt={prompt}
+        candidates={candidates}
+        onSeedScenario={props.onSeedScenario}
+      />
+
       <div className="product-prompt-actions" data-testid="product-prompt-actions">
         {candidates.length === 0 ? (
           <div className="product-prompt-empty">等待服务端候选</div>
@@ -1459,6 +1512,66 @@ function ProductActionPanel(props: {
         </summary>
         <CommandWorkbench {...props} />
       </details>
+    </section>
+  );
+}
+
+function GuidedActionCoach({
+  snapshot,
+  prompt,
+  candidates,
+  onSeedScenario
+}: {
+  snapshot?: SnapshotDto;
+  prompt?: ActionPromptDto;
+  candidates: ActionPromptCandidateDto[];
+  onSeedScenario: (preset: ScenarioPreset) => void;
+}) {
+  const enabledCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
+  const headline = coachHeadline(snapshot, prompt, enabledCandidates);
+  const steps = coachSteps(snapshot, prompt, enabledCandidates);
+
+  return (
+    <section className="guided-coach" data-testid="guided-coach" aria-label="新手引导">
+      <div className="guided-coach-header">
+        <div>
+          <p className="eyebrow">新手引导</p>
+          <h3>{headline}</h3>
+        </div>
+        <span>{enabledCandidates.length} 项可执行</span>
+      </div>
+      <ol className="coach-steps">
+        {steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+      <div className="coach-action-grid">
+        {guidedActions.map((item) => {
+          const candidate = candidateFor(candidates, item.action);
+          const status = guidedActionStatus(prompt, candidate);
+          const scenario = firstScenarioPreset(item.scenarioIds);
+
+          return (
+            <article className={status.tone === "ready" ? "coach-action-card ready" : "coach-action-card"} key={item.action}>
+              <header>
+                <strong>{item.title}</strong>
+                <span>{status.label}</span>
+              </header>
+              <p>{status.detail || item.description}</p>
+              {scenario ? (
+                <button
+                  className="coach-scenario-button"
+                  data-testid={`coach-seed-${scenario.id}`}
+                  onClick={() => onSeedScenario(scenario)}
+                  type="button"
+                >
+                  载入{scenario.title}
+                </button>
+              ) : null}
+            </article>
+          );
+        })}
+      </div>
     </section>
   );
 }
@@ -3779,6 +3892,85 @@ function promptCandidatesFor(prompt?: ActionPromptDto): ActionPromptCandidateDto
     enabled: Boolean(prompt?.actionable) && action !== "WAIT",
     reason: promptReasonLabel(prompt?.reason)
   }));
+}
+
+function coachHeadline(
+  snapshot: SnapshotDto | undefined,
+  prompt: ActionPromptDto | undefined,
+  enabledCandidates: ActionPromptCandidateDto[]
+) {
+  if (!snapshot) {
+    return "先创建房间、双人入座并准备";
+  }
+  if (!prompt) {
+    return "已进入桌面，等待服务端下发可操作提示";
+  }
+  if (!prompt.actionable) {
+    return "当前视角没有操作权";
+  }
+  if (enabledCandidates.length === 0) {
+    return "当前没有服务端允许的复杂操作";
+  }
+  if (enabledCandidates.length === 1) {
+    return `现在可以执行：${enabledCandidates[0].label}`;
+  }
+  return `现在可以执行：${enabledCandidates.map((candidate) => candidate.label).slice(0, 3).join("、")}`;
+}
+
+function coachSteps(
+  snapshot: SnapshotDto | undefined,
+  prompt: ActionPromptDto | undefined,
+  enabledCandidates: ActionPromptCandidateDto[]
+) {
+  if (!snapshot) {
+    return ["点顶部“新房间”", "点“双人入座”", "点“双方准备”，进入对局后再看这里的下一步"];
+  }
+  if (!prompt) {
+    return ["点顶部“同步”获取最新状态", "确认右上角视角是当前行动方", "需要测试具体能力时，可直接载入下方测试局面"];
+  }
+  if (!prompt.actionable) {
+    return ["切换到当前行动方视角，或等待对手让过", "服务端未开放的按钮不会生效", "想单独测试某个能力，可载入下方对应局面"];
+  }
+  if (enabledCandidates.length === 0) {
+    return ["当前局面没有可执行候选", "可以点“同步”确认状态，或载入下方测试局面", "不要手填灰色动作，服务端会拒绝非法操作"];
+  }
+  if (enabledCandidates.length === 1 && enabledCandidates[0].action === "END_TURN") {
+    return ["当前只有“结束回合”合法", "点“结束回合”推进到下一名玩家", "要测出牌、移动、装备或战斗，可载入下方对应局面"];
+  }
+  return [
+    "优先点上方亮起的服务端动作",
+    "复杂动作先展开“目标选择与提交”，选择来源、目标和费用",
+    "提交后看日志与桌面状态是否按服务端快照更新"
+  ];
+}
+
+function guidedActionStatus(prompt: ActionPromptDto | undefined, candidate: ActionPromptCandidateDto | undefined) {
+  if (candidate?.enabled) {
+    if (directPromptActions.has(candidate.action)) {
+      return { label: "当前可点", detail: promptReasonLabel(candidate.reason), tone: "ready" };
+    }
+    return { label: "可在下方提交", detail: "展开“目标选择与提交”，按服务端来源、目标和费用填写后提交。", tone: "ready" };
+  }
+  if (candidate) {
+    return {
+      label: "当前不可用",
+      detail: promptReasonLabel(candidate.reason) || "服务端认为当前局面没有合法来源、目标或费用。",
+      tone: "blocked"
+    };
+  }
+  if (!prompt) {
+    return { label: "待同步", detail: "服务端还没有下发这个动作的提示。", tone: "blocked" };
+  }
+  if (!prompt.actionable) {
+    return { label: "等待权限", detail: "当前视角不是行动方，或还没轮到你响应。", tone: "blocked" };
+  }
+  return { label: "换局面测试", detail: "当前服务端提示没有包含这个动作，通常是时机、资源或对象不满足。", tone: "blocked" };
+}
+
+function firstScenarioPreset(ids: string[]) {
+  return ids
+    .map((id) => scenarioPresets.find((preset) => preset.id === id))
+    .find((preset): preset is ScenarioPreset => Boolean(preset));
 }
 
 function promptActionLabel(action: string) {
