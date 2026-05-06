@@ -1924,6 +1924,8 @@ public sealed record ResolutionResult(
 
 internal static class ActionPromptBuilder
 {
+    private const string LongSwordCardNo = "SFD·022/221";
+    private const int LongSwordAssemblePowerCost = 1;
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
@@ -2084,7 +2086,8 @@ internal static class ActionPromptBuilder
             || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
             || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
-        var requiresTargetChoices = string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
+        var requiresTargetChoices = string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
+            || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
         var hasRequiredChoices = !requiresSourceChoices
             || sources?.Count > 0;
         hasRequiredChoices = hasRequiredChoices
@@ -2132,13 +2135,13 @@ internal static class ActionPromptBuilder
                 .ToArray(),
             "MOVE_UNIT" => zones.Base
                 .Concat(zones.Battlefields)
-                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
-                .Select(objectId => ObjectChoice(state, objectId, "controlled unit"))
+                .Where(objectId => IsMovableUnitSource(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "face-up controlled non-combat unit"))
                 .ToArray(),
             "ASSEMBLE_EQUIPMENT" => zones.Base
                 .Concat(zones.Battlefields)
-                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.EquipmentCard))
-                .Select(objectId => ObjectChoice(state, objectId, "controlled equipment"))
+                .Where(objectId => IsImplementedAssembleEquipmentSource(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "implemented assemble equipment source"))
                 .ToArray(),
             "DECLARE_BATTLE" => zones.Battlefields
                 .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
@@ -2152,6 +2155,61 @@ internal static class ActionPromptBuilder
                 .Select(objectId => ObjectChoice(state, objectId, "implemented legend action source"))
                 .ToArray(),
             _ => null
+        };
+    }
+
+    private static bool IsMovableUnitSource(MatchState state, string playerId, string objectId)
+    {
+        return IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !cardObject.IsFaceDown
+            && !cardObject.IsAttacking
+            && !cardObject.IsDefending;
+    }
+
+    private static bool IsImplementedAssembleEquipmentSource(MatchState state, string playerId, string objectId)
+    {
+        if (!IsObjectInPlayerZone(state, playerId, objectId, "BASE")
+            || !state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || cardObject.IsFaceDown
+            || !cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            || !cardObject.Tags.Contains("武装", StringComparer.Ordinal)
+            || !cardObject.Tags.Contains("灵便", StringComparer.Ordinal)
+            || !string.IsNullOrWhiteSpace(cardObject.AttachedToObjectId))
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && !string.Equals(cardObject.CardNo, LongSwordCardNo, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return runePool.TotalPower >= LongSwordAssemblePowerCost
+            && ControlledBoardObjects(state, playerId).Any(targetObjectId =>
+                IsControlledObjectWithTag(state, playerId, targetObjectId, CardObjectTags.UnitCard));
+    }
+
+    private static bool IsObjectInPlayerZone(
+        MatchState state,
+        string playerId,
+        string objectId,
+        string zone)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        return zone switch
+        {
+            "BASE" => zones.Base.Contains(objectId, StringComparer.Ordinal),
+            "BATTLEFIELD" => zones.Battlefields.Contains(objectId, StringComparer.Ordinal),
+            _ => false
         };
     }
 

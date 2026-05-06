@@ -771,6 +771,135 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptFiltersMoveUnitSourcesToFaceUpNonCombatUnits()
+    {
+        var state = new MatchState(
+            "prompt-move-source-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-READY-UNIT", "P1-FACEDOWN-UNIT", "P1-ATTACKING-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-READY-UNIT"] = new(
+                    "P1-READY-UNIT",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FACEDOWN-UNIT"] = new(
+                    "P1-FACEDOWN-UNIT",
+                    isFaceDown: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ATTACKING-UNIT"] = new(
+                    "P1-ATTACKING-UNIT",
+                    isAttacking: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.True(moveCandidate.Enabled);
+        Assert.Equal(["P1-READY-UNIT"], (moveCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+    }
+
+    [Fact]
+    public void ActionPromptFiltersAssembleEquipmentSourcesBySupportedAttachmentAndPower()
+    {
+        var noPowerState = new MatchState(
+            "prompt-assemble-source-room",
+            16,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-LONG-SWORD", "P1-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LONG-SWORD"] = new(
+                    "P1-LONG-SWORD",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT"] = new(
+                    "P1-UNIT",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var noPowerPrompt = ResolutionResult.BuildPrompts(noPowerState)["P1"];
+        var noPowerCandidate = Assert.Single(
+            noPowerPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.False(noPowerCandidate.Enabled);
+        Assert.Empty(noPowerCandidate.Sources ?? []);
+
+        var payableState = noPowerState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payableCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(payableCandidate.Enabled);
+        Assert.Equal(["P1-LONG-SWORD"], (payableCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["P1-UNIT"], (payableCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+    }
+
+    [Fact]
     public void MatchStateExposesTurnWindowSpellDuelAndBattleViews()
     {
         var state = new MatchState(
