@@ -125,6 +125,30 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task OfficialOnlyRoomsRejectReadyBeforeDeckSubmission()
+    {
+        var session = new MatchSession(
+            "official-only-room",
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            NoopMatchPlayerStore.Instance,
+            new MatchSessionOptions(AllowLegacyReadyWithoutDeck: false));
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var result = await session.ReadyAsync(
+            "P1",
+            "ready-without-deck",
+            RawCommand("READY"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
+        Assert.DoesNotContain("P1", result.State.ReadyPlayerIds);
+        Assert.Equal(MatchStatuses.Seating, result.State.Status);
+    }
+
+    [Fact]
     public void JoinAssignsStableP1P2SeatsAndSnapshotsExposeSeatStatus()
     {
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());

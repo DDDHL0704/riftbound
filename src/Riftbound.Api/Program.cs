@@ -36,7 +36,12 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
 });
 builder.Services.AddRiftboundPersistence(builder.Configuration);
 builder.Services.AddSingleton<IRuleEngine, CoreRuleEngine>();
-builder.Services.AddSingleton<IMatchSessionRegistry, InMemoryMatchSessionRegistry>();
+builder.Services.AddSingleton<IMatchSessionRegistry>(services => new InMemoryMatchSessionRegistry(
+    services.GetRequiredService<IRuleEngine>(),
+    services.GetRequiredService<IMatchJournal>(),
+    services.GetRequiredService<IMatchRecoveryStore>(),
+    services.GetRequiredService<IMatchPlayerStore>(),
+    new MatchSessionOptions(AllowLegacyReadyWithoutDeck: builder.Environment.IsDevelopment())));
 
 var app = builder.Build();
 

@@ -1992,12 +1992,18 @@ public interface IMatchSessionRegistry
     ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken);
 }
 
+public sealed record MatchSessionOptions(bool AllowLegacyReadyWithoutDeck = true)
+{
+    public static MatchSessionOptions Default { get; } = new();
+}
+
 public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
 {
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
     private readonly IMatchRecoveryStore recoveryStore;
     private readonly IMatchPlayerStore playerStore;
+    private readonly MatchSessionOptions sessionOptions;
     private readonly Dictionary<string, IMatchSession> sessions = new();
     private readonly SemaphoreSlim gate = new(1, 1);
 
@@ -2019,11 +2025,22 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         IMatchJournal journal,
         IMatchRecoveryStore recoveryStore,
         IMatchPlayerStore playerStore)
+        : this(ruleEngine, journal, recoveryStore, playerStore, MatchSessionOptions.Default)
+    {
+    }
+
+    public InMemoryMatchSessionRegistry(
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchRecoveryStore recoveryStore,
+        IMatchPlayerStore playerStore,
+        MatchSessionOptions sessionOptions)
     {
         this.ruleEngine = ruleEngine;
         this.journal = journal;
         this.recoveryStore = recoveryStore;
         this.playerStore = playerStore;
+        this.sessionOptions = sessionOptions ?? MatchSessionOptions.Default;
     }
 
     public async ValueTask<IMatchSession> GetOrCreateAsync(string roomId, CancellationToken cancellationToken)
@@ -2050,7 +2067,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
         var recovery = await recoveryStore.LoadAsync(roomId, cancellationToken).ConfigureAwait(false);
         if (recovery is null)
         {
-            return new MatchSession(roomId, ruleEngine, journal, playerStore);
+            return new MatchSession(roomId, ruleEngine, journal, playerStore, sessionOptions);
         }
 
         if (!string.Equals(recovery.RoomId, roomId, StringComparison.Ordinal))
@@ -2060,7 +2077,7 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
                 $"match recovery returned room {recovery.RoomId} for requested room {roomId}");
         }
 
-        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore);
+        return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, sessionOptions);
     }
 }
 
@@ -2130,6 +2147,7 @@ public sealed class MatchSession : IMatchSession
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
     private readonly IMatchPlayerStore playerStore;
+    private readonly MatchSessionOptions options;
     private readonly object seatGate = new();
     private readonly SemaphoreSlim serialGate = new(1, 1);
     private readonly Dictionary<string, string> seats = new();
@@ -2153,11 +2171,22 @@ public sealed class MatchSession : IMatchSession
         IRuleEngine ruleEngine,
         IMatchJournal journal,
         IMatchPlayerStore playerStore)
+        : this(roomId, ruleEngine, journal, playerStore, MatchSessionOptions.Default)
+    {
+    }
+
+    public MatchSession(
+        string roomId,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore,
+        MatchSessionOptions options)
     {
         RoomId = roomId;
         this.ruleEngine = ruleEngine;
         this.journal = journal;
         this.playerStore = playerStore;
+        this.options = options ?? MatchSessionOptions.Default;
         state = MatchState.Create(roomId);
     }
 
@@ -2171,6 +2200,16 @@ public sealed class MatchSession : IMatchSession
         IRuleEngine ruleEngine,
         IMatchJournal journal,
         IMatchPlayerStore playerStore)
+        : this(initialState, ruleEngine, journal, playerStore, MatchSessionOptions.Default)
+    {
+    }
+
+    public MatchSession(
+        MatchState initialState,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore,
+        MatchSessionOptions options)
         : this(
             initialState,
             0,
@@ -2178,7 +2217,8 @@ public sealed class MatchSession : IMatchSession
             [],
             ruleEngine,
             journal,
-            playerStore)
+            playerStore,
+            options)
     {
     }
 
@@ -2189,12 +2229,14 @@ public sealed class MatchSession : IMatchSession
         IReadOnlyList<RecoveredCommand> restoredCommands,
         IRuleEngine ruleEngine,
         IMatchJournal journal,
-        IMatchPlayerStore playerStore)
+        IMatchPlayerStore playerStore,
+        MatchSessionOptions options)
     {
         RoomId = restoredState.RoomId;
         this.ruleEngine = ruleEngine;
         this.journal = journal;
         this.playerStore = playerStore;
+        this.options = options ?? MatchSessionOptions.Default;
         state = restoredState;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
@@ -2235,6 +2277,16 @@ public sealed class MatchSession : IMatchSession
         IMatchJournal journal,
         IMatchPlayerStore playerStore)
     {
+        return Restore(recovery, ruleEngine, journal, playerStore, MatchSessionOptions.Default);
+    }
+
+    public static MatchSession Restore(
+        MatchRecoveryFrame recovery,
+        IRuleEngine ruleEngine,
+        IMatchJournal journal,
+        IMatchPlayerStore playerStore,
+        MatchSessionOptions options)
+    {
         if (!recovery.IsConsistent)
         {
             throw new MatchSessionException(
@@ -2250,7 +2302,8 @@ public sealed class MatchSession : IMatchSession
             recovery.Commands,
             ruleEngine,
             journal,
-            playerStore);
+            playerStore,
+            options);
     }
 
     public PlayerSessionDto EnsurePlayer(string playerId)
@@ -2652,8 +2705,8 @@ public sealed class MatchSession : IMatchSession
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
-            if (state.PlayerDecklists.Count > 0
-                && !state.PlayerDecklists.ContainsKey(normalizedPlayerId))
+            if (!state.PlayerDecklists.ContainsKey(normalizedPlayerId)
+                && (!options.AllowLegacyReadyWithoutDeck || state.PlayerDecklists.Count > 0))
             {
                 var rejected = ResolutionResult.Rejected(
                     state,
