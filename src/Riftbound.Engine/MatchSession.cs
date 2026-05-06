@@ -181,7 +181,8 @@ public sealed record StackItemState
         int effectRepeatCount = 1,
         IReadOnlyList<string>? optionalCosts = null,
         bool playedAfterAnotherCardThisTurn = false,
-        string? destination = null)
+        string? destination = null,
+        string? timingContext = null)
     {
         StackItemId = Normalize(stackItemId);
         ControllerId = Normalize(controllerId);
@@ -194,6 +195,7 @@ public sealed record StackItemState
         OptionalCosts = NormalizeList(optionalCosts);
         PlayedAfterAnotherCardThisTurn = playedAfterAnotherCardThisTurn;
         Destination = Normalize(destination);
+        TimingContext = Normalize(timingContext);
     }
 
     public string StackItemId { get; init; }
@@ -217,6 +219,8 @@ public sealed record StackItemState
     public bool PlayedAfterAnotherCardThisTurn { get; init; }
 
     public string Destination { get; init; }
+
+    public string TimingContext { get; init; }
 
     private static string Normalize(string? value)
     {
@@ -1037,7 +1041,7 @@ public sealed record ResolutionResult(
                     ? "当前玩家可让过焦点"
                     : "等待对手焦点行动",
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_FOCUS")
+                    ? ActionPromptBuilder.SpellDuelFocusActions(state, playerId)
                     : ["WAIT"]));
         }
 
@@ -1165,6 +1169,49 @@ internal static class ActionPromptBuilder
         return legendSources?.Count > 0
             ? ["LEGEND_ACT", primaryAction]
             : [primaryAction];
+    }
+
+    public static IReadOnlyList<string> SpellDuelFocusActions(MatchState state, string playerId)
+    {
+        var actions = new List<string>();
+        if (HasSpellDuelPlayableHandSource(state, playerId))
+        {
+            actions.Add("PLAY_CARD");
+        }
+
+        var legendSources = SourcesFor(state, playerId, "LEGEND_ACT");
+        if (legendSources?.Count > 0)
+        {
+            actions.Add("LEGEND_ACT");
+        }
+
+        actions.Add("PASS_FOCUS");
+        return actions;
+    }
+
+    private static bool HasSpellDuelPlayableHandSource(MatchState state, string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return false;
+        }
+
+        foreach (var objectId in zones.Hand)
+        {
+            if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                || string.IsNullOrWhiteSpace(cardObject.CardNo))
+            {
+                return true;
+            }
+
+            if (CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+                && CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static ActionPromptDto Build(

@@ -21666,7 +21666,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Null(result.FinalState.FocusPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, result.FinalState.TimingState);
+        Assert.Equal("P2", result.FinalState.FocusPlayerId);
         Assert.Empty(result.FinalState.PassedFocusPlayerIds);
     }
 
@@ -21683,7 +21684,8 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Null(result.FinalState.FocusPlayerId);
+        Assert.Equal(TimingStates.SpellDuelOpen, result.FinalState.TimingState);
+        Assert.Equal("P2", result.FinalState.FocusPlayerId);
         Assert.Empty(result.FinalState.PassedFocusPlayerIds);
     }
 

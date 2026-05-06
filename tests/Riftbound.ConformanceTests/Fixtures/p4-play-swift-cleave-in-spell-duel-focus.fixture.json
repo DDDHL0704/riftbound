@@ -164,16 +164,16 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": ["WAIT"],
+      "P2": ["PASS_FOCUS"]
     },
     "finalState": {
       "turnNumber": 76,
-      "activePlayerId": "P1",
+      "activePlayerId": "P2",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
-      "focusPlayerId": null,
+      "timingState": "SPELL_DUEL_OPEN",
+      "focusPlayerId": "P2",
       "passedFocusPlayerIds": [],
       "scores": {
         "P1": 0,
@@ -205,8 +205,8 @@
       "stackItems": []
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": { "actionable": false, "actions": ["WAIT"] },
+      "P2": { "actionable": true, "actions": ["PASS_FOCUS"] }
     }
   }
 }

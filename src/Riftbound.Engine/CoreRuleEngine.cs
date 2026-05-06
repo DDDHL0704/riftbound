@@ -379,7 +379,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
-            destination: destination);
+            destination: destination,
+            timingContext: state.TimingState);
         var untilEndOfTurnEffects = MarkArmamentPlayedThisTurn(
             state.UntilEndOfTurnEffects,
             intent.PlayerId,
@@ -742,7 +743,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             1,
             [],
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
-            destination: destination);
+            destination: destination,
+            timingContext: state.TimingState);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -10593,14 +10595,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
             var objectLocations = ReconcileObjectLocations(state.ObjectLocations, stackResolution.PlayerZones);
             ApplyResolvedStackSourceLocation(objectLocations, stackResolution.PlayerZones, resolvedItem);
+            var returnsToSpellDuel = nextStack.Length == 0
+                && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
+            var nextFocusPlayerId = returnsToSpellDuel
+                ? NextPlayerIdAfter(state, resolvedItem.ControllerId)
+                : null;
             var nextPriorityPlayerId = nextStack.Length == 0
                 ? null
                 : nextStack[^1].ControllerId;
             nextState = state with
             {
                 Tick = state.Tick + 1,
-                ActivePlayerId = nextPriorityPlayerId ?? state.TurnPlayerId,
-                TimingState = nextStack.Length == 0 ? TimingStates.NeutralOpen : state.TimingState,
+                ActivePlayerId = nextFocusPlayerId ?? nextPriorityPlayerId ?? state.TurnPlayerId,
+                TimingState = nextStack.Length == 0
+                    ? returnsToSpellDuel
+                        ? TimingStates.SpellDuelOpen
+                        : TimingStates.NeutralOpen
+                    : state.TimingState,
                 PriorityPlayerId = nextPriorityPlayerId,
                 PassedPriorityPlayerIds = [],
                 StackItems = nextStack,
@@ -10617,7 +10628,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackResolution.DestroyedUnitOwnerIds),
                 Status = stackResolution.WinnerPlayerId is null ? state.Status : MatchStatuses.Finished,
                 WinnerPlayerId = stackResolution.WinnerPlayerId ?? state.WinnerPlayerId,
-                ExtraTurnPlayerId = stackResolution.ExtraTurnPlayerId ?? state.ExtraTurnPlayerId
+                ExtraTurnPlayerId = stackResolution.ExtraTurnPlayerId ?? state.ExtraTurnPlayerId,
+                FocusPlayerId = nextFocusPlayerId,
+                PassedFocusPlayerIds = returnsToSpellDuel ? [] : state.PassedFocusPlayerIds
             };
             events.Add(new GameEvent(
                 "STACK_ITEM_RESOLVED",
@@ -19560,6 +19573,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return players[(turnPlayerIndex + 1) % players.Length];
+    }
+
+    private static string NextPlayerIdAfter(MatchState state, string playerId)
+    {
+        return PlayerIdsStartingAfter(state, playerId).FirstOrDefault()
+            ?? state.TurnPlayerId;
     }
 
     private static string[] SeatPlayerIds(MatchState state)
