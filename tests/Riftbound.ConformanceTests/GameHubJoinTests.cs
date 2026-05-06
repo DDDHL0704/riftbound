@@ -46,8 +46,8 @@ public sealed class GameHubJoinTests
         Assert.Equal(snapshot.Tick, prompt.SnapshotTick);
         Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
         var candidate = Assert.Single(prompt.Candidates ?? []);
-        Assert.Equal("READY", candidate.Action);
-        Assert.Equal("准备", candidate.Label);
+        Assert.Equal("SUBMIT_DECK", candidate.Action);
+        Assert.Equal("提交卡组", candidate.Label);
         Assert.True(candidate.Enabled);
         Assert.Equal(prompt.Reason, candidate.Reason);
     }
@@ -286,12 +286,18 @@ public sealed class GameHubJoinTests
             .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
         Assert.Empty(p1SubmitClients.CallerClient.Errors);
         Assert.Contains(EventsFor(p1SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
+        var p1SubmittedPrompt = PromptFor(p1SubmitClients, "P1");
+        var p2MissingDeckPrompt = PromptFor(p1SubmitClients, "P2");
+        Assert.Equal(["READY"], p1SubmittedPrompt.Actions);
+        Assert.Equal(["SUBMIT_DECK"], p2MissingDeckPrompt.Actions);
 
         var p2SubmitClients = new RecordingHubClients();
         await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry)
             .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
         Assert.Empty(p2SubmitClients.CallerClient.Errors);
         Assert.Contains(EventsFor(p2SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
+        Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P1").Actions);
+        Assert.Equal(["READY"], PromptFor(p2SubmitClients, "P2").Actions);
 
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
             .Ready(roomId, "P1", "ready-official-p1");

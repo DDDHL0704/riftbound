@@ -1857,12 +1857,17 @@ public sealed record ResolutionResult(
             return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
             {
                 var ready = readyPlayers.Contains(playerId);
+                var deckSubmitted = state.PlayerDecklists.ContainsKey(playerId);
                 return ActionPromptBuilder.Build(
                     state,
                     playerId,
                     !ready && state.Status != MatchStatuses.Finished,
-                    ready ? "已准备，等待对手" : "等待玩家准备",
-                    ready ? ["WAIT"] : ["READY"]);
+                    ready
+                        ? "已准备，等待对手"
+                        : deckSubmitted
+                            ? "等待玩家准备"
+                            : "等待提交合法卡组",
+                    ready ? ["WAIT"] : deckSubmitted ? ["READY"] : ["SUBMIT_DECK"]);
             });
         }
 

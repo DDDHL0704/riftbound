@@ -110,17 +110,22 @@
 
 ### Batch 3：服务端能力矩阵与正式房间闭环
 
-目标：
+状态：完成。
 
-- 前端新增服务端能力矩阵显示/过滤逻辑：只渲染 `Prompt.candidates` 中服务端支持的操作。
-- 以 `SUBMIT_DECK -> READY -> MULLIGAN -> MAIN` 为正式入口，Development legacy ready 只放入显式开发工具抽屉。
+交付：
+
+- 前端房间页与对战行动面板改为只渲染 `Prompt.candidates` 中服务端支持的游戏命令；连接/重连和页面跳转仍作为非游戏命令常驻。
+- 补齐服务端房间阶段 prompt：未提交合法卡组时只给 `SUBMIT_DECK`，提交后才给 `READY`，已准备后给 `WAIT`。
+- 以 `SUBMIT_DECK -> READY -> MULLIGAN -> MAIN` 作为正式 Web smoke 入口；Development legacy ready 不再出现在新前端主流程。
 - 若服务端缺 deck REST/保存接口，前端先做本地 deck import/select，但 ready 前必须走 `SUBMIT_DECK`。
-- 把前端发现的 P0/P1 必需服务端缺口追加到 `CURRENT_SERVER_RULE_AUDIT.md`，并进入后续服务端补齐批次。
+- 把前端发现的 P0/P1 必需服务端缺口追加到 `CURRENT_SERVER_RULE_AUDIT.md`，并补服务端测试。
 
 验收：
 
-- Browser smoke：P1/P2 创建/加入房间、提交合法测试卡组、ready、进入 mulligan。
-- `GameHubJoinTests` 过滤测试通过。
+- `source ../../scripts/dev-env.sh && npm run build`：通过。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 85/85。
+- Browser Use smoke：P1 创建房间并入座，提交卡组前只显示 `提交卡组` 候选且不显示 `准备`；提交卡组后只显示 `准备`；P2 通过房间码加入、提交卡组、ready；双方进入 `MULLIGAN`，依次执行起手调度后进入 `MAIN`；对战桌面展示事件日志、双方公开区、对手隐藏手牌卡背和最终 snapshot。
+- Smoke 发现并修复正式开局后玩家面板内容溢出覆盖中央战场的问题；玩家区/战场区现在使用面板内安全滚动，避免 UI 重叠。
 
 ### Batch 4：对战桌面与卡牌详情
 
@@ -161,7 +166,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**20%**
+估算整体进度：**30%**
 
 已经完成：
 
@@ -169,8 +174,9 @@
 - 真实前端栈、服务端接口、关键状态视图和测试入口已确认。
 - 当前 NOT READY 根因已落到本文的前端硬约束和后续批次。
 - 旧 Dev UI 已清理，新的 React/Vite 前端架构、中文页面壳、REST/SignalR adapter 和基础对战桌面已落地。
+- 房间/连接/提交卡组/ready/起手调度到主阶段的正式双人 Web 闭环已由服务端 prompt 驱动，不再由前端常驻按钮绕过。
 
-预计剩余批次数：**至少 9 批**
+预计剩余批次数：**至少 8 批**
 
 原因：
 

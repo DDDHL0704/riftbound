@@ -29,14 +29,14 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
         <span>原因：{prompt?.reason ?? "尚未收到 prompt"}</span>
       </div>
       <div className="action-buttons">
-        <Button icon={<Send size={16} />} onClick={onSubmitStarterDeck} variant="secondary">提交测试卡组</Button>
-        <Button icon={<Check size={16} />} onClick={onReady} variant="secondary">准备</Button>
         {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可执行候选。</span>}
         {candidates.map((candidate) => (
           <CandidateButton
             candidate={candidate}
             key={`${candidate.action}-${candidate.label}`}
             onCommand={onCommand}
+            onReady={onReady}
+            onSubmitStarterDeck={onSubmitStarterDeck}
             snapshot={snapshot}
           />
         ))}
@@ -45,21 +45,60 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
   );
 }
 
-function CandidateButton({ candidate, onCommand, snapshot }: { candidate: ActionPromptCandidateDto; onCommand: (command: GameCommand) => void; snapshot?: SnapshotDto }) {
+function CandidateButton({
+  candidate,
+  onCommand,
+  onReady,
+  onSubmitStarterDeck,
+  snapshot
+}: {
+  candidate: ActionPromptCandidateDto;
+  onCommand: (command: GameCommand) => void;
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+  snapshot?: SnapshotDto;
+}) {
   const command = simpleCommand(candidate, snapshot);
-  const disabled = !candidate.enabled || !command;
+  const directAction = directCandidateAction(candidate, onReady, onSubmitStarterDeck);
+  const disabled = !candidate.enabled || (!command && !directAction);
   return (
     <Button
       disabled={disabled}
-      icon={command ? <Play size={16} /> : <Hourglass size={16} />}
-      onClick={() => command && onCommand(command)}
+      icon={candidateIcon(candidate, command || directAction)}
+      onClick={() => {
+        if (directAction) {
+          directAction();
+        } else if (command) {
+          onCommand(command);
+        }
+      }}
       title={candidate.reason}
       variant={candidate.enabled ? "primary" : "ghost"}
     >
       {promptActionLabel(candidate)}
-      {!command && candidate.action !== "WAIT" ? `（需选择）` : ""}
+      {!command && !directAction && candidate.action !== "WAIT" ? `（需选择）` : ""}
     </Button>
   );
+}
+
+function directCandidateAction(candidate: ActionPromptCandidateDto, onReady: () => void, onSubmitStarterDeck: () => void): (() => void) | undefined {
+  if (candidate.action === "SUBMIT_DECK") {
+    return onSubmitStarterDeck;
+  }
+  if (candidate.action === "READY") {
+    return onReady;
+  }
+  return undefined;
+}
+
+function candidateIcon(candidate: ActionPromptCandidateDto, executable: unknown) {
+  if (candidate.action === "SUBMIT_DECK") {
+    return <Send size={16} />;
+  }
+  if (candidate.action === "READY") {
+    return <Check size={16} />;
+  }
+  return executable ? <Play size={16} /> : <Hourglass size={16} />;
 }
 
 function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotDto): GameCommand | undefined {

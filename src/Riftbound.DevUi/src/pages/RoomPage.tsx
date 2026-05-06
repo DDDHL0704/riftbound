@@ -1,10 +1,12 @@
-import { RefreshCw, Swords } from "lucide-react";
+import { Check, Hourglass, RefreshCw, Send, Swords } from "lucide-react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
 import { useMatchController } from "../stores/useMatchController";
 import { useSettings } from "../stores/settingsStore";
 import { candidateListLabel } from "../components/match/ActionPanel";
+import { ActionPromptCandidateDto } from "../types/protocol";
+import { promptActionLabel } from "../utils/formatters";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -23,8 +25,11 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
       </section>
       <section className="room-actions">
         <Button icon={<RefreshCw size={18} />} onClick={() => void controller.join()}>连接/重连并入座</Button>
-        <Button onClick={() => void controller.submitStarterDeck()} variant="secondary">提交测试卡组</Button>
-        <Button onClick={() => void controller.ready()} variant="secondary">准备</Button>
+        <RoomPromptButtons
+          candidates={controller.state.prompt?.candidates ?? []}
+          onReady={() => void controller.ready()}
+          onSubmitStarterDeck={() => void controller.submitStarterDeck()}
+        />
         <Button icon={<Swords size={18} />} onClick={() => onNavigate({ name: "match", matchId: roomId })}>进入对战桌面</Button>
       </section>
       <section className="seat-grid">
@@ -47,4 +52,42 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
       </section>
     </div>
   );
+}
+
+function RoomPromptButtons({
+  candidates,
+  onReady,
+  onSubmitStarterDeck
+}: {
+  candidates: ActionPromptCandidateDto[];
+  onReady: () => void;
+  onSubmitStarterDeck: () => void;
+}) {
+  if (candidates.length === 0) {
+    return <span className="empty-hint">等待服务端候选。</span>;
+  }
+
+  return candidates.map((candidate) => {
+    if (candidate.action === "SUBMIT_DECK") {
+      return (
+        <Button disabled={!candidate.enabled} icon={<Send size={16} />} key={candidate.action} onClick={onSubmitStarterDeck} title={candidate.reason} variant="secondary">
+          {promptActionLabel(candidate)}
+        </Button>
+      );
+    }
+
+    if (candidate.action === "READY") {
+      return (
+        <Button disabled={!candidate.enabled} icon={<Check size={16} />} key={candidate.action} onClick={onReady} title={candidate.reason} variant="secondary">
+          {promptActionLabel(candidate)}
+        </Button>
+      );
+    }
+
+    return (
+      <Button disabled icon={<Hourglass size={16} />} key={candidate.action} title={candidate.reason} variant="ghost">
+        {promptActionLabel(candidate)}
+      </Button>
+    );
+  });
 }
