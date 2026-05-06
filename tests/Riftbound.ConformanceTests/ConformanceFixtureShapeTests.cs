@@ -851,6 +851,94 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Contains(
             payablePlayCandidate.Sources ?? [],
             source => string.Equals(source.Id, "P1-MIGHTY-FAERIE", StringComparison.Ordinal));
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(payablePlayCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-MIGHTY-FAERIE", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("SFD·125/221", Assert.IsType<string>(sourceRequirement["cardNo"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
+        var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["destinationChoices"]);
+        Assert.Contains(destinationChoices, choice => string.Equals(choice.Id, "BASE", StringComparison.Ordinal));
+        Assert.Contains(destinationChoices, choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ActionPromptPlayCardMetadataFiltersTargetsBySourceRequirement()
+    {
+        var state = new MatchState(
+            "prompt-play-target-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HEXTECH-RAY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEXTECH-RAY"] = new(
+                    "P1-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-UNIT"] = new(
+                    "P2-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        Assert.Equal("BATTLEFIELD_UNIT", Assert.IsType<string>(sourceRequirement["targetScope"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]);
+        Assert.Contains(firstTargetChoices, choice => string.Equals(choice.Id, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal));
     }
 
     [Fact]

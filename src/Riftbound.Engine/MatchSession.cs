@@ -2143,8 +2143,8 @@ internal static class ActionPromptBuilder
         var sources = SourcesFor(state, playerId, action);
         var targets = TargetsFor(state, playerId, action);
         var destinations = DestinationsFor(state, playerId, action);
-        var modes = ModesFor(action);
-        var optionalCosts = OptionalCostsFor(action);
+        var modes = ModesFor(state, playerId, action);
+        var optionalCosts = OptionalCostsFor(state, playerId, action);
         var requiresSourceChoices = string.Equals(action, "PLAY_CARD", StringComparison.Ordinal)
             || string.Equals(action, "MOVE_UNIT", StringComparison.Ordinal)
             || string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
@@ -2172,7 +2172,7 @@ internal static class ActionPromptBuilder
             destinations,
             modes,
             optionalCosts,
-            MetadataFor(action));
+            MetadataFor(state, playerId, action));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? SourcesFor(
@@ -2302,16 +2302,8 @@ internal static class ActionPromptBuilder
             return true;
         }
 
-        if (!CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
-            || !CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
-        {
-            return false;
-        }
-
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        return runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior);
+        return PlayCardPromptBehaviorsForSource(state, playerId, objectId).Any(behavior =>
+            PromptHasRequiredTargetChoices(state, playerId, behavior));
     }
 
     private static int PromptMinimumManaCost(
@@ -2335,6 +2327,328 @@ internal static class ActionPromptBuilder
         return Math.Max(0, behavior.ManaCost - reduction);
     }
 
+    private static IReadOnlyList<CardBehaviorDefinition> PlayCardPromptBehaviorsForSource(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || string.IsNullOrWhiteSpace(cardObject.CardNo))
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return CardBehaviorRegistry.GetAll()
+            .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
+            .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
+            .Where(behavior => runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior))
+            .ToArray();
+    }
+
+    private static bool PromptHasRequiredTargetChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
+        if (minTargetCount == 0)
+        {
+            return true;
+        }
+
+        for (var targetIndex = 0; targetIndex < minTargetCount; targetIndex++)
+        {
+            if (PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex).Count == 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool PromptTargetCountConditionApplies(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.TargetCountConditionKind switch
+        {
+            CardTargetCountConditionKinds.None => true,
+            CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn
+                => state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0,
+            _ => false
+        };
+    }
+
+    private static int PromptMinTargetCount(
+        CardBehaviorDefinition behavior,
+        bool targetCountConditionApplies)
+    {
+        if (!targetCountConditionApplies)
+        {
+            return 0;
+        }
+
+        return behavior.MinTargetCount < 0 ? behavior.RequiredTargetCount : behavior.MinTargetCount;
+    }
+
+    private static int PromptMaxTargetCount(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        bool targetCountConditionApplies)
+    {
+        if (!targetCountConditionApplies)
+        {
+            return 0;
+        }
+
+        if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
+        {
+            return behavior.RequiredTargetCount;
+        }
+
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Battlefields.Count(objectId => state.CardObjects.ContainsKey(objectId))
+            : 0;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PromptTargetChoicesForIndex(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int targetIndex)
+    {
+        return PromptTargetCandidateIds(state, playerId, behavior.TargetScope, targetIndex)
+            .Where(objectId => IsPromptTargetObjectInScope(state, playerId, objectId, behavior.TargetScope, targetIndex))
+            .Select(objectId => IsPromptStackSpellItem(state, objectId)
+                ? StackItemChoice(state, objectId, "legal stack spell target")
+                : ObjectChoice(state, objectId, PromptTargetReasonForScope(behavior.TargetScope, targetIndex)))
+            .ToArray();
+    }
+
+    private static IEnumerable<string> PromptTargetCandidateIds(
+        MatchState state,
+        string playerId,
+        string targetScope,
+        int targetIndex)
+    {
+        if (string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
+            || (string.Equals(targetScope, CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell, StringComparison.Ordinal)
+                && targetIndex > 0))
+        {
+            return state.StackItems.Select(item => item.StackItemId);
+        }
+
+        if (string.Equals(targetScope, CardTargetScopes.FriendlyHandCard, StringComparison.Ordinal)
+            || string.Equals(targetScope, CardTargetScopes.FriendlyHandCardThenBattlefieldUnit, StringComparison.Ordinal)
+                && targetIndex == 0
+            || string.Equals(targetScope, CardTargetScopes.AnyHandCard, StringComparison.Ordinal))
+        {
+            return state.PlayerZones.TryGetValue(playerId, out var zones) ? zones.Hand : [];
+        }
+
+        if (string.Equals(targetScope, CardTargetScopes.FriendlyGraveyardCard, StringComparison.Ordinal))
+        {
+            return state.PlayerZones.TryGetValue(playerId, out var zones) ? zones.Graveyard : [];
+        }
+
+        if (string.Equals(targetScope, CardTargetScopes.OpponentGraveyardCard, StringComparison.Ordinal))
+        {
+            return state.PlayerZones
+                .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
+                .SelectMany(entry => entry.Value.Graveyard);
+        }
+
+        if (string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal)
+            || string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
+            || string.Equals(targetScope, CardTargetScopes.OpponentMainDeckTopCard, StringComparison.Ordinal)
+            || string.Equals(targetScope, CardTargetScopes.AnyMainDeckTopFiveCard, StringComparison.Ordinal)
+            || string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal))
+        {
+            return [];
+        }
+
+        return PublicBoardObjects(state);
+    }
+
+    private static bool IsPromptTargetObjectInScope(
+        MatchState state,
+        string playerId,
+        string objectId,
+        string targetScope,
+        int targetIndex)
+    {
+        return targetScope switch
+        {
+            CardTargetScopes.BattlefieldUnitOrEquipment => IsPromptBattlefieldObject(state, objectId)
+                || IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.AnyUnit => IsPromptFieldUnitObject(state, objectId),
+            CardTargetScopes.BaseUnit => IsPromptBaseObject(state, objectId),
+            CardTargetScopes.FriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPromptControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
+                ? IsPromptFieldUnitObject(state, objectId)
+                : IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => targetIndex == 0
+                ? IsPromptFriendlyEquipmentObject(state, playerId, objectId)
+                : IsPromptEnemyEquipmentObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
+                ? IsPromptControlledFieldObject(state, playerId, objectId)
+                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
+                ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
+                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
+                ? IsPromptControlledBattlefieldObject(state, playerId, objectId)
+                : IsPromptStackSpellItem(state, objectId),
+            CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => targetIndex == 0
+                ? IsPromptFieldUnitObject(state, objectId)
+                : false,
+            CardTargetScopes.FriendlyBattlefieldUnit => IsPromptControlledBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
+            CardTargetScopes.AnyHandCard => IsPromptFriendlyHandCard(state, playerId, objectId),
+            CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => targetIndex == 0
+                ? IsPromptFriendlyHandCard(state, playerId, objectId)
+                : IsPromptBattlefieldObject(state, objectId),
+            CardTargetScopes.FriendlyMainDeckCard => false,
+            CardTargetScopes.FriendlyGraveyardCard => IsPromptFriendlyGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.FriendlyBaseUnit => IsPromptControlledBaseObject(state, playerId, objectId),
+            CardTargetScopes.AttackingUnit => IsPromptAttackingBattlefieldObject(state, objectId),
+            CardTargetScopes.EnemyAttackingUnit => IsPromptEnemyFieldObject(state, playerId, objectId)
+                && IsPromptAttackingBattlefieldObject(state, objectId),
+            CardTargetScopes.EnemyBattlefieldUnit => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
+            CardTargetScopes.OpponentHandCard => false,
+            CardTargetScopes.OpponentGraveyardCard => IsPromptOpponentGraveyardCard(state, playerId, objectId),
+            CardTargetScopes.OpponentMainDeckTopCard => false,
+            CardTargetScopes.AnyMainDeckTopFiveCard => false,
+            CardTargetScopes.Equipment => IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.StackSpell => IsPromptStackSpellItem(state, objectId),
+            CardTargetScopes.SacredJudgmentKeepCard => false,
+            _ => IsPromptBattlefieldObject(state, objectId)
+        };
+    }
+
+    private static bool IsPromptBattlefieldObject(MatchState state, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsPromptBaseObject(MatchState state, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && state.CardObjects.ContainsKey(objectId)
+            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsPromptFieldUnitObject(MatchState state, string objectId)
+    {
+        return (IsPromptBaseObject(state, objectId) || IsPromptBattlefieldObject(state, objectId))
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown;
+    }
+
+    private static bool IsPromptControlledFieldObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptFieldUnitObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsPromptEnemyFieldObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptFieldUnitObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsPromptControlledBattlefieldObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptBattlefieldObject(state, objectId)
+            && IsPromptControlledFieldObject(state, playerId, objectId);
+    }
+
+    private static bool IsPromptEnemyBattlefieldObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptBattlefieldObject(state, objectId)
+            && IsPromptEnemyFieldObject(state, playerId, objectId);
+    }
+
+    private static bool IsPromptControlledBaseObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptBaseObject(state, objectId)
+            && IsPromptControlledFieldObject(state, playerId, objectId);
+    }
+
+    private static bool IsPromptEquipmentObject(MatchState state, string objectId)
+    {
+        return (IsPromptBaseObject(state, objectId) || IsPromptBattlefieldObject(state, objectId))
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown;
+    }
+
+    private static bool IsPromptFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptEquipmentObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsPromptEnemyEquipmentObject(MatchState state, string playerId, string objectId)
+    {
+        return IsPromptEquipmentObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsPromptFriendlyHandCard(MatchState state, string playerId, string objectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Hand.Contains(objectId, StringComparer.Ordinal)
+            && state.CardObjects.ContainsKey(objectId);
+    }
+
+    private static bool IsPromptFriendlyGraveyardCard(MatchState state, string playerId, string objectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Graveyard.Contains(objectId, StringComparer.Ordinal)
+            && state.CardObjects.ContainsKey(objectId);
+    }
+
+    private static bool IsPromptOpponentGraveyardCard(MatchState state, string playerId, string objectId)
+    {
+        return state.PlayerZones
+            .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
+            .Any(entry => entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal))
+            && state.CardObjects.ContainsKey(objectId);
+    }
+
+    private static bool IsPromptAttackingBattlefieldObject(MatchState state, string objectId)
+    {
+        return IsPromptBattlefieldObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.IsAttacking;
+    }
+
+    private static bool IsPromptStackSpellItem(MatchState state, string objectId)
+    {
+        return state.StackItems.Any(item => string.Equals(item.StackItemId, objectId, StringComparison.Ordinal));
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto>? TargetsFor(
         MatchState state,
         string playerId,
@@ -2342,9 +2656,7 @@ internal static class ActionPromptBuilder
     {
         return action switch
         {
-            "PLAY_CARD" => PublicBoardObjects(state)
-                .Select(objectId => ObjectChoice(state, objectId, "server validates card target scope on submit"))
-                .ToArray(),
+            "PLAY_CARD" => PlayCardTargetChoices(state, playerId),
             "ACTIVATE_ABILITY" => PublicBoardObjects(state)
                 .Select(objectId => ObjectChoice(state, objectId, "server validates ability target scope on submit"))
                 .ToArray(),
@@ -2366,6 +2678,22 @@ internal static class ActionPromptBuilder
         };
     }
 
+    private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardTargetChoices(MatchState state, string playerId)
+    {
+        var choices = PlayablePlayCardBehaviors(state, playerId)
+            .SelectMany(behavior =>
+            {
+                var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+                var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
+                return Enumerable.Range(0, maxTargetCount)
+                    .SelectMany(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex));
+            })
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto>? DestinationsFor(
         MatchState state,
         string playerId,
@@ -2373,10 +2701,7 @@ internal static class ActionPromptBuilder
     {
         return action switch
         {
-            "PLAY_CARD" => [
-                new ActionPromptChoiceDto("BASE", "基地"),
-                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
-            ],
+            "PLAY_CARD" => PlayCardDestinationChoices(state, playerId),
             "HIDE_CARD" => [
                 new ActionPromptChoiceDto("STANDBY", "待命"),
                 .. ControlledBattlefieldExtraStandbyObjects(state, playerId)
@@ -2396,15 +2721,24 @@ internal static class ActionPromptBuilder
         };
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto>? ModesFor(string action)
+    private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardDestinationChoices(MatchState state, string playerId)
+    {
+        return PlayablePlayCardBehaviors(state, playerId).Any(behavior => behavior.PlaysSourceToBaseAsUnit)
+            ? [
+                new ActionPromptChoiceDto("BASE", "基地"),
+                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
+            ]
+            : null;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? ModesFor(
+        MatchState state,
+        string playerId,
+        string action)
     {
         return action switch
         {
-            "PLAY_CARD" => [
-                new ActionPromptChoiceDto("AMBUSH", "伏击"),
-                new ActionPromptChoiceDto("HASTE_READY", "急速活跃"),
-                new ActionPromptChoiceDto("BATTLEFIELD_UNIT_POWER_MINUS_4", "战场单位战力 -4")
-            ],
+            "PLAY_CARD" => PlayCardModeChoices(state, playerId),
             "ACTIVATE_ABILITY" => [
                 new ActionPromptChoiceDto("PAY_2_RED_DOUBLE_POWER", "蔚：支付 2 法力和 1 符能，战力翻倍"),
                 new ActionPromptChoiceDto("PAY_RED_EXHAUST_DAMAGE_3", "泽拉斯：横置并支付符能，造成 3 点伤害"),
@@ -2436,16 +2770,25 @@ internal static class ActionPromptBuilder
         };
     }
 
-    private static IReadOnlyList<ActionPromptChoiceDto>? OptionalCostsFor(string action)
+    private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardModeChoices(MatchState state, string playerId)
+    {
+        var choices = PlayablePlayCardBehaviors(state, playerId)
+            .Select(behavior => behavior.Mode)
+            .Where(mode => !string.IsNullOrWhiteSpace(mode))
+            .Distinct(StringComparer.Ordinal)
+            .Select(mode => new ActionPromptChoiceDto(mode, PlayCardModeLabel(mode)))
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? OptionalCostsFor(
+        MatchState state,
+        string playerId,
+        string action)
     {
         return action switch
         {
-            "PLAY_CARD" => [
-                new ActionPromptChoiceDto("ECHO", "回响"),
-                new ActionPromptChoiceDto("STANDBY_REVEAL_0", "待命揭示"),
-                new ActionPromptChoiceDto("ROAM", "游走"),
-                new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 战力符能")
-            ],
+            "PLAY_CARD" => PlayCardOptionalCostChoices(state, playerId),
             "HIDE_CARD" => [
                 new ActionPromptChoiceDto("STANDBY_A", "支付 1 法力布置待命"),
                 new ActionPromptChoiceDto("STANDBY_FREE", "免费布置待命"),
@@ -2467,15 +2810,94 @@ internal static class ActionPromptBuilder
         };
     }
 
-    private static IReadOnlyDictionary<string, object?>? MetadataFor(string action)
+    private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardOptionalCostChoices(MatchState state, string playerId)
+    {
+        var choices = PlayablePlayCardBehaviors(state, playerId)
+            .SelectMany(behavior => PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior))
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IEnumerable<CardBehaviorDefinition> PlayablePlayCardBehaviors(MatchState state, string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Hand
+            .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
+            .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId));
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardOptionalCostChoicesForBehavior(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        var choices = new List<ActionPromptChoiceDto>();
+
+        if (behavior.EchoManaCost > 0
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + behavior.EchoManaCost)
+        {
+            choices.Add(new ActionPromptChoiceDto("ECHO", $"回响：额外支付 {behavior.EchoManaCost} 法力"));
+        }
+
+        if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + behavior.HasteReadyManaCost
+            && runePool.TotalPower >= behavior.HasteReadyPowerCost)
+        {
+            choices.Add(new ActionPromptChoiceDto(
+                HasteOptionalCostNames.HasteReady,
+                $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {behavior.HasteReadyPowerCost} 符能"));
+        }
+
+        if (behavior.OptionalExperienceCost > 0
+            && behavior.ManaReductionIfExperiencePaid > 0
+            && experience >= behavior.OptionalExperienceCost)
+        {
+            choices.Add(new ActionPromptChoiceDto(
+                $"SPEND_EXPERIENCE:{behavior.OptionalExperienceCost}",
+                $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
+        }
+
+        if (behavior.DamageAmountFromOptionalPowerCost && runePool.TotalPower > 0)
+        {
+            choices.Add(new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 符能"));
+        }
+
+        return choices;
+    }
+
+    private static string PlayCardModeLabel(string mode)
+    {
+        return mode switch
+        {
+            "AMBUSH" => "伏击",
+            "HASTE_READY" => "急速活跃",
+            "BATTLEFIELD_UNIT_POWER_MINUS_4" => "战场单位战力 -4",
+            "DRAW_1" => "抽 1 张",
+            "DAMAGE_2" => "造成 2 点伤害",
+            _ => string.IsNullOrWhiteSpace(mode) ? "默认" : mode
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?>? MetadataFor(
+        MatchState state,
+        string playerId,
+        string action)
     {
         return action switch
         {
-            "PLAY_CARD" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "implemented-card-behavior-only",
-                ["targetPolicy"] = "server-validates-target-scope-on-submit"
-            },
+            "PLAY_CARD" => PlayCardMetadataFor(state, playerId),
             "HIDE_CARD" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "implemented-standby-card-only",
@@ -2519,6 +2941,106 @@ internal static class ActionPromptBuilder
             },
             _ => null
         };
+    }
+
+    private static IReadOnlyDictionary<string, object?> PlayCardMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = PlayCardSourceRequirements(state, playerId).ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-card-behavior-only",
+            ["targetPolicy"] = "source-specific-server-filtered-targets",
+            ["modePolicy"] = "source-specific-server-filtered-modes",
+            ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
+            ["destinationPolicy"] = "source-specific-server-filtered-destinations",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IEnumerable<IReadOnlyDictionary<string, object?>> PlayCardSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Hand
+            .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
+            .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
+                .Where(behavior => PromptHasRequiredTargetChoices(state, playerId, behavior))
+                .Select(behavior => PlayCardSourceRequirement(state, playerId, objectId, behavior)));
+    }
+
+    private static IReadOnlyDictionary<string, object?> PlayCardSourceRequirement(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        CardBehaviorDefinition behavior)
+    {
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
+        var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
+        var targetChoicesByIndex = Enumerable.Range(0, maxTargetCount)
+            .ToDictionary(
+                targetIndex => targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                targetIndex => (object?)PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex),
+                StringComparer.Ordinal);
+        var unsupportedReason = UnsupportedPlayCardCompositionReason(behavior);
+
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = sourceObjectId,
+            ["cardNo"] = behavior.CardNo,
+            ["displayName"] = behavior.DisplayName,
+            ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
+            ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
+            ["manaCost"] = behavior.ManaCost,
+            ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior),
+            ["minTargetCount"] = minTargetCount,
+            ["maxTargetCount"] = maxTargetCount,
+            ["targetCountLabel"] = minTargetCount == maxTargetCount
+                ? maxTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : $"{minTargetCount}-{maxTargetCount}",
+            ["targetScope"] = behavior.TargetScope,
+            ["targetScopeLabel"] = PromptTargetScopeLabel(behavior.TargetScope),
+            ["allowsRepeatedTargets"] = behavior.AllowsRepeatedTargets,
+            ["targetChoicesByIndex"] = targetChoicesByIndex,
+            ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(playerId, behavior),
+            ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior),
+            ["composable"] = string.IsNullOrWhiteSpace(unsupportedReason),
+            ["unsupportedReason"] = unsupportedReason
+        };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardDestinationChoicesForBehavior(
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.PlaysSourceToBaseAsUnit
+            ? [
+                new ActionPromptChoiceDto("BASE", "基地"),
+                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
+            ]
+            : null;
+    }
+
+    private static string UnsupportedPlayCardCompositionReason(CardBehaviorDefinition behavior)
+    {
+        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            || behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost
+            || behavior.RequiresDestroyFriendlyTraitUnitAdditionalCost)
+        {
+            return "该牌需要服务端提供额外费用牺牲目标选择，当前前端入口暂不提交。";
+        }
+
+        if (behavior.RequiresReturnFriendlyEquipmentAdditionalCost)
+        {
+            return "该牌需要服务端提供额外费用返回装备选择，当前前端入口暂不提交。";
+        }
+
+        return string.Empty;
     }
 
     private static IEnumerable<string> PublicBoardObjects(MatchState state)
@@ -2773,6 +3295,61 @@ internal static class ActionPromptBuilder
             ? string.IsNullOrWhiteSpace(cardObject.CardNo) ? objectId : $"{cardObject.CardNo} / {objectId}"
             : objectId;
         return new ActionPromptChoiceDto(objectId, label, reason);
+    }
+
+    private static ActionPromptChoiceDto StackItemChoice(MatchState state, string stackItemId, string reason)
+    {
+        var stackItem = state.StackItems.FirstOrDefault(item =>
+            string.Equals(item.StackItemId, stackItemId, StringComparison.Ordinal));
+        var label = stackItem is null
+            ? stackItemId
+            : $"{stackItem.CardNo} / {stackItem.StackItemId}";
+        return new ActionPromptChoiceDto(stackItemId, label, reason);
+    }
+
+    private static string PromptTargetReasonForScope(string targetScope, int targetIndex)
+    {
+        return $"{PromptTargetScopeLabel(targetScope)} / 第 {targetIndex + 1} 个目标";
+    }
+
+    private static string PromptTargetScopeLabel(string targetScope)
+    {
+        return targetScope switch
+        {
+            CardTargetScopes.BattlefieldUnit => "战场单位",
+            CardTargetScopes.BattlefieldUnitOrEquipment => "战场单位或装备",
+            CardTargetScopes.BaseUnit => "基地单位",
+            CardTargetScopes.AnyUnit => "任意单位",
+            CardTargetScopes.FriendlyUnit => "友方单位",
+            CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
+            CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
+            CardTargetScopes.UnitThenItsControllersWeapon => "单位及其控制者武器",
+            CardTargetScopes.FriendlyEquipmentThenEnemyEquipment => "友方装备，然后敌方装备",
+            CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => "友方单位，然后敌方战场单位",
+            CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => "友方战场单位，然后敌方战场单位",
+            CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => "友方战场单位，然后结算链法术",
+            CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => "单位，然后己方主牌堆牌",
+            CardTargetScopes.FriendlyBattlefieldUnit => "友方战场单位",
+            CardTargetScopes.FriendlyHandCard => "己方手牌",
+            CardTargetScopes.AnyHandCard => "手牌",
+            CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => "己方手牌，然后战场单位",
+            CardTargetScopes.FriendlyMainDeckCard => "己方主牌堆牌",
+            CardTargetScopes.FriendlyGraveyardCard => "己方废牌堆牌",
+            CardTargetScopes.AttackingUnit => "攻击中单位",
+            CardTargetScopes.EnemyAttackingUnit => "敌方攻击中单位",
+            CardTargetScopes.EnemyBattlefieldUnit => "敌方战场单位",
+            CardTargetScopes.EnemyUnit => "敌方单位",
+            CardTargetScopes.EnemyUnitThenEnemyUnit => "敌方单位，然后另一个敌方单位",
+            CardTargetScopes.OpponentHandCard => "对手手牌",
+            CardTargetScopes.OpponentGraveyardCard => "对手废牌堆牌",
+            CardTargetScopes.OpponentMainDeckTopCard => "对手主牌堆顶牌",
+            CardTargetScopes.AnyMainDeckTopFiveCard => "主牌堆顶五张",
+            CardTargetScopes.FriendlyBaseUnit => "友方基地单位",
+            CardTargetScopes.Equipment => "装备",
+            CardTargetScopes.StackSpell => "结算链法术",
+            CardTargetScopes.SacredJudgmentKeepCard => "审判日保留牌",
+            _ => "战场单位"
+        };
     }
 
     private static ActionPromptChoiceDto BattlefieldDestinationChoice(MatchState state, string objectId, string reason)
@@ -4546,7 +5123,17 @@ public sealed class MatchSession : IMatchSession
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
-            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-MIGHTY-FAERIE"] = new(
+                    "P1-UNIT-MIGHTY-FAERIE",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 4,
+                    cardNo: "SFD·125/221",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
     }
 
     private static MatchState BuildMovementScenario(MatchState current, DevScenarioSeed seed)

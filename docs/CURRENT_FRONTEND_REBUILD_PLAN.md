@@ -145,7 +145,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第一片。
+状态：完成第二片。
 
 交付：
 
@@ -154,14 +154,20 @@
 - `ActionPromptBuilder` 现在只把基地中未横置、正面、受控的符文作为 `TAP_RUNE.sources`；横置后该来源会从后续候选中移除。
 - 卡牌详情抽屉开始读取当前 `ActionPrompt.candidates`，并在具体卡牌上展示服务端给出的来源型候选；基础符文可从详情抽屉直接提交“横置符文”。
 - 全局行动面板只在服务端候选可直接提交时启用按钮；`PLAY_CARD` 等仍需目标/模式/费用/目的地选择的动作会显示“需选择”并保持禁用，避免前端提交不完整命令。
-- 仍待后续批次补：完整目标选择、模式选择、费用选择、目的地选择、确认/取消流程，以及 `PLAY_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`LEGEND_ACT`、`ACTIVATE_ABILITY` 的卡牌驱动完整 UI。
+- `PLAY_CARD` prompt 现在增加每来源 `sourceRequirements` 元数据，由服务端按具体手牌暴露最小/最大目标数、目标范围中文标签、逐目标槽候选、可选模式、可选费用、目的地候选和当前是否可由前端组合提交。
+- `PLAY_CARD` 来源进一步收紧：需要目标的牌必须有服务端过滤后的必需目标槽候选才会作为可执行来源暴露，避免前端出现“可点但必然被服务端拒绝”的假入口。
+- 卡牌详情抽屉新增出牌组合器：从服务端 `sourceRequirements` 渲染模式、目标槽、目的地、可选费用和确认按钮；确认命令只提交这些服务端候选组合，不从卡面文本或客户端规则推断。
+- 当前已通过真实 UI 打出无目标单位牌并走完优先权结算；需要复杂额外费用牺牲/返回目标的牌会按服务端 `composable=false` 明确禁用，后续由服务端继续补对应费用选择模型。
+- 仍待后续批次补：`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`LEGEND_ACT`、`ACTIVATE_ABILITY` 的同等级选择器，以及带目标法术、复杂可选费用、战斗声明和法术对决响应窗口的完整 UI。
 
 验收：
 
 - `source ../../scripts/dev-env.sh && npm run build`：通过。
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，0 warning/0 error。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 85/85。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"`：通过 41/41。
 - Browser Use smoke：P1/P2 通过 UI 创建/加入房间、提交卡组、ready、双方在对战桌面执行 `MULLIGAN` 进入 `MAIN`；P2 点击基地符文《灵光符文》打开详情抽屉，详情中出现服务端候选“横置符文”，点击后事件日志出现 `RUNE_TAPPED` / `MANA_GAINED`，我方法力从 0 变为 1，符文状态变成“横置”；刷新/重连后全局单来源“横置符文”按钮可执行第二张符文，法力变为 2；随后执行 `END_TURN`，事件日志显示回合结束清理、符文池清空、P1 回合开始和召出符文。
+- Browser Use smoke 第二片：P1/P2 正式房间重跑，双方提交 deck/ready/mulligan 后进入 `MAIN`；P2 重连视角横置两张符文，点击手牌《军团后卫》打开详情抽屉；抽屉展示 `PLAY_CARD` 组合器、费用 2、目标 0、目的地“基地/己方主战场”和“确认打出”；确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`；P2/P1 依次让过优先权后结算，事件日志出现 `STACK_ITEM_RESOLVED`、`UNIT_PLAYED_TO_BASE`，P2 基地公开对象增加《军团后卫》；P2 执行 `END_TURN` 后进入 P1 主阶段并显示回合开始事件。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -179,7 +185,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**44%**
+估算整体进度：**48%**
 
 已经完成：
 
@@ -190,8 +196,9 @@
 - 房间/连接/提交卡组/ready/起手调度到主阶段的正式双人 Web 闭环已由服务端 prompt 驱动，不再由前端常驻按钮绕过。
 - 对战桌面已有卡牌详情抽屉，公开对象细节和隐藏信息保护已通过 Browser Use smoke。
 - 基础符文横置资源能力已由服务端补齐并接入卡牌详情/行动面板；前端不再展示不可解析的 `TAP_RUNE` 假操作。
+- `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算。
 
-预计剩余批次数：**至少 6 批**
+预计剩余批次数：**至少 5 批**
 
 原因：
 

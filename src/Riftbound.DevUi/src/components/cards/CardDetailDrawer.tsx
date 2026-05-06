@@ -1,5 +1,6 @@
-import { Play, X } from "lucide-react";
-import { ActionPromptCandidateDto, ActionPromptDto, GameCommand } from "../../types/protocol";
+import { Check, Play, X } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand } from "../../types/protocol";
 import { costText, keywordsText, promptActionLabel, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { Button } from "../ui/Button";
@@ -92,6 +93,19 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                 <div className="detail-action-list">
                   {sourceActions.map((candidate) => {
                     const command = commandForSourceCandidate(candidate, sourceObjectId, card);
+                    if (candidate.action === "PLAY_CARD") {
+                      return (
+                        <PlayCardComposer
+                          candidate={candidate}
+                          card={card}
+                          key={candidate.action}
+                          onClose={onClose}
+                          onCommand={onCommand}
+                          sourceObjectId={sourceObjectId}
+                        />
+                      );
+                    }
+
                     return (
                       <Button
                         disabled={!candidate.enabled || !command || !onCommand}
@@ -142,20 +156,7 @@ function commandForSourceCandidate(
     return { cmdType: "TAP_RUNE", sourceObjectId };
   }
 
-  if (candidate.action === "PLAY_CARD" && card.object?.cardNo && !requiresFurtherChoice(candidate)) {
-    return { cmdType: "PLAY_CARD", sourceObjectId, cardNo: card.object.cardNo, targetObjectIds: [] };
-  }
-
   return undefined;
-}
-
-function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
-  return Boolean(
-    (candidate.targets?.length ?? 0) > 0
-    || (candidate.destinations?.length ?? 0) > 0
-    || (candidate.modes?.length ?? 0) > 0
-    || (candidate.optionalCosts?.length ?? 0) > 0
-  );
 }
 
 function formatLocation(location?: Record<string, unknown> | null): string {
@@ -167,4 +168,394 @@ function formatLocation(location?: Record<string, unknown> | null): string {
   const zone = typeof location.zone === "string" ? location.zone : "";
   const battlefield = typeof location.battlefieldObjectId === "string" ? location.battlefieldObjectId : "";
   return [playerId, zone, battlefield].filter(Boolean).join(" / ") || "服务端未公开";
+}
+
+type PlayCardSourceRequirement = {
+  sourceObjectId: string;
+  cardNo: string;
+  displayName: string;
+  mode?: string;
+  modeLabel: string;
+  minimumManaCost: number;
+  minTargetCount: number;
+  maxTargetCount: number;
+  targetCountLabel: string;
+  targetScopeLabel: string;
+  allowsRepeatedTargets: boolean;
+  targetChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
+  destinationChoices: ActionPromptChoiceDto[];
+  optionalCostChoices: ActionPromptChoiceDto[];
+  composable: boolean;
+  unsupportedReason?: string;
+};
+
+function PlayCardComposer({
+  candidate,
+  card,
+  onClose,
+  onCommand,
+  sourceObjectId
+}: {
+  candidate: ActionPromptCandidateDto;
+  card: InspectedCard;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  sourceObjectId?: string;
+}) {
+  const requirements = useMemo(
+    () => playCardRequirementsFor(candidate, sourceObjectId),
+    [candidate, sourceObjectId]
+  );
+  const [selectedMode, setSelectedMode] = useState<string>("");
+  const [targetSelections, setTargetSelections] = useState<Record<number, string>>({});
+  const [destination, setDestination] = useState<string>("");
+  const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (requirements.length === 0) {
+      setSelectedMode("");
+      return;
+    }
+
+    const hasCurrentMode = requirements.some((requirement) => normalizedMode(requirement.mode) === selectedMode);
+    if (!hasCurrentMode) {
+      setSelectedMode(normalizedMode(requirements[0].mode));
+    }
+  }, [requirements, selectedMode]);
+
+  const selectedRequirement = requirements.find((requirement) => normalizedMode(requirement.mode) === selectedMode) ?? requirements[0];
+  const requirementKey = selectedRequirement
+    ? `${selectedRequirement.sourceObjectId}:${normalizedMode(selectedRequirement.mode)}`
+    : "";
+
+  useEffect(() => {
+    setTargetSelections({});
+    setOptionalCosts([]);
+    setDestination(selectedRequirement?.destinationChoices[0]?.id ?? "");
+  }, [requirementKey, selectedRequirement]);
+
+  if (!sourceObjectId || !card.object?.cardNo) {
+    return (
+      <article className="play-card-composer">
+        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID 或卡号，前端不会构造出牌命令。</p>
+      </article>
+    );
+  }
+
+  if (requirements.length === 0 || !selectedRequirement) {
+    return (
+      <article className="play-card-composer">
+        <div className="composer-heading">
+          <strong>{promptActionLabel(candidate)}</strong>
+          <span>{candidate.reason}</span>
+        </div>
+        <p className="detail-muted">服务端尚未为这张牌提供可提交的出牌约束。</p>
+      </article>
+    );
+  }
+
+  const targetSlots = Array.from({ length: selectedRequirement.maxTargetCount }, (_, index) => index);
+  const orderedTargets = targetSlots
+    .map((targetIndex) => targetSelections[targetIndex])
+    .filter((targetId): targetId is string => Boolean(targetId));
+  const hasTargetGap = targetSlots.some((targetIndex) =>
+    !targetSelections[targetIndex] && targetSlots.slice(targetIndex + 1).some((laterIndex) => Boolean(targetSelections[laterIndex])));
+  const hasDuplicateTarget = !selectedRequirement.allowsRepeatedTargets
+    && new Set(orderedTargets).size !== orderedTargets.length;
+  const missingRequiredTargetChoice = targetSlots
+    .slice(0, selectedRequirement.minTargetCount)
+    .some((targetIndex) => (selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? []).length === 0);
+  const targetCountValid = orderedTargets.length >= selectedRequirement.minTargetCount
+    && orderedTargets.length <= selectedRequirement.maxTargetCount
+    && !hasTargetGap
+    && !hasDuplicateTarget
+    && !missingRequiredTargetChoice;
+  const canSubmit = Boolean(
+    candidate.enabled
+    && selectedRequirement.composable
+    && targetCountValid
+    && onCommand
+  );
+
+  return (
+    <article className="play-card-composer">
+      <div className="composer-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{candidate.reason}</span>
+      </div>
+      <div className="composer-meta">
+        <span>费用 {selectedRequirement.minimumManaCost}</span>
+        <span>目标 {selectedRequirement.targetCountLabel} 个</span>
+        <span>{selectedRequirement.targetScopeLabel}</span>
+      </div>
+      {requirements.length > 1 && (
+        <ChoiceGroup label="模式">
+          {requirements.map((requirement) => (
+            <ChoiceButton
+              active={normalizedMode(requirement.mode) === selectedMode}
+              key={`${requirement.sourceObjectId}-${normalizedMode(requirement.mode)}`}
+              onClick={() => setSelectedMode(normalizedMode(requirement.mode))}
+            >
+              {requirement.modeLabel}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {selectedRequirement.destinationChoices.length > 0 && (
+        <ChoiceGroup label="目的地">
+          {selectedRequirement.destinationChoices.map((choice) => (
+            <ChoiceButton
+              active={destination === choice.id}
+              key={choice.id}
+              onClick={() => setDestination(choice.id)}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {targetSlots.map((targetIndex) => {
+        const choices = selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? [];
+        const required = targetIndex < selectedRequirement.minTargetCount;
+        return (
+          <ChoiceGroup key={targetIndex} label={`目标 ${targetIndex + 1}${required ? "" : "（可选）"}`}>
+            {!required && (
+              <ChoiceButton
+                active={!targetSelections[targetIndex]}
+                onClick={() => setTargetSelections((current) => withoutTargetAt(current, targetIndex))}
+              >
+                不选择
+              </ChoiceButton>
+            )}
+            {choices.length === 0 && <span className="composer-warning">服务端没有给出该目标槽候选。</span>}
+            {choices.map((choice) => {
+              const alreadySelected = !selectedRequirement.allowsRepeatedTargets
+                && orderedTargets.includes(choice.id)
+                && targetSelections[targetIndex] !== choice.id;
+              return (
+                <ChoiceButton
+                  active={targetSelections[targetIndex] === choice.id}
+                  disabled={alreadySelected}
+                  key={choice.id}
+                  onClick={() => {
+                    setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }));
+                  }}
+                  title={choice.reason ?? undefined}
+                >
+                  {choice.label}
+                </ChoiceButton>
+              );
+            })}
+          </ChoiceGroup>
+        );
+      })}
+      {selectedRequirement.optionalCostChoices.length > 0 && (
+        <ChoiceGroup label="可选费用">
+          {selectedRequirement.optionalCostChoices.map((choice) => (
+            <ChoiceButton
+              active={optionalCosts.includes(choice.id)}
+              key={choice.id}
+              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {!selectedRequirement.composable && (
+        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该操作当前不能由前端组合提交。"}</p>
+      )}
+      {!targetCountValid && selectedRequirement.composable && (
+        <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
+      )}
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => {
+          if (!canSubmit || !onCommand) {
+            return;
+          }
+
+          onCommand({
+            cmdType: "PLAY_CARD",
+            sourceObjectId,
+            cardNo: selectedRequirement.cardNo,
+            targetObjectIds: orderedTargets,
+            mode: selectedRequirement.mode || undefined,
+            destination: destination || undefined,
+            optionalCosts: optionalCosts.length > 0 ? optionalCosts : undefined
+          });
+          onClose();
+        }}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        确认打出
+      </Button>
+    </article>
+  );
+}
+
+function ChoiceGroup({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <div className="composer-choice-group">
+      <span>{label}</span>
+      <div className="composer-choice-list">{children}</div>
+    </div>
+  );
+}
+
+function ChoiceButton({
+  active,
+  children,
+  disabled,
+  onClick,
+  title
+}: {
+  active: boolean;
+  children: ReactNode;
+  disabled?: boolean;
+  onClick: () => void;
+  title?: string;
+}) {
+  return (
+    <button
+      className={`composer-choice${active ? " is-active" : ""}`}
+      disabled={disabled}
+      onClick={onClick}
+      title={title}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
+function playCardRequirementsFor(candidate: ActionPromptCandidateDto, sourceObjectId?: string): PlayCardSourceRequirement[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const rawRequirements = candidate.metadata?.sourceRequirements;
+  if (!Array.isArray(rawRequirements)) {
+    return [];
+  }
+
+  return rawRequirements
+    .map(parsePlayCardRequirement)
+    .filter((requirement): requirement is PlayCardSourceRequirement =>
+      Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | undefined {
+  const record = asRecord(value);
+  if (!record) {
+    return undefined;
+  }
+
+  const sourceObjectId = stringField(record, "sourceObjectId");
+  const cardNo = stringField(record, "cardNo");
+  if (!sourceObjectId || !cardNo) {
+    return undefined;
+  }
+
+  return {
+    sourceObjectId,
+    cardNo,
+    displayName: stringField(record, "displayName") || cardNo,
+    mode: nullableStringField(record, "mode"),
+    modeLabel: stringField(record, "modeLabel") || "默认",
+    minimumManaCost: numberField(record, "minimumManaCost"),
+    minTargetCount: numberField(record, "minTargetCount"),
+    maxTargetCount: numberField(record, "maxTargetCount"),
+    targetCountLabel: stringField(record, "targetCountLabel") || "0",
+    targetScopeLabel: stringField(record, "targetScopeLabel") || "服务端目标",
+    allowsRepeatedTargets: booleanField(record, "allowsRepeatedTargets"),
+    targetChoicesByIndex: choiceRecord(record.targetChoicesByIndex),
+    destinationChoices: choiceList(record.destinationChoices),
+    optionalCostChoices: choiceList(record.optionalCostChoices),
+    composable: booleanField(record, "composable", true),
+    unsupportedReason: nullableStringField(record, "unsupportedReason")
+  };
+}
+
+function choiceRecord(value: unknown): Record<string, ActionPromptChoiceDto[]> {
+  const record = asRecord(value);
+  if (!record) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).map(([key, choices]) => [key, choiceList(choices)])
+  );
+}
+
+function choiceList(value: unknown): ActionPromptChoiceDto[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((choice): ActionPromptChoiceDto | undefined => {
+      const record = asRecord(choice);
+      if (!record) {
+        return undefined;
+      }
+
+      const id = stringField(record, "id");
+      const label = stringField(record, "label");
+      if (!id || !label) {
+        return undefined;
+      }
+
+      return {
+        id,
+        label,
+        reason: nullableStringField(record, "reason")
+      };
+    })
+    .filter((choice): choice is ActionPromptChoiceDto => Boolean(choice));
+}
+
+function withoutTargetAt(current: Record<number, string>, targetIndex: number): Record<number, string> {
+  const next = { ...current };
+  delete next[targetIndex];
+  return next;
+}
+
+function toggleValue(values: string[], value: string): string[] {
+  return values.includes(value)
+    ? values.filter((current) => current !== value)
+    : [...values, value];
+}
+
+function normalizedMode(mode?: string): string {
+  return mode?.trim() ?? "";
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
+}
+
+function stringField(record: Record<string, unknown>, key: string): string {
+  const value = record[key];
+  return typeof value === "string" ? value : "";
+}
+
+function nullableStringField(record: Record<string, unknown>, key: string): string | undefined {
+  const value = record[key];
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+}
+
+function numberField(record: Record<string, unknown>, key: string): number {
+  const value = record[key];
+  return typeof value === "number" ? value : 0;
+}
+
+function booleanField(record: Record<string, unknown>, key: string, fallback = false): boolean {
+  const value = record[key];
+  return typeof value === "boolean" ? value : fallback;
 }
