@@ -193,6 +193,16 @@ type ActivateDraft = {
 
 type OperationMode = "play" | "ability" | "move" | "assemble" | "battle" | "legend";
 
+type CardContextRole = "source" | "target" | "destination";
+
+type CardContextAction = {
+  id: string;
+  action: string;
+  role: CardContextRole;
+  label: string;
+  reason: string;
+};
+
 type SelectionIntent =
   | "play-source"
   | "play-target"
@@ -577,6 +587,9 @@ function App() {
   const [legendDraft, setLegendDraft] = useState(initialLegendDraft);
   const [activateDraft, setActivateDraft] = useState(initialActivateDraft);
   const [selectionIntent, setSelectionIntent] = useState<SelectionIntent>("play-target");
+  const [contextObjectId, setContextObjectId] = useState("");
+  const [workbenchOpen, setWorkbenchOpen] = useState(false);
+  const [operationMode, setOperationMode] = useState<OperationMode>("play");
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [productPanel, setProductPanel] = useState<ProductPanel>("actions");
   const [catalogOpen, setCatalogOpen] = useState(false);
@@ -818,6 +831,8 @@ function App() {
     playersRef.current = nextPlayers;
     setFixtureDraft("");
     setFixtureStatus("idle");
+    setContextObjectId("");
+    setWorkbenchOpen(false);
   }
 
   async function invoke(key: PlayerKey, method: string, args: unknown[], clientIntentId?: string, payload?: unknown) {
@@ -1096,6 +1111,115 @@ function App() {
     }));
   }
 
+  function openWorkbenchForAction(action: string) {
+    const mode = operationModeForAction(action);
+    if (!mode) {
+      return;
+    }
+
+    setProductPanel("actions");
+    setOperationMode(mode);
+    setWorkbenchOpen(true);
+    setSelectionIntent(defaultSelectionIntentForOperation(mode));
+  }
+
+  function handleCardContextAction(contextAction: CardContextAction, objectId: string) {
+    if (!objectId) {
+      return;
+    }
+
+    setContextObjectId(objectId);
+    openWorkbenchForAction(contextAction.action);
+
+    const object = findObject(latestSnapshot, objectId);
+    if (contextAction.action === "PLAY_CARD") {
+      if (contextAction.role === "source") {
+        setPlayDraft((current) => ({
+          ...current,
+          sourceObjectId: objectId,
+          cardNo: object?.cardNo ?? current.cardNo
+        }));
+        setSelectionIntent("play-target");
+      } else {
+        setPlayDraft((current) => ({
+          ...current,
+          targetObjectIds: toggleListValue(current.targetObjectIds, objectId).join(", ")
+        }));
+        setSelectionIntent("play-target");
+      }
+      return;
+    }
+
+    if (contextAction.action === "MOVE_UNIT") {
+      const origin = objectCoarseZone(latestSnapshot, objectId);
+      setMoveDraft((current) => ({
+        ...current,
+        sourceObjectId: objectId,
+        origin: origin ?? current.origin,
+        destination: origin === "BASE" ? "BATTLEFIELD" : origin === "BATTLEFIELD" ? "BASE" : current.destination
+      }));
+      setSelectionIntent("move-source");
+      return;
+    }
+
+    if (contextAction.action === "ASSEMBLE_EQUIPMENT") {
+      if (contextAction.role === "source") {
+        setAssembleDraft((current) => ({ ...current, sourceObjectId: objectId }));
+        setSelectionIntent("assemble-target");
+      } else {
+        setAssembleDraft((current) => ({ ...current, targetObjectId: objectId }));
+        setSelectionIntent("assemble-target");
+      }
+      return;
+    }
+
+    if (contextAction.action === "DECLARE_BATTLE") {
+      if (contextAction.role === "source") {
+        setBattleDraft((current) => ({
+          ...current,
+          attackerObjectIds: toggleListValue(current.attackerObjectIds, objectId).join(", ")
+        }));
+        setSelectionIntent("battle-defender");
+      } else if (contextAction.role === "target") {
+        setBattleDraft((current) => ({
+          ...current,
+          defenderObjectIds: toggleListValue(current.defenderObjectIds, objectId).join(", ")
+        }));
+        setSelectionIntent("battle-defender");
+      } else {
+        setBattleDraft((current) => ({ ...current, battlefieldId: contextAction.id.replace(/^DECLARE_BATTLE-destination-/, "") }));
+      }
+      return;
+    }
+
+    if (contextAction.action === "LEGEND_ACT") {
+      if (contextAction.role === "source") {
+        setLegendDraft((current) => ({ ...current, sourceObjectId: objectId }));
+        setSelectionIntent("legend-source");
+      } else {
+        setLegendDraft((current) => ({
+          ...current,
+          targetObjectIds: toggleListValue(current.targetObjectIds, objectId).join(", ")
+        }));
+        setSelectionIntent("legend-source");
+      }
+      return;
+    }
+
+    if (contextAction.action === "ACTIVATE_ABILITY") {
+      if (contextAction.role === "source") {
+        setActivateDraft((current) => ({ ...current, sourceObjectId: objectId }));
+        setSelectionIntent("ability-target");
+      } else {
+        setActivateDraft((current) => ({
+          ...current,
+          targetObjectIds: toggleListValue(current.targetObjectIds, objectId).join(", ")
+        }));
+        setSelectionIntent("ability-target");
+      }
+    }
+  }
+
   function refreshFixtureDraft() {
     setFixtureDraft(buildFixtureDraft(roomId, players));
     setFixtureStatus("draft refreshed");
@@ -1188,10 +1312,14 @@ function App() {
         <ProductBattleArena
           snapshot={latestSnapshot}
           activePlayerId={activePlayer.playerId}
+          prompt={activePlayer.prompt}
+          contextObjectId={contextObjectId}
           selectedObjectIds={selectedObjectIds}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           onPickObject={handleObjectPick}
+          onContextObject={setContextObjectId}
+          onCardAction={handleCardContextAction}
         />
 
         <aside className="product-drawer" aria-label="对战控制台">
@@ -1227,8 +1355,12 @@ function App() {
               devToolsOpen={devToolsOpen}
               fixtureText={fixtureText}
               fixtureStatus={fixtureStatus}
+              workbenchOpen={workbenchOpen}
+              operationMode={operationMode}
               onActiveKey={setActiveKey}
               onSelectionIntent={setSelectionIntent}
+              onWorkbenchOpen={setWorkbenchOpen}
+              onOperationMode={setOperationMode}
               onPlayDraft={setPlayDraft}
               onMoveDraft={setMoveDraft}
               onAssembleDraft={setAssembleDraft}
@@ -1332,17 +1464,25 @@ function SystemNotice({ notices }: { notices: string[] }) {
 function ProductBattleArena({
   snapshot,
   activePlayerId,
+  prompt,
+  contextObjectId,
   selectedObjectIds,
   selectionIntent,
   cardNamesByNo,
-  onPickObject
+  onPickObject,
+  onContextObject,
+  onCardAction
 }: {
   snapshot?: SnapshotDto;
   activePlayerId: string;
+  prompt?: ActionPromptDto;
+  contextObjectId: string;
   selectedObjectIds: Set<string>;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
 }) {
   const seats = productSeats(snapshot, activePlayerId);
   const bottomSeat = seats.find((seat) => seat.playerId === activePlayerId) ?? seats[seats.length - 1];
@@ -1365,8 +1505,13 @@ function ProductBattleArena({
             <ProductSupportZones
               seat={topSeat}
               selectedObjectIds={selectedObjectIds}
+              contextObjectId={contextObjectId}
+              prompt={prompt}
+              selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
               onPickObject={onPickObject}
+              onContextObject={onContextObject}
+              onCardAction={onCardAction}
               compact
             />
 
@@ -1377,8 +1522,13 @@ function ProductBattleArena({
                 player={bottomSeat}
                 laneIndex={0}
                 selectedObjectIds={selectedObjectIds}
+                contextObjectId={contextObjectId}
+                prompt={prompt}
+                selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
                 onPickObject={onPickObject}
+                onContextObject={onContextObject}
+                onCardAction={onCardAction}
               />
               <ProductStackWell timing={timing} stackLabels={stackLabels} />
               <ProductLane
@@ -1387,16 +1537,26 @@ function ProductBattleArena({
                 player={bottomSeat}
                 laneIndex={1}
                 selectedObjectIds={selectedObjectIds}
+                contextObjectId={contextObjectId}
+                prompt={prompt}
+                selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
                 onPickObject={onPickObject}
+                onContextObject={onContextObject}
+                onCardAction={onCardAction}
               />
             </div>
 
             <ProductSupportZones
               seat={bottomSeat}
               selectedObjectIds={selectedObjectIds}
+              contextObjectId={contextObjectId}
+              prompt={prompt}
+              selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
               onPickObject={onPickObject}
+              onContextObject={onContextObject}
+              onCardAction={onCardAction}
             />
           </section>
 
@@ -1409,8 +1569,13 @@ function ProductBattleArena({
           <ProductHandShelf
             seat={bottomSeat}
             selectedObjectIds={selectedObjectIds}
+            contextObjectId={contextObjectId}
+            prompt={prompt}
+            selectionIntent={selectionIntent}
             cardNamesByNo={cardNamesByNo}
             onPickObject={onPickObject}
+            onContextObject={onContextObject}
+            onCardAction={onCardAction}
           />
         </>
       ) : (
@@ -1436,8 +1601,12 @@ function ProductActionPanel(props: {
   devToolsOpen: boolean;
   fixtureText: string;
   fixtureStatus: string;
+  workbenchOpen: boolean;
+  operationMode: OperationMode;
   onActiveKey: (key: PlayerKey) => void;
   onSelectionIntent: (intent: SelectionIntent) => void;
+  onWorkbenchOpen: (open: boolean) => void;
+  onOperationMode: (mode: OperationMode) => void;
   onPlayDraft: (draft: PlayCardDraft) => void;
   onMoveDraft: (draft: MoveUnitDraft) => void;
   onAssembleDraft: (draft: AssembleDraft) => void;
@@ -1458,14 +1627,12 @@ function ProductActionPanel(props: {
   const prompt = props.activePlayer.prompt;
   const candidates = promptCandidatesFor(prompt);
   const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
-  const [workbenchOpen, setWorkbenchOpen] = useState(false);
-  const [operationMode, setOperationMode] = useState<OperationMode>("play");
 
   function handlePromptCandidate(candidate: ActionPromptCandidateDto) {
     const mode = operationModeForAction(candidate.action);
     if (mode) {
-      setOperationMode(mode);
-      setWorkbenchOpen(true);
+      props.onOperationMode(mode);
+      props.onWorkbenchOpen(true);
       props.onSelectionIntent(defaultSelectionIntentForOperation(mode));
       return;
     }
@@ -1521,14 +1688,14 @@ function ProductActionPanel(props: {
 
       <details
         className="product-workbench-drawer"
-        open={workbenchOpen}
-        onToggle={(event) => setWorkbenchOpen(event.currentTarget.open)}
+        open={props.workbenchOpen}
+        onToggle={(event) => props.onWorkbenchOpen(event.currentTarget.open)}
       >
         <summary>
           <span>目标选择与提交</span>
           <strong>{selectionIntentLabel(props.selectionIntent)}</strong>
         </summary>
-        <CommandWorkbench {...props} operationMode={operationMode} onOperationMode={setOperationMode} />
+        <CommandWorkbench {...props} operationMode={props.operationMode} onOperationMode={props.onOperationMode} />
       </details>
     </section>
   );
@@ -1669,14 +1836,24 @@ function ProductResource({ label, value }: { label: string; value: number | stri
 function ProductSupportZones({
   seat,
   selectedObjectIds,
+  contextObjectId,
+  prompt,
+  selectionIntent,
   cardNamesByNo,
   onPickObject,
+  onContextObject,
+  onCardAction,
   compact = false
 }: {
   seat: ProductSeat;
   selectedObjectIds: Set<string>;
+  contextObjectId: string;
+  prompt?: ActionPromptDto;
+  selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   compact?: boolean;
 }) {
   const zones = seat.player.zones ?? {};
@@ -1687,24 +1864,39 @@ function ProductSupportZones({
         ids={zones.legendZone ?? []}
         objects={seat.player.objects}
         selectedObjectIds={selectedObjectIds}
+        contextObjectId={contextObjectId}
+        prompt={prompt}
+        selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         onPickObject={onPickObject}
+        onContextObject={onContextObject}
+        onCardAction={onCardAction}
       />
       <ProductMiniZone
         title="英雄"
         ids={zones.championZone ?? []}
         objects={seat.player.objects}
         selectedObjectIds={selectedObjectIds}
+        contextObjectId={contextObjectId}
+        prompt={prompt}
+        selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         onPickObject={onPickObject}
+        onContextObject={onContextObject}
+        onCardAction={onCardAction}
       />
       <ProductMiniZone
         title="基地"
         ids={zones.base ?? []}
         objects={seat.player.objects}
         selectedObjectIds={selectedObjectIds}
+        contextObjectId={contextObjectId}
+        prompt={prompt}
+        selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         onPickObject={onPickObject}
+        onContextObject={onContextObject}
+        onCardAction={onCardAction}
         wide
       />
     </aside>
@@ -1716,16 +1908,26 @@ function ProductMiniZone({
   ids,
   objects,
   selectedObjectIds,
+  contextObjectId,
+  prompt,
+  selectionIntent,
   cardNamesByNo,
   onPickObject,
+  onContextObject,
+  onCardAction,
   wide = false
 }: {
   title: string;
   ids: string[];
   objects?: Record<string, ObjectView>;
   selectedObjectIds: Set<string>;
+  contextObjectId: string;
+  prompt?: ActionPromptDto;
+  selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   wide?: boolean;
 }) {
   return (
@@ -1738,8 +1940,13 @@ function ProductMiniZone({
         ids={ids}
         objects={objects}
         selectedObjectIds={selectedObjectIds}
+        contextObjectId={contextObjectId}
+        prompt={prompt}
+        selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         onPickObject={onPickObject}
+        onContextObject={onContextObject}
+        onCardAction={onCardAction}
         compact
       />
     </section>
@@ -1752,16 +1959,26 @@ function ProductLane({
   player,
   laneIndex,
   selectedObjectIds,
+  contextObjectId,
+  prompt,
+  selectionIntent,
   cardNamesByNo,
-  onPickObject
+  onPickObject,
+  onContextObject,
+  onCardAction
 }: {
   title: string;
   opponent: ProductSeat;
   player: ProductSeat;
   laneIndex: number;
   selectedObjectIds: Set<string>;
+  contextObjectId: string;
+  prompt?: ActionPromptDto;
+  selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
 }) {
   return (
     <section className="product-lane" aria-label={title}>
@@ -1773,16 +1990,26 @@ function ProductLane({
         ids={laneIds(opponent.player.zones?.battlefields ?? [], laneIndex)}
         objects={opponent.player.objects}
         selectedObjectIds={selectedObjectIds}
+        contextObjectId={contextObjectId}
+        prompt={prompt}
+        selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         onPickObject={onPickObject}
+        onContextObject={onContextObject}
+        onCardAction={onCardAction}
       />
       <div className="lane-centerline" aria-hidden="true" />
       <ProductCardList
         ids={laneIds(player.player.zones?.battlefields ?? [], laneIndex)}
         objects={player.player.objects}
         selectedObjectIds={selectedObjectIds}
+        contextObjectId={contextObjectId}
+        prompt={prompt}
+        selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         onPickObject={onPickObject}
+        onContextObject={onContextObject}
+        onCardAction={onCardAction}
       />
     </section>
   );
@@ -1803,13 +2030,23 @@ function ProductStackWell({ timing, stackLabels }: { timing: string; stackLabels
 function ProductHandShelf({
   seat,
   selectedObjectIds,
+  contextObjectId,
+  prompt,
+  selectionIntent,
   cardNamesByNo,
-  onPickObject
+  onPickObject,
+  onContextObject,
+  onCardAction
 }: {
   seat: ProductSeat;
   selectedObjectIds: Set<string>;
+  contextObjectId: string;
+  prompt?: ActionPromptDto;
+  selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
 }) {
   const zones = seat.player.zones ?? {};
   const handIds = zones.hand ?? [];
@@ -1830,8 +2067,13 @@ function ProductHandShelf({
           ids={handIds}
           objects={seat.player.objects}
           selectedObjectIds={selectedObjectIds}
+          contextObjectId={contextObjectId}
+          prompt={prompt}
+          selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           onPickObject={onPickObject}
+          onContextObject={onContextObject}
+          onCardAction={onCardAction}
           hand
         />
       )}
@@ -1843,16 +2085,26 @@ function ProductCardList({
   ids,
   objects,
   selectedObjectIds,
+  contextObjectId,
+  prompt,
+  selectionIntent,
   cardNamesByNo,
   onPickObject,
+  onContextObject,
+  onCardAction,
   compact = false,
   hand = false
 }: {
   ids: string[];
   objects?: Record<string, ObjectView>;
   selectedObjectIds: Set<string>;
+  contextObjectId: string;
+  prompt?: ActionPromptDto;
+  selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   compact?: boolean;
   hand?: boolean;
 }) {
@@ -1869,8 +2121,13 @@ function ProductCardList({
           object={objects?.[id]}
           attachments={attachedObjectsFor(id, objects)}
           selected={selectedObjectIds.has(id)}
+          contextOpen={contextObjectId === id}
+          contextActions={cardContextActionsForObject(id, prompt)}
+          selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           onPickObject={onPickObject}
+          onContextObject={onContextObject}
+          onCardAction={onCardAction}
           compact={compact}
         />
       ))}
@@ -1883,26 +2140,37 @@ function ProductCard({
   object,
   attachments,
   selected,
+  contextOpen,
+  contextActions,
+  selectionIntent,
   cardNamesByNo,
   onPickObject,
+  onContextObject,
+  onCardAction,
   compact = false
 }: {
   objectId: string;
   object?: ObjectView;
   attachments: (ObjectView & { objectId?: string })[];
   selected: boolean;
+  contextOpen: boolean;
+  contextActions: CardContextAction[];
+  selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
+  onContextObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   compact?: boolean;
 }) {
   const badges = object ? statusBadges(object).slice(0, compact ? 2 : 4) : [];
   const stats = object ? productCardStats(object) : [];
+  const isHighlighted = selected || contextOpen;
 
   return (
     <article className="product-card-wrap">
       <button
-        className={productCardClassName(object, selected)}
-        onClick={() => onPickObject(objectId)}
+        className={productCardClassName(object, isHighlighted)}
+        onClick={() => onContextObject(contextOpen ? "" : objectId)}
         type="button"
       >
         <span className="product-card-name">{productCardName(objectId, object, cardNamesByNo)}</span>
@@ -1923,7 +2191,7 @@ function ProductCard({
           {attachments.slice(0, 3).map((attachment) => (
             <button
               key={attachment.objectId}
-              onClick={() => onPickObject(attachment.objectId ?? "")}
+              onClick={() => onContextObject(attachment.objectId ?? "")}
               type="button"
             >
               {productCardName(attachment.objectId ?? "装备", attachment, cardNamesByNo)}
@@ -1931,7 +2199,64 @@ function ProductCard({
           ))}
         </div>
       ) : null}
+      {contextOpen ? (
+        <CardContextMenu
+          actions={contextActions}
+          objectId={objectId}
+          selectionIntent={selectionIntent}
+          onPickObject={onPickObject}
+          onCardAction={onCardAction}
+        />
+      ) : null}
     </article>
+  );
+}
+
+function CardContextMenu({
+  actions,
+  objectId,
+  selectionIntent,
+  onPickObject,
+  onCardAction
+}: {
+  actions: CardContextAction[];
+  objectId: string;
+  selectionIntent: SelectionIntent;
+  onPickObject: (objectId: string) => void;
+  onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+}) {
+  return (
+    <div className="card-context-menu" data-testid={`card-context-${cssSafeId(objectId)}`}>
+      <strong>这张牌可操作</strong>
+      {actions.length === 0 ? (
+        <span>当前没有服务端开放的卡牌动作</span>
+      ) : (
+        actions.map((action) => (
+          <button
+            data-testid={`card-context-action-${cssSafeId(action.id)}`}
+            key={action.id}
+            onClick={(event) => {
+              event.stopPropagation();
+              onCardAction(action, objectId);
+            }}
+            title={action.reason}
+            type="button"
+          >
+            {action.label}
+          </button>
+        ))
+      )}
+      <button
+        className="ghost-context-action"
+        onClick={(event) => {
+          event.stopPropagation();
+          onPickObject(objectId);
+        }}
+        type="button"
+      >
+        作为{selectionIntentLabel(selectionIntent)}
+      </button>
+    </div>
   );
 }
 
@@ -3926,6 +4251,79 @@ function promptCandidatesFor(prompt?: ActionPromptDto): ActionPromptCandidateDto
   }));
 }
 
+function cardContextActionsForObject(objectId: string, prompt?: ActionPromptDto): CardContextAction[] {
+  const actions: CardContextAction[] = [];
+  for (const candidate of promptCandidatesFor(prompt)) {
+    if (!candidate.enabled || candidate.action === "WAIT") {
+      continue;
+    }
+
+    if (choiceListContainsObject(candidate.sources, objectId)) {
+      actions.push({
+        id: `${candidate.action}-source-${objectId}`,
+        action: candidate.action,
+        role: "source",
+        label: sourceContextActionLabel(candidate.action),
+        reason: promptReasonLabel(candidate.reason)
+      });
+    }
+
+    if (choiceListContainsObject(candidate.targets, objectId)) {
+      actions.push({
+        id: `${candidate.action}-target-${objectId}`,
+        action: candidate.action,
+        role: "target",
+        label: targetContextActionLabel(candidate.action),
+        reason: promptReasonLabel(candidate.reason)
+      });
+    }
+  }
+
+  return dedupeCardContextActions(actions);
+}
+
+function choiceListContainsObject(choices: ActionPromptChoiceDto[] | undefined, objectId: string) {
+  return choices?.some((choice) => choice.id === objectId || choice.id === `BATTLEFIELD:${objectId}`) ?? false;
+}
+
+function dedupeCardContextActions(actions: CardContextAction[]) {
+  const seen = new Set<string>();
+  return actions.filter((action) => {
+    const key = `${action.action}:${action.role}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function sourceContextActionLabel(action: string) {
+  return (
+    {
+      PLAY_CARD: "打出这张牌",
+      ACTIVATE_ABILITY: "激活这个能力",
+      MOVE_UNIT: "移动这个单位",
+      ASSEMBLE_EQUIPMENT: "装配这件装备",
+      DECLARE_BATTLE: "用它进攻",
+      LEGEND_ACT: "发动传奇行动"
+    }[action] ?? promptActionLabel(action)
+  );
+}
+
+function targetContextActionLabel(action: string) {
+  return (
+    {
+      PLAY_CARD: "选为出牌目标",
+      ACTIVATE_ABILITY: "选为能力目标",
+      ASSEMBLE_EQUIPMENT: "装备到这张牌",
+      DECLARE_BATTLE: "指定为防守方",
+      LEGEND_ACT: "选为传奇目标"
+    }[action] ?? promptActionLabel(action)
+  );
+}
+
 function coachHeadline(
   snapshot: SnapshotDto | undefined,
   prompt: ActionPromptDto | undefined,
@@ -4073,6 +4471,28 @@ function findObject(snapshot: SnapshotDto | undefined, objectId: string) {
     const candidate = player.objects?.[objectId];
     if (candidate) {
       return candidate;
+    }
+  }
+
+  return undefined;
+}
+
+function objectCoarseZone(snapshot: SnapshotDto | undefined, objectId: string) {
+  if (!snapshot) {
+    return undefined;
+  }
+
+  for (const player of Object.values(snapshot.players)) {
+    const zones = player.zones;
+    if (!zones) {
+      continue;
+    }
+
+    if (zones.base?.includes(objectId)) {
+      return "BASE";
+    }
+    if (zones.battlefields?.includes(objectId)) {
+      return "BATTLEFIELD";
     }
   }
 

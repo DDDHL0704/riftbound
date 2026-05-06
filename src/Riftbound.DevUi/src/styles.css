@@ -2548,7 +2548,7 @@ body {
   display: grid;
   gap: 6px;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(217, 179, 92, 0.2);
   border-radius: 10px;
   background: rgba(246, 240, 222, 0.11);
@@ -2587,7 +2587,7 @@ body {
   grid-template-rows: 26px minmax(0, 1fr) 12px minmax(0, 1fr);
   gap: 7px;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(217, 179, 92, 0.24);
   border-radius: 14px;
   background:
@@ -2664,7 +2664,7 @@ body {
   gap: 7px;
   align-content: flex-start;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .product-card-list.compact {
@@ -2674,14 +2674,20 @@ body {
 .product-card-list.hand {
   flex-wrap: nowrap;
   align-items: end;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .product-card-wrap {
+  position: relative;
   display: grid;
   gap: 4px;
   width: 104px;
   min-width: 0;
+  z-index: 2;
+}
+
+.product-card-wrap:has(.card-context-menu) {
+  z-index: 8;
 }
 
 .product-card-list.compact .product-card-wrap {
@@ -2721,6 +2727,62 @@ body {
 .product-card:hover:not(:disabled) {
   transform: translateY(-2px);
   background: linear-gradient(180deg, #fff5db 0%, #e7dac0 100%);
+}
+
+.card-context-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  display: grid;
+  gap: 6px;
+  width: 178px;
+  border: 1px solid rgba(217, 179, 92, 0.52);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 231, 0.98), rgba(235, 221, 184, 0.98)),
+    #fff7dd;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.36);
+  padding: 8px;
+  color: #162d31;
+}
+
+.product-card-list.hand .card-context-menu {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.card-context-menu strong {
+  color: #162d31;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.card-context-menu span {
+  color: #53686d;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.card-context-menu button {
+  min-height: 28px;
+  border-color: rgba(22, 45, 49, 0.18);
+  background: rgba(22, 45, 49, 0.09);
+  color: #173034;
+  padding: 5px 7px;
+  box-shadow: none;
+  font-size: 11px;
+  text-align: left;
+}
+
+.card-context-menu button:hover:not(:disabled) {
+  background: rgba(31, 122, 103, 0.16);
+}
+
+.card-context-menu .ghost-context-action {
+  border-style: dashed;
+  color: #53686d;
 }
 
 .product-card.unit {
@@ -2849,7 +2911,7 @@ body {
   grid-template-columns: 76px minmax(0, 1fr);
   gap: 10px;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(217, 179, 92, 0.28);
   border-radius: 14px;
   background:
