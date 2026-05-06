@@ -14,7 +14,7 @@
 
 ## 2026-05-06 开发进度更新
 
-- 复审基线 `45bb446`：本轮自查整改后重新按 `docs/符文战场_服务端核心规则自查文档.md` 复核。结论仍为 **NOT READY**，但 P0 风险已进一步收窄：battlefield task 已有权威视图，replay frame 已有 authoritative state hash，battlefield trigger 支付已覆盖 typed power。剩余 NOT READY 根因集中在完整 battlefield/standby/control task 状态机、统一 cleanup task queue、由 task queue 驱动的 spell duel/battle lifecycle、全路径官方 PaymentEngine、完整 LayerEngine 与逐关键词/逐卡牌 full-official-rule-pass 证据。
+- 复审基线 `45bb446`：本轮自查整改后重新按 `docs/符文战场_服务端核心规则自查文档.md` 复核。结论仍为 **NOT READY**，但 P0 风险已进一步收窄：official opening/mulligan 边界已有测试矩阵，battlefield task 已有权威视图，replay frame 已有 authoritative state hash，battlefield trigger 支付已覆盖 typed power。剩余 NOT READY 根因集中在完整 battlefield/standby/control task 状态机、统一 cleanup task queue、由 task queue 驱动的 spell duel/battle lifecycle、全路径官方 PaymentEngine、完整 LayerEngine 与逐关键词/逐卡牌 full-official-rule-pass 证据。
 - P0-001 第一批已落地：新增 `SUBMIT_DECK`、`MULLIGAN` 协议命令，新增官方卡组校验器，新增正式 deck submit 入口，双方提交合法 deck 并 ready 后会进入正式 1v1 开局、随机回合顺序、双方传奇/英雄区域、每人 3 选 1 战场、主牌堆/符文牌堆洗牌、起手 4 张、按回合顺序调度，并在双方调度后进入第一个回合。
 - P0-002 第一批已落地：新增 `ObjectLocationState` 权威位置索引，snapshot 对公开对象输出 `location`，正式开局/调度/召符文/打出到结算链/结算后入场或入废牌堆/移动都会同步对象位置；精确战场游走会校验来源位置是否匹配服务端权威位置，并把目的战场写回状态。
 - P0-003 第一批已落地：`MOVE_UNIT` 和精确游走完成后会执行一次致命伤害清理，并将清理后的区域重新同步回 `ObjectLocations`，避免移动后的已摧毁单位继续留在战场位置索引中。
@@ -41,8 +41,9 @@
 - P0-003 第五批已落地：状态性 cleanup loop 新增 0 战力现代权威单位清理；`PendingCleanupTasks` 会显式列出 `DESTROY_ZERO_POWER_UNIT`，栈结算后的统一清理会把有 owner/controller 的 0 战力场上单位移入废牌堆并记录 `ZERO_POWER`，同时保留旧 fixture 中无所有权信息的 0 power 占位对象兼容行为。
 - P0-003 第六批已落地：新增 `PendingTaskQueueState` 与 `MatchState.PendingTaskQueue`，把 `PendingCleanupTasks` 按官方清理优先级排序并公开 `hasTasks`、`isBlocking`、`phase`、`activeTaskId` 和 task 列表；snapshot timing 新增 `pendingTaskQueue`，后续 UI/状态机不再需要从多个数组自行拼装清理队列。
 - P0-001 第四批已落地：`OfficialDeckValidatorRejectsOfficialNegativeMatrix` 补齐基础官方构筑负例矩阵，覆盖英雄不在主牌、主牌非法类别、未知卡号、符文牌堆非符文、战场牌堆非战场、主牌/符文越出传奇特性等拒绝路径。
-- 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、官方构筑负例矩阵、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState` 覆盖观战回放 redaction 与 `AuthoritativeStateHash`；`MatchStateHashIsStableAcrossDictionaryInsertionOrder` 覆盖权威状态 hash 的字典顺序稳定性；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates`、`START_SPELL_DUEL`/`START_BATTLE`、`PendingCleanupTasks`、`BattlefieldTasks`、`PendingTaskQueue`、`timing.battlefieldTasks` 与 `timing.pendingTaskQueue`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` / `P7PostStackCleanupDestroysZeroPowerFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` / `P79BattlefieldHeldPaysTypedPowerToGainScore` 覆盖非出牌与战场触发路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2844/2844`、`OfficialOpeningTests 7/7`、`ConformanceFixtureRunnerTests 2662/2662`、`ConformanceFixtureShapeTests 36/36`、`MatchRecoveryTests 15/15`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
+- P0-001 第五批已落地：`OfficialMulliganRejectsInvalidSelectionsAndWrongPlayer` 与 `OfficialMulliganWithShortMainDeckDrawsAvailableCardsAndReturnsSetAside` 补齐起手调度边界，覆盖非当前调度玩家拒绝、最多 2 张、重复选择、非手牌选择、主牌堆不足时只抽可用牌并把搁置牌回收到主牌堆且不触发燃尽。
+- 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、官方构筑负例矩阵、正式开局、起手调度、调度非法选择/抽牌不足边界、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState` 覆盖观战回放 redaction 与 `AuthoritativeStateHash`；`MatchStateHashIsStableAcrossDictionaryInsertionOrder` 覆盖权威状态 hash 的字典顺序稳定性；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates`、`START_SPELL_DUEL`/`START_BATTLE`、`PendingCleanupTasks`、`BattlefieldTasks`、`PendingTaskQueue`、`timing.battlefieldTasks` 与 `timing.pendingTaskQueue`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` / `P7PostStackCleanupDestroysZeroPowerFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` / `P79BattlefieldHeldPaysTypedPowerToGainScore` 覆盖非出牌与战场触发路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2846/2846`、`OfficialOpeningTests 9/9`、`ConformanceFixtureRunnerTests 2662/2662`、`ConformanceFixtureShapeTests 36/36`、`MatchRecoveryTests 15/15`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
 - 复审验证记录：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2842/2842；`ConformanceFixtureRunnerTests` 2661/2661；`CardCatalogBaselineTests` 39/39；`GameHubJoinTests` 85/85；补充 `ConformanceFixtureShapeTests` 36/36 与 `MatchRecoveryTests` 15/15；`git diff --check` 通过；工作区仅剩预期未跟踪 `riftbound-dotnet.sln`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和调度边界”。
 
@@ -58,7 +59,7 @@
 
 ### P0-001 官方构筑、开局、调度流程缺失
 
-当前状态：**PARTIALLY RESOLVED / 正式入口、Hub 级 deck submit smoke 与基础负例矩阵已收紧，仍需 UI 入口与调度边界**
+当前状态：**PARTIALLY RESOLVED / 正式入口、Hub 级 deck submit smoke、基础负例矩阵与起手调度边界已收紧，仍需 UI 正式入口**
 
 规则依据：自查文档 3.1/3.2；核心规则关于 1v1 构筑、开局准备、随机战场、起手、调度、P2 额外符文的要求。
 
@@ -68,7 +69,7 @@
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `SubmitDeckAsync`、正式开局构建、按玩家 snapshot 的 `deckSubmitted`/`mulliganCompleted` 标记。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `MULLIGAN` 解析和调度结算，并修正后手额外符文从固定 seat P2 扩展为 `OpeningSecondActionPlayerId`。
 
-现象：正式 deck path 已可测，并且 Hub 级 smoke 已覆盖双方通过 WebSocket/房间层提交 deck、ready、进入 mulligan、完成起手调度并进入首回合。为了兼容既有开发 seed 和旧测试，Development 与默认测试会话仍允许 no-deck legacy `READY`；API 在非 Development 环境创建的正式房间会关闭 legacy ready，未提交 deck 的玩家提交 `READY` 会被拒绝且状态不变。产品 UI 仍需要把正式入口改成显式 `SUBMIT_DECK -> READY -> MULLIGAN`。
+现象：正式 deck path 已可测，并且 Hub 级 smoke 已覆盖双方通过 WebSocket/房间层提交 deck、ready、进入 mulligan、完成起手调度并进入首回合。起手调度拒绝错误玩家、超过 2 张、重复选择与非手牌选择；极端抽牌不足时只抽取可用牌并把搁置牌回收到主牌堆，不触发燃尽。为了兼容既有开发 seed 和旧测试，Development 与默认测试会话仍允许 no-deck legacy `READY`；API 在非 Development 环境创建的正式房间会关闭 legacy ready，未提交 deck 的玩家提交 `READY` 会被拒绝且状态不变。产品 UI 仍需要把正式入口改成显式 `SUBMIT_DECK -> READY -> MULLIGAN`。
 
 最小复现场景：创建房间，P1/P2 先提交合法 `SUBMIT_DECK`，再双方 `READY`，服务端进入 `MULLIGAN`，双方按顺序 `MULLIGAN` 后进入首回合 `MAIN`。如果不提交 deck 而直接 `READY`，当前仍为 legacy 兼容路径。
 
@@ -76,14 +77,16 @@
 - 将产品 UI 的 ready 按钮改为依赖 `deckSubmitted`，正式对战入口强制 `SUBMIT_DECK -> READY -> MULLIGAN`。
 - 已完成：增加会话配置开关，非 Development API 房间禁止 legacy no-deck ready。
 - 已完成：补基础负例矩阵，覆盖英雄不在主牌、主牌非法类别、未知卡号、符文/战场牌堆类别错误、越出传奇特性等拒绝路径。
-- 后续可继续补专属卡超过 3、唯我同名与多特性组合的更细 fixture，但 P0-001 当前主要剩余风险已转向前端正式入口和调度抽牌不足边界。
+- 已完成：补起手调度边界，覆盖非法选择、错误调度玩家和主牌堆不足时的服务端行为。
+- 后续可继续补专属卡超过 3、唯我同名与多特性组合的更细 fixture，但 P0-001 当前主要剩余风险已转向前端正式入口。
 
 建议测试：
 - 已新增：`tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs`。
 - 已新增：正式-only 会话拒绝 no-deck `READY`。
 - 已新增：GameHub 级 `SUBMIT_DECK -> READY -> MULLIGAN` smoke。
 - 已新增：官方 deck validator 负例矩阵。
-- 待补：前端正式入口 smoke、调度抽牌不足边界。
+- 已新增：起手调度非法选择与抽牌不足边界。
+- 待补：前端正式入口 smoke。
 
 ### P0-002 战场、待命区、控制权和单位位置模型不足
 
@@ -313,7 +316,7 @@
 | 服务端权威/幂等/非法命令不落状态 | PASS | `MatchSession.SubmitAsync` 串行且仅 accepted 更新状态。 |
 | 双人房间/重连/snapshot/prompt | PASS | `GameHub` 具备 join/reconnect/request snapshot/submit flow。 |
 | 隐藏手牌/面朝下对象 | PASS | 手牌、face-down、随机 seed/rngCursor 与 spectator replay frame 均已裁剪。 |
-| 官方 deck/opening/mulligan | RISKY | 已有 `SUBMIT_DECK -> READY -> MULLIGAN` 正式路径、deck validator、负例矩阵和 Hub smoke；仍需前端正式入口与调度抽牌不足边界。 |
+| 官方 deck/opening/mulligan | RISKY | 已有 `SUBMIT_DECK -> READY -> MULLIGAN` 正式路径、deck validator、负例矩阵、起手调度边界和 Hub smoke；剩余风险主要是产品前端仍需强制正式入口。 |
 | 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations`、`BattlefieldStates` 与 `BattlefieldTasks` 权威派生视图；仍缺完整 battlefield/standby/control task 状态机。 |
 | FEPR/优先权/焦点 | RISKY | 有 `TurnWindowState`、`SpellDuelState`、`BattlefieldTasks`、focus/prompt；仍缺完整 pending task/state machine。 |
 | 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD 与代表性非出牌路径已 typed-power aware，但通用支付来源/目标语法仍不足。 |

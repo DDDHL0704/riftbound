@@ -207,6 +207,139 @@ public sealed class OfficialOpeningTests
     }
 
     [Fact]
+    public async Task OfficialMulliganRejectsInvalidSelectionsAndWrongPlayer()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var session = new MatchSession("official-mulligan-invalid-room", new CoreRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        await session.SubmitDeckAsync(
+            "P1",
+            "submit-p1",
+            ToSubmitCommand(p1Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        await session.SubmitDeckAsync(
+            "P2",
+            "submit-p2",
+            ToSubmitCommand(p2Deck),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+        await session.ReadyAsync("P1", "ready-p1", RawCommand("READY"), CancellationToken.None);
+        var ready = await session.ReadyAsync("P2", "ready-p2", RawCommand("READY"), CancellationToken.None);
+
+        var activePlayerId = ready.State.ActivePlayerId;
+        var secondPlayerId = ready.State.OpeningSecondActionPlayerId!;
+        var activeHand = ready.State.PlayerZones[activePlayerId].Hand.ToArray();
+        var startedTick = ready.State.Tick;
+
+        var wrongPlayer = await session.SubmitAsync(
+            secondPlayerId,
+            "wrong-player-mulligan",
+            new MulliganCommand([]),
+            RawCommand("MULLIGAN"),
+            CancellationToken.None);
+        Assert.False(wrongPlayer.Accepted);
+        Assert.Contains("not this player's mulligan turn", wrongPlayer.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(startedTick, wrongPlayer.State.Tick);
+
+        var tooMany = await session.SubmitAsync(
+            activePlayerId,
+            "too-many-mulligan",
+            new MulliganCommand(activeHand.Take(3).ToArray()),
+            RawCommand("MULLIGAN"),
+            CancellationToken.None);
+        Assert.False(tooMany.Accepted);
+        Assert.Contains("at most 2 cards", tooMany.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(startedTick, tooMany.State.Tick);
+
+        var duplicate = await session.SubmitAsync(
+            activePlayerId,
+            "duplicate-mulligan",
+            new MulliganCommand([activeHand[0], activeHand[0]]),
+            RawCommand("MULLIGAN"),
+            CancellationToken.None);
+        Assert.False(duplicate.Accepted);
+        Assert.Contains("must be unique", duplicate.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(startedTick, duplicate.State.Tick);
+
+        var nonHand = await session.SubmitAsync(
+            activePlayerId,
+            "non-hand-mulligan",
+            new MulliganCommand(["NOT-IN-HAND"]),
+            RawCommand("MULLIGAN"),
+            CancellationToken.None);
+        Assert.False(nonHand.Accepted);
+        Assert.Contains("opening hand", nonHand.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(startedTick, nonHand.State.Tick);
+    }
+
+    [Fact]
+    public async Task OfficialMulliganWithShortMainDeckDrawsAvailableCardsAndReturnsSetAside()
+    {
+        var state = new MatchState(
+            "mulligan-short-deck-room",
+            1,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Mulligan,
+            timingState: TimingStates.Mulligan,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-DECK-1"],
+                    Hand = ["P1-HAND-1", "P1-HAND-2", "P1-HAND-3", "P1-HAND-4"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-HAND-1", "P2-HAND-2", "P2-HAND-3", "P2-HAND-4"]
+                }
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-DECK-1"] = new("P1", "MAIN_DECK"),
+                ["P1-HAND-1"] = new("P1", "HAND"),
+                ["P1-HAND-2"] = new("P1", "HAND"),
+                ["P1-HAND-3"] = new("P1", "HAND"),
+                ["P1-HAND-4"] = new("P1", "HAND")
+            },
+            openingSecondActionPlayerId: "P2");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("short-deck-mulligan", "P1", "MULLIGAN"),
+            new MulliganCommand(["P1-HAND-1", "P1-HAND-2"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["P1-HAND-3", "P1-HAND-4", "P1-DECK-1"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-HAND-1", "P1-HAND-2"], result.State.PlayerZones["P1"].MainDeck.OrderBy(objectId => objectId, StringComparer.Ordinal));
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("HAND", result.State.ObjectLocations["P1-DECK-1"].Zone);
+        Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P1-HAND-1"].Zone);
+        Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P1-HAND-2"].Zone);
+        Assert.Contains(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "MULLIGAN_COMPLETED", StringComparison.Ordinal)
+                && gameEvent.Payload.TryGetValue("drawnCount", out var drawnCount)
+                && drawnCount is int drawn
+                && drawn == 1);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BURNOUT_APPLIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task PreciseRoamMoveUpdatesAuthoritativeObjectLocation()
     {
         var state = new MatchState(
