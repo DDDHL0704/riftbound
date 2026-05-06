@@ -22,8 +22,9 @@
 - P1-004 第一批已落地：普通玩家 `SnapshotDto.Timing` 不再暴露 `seed` 和 `rngCursor`；服务端权威 `MatchState` 仍保留随机状态用于内部结算、恢复和日志，避免客户端通过 snapshot 推断牌库/随机顺序。
 - P0-001 第二批已落地：新增 `MatchSessionOptions.AllowLegacyReadyWithoutDeck`；API 在非 Development 环境创建房间时关闭 legacy no-deck ready，正式/生产房间必须先 `SUBMIT_DECK` 才能 `READY`。Development 与既有测试默认保留 legacy ready，用于开发 seed 和旧 fixtures。
 - P0-002 第二批已落地：`SnapshotDto.Lanes` 新增 `battlefields` 状态视图，从服务端权威 `ObjectLocations` 和 `CardObjects` 推导战场牌、控制者、占据单位、待命占位、面朝下待命数量与争夺状态，给 UI 和后续 cleanup/battle task 提供稳定服务端投影。
+- P0-001 第三批已落地：新增 GameHub 级正式开局 smoke，覆盖 `SUBMIT_DECK -> READY -> OFFICIAL_OPENING_STARTED -> MULLIGAN -> MULLIGAN_PHASE_COMPLETED -> RUNES_CALLED -> MAIN`，确保 WebSocket/房间层不会绕过或吞掉服务端官方 deck/opening/mulligan 流程。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -38,7 +39,7 @@
 
 ### P0-001 官方构筑、开局、调度流程缺失
 
-当前状态：**PARTIALLY RESOLVED / 正式入口已收紧，仍需更多 GameHub/UI 级 deck submit smoke 与负例矩阵**
+当前状态：**PARTIALLY RESOLVED / 正式入口与 Hub 级 deck submit smoke 已收紧，仍需 UI 入口与更多负例矩阵**
 
 规则依据：自查文档 3.1/3.2；核心规则关于 1v1 构筑、开局准备、随机战场、起手、调度、P2 额外符文的要求。
 
@@ -48,7 +49,7 @@
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `SubmitDeckAsync`、正式开局构建、按玩家 snapshot 的 `deckSubmitted`/`mulliganCompleted` 标记。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `MULLIGAN` 解析和调度结算，并修正后手额外符文从固定 seat P2 扩展为 `OpeningSecondActionPlayerId`。
 
-现象：正式 deck path 已可测。为了兼容既有开发 seed 和旧测试，Development 与默认测试会话仍允许 no-deck legacy `READY`；API 在非 Development 环境创建的正式房间会关闭 legacy ready，未提交 deck 的玩家提交 `READY` 会被拒绝且状态不变。产品 UI 仍需要把正式入口改成显式 `SUBMIT_DECK -> READY -> MULLIGAN`。
+现象：正式 deck path 已可测，并且 Hub 级 smoke 已覆盖双方通过 WebSocket/房间层提交 deck、ready、进入 mulligan、完成起手调度并进入首回合。为了兼容既有开发 seed 和旧测试，Development 与默认测试会话仍允许 no-deck legacy `READY`；API 在非 Development 环境创建的正式房间会关闭 legacy ready，未提交 deck 的玩家提交 `READY` 会被拒绝且状态不变。产品 UI 仍需要把正式入口改成显式 `SUBMIT_DECK -> READY -> MULLIGAN`。
 
 最小复现场景：创建房间，P1/P2 先提交合法 `SUBMIT_DECK`，再双方 `READY`，服务端进入 `MULLIGAN`，双方按顺序 `MULLIGAN` 后进入首回合 `MAIN`。如果不提交 deck 而直接 `READY`，当前仍为 legacy 兼容路径。
 
@@ -60,7 +61,8 @@
 建议测试：
 - 已新增：`tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs`。
 - 已新增：正式-only 会话拒绝 no-deck `READY`。
-- 待补：GameHub 级 `SUBMIT_DECK` smoke、前端正式入口 smoke、更多非法 deck fixtures、调度抽牌不足边界。
+- 已新增：GameHub 级 `SUBMIT_DECK -> READY -> MULLIGAN` smoke。
+- 待补：前端正式入口 smoke、更多非法 deck fixtures、调度抽牌不足边界。
 
 ### P0-002 战场、待命区、控制权和单位位置模型不足
 

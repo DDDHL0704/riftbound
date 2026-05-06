@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Riftbound.Api.Hubs;
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -265,6 +266,78 @@ public sealed class GameHubJoinTests
 
         Assert.Empty(passClients.CallerClient.Errors);
         Assert.Equal(MessageType.EVENTS, Assert.Single(passClients.GroupClient.EventMessages).Type);
+    }
+
+    [Fact]
+    public async Task OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub()
+    {
+        const string roomId = "official-hub-opening-room";
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var p1Deck = BuildValidDeck(catalog);
+        var p2Deck = BuildValidDeck(catalog);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var p1SubmitClients = new RecordingHubClients();
+        await CreateHub(p1SubmitClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "submit-deck-p1", SubmitDeckJson(p1Deck));
+        Assert.Empty(p1SubmitClients.CallerClient.Errors);
+        Assert.Contains(EventsFor(p1SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
+
+        var p2SubmitClients = new RecordingHubClients();
+        await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "submit-deck-p2", SubmitDeckJson(p2Deck));
+        Assert.Empty(p2SubmitClients.CallerClient.Errors);
+        Assert.Contains(EventsFor(p2SubmitClients), gameEvent => string.Equals(gameEvent.Kind, "DECK_SUBMITTED", StringComparison.Ordinal));
+
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .Ready(roomId, "P1", "ready-official-p1");
+        var readyClients = new RecordingHubClients();
+        await CreateHub(readyClients, new RecordingGroupManager(), "connection-2", registry)
+            .Ready(roomId, "P2", "ready-official-p2");
+
+        var startMessage = Assert.Single(readyClients.GroupClient.EventMessages);
+        Assert.Equal(MessageType.START, startMessage.Type);
+        var startEvents = Assert.IsAssignableFrom<IReadOnlyList<GameEvent>>(startMessage.Payload);
+        Assert.Contains(startEvents, gameEvent => string.Equals(gameEvent.Kind, "OFFICIAL_OPENING_STARTED", StringComparison.Ordinal));
+        Assert.Contains(startEvents, gameEvent => string.Equals(gameEvent.Kind, "MATCH_STARTED", StringComparison.Ordinal));
+        var startSnapshot = SnapshotFor(readyClients, "P1");
+        Assert.Equal(MatchPhases.Mulligan, Assert.IsType<string>(startSnapshot.Timing["phase"]));
+        var activePlayerId = startSnapshot.ActivePlayerId;
+        var secondPlayerId = string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "P2" : "P1";
+        var activePrompt = PromptFor(readyClients, activePlayerId);
+        var secondPrompt = PromptFor(readyClients, secondPlayerId);
+        Assert.True(activePrompt.Actionable);
+        Assert.Contains("MULLIGAN", activePrompt.Actions);
+        Assert.False(secondPrompt.Actionable);
+
+        var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
+        var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
+        Assert.Equal(4, activeHand.Count);
+        var activeMulliganClients = new RecordingHubClients();
+        await CreateHub(activeMulliganClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));
+        Assert.Empty(activeMulliganClients.CallerClient.Errors);
+        Assert.False(PromptFor(activeMulliganClients, activePlayerId).Actionable);
+        Assert.True(PromptFor(activeMulliganClients, secondPlayerId).Actionable);
+
+        var secondSnapshot = SnapshotFor(activeMulliganClients, secondPlayerId);
+        var secondHand = StringList(ZoneView(PlayerView(secondSnapshot, secondPlayerId))["hand"]);
+        Assert.Equal(4, secondHand.Count);
+        var secondMulliganClients = new RecordingHubClients();
+        await CreateHub(secondMulliganClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, secondPlayerId, "mulligan-second", MulliganJson([]));
+        Assert.Empty(secondMulliganClients.CallerClient.Errors);
+        var completeEvents = EventsFor(secondMulliganClients);
+        Assert.Contains(completeEvents, gameEvent => string.Equals(gameEvent.Kind, "MULLIGAN_PHASE_COMPLETED", StringComparison.Ordinal));
+        Assert.Contains(completeEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        var finalSnapshot = SnapshotFor(secondMulliganClients, activePlayerId);
+        Assert.Equal(MatchPhases.Main, Assert.IsType<string>(finalSnapshot.Timing["phase"]));
+        Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(finalSnapshot.Timing["timingState"]));
+        Assert.True(PromptFor(secondMulliganClients, activePlayerId).Actionable);
     }
 
     [Fact]
@@ -4079,6 +4152,102 @@ public sealed class GameHubJoinTests
         Assert.Empty(clients.GroupClient.Prompts);
     }
 
+    private static JsonElement SubmitDeckJson(OfficialDecklist decklist)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "SUBMIT_DECK",
+            legendCardNo = decklist.LegendCardNo,
+            championCardNo = decklist.ChampionCardNo,
+            mainDeck = decklist.MainDeck,
+            runeDeck = decklist.RuneDeck,
+            battlefields = decklist.Battlefields
+        });
+    }
+
+    private static JsonElement MulliganJson(IReadOnlyList<string> handObjectIds)
+    {
+        return JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "MULLIGAN",
+            handObjectIds
+        });
+    }
+
+    private static OfficialDecklist BuildValidDeck(OfficialCardCatalog catalog)
+    {
+        const string legendCardNo = "UNL-181/219";
+        const string championCardNo = "UNL-022/219";
+        var legend = catalog.Cards.Single(card => string.Equals(card.CardNo, legendCardNo, StringComparison.Ordinal));
+        var allowedColors = legend.CardColorList.ToHashSet(StringComparer.Ordinal);
+        var mainDeck = new List<string> { championCardNo };
+        var nameCounts = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [catalog.Cards.Single(card => string.Equals(card.CardNo, championCardNo, StringComparison.Ordinal)).CardName] = 1
+        };
+        var candidates = catalog.Cards
+            .Where(card => IsMainDeckCandidate(card, allowedColors))
+            .Where(card => !string.Equals(card.CardNo, championCardNo, StringComparison.Ordinal))
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var card in candidates)
+        {
+            while (mainDeck.Count < OfficialDeckValidator.MinimumMainDeckCount
+                && (!nameCounts.TryGetValue(card.CardName, out var count) || count < OfficialDeckValidator.DefaultMaxCopiesByName))
+            {
+                mainDeck.Add(card.CardNo);
+                nameCounts[card.CardName] = nameCounts.TryGetValue(card.CardName, out var current) ? current + 1 : 1;
+            }
+
+            if (mainDeck.Count >= OfficialDeckValidator.MinimumMainDeckCount)
+            {
+                break;
+            }
+        }
+
+        Assert.Equal(OfficialDeckValidator.MinimumMainDeckCount, mainDeck.Count);
+        var allowedRunes = catalog.Cards
+            .Where(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
+            .Where(card => TraitsAllowed(card, allowedColors))
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal)
+            .Select(card => card.CardNo)
+            .ToArray();
+        Assert.NotEmpty(allowedRunes);
+        var runeDeck = Enumerable.Range(0, OfficialDeckValidator.RuneDeckCount)
+            .Select(index => allowedRunes[index % allowedRunes.Length])
+            .ToArray();
+        var battlefields = catalog.Cards
+            .Where(card => string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
+            .GroupBy(card => card.CardName, StringComparer.Ordinal)
+            .Select(group => group.OrderBy(card => card.CardNo, StringComparer.Ordinal).First())
+            .OrderBy(card => card.CardNo, StringComparer.Ordinal)
+            .Take(OfficialDeckValidator.BattlefieldCount)
+            .Select(card => card.CardNo)
+            .ToArray();
+
+        return new OfficialDecklist(legendCardNo, championCardNo, mainDeck, runeDeck, battlefields);
+    }
+
+    private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
+    {
+        if (card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
+            || card.CardGroupLimit == 1
+            || card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return card.CardCategoryName is "单位" or "英雄单位" or "装备" or "法术"
+            && TraitsAllowed(card, allowedColors);
+    }
+
+    private static bool TraitsAllowed(OfficialCard card, HashSet<string> allowedColors)
+    {
+        return card.CardColorList.All(color => string.Equals(color, "colorless", StringComparison.Ordinal)
+            || allowedColors.Contains(color));
+    }
+
     private static GameHub CreateHub(
         RecordingHubClients clients,
         RecordingGroupManager groups,
@@ -4121,6 +4290,21 @@ public sealed class GameHubJoinTests
     {
         return Assert.IsType<SnapshotDto>(
             Assert.Single(clients.GroupClient.Snapshots, message => string.Equals(message.PlayerId, playerId, StringComparison.Ordinal)).Payload);
+    }
+
+    private static Dictionary<string, object?> PlayerView(SnapshotDto snapshot, string playerId)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+    }
+
+    private static Dictionary<string, object?> ZoneView(Dictionary<string, object?> player)
+    {
+        return Assert.IsType<Dictionary<string, object?>>(player["zones"]);
+    }
+
+    private static IReadOnlyList<string> StringList(object? value)
+    {
+        return Assert.IsAssignableFrom<IReadOnlyList<string>>(value);
     }
 
     private sealed class RecordingGameClient : IGameClient
