@@ -4470,14 +4470,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCosts: optionalCosts);
         IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
         IReadOnlyList<string> untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
-        var lethalCleanup = ApplyLethalDamageCleanup(
+        var lethalCleanup = RunStateBasedCleanupLoop(
             playerZones,
             cardObjects,
             combatStackItem,
-            damageTriggeredDestroyTargetObjectIds,
             runePools,
-            battlefieldId);
-        runePools = lethalCleanup.RunePools;
+            battlefieldId,
+            damageTriggeredDestroyTargetObjectIds);
+        runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         combatEvents.AddRange(lethalCleanup.Events);
         if (!string.IsNullOrWhiteSpace(battlefieldDefenderMoveObjectId))
         {
@@ -10980,7 +10980,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             turnPlayerId,
-            state.Tick);
+            state.Tick,
+            state.RunePools);
         var battlefieldStartDrawResult = ApplyBattlefieldTurnStartDestroyUnitDraw(
             state with
             {
@@ -10995,6 +10996,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             PlayerZones = playerZones,
             PlayerScores = battlefieldStartDrawResult.PlayerScores,
+            RunePools = battlefieldStartDamageResult.RunePools,
             CardObjects = cardObjects,
             RngCursor = battlefieldStartDrawResult.RngCursor
         };
@@ -16149,11 +16151,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             rngCursor = recycleResult.RngCursor;
         }
 
-        var lethalCleanup = ApplyLethalDamageCleanup(
+        var lethalCleanup = RunStateBasedCleanupLoop(
             playerZones,
             cardObjects,
             stackItem,
-            damageTriggeredDestroyTargetObjectIds);
+            runePools,
+            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
+        runePools = lethalCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         events.AddRange(lethalCleanup.Events);
         destroyedObjectIds.AddRange(lethalCleanup.DestroyedObjectIds
             .Where(objectId => stackItem.TargetObjectIds.Contains(objectId, StringComparer.Ordinal)));
@@ -16354,11 +16358,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "泽拉斯的技能造成 3 点伤害",
                 BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
 
-            var lethalCleanup = ApplyLethalDamageCleanup(
+            var lethalCleanup = RunStateBasedCleanupLoop(
                 playerZones,
                 cardObjects,
                 stackItem,
-                damageTriggeredDestroyTargetObjectIds);
+                state.RunePools,
+                damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
             events.AddRange(lethalCleanup.Events);
             destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
         }
@@ -19419,12 +19424,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem,
         IReadOnlyDictionary<string, RunePool> runePools,
-        string? battlefieldId = null)
+        string? battlefieldId = null,
+        IReadOnlySet<string>? damageTriggeredDestroyTargetObjectIds = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
         var destroyedUnitOwnerIds = new List<string>();
         var nextRunePools = runePools;
+        var firstPassDamageTriggeredDestroyTargetObjectIds =
+            damageTriggeredDestroyTargetObjectIds ?? new HashSet<string>(StringComparer.Ordinal);
 
         for (var pass = 0; pass < 32; pass++)
         {
@@ -19432,7 +19440,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 cardObjects,
                 stackItem,
-                new HashSet<string>(StringComparer.Ordinal),
+                pass == 0
+                    ? firstPassDamageTriggeredDestroyTargetObjectIds
+                    : new HashSet<string>(StringComparer.Ordinal),
                 nextRunePools,
                 battlefieldId);
             if (cleanup.Events.Count == 0 && cleanup.DestroyedObjectIds.Count == 0)
@@ -20001,7 +20011,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         string turnPlayerId,
-        long currentTick)
+        long currentTick,
+        IReadOnlyDictionary<string, RunePool> runePools)
     {
         var sourceObjectIds = playerZones.Values
             .SelectMany(zones => zones.Battlefields)
@@ -20071,11 +20082,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             string.Empty,
             [],
             0);
-        var lethalCleanup = ApplyLethalDamageCleanup(
+        var lethalCleanup = RunStateBasedCleanupLoop(
             playerZones,
             cardObjects,
             pseudoStackItem,
-            damageTriggeredDestroyTargetObjectIds);
+            runePools,
+            damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
         events.AddRange(lethalCleanup.Events);
 
         return new BattlefieldStartDamageResult(
@@ -20083,7 +20095,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             lethalCleanup.DestroyedUnitOwnerIds
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
-                .ToArray());
+                .ToArray(),
+            lethalCleanup.RunePools);
     }
 
     private static BattlefieldStartDrawResult ApplyBattlefieldTurnStartDestroyUnitDraw(
@@ -20748,9 +20761,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private sealed record BattlefieldStartDamageResult(
         IReadOnlyList<GameEvent> Events,
-        IReadOnlyList<string> DestroyedUnitOwnerIds)
+        IReadOnlyList<string> DestroyedUnitOwnerIds,
+        IReadOnlyDictionary<string, RunePool> RunePools)
     {
-        public static BattlefieldStartDamageResult Empty { get; } = new([], []);
+        public static BattlefieldStartDamageResult Empty { get; } = new(
+            [],
+            [],
+            new Dictionary<string, RunePool>(StringComparer.Ordinal));
     }
 
     private sealed record BattlefieldStartDrawResult(

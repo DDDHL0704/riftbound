@@ -637,6 +637,16 @@ public sealed class ConformanceFixtureShapeTests
             state.PendingCleanupTasks,
             task => string.Equals(task.Kind, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                && string.Equals(task.Reason, "BATTLEFIELD_CONTESTED", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.Reason, "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
     }
 
     [Fact]

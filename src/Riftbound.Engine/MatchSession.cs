@@ -888,6 +888,20 @@ public sealed record MatchState
                 battlefield.ZonePlayerId,
                 null,
                 battlefield.BattlefieldObjectId));
+            tasks.Add(new CleanupTaskState(
+                $"task:start-spell-duel:{battlefield.BattlefieldObjectId}",
+                "START_SPELL_DUEL",
+                "BATTLEFIELD_CONTESTED",
+                battlefield.ZonePlayerId,
+                null,
+                battlefield.BattlefieldObjectId));
+            tasks.Add(new CleanupTaskState(
+                $"task:start-battle:{battlefield.BattlefieldObjectId}",
+                "START_BATTLE",
+                "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                battlefield.ZonePlayerId,
+                null,
+                battlefield.BattlefieldObjectId));
         }
 
         return tasks
