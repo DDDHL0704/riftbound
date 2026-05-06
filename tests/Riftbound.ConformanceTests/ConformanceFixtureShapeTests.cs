@@ -723,6 +723,70 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void MatchStateExposesContinuousEffectPowerLayerViews()
+    {
+        var state = new MatchState(
+            "continuous-effect-room",
+            14,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            untilEndOfTurnEffects: ["GLOBAL_DAMAGE_PREVENTION"],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Base = ["A-UNIT-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["A-UNIT-1"] = new(
+                    "A-UNIT-1",
+                    untilEndOfTurnEffects: ["PREVENT_NEXT_DAMAGE"],
+                    power: 5,
+                    untilEndOfTurnPowerModifier: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice")
+            });
+
+        var powerEffect = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.Layer, ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal));
+        Assert.Equal("A-UNIT-1", powerEffect.TargetObjectId);
+        Assert.Equal(2, powerEffect.PowerDelta);
+        Assert.Equal(3, powerEffect.BasePower);
+        Assert.Equal(5, powerEffect.EffectivePower);
+        Assert.Contains(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.EffectId, "GLOBAL:GLOBAL_DAMAGE_PREVENTION", StringComparison.Ordinal));
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var continuousEffects = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            snapshot.Timing["continuousEffects"]);
+        Assert.Contains(
+            continuousEffects,
+            effect => string.Equals(Assert.IsType<string>(effect["layer"]), ContinuousEffectLayers.PowerModifier, StringComparison.Ordinal)
+                && string.Equals(Assert.IsType<string>(effect["targetObjectId"]), "A-UNIT-1", StringComparison.Ordinal)
+                && Assert.IsType<int>(effect["basePower"]) == 3
+                && Assert.IsType<int>(effect["effectivePower"]) == 5);
+
+        var objects = ObjectView(PlayerView(snapshot, "alice"));
+        var unitView = Assert.IsType<Dictionary<string, object?>>(objects["A-UNIT-1"]);
+        Assert.Equal(3, Assert.IsType<int>(unitView["basePower"]));
+        Assert.Equal(5, Assert.IsType<int>(unitView["effectivePower"]));
+        Assert.Equal(5, Assert.IsType<int>(unitView["power"]));
+    }
+
+    [Fact]
     public void SnapshotsRedactOpponentFaceDownObjects()
     {
         var state = new MatchState(

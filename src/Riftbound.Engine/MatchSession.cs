@@ -232,6 +232,23 @@ public sealed record BattleState(
     IReadOnlyList<string> DefenderObjectIds,
     IReadOnlyDictionary<string, string> ParticipantControllerIds);
 
+public static class ContinuousEffectLayers
+{
+    public const string PowerModifier = "POWER_MODIFIER";
+    public const string RuleText = "RULE_TEXT";
+}
+
+public sealed record ContinuousEffectState(
+    string EffectId,
+    string Scope,
+    string Layer,
+    string Duration,
+    string? TargetObjectId = null,
+    string? SourceObjectId = null,
+    int PowerDelta = 0,
+    int BasePower = 0,
+    int EffectivePower = 0);
+
 public sealed record CardObjectState
 {
     [JsonConstructor]
@@ -553,6 +570,8 @@ public sealed record MatchState
     public IReadOnlyDictionary<string, BattlefieldState> BattlefieldStates => BuildBattlefieldStates(this);
 
     public IReadOnlyList<CleanupTaskState> PendingCleanupTasks => BuildPendingCleanupTasks(this);
+
+    public IReadOnlyList<ContinuousEffectState> ContinuousEffects => BuildContinuousEffectStates(this);
 
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
@@ -876,6 +895,64 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
+    {
+        var effects = new List<ContinuousEffectState>();
+        foreach (var effectId in state.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
+        {
+            effects.Add(new ContinuousEffectState(
+                $"GLOBAL:{effectId}",
+                "GLOBAL",
+                ContinuousEffectLayers.RuleText,
+                "UNTIL_END_OF_TURN"));
+        }
+
+        foreach (var entry in state.CardObjects.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            var objectId = entry.Key;
+            var cardObject = entry.Value;
+            if (cardObject.UntilEndOfTurnPowerModifier != 0)
+            {
+                effects.Add(new ContinuousEffectState(
+                    $"POWER:{objectId}:{cardObject.UntilEndOfTurnPowerModifier}",
+                    "OBJECT",
+                    ContinuousEffectLayers.PowerModifier,
+                    "UNTIL_END_OF_TURN",
+                    objectId,
+                    null,
+                    cardObject.UntilEndOfTurnPowerModifier,
+                    ResolveBasePower(cardObject),
+                    cardObject.Power));
+            }
+
+            foreach (var effectId in cardObject.UntilEndOfTurnEffects.OrderBy(effectId => effectId, StringComparer.Ordinal))
+            {
+                effects.Add(new ContinuousEffectState(
+                    $"OBJECT:{objectId}:{effectId}",
+                    "OBJECT",
+                    ContinuousEffectLayers.RuleText,
+                    "UNTIL_END_OF_TURN",
+                    objectId,
+                    null,
+                    0,
+                    ResolveBasePower(cardObject),
+                    cardObject.Power));
+            }
+        }
+
+        return effects
+            .OrderBy(effect => effect.Scope, StringComparer.Ordinal)
+            .ThenBy(effect => effect.TargetObjectId, StringComparer.Ordinal)
+            .ThenBy(effect => effect.Layer, StringComparer.Ordinal)
+            .ThenBy(effect => effect.EffectId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static int ResolveBasePower(CardObjectState cardObject)
+    {
+        return Math.Max(0, cardObject.Power - cardObject.UntilEndOfTurnPowerModifier);
+    }
+
     private static bool IsBattlefieldCardStateObject(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId)
@@ -1108,6 +1185,7 @@ public sealed record ResolutionResult(
                     ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
                     ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
                     ["battle"] = BuildBattleSnapshotView(state.BattleState),
+                    ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                     ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                     ["winningScore"] = EffectiveWinningScore(state),
                     ["roomStatus"] = state.Status,
@@ -1156,6 +1234,22 @@ public sealed record ResolutionResult(
             ["sourceObjectId"] = item.SourceObjectId,
             ["effectKind"] = item.EffectKind,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
+        };
+    }
+
+    private static Dictionary<string, object?> BuildContinuousEffectSnapshotView(ContinuousEffectState effect)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["effectId"] = effect.EffectId,
+            ["scope"] = effect.Scope,
+            ["layer"] = effect.Layer,
+            ["duration"] = effect.Duration,
+            ["targetObjectId"] = effect.TargetObjectId,
+            ["sourceObjectId"] = effect.SourceObjectId,
+            ["powerDelta"] = effect.PowerDelta,
+            ["basePower"] = effect.BasePower,
+            ["effectivePower"] = effect.EffectivePower
         };
     }
 
@@ -1377,6 +1471,8 @@ public sealed record ResolutionResult(
             ["objectId"] = cardObject.ObjectId,
             ["damage"] = cardObject.Damage,
             ["power"] = cardObject.Power,
+            ["basePower"] = ResolveBasePower(cardObject),
+            ["effectivePower"] = cardObject.Power,
             ["untilEndOfTurnPowerModifier"] = cardObject.UntilEndOfTurnPowerModifier,
             ["isExhausted"] = cardObject.IsExhausted,
             ["isFaceDown"] = cardObject.IsFaceDown,
@@ -1396,6 +1492,11 @@ public sealed record ResolutionResult(
         }
 
         return view;
+    }
+
+    private static int ResolveBasePower(CardObjectState cardObject)
+    {
+        return Math.Max(0, cardObject.Power - cardObject.UntilEndOfTurnPowerModifier);
     }
 
     private static Dictionary<string, object?> BuildObjectLocationSnapshotView(ObjectLocationState location)

@@ -30,8 +30,9 @@
 - P0-003 第三批已落地：新增 `CleanupTaskState` / `MatchState.PendingCleanupTasks`，能显式列出致命伤害单位清理与战场争夺检查任务；移动和结算链结算后的致命伤害清理由单次 helper 升级为 `RunStateBasedCleanupLoop`，重复执行直到当前状态性致命伤害任务稳定。
 - P0-004 第三批已落地：新增 `TurnWindowState`、`SpellDuelState`、`BattleState` 与对应 `MatchState` 派生视图；普通开环/闭环、法术对决开环/闭环现在有统一窗口状态，snapshot timing 会暴露 `turnWindow`、`spellDuel`、`battle`，用于 UI 和后续 task machine，而不是让前端自行推断。
 - P0-005 第二批已落地：装备装配、Vi 双倍战力技能、Xerath 伤害技能等非 `PLAY_CARD` 支付路径的资源校验已改为 typed-power aware；泛化符能费用现在既可由普通 `Power` 支付，也可由 `PowerByTrait` 中任意可用特性符能支付并正确扣除，避免只有出牌路径支持彩色符能。
+- P1-001 第一批已落地：新增 `ContinuousEffectState` 服务端派生视图，按 `RULE_TEXT` / `POWER_MODIFIER` 层公开全局与对象级直到回合结束效果；snapshot 中每个公开对象新增 `basePower` / `effectivePower`，timing 新增 `continuousEffects`，UI 不再需要从临时战力聚合字段自行反推基础战力。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` 覆盖非出牌路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2837/2837`、`ConformanceFixtureRunnerTests 2660/2660`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` 覆盖非出牌路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2838/2838`、`ConformanceFixtureRunnerTests 2660/2660`、`ConformanceFixtureShapeTests 36/36`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -179,17 +180,20 @@
 
 ### P1-001 连续效果、层、时间戳和依赖模型不足
 
+当前状态：**PARTIALLY RESOLVED / 服务端持续效果层视图已落地，完整 LayerEngine 仍待实现**
+
 规则依据：自查文档 14；核心规则关于连续效果、层、时间戳、依赖和装备/静态效果的重算。
 
 代码位置：
 - `src/Riftbound.Engine/CoreRuleEngine.cs:17140` 的 `ApplyPowerModifier` 直接修改 `CardObjectState.Power`，并用 `UntilEndOfTurnPowerModifier` 聚合记录。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:19395` 在回合结束时从 `Power` 中扣回聚合值。
+- `src/Riftbound.Engine/MatchSession.cs` 新增 `ContinuousEffectState` / `ContinuousEffectLayers` / `MatchState.ContinuousEffects`，snapshot 会暴露 `timing.continuousEffects`，公开对象会暴露 `basePower` 和 `effectivePower`。
 
-现象：临时战力修正通过修改对象当前数值实现，缺少“基础值 + 连续效果层 + 时间戳 + 来源 + 依赖”的重算模型。多个装备、静态光环、控制权变化、失去/获得关键词时容易与官方层规则不一致。
+现象：临时战力修正仍通过修改对象当前数值实现，但服务端现在能派生出对象级 `POWER_MODIFIER` 层、全局/对象级 `RULE_TEXT` 层以及 `basePower` / `effectivePower` 视图，供 UI、日志和后续 LayerEngine 使用。完整的“基础值 + 连续效果层 + 时间戳 + 来源 + 依赖”重算模型仍未替换所有战力/关键词/装备静态效果路径；多个装备、静态光环、控制权变化、失去/获得关键词时仍可能与官方层规则不一致。
 
 建议修复：引入 `ContinuousEffect`、`LayerEngine`、`Timestamp`、`SourceObjectId`，计算视图时重算派生属性，避免永久修改基础属性。
 
-建议测试：多个装备/光环叠加、控制权变化、失去来源、同层时间戳、回合结束、最小战力限制。
+建议测试：已新增 `MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力、对象级 power modifier、对象/全局 until-end 效果 snapshot。待补：多个装备/光环叠加、控制权变化、失去来源、同层时间戳、回合结束、最小战力限制。
 
 ### P1-002 关键词覆盖仍存在“识别但 deferred”的内部事实
 
