@@ -2077,7 +2077,10 @@ internal static class ActionPromptBuilder
         var destinations = DestinationsFor(state, playerId, action);
         var modes = ModesFor(action);
         var optionalCosts = OptionalCostsFor(action);
-        var requiresSourceChoices = string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
+        var requiresSourceChoices = string.Equals(action, "PLAY_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "MOVE_UNIT", StringComparison.Ordinal)
+            || string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
+            || string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
             || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
             || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
@@ -2115,10 +2118,8 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => zones.Hand
-                .Where(objectId => !state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    || string.IsNullOrWhiteSpace(cardObject.CardNo)
-                    || CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out _))
-                .Select(objectId => ObjectChoice(state, objectId, "implemented PLAY_CARD source"))
+                .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "implemented payable PLAY_CARD source"))
                 .ToArray(),
             "HIDE_CARD" => zones.Hand
                 .Where(objectId => IsImplementedStandbyHideSource(state, objectId))
@@ -2152,6 +2153,47 @@ internal static class ActionPromptBuilder
                 .ToArray(),
             _ => null
         };
+    }
+
+    private static bool IsImplementedPlayableHandSource(MatchState state, string playerId, string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || string.IsNullOrWhiteSpace(cardObject.CardNo))
+        {
+            return true;
+        }
+
+        if (!CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
+            || !CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
+        {
+            return false;
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior);
+    }
+
+    private static int PromptMinimumManaCost(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var reduction = string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal)
+            ? 0
+            : behavior.CostReductionMana;
+        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        if (behavior.OptionalExperienceCost > 0
+            && behavior.ManaReductionIfExperiencePaid > 0
+            && experience >= behavior.OptionalExperienceCost)
+        {
+            reduction += behavior.ManaReductionIfExperiencePaid;
+        }
+
+        return Math.Max(0, behavior.ManaCost - reduction);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? TargetsFor(

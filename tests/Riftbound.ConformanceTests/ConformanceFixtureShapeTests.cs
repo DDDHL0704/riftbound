@@ -705,6 +705,72 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptFiltersPlayCardSourcesByImplementedTimingAndBaseCost()
+    {
+        var noManaState = new MatchState(
+            "prompt-payable-source-room",
+            14,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-MIGHTY-FAERIE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MIGHTY-FAERIE"] = new(
+                    "P1-MIGHTY-FAERIE",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var noManaPrompt = ResolutionResult.BuildPrompts(noManaState)["P1"];
+        var noManaPlayCandidate = Assert.Single(
+            noManaPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.False(noManaPlayCandidate.Enabled);
+        Assert.Empty(noManaPlayCandidate.Sources ?? []);
+
+        var payableState = noManaState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(4, 0),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payablePlayCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(payablePlayCandidate.Enabled);
+        Assert.Contains(
+            payablePlayCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-MIGHTY-FAERIE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void MatchStateExposesTurnWindowSpellDuelAndBattleViews()
     {
         var state = new MatchState(
