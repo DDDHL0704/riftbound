@@ -4253,6 +4253,219 @@ body {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.42);
 }
 
+.product-arena {
+  grid-template-rows: 52px minmax(0, 1fr) 52px 172px;
+  gap: 7px;
+}
+
+.playmat-guides {
+  inset: 94px 196px 198px;
+  opacity: 0.28;
+}
+
+.mat-rune-track {
+  right: 12%;
+  left: 12%;
+  min-height: 22px;
+  font-size: 11px;
+}
+
+.mat-rune-track.top {
+  top: -36px;
+}
+
+.mat-rune-track.bottom {
+  bottom: -44px;
+}
+
+.mat-rune-track::before,
+.mat-rune-track::after {
+  width: 42px;
+  height: 34px;
+}
+
+.mat-rune-track::before {
+  left: -54px;
+}
+
+.mat-rune-track::after {
+  right: -54px;
+}
+
+.mat-corner-slot,
+.mat-battle-label {
+  opacity: 0.5;
+}
+
+.mat-battle-label {
+  left: 5%;
+  font-size: 12px;
+}
+
+.mat-battle-label-top {
+  top: 32%;
+}
+
+.mat-battle-label-bottom {
+  bottom: 30%;
+}
+
+.mat-corner-slot {
+  width: 46px;
+  height: 60px;
+  font-size: 10px;
+}
+
+.mat-corner-slot.top-left {
+  left: -116px;
+}
+
+.mat-corner-slot.top-right {
+  right: -116px;
+}
+
+.mat-corner-slot.bottom-left {
+  left: -116px;
+}
+
+.mat-corner-slot.bottom-right {
+  right: -116px;
+}
+
+.product-player-banner {
+  min-height: 52px;
+  padding: 5px 8px;
+}
+
+.player-portrait {
+  width: 36px;
+  height: 36px;
+}
+
+.player-resource-strip div {
+  padding: 3px 5px;
+}
+
+.player-resource-strip strong {
+  font-size: 13px;
+}
+
+.product-board {
+  grid-template-columns: 128px minmax(0, 1fr) 128px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.product-support-zones,
+.product-lane-mat,
+.product-lane,
+.product-mini-zone {
+  overflow: hidden;
+}
+
+.product-mini-zone {
+  padding: 5px;
+}
+
+.product-mini-zone .product-card-list {
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.product-mini-zone .product-card-list.compact .product-card {
+  min-height: 88px;
+}
+
+.product-lane {
+  grid-template-rows: 22px minmax(0, 1fr) 8px minmax(0, 1fr);
+  gap: 5px;
+}
+
+.product-lane > .product-card-list {
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.product-lane-mat {
+  grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+}
+
+.product-stack-well {
+  padding: 6px;
+}
+
+.product-stack-well span {
+  font-size: 10px;
+}
+
+.product-stack-well strong {
+  font-size: 11px;
+}
+
+.product-stack-well em {
+  font-size: 9px;
+}
+
+.product-card-list.hand {
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0 4px;
+  scrollbar-width: thin;
+}
+
+.product-card-list.hand .product-card-wrap {
+  width: 116px;
+  flex-basis: 116px;
+}
+
+.product-card-list.hand .product-card {
+  height: 136px;
+  min-height: 0;
+  overflow: hidden;
+  align-content: start;
+}
+
+.product-hand-shelf {
+  overflow: hidden;
+  padding: 7px;
+}
+
+.product-card-list.hand .product-card-name {
+  min-height: 26px;
+}
+
+.product-card-list.hand .product-card-rules {
+  max-height: 44px;
+  overflow: hidden;
+}
+
+.product-card-list.hand .product-status-badges {
+  max-height: 20px;
+  overflow: hidden;
+}
+
+.product-card-list.compact .product-card {
+  height: 92px;
+  min-height: 0;
+  overflow: hidden;
+  align-content: start;
+}
+
+.product-card-list.compact .product-card-name {
+  min-height: 24px;
+}
+
+.product-card-list.compact .product-card-rules {
+  max-height: 34px;
+  overflow: hidden;
+}
+
+.card-context-menu {
+  max-height: 260px;
+  overflow: auto;
+}
+
 @media (max-width: 1180px) {
   .product-shell {
     overflow: auto;

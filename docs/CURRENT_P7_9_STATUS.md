@@ -3585,3 +3585,8 @@ Validation:
   - Reloaded `http://127.0.0.1:5173/` after adding the playmat layer.
   - Verified visible wood frame, teal felt, top `12-1` track, bottom `1-12` track, battlefield labels, corner slots, and that card objects/action panel remain above the guide layer.
   - Rejoined the existing room `p7-1778046681635`; the table still rendered the in-progress snapshot with stack `1` and visible P1/P2 card zones.
+- Layout compatibility follow-up:
+  - Reduced playmat guide prominence and moved guide rails away from active card regions.
+  - Fixed hand and compact card surfaces to bounded heights so long rules text cannot push cards into the player banner or outside the hand shelf.
+  - Kept full text available through card hover/title and catalog details while the table view stays compact.
+  - Browser smoke room `p7-1778047683440`: reloaded local Web UI, verified P1/P2 board, right operation panel, hand shelf, side zones, and direct `提交移动` button render without the previous major overlaps.
