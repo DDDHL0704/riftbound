@@ -466,6 +466,73 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7BattleCleanupReconcilesAuthoritativeObjectLocations()
+    {
+        var state = new MatchState(
+            "p7-battle-cleanup-location-room",
+            1,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLE-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-DEFENDER"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-ATTACKER"] = new(
+                    "P1-BATTLE-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-DEFENDER"] = new(
+                    "P2-BATTLE-DEFENDER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-ATTACKER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD"),
+                ["P2-BATTLE-DEFENDER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-battle-location", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLE-ATTACKER"],
+                ["P2-BATTLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.DoesNotContain("P2-BATTLE-DEFENDER", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLE-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-BATTLE-DEFENDER"].Zone);
+        Assert.Null(result.State.ObjectLocations["P2-BATTLE-DEFENDER"].BattlefieldObjectId);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPunishmentThroughStack()
     {
         var fixture = await ConformanceFixture.LoadAsync(

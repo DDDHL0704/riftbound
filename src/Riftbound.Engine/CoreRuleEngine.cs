@@ -5220,10 +5220,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
         }
 
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
             PlayerScores = playerScores,
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
