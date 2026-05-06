@@ -904,7 +904,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Power < LongSwordAssemblePowerCost)
+        if (!CanPayRuneCosts(currentPool, 0, LongSwordAssemblePowerCost))
         {
             return RejectWithCorePrompts(
                 state,
@@ -1473,8 +1473,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < ability.ManaCost
-            || currentPool.Power < ability.PowerCost)
+        if (!CanPayRuneCosts(currentPool, ability.ManaCost, ability.PowerCost))
         {
             return RejectWithCorePrompts(
                 state,
@@ -3411,8 +3410,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 out spellshieldTaxTargetObjectIds);
         }
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Mana < spellshieldTaxMana
-            || currentPool.Power < ability.PowerCost)
+        if (!CanPayRuneCosts(currentPool, spellshieldTaxMana, ability.PowerCost))
         {
             return RejectWithCorePrompts(
                 state,
@@ -12227,6 +12225,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             remainingPowerByTrait);
 
         return runePools;
+    }
+
+    private static bool CanPayRuneCosts(
+        RunePool pool,
+        int manaCost,
+        int anyPowerCost,
+        IReadOnlyDictionary<string, int>? powerCostByTrait = null)
+    {
+        return manaCost >= 0
+            && anyPowerCost >= 0
+            && pool.Mana >= manaCost
+            && CanPayPowerCost(
+                pool,
+                anyPowerCost,
+                powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
     }
 
     private static bool CanPayPowerCost(

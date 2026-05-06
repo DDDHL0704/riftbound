@@ -28858,6 +28858,58 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7TypedPowerPaymentActivatesViSkillWithTraitPool()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    2,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    cardNo: "UNL-030/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-activate-vi-trait-power", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                "PAY_2_RED_DOUBLE_POWER",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.RunePools["P1"].PowerByTrait);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", stackItem.EffectKind);
+        Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillWithTargets()
     {
         var state = PunishmentState(mana: 2) with
@@ -29359,6 +29411,67 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             ["P2-SPELLSHIELD-UNIT-001"],
             Assert.IsType<string[]>(costPaidEvent.Payload["spellshieldTaxTargetObjectIds"]));
+    }
+
+    [Fact]
+    public async Task P7TypedPowerPaymentActivatesXerathSkillWithTraitPool()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-XERATH"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-UNIT-001"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    1,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new(
+                    "P1-UNIT-XERATH",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-026/219"),
+                ["P2-SPELLSHIELD-UNIT-001"] = new(
+                    "P2-SPELLSHIELD-UNIT-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-activate-xerath-trait-power", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                ["P2-SPELLSHIELD-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.RunePools["P1"].PowerByTrait);
+        Assert.True(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("XERATH_PAY_RED_EXHAUST_DAMAGE_3", stackItem.EffectKind);
+        Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], stackItem.TargetObjectIds);
+        Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "UNIT_EXHAUSTED", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
     }
 
     [Fact]
@@ -35147,6 +35260,62 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-EQUIPMENT-LONG-SWORD", attachedEvent.Payload["equipmentObjectId"]);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachedEvent.Payload["unitObjectId"]);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
+    public async Task P7TypedPowerPaymentAssemblesLongSwordWithTraitPool()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-assemble-equipment-trait-power", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.RunePools["P1"].PowerByTrait);
+        Assert.Equal(
+            "P1-UNIT-ASSEMBLE-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
     }
 
     [Fact]
