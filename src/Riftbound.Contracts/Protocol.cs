@@ -61,6 +61,7 @@ public static class ErrorCodes
     public const string InsufficientCost = "INSUFFICIENT_COST";
     public const string InvalidTarget = "INVALID_TARGET";
     public const string CardNotInHand = "CARD_NOT_IN_HAND";
+    public const string InvalidDeck = "INVALID_DECK";
     public const string UnsupportedCardBehavior = "UNSUPPORTED_CARD_BEHAVIOR";
     public const string RecoveryInconsistent = "RECOVERY_INCONSISTENT";
 }
@@ -77,6 +78,16 @@ public sealed record PlayerSessionDto(
 public abstract record GameCommand(string CmdType);
 
 public sealed record ReadyCommand() : GameCommand("READY");
+
+public sealed record SubmitDeckCommand(
+    string LegendCardNo,
+    string ChampionCardNo,
+    IReadOnlyList<string> MainDeck,
+    IReadOnlyList<string> RuneDeck,
+    IReadOnlyList<string> Battlefields) : GameCommand("SUBMIT_DECK");
+
+public sealed record MulliganCommand(
+    IReadOnlyList<string> HandObjectIds) : GameCommand("MULLIGAN");
 
 public sealed record PassPriorityCommand() : GameCommand("PASS_PRIORITY");
 

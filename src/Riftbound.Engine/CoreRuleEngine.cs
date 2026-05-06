@@ -235,6 +235,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         GameCommand command,
         CancellationToken cancellationToken)
     {
+        if (command is MulliganCommand mulliganCommand)
+        {
+            return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
+        }
+
         if (command is EndTurnCommand
             && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
         {
@@ -360,6 +365,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, plan.TotalExperienceCost);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
 
         var stackItem = new StackItemState(
             $"STACK-{state.Tick + 1}-{command.SourceObjectId}",
@@ -429,6 +436,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
             UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
@@ -714,6 +722,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var runePools = PayRuneCosts(state, intent.PlayerId, behavior.ManaCost, 0);
         var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, zones, command.SourceObjectId);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
         cardObjects[command.SourceObjectId] = sourceState with
         {
             CardNo = string.IsNullOrWhiteSpace(sourceState.CardNo) ? behavior.CardNo : sourceState.CardNo,
@@ -741,6 +751,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = runePools,
             PlayerCardsPlayedThisTurn = IncrementPlayerCardsPlayedThisTurn(state, intent.PlayerId),
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
             CardObjects = cardObjects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
@@ -3917,11 +3928,35 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             destinationZone);
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, destinationZone);
+        foreach (var attachedEquipmentObjectId in attachedEquipmentObjectIds)
+        {
+            objectLocations[attachedEquipmentObjectId] = new ObjectLocationState(intent.PlayerId, destinationZone);
+        }
+        var cleanupStackItem = new StackItemState(
+            $"move-unit-{state.Tick + 1}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            "MOVE_UNIT",
+            sourceState.CardNo,
+            [command.SourceObjectId],
+            optionalCosts: optionalCosts);
+        var lethalCleanup = ApplyLethalDamageCleanup(
+            playerZones,
+            cardObjects,
+            cleanupStackItem,
+            new HashSet<string>(StringComparer.Ordinal),
+            state.RunePools);
+        var runePools = lethalCleanup.RunePools;
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            RunePools = runePools,
             CardObjects = cardObjects,
             PassedPriorityPlayerIds = []
         };
@@ -3949,6 +3984,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         events.AddRange(attachedEquipmentMoves);
         events.AddRange(movementTriggerEvents);
+        events.AddRange(lethalCleanup.Events);
 
         return new ResolutionResult(
             true,
@@ -4088,6 +4124,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        var originBattlefieldObjectId = PreciseBattlefieldLocationObjectId(originLocation);
+        if (state.ObjectLocations.TryGetValue(command.SourceObjectId, out var sourceObjectLocation)
+            && (!string.Equals(sourceObjectLocation.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+                || !string.Equals(sourceObjectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                || !string.Equals(
+                    sourceObjectLocation.BattlefieldObjectId,
+                    originBattlefieldObjectId,
+                    StringComparison.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source precise battlefield location does not match the authoritative location.",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || sourceState.IsFaceDown
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
@@ -4127,6 +4178,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(
+            intent.PlayerId,
+            MoveUnitBattlefieldZone,
+            PreciseBattlefieldLocationObjectId(destinationLocation));
         var movementTriggerEvents = ApplyBattlefieldMovedUnitPowerPlusOne(
             state,
             cardObjects,
@@ -4134,10 +4190,28 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             originZone,
             destinationZone);
+        var cleanupStackItem = new StackItemState(
+            $"move-unit-{state.Tick + 1}",
+            intent.PlayerId,
+            command.SourceObjectId,
+            "MOVE_UNIT_ROAM",
+            sourceState.CardNo,
+            [command.SourceObjectId],
+            optionalCosts: optionalCosts);
+        var lethalCleanup = ApplyLethalDamageCleanup(
+            playerZones,
+            cardObjects,
+            cleanupStackItem,
+            new HashSet<string>(StringComparer.Ordinal),
+            state.RunePools);
+        var runePools = lethalCleanup.RunePools;
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            RunePools = runePools,
             CardObjects = cardObjects,
             PassedPriorityPlayerIds = []
         };
@@ -4161,6 +4235,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 })
         };
         events.AddRange(movementTriggerEvents);
+        events.AddRange(lethalCleanup.Events);
 
         return new ResolutionResult(
             true,
@@ -10516,6 +10591,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
             var nextStack = RemoveCounteredStackItems(resolvedStack, stackResolution.CounteredStackItemIds);
+            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, stackResolution.PlayerZones);
+            ApplyResolvedStackSourceLocation(objectLocations, stackResolution.PlayerZones, resolvedItem);
             var nextPriorityPlayerId = nextStack.Length == 0
                 ? null
                 : nextStack[^1].ControllerId;
@@ -10528,6 +10605,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 PassedPriorityPlayerIds = [],
                 StackItems = nextStack,
                 PlayerZones = stackResolution.PlayerZones,
+                ObjectLocations = objectLocations,
                 PlayerScores = stackResolution.PlayerScores,
                 PlayerExperience = stackResolution.PlayerExperience,
                 RunePools = stackResolution.RunePools,
@@ -10697,6 +10775,155 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static ResolutionResult ResolveMulligan(
+        MatchState state,
+        PlayerIntent intent,
+        MulliganCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MULLIGAN is only allowed during the opening mulligan phase.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var mulliganPlayerId = ResolutionResult.OpeningMulliganPlayerId(state);
+        if (!string.Equals(intent.PlayerId, mulliganPlayerId, StringComparison.Ordinal))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "It is not this player's mulligan turn.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var selectedObjectIds = NormalizeTargetObjectIds(command.HandObjectIds);
+        if (selectedObjectIds.Count > OfficialDeckValidator.MaximumMulliganCount)
+        {
+            return RejectWithCorePrompts(
+                state,
+                $"MULLIGAN can set aside at most {OfficialDeckValidator.MaximumMulliganCount} cards.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (HasDuplicateObjectIds(selectedObjectIds))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MULLIGAN selected cards must be unique.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = NormalizeZonesForSeats(state);
+        if (!playerZones.TryGetValue(intent.PlayerId, out var zones))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MULLIGAN player has no zones.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (selectedObjectIds.Any(objectId => !zones.Hand.Contains(objectId, StringComparer.Ordinal)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MULLIGAN can only select cards from the player's opening hand.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var drawCount = Math.Min(selectedObjectIds.Count, zones.MainDeck.Count);
+        var drawnObjectIds = zones.MainDeck.Take(drawCount).ToArray();
+        var remainingMainDeck = zones.MainDeck.Skip(drawCount).ToList();
+        var returnedObjectIds = RandomizeForMainDeckBottom(
+            selectedObjectIds,
+            state.Seed,
+            state.RngCursor,
+            $"MULLIGAN:{intent.PlayerId}");
+        var rngCursor = state.RngCursor;
+        if (selectedObjectIds.Count > 1)
+        {
+            rngCursor++;
+        }
+
+        var selectedSet = selectedObjectIds.ToHashSet(StringComparer.Ordinal);
+        var nextHand = zones.Hand
+            .Where(objectId => !selectedSet.Contains(objectId))
+            .Concat(drawnObjectIds)
+            .ToArray();
+        remainingMainDeck.AddRange(returnedObjectIds);
+        playerZones[intent.PlayerId] = zones with
+        {
+            MainDeck = remainingMainDeck.ToArray(),
+            Hand = nextHand
+        };
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var objectId in drawnObjectIds)
+        {
+            objectLocations[objectId] = new ObjectLocationState(intent.PlayerId, "HAND");
+        }
+        foreach (var objectId in returnedObjectIds)
+        {
+            objectLocations[objectId] = new ObjectLocationState(intent.PlayerId, "MAIN_DECK");
+        }
+
+        var completed = state.MulliganCompletedPlayerIds
+            .Concat([intent.PlayerId])
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(playerId => playerId, StringComparer.Ordinal)
+            .ToArray();
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            MulliganCompletedPlayerIds = completed,
+            RngCursor = rngCursor
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "MULLIGAN_COMPLETED",
+                $"{intent.PlayerId} 完成起手调度",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["setAsideCount"] = selectedObjectIds.Count,
+                    ["drawnCount"] = drawnObjectIds.Length,
+                    ["returnedCount"] = returnedObjectIds.Count
+                })
+        };
+
+        if (ResolutionResult.OpeningMulliganPlayerId(nextState) is not null)
+        {
+            return new ResolutionResult(
+                true,
+                null,
+                nextState,
+                events,
+                ResolutionResult.BuildSnapshots(nextState),
+                BuildCorePrompts(nextState));
+        }
+
+        events.Add(new GameEvent(
+            "MULLIGAN_PHASE_COMPLETED",
+            "双方完成起手调度，开始第一个回合",
+            new Dictionary<string, object?>
+            {
+                ["activePlayerId"] = nextState.ActivePlayerId,
+                ["secondActionPlayerId"] = nextState.OpeningSecondActionPlayerId
+            }));
+        var turnStartState = nextState with
+        {
+            Phase = MatchPhases.TurnStart,
+            TimingState = TimingStates.NeutralClosed
+        };
+        var turnStart = ResolveTurnStart(turnStartState);
+        return turnStart with
+        {
+            Events = events.Concat(turnStart.Events).ToArray()
+        };
+    }
+
     private static ResolutionResult ResolveTurnStart(MatchState state)
     {
         var turnPlayerId = state.TurnPlayerId;
@@ -10768,6 +10995,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             Graveyard = drawResult.Graveyard,
             Base = currentZones.Base.Concat(calledRunes).ToArray()
         };
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var runeObjectId in calledRunes)
+        {
+            objectLocations[runeObjectId] = new ObjectLocationState(turnPlayerId, MoveUnitBaseZone);
+        }
+        foreach (var drawnObjectId in drawResult.DrawnCards)
+        {
+            objectLocations[drawnObjectId] = new ObjectLocationState(turnPlayerId, "HAND");
+        }
         var events = BuildTurnStartEvents(
                 state,
                 calledRunes.Length,
@@ -10816,6 +11052,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             RunePools = winnerPlayerId is null ? ClearRunePools(state) : state.RunePools,
             PlayerZones = playerZones,
             PlayerScores = playerScores,
+            ObjectLocations = objectLocations,
             CardObjects = cardObjects,
             WinnerPlayerId = winnerPlayerId,
             DestroyedUnitOwnerIdsThisTurn = ephemeralCleanupResult.DestroyedUnitOwnerIds
@@ -11622,6 +11859,99 @@ public sealed class CoreRuleEngine : IRuleEngine
             StringComparer.Ordinal);
     }
 
+    private static Dictionary<string, ObjectLocationState> ReconcileObjectLocations(
+        IReadOnlyDictionary<string, ObjectLocationState> currentLocations,
+        IReadOnlyDictionary<string, PlayerZones> playerZones)
+    {
+        var next = new Dictionary<string, ObjectLocationState>(currentLocations, StringComparer.Ordinal);
+        foreach (var (playerId, zones) in playerZones)
+        {
+            SetZoneLocations(next, currentLocations, playerId, "MAIN_DECK", zones.MainDeck);
+            SetZoneLocations(next, currentLocations, playerId, "RUNE_DECK", zones.RuneDeck);
+            SetZoneLocations(next, currentLocations, playerId, "HAND", zones.Hand);
+            SetZoneLocations(next, currentLocations, playerId, "BASE", zones.Base);
+            SetZoneLocations(next, currentLocations, playerId, MoveUnitBattlefieldZone, zones.Battlefields);
+            SetZoneLocations(next, currentLocations, playerId, "GRAVEYARD", zones.Graveyard);
+            SetZoneLocations(next, currentLocations, playerId, "BANISHED", zones.Banished);
+            SetZoneLocations(next, currentLocations, playerId, "LEGEND", zones.LegendZone);
+            SetZoneLocations(next, currentLocations, playerId, "CHAMPION", zones.ChampionZone);
+        }
+
+        return next;
+    }
+
+    private static void SetZoneLocations(
+        Dictionary<string, ObjectLocationState> next,
+        IReadOnlyDictionary<string, ObjectLocationState> currentLocations,
+        string playerId,
+        string zone,
+        IReadOnlyList<string> objectIds)
+    {
+        foreach (var objectId in objectIds.Where(objectId => !string.IsNullOrWhiteSpace(objectId)))
+        {
+            var preciseBattlefieldObjectId = string.Empty;
+            if (string.Equals(zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && currentLocations.TryGetValue(objectId, out var currentLocation)
+                && string.Equals(currentLocation.PlayerId, playerId, StringComparison.Ordinal)
+                && string.Equals(currentLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+            {
+                preciseBattlefieldObjectId = currentLocation.BattlefieldObjectId ?? string.Empty;
+            }
+
+            next[objectId] = new ObjectLocationState(
+                playerId,
+                zone,
+                string.IsNullOrWhiteSpace(preciseBattlefieldObjectId) ? null : preciseBattlefieldObjectId);
+        }
+    }
+
+    private static void ApplyResolvedStackSourceLocation(
+        Dictionary<string, ObjectLocationState> objectLocations,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        StackItemState resolvedItem)
+    {
+        if (string.IsNullOrWhiteSpace(resolvedItem.SourceObjectId))
+        {
+            return;
+        }
+
+        var sourceObjectId = resolvedItem.SourceObjectId;
+        var controllerId = resolvedItem.ControllerId;
+        if (!playerZones.TryGetValue(controllerId, out var zones))
+        {
+            return;
+        }
+
+        if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            var preciseDestination = IsStackItemBattlefieldDestination(resolvedItem)
+                ? PreciseBattlefieldLocationObjectId(NormalizeMoveUnitLocation(resolvedItem.Destination))
+                : null;
+            objectLocations[sourceObjectId] = new ObjectLocationState(
+                controllerId,
+                MoveUnitBattlefieldZone,
+                string.IsNullOrWhiteSpace(preciseDestination) ? null : preciseDestination);
+            return;
+        }
+
+        if (zones.Base.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            objectLocations[sourceObjectId] = new ObjectLocationState(controllerId, "BASE");
+            return;
+        }
+
+        if (zones.Graveyard.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            objectLocations[sourceObjectId] = new ObjectLocationState(controllerId, "GRAVEYARD");
+            return;
+        }
+
+        if (zones.Banished.Contains(sourceObjectId, StringComparer.Ordinal))
+        {
+            objectLocations[sourceObjectId] = new ObjectLocationState(controllerId, "BANISHED");
+        }
+    }
+
     private static IReadOnlyList<string> NormalizeTargetObjectIds(IReadOnlyList<string> targetObjectIds)
     {
         return targetObjectIds
@@ -11677,6 +12007,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string NormalizeMoveUnitLocation(string value)
     {
         return value.Trim().ToUpperInvariant();
+    }
+
+    private static string PreciseBattlefieldLocationObjectId(string location)
+    {
+        var index = location.IndexOf(':', StringComparison.Ordinal);
+        return index < 0 || index == location.Length - 1
+            ? string.Empty
+            : location[(index + 1)..];
     }
 
     private static bool MoveUnitPreciseBattlefieldBelongsToPlayer(string location, string playerId)
@@ -19736,8 +20074,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsSecondActionPlayersFirstTurn(MatchState state)
     {
-        return state.TurnNumber == 2
-            && state.Seats.TryGetValue(state.TurnPlayerId, out var seat)
+        if (state.TurnNumber != 2)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(state.OpeningSecondActionPlayerId))
+        {
+            return string.Equals(state.TurnPlayerId, state.OpeningSecondActionPlayerId, StringComparison.Ordinal);
+        }
+
+        return state.Seats.TryGetValue(state.TurnPlayerId, out var seat)
             && string.Equals(seat, "P2", StringComparison.Ordinal);
     }
 
@@ -19921,6 +20268,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static IReadOnlyDictionary<string, ActionPromptDto> BuildCorePrompts(MatchState state)
     {
         if (state.Status != MatchStatuses.InProgress)
+        {
+            return ResolutionResult.BuildPrompts(state);
+        }
+
+        if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
         {
             return ResolutionResult.BuildPrompts(state);
         }

@@ -18,6 +18,13 @@ public static class GameCommandJsonMapper
         return cmdType switch
         {
             "READY" => new ReadyCommand(),
+            "SUBMIT_DECK" => new SubmitDeckCommand(
+                Text(cmd, "legendCardNo"),
+                Text(cmd, "championCardNo"),
+                TextArray(cmd, "mainDeck"),
+                TextArray(cmd, "runeDeck"),
+                TextArray(cmd, "battlefields")),
+            "MULLIGAN" => new MulliganCommand(TextArray(cmd, "handObjectIds")),
             "PASS_PRIORITY" => new PassPriorityCommand(),
             "PASS_FOCUS" => new PassFocusCommand(),
             "PASS" => new PassCommand(),

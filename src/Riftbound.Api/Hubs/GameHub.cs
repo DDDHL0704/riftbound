@@ -231,6 +231,13 @@ public sealed class GameHub(IMatchSessionRegistry sessions, IHostEnvironment? ho
                     clientIntentId,
                     rawCommand,
                     Context.ConnectionAborted)
+                : command is SubmitDeckCommand submitDeckCommand
+                    ? await session.SubmitDeckAsync(
+                        normalizedPlayerId,
+                        clientIntentId,
+                        submitDeckCommand,
+                        rawCommand,
+                        Context.ConnectionAborted)
                 : await session.SubmitAsync(
                     normalizedPlayerId,
                     clientIntentId,

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Riftbound.CardCatalog;
 using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
@@ -24,6 +25,7 @@ public static class MatchStatuses
 public static class MatchPhases
 {
     public const string Room = "ROOM";
+    public const string Mulligan = "MULLIGAN";
     public const string TurnStart = "TURN_START";
     public const string Main = "MAIN";
     public const string TurnEnd = "TURN_END";
@@ -32,6 +34,7 @@ public static class MatchPhases
 public static class TimingStates
 {
     public const string Room = "ROOM";
+    public const string Mulligan = "MULLIGAN";
     public const string NeutralOpen = "NEUTRAL_OPEN";
     public const string NeutralClosed = "NEUTRAL_CLOSED";
     public const string SpellDuelOpen = "SPELL_DUEL_OPEN";
@@ -55,6 +58,20 @@ public sealed record PlayerZones(
     IReadOnlyList<string> ChampionZone)
 {
     public static PlayerZones Empty { get; } = new([], [], [], [], [], [], [], [], []);
+}
+
+public sealed record ObjectLocationState(
+    string PlayerId,
+    string Zone,
+    string? BattlefieldObjectId = null)
+{
+    public static ObjectLocationState Normalize(ObjectLocationState location)
+    {
+        return new ObjectLocationState(
+            string.IsNullOrWhiteSpace(location.PlayerId) ? string.Empty : location.PlayerId.Trim(),
+            string.IsNullOrWhiteSpace(location.Zone) ? string.Empty : location.Zone.Trim(),
+            string.IsNullOrWhiteSpace(location.BattlefieldObjectId) ? null : location.BattlefieldObjectId.Trim());
+    }
 }
 
 public sealed record CardObjectState
@@ -289,7 +306,11 @@ public sealed record MatchState
         string? extraTurnPlayerId = null,
         IReadOnlyDictionary<string, int>? playerExperience = null,
         IReadOnlyDictionary<string, int>? playerCardsPlayedThisTurn = null,
-        IReadOnlyList<TriggerQueueItemState>? triggerQueue = null)
+        IReadOnlyList<TriggerQueueItemState>? triggerQueue = null,
+        IReadOnlyDictionary<string, OfficialDecklist>? playerDecklists = null,
+        IReadOnlyList<string>? mulliganCompletedPlayerIds = null,
+        string? openingSecondActionPlayerId = null,
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -313,9 +334,13 @@ public sealed record MatchState
             : timingState.Trim();
         RunePools = NormalizeRunePools(runePools);
         PlayerZones = NormalizePlayerZones(playerZones);
+        ObjectLocations = NormalizeObjectLocations(objectLocations);
         PlayerScores = NormalizePlayerScores(playerScores);
         PlayerExperience = NormalizePlayerExperience(playerExperience);
         PlayerCardsPlayedThisTurn = NormalizePlayerCardsPlayedThisTurn(playerCardsPlayedThisTurn);
+        PlayerDecklists = NormalizeOfficialDecklists(playerDecklists);
+        MulliganCompletedPlayerIds = NormalizeTextList(mulliganCompletedPlayerIds);
+        OpeningSecondActionPlayerId = NormalizeOptionalText(openingSecondActionPlayerId);
         CardObjects = NormalizeCardObjects(cardObjects);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
@@ -355,11 +380,19 @@ public sealed record MatchState
 
     public IReadOnlyDictionary<string, PlayerZones> PlayerZones { get; init; }
 
+    public IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations { get; init; }
+
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerExperience { get; init; }
 
     public IReadOnlyDictionary<string, int> PlayerCardsPlayedThisTurn { get; init; }
+
+    public IReadOnlyDictionary<string, OfficialDecklist> PlayerDecklists { get; init; }
+
+    public IReadOnlyList<string> MulliganCompletedPlayerIds { get; init; }
+
+    public string? OpeningSecondActionPlayerId { get; init; }
 
     public IReadOnlyDictionary<string, CardObjectState> CardObjects { get; init; }
 
@@ -463,6 +496,19 @@ public sealed record MatchState
                 StringComparer.Ordinal);
     }
 
+    private static IReadOnlyDictionary<string, ObjectLocationState> NormalizeObjectLocations(
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations)
+    {
+        return (objectLocations ?? new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Value is not null)
+            .Select(entry => new KeyValuePair<string, ObjectLocationState>(
+                entry.Key.Trim(),
+                ObjectLocationState.Normalize(entry.Value)))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Value.PlayerId)
+                && !string.IsNullOrWhiteSpace(entry.Value.Zone))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+    }
+
     private static IReadOnlyDictionary<string, int> NormalizePlayerScores(
         IReadOnlyDictionary<string, int>? playerScores)
     {
@@ -493,6 +539,17 @@ public sealed record MatchState
             .ToDictionary(
                 entry => entry.Key.Trim(),
                 entry => entry.Value,
+                StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyDictionary<string, OfficialDecklist> NormalizeOfficialDecklists(
+        IReadOnlyDictionary<string, OfficialDecklist>? decklists)
+    {
+        return (decklists ?? new Dictionary<string, OfficialDecklist>(StringComparer.Ordinal))
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && entry.Value is not null)
+            .ToDictionary(
+                entry => entry.Key.Trim(),
+                entry => OfficialDeckValidator.Normalize(entry.Value),
                 StringComparer.Ordinal);
     }
 
@@ -724,6 +781,8 @@ public sealed record ResolutionResult(
             ["cardsPlayedThisTurn"] = state.PlayerCardsPlayedThisTurn.TryGetValue(subjectPlayerId, out var cardsPlayedThisTurn)
                 ? cardsPlayedThisTurn
                 : 0,
+            ["deckSubmitted"] = state.PlayerDecklists.ContainsKey(subjectPlayerId),
+            ["mulliganCompleted"] = state.MulliganCompletedPlayerIds.Contains(subjectPlayerId, StringComparer.Ordinal),
             ["runePool"] = state.RunePools.TryGetValue(subjectPlayerId, out var runePool)
                 ? new Dictionary<string, object?>
                 {
@@ -804,22 +863,33 @@ public sealed record ResolutionResult(
             .Where(objectId => state.CardObjects.ContainsKey(objectId))
             .ToDictionary(
                 objectId => objectId,
-                objectId => (object?)BuildCardObjectSnapshotView(state.CardObjects[objectId], ownView),
+                objectId => (object?)BuildCardObjectSnapshotView(state, objectId, ownView),
                 StringComparer.Ordinal);
     }
 
-    private static Dictionary<string, object?> BuildCardObjectSnapshotView(CardObjectState cardObject, bool ownView)
+    private static Dictionary<string, object?> BuildCardObjectSnapshotView(
+        MatchState state,
+        string objectId,
+        bool ownView)
     {
+        var cardObject = state.CardObjects[objectId];
+        var location = ResolveObjectLocation(state, objectId);
         if (cardObject.IsFaceDown && !ownView)
         {
-            return new Dictionary<string, object?>
+            var redacted = new Dictionary<string, object?>
             {
                 ["objectId"] = cardObject.ObjectId,
                 ["isFaceDown"] = true
             };
+            if (location is not null)
+            {
+                redacted["location"] = BuildObjectLocationSnapshotView(location);
+            }
+
+            return redacted;
         }
 
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["objectId"] = cardObject.ObjectId,
             ["damage"] = cardObject.Damage,
@@ -837,6 +907,77 @@ public sealed record ResolutionResult(
             ["ownerId"] = cardObject.OwnerId,
             ["controllerId"] = cardObject.ControllerId
         };
+        if (location is not null)
+        {
+            view["location"] = BuildObjectLocationSnapshotView(location);
+        }
+
+        return view;
+    }
+
+    private static Dictionary<string, object?> BuildObjectLocationSnapshotView(ObjectLocationState location)
+    {
+        var view = new Dictionary<string, object?>
+        {
+            ["playerId"] = location.PlayerId,
+            ["zone"] = location.Zone
+        };
+        if (!string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            view["battlefieldObjectId"] = location.BattlefieldObjectId;
+        }
+
+        return view;
+    }
+
+    private static ObjectLocationState? ResolveObjectLocation(MatchState state, string objectId)
+    {
+        if (state.ObjectLocations.TryGetValue(objectId, out var location))
+        {
+            return location;
+        }
+
+        foreach (var (playerId, zones) in state.PlayerZones)
+        {
+            if (zones.MainDeck.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "MAIN_DECK");
+            }
+            if (zones.RuneDeck.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "RUNE_DECK");
+            }
+            if (zones.Hand.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "HAND");
+            }
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "BASE");
+            }
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "BATTLEFIELD");
+            }
+            if (zones.Graveyard.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "GRAVEYARD");
+            }
+            if (zones.Banished.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "BANISHED");
+            }
+            if (zones.LegendZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "LEGEND");
+            }
+            if (zones.ChampionZone.Contains(objectId, StringComparer.Ordinal))
+            {
+                return new ObjectLocationState(playerId, "CHAMPION");
+            }
+        }
+
+        return null;
     }
 
     public static IReadOnlyDictionary<string, ActionPromptDto> BuildPrompts(MatchState state)
@@ -854,6 +995,21 @@ public sealed record ResolutionResult(
                     ready ? "已准备，等待对手" : "等待玩家准备",
                     ready ? ["WAIT"] : ["READY"]);
             });
+        }
+
+        if (string.Equals(state.Phase, MatchPhases.Mulligan, StringComparison.Ordinal))
+        {
+            var mulliganPlayerId = OpeningMulliganPlayerId(state);
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
+                state,
+                playerId,
+                string.Equals(playerId, mulliganPlayerId, StringComparison.Ordinal),
+                string.Equals(playerId, mulliganPlayerId, StringComparison.Ordinal)
+                    ? "请选择 0 到 2 张起手牌进行调度"
+                    : "等待对手完成起手调度",
+                string.Equals(playerId, mulliganPlayerId, StringComparison.Ordinal)
+                    ? ["MULLIGAN"]
+                    : ["WAIT"]));
         }
 
         if (state.StackItems.Count > 0 && !string.IsNullOrWhiteSpace(state.PriorityPlayerId))
@@ -904,6 +1060,36 @@ public sealed record ResolutionResult(
                     "END_TURN"
                 ]
                 : ["WAIT"]));
+    }
+
+    public static string? OpeningMulliganPlayerId(MatchState state)
+    {
+        var completed = state.MulliganCompletedPlayerIds.ToHashSet(StringComparer.Ordinal);
+        return OpeningMulliganOrder(state)
+            .FirstOrDefault(playerId => !completed.Contains(playerId));
+    }
+
+    private static IReadOnlyList<string> OpeningMulliganOrder(MatchState state)
+    {
+        var ordered = new List<string>();
+        if (!string.IsNullOrWhiteSpace(state.ActivePlayerId)
+            && state.Seats.ContainsKey(state.ActivePlayerId))
+        {
+            ordered.Add(state.ActivePlayerId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(state.OpeningSecondActionPlayerId)
+            && state.Seats.ContainsKey(state.OpeningSecondActionPlayerId)
+            && !ordered.Contains(state.OpeningSecondActionPlayerId, StringComparer.Ordinal))
+        {
+            ordered.Add(state.OpeningSecondActionPlayerId);
+        }
+
+        ordered.AddRange(state.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .Where(playerId => !ordered.Contains(playerId, StringComparer.Ordinal)));
+        return ordered;
     }
 }
 
@@ -1542,6 +1728,8 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "READY" => "准备",
+            "SUBMIT_DECK" => "提交卡组",
+            "MULLIGAN" => "起手调度",
             "WAIT" => "等待",
             "PLAY_CARD" => "打出卡牌",
             "ACTIVATE_ABILITY" => "激活能力",
@@ -1738,6 +1926,13 @@ public interface IMatchSession
         JsonElement? rawCommand,
         CancellationToken cancellationToken);
 
+    ValueTask<ResolutionResult> SubmitDeckAsync(
+        string playerId,
+        string clientIntentId,
+        SubmitDeckCommand command,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken);
+
     ValueTask<ResolutionResult> SubmitAsync(
         string playerId,
         string clientIntentId,
@@ -1882,6 +2077,9 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
+
+    private static readonly SemaphoreSlim OfficialCatalogGate = new(1, 1);
+    private static OfficialCardCatalog? officialCatalog;
 
     private readonly IRuleEngine ruleEngine;
     private readonly IMatchJournal journal;
@@ -2044,7 +2242,12 @@ public sealed class MatchSession : IMatchSession
                 PlayerZones = PlayerZonesForSeats(state.PlayerZones, seats.Keys),
                 PlayerScores = PlayerScoresForSeats(state.PlayerScores, seats.Keys),
                 PlayerExperience = PlayerExperienceForSeats(state.PlayerExperience, seats.Keys),
-                PlayerCardsPlayedThisTurn = PlayerCardsPlayedThisTurnForSeats(state.PlayerCardsPlayedThisTurn, seats.Keys)
+                PlayerCardsPlayedThisTurn = PlayerCardsPlayedThisTurnForSeats(state.PlayerCardsPlayedThisTurn, seats.Keys),
+                PlayerDecklists = PlayerDecklistsForSeats(state.PlayerDecklists, seats.Keys),
+                MulliganCompletedPlayerIds = state.MulliganCompletedPlayerIds
+                    .Where(seats.ContainsKey)
+                    .OrderBy(mulliganPlayerId => mulliganPlayerId, StringComparer.Ordinal)
+                    .ToArray()
             };
             return PlayerSessionFor(normalizedPlayerId);
         }
@@ -2227,6 +2430,136 @@ public sealed class MatchSession : IMatchSession
         }
     }
 
+    public async ValueTask<ResolutionResult> SubmitDeckAsync(
+        string playerId,
+        string clientIntentId,
+        SubmitDeckCommand command,
+        JsonElement? rawCommand,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        var normalizedPlayerId = NormalizePlayerId(playerId);
+        RequirePlayer(normalizedPlayerId);
+        var normalizedIntentId = NormalizeClientIntentId(clientIntentId);
+        var cacheKey = $"{normalizedPlayerId}:{normalizedIntentId}";
+
+        await serialGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (intentCache.TryGetValue(cacheKey, out var cached))
+            {
+                if (!string.Equals(cached.CommandType, "SUBMIT_DECK", StringComparison.Ordinal))
+                {
+                    throw new MatchSessionException(
+                        ErrorCodes.ClientIntentConflict,
+                        "clientIntentId already belongs to another command");
+                }
+
+                return cached.Result;
+            }
+
+            var startedTick = state.Tick;
+            var startedEventSequence = lastEventSequence;
+            ResolutionResult result;
+            if (state.Status == MatchStatuses.InProgress || state.Status == MatchStatuses.Finished)
+            {
+                result = ResolutionResult.Rejected(
+                    state,
+                    "deck cannot be changed after the match starts.",
+                    ErrorCodes.PhaseNotAllowed);
+            }
+            else if (state.ReadyPlayerIds.Contains(normalizedPlayerId, StringComparer.Ordinal))
+            {
+                result = ResolutionResult.Rejected(
+                    state,
+                    "deck cannot be changed after the player is ready.",
+                    ErrorCodes.PhaseNotAllowed);
+            }
+            else
+            {
+                var decklist = OfficialDeckValidator.Normalize(new OfficialDecklist(
+                    command.LegendCardNo,
+                    command.ChampionCardNo,
+                    command.MainDeck,
+                    command.RuneDeck,
+                    command.Battlefields));
+                var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
+                var validation = OfficialDeckValidator.Validate(decklist, catalog);
+                if (!validation.IsValid)
+                {
+                    result = ResolutionResult.Rejected(
+                        state,
+                        $"invalid deck: {string.Join("; ", validation.Errors)}",
+                        ErrorCodes.InvalidDeck);
+                }
+                else
+                {
+                    var decklists = state.PlayerDecklists.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+                    decklists[normalizedPlayerId] = decklist;
+                    var nextState = state with
+                    {
+                        Tick = state.Tick + 1,
+                        PlayerDecklists = decklists
+                    };
+                    var events = new[]
+                    {
+                        new GameEvent(
+                            "DECK_SUBMITTED",
+                            $"{normalizedPlayerId} 提交正式卡组",
+                            new Dictionary<string, object?>
+                            {
+                                ["playerId"] = normalizedPlayerId,
+                                ["mainDeckCount"] = decklist.MainDeck.Count,
+                                ["runeDeckCount"] = decklist.RuneDeck.Count,
+                                ["battlefieldCount"] = decklist.Battlefields.Count,
+                                ["legendCardNo"] = decklist.LegendCardNo,
+                                ["championCardNo"] = decklist.ChampionCardNo
+                            })
+                    };
+                    result = new ResolutionResult(
+                        true,
+                        null,
+                        nextState,
+                        events,
+                        ResolutionResult.BuildSnapshots(nextState),
+                        ResolutionResult.BuildPrompts(nextState));
+                }
+            }
+
+            var completedEventSequence = startedEventSequence + result.Events.Count;
+            await journal.RecordAsync(new MatchJournalEntry(
+                    RoomId,
+                    normalizedPlayerId,
+                    normalizedIntentId,
+                    "SUBMIT_DECK",
+                    rawCommand,
+                    startedTick,
+                    result.State.Tick,
+                    startedEventSequence,
+                    completedEventSequence,
+                    result.Accepted,
+                    result.ErrorMessage,
+                    result.State,
+                    result.Events,
+                    result.Snapshots,
+                    result.Prompts,
+                    DateTimeOffset.UtcNow),
+                cancellationToken).ConfigureAwait(false);
+
+            if (result.Accepted)
+            {
+                state = result.State;
+            }
+            lastEventSequence = completedEventSequence;
+            intentCache[cacheKey] = new CachedResolution("SUBMIT_DECK", result);
+            return result;
+        }
+        finally
+        {
+            serialGate.Release();
+        }
+    }
+
     public async ValueTask<ResolutionResult> ReadyAsync(
         string playerId,
         string clientIntentId,
@@ -2273,6 +2606,17 @@ public sealed class MatchSession : IMatchSession
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
+            if (state.PlayerDecklists.Count > 0
+                && !state.PlayerDecklists.ContainsKey(normalizedPlayerId))
+            {
+                var rejected = ResolutionResult.Rejected(
+                    state,
+                    "player must submit a valid deck before ready when the room uses official deck setup.",
+                    ErrorCodes.InvalidDeck);
+                intentCache[cacheKey] = new CachedResolution("READY", rejected);
+                return rejected;
+            }
+
             var readyPlayers = state.ReadyPlayerIds.ToHashSet(StringComparer.Ordinal);
             var events = new List<GameEvent>();
             var addedReady = readyPlayers.Add(normalizedPlayerId);
@@ -2294,16 +2638,6 @@ public sealed class MatchSession : IMatchSession
                 nextStatus = readyPlayers.Count == 2 && state.Seats.Count == 2
                     ? MatchStatuses.InProgress
                     : MatchStatuses.Seating;
-                if (nextStatus == MatchStatuses.InProgress)
-                {
-                    events.Add(new GameEvent(
-                        "MATCH_STARTED",
-                        "双方已准备，比赛开始",
-                        new Dictionary<string, object?>
-                        {
-                            ["activePlayerId"] = state.ActivePlayerId
-                        }));
-                }
             }
 
             var nextState = state with
@@ -2318,6 +2652,25 @@ public sealed class MatchSession : IMatchSession
                     .OrderBy(readyPlayerId => readyPlayerId, StringComparer.Ordinal)
                     .ToArray()
             };
+            if (nextStatus == MatchStatuses.InProgress
+                && HasOfficialDecklistsForAllSeats(nextState))
+            {
+                var catalog = await LoadOfficialCatalogAsync(cancellationToken).ConfigureAwait(false);
+                var officialOpening = BuildOfficialOpeningState(nextState, catalog);
+                nextState = officialOpening.State;
+                events.AddRange(officialOpening.Events);
+            }
+
+            if (nextStatus == MatchStatuses.InProgress)
+            {
+                events.Add(new GameEvent(
+                    "MATCH_STARTED",
+                    "双方已准备，比赛开始",
+                    new Dictionary<string, object?>
+                    {
+                        ["activePlayerId"] = nextState.ActivePlayerId
+                    }));
+            }
             var result = new ResolutionResult(
                 true,
                 null,
@@ -2523,6 +2876,16 @@ public sealed class MatchSession : IMatchSession
                 StringComparer.Ordinal);
     }
 
+    private static IReadOnlyDictionary<string, OfficialDecklist> PlayerDecklistsForSeats(
+        IReadOnlyDictionary<string, OfficialDecklist> current,
+        IEnumerable<string> playerIds)
+    {
+        var seatSet = playerIds.ToHashSet(StringComparer.Ordinal);
+        return current
+            .Where(entry => seatSet.Contains(entry.Key))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+    }
+
     private PlayerSessionDto PlayerSessionFor(string playerId)
     {
         if (!reconnectTokens.TryGetValue(playerId, out var reconnectToken)
@@ -2561,6 +2924,363 @@ public sealed class MatchSession : IMatchSession
             ReconnectTokenHasher.Hash(playerSession.ReconnectToken),
             cancellationToken);
     }
+
+    private static async ValueTask<OfficialCardCatalog> LoadOfficialCatalogAsync(CancellationToken cancellationToken)
+    {
+        if (officialCatalog is not null)
+        {
+            return officialCatalog;
+        }
+
+        await OfficialCatalogGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            officialCatalog ??= await OfficialCardCatalog.LoadDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+            return officialCatalog;
+        }
+        finally
+        {
+            OfficialCatalogGate.Release();
+        }
+    }
+
+    private static bool HasOfficialDecklistsForAllSeats(MatchState state)
+    {
+        return state.Seats.Count == 2
+            && state.Seats.Keys.All(playerId => state.PlayerDecklists.ContainsKey(playerId));
+    }
+
+    private static OfficialOpeningBuildResult BuildOfficialOpeningState(
+        MatchState readyState,
+        OfficialCardCatalog catalog)
+    {
+        var seed = readyState.Seed == 0
+            ? (long)(StableHash($"{readyState.RoomId}:official-opening:{string.Join(",", readyState.Seats.Keys.Order(StringComparer.Ordinal))}") & long.MaxValue)
+            : readyState.Seed;
+        var rngCursor = readyState.RngCursor;
+        var seatOrder = readyState.Seats
+            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .ToArray();
+        var turnOrder = RandomizeStable(seatOrder, seed, rngCursor, "TURN_ORDER");
+        if (seatOrder.Length > 1)
+        {
+            rngCursor++;
+        }
+
+        var activePlayerId = turnOrder[0];
+        var secondActionPlayerId = turnOrder.Count > 1 ? turnOrder[1] : null;
+        var playerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal);
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
+        var events = new List<GameEvent>
+        {
+            new(
+                "OFFICIAL_OPENING_STARTED",
+                "正式 1v1 开局流程开始",
+                new Dictionary<string, object?>
+                {
+                    ["activePlayerId"] = activePlayerId,
+                    ["secondActionPlayerId"] = secondActionPlayerId,
+                    ["openingHandCount"] = OfficialDeckValidator.OpeningHandCount
+                })
+        };
+
+        var cardsByNo = catalog.Cards.ToDictionary(card => card.CardNo, StringComparer.Ordinal);
+        foreach (var playerId in seatOrder)
+        {
+            var decklist = readyState.PlayerDecklists[playerId];
+            var playerOpening = BuildOfficialPlayerOpening(
+                playerId,
+                decklist,
+                cardsByNo,
+                seed,
+                rngCursor);
+            rngCursor = playerOpening.RngCursor;
+            playerZones[playerId] = playerOpening.Zones;
+            foreach (var (objectId, cardObject) in playerOpening.CardObjects)
+            {
+                cardObjects[objectId] = cardObject;
+            }
+            foreach (var (objectId, location) in playerOpening.ObjectLocations)
+            {
+                objectLocations[objectId] = location;
+            }
+
+            events.AddRange(playerOpening.Events);
+        }
+
+        var runePools = seatOrder.ToDictionary(playerId => playerId, _ => RunePool.Empty, StringComparer.Ordinal);
+        var playerScores = seatOrder.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal);
+        var playerExperience = seatOrder.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal);
+        var nextState = readyState with
+        {
+            ActivePlayerId = activePlayerId,
+            TurnPlayerId = activePlayerId,
+            TurnNumber = 1,
+            Status = MatchStatuses.InProgress,
+            Phase = MatchPhases.Mulligan,
+            TimingState = TimingStates.Mulligan,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            PlayerScores = playerScores,
+            PlayerExperience = playerExperience,
+            PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal),
+            CardObjects = cardObjects,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = [],
+            StackItems = [],
+            FocusPlayerId = null,
+            PassedFocusPlayerIds = [],
+            WinnerPlayerId = null,
+            DestroyedUnitOwnerIdsThisTurn = [],
+            Seed = seed,
+            RngCursor = rngCursor,
+            UntilEndOfTurnEffects = [],
+            ExtraTurnPlayerId = null,
+            MulliganCompletedPlayerIds = [],
+            OpeningSecondActionPlayerId = secondActionPlayerId
+        };
+
+        return new OfficialOpeningBuildResult(nextState, events);
+    }
+
+    private static OfficialPlayerOpeningBuildResult BuildOfficialPlayerOpening(
+        string playerId,
+        OfficialDecklist decklist,
+        IReadOnlyDictionary<string, OfficialCard> cardsByNo,
+        long seed,
+        long rngCursor)
+    {
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal);
+        var mainCardNos = decklist.MainDeck.ToList();
+        var championIndex = mainCardNos.FindIndex(cardNo => string.Equals(cardNo, decklist.ChampionCardNo, StringComparison.Ordinal));
+        if (championIndex >= 0)
+        {
+            mainCardNos.RemoveAt(championIndex);
+        }
+
+        var legendObjectId = OfficialObjectId(playerId, "LEGEND", decklist.LegendCardNo, 1);
+        var championObjectId = OfficialObjectId(playerId, "CHAMPION", decklist.ChampionCardNo, 1);
+        cardObjects[legendObjectId] = OfficialCardObject(legendObjectId, playerId, cardsByNo[decklist.LegendCardNo]);
+        cardObjects[championObjectId] = OfficialCardObject(championObjectId, playerId, cardsByNo[decklist.ChampionCardNo]);
+        objectLocations[legendObjectId] = new ObjectLocationState(playerId, "LEGEND");
+        objectLocations[championObjectId] = new ObjectLocationState(playerId, "CHAMPION");
+
+        var mainObjectIds = new List<string>();
+        for (var index = 0; index < mainCardNos.Count; index++)
+        {
+            var cardNo = mainCardNos[index];
+            var objectId = OfficialObjectId(playerId, "MAIN", cardNo, index + 1);
+            mainObjectIds.Add(objectId);
+            cardObjects[objectId] = OfficialCardObject(objectId, playerId, cardsByNo[cardNo]);
+        }
+
+        var shuffledMain = RandomizeStable(mainObjectIds, seed, rngCursor, $"{playerId}:MAIN_DECK");
+        if (mainObjectIds.Count > 1)
+        {
+            rngCursor++;
+        }
+
+        var hand = shuffledMain.Take(OfficialDeckValidator.OpeningHandCount).ToArray();
+        var remainingMain = shuffledMain.Skip(hand.Length).ToArray();
+
+        var runeObjectIds = new List<string>();
+        for (var index = 0; index < decklist.RuneDeck.Count; index++)
+        {
+            var cardNo = decklist.RuneDeck[index];
+            var objectId = OfficialObjectId(playerId, "RUNE", cardNo, index + 1);
+            runeObjectIds.Add(objectId);
+            cardObjects[objectId] = OfficialCardObject(objectId, playerId, cardsByNo[cardNo]);
+        }
+
+        var shuffledRunes = RandomizeStable(runeObjectIds, seed, rngCursor, $"{playerId}:RUNE_DECK");
+        if (runeObjectIds.Count > 1)
+        {
+            rngCursor++;
+        }
+
+        var battlefieldCardNos = RandomizeStable(decklist.Battlefields, seed, rngCursor, $"{playerId}:BATTLEFIELDS");
+        if (decklist.Battlefields.Count > 1)
+        {
+            rngCursor++;
+        }
+
+        var selectedBattlefieldCardNo = battlefieldCardNos[0];
+        var battlefieldObjectId = OfficialObjectId(playerId, "BATTLEFIELD", selectedBattlefieldCardNo, 1);
+        cardObjects[battlefieldObjectId] = OfficialCardObject(
+            battlefieldObjectId,
+            playerId,
+            cardsByNo[selectedBattlefieldCardNo]);
+        objectLocations[battlefieldObjectId] = new ObjectLocationState(
+            playerId,
+            "BATTLEFIELD",
+            battlefieldObjectId);
+        foreach (var objectId in remainingMain)
+        {
+            objectLocations[objectId] = new ObjectLocationState(playerId, "MAIN_DECK");
+        }
+        foreach (var objectId in hand)
+        {
+            objectLocations[objectId] = new ObjectLocationState(playerId, "HAND");
+        }
+        foreach (var objectId in shuffledRunes)
+        {
+            objectLocations[objectId] = new ObjectLocationState(playerId, "RUNE_DECK");
+        }
+
+        var zones = new PlayerZones(
+            remainingMain,
+            shuffledRunes,
+            hand,
+            [],
+            [battlefieldObjectId],
+            [],
+            [],
+            [legendObjectId],
+            [championObjectId]);
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "OFFICIAL_BATTLEFIELD_SELECTED",
+                $"{playerId} 随机选择 1 张战场进入本局",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["removedBattlefieldCount"] = Math.Max(0, decklist.Battlefields.Count - 1)
+                }),
+            new(
+                "OPENING_HAND_DRAWN",
+                $"{playerId} 抽取起手牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["drawCount"] = hand.Length
+                })
+        };
+
+        return new OfficialPlayerOpeningBuildResult(zones, cardObjects, objectLocations, events, rngCursor);
+    }
+
+    private static CardObjectState OfficialCardObject(string objectId, string playerId, OfficialCard card)
+    {
+        return new CardObjectState(
+            objectId,
+            power: Math.Max(0, card.Power ?? 0),
+            tags: OfficialCardTags(card),
+            manaCost: Math.Max(0, card.Energy ?? 0),
+            cardNo: card.CardNo,
+            ownerId: playerId,
+            controllerId: playerId);
+    }
+
+    private static IReadOnlyList<string> OfficialCardTags(OfficialCard card)
+    {
+        var tags = new List<string>();
+        if (card.CardCategoryName.Contains("单位", StringComparison.Ordinal))
+        {
+            tags.Add(CardObjectTags.UnitCard);
+        }
+        else if (card.CardCategoryName.Contains("装备", StringComparison.Ordinal))
+        {
+            tags.Add(CardObjectTags.EquipmentCard);
+        }
+        else if (card.CardCategoryName.Contains("法术", StringComparison.Ordinal))
+        {
+            tags.Add(CardObjectTags.SpellCard);
+        }
+        else if (string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
+        {
+            tags.Add(CardObjectTags.RuneCard);
+        }
+        else if (string.Equals(card.CardCategoryName, "传奇", StringComparison.Ordinal))
+        {
+            tags.Add("CARD_TYPE:LEGEND");
+        }
+        else if (string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
+        {
+            tags.Add("CARD_TYPE:BATTLEFIELD");
+        }
+
+        if (string.Equals(card.CardCategoryName, "英雄单位", StringComparison.Ordinal))
+        {
+            tags.Add("CARD_TYPE:HERO");
+        }
+
+        if (!string.IsNullOrWhiteSpace(card.Hero))
+        {
+            tags.Add($"HERO:{card.Hero}");
+        }
+
+        tags.AddRange(card.CardColorList
+            .Where(color => !string.IsNullOrWhiteSpace(color))
+            .Select(color => $"COLOR:{color.Trim()}"));
+        return tags.Distinct(StringComparer.Ordinal).ToArray();
+    }
+
+    private static string OfficialObjectId(string playerId, string zone, string cardNo, int index)
+    {
+        var normalized = new string(cardNo
+            .Select(ch => char.IsLetterOrDigit(ch) ? ch : '-')
+            .ToArray())
+            .Trim('-');
+        return $"{playerId}-{zone}-{normalized}-{index:00}";
+    }
+
+    private static IReadOnlyList<T> RandomizeStable<T>(
+        IReadOnlyList<T> values,
+        long seed,
+        long rngCursor,
+        string scope)
+    {
+        if (values.Count <= 1)
+        {
+            return values.ToArray();
+        }
+
+        return values
+            .Select((value, index) => new
+            {
+                Value = value,
+                Index = index,
+                Order = StableHash($"{seed}:{rngCursor}:{scope}:{value}:{index}")
+            })
+            .OrderBy(entry => entry.Order)
+            .ThenBy(entry => entry.Index)
+            .Select(entry => entry.Value)
+            .ToArray();
+    }
+
+    private static ulong StableHash(string value)
+    {
+        const ulong offsetBasis = 14695981039346656037UL;
+        const ulong prime = 1099511628211UL;
+
+        var hash = offsetBasis;
+        foreach (var ch in value)
+        {
+            hash ^= ch;
+            hash *= prime;
+        }
+
+        return hash;
+    }
+
+    private sealed record OfficialOpeningBuildResult(
+        MatchState State,
+        IReadOnlyList<GameEvent> Events);
+
+    private sealed record OfficialPlayerOpeningBuildResult(
+        PlayerZones Zones,
+        IReadOnlyDictionary<string, CardObjectState> CardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> ObjectLocations,
+        IReadOnlyList<GameEvent> Events,
+        long RngCursor);
 
     private void RequirePlayer(string playerId)
     {

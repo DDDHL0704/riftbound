@@ -3,6 +3,7 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../Riftbound.CardCatalog/Riftbound.CardCatalog.csproj" />
     <ProjectReference Include="../Riftbound.Contracts/Riftbound.Contracts.csproj" />
   </ItemGroup>
 </Project>
