@@ -21823,6 +21823,74 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectedSpellDuelFocusPromptIncludesPlayableSwiftCard()
+    {
+        var state = new MatchState(
+            "spell-duel-playable-focus-room",
+            1,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HEXTECH-RAY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-HEXTECH-RAY-001"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HEXTECH-RAY"] = new(
+                    "P1-SPELL-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-HEXTECH-RAY-001"] = new(
+                    "P2-UNIT-HEXTECH-RAY-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            focusPlayerId: "P1",
+            passedFocusPlayerIds: []);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-invalid-move", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand("P1-SPELL-HEXTECH-RAY", "BASE", "BATTLEFIELD", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS"], result.Prompts["P1"].Actions);
+        var playCandidate = Assert.Single(
+            result.Prompts["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-SPELL-HEXTECH-RAY", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineClosesSpellDuelWhenAllPlayersPassFocus()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -20581,7 +20581,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? "当前玩家可让过焦点"
                     : "等待对手焦点行动",
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_FOCUS")
+                    ? ActionPromptBuilder.SpellDuelFocusActions(state, playerId)
                     : ["WAIT"]));
         }
 
