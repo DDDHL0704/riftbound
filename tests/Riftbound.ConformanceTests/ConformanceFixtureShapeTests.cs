@@ -162,6 +162,30 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void SnapshotsDoNotExposeRandomSeedOrCursor()
+    {
+        var state = new MatchState(
+            "privacy-room",
+            9,
+            2,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            seed: 260330,
+            rngCursor: 7);
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+
+        Assert.DoesNotContain("seed", snapshot.Timing.Keys);
+        Assert.DoesNotContain("rngCursor", snapshot.Timing.Keys);
+    }
+
+    [Fact]
     public void JoinRejectsThirdPlayer()
     {
         var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());

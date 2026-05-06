@@ -711,8 +711,6 @@ public sealed record ResolutionResult(
                     ["winnerPlayerId"] = state.WinnerPlayerId,
                     ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
                     ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
-                    ["seed"] = state.Seed,
-                    ["rngCursor"] = state.RngCursor,
                     ["winningScore"] = EffectiveWinningScore(state),
                     ["roomStatus"] = state.Status,
                     ["readyPlayerIds"] = state.ReadyPlayerIds

@@ -19,8 +19,9 @@
 - P0-003 第一批已落地：`MOVE_UNIT` 和精确游走完成后会执行一次致命伤害清理，并将清理后的区域重新同步回 `ObjectLocations`，避免移动后的已摧毁单位继续留在战场位置索引中。
 - P0-004 第一批已落地：`StackItemState` 记录入栈时机上下文；迅捷牌在 `SPELL_DUEL_OPEN` 焦点窗口打出并结算后，会回到 `SPELL_DUEL_OPEN` 并把焦点交给回合顺序下一名玩家，而不是错误关闭到普通开环；法术对决 prompt 也会在有可用来源时暴露 `PLAY_CARD`。
 - P0-004 第二批已落地：`MatchState` 归一化/恢复栈项目时保留 `TimingContext`，反应/反制牌入栈会继承现有栈顶的法术对决上下文；最后一个法术对决栈项目被反制后，结算仍会回到 `SPELL_DUEL_OPEN` 并把焦点交还给下一名玩家，避免由状态恢复或反应链造成的错误窗口关闭。
+- P1-004 第一批已落地：普通玩家 `SnapshotDto.Timing` 不再暴露 `seed` 和 `rngCursor`；服务端权威 `MatchState` 仍保留随机状态用于内部结算、恢复和日志，避免客户端通过 snapshot 推断牌库/随机顺序。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -209,20 +210,22 @@
 
 ### P1-004 隐藏信息与 replay 边界仍需加固
 
+当前状态：**PARTIALLY RESOLVED / 普通 snapshot 随机状态泄漏已修，严格 action-log replay 仍待补**
+
 规则依据：自查文档 2、18；客户端不得得到能预测未来随机信息的私密状态；replay/观战要区分公开信息与玩家私有视角。
 
 代码位置：
 - `src/Riftbound.Engine/MatchSession.cs:640` 到 `src/Riftbound.Engine/MatchSession.cs:657` 的 snapshot timing 中对所有玩家暴露 `seed` 和 `rngCursor`。
 - `src/Riftbound.Engine/MatchSession.cs:2438` 到 `src/Riftbound.Engine/MatchSession.cs:2466` 的 `RestoreState` 优先恢复 authoritative state；没有 action-log replay 到相同最终状态的独立校验路径。
 
-现象：目前 opponent hand/face-down redaction 做得不错，但把随机种子和游标放进普通 snapshot 有潜在风险；replay 更像恢复快照/权威状态，不是严格的命令日志重放和公开/私有视角重放模型。
+现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；剩余风险是 replay 更像恢复快照/权威状态，不是严格的命令日志重放和公开/私有视角重放模型。
 
 建议修复：
-- 从普通玩家 snapshot 中移除 seed/rngCursor，或只在 Development/debug stream 中暴露。
+- 已完成：从普通玩家 snapshot 中移除 seed/rngCursor；如后续需要调试随机状态，应单独走 Development/debug stream，不能复用普通玩家 snapshot。
 - 建立 action log replay：从初始公开/私有边界 + 命令日志重放到最终 authoritative state，并提供 spectator redaction。
 
 建议测试：
-- 玩家 snapshot 不含 seed/rngCursor。
+- 已新增：玩家 snapshot 不含 seed/rngCursor。
 - action log replay final state hash 等于实时 state hash。
 - spectator replay 不泄露手牌、牌库顺序、面朝下内容和未来随机。
 
@@ -255,7 +258,7 @@
 | --- | --- | --- |
 | 服务端权威/幂等/非法命令不落状态 | PASS | `MatchSession.SubmitAsync` 串行且仅 accepted 更新状态。 |
 | 双人房间/重连/snapshot/prompt | PASS | `GameHub` 具备 join/reconnect/request snapshot/submit flow。 |
-| 隐藏手牌/面朝下对象 | PASS/RISKY | 手牌和 face-down 已裁剪；但 seed/rngCursor 暴露需移除。 |
+| 隐藏手牌/面朝下对象 | PASS | 手牌、face-down 与随机 seed/rngCursor 均已从普通玩家视角裁剪。 |
 | 官方 deck/opening/mulligan | FAIL | 无正式 deck validator 与官方开局状态机。 |
 | 区域/对象/控制权/战场位置 | FAIL | 缺少精确 battlefield/standby/control/location 模型。 |
 | FEPR/优先权/焦点 | RISKY | 有 timingState/focus/prompt，但缺少完整 pending task/state machine。 |
@@ -268,7 +271,7 @@
 | 连续效果层 | FAIL | 直接修改对象数值，缺少 layer/timestamp/dependency。 |
 | 关键词 | RISKY/FAIL | 多个关键词 profile 仍标识 recognized/deferred。 |
 | 全卡牌效果 | RISKY | BehaviorSpec 全 pass 口径与内部 deferred/规则模型缺口冲突。 |
-| 日志/replay/观战 | RISKY | 有 journal/recovery；缺少严格 action-log replay 和 spectator redaction。 |
+| 日志/replay/观战 | RISKY | 有 journal/recovery，普通 snapshot 不再泄漏随机状态；仍缺少严格 action-log replay 和 spectator redaction。 |
 
 ## 建议下一步开发顺序
 
