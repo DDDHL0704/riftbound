@@ -31,8 +31,9 @@
 - P0-004 第三批已落地：新增 `TurnWindowState`、`SpellDuelState`、`BattleState` 与对应 `MatchState` 派生视图；普通开环/闭环、法术对决开环/闭环现在有统一窗口状态，snapshot timing 会暴露 `turnWindow`、`spellDuel`、`battle`，用于 UI 和后续 task machine，而不是让前端自行推断。
 - P0-005 第二批已落地：装备装配、Vi 双倍战力技能、Xerath 伤害技能等非 `PLAY_CARD` 支付路径的资源校验已改为 typed-power aware；泛化符能费用现在既可由普通 `Power` 支付，也可由 `PowerByTrait` 中任意可用特性符能支付并正确扣除，避免只有出牌路径支持彩色符能。
 - P1-001 第一批已落地：新增 `ContinuousEffectState` 服务端派生视图，按 `RULE_TEXT` / `POWER_MODIFIER` 层公开全局与对象级直到回合结束效果；snapshot 中每个公开对象新增 `basePower` / `effectivePower`，timing 新增 `continuousEffects`，UI 不再需要从临时战力聚合字段自行反推基础战力。
+- P1-002 第一批已落地：新增 `KeywordCoverageReporter`，将权限/战斗/资源/装备/生命周期/交互六类关键词的 implemented、representative、delegated、recognized-deferred 状态汇总为服务端报告；API `/catalog/summary`、`/catalog/p3-status` 和新增 `/catalog/keyword-coverage` 均会暴露 keyword coverage，产品侧可直接禁用或提示 deferred 关键词能力。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` 覆盖非出牌路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2838/2838`、`ConformanceFixtureRunnerTests 2660/2660`、`ConformanceFixtureShapeTests 36/36`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`MatchStateExposesContinuousEffectPowerLayerViews` 覆盖基础/有效战力与持续效果层 snapshot；`KeywordCoverageReportExposesDeferredKeywordFamilies` 覆盖关键词 deferred 报告；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P7TypedPowerPaymentActivatesViSkillWithTraitPool` / `P7TypedPowerPaymentActivatesXerathSkillWithTraitPool` / `P7TypedPowerPaymentAssemblesLongSwordWithTraitPool` 覆盖非出牌路径消耗 typed 符能；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `dotnet test 2839/2839`、`ConformanceFixtureRunnerTests 2660/2660`、`ConformanceFixtureShapeTests 36/36`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 39/39`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -197,6 +198,8 @@
 
 ### P1-002 关键词覆盖仍存在“识别但 deferred”的内部事实
 
+当前状态：**PARTIALLY RESOLVED / deferred 关键词覆盖已变成服务端/API 显式报告，完整执行仍待逐族补齐**
+
 规则依据：自查文档 15；关键词必须不仅被识别，还要能按官方时点、费用、目标、区域和替代/触发规则执行。
 
 代码位置：
@@ -205,12 +208,13 @@
 - `src/Riftbound.Engine/CardInteractionKeywordRules.cs:72` 到 `src/Riftbound.Engine/CardInteractionKeywordRules.cs:75` 说明 Standby/Ambush/Echo 仍有宽泛 deferred 分支。
 - `src/Riftbound.Engine/CardCombatKeywordRules.cs:55` 到 `src/Riftbound.Engine/CardCombatKeywordRules.cs:60` 说明 combat damage、assignment order、roam movement execution remain deferred。
 - `src/Riftbound.Engine/CardResourceKeywordRules.cs:76` 到 `src/Riftbound.Engine/CardResourceKeywordRules.cs:80` 说明 broader experience/level/encourage/spellshield branches remain deferred。
+- `src/Riftbound.Engine/KeywordCoverageReporter.cs` 会把各关键词族 profile 汇总成 `KeywordCoverageReport`，API `/catalog/keyword-coverage`、`/catalog/summary`、`/catalog/p3-status` 会公开这些 deferred 状态。
 
-现象：这些 profile 与“所有卡牌功能完整实现”存在冲突。即便某些代表性路径已有实现，关键词族整体不能判定完整。
+现象：这些 profile 与“所有卡牌功能完整实现”存在冲突。即便某些代表性路径已有实现，关键词族整体不能判定完整。现在 deferred 状态不再只是测试/内部 profile 里的事实，而是正式服务端报告和 API 输出；前端、图鉴和本地测试入口可以按 family/status 禁用或明确提示。
 
-建议修复：把关键词 profile 状态与真实规则执行路径重新对齐；没有完整执行的卡牌/功能单元不能暴露为完全 `CONFORMANCE_PASS`。
+建议修复：继续把关键词 profile 状态与真实规则执行路径重新对齐；没有完整执行的卡牌/功能单元不能暴露为完全 `CONFORMANCE_PASS`。下一步要按 family 优先级补真实执行路径，而不是只扩展报告。
 
-建议测试：按关键词族建立完整矩阵测试，每个关键词覆盖时点、费用、目标、隐藏信息、替代/触发、失败回滚。
+建议测试：已新增 `KeywordCoverageReportExposesDeferredKeywordFamilies`，覆盖关键词 family 报告、deferred rows 和 implemented/deferred 并存口径。待补：按关键词族建立完整矩阵测试，每个关键词覆盖时点、费用、目标、隐藏信息、替代/触发、失败回滚。
 
 ### P1-003 BehaviorSpec/CONFORMANCE_PASS 口径疑似过度乐观
 

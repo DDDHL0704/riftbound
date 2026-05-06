@@ -63,6 +63,7 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
     var schema = OfficialCardSchemaValidator.Validate(catalog);
     var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     var behaviorReport = BehaviorSpecCatalogBuilder.BuildReport(specs);
+    var keywordCoverage = KeywordCoverageReporter.Build(specs);
     return Results.Ok(new
     {
         catalog.Source,
@@ -76,7 +77,8 @@ app.MapGet("/catalog/summary", async (CancellationToken cancellationToken) =>
         schemaValid = schema.IsValid,
         schemaViolationCount = schema.Violations.Count,
         behaviorStatusCounts = behaviorReport.StatusCounts,
-        behaviorConformanceTierCounts = behaviorReport.ConformanceTierCounts
+        behaviorConformanceTierCounts = behaviorReport.ConformanceTierCounts,
+        keywordCoverage
     });
 });
 
@@ -89,6 +91,7 @@ app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
     var stability = FunctionalUnitReporter.Build(units);
     var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
     var behaviorReport = BehaviorSpecCatalogBuilder.BuildReport(specs);
+    var keywordCoverage = KeywordCoverageReporter.Build(specs);
 
     return Results.Ok(new
     {
@@ -101,7 +104,8 @@ app.MapGet("/catalog/p3-status", async (CancellationToken cancellationToken) =>
         behaviorReport.BehaviorSpecs,
         behaviorReport.StatusCounts,
         behaviorReport.ConformanceTierCounts,
-        behaviorReport.MissingReasonCardNos
+        behaviorReport.MissingReasonCardNos,
+        keywordCoverage
     });
 });
 
@@ -119,6 +123,14 @@ app.MapGet("/catalog/behavior-specs", async (string? cardNo, CancellationToken c
     return spec is null
         ? Results.NotFound(new { cardNo, message = "BehaviorSpec not found." })
         : Results.Ok(spec);
+});
+
+app.MapGet("/catalog/keyword-coverage", async (CancellationToken cancellationToken) =>
+{
+    var catalog = await OfficialCardCatalog.LoadDefaultAsync(cancellationToken);
+    var units = FunctionalUnitBuilder.Build(catalog.Cards);
+    var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+    return Results.Ok(KeywordCoverageReporter.Build(specs));
 });
 
 app.MapHub<GameHub>("/hubs/game");

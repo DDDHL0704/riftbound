@@ -118,6 +118,36 @@ public sealed class CardCatalogBaselineTests
     }
 
     [Fact]
+    public async Task KeywordCoverageReportExposesDeferredKeywordFamilies()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var units = FunctionalUnitBuilder.Build(catalog.Cards);
+        var specs = BehaviorSpecCatalogBuilder.Build(catalog.Cards, units, ImplementedBehaviors(catalog.Cards));
+        var report = KeywordCoverageReporter.Build(specs);
+
+        Assert.Equal(1009, report.BehaviorSpecs);
+        Assert.Equal(6, report.Families.Count);
+        Assert.True(report.CardsWithKeywordProfiles > 0);
+        Assert.True(report.StatusCounts[EquipmentKeywordProfileStatuses.RecognizedDeferred] > 0);
+
+        var equipment = Assert.Single(report.Families, family => string.Equals(family.Family, "equipment", StringComparison.Ordinal));
+        Assert.NotEmpty(equipment.DeferredCards);
+        Assert.All(
+            equipment.DeferredCards,
+            row => Assert.Equal(EquipmentKeywordProfileStatuses.RecognizedDeferred, row.Status));
+
+        var interaction = Assert.Single(report.Families, family => string.Equals(family.Family, "interaction", StringComparison.Ordinal));
+        Assert.Contains(
+            interaction.StatusCounts.Keys,
+            status => string.Equals(status, InteractionKeywordProfileStatuses.Implemented, StringComparison.Ordinal));
+        Assert.NotEmpty(interaction.DeferredCards);
+
+        Assert.Contains(
+            report.Families,
+            family => family.DeferredCards.Any(row => row.Keywords.Count > 0 && !string.IsNullOrWhiteSpace(row.Reason)));
+    }
+
+    [Fact]
     public async Task P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
