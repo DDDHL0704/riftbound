@@ -4463,7 +4463,57 @@ body {
 
 .card-context-menu {
   max-height: 260px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.card-context-menu,
+.card-context-menu button,
+.card-context-menu small,
+.card-context-menu span,
+.card-context-menu strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.product-arena:has(.card-context-menu),
+.product-board:has(.card-context-menu),
+.product-support-zones:has(.card-context-menu),
+.product-mini-zone:has(.card-context-menu),
+.product-lane:has(.card-context-menu),
+.product-hand-shelf:has(.card-context-menu),
+.product-card-list:has(.card-context-menu) {
+  overflow: visible;
+}
+
+.product-support-zones:not(.compact) .card-context-menu,
+.product-lane-mat .product-lane:last-child .card-context-menu,
+.product-card-list.hand .product-card-wrap:nth-last-child(-n+2) .card-context-menu {
+  right: 0;
+  left: auto;
+}
+
+.product-support-zones:not(.compact) .card-context-menu {
+  width: min(244px, calc(100vw - 24px));
+}
+
+.product-board > .product-support-zones:last-child .card-context-menu {
+  top: 0;
+  right: calc(100% + 8px);
+  left: auto;
+}
+
+.product-lane-mat .product-lane:last-child .card-context-menu {
+  transform: translateX(-4px);
+}
+
+.product-card-list.hand .card-context-menu {
+  max-height: 320px;
+}
+
+.product-card-list.compact .card-context-menu {
+  width: 236px;
 }
 
 @media (max-width: 1180px) {

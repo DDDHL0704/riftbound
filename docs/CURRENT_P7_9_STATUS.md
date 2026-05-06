@@ -3590,3 +3590,4 @@ Validation:
   - Fixed hand and compact card surfaces to bounded heights so long rules text cannot push cards into the player banner or outside the hand shelf.
   - Kept full text available through card hover/title and catalog details while the table view stays compact.
   - Browser smoke room `p7-1778047683440`: reloaded local Web UI, verified P1/P2 board, right operation panel, hand shelf, side zones, and direct `提交移动` button render without the previous major overlaps.
+  - Card context menu follow-up: released arena/board overflow while a card menu is open, forced own-side support-zone menus to open inward toward the table, wrapped long action text, and verified room `p7-1778047991558` with the right-side base card menu no longer opening under the operation drawer.
