@@ -1004,12 +1004,8 @@ public sealed record MatchState
             .OrderBy(task => PendingTaskSortKey(task.Kind))
             .ThenBy(task => task.TaskId, StringComparer.Ordinal)
             .ToArray();
-        var activeTask = tasks.FirstOrDefault();
-        var phase = activeTask is null
-            ? "IDLE"
-            : IsStateBasedCleanupTask(activeTask.Kind)
-                ? "STATE_BASED_CLEANUP"
-                : "BATTLEFIELD_TASKS";
+        var activeTask = SelectActivePendingTask(state, tasks);
+        var phase = PendingTaskQueuePhase(state, activeTask);
 
         return new PendingTaskQueueState(
             tasks.Length > 0,
@@ -1017,6 +1013,71 @@ public sealed record MatchState
             phase,
             activeTask?.TaskId,
             tasks);
+    }
+
+    private static CleanupTaskState? SelectActivePendingTask(MatchState state, IReadOnlyList<CleanupTaskState> tasks)
+    {
+        if (tasks.Count == 0)
+        {
+            return null;
+        }
+
+        var stateBasedTask = tasks.FirstOrDefault(task => IsStateBasedCleanupTask(task.Kind));
+        if (stateBasedTask is not null)
+        {
+            return stateBasedTask;
+        }
+
+        if (state.BattleState.IsActive)
+        {
+            var activeBattleTask = tasks.FirstOrDefault(task =>
+                string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && (string.IsNullOrWhiteSpace(state.BattleState.BattlefieldObjectId)
+                    || string.Equals(task.BattlefieldObjectId, state.BattleState.BattlefieldObjectId, StringComparison.Ordinal)));
+            if (activeBattleTask is not null)
+            {
+                return activeBattleTask;
+            }
+        }
+
+        if (state.SpellDuelState.IsActive)
+        {
+            var activeSpellDuelTask = tasks.FirstOrDefault(task =>
+                string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal));
+            if (activeSpellDuelTask is not null)
+            {
+                return activeSpellDuelTask;
+            }
+        }
+
+        return tasks[0];
+    }
+
+    private static string PendingTaskQueuePhase(MatchState state, CleanupTaskState? activeTask)
+    {
+        if (activeTask is null)
+        {
+            return "IDLE";
+        }
+
+        if (IsStateBasedCleanupTask(activeTask.Kind))
+        {
+            return "STATE_BASED_CLEANUP";
+        }
+
+        if (string.Equals(activeTask.Kind, "START_BATTLE", StringComparison.Ordinal)
+            && state.BattleState.IsActive)
+        {
+            return "BATTLE_TASKS";
+        }
+
+        if (string.Equals(activeTask.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+            && state.SpellDuelState.IsActive)
+        {
+            return "SPELL_DUEL_TASKS";
+        }
+
+        return "BATTLEFIELD_TASKS";
     }
 
     private static int PendingTaskSortKey(string kind)
