@@ -92,12 +92,24 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
               ) : (
                 <div className="detail-action-list">
                   {sourceActions.map((candidate) => {
-                    const command = commandForSourceCandidate(candidate, sourceObjectId, card);
+                    const command = commandForSourceCandidate(candidate, sourceObjectId);
                     if (candidate.action === "PLAY_CARD") {
                       return (
                         <PlayCardComposer
                           candidate={candidate}
                           card={card}
+                          key={candidate.action}
+                          onClose={onClose}
+                          onCommand={onCommand}
+                          sourceObjectId={sourceObjectId}
+                        />
+                      );
+                    }
+
+                    if (candidate.action === "MOVE_UNIT") {
+                      return (
+                        <MoveUnitComposer
+                          candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
                           onCommand={onCommand}
@@ -145,8 +157,7 @@ function sourceCandidatesFor(prompt: ActionPromptDto | undefined, sourceObjectId
 
 function commandForSourceCandidate(
   candidate: ActionPromptCandidateDto,
-  sourceObjectId: string | undefined,
-  card: InspectedCard
+  sourceObjectId: string | undefined
 ): GameCommand | undefined {
   if (!sourceObjectId || !candidate.enabled) {
     return undefined;
@@ -185,6 +196,19 @@ type PlayCardSourceRequirement = {
   targetChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
   destinationChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
+  composable: boolean;
+  unsupportedReason?: string;
+};
+
+type MoveUnitSourceRequirement = {
+  sourceObjectId: string;
+  origin: string;
+  originLabel: string;
+  mode: string;
+  modeLabel: string;
+  destinationChoices: ActionPromptChoiceDto[];
+  optionalCostChoices: ActionPromptChoiceDto[];
+  requiredOptionalCosts: string[];
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -397,6 +421,164 @@ function PlayCardComposer({
   );
 }
 
+function MoveUnitComposer({
+  candidate,
+  onClose,
+  onCommand,
+  sourceObjectId
+}: {
+  candidate: ActionPromptCandidateDto;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  sourceObjectId?: string;
+}) {
+  const requirements = useMemo(
+    () => moveUnitRequirementsFor(candidate, sourceObjectId),
+    [candidate, sourceObjectId]
+  );
+  const [selectedMode, setSelectedMode] = useState<string>("");
+  const [destination, setDestination] = useState<string>("");
+  const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (requirements.length === 0) {
+      setSelectedMode("");
+      return;
+    }
+
+    const hasCurrentMode = requirements.some((requirement) => requirement.mode === selectedMode);
+    if (!hasCurrentMode) {
+      setSelectedMode(requirements[0].mode);
+    }
+  }, [requirements, selectedMode]);
+
+  const selectedRequirement = requirements.find((requirement) => requirement.mode === selectedMode) ?? requirements[0];
+  const requirementKey = selectedRequirement
+    ? `${selectedRequirement.sourceObjectId}:${selectedRequirement.mode}`
+    : "";
+
+  useEffect(() => {
+    setOptionalCosts([]);
+    setDestination(selectedRequirement?.destinationChoices[0]?.id ?? "");
+  }, [requirementKey, selectedRequirement]);
+
+  if (!sourceObjectId) {
+    return (
+      <article className="play-card-composer">
+        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造移动命令。</p>
+      </article>
+    );
+  }
+
+  if (requirements.length === 0 || !selectedRequirement) {
+    return (
+      <article className="play-card-composer">
+        <div className="composer-heading">
+          <strong>{promptActionLabel(candidate)}</strong>
+          <span>{candidate.reason}</span>
+        </div>
+        <p className="detail-muted">服务端尚未为这张牌提供可提交的移动约束。</p>
+      </article>
+    );
+  }
+
+  const requiredCosts = selectedRequirement.requiredOptionalCosts;
+  const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) => !requiredCosts.includes(choice.id));
+  const requiredCostLabels = requiredCosts.map((cost) =>
+    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+  const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts]);
+  const canSubmit = Boolean(
+    candidate.enabled
+    && selectedRequirement.composable
+    && selectedRequirement.origin
+    && destination
+    && onCommand
+  );
+
+  return (
+    <article className="play-card-composer">
+      <div className="composer-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{candidate.reason}</span>
+      </div>
+      <div className="composer-meta">
+        <span>来源 {selectedRequirement.originLabel}</span>
+        <span>{selectedRequirement.modeLabel}</span>
+      </div>
+      {requirements.length > 1 && (
+        <ChoiceGroup label="移动方式">
+          {requirements.map((requirement) => (
+            <ChoiceButton
+              active={requirement.mode === selectedMode}
+              key={`${requirement.sourceObjectId}-${requirement.mode}`}
+              onClick={() => setSelectedMode(requirement.mode)}
+            >
+              {requirement.modeLabel}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      <ChoiceGroup label="目的地">
+        {selectedRequirement.destinationChoices.map((choice) => (
+          <ChoiceButton
+            active={destination === choice.id}
+            key={choice.id}
+            onClick={() => setDestination(choice.id)}
+            title={choice.reason ?? undefined}
+          >
+            {choice.label}
+          </ChoiceButton>
+        ))}
+      </ChoiceGroup>
+      {requiredCosts.length > 0 && (
+        <div className="composer-meta">
+          {requiredCostLabels.map((costLabel) => (
+            <span key={costLabel}>费用 {costLabel}</span>
+          ))}
+        </div>
+      )}
+      {optionalChoices.length > 0 && (
+        <ChoiceGroup label="可选费用">
+          {optionalChoices.map((choice) => (
+            <ChoiceButton
+              active={optionalCosts.includes(choice.id)}
+              key={choice.id}
+              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {!selectedRequirement.composable && (
+        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该移动当前不能由前端组合提交。"}</p>
+      )}
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => {
+          if (!canSubmit || !onCommand) {
+            return;
+          }
+
+          onCommand({
+            cmdType: "MOVE_UNIT",
+            sourceObjectId,
+            origin: selectedRequirement.origin,
+            destination,
+            optionalCosts: commandOptionalCosts.length > 0 ? commandOptionalCosts : undefined
+          });
+          onClose();
+        }}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        确认移动
+      </Button>
+    </article>
+  );
+}
+
 function ChoiceGroup({ children, label }: { children: ReactNode; label: string }) {
   return (
     <div className="composer-choice-group">
@@ -446,6 +628,49 @@ function playCardRequirementsFor(candidate: ActionPromptCandidateDto, sourceObje
     .map(parsePlayCardRequirement)
     .filter((requirement): requirement is PlayCardSourceRequirement =>
       Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function moveUnitRequirementsFor(candidate: ActionPromptCandidateDto, sourceObjectId?: string): MoveUnitSourceRequirement[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const rawRequirements = candidate.metadata?.sourceRequirements;
+  if (!Array.isArray(rawRequirements)) {
+    return [];
+  }
+
+  return rawRequirements
+    .map(parseMoveUnitRequirement)
+    .filter((requirement): requirement is MoveUnitSourceRequirement =>
+      Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function parseMoveUnitRequirement(value: unknown): MoveUnitSourceRequirement | undefined {
+  const record = asRecord(value);
+  if (!record) {
+    return undefined;
+  }
+
+  const sourceObjectId = stringField(record, "sourceObjectId");
+  const origin = stringField(record, "origin");
+  const mode = stringField(record, "mode");
+  if (!sourceObjectId || !origin || !mode) {
+    return undefined;
+  }
+
+  return {
+    sourceObjectId,
+    origin,
+    originLabel: stringField(record, "originLabel") || origin,
+    mode,
+    modeLabel: stringField(record, "modeLabel") || mode,
+    destinationChoices: choiceList(record.destinationChoices),
+    optionalCostChoices: choiceList(record.optionalCostChoices),
+    requiredOptionalCosts: stringList(record.requiredOptionalCosts),
+    composable: booleanField(record, "composable", true),
+    unsupportedReason: nullableStringField(record, "unsupportedReason")
+  };
 }
 
 function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | undefined {
@@ -530,6 +755,10 @@ function toggleValue(values: string[], value: string): string[] {
     : [...values, value];
 }
 
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
 function normalizedMode(mode?: string): string {
   return mode?.trim() ?? "";
 }
@@ -558,4 +787,12 @@ function numberField(record: Record<string, unknown>, key: string): number {
 function booleanField(record: Record<string, unknown>, key: string, fallback = false): boolean {
   const value = record[key];
   return typeof value === "boolean" ? value : fallback;
+}
+
+function stringList(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
 }

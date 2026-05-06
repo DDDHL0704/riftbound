@@ -2043,6 +2043,22 @@ internal static class ActionPromptBuilder
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
+    private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
+    private const string MoveUnitBaseZone = "BASE";
+    private const string MoveUnitRoamOptionalCost = "ROAM";
+    private const string MoveUnitRoamKeyword = "游走";
+
+    private sealed record MoveUnitPromptRequirement(
+        string SourceObjectId,
+        string Origin,
+        string OriginLabel,
+        string Mode,
+        string ModeLabel,
+        IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<string> RequiredOptionalCosts,
+        bool Composable,
+        string? UnsupportedReason);
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
@@ -2204,10 +2220,10 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsImplementedActivatedAbilitySource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented activated ability source"))
                 .ToArray(),
-            "MOVE_UNIT" => zones.Base
-                .Concat(zones.Battlefields)
-                .Where(objectId => IsMovableUnitSource(state, playerId, objectId))
-                .Select(objectId => ObjectChoice(state, objectId, "face-up controlled non-combat unit"))
+            "MOVE_UNIT" => MoveUnitSourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
+                .Select(objectId => ObjectChoice(state, objectId, "face-up controlled non-combat unit with implemented move route"))
                 .ToArray(),
             "ASSEMBLE_EQUIPMENT" => zones.Base
                 .Concat(zones.Battlefields)
@@ -2236,6 +2252,189 @@ internal static class ActionPromptBuilder
             && !cardObject.IsFaceDown
             && !cardObject.IsAttacking
             && !cardObject.IsDefending;
+    }
+
+    private static IReadOnlyList<MoveUnitPromptRequirement> MoveUnitSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        var requirements = new List<MoveUnitPromptRequirement>();
+        foreach (var objectId in zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => IsMovableUnitSource(state, playerId, objectId))
+            .Distinct(StringComparer.Ordinal))
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                requirements.Add(new MoveUnitPromptRequirement(
+                    objectId,
+                    MoveUnitBaseZone,
+                    "基地",
+                    "BASE_TO_BATTLEFIELD",
+                    "基地 -> 战场",
+                    [new ActionPromptChoiceDto(MoveUnitBattlefieldZone, "战场", "implemented coarse battlefield destination")],
+                    [],
+                    [],
+                    true,
+                    null));
+            }
+
+            if (!zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            if (!HasMoveUnitPromptPreventMoveToBase(state, playerId, objectId))
+            {
+                requirements.Add(new MoveUnitPromptRequirement(
+                    objectId,
+                    MoveUnitBattlefieldZone,
+                    "战场",
+                    "BATTLEFIELD_TO_BASE",
+                    "战场 -> 基地",
+                    [new ActionPromptChoiceDto(MoveUnitBaseZone, "基地", "implemented coarse base destination")],
+                    [],
+                    [],
+                    true,
+                    null));
+            }
+
+            if (!HasMoveUnitPromptRoamPermission(state, playerId, objectId, zones)
+                || !TryMoveUnitPreciseBattlefieldOrigin(state, playerId, objectId, zones, out var preciseOrigin, out var preciseOriginLabel))
+            {
+                continue;
+            }
+
+            var preciseDestinations = MoveUnitPreciseBattlefieldDestinationChoices(
+                state,
+                playerId,
+                preciseOrigin)
+                .ToArray();
+            if (preciseDestinations.Length == 0)
+            {
+                continue;
+            }
+
+            requirements.Add(new MoveUnitPromptRequirement(
+                objectId,
+                preciseOrigin,
+                preciseOriginLabel,
+                "ROAM",
+                "游走",
+                preciseDestinations,
+                [new ActionPromptChoiceDto(MoveUnitRoamOptionalCost, "游走", "required for precise battlefield movement")],
+                [MoveUnitRoamOptionalCost],
+                true,
+                null));
+        }
+
+        return requirements;
+    }
+
+    private static bool HasMoveUnitPromptPreventMoveToBase(MatchState state, string playerId, string sourceObjectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, BattlefieldPreventMoveToBaseCardNo, StringComparison.Ordinal));
+    }
+
+    private static bool HasMoveUnitPromptRoamPermission(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        PlayerZones zones)
+    {
+        if (!zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var sourceState))
+        {
+            return false;
+        }
+
+        return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
+            || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
+            || zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal));
+    }
+
+    private static bool TryMoveUnitPreciseBattlefieldOrigin(
+        MatchState state,
+        string playerId,
+        string sourceObjectId,
+        PlayerZones zones,
+        out string origin,
+        out string originLabel)
+    {
+        origin = string.Empty;
+        originLabel = string.Empty;
+
+        if (state.ObjectLocations.TryGetValue(sourceObjectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            origin = $"{MoveUnitBattlefieldZone}:{location.BattlefieldObjectId}";
+            originLabel = BattlefieldLocationLabel(state, location.BattlefieldObjectId);
+            return true;
+        }
+
+        var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
+            !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && IsBattlefieldCardObject(cardObject));
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return false;
+        }
+
+        origin = $"{MoveUnitBattlefieldZone}:{battlefieldObjectId}";
+        originLabel = BattlefieldLocationLabel(state, battlefieldObjectId);
+        return true;
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> MoveUnitPreciseBattlefieldDestinationChoices(
+        MatchState state,
+        string playerId,
+        string origin)
+    {
+        IEnumerable<ActionPromptChoiceDto> choices = state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Battlefields
+                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    && IsBattlefieldCardObject(cardObject))
+                .Select(objectId => new ActionPromptChoiceDto(
+                    $"{MoveUnitBattlefieldZone}:{objectId}",
+                    BattlefieldLocationLabel(state, objectId),
+                    "implemented precise battlefield roam destination"))
+            : [];
+
+        return choices
+            .Append(new ActionPromptChoiceDto(
+                $"{MoveUnitBattlefieldZone}:{playerId}-MAIN",
+                "己方主战场",
+                "implemented precise battlefield roam destination"))
+            .Where(choice => !string.Equals(choice.Id, origin, StringComparison.Ordinal))
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First());
+    }
+
+    private static string BattlefieldLocationLabel(MatchState state, string? battlefieldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId))
+        {
+            return "战场";
+        }
+
+        return state.CardObjects.TryGetValue(battlefieldObjectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            ? $"{cardObject.CardNo} / {battlefieldObjectId}"
+            : battlefieldObjectId;
     }
 
     private static bool IsTapRuneSource(MatchState state, string playerId, string objectId)
@@ -2707,11 +2906,7 @@ internal static class ActionPromptBuilder
                 .. ControlledBattlefieldExtraStandbyObjects(state, playerId)
                     .Select(objectId => BattlefieldDestinationChoice(state, objectId, "班德尔树额外待命目的地"))
             ],
-            "MOVE_UNIT" => [
-                new ActionPromptChoiceDto("BASE", "基地"),
-                new ActionPromptChoiceDto("BATTLEFIELD", "战场"),
-                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
-            ],
+            "MOVE_UNIT" => MoveUnitDestinationChoices(state, playerId),
             "DECLARE_BATTLE" => state.Seats.Keys
                 .Select(seatPlayerId => new ActionPromptChoiceDto($"BATTLEFIELD:{seatPlayerId}-MAIN", $"{seatPlayerId} 主战场"))
                 .Concat(PublicBattlefieldCardObjects(state)
@@ -2719,6 +2914,18 @@ internal static class ActionPromptBuilder
                 .ToArray(),
             _ => null
         };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? MoveUnitDestinationChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = MoveUnitSourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.DestinationChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardDestinationChoices(MatchState state, string playerId)
@@ -2794,7 +3001,7 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("STANDBY_FREE", "免费布置待命"),
                 new ActionPromptChoiceDto("STANDBY_TEEMO_MANA", "提莫布置待命")
             ],
-            "MOVE_UNIT" => [new ActionPromptChoiceDto("ROAM", "游走")],
+            "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => [new ActionPromptChoiceDto("ASSEMBLE_RED", "装配红色符能")],
             "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
             "LEGEND_ACT" => [
@@ -2808,6 +3015,18 @@ internal static class ActionPromptBuilder
             ],
             _ => null
         };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? MoveUnitOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = MoveUnitSourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardOptionalCostChoices(MatchState state, string playerId)
@@ -2914,10 +3133,7 @@ internal static class ActionPromptBuilder
                 ["abilityPolicy"] = "server-validates-activated-ability-on-submit",
                 ["targetPolicy"] = "server-validates-ability-target-scope-on-submit"
             },
-            "MOVE_UNIT" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "controlled-unit"
-            },
+            "MOVE_UNIT" => MoveUnitMetadataFor(state, playerId),
             "ASSEMBLE_EQUIPMENT" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "controlled-equipment",
@@ -2940,6 +3156,38 @@ internal static class ActionPromptBuilder
                 ["abilityPolicy"] = "server-validates-legend-ability-on-submit"
             },
             _ => null
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> MoveUnitMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = MoveUnitSourceRequirements(state, playerId)
+            .Select(MoveUnitSourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-face-up-controlled-non-combat-unit",
+            ["destinationPolicy"] = "source-specific-server-filtered-destinations",
+            ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> MoveUnitSourceRequirementView(
+        MoveUnitPromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["origin"] = requirement.Origin,
+            ["originLabel"] = requirement.OriginLabel,
+            ["mode"] = requirement.Mode,
+            ["modeLabel"] = requirement.ModeLabel,
+            ["destinationChoices"] = requirement.DestinationChoices,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 

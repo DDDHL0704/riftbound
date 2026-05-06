@@ -997,6 +997,18 @@ public sealed class ConformanceFixtureShapeTests
             candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
         Assert.True(moveCandidate.Enabled);
         Assert.Equal(["P1-READY-UNIT"], (moveCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["BATTLEFIELD"], (moveCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        Assert.Null(moveCandidate.OptionalCosts);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-READY-UNIT", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("BASE", Assert.IsType<string>(sourceRequirement["origin"]));
+        Assert.Equal("BASE_TO_BATTLEFIELD", Assert.IsType<string>(sourceRequirement["mode"]));
+        var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["destinationChoices"]);
+        Assert.Equal(["BATTLEFIELD"], destinationChoices.Select(destination => destination.Id).ToArray());
     }
 
     [Fact]
