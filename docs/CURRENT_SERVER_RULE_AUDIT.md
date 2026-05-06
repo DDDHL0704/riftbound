@@ -28,8 +28,9 @@
 - P1-003 第一批已落地：`BehaviorSpec` 新增 `ConformanceTier` / `ConformanceReason`，将当前 `implemented` 明确降义为 `representative-rule-pass`，并在 API summary、图鉴详情和基线测试中断言 `full-official-rule-pass = 0`。产品 UI 不再把 `implemented` 文案展示为“官方完整一致性通过”。
 - P0-002 第三批已落地：新增 `BattlefieldState` 权威派生状态视图与 `MatchState.BattlefieldStates`，从服务端 `PlayerZones`、`ObjectLocations`、`CardObjects` 统一表达战场牌、控制者、占据单位、占据方控制者、待命对象、面朝下待命数量和争夺状态；snapshot 的 lanes.battlefields 改为复用该服务端状态视图。
 - P0-003 第三批已落地：新增 `CleanupTaskState` / `MatchState.PendingCleanupTasks`，能显式列出致命伤害单位清理与战场争夺检查任务；移动和结算链结算后的致命伤害清理由单次 helper 升级为 `RunStateBasedCleanupLoop`，重复执行直到当前状态性致命伤害任务稳定。
+- P0-004 第三批已落地：新增 `TurnWindowState`、`SpellDuelState`、`BattleState` 与对应 `MatchState` 派生视图；普通开环/闭环、法术对决开环/闭环现在有统一窗口状态，snapshot timing 会暴露 `turnWindow`、`spellDuel`、`battle`，用于 UI 和后续 task machine，而不是让前端自行推断。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；`MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews` 覆盖服务端 `BattlefieldStates` 与 `PendingCleanupTasks`；`MatchStateExposesTurnWindowSpellDuelAndBattleViews` 覆盖服务端四类窗口、法术对决和战斗状态视图；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖 Hub 级正式开局闭环；`P7PostStackCleanupDestroysPreExistingLethalFieldUnit` 覆盖栈结算后统一状态清理兜底；`P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait` / `P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing` 覆盖彩色符能成功支付与失败回滚；`P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass` 覆盖图鉴状态口径拆分；当前回归记录为 `ConformanceFixtureRunnerTests 2657/2657`、`GameHubJoinTests 85/85`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -122,19 +123,20 @@
 
 ### P0-004 法术对决与战斗不是完整官方状态机
 
-当前状态：**PARTIALLY RESOLVED / 迅捷入栈后的法术对决焦点恢复已修复，BattleState 仍缺失**
+当前状态：**PARTIALLY RESOLVED / 法术对决焦点恢复和显式 SpellDuel/Battle 状态视图已落地，完整任务状态机仍缺失**
 
 规则依据：自查文档 11、12；核心规则关于 FEPR、法术对决焦点、初始栈、双方行动、战斗 pending、攻击/防守单位声明、战斗清理、无战斗结果的要求。
 
 代码位置：
 - `src/Riftbound.Engine/CoreRuleEngine.cs:232` 的命令分发直接按 `PlayCard`、`MoveUnit`、`DeclareBattle` 等命令进入各自 resolver。
 - `src/Riftbound.Engine/MatchSession.cs` 的 `StackItemState.TimingContext` 现在记录入栈前的 timing window。
+- `src/Riftbound.Engine/MatchSession.cs` 新增 `TurnWindowState`、`SpellDuelState`、`BattleState`，snapshot timing 暴露四类窗口、法术对决和战斗参与者视图。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 的 `ResolvePassPriority` 现在能在法术对决栈清空时恢复 `SPELL_DUEL_OPEN` 并转移焦点。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:4174` 的 `ResolveDeclareBattle` 直接执行战斗。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:5185` 的 `TryBuildMinimalDeclareBattle` 只支持 1 个攻击者、1 到 2 个防守者，且条件被命名为 minimal。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:4275` 到 `src/Riftbound.Engine/CoreRuleEngine.cs:4382` 直接计算并应用伤害。
 
-现象：当前战斗仍是显式 `DECLARE_BATTLE` 命令驱动的“立即结算战斗片段”，不是由清理任务在争夺战场时启动的完整 battle task。法术对决已修复两个关键窗口问题：迅捷牌结算后不会提前关闭法术对决；反应/反制链也会继承并保留法术对决 timing context。但仍缺少围绕某个 battle/trigger/card 的完整 pending/focus/initial-stack 生命周期。
+现象：当前战斗仍是显式 `DECLARE_BATTLE` 命令驱动的“立即结算战斗片段”，不是由清理任务在争夺战场时启动的完整 battle task。法术对决已修复两个关键窗口问题：迅捷牌结算后不会提前关闭法术对决；反应/反制链也会继承并保留法术对决 timing context。现在服务端也能显式表达四类窗口、当前法术对决和战斗参与者，但仍缺少围绕某个 battle/trigger/card 的完整 pending/focus/initial-stack 生命周期。
 
 最小复现场景：迅捷牌在 `SPELL_DUEL_OPEN` 焦点窗口打出并结算后，当前会回到 `SPELL_DUEL_OPEN` 且焦点移交下一名玩家。单位移动到敌方控制战场时，按官方规则应进入争夺并触发法术对决/战斗流程；这一部分仍没有完整 battle task。
 
@@ -280,12 +282,12 @@
 | 隐藏手牌/面朝下对象 | PASS | 手牌、face-down 与随机 seed/rngCursor 均已从普通玩家视角裁剪。 |
 | 官方 deck/opening/mulligan | FAIL | 无正式 deck validator 与官方开局状态机。 |
 | 区域/对象/控制权/战场位置 | RISKY | 已有 `ObjectLocations` 与 `BattlefieldStates` 权威派生视图；仍缺完整 battlefield/standby/control task 状态机。 |
-| FEPR/优先权/焦点 | RISKY | 有 timingState/focus/prompt，但缺少完整 pending task/state machine。 |
+| FEPR/优先权/焦点 | RISKY | 有 `TurnWindowState`、`SpellDuelState`、focus/prompt；仍缺完整 pending task/state machine。 |
 | 栈/出牌/费用/目标 | RISKY | 大量代表路径实现；PLAY_CARD typed 符能第一批已接入，但通用支付来源/目标语法仍不足。 |
 | 通用清理检查 | RISKY | 已有 `PendingCleanupTasks` 与移动/栈结算后的致命伤害 cleanup loop；仍缺覆盖全部状态变化的统一任务队列。 |
 | 移动/战场控制 | RISKY | 精确移动可写回 object location，战场状态可表达争夺；完整控制权改变/征服/据守仍待状态机化。 |
-| 法术对决 | FAIL | 缺少完整 spell duel lifecycle。 |
-| 战斗 | FAIL | 当前是 direct/minimal declare battle，不是官方 battle task。 |
+| 法术对决 | RISKY | 已有显式 `SpellDuelState` 与焦点恢复；仍缺完整 spell duel lifecycle。 |
+| 战斗 | RISKY | 已有显式 `BattleState` 参与者视图；当前仍是 direct/minimal declare battle，不是官方 battle task。 |
 | 计分/胜负 | RISKY | 有部分得分/胜负实现；依赖战场控制与 cleanup 的完整性不足。 |
 | 连续效果层 | FAIL | 直接修改对象数值，缺少 layer/timestamp/dependency。 |
 | 关键词 | RISKY/FAIL | 多个关键词 profile 仍标识 recognized/deferred。 |

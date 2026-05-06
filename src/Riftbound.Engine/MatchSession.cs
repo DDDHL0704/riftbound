@@ -210,6 +210,28 @@ public sealed record CleanupTaskState(
     string? ObjectId = null,
     string? BattlefieldObjectId = null);
 
+public sealed record TurnWindowState(
+    string State,
+    bool IsSpellDuel,
+    bool IsClosed,
+    bool HasStack,
+    string? ActingPlayerId);
+
+public sealed record SpellDuelState(
+    bool IsActive,
+    bool IsClosed,
+    string? FocusPlayerId,
+    IReadOnlyList<string> PassedFocusPlayerIds,
+    IReadOnlyList<string> StackItemIds,
+    IReadOnlyList<string> StackControllerIds);
+
+public sealed record BattleState(
+    bool IsActive,
+    string? BattlefieldObjectId,
+    IReadOnlyList<string> AttackerObjectIds,
+    IReadOnlyList<string> DefenderObjectIds,
+    IReadOnlyDictionary<string, string> ParticipantControllerIds);
+
 public sealed record CardObjectState
 {
     [JsonConstructor]
@@ -516,6 +538,12 @@ public sealed record MatchState
 
     public string TimingState { get; init; }
 
+    public TurnWindowState TurnWindow => BuildTurnWindowState(this);
+
+    public SpellDuelState SpellDuelState => BuildSpellDuelState(this);
+
+    public BattleState BattleState => BuildBattleState(this);
+
     public IReadOnlyDictionary<string, RunePool> RunePools { get; init; }
 
     public IReadOnlyDictionary<string, PlayerZones> PlayerZones { get; init; }
@@ -651,6 +679,103 @@ public sealed record MatchState
             .Where(entry => !string.IsNullOrWhiteSpace(entry.Value.PlayerId)
                 && !string.IsNullOrWhiteSpace(entry.Value.Zone))
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+    }
+
+    private static TurnWindowState BuildTurnWindowState(MatchState state)
+    {
+        var hasStack = state.StackItems.Count > 0;
+        var isSpellDuel = IsSpellDuelTimingState(state.TimingState)
+            || !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            || state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal));
+        var isClosed = hasStack || string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            || string.Equals(state.TimingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal);
+        var windowState = isSpellDuel
+            ? isClosed ? TimingStates.SpellDuelClosed : TimingStates.SpellDuelOpen
+            : isClosed ? TimingStates.NeutralClosed : TimingStates.NeutralOpen;
+        var actingPlayerId = isSpellDuel
+            ? state.FocusPlayerId
+            : hasStack
+                ? state.PriorityPlayerId
+                : state.ActivePlayerId;
+
+        return new TurnWindowState(windowState, isSpellDuel, isClosed, hasStack, actingPlayerId);
+    }
+
+    private static SpellDuelState BuildSpellDuelState(MatchState state)
+    {
+        var isActive = IsSpellDuelTimingState(state.TimingState)
+            || !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+            || state.StackItems.Any(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal));
+        if (!isActive)
+        {
+            return new SpellDuelState(false, false, null, [], [], []);
+        }
+
+        var stackItems = state.StackItems
+            .Where(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                || IsSpellDuelTimingState(state.TimingState))
+            .ToArray();
+        return new SpellDuelState(
+            true,
+            state.TurnWindow.IsClosed,
+            state.FocusPlayerId,
+            state.PassedFocusPlayerIds,
+            stackItems.Select(item => item.StackItemId).ToArray(),
+            stackItems
+                .Select(item => item.ControllerId)
+                .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(playerId => playerId, StringComparer.Ordinal)
+                .ToArray());
+    }
+
+    private static BattleState BuildBattleState(MatchState state)
+    {
+        var attackerObjectIds = state.CardObjects
+            .Where(entry => entry.Value.IsAttacking
+                && entry.Value.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        var defenderObjectIds = state.CardObjects
+            .Where(entry => entry.Value.IsDefending
+                && entry.Value.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _))
+            .Select(entry => entry.Key)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        var participantObjectIds = attackerObjectIds
+            .Concat(defenderObjectIds)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var participantControllerIds = participantObjectIds
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !string.IsNullOrWhiteSpace(cardObject.ControllerId))
+            .ToDictionary(
+                objectId => objectId,
+                objectId => state.CardObjects[objectId].ControllerId!,
+                StringComparer.Ordinal);
+        var battlefieldObjectIds = participantObjectIds
+            .Select(objectId => state.ObjectLocations.TryGetValue(objectId, out var location)
+                ? location.BattlefieldObjectId
+                : null)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        return new BattleState(
+            participantObjectIds.Length > 0,
+            battlefieldObjectIds.Length == 1 ? battlefieldObjectIds[0] : null,
+            attackerObjectIds,
+            defenderObjectIds,
+            participantControllerIds);
+    }
+
+    private static bool IsSpellDuelTimingState(string timingState)
+    {
+        return string.Equals(timingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+            || string.Equals(timingState, TimingStates.SpellDuelClosed, StringComparison.Ordinal);
     }
 
     private static IReadOnlyDictionary<string, BattlefieldState> BuildBattlefieldStates(MatchState state)
@@ -980,6 +1105,9 @@ public sealed record ResolutionResult(
                     ["passedFocusPlayerIds"] = state.PassedFocusPlayerIds,
                     ["winnerPlayerId"] = state.WinnerPlayerId,
                     ["destroyedUnitOwnerIdsThisTurn"] = state.DestroyedUnitOwnerIdsThisTurn,
+                    ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
+                    ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
+                    ["battle"] = BuildBattleSnapshotView(state.BattleState),
                     ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                     ["winningScore"] = EffectiveWinningScore(state),
                     ["roomStatus"] = state.Status,
@@ -1028,6 +1156,43 @@ public sealed record ResolutionResult(
             ["sourceObjectId"] = item.SourceObjectId,
             ["effectKind"] = item.EffectKind,
             ["triggeredByEventKind"] = item.TriggeredByEventKind
+        };
+    }
+
+    private static Dictionary<string, object?> BuildTurnWindowSnapshotView(TurnWindowState window)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["state"] = window.State,
+            ["isSpellDuel"] = window.IsSpellDuel,
+            ["isClosed"] = window.IsClosed,
+            ["hasStack"] = window.HasStack,
+            ["actingPlayerId"] = window.ActingPlayerId
+        };
+    }
+
+    private static Dictionary<string, object?> BuildSpellDuelSnapshotView(SpellDuelState spellDuel)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["isActive"] = spellDuel.IsActive,
+            ["isClosed"] = spellDuel.IsClosed,
+            ["focusPlayerId"] = spellDuel.FocusPlayerId,
+            ["passedFocusPlayerIds"] = spellDuel.PassedFocusPlayerIds,
+            ["stackItemIds"] = spellDuel.StackItemIds,
+            ["stackControllerIds"] = spellDuel.StackControllerIds
+        };
+    }
+
+    private static Dictionary<string, object?> BuildBattleSnapshotView(BattleState battle)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["isActive"] = battle.IsActive,
+            ["battlefieldObjectId"] = battle.BattlefieldObjectId,
+            ["attackerObjectIds"] = battle.AttackerObjectIds,
+            ["defenderObjectIds"] = battle.DefenderObjectIds,
+            ["participantControllerIds"] = battle.ParticipantControllerIds
         };
     }
 

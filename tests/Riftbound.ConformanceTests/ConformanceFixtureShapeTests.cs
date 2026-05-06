@@ -640,6 +640,89 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void MatchStateExposesTurnWindowSpellDuelAndBattleViews()
+    {
+        var state = new MatchState(
+            "turn-window-room",
+            13,
+            3,
+            "bob",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            timingState: TimingStates.NeutralClosed,
+            priorityPlayerId: "bob",
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-1",
+                    "alice",
+                    "A-SPELL-1",
+                    "DAMAGE",
+                    "OGN·009/298",
+                    ["B-DEFENDER-1"],
+                    timingContext: TimingStates.SpellDuelOpen)
+            ],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "A-ATTACKER-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["B-DEFENDER-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("BF-1", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "alice", controllerId: "alice"),
+                ["A-ATTACKER-1"] = new(
+                    "A-ATTACKER-1",
+                    power: 3,
+                    isAttacking: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["B-DEFENDER-1"] = new(
+                    "B-DEFENDER-1",
+                    power: 2,
+                    isDefending: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "bob",
+                    controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["A-ATTACKER-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["B-DEFENDER-1"] = new("bob", "BATTLEFIELD", "BF-1")
+            });
+
+        Assert.Equal(TimingStates.SpellDuelClosed, state.TurnWindow.State);
+        Assert.True(state.TurnWindow.IsSpellDuel);
+        Assert.True(state.SpellDuelState.IsActive);
+        Assert.True(state.SpellDuelState.IsClosed);
+        Assert.Equal(["STACK-1"], state.SpellDuelState.StackItemIds);
+        Assert.True(state.BattleState.IsActive);
+        Assert.Equal("BF-1", state.BattleState.BattlefieldObjectId);
+        Assert.Equal(["A-ATTACKER-1"], state.BattleState.AttackerObjectIds);
+        Assert.Equal(["B-DEFENDER-1"], state.BattleState.DefenderObjectIds);
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var turnWindow = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["turnWindow"]);
+        var spellDuel = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["spellDuel"]);
+        var battle = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["battle"]);
+        Assert.Equal(TimingStates.SpellDuelClosed, Assert.IsType<string>(turnWindow["state"]));
+        Assert.True(Assert.IsType<bool>(spellDuel["isActive"]));
+        Assert.Equal(["A-ATTACKER-1"], StringList(battle["attackerObjectIds"]));
+    }
+
+    [Fact]
     public void SnapshotsRedactOpponentFaceDownObjects()
     {
         var state = new MatchState(
