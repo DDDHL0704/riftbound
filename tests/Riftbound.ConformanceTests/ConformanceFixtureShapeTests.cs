@@ -554,6 +554,60 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Contains("PASS_PRIORITY", play.Prompts["P1"].Actions);
     }
 
+    [Fact]
+    public async Task SeedScenarioCreatesTwoPlayerTestDecks()
+    {
+        var session = new MatchSession("dev-room", new CoreRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var seed = await session.SeedScenarioAsync(
+            "P1",
+            "seed-test-decks",
+            "test-decks",
+            JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = "test-decks" }),
+            CancellationToken.None);
+
+        Assert.True(seed.Accepted);
+
+        var p1View = PlayerView(seed.Snapshots["P1"], "P1");
+        var p1Zones = ZoneView(p1View);
+        Assert.Equal(12, Assert.IsType<int>(p1Zones["mainDeckCount"]));
+        Assert.Equal(8, Assert.IsType<int>(p1Zones["runeDeckCount"]));
+        Assert.Equal(5, StringList(p1Zones["hand"]).Count);
+        Assert.Contains("P1-UNIT-MIGHTY-FAERIE", StringList(p1Zones["hand"]));
+        Assert.Contains("P1-LEGEND-POPPY", StringList(p1Zones["legendZone"]));
+        Assert.Contains("P1-CHAMPION-001", StringList(p1Zones["championZone"]));
+
+        var p2OwnView = PlayerView(seed.Snapshots["P2"], "P2");
+        var p2OwnZones = ZoneView(p2OwnView);
+        Assert.Equal(12, Assert.IsType<int>(p2OwnZones["mainDeckCount"]));
+        Assert.Equal(8, Assert.IsType<int>(p2OwnZones["runeDeckCount"]));
+        Assert.Equal(5, StringList(p2OwnZones["hand"]).Count);
+        Assert.Contains("P2-SPELL-HEXTECH-RAY", StringList(p2OwnZones["hand"]));
+        Assert.Contains("P2-LEGEND-YASUO", StringList(p2OwnZones["legendZone"]));
+        Assert.Contains("P2-CHAMPION-001", StringList(p2OwnZones["championZone"]));
+
+        var p2FromP1Zones = ZoneView(PlayerView(seed.Snapshots["P1"], "P2"));
+        Assert.Empty(StringList(p2FromP1Zones["hand"]));
+        Assert.Equal(5, Assert.IsType<int>(p2FromP1Zones["handHidden"]));
+
+        var p1Objects = ObjectView(p1View);
+        var p1HandObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-MIGHTY-FAERIE"]);
+        Assert.Equal("SFD·125/221", Assert.IsType<string>(p1HandObject["cardNo"]));
+
+        var p2Objects = ObjectView(p2OwnView);
+        var p2HandObject = Assert.IsType<Dictionary<string, object?>>(p2Objects["P2-SPELL-HEXTECH-RAY"]);
+        Assert.Equal("OGN·009/298", Assert.IsType<string>(p2HandObject["cardNo"]));
+
+        var playCandidate = Assert.Single(
+            seed.Prompts["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-UNIT-MIGHTY-FAERIE", StringComparison.Ordinal));
+    }
+
     private sealed class RecordingMatchJournal : IMatchJournal
     {
         public List<MatchJournalEntry> Entries { get; } = [];

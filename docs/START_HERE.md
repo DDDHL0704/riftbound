@@ -70,7 +70,7 @@
 
 新项目已建立完整的 P1-P7 内部可玩链路：`Riftbound.Contracts`、`Riftbound.Engine`、`Riftbound.Api`、`Riftbound.Persistence`、`Riftbound.CardCatalog`、`Riftbound.ConformanceTests` 和 `Riftbound.DevUi` 均已可用。本机环境为 .NET 10.0.203、PostgreSQL 16、Redis 6.2.4、Node 24，新的终端先执行 `source scripts/dev-env.sh`。
 
-P7 产品级 Web 对战已完成，最终状态以 `docs/CURRENT_P7_STATUS.md` 为准。P7.9 本地产品版全卡可玩也已完成，最终状态入口为 `docs/CURRENT_P7_9_STATUS.md`。当前实现 `1009/1009` 官方条目 `CONFORMANCE_PASS`，`811/811` 功能单元已实现，manual deferred 剩余 `0/811`，blocked 剩余 `0`。P7.9 已完成结构化 ActionPrompt、点击式出牌/目标/费用/战斗/传奇/战场操作、全卡图鉴详情、事件日志/战报、基础回放/观战只读边界、断线重连 smoke、战斗完整性复核和最终 Browser smoke/full audit。2026-05-06 追加了新的默认产品级对战页：顶部 HUD、全高度竞技桌面、P2/P1 上下席位、双战场、右侧抽屉式操作/席位/日志/图鉴和中文化展示。
+P7 产品级 Web 对战已完成，最终状态以 `docs/CURRENT_P7_STATUS.md` 为准。P7.9 本地产品版全卡可玩也已完成，最终状态入口为 `docs/CURRENT_P7_9_STATUS.md`。当前实现 `1009/1009` 官方条目 `CONFORMANCE_PASS`，`811/811` 功能单元已实现，manual deferred 剩余 `0/811`，blocked 剩余 `0`。P7.9 已完成结构化 ActionPrompt、点击式出牌/目标/费用/战斗/传奇/战场操作、全卡图鉴详情、事件日志/战报、基础回放/观战只读边界、断线重连 smoke、战斗完整性复核和最终 Browser smoke/full audit。2026-05-06 追加了新的默认产品级对战页：顶部 HUD、全高度竞技桌面、P2/P1 上下席位、双战场、右侧抽屉式操作/席位/日志/图鉴和中文化展示；同日追加开发期 `双人测试牌组` 场景，可在右侧 `操作` 抽屉的 `本地场景` 中给 P1/P2 各加载一套本地测试牌组。
 
 完整卡牌/模式覆盖列表不再重复维护在本文件中：
 

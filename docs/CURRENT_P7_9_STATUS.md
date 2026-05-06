@@ -251,6 +251,36 @@ Validation:
 - `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed.
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`: passed.
 
+## Post-P7.9 Two Player Test Deck Seed
+
+Status: done on 2026-05-06.
+
+Purpose:
+
+- Provide a local, development-only setup for manual Web testing where P1 and P2 each start with a usable test deck surface.
+- Keep the seed behind the existing `SeedScenario` development boundary and keep all legal actions supplied by server `ActionPrompt`.
+
+Changes:
+
+- Added dev scenario `test-decks`.
+- P1 and P2 each receive `12` main-deck cards, `8` rune-deck cards, `5` hand cards, a base unit, battlefield units, one legend, one hero, `12` mana, `3` power, and `3` experience.
+- Added the UI preset `双人测试牌组` under `操作 -> 目标选择与提交 -> 本地场景`.
+- Seeded objects include card numbers so the product table can render Chinese card names such as `大力仙灵`, `海克斯射线`, `长剑`, `驭风而行`, `恶意收购`, `圣锤之毅`, and `疾风剑豪`.
+- Added conformance coverage proving P1/P2 deck counts, hand visibility/privacy, legend/champion zones, visible hand card numbers, and the P1 `PLAY_CARD` prompt source.
+
+Browser smoke:
+
+- Web URL: `http://127.0.0.1:5173/`
+- Current-code API URL: `http://127.0.0.1:5095`
+- Room ID: `p7-1778034753237`
+- Path: set server URL to `5095` -> `新房间` -> `双人入座` -> `双方准备` -> `高级` -> expand `目标选择与提交` -> click `双人测试牌组`.
+- Result: room reached turn `#1001`, active player `P1`, timing `普通行动窗口`; P1/P2 both showed main deck `12`, rune deck `8`, hand count `5`, mana `12`, power `3`, experience `3`, plus battlefield/base/legend/hero zones. P1 hand displayed five Chinese card surfaces and server prompt showed `8` executable actions, including prompt-derived `PLAY_CARD` sources.
+
+Validation:
+
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~SeedScenarioCreatesTwoPlayerTestDecks"`: passed.
+- `source ../../scripts/dev-env.sh && npm run build` from `src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+
 ## P7.9.0 Delivered
 
 - Added this P7.9 status file with baseline, scope, gap audit, optimization backlog, batch plan, validation policy, and progress tracking.

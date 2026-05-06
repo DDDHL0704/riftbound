@@ -480,6 +480,17 @@ const scenarioPresets: ScenarioPreset[] = [
       cardNo: "OGN·009/298",
       targetObjectIds: ["P2-UNIT-001"]
     }
+  },
+  {
+    id: "test-decks",
+    title: "双人测试牌组",
+    description: "P1/P2 各有主牌堆、符文牌堆、手牌、基地、传奇、英雄和战场单位。",
+    command: {
+      cmdType: "PLAY_CARD",
+      sourceObjectId: "P1-UNIT-MIGHTY-FAERIE",
+      cardNo: "SFD·125/221",
+      targetObjectIds: []
+    }
   }
 ];
 
@@ -846,6 +857,32 @@ function App() {
         abilityId: "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
         targetObjectIds: "",
         optionalCosts: ""
+      });
+    }
+    if (preset.id === "test-decks") {
+      setMoveDraft({
+        sourceObjectId: "P1-BATTLEFIELD-UNIT-001",
+        origin: "BATTLEFIELD",
+        destination: "BASE",
+        optionalCosts: ""
+      });
+      setAssembleDraft({
+        sourceObjectId: "P1-EQUIPMENT-LONG-SWORD",
+        targetObjectId: "P1-BATTLEFIELD-UNIT-001",
+        optionalCosts: "ASSEMBLE_RED"
+      });
+      setBattleDraft({
+        battlefieldId: "BATTLEFIELD:P1-MAIN",
+        attackerObjectIds: "P1-BATTLE-ATTACKER-001",
+        defenderObjectIds: "P2-BATTLE-DEFENDER-001",
+        battlefieldTargetObjectIds: "",
+        optionalCosts: "COMBAT_ASSIGNMENT"
+      });
+      setLegendDraft({
+        sourceObjectId: "P1-LEGEND-POPPY",
+        abilityId: "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+        targetObjectIds: "",
+        optionalCosts: "SPEND_EXPERIENCE:3"
       });
     }
   }

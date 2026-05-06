@@ -2681,6 +2681,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-conquer-gold" => BuildBattlefieldConquerGoldScenario(current, seed),
             "battlefield-conquer-ready-equipment" => BuildBattlefieldConquerReadyEquipmentScenario(current, seed),
             "battle-score" => BuildBattleScoreScenario(current, seed),
+            "test-decks" => BuildTestDecksScenario(current, seed),
             "specified-hand" => BuildSpecifiedHandScenario(current, seed),
             _ => throw new MatchSessionException(
                 ErrorCodes.UnsupportedCommand,
@@ -6282,6 +6283,229 @@ public sealed class MatchSession : IMatchSession
                 ["P1-BATTLE-COMMAND-FIELD-KEEPER"] = new(power: 2, tags: ["CARD_TYPE:UNIT"]),
                 ["P2-BATTLE-COMMAND-BASE-001"] = new(power: 3, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
             });
+    }
+
+    private static MatchState BuildTestDecksScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var p1MainDeck = new[]
+        {
+            "P1-DECK-MIGHTY-FAERIE-001",
+            "P1-DECK-MIGHTY-FAERIE-002",
+            "P1-DECK-HEXTECH-RAY-001",
+            "P1-DECK-LONG-SWORD-001",
+            "P1-DECK-RIDE-THE-WIND-001",
+            "P1-DECK-HOSTILE-TAKEOVER-001",
+            "P1-DECK-DEMACIA-ENVOY-001",
+            "P1-DECK-MOSS-STEPPER-001",
+            "P1-DECK-MIGHTY-FAERIE-003",
+            "P1-DECK-HEXTECH-RAY-002",
+            "P1-DECK-LONG-SWORD-002",
+            "P1-DECK-RIDE-THE-WIND-002"
+        };
+        var p2MainDeck = new[]
+        {
+            "P2-DECK-MIGHTY-FAERIE-001",
+            "P2-DECK-MIGHTY-FAERIE-002",
+            "P2-DECK-HEXTECH-RAY-001",
+            "P2-DECK-LONG-SWORD-001",
+            "P2-DECK-RIDE-THE-WIND-001",
+            "P2-DECK-HOSTILE-TAKEOVER-001",
+            "P2-DECK-DEMACIA-ENVOY-001",
+            "P2-DECK-MOSS-STEPPER-001",
+            "P2-DECK-MIGHTY-FAERIE-003",
+            "P2-DECK-HEXTECH-RAY-002",
+            "P2-DECK-LONG-SWORD-002",
+            "P2-DECK-RIDE-THE-WIND-002"
+        };
+        var p1RuneDeck = Enumerable.Range(1, 8)
+            .Select(index => $"P1-RUNE-DECK-{index:000}")
+            .ToArray();
+        var p2RuneDeck = Enumerable.Range(1, 8)
+            .Select(index => $"P2-RUNE-DECK-{index:000}")
+            .ToArray();
+
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-UNIT-MIGHTY-FAERIE"] = Unit("P1-UNIT-MIGHTY-FAERIE", seed.P1, "SFD·125/221", 3, manaCost: 4),
+            ["P1-SPELL-HEXTECH-RAY"] = Spell("P1-SPELL-HEXTECH-RAY", seed.P1, "OGN·009/298", manaCost: 2),
+            ["P1-EQUIPMENT-LONG-SWORD"] = Equipment("P1-EQUIPMENT-LONG-SWORD", seed.P1, "SFD·022/221", manaCost: 2),
+            ["P1-SPELL-RIDE-THE-WIND"] = Spell("P1-SPELL-RIDE-THE-WIND", seed.P1, "OGN·173/298", manaCost: 2),
+            ["P1-SPELL-HOSTILE-TAKEOVER"] = Spell("P1-SPELL-HOSTILE-TAKEOVER", seed.P1, "SFD·202/221", manaCost: 4),
+            ["P2-UNIT-MIGHTY-FAERIE"] = Unit("P2-UNIT-MIGHTY-FAERIE", seed.P2, "SFD·125/221", 3, manaCost: 4),
+            ["P2-SPELL-HEXTECH-RAY"] = Spell("P2-SPELL-HEXTECH-RAY", seed.P2, "OGN·009/298", manaCost: 2),
+            ["P2-EQUIPMENT-LONG-SWORD"] = Equipment("P2-EQUIPMENT-LONG-SWORD", seed.P2, "SFD·022/221", manaCost: 2),
+            ["P2-SPELL-RIDE-THE-WIND"] = Spell("P2-SPELL-RIDE-THE-WIND", seed.P2, "OGN·173/298", manaCost: 2),
+            ["P2-SPELL-HOSTILE-TAKEOVER"] = Spell("P2-SPELL-HOSTILE-TAKEOVER", seed.P2, "SFD·202/221", manaCost: 4),
+            ["P1-BASE-GUARD-001"] = Unit("P1-BASE-GUARD-001", seed.P1, "SFD·125/221", 2, damage: 1),
+            ["P1-BATTLEFIELD-UNIT-001"] = Unit("P1-BATTLEFIELD-UNIT-001", seed.P1, "SFD·125/221", 3),
+            ["P1-BATTLE-ATTACKER-001"] = Unit("P1-BATTLE-ATTACKER-001", seed.P1, "SFD·125/221", 4),
+            ["P1-LEGEND-POPPY"] = Legend("P1-LEGEND-POPPY", seed.P1, "UNL-237/219"),
+            ["P1-CHAMPION-001"] = Hero("P1-CHAMPION-001", seed.P1, "FND-259/298"),
+            ["P2-BASE-GUARD-001"] = Unit("P2-BASE-GUARD-001", seed.P2, "SFD·125/221", 2),
+            ["P2-UNIT-001"] = Unit("P2-UNIT-001", seed.P2, "SFD·125/221", 2),
+            ["P2-HOSTILE-TAKEOVER-TARGET"] = Unit("P2-HOSTILE-TAKEOVER-TARGET", seed.P2, "SFD·125/221", 4, isExhausted: true),
+            ["P2-BATTLE-DEFENDER-001"] = Unit("P2-BATTLE-DEFENDER-001", seed.P2, "SFD·125/221", 3),
+            ["P2-LEGEND-YASUO"] = Legend("P2-LEGEND-YASUO", seed.P2, "FND-259/298"),
+            ["P2-CHAMPION-001"] = Hero("P2-CHAMPION-001", seed.P2, "FND-259/298")
+        };
+
+        AddDeckCards(cardObjects, p1MainDeck, seed.P1);
+        AddDeckCards(cardObjects, p2MainDeck, seed.P2);
+        AddRuneCards(cardObjects, p1RuneDeck, seed.P1);
+        AddRuneCards(cardObjects, p2RuneDeck, seed.P2);
+
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603307001,
+            1001,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(12, 3),
+                [seed.P2] = new(12, 3)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: p1MainDeck,
+                    runeDeck: p1RuneDeck,
+                    hand:
+                    [
+                        "P1-UNIT-MIGHTY-FAERIE",
+                        "P1-SPELL-HEXTECH-RAY",
+                        "P1-EQUIPMENT-LONG-SWORD",
+                        "P1-SPELL-RIDE-THE-WIND",
+                        "P1-SPELL-HOSTILE-TAKEOVER"
+                    ],
+                    baseZone: ["P1-BASE-GUARD-001"],
+                    battlefields: ["P1-BATTLEFIELD-UNIT-001", "P1-BATTLE-ATTACKER-001"],
+                    legendZone: ["P1-LEGEND-POPPY"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: p2MainDeck,
+                    runeDeck: p2RuneDeck,
+                    hand:
+                    [
+                        "P2-UNIT-MIGHTY-FAERIE",
+                        "P2-SPELL-HEXTECH-RAY",
+                        "P2-EQUIPMENT-LONG-SWORD",
+                        "P2-SPELL-RIDE-THE-WIND",
+                        "P2-SPELL-HOSTILE-TAKEOVER"
+                    ],
+                    baseZone: ["P2-BASE-GUARD-001"],
+                    battlefields: ["P2-UNIT-001", "P2-HOSTILE-TAKEOVER-TARGET", "P2-BATTLE-DEFENDER-001"],
+                    legendZone: ["P2-LEGEND-YASUO"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            cardObjects);
+
+        return state with
+        {
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [seed.P1] = 3,
+                [seed.P2] = 3
+            }
+        };
+
+        static CardObjectState Unit(
+            string objectId,
+            string playerId,
+            string cardNo,
+            int power,
+            int manaCost = 0,
+            int damage = 0,
+            bool isExhausted = false)
+        {
+            return Card(objectId, playerId, cardNo, CardObjectTags.UnitCard, power, manaCost, damage, isExhausted);
+        }
+
+        static CardObjectState Spell(string objectId, string playerId, string cardNo, int manaCost)
+        {
+            return Card(objectId, playerId, cardNo, CardObjectTags.SpellCard, power: 0, manaCost);
+        }
+
+        static CardObjectState Equipment(string objectId, string playerId, string cardNo, int manaCost)
+        {
+            return Card(objectId, playerId, cardNo, CardObjectTags.EquipmentCard, power: 0, manaCost);
+        }
+
+        static CardObjectState Legend(string objectId, string playerId, string cardNo)
+        {
+            return Card(objectId, playerId, cardNo, "CARD_TYPE:LEGEND", power: 0, manaCost: 0);
+        }
+
+        static CardObjectState Hero(string objectId, string playerId, string cardNo)
+        {
+            return Card(objectId, playerId, cardNo, "CARD_TYPE:HERO", power: 0, manaCost: 0);
+        }
+
+        static CardObjectState Card(
+            string objectId,
+            string playerId,
+            string cardNo,
+            string cardType,
+            int power,
+            int manaCost,
+            int damage = 0,
+            bool isExhausted = false)
+        {
+            return new CardObjectState(
+                objectId,
+                damage: damage,
+                power: power,
+                isExhausted: isExhausted,
+                tags: [cardType],
+                manaCost: manaCost,
+                cardNo: cardNo,
+                ownerId: playerId,
+                controllerId: playerId);
+        }
+
+        static void AddDeckCards(
+            Dictionary<string, CardObjectState> cardObjects,
+            IReadOnlyList<string> objectIds,
+            string playerId)
+        {
+            var templates = new[]
+            {
+                ("SFD·125/221", CardObjectTags.UnitCard, 3, 4),
+                ("OGN·009/298", CardObjectTags.SpellCard, 0, 2),
+                ("SFD·022/221", CardObjectTags.EquipmentCard, 0, 2),
+                ("OGN·173/298", CardObjectTags.SpellCard, 0, 2),
+                ("SFD·202/221", CardObjectTags.SpellCard, 0, 4),
+                ("SFD·125/221", CardObjectTags.UnitCard, 3, 4)
+            };
+
+            for (var index = 0; index < objectIds.Count; index++)
+            {
+                var template = templates[index % templates.Length];
+                cardObjects[objectIds[index]] = Card(
+                    objectIds[index],
+                    playerId,
+                    template.Item1,
+                    template.Item2,
+                    template.Item3,
+                    template.Item4);
+            }
+        }
+
+        static void AddRuneCards(
+            Dictionary<string, CardObjectState> cardObjects,
+            IReadOnlyList<string> objectIds,
+            string playerId)
+        {
+            foreach (var objectId in objectIds)
+            {
+                cardObjects[objectId] = Card(
+                    objectId,
+                    playerId,
+                    "SFD·001/221",
+                    CardObjectTags.RuneCard,
+                    power: 0,
+                    manaCost: 0);
+            }
+        }
     }
 
     private static MatchState BuildSpecifiedHandScenario(MatchState current, DevScenarioSeed seed)
