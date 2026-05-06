@@ -833,8 +833,72 @@ public sealed record ResolutionResult(
         return new Dictionary<string, object?>
         {
             ["battlefieldObjectIds"] = battlefieldObjectIds,
-            ["battlefieldCount"] = battlefieldObjectIds.Length
+            ["battlefieldCount"] = battlefieldObjectIds.Length,
+            ["battlefields"] = BuildBattlefieldStateSnapshotView(state)
         };
+    }
+
+    private static IReadOnlyList<Dictionary<string, object?>> BuildBattlefieldStateSnapshotView(MatchState state)
+    {
+        return state.PlayerZones
+            .OrderBy(entry => state.Seats.TryGetValue(entry.Key, out var seat) ? seat : entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields.Select(objectId => (PlayerId: entry.Key, ObjectId: objectId)))
+            .Where(entry => IsBattlefieldCardSnapshotObject(state, entry.ObjectId))
+            .Select(entry => BuildSingleBattlefieldStateSnapshotView(state, entry.PlayerId, entry.ObjectId))
+            .ToArray();
+    }
+
+    private static Dictionary<string, object?> BuildSingleBattlefieldStateSnapshotView(
+        MatchState state,
+        string zonePlayerId,
+        string battlefieldObjectId)
+    {
+        var battlefieldObject = state.CardObjects.TryGetValue(battlefieldObjectId, out var knownBattlefieldObject)
+            ? knownBattlefieldObject
+            : new CardObjectState(battlefieldObjectId);
+        var occupantObjectIds = state.ObjectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
+                && state.CardObjects.TryGetValue(entry.Key, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            .Select(entry => entry.Key)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        var standbyObjectIds = occupantObjectIds
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)))
+            .ToArray();
+        var controllerIds = occupantObjectIds
+            .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject) ? cardObject.ControllerId : string.Empty)
+            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var contested = controllerIds.Length > 1;
+        var controllerId = string.IsNullOrWhiteSpace(battlefieldObject.ControllerId)
+            ? null
+            : battlefieldObject.ControllerId;
+
+        return new Dictionary<string, object?>
+        {
+            ["battlefieldObjectId"] = battlefieldObjectId,
+            ["zonePlayerId"] = zonePlayerId,
+            ["cardNo"] = battlefieldObject.CardNo,
+            ["controllerId"] = controllerId,
+            ["status"] = contested ? "CONTESTED" : controllerId is null ? "UNCONTROLLED" : "CONTROLLED",
+            ["contested"] = contested,
+            ["occupantObjectIds"] = occupantObjectIds,
+            ["standbyObjectIds"] = standbyObjectIds,
+            ["faceDownStandbyCount"] = standbyObjectIds.Count(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject) && cardObject.IsFaceDown)
+        };
+    }
+
+    private static bool IsBattlefieldCardSnapshotObject(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<string> VisibleObjectIds(PlayerZones zones, bool ownView)

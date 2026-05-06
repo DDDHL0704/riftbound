@@ -21,8 +21,9 @@
 - P0-004 第二批已落地：`MatchState` 归一化/恢复栈项目时保留 `TimingContext`，反应/反制牌入栈会继承现有栈顶的法术对决上下文；最后一个法术对决栈项目被反制后，结算仍会回到 `SPELL_DUEL_OPEN` 并把焦点交还给下一名玩家，避免由状态恢复或反应链造成的错误窗口关闭。
 - P1-004 第一批已落地：普通玩家 `SnapshotDto.Timing` 不再暴露 `seed` 和 `rngCursor`；服务端权威 `MatchState` 仍保留随机状态用于内部结算、恢复和日志，避免客户端通过 snapshot 推断牌库/随机顺序。
 - P0-001 第二批已落地：新增 `MatchSessionOptions.AllowLegacyReadyWithoutDeck`；API 在非 Development 环境创建房间时关闭 legacy no-deck ready，正式/生产房间必须先 `SUBMIT_DECK` 才能 `READY`。Development 与既有测试默认保留 legacy ready，用于开发 seed 和旧 fixtures。
+- P0-002 第二批已落地：`SnapshotDto.Lanes` 新增 `battlefields` 状态视图，从服务端权威 `ObjectLocations` 和 `CardObjects` 推导战场牌、控制者、占据单位、待命占位、面朝下待命数量与争夺状态，给 UI 和后续 cleanup/battle task 提供稳定服务端投影。
 - 已补测试：`OfficialOpeningTests` 覆盖协议解析、卡组构筑拒绝条件、正式开局、起手调度、精确战场位置写回/来源不匹配拒绝、移动后致命伤害清理与位置同步。
-- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
+- 已补测试：`P7SpellDuelReactionInheritsStackTimingContextWhenItCountersLastSpell` 覆盖法术对决反应/反制链继承 timing context；`SnapshotsDoNotExposeRandomSeedOrCursor` 覆盖普通玩家 snapshot 隐藏随机种子和游标；`OfficialOnlyRoomsRejectReadyBeforeDeckSubmission` 覆盖正式房间拒绝绕过 deck submit；`SnapshotsExposeBattlefieldControlOccupantsAndStandbyState` 覆盖战场状态 snapshot 投影；当前回归记录为 `ConformanceFixtureRunnerTests 2654/2654`、`GameHubJoinTests 84/84`、`CardCatalogBaselineTests 38/38`。
 - 兼容性边界：为避免打碎既有开发 seed 和旧测试，当前无 decklist 的普通 `READY` 仍保留 legacy 入口；产品 UI 和后续正式规则路径必须强制先走 `SUBMIT_DECK`。因此 P0-001 从“缺失”降为“正式路径已存在，仍需收紧 legacy 入口/前端入口和更多负例”。
 
 ## 已确认做得比较扎实的部分
@@ -63,21 +64,21 @@
 
 ### P0-002 战场、待命区、控制权和单位位置模型不足
 
-当前状态：**PARTIALLY RESOLVED / 对象位置索引已落地，战场控制与待命区仍待建模**
+当前状态：**PARTIALLY RESOLVED / 对象位置索引和战场 snapshot 视图已落地，权威战场任务状态机仍待建模**
 
 规则依据：自查文档 4、10；核心规则关于基地、战场、待命区、战场控制权、占领/争夺、单位移动与区域归属的要求。
 
 代码位置：
-- `src/Riftbound.Engine/MatchSession.cs` 新增 `ObjectLocationState` 与 `MatchState.ObjectLocations`，snapshot 会输出对象 `location`。
+- `src/Riftbound.Engine/MatchSession.cs` 新增 `ObjectLocationState` 与 `MatchState.ObjectLocations`，snapshot 会输出对象 `location`，`SnapshotDto.Lanes.battlefields` 会投影战场牌、控制者、占据单位、待命占位、面朝下待命数量与争夺状态。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 的打出、结算、移动、调度、召符文路径开始同步 `ObjectLocations`。
 - 仍缺：每个战场的 controller、contested/held/conquered 状态、occupants、standby、pending duel/battle 统一模型。
 
-现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走。但战场本身仍没有完整控制权/争夺/待命子区域状态机，因此 P0-002 只能降级为部分解决。
+现象：系统现在可以在权威状态中表达对象所在粗粒度区域和精确战场 object id，并拒绝来源位置与权威状态不一致的精确游走；snapshot 也能稳定展示每个已知战场的占据/争夺/待命视图。但战场本身仍没有完整控制权/占据/征服/待命子区域权威状态机，因此 P0-002 仍只能降级为部分解决。
 
 最小复现场景：在两个友方战场之间提交精确 `MOVE_UNIT` 游走。当前结果会写回 `ObjectLocations[source].BattlefieldObjectId`；如果客户端提交的 origin 与权威位置不一致，服务端会拒绝。
 
 建议修复：
-- 新增 `BattlefieldState`/`BoardLocation` 模型，至少包含 battlefield object、controller、contested/held/conquered 状态、occupants、standby、pending duel/battle。
+- 在当前 snapshot 视图基础上继续新增权威 `BattlefieldState`/`BoardLocation` 模型，至少包含 battlefield object、controller、contested/held/conquered 状态、occupants、standby、pending duel/battle。
 - 将 `PlayerZones.Battlefields` 从“对象列表”升级为“玩家战场槽位 + 位置引用”，并让 `CardObjectState` 或 location index 记录对象所在具体位置。
 
 建议测试：

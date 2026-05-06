@@ -513,6 +513,61 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void SnapshotsExposeBattlefieldControlOccupantsAndStandbyState()
+    {
+        var state = new MatchState(
+            "battlefield-state-room",
+            11,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "A-UNIT-1", "A-STANDBY-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["B-UNIT-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("BF-1", cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "alice", controllerId: "alice"),
+                ["A-UNIT-1"] = new("A-UNIT-1", power: 2, tags: [CardObjectTags.UnitCard], ownerId: "alice", controllerId: "alice"),
+                ["B-UNIT-1"] = new("B-UNIT-1", power: 3, tags: [CardObjectTags.UnitCard], ownerId: "bob", controllerId: "bob"),
+                ["A-STANDBY-1"] = new("A-STANDBY-1", isFaceDown: true, tags: [CardObjectTags.UnitCard, CardObjectTags.Standby], ownerId: "alice", controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["A-UNIT-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["B-UNIT-1"] = new("bob", "BATTLEFIELD", "BF-1"),
+                ["A-STANDBY-1"] = new("alice", "BATTLEFIELD", "BF-1")
+            });
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var lanes = Assert.IsType<Dictionary<string, object?>>(snapshot.Lanes);
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(lanes["battlefields"]);
+        var battlefield = Assert.Single(battlefields);
+
+        Assert.Equal("BF-1", Assert.IsType<string>(battlefield["battlefieldObjectId"]));
+        Assert.Equal("alice", Assert.IsType<string>(battlefield["controllerId"]));
+        Assert.Equal("CONTESTED", Assert.IsType<string>(battlefield["status"]));
+        Assert.True(Assert.IsType<bool>(battlefield["contested"]));
+        Assert.Equal(["A-STANDBY-1"], StringList(battlefield["standbyObjectIds"]));
+        Assert.Equal(1, Assert.IsType<int>(battlefield["faceDownStandbyCount"]));
+        Assert.Equal(["A-STANDBY-1", "A-UNIT-1", "B-UNIT-1"], StringList(battlefield["occupantObjectIds"]));
+    }
+
+    [Fact]
     public void SnapshotsRedactOpponentFaceDownObjects()
     {
         var state = new MatchState(
