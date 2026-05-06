@@ -234,6 +234,12 @@ type BehaviorSpecDto = {
   effects?: { templateId: string; phrase: string; status: string; reason: string }[];
 };
 
+type OfficialCardImageDto = {
+  cardNo?: string;
+  cardName?: string;
+  frontImage?: string;
+};
+
 type CatalogFilter = "all" | "conformance-pass" | "manual-deferred" | "blocked";
 type ProductPanel = "actions" | "setup" | "log" | "catalog";
 
@@ -597,6 +603,8 @@ function App() {
   const [fixtureStatus, setFixtureStatus] = useState("idle");
   const [catalog, setCatalog] = useState<BehaviorSpecDto[]>([]);
   const [catalogStatus, setCatalogStatus] = useState("loading");
+  const [cardArtByNo, setCardArtByNo] = useState<Record<string, string>>({});
+  const [cardArtStatus, setCardArtStatus] = useState("loading");
   const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogFilter, setCatalogFilter] = useState<CatalogFilter>("conformance-pass");
   const [selectedCardNo, setSelectedCardNo] = useState("");
@@ -611,7 +619,7 @@ function App() {
   const visibleObjectIds = useMemo(() => collectVisibleObjectIds(latestSnapshot), [latestSnapshot]);
   const catalogSummary = useMemo(() => summarizeCatalog(catalog), [catalog]);
   const cardNamesByNo = useMemo(() => buildCardNameMap(catalog), [catalog]);
-  const systemNotices = useMemo(() => buildSystemNotices(players, catalogStatus), [players, catalogStatus]);
+  const systemNotices = useMemo(() => buildSystemNotices(players, catalogStatus, cardArtStatus), [players, catalogStatus, cardArtStatus]);
   const fixtureText = fixtureDraft || buildFixtureDraft(roomId, players);
   const selectedObjectIds = useMemo(
     () => collectDraftObjectSelections(playDraft, moveDraft, assembleDraft, battleDraft, legendDraft, activateDraft),
@@ -645,6 +653,48 @@ function App() {
 
     return () => controller.abort();
   }, [serverUrl]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadOfficialCardArt() {
+      setCardArtStatus("loading");
+      try {
+        const response = await fetch("https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            pageNum: 1,
+            pageSize: 2000,
+            searchContent: "",
+            cardCategoryList: [],
+            cardColorList: [],
+            rarityList: [],
+            productCodeList: []
+          }),
+          signal: controller.signal
+        });
+        if (!response.ok) {
+          throw new Error(`official card art request failed: ${response.status}`);
+        }
+
+        const data = (await response.json()) as { result?: { list?: OfficialCardImageDto[] } };
+        const images = buildCardArtMap(data.result?.list ?? []);
+        if (!controller.signal.aborted) {
+          setCardArtByNo(images);
+          setCardArtStatus(`loaded ${Object.keys(images).length}`);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setCardArtStatus(errorToText(error));
+        }
+      }
+    }
+
+    void loadOfficialCardArt();
+
+    return () => controller.abort();
+  }, []);
 
   function updatePlayer(key: PlayerKey, updater: (state: PlayerState) => PlayerState) {
     setPlayers((current) => {
@@ -1317,6 +1367,7 @@ function App() {
           selectedObjectIds={selectedObjectIds}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
+          cardArtByNo={cardArtByNo}
           onPickObject={handleObjectPick}
           onContextObject={setContextObjectId}
           onCardAction={handleCardContextAction}
@@ -1469,6 +1520,7 @@ function ProductBattleArena({
   selectedObjectIds,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
   onPickObject,
   onContextObject,
   onCardAction
@@ -1480,6 +1532,7 @@ function ProductBattleArena({
   selectedObjectIds: Set<string>;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -1509,6 +1562,8 @@ function ProductBattleArena({
               prompt={prompt}
               selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
+              cardArtByNo={cardArtByNo}
+              perspectivePlayerId={activePlayerId}
               onPickObject={onPickObject}
               onContextObject={onContextObject}
               onCardAction={onCardAction}
@@ -1526,6 +1581,8 @@ function ProductBattleArena({
                 prompt={prompt}
                 selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
+                cardArtByNo={cardArtByNo}
+                perspectivePlayerId={activePlayerId}
                 onPickObject={onPickObject}
                 onContextObject={onContextObject}
                 onCardAction={onCardAction}
@@ -1541,6 +1598,8 @@ function ProductBattleArena({
                 prompt={prompt}
                 selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
+                cardArtByNo={cardArtByNo}
+                perspectivePlayerId={activePlayerId}
                 onPickObject={onPickObject}
                 onContextObject={onContextObject}
                 onCardAction={onCardAction}
@@ -1554,6 +1613,8 @@ function ProductBattleArena({
               prompt={prompt}
               selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
+              cardArtByNo={cardArtByNo}
+              perspectivePlayerId={activePlayerId}
               onPickObject={onPickObject}
               onContextObject={onContextObject}
               onCardAction={onCardAction}
@@ -1573,6 +1634,8 @@ function ProductBattleArena({
             prompt={prompt}
             selectionIntent={selectionIntent}
             cardNamesByNo={cardNamesByNo}
+            cardArtByNo={cardArtByNo}
+            perspectivePlayerId={activePlayerId}
             onPickObject={onPickObject}
             onContextObject={onContextObject}
             onCardAction={onCardAction}
@@ -1840,6 +1903,8 @@ function ProductSupportZones({
   prompt,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
+  perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
@@ -1851,6 +1916,8 @@ function ProductSupportZones({
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
+  perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -1868,6 +1935,8 @@ function ProductSupportZones({
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
+        cardArtByNo={cardArtByNo}
+        perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
@@ -1881,6 +1950,8 @@ function ProductSupportZones({
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
+        cardArtByNo={cardArtByNo}
+        perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
@@ -1894,6 +1965,8 @@ function ProductSupportZones({
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
+        cardArtByNo={cardArtByNo}
+        perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
@@ -1912,6 +1985,8 @@ function ProductMiniZone({
   prompt,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
+  perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
@@ -1925,6 +2000,8 @@ function ProductMiniZone({
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
+  perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -1944,6 +2021,8 @@ function ProductMiniZone({
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
+        cardArtByNo={cardArtByNo}
+        perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
@@ -1963,6 +2042,8 @@ function ProductLane({
   prompt,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
+  perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction
@@ -1976,6 +2057,8 @@ function ProductLane({
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
+  perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -1994,6 +2077,8 @@ function ProductLane({
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
+        cardArtByNo={cardArtByNo}
+        perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
@@ -2007,6 +2092,8 @@ function ProductLane({
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
+        cardArtByNo={cardArtByNo}
+        perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
@@ -2034,6 +2121,8 @@ function ProductHandShelf({
   prompt,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
+  perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction
@@ -2044,6 +2133,8 @@ function ProductHandShelf({
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
+  perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -2071,6 +2162,8 @@ function ProductHandShelf({
           prompt={prompt}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
+          cardArtByNo={cardArtByNo}
+          perspectivePlayerId={perspectivePlayerId}
           onPickObject={onPickObject}
           onContextObject={onContextObject}
           onCardAction={onCardAction}
@@ -2089,6 +2182,8 @@ function ProductCardList({
   prompt,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
+  perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
@@ -2102,6 +2197,8 @@ function ProductCardList({
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
+  perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -2125,6 +2222,8 @@ function ProductCardList({
           contextActions={cardContextActionsForObject(id, prompt)}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
+          cardArtByNo={cardArtByNo}
+          perspectivePlayerId={perspectivePlayerId}
           onPickObject={onPickObject}
           onContextObject={onContextObject}
           onCardAction={onCardAction}
@@ -2144,6 +2243,8 @@ function ProductCard({
   contextActions,
   selectionIntent,
   cardNamesByNo,
+  cardArtByNo,
+  perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
@@ -2157,6 +2258,8 @@ function ProductCard({
   contextActions: CardContextAction[];
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
+  cardArtByNo: Record<string, string>;
+  perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
@@ -2165,14 +2268,22 @@ function ProductCard({
   const badges = object ? statusBadges(object).slice(0, compact ? 2 : 4) : [];
   const stats = object ? productCardStats(object) : [];
   const isHighlighted = selected || contextOpen;
+  const artUrl = object?.cardNo ? cardArtByNo[normalizeCardNo(object.cardNo)] : "";
+  const controller = cardControllerBadge(object, perspectivePlayerId);
 
   return (
     <article className="product-card-wrap">
       <button
-        className={productCardClassName(object, isHighlighted)}
+        className={productCardClassName(object, isHighlighted, perspectivePlayerId)}
         onClick={() => onContextObject(contextOpen ? "" : objectId)}
         type="button"
       >
+        {controller ? (
+          <span className={`controller-ribbon ${controller.tone}`}>
+            {controller.label}
+          </span>
+        ) : null}
+        {artUrl && !compact ? <span className="product-card-art" style={{ backgroundImage: `url(${artUrl})` }} /> : null}
         <span className="product-card-name">{productCardName(objectId, object, cardNamesByNo)}</span>
         {compact ? null : <small>{object?.cardNo ?? objectId}</small>}
         {stats.length > 0 ? (
@@ -2280,8 +2391,8 @@ function productCardName(objectId: string, object: ObjectView | undefined, cardN
   if (object?.isFaceDown) {
     return "盖放卡牌";
   }
-  if (object?.cardNo && cardNamesByNo[object.cardNo]) {
-    return cardNamesByNo[object.cardNo];
+  if (object?.cardNo && cardNamesByNo[normalizeCardNo(object.cardNo)]) {
+    return cardNamesByNo[normalizeCardNo(object.cardNo)];
   }
   if (object?.cardNo) {
     return object.cardNo;
@@ -2303,9 +2414,13 @@ function productCardStats(object: ObjectView) {
   return stats;
 }
 
-function productCardClassName(object: ObjectView | undefined, selected: boolean) {
+function productCardClassName(object: ObjectView | undefined, selected: boolean, perspectivePlayerId: string) {
   const classes = ["product-card"];
   const tags = object?.tags ?? [];
+  const controllerId = object?.controllerId ?? object?.ownerId;
+  if (controllerId) {
+    classes.push(controllerId === perspectivePlayerId ? "own-card" : "enemy-card");
+  }
   if (tags.some((tag) => tag.includes("UNIT"))) {
     classes.push("unit");
   }
@@ -2328,6 +2443,22 @@ function productCardClassName(object: ObjectView | undefined, selected: boolean)
     classes.push("selected");
   }
   return classes.join(" ");
+}
+
+function cardControllerBadge(object: ObjectView | undefined, perspectivePlayerId: string) {
+  const controllerId = object?.controllerId ?? object?.ownerId;
+  if (!controllerId) {
+    return undefined;
+  }
+
+  const isOwn = controllerId === perspectivePlayerId;
+  const ownerSuffix = object?.ownerId && object.controllerId && object.ownerId !== object.controllerId
+    ? ` / 原属 ${object.ownerId}`
+    : "";
+  return {
+    label: `${isOwn ? "我方" : "对方"} ${controllerId}${ownerSuffix}`,
+    tone: isOwn ? "own" : "enemy"
+  };
 }
 
 function BattleDesk({
@@ -4615,7 +4746,7 @@ function timingLabel(timing: string) {
   );
 }
 
-function buildSystemNotices(players: Record<PlayerKey, PlayerState>, catalogStatus: string) {
+function buildSystemNotices(players: Record<PlayerKey, PlayerState>, catalogStatus: string, cardArtStatus: string) {
   const notices: string[] = [];
   const statuses = playerKeys.map((key) => players[key].status);
   if (statuses.every((status) => status === "disconnected")) {
@@ -4632,6 +4763,11 @@ function buildSystemNotices(players: Record<PlayerKey, PlayerState>, catalogStat
   } else if (!catalogStatus.startsWith("loaded")) {
     notices.push(`图鉴状态: ${catalogStatus}`);
   }
+  if (cardArtStatus === "loading") {
+    notices.push("官方卡图加载中");
+  } else if (!cardArtStatus.startsWith("loaded")) {
+    notices.push("官方卡图暂不可用");
+  }
 
   return notices;
 }
@@ -4647,9 +4783,23 @@ function buildCardNameMap(specs: BehaviorSpecDto[]) {
   return specs.reduce<Record<string, string>>((names, spec) => {
     if (spec.cardNo && spec.cardName) {
       names[spec.cardNo] = spec.cardName;
+      names[normalizeCardNo(spec.cardNo)] = spec.cardName;
     }
     return names;
   }, {});
+}
+
+function buildCardArtMap(cards: OfficialCardImageDto[]) {
+  return cards.reduce<Record<string, string>>((images, card) => {
+    if (card.cardNo && card.frontImage) {
+      images[normalizeCardNo(card.cardNo)] = card.frontImage;
+    }
+    return images;
+  }, {});
+}
+
+function normalizeCardNo(cardNo: string) {
+  return cardNo.trim().replace(/[·・]/g, ".").toLocaleUpperCase();
 }
 
 function filterCatalog(specs: BehaviorSpecDto[], query: string, filter: CatalogFilter) {

@@ -2785,6 +2785,44 @@ body {
   color: #53686d;
 }
 
+.controller-ribbon {
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 950;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.controller-ribbon.own {
+  background: rgba(30, 145, 96, 0.16);
+  color: #12613f;
+}
+
+.controller-ribbon.enemy {
+  background: rgba(191, 76, 54, 0.15);
+  color: #8b3226;
+}
+
+.product-card-art {
+  display: block;
+  height: 44px;
+  border: 1px solid rgba(22, 45, 49, 0.12);
+  border-radius: 6px;
+  background-color: rgba(8, 20, 23, 0.18);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.product-card-list.hand .product-card-art {
+  height: 72px;
+}
+
 .product-card.unit {
   border-color: rgba(49, 160, 125, 0.62);
   background: linear-gradient(180deg, #eef8ed, #d1e4dc);
@@ -2812,6 +2850,18 @@ body {
 .product-card.controlled {
   border-right-width: 5px;
   border-right-color: #c34f41;
+}
+
+.product-card.own-card {
+  border-left-width: 6px;
+  border-left-color: #2fd08b;
+  box-shadow: 0 0 0 1px rgba(47, 208, 139, 0.22), 0 10px 18px rgba(0, 0, 0, 0.22);
+}
+
+.product-card.enemy-card {
+  border-left-width: 6px;
+  border-left-color: #d65d4f;
+  box-shadow: 0 0 0 1px rgba(214, 93, 79, 0.2), 0 10px 18px rgba(0, 0, 0, 0.22);
 }
 
 .product-card.selected {

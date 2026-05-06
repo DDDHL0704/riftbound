@@ -325,6 +325,13 @@ P7.8 validation:
 - Browser final smoke: passed; details recorded below.
 - `git diff --check`: passed.
 
+## P7 Follow-up Polish
+
+- Added card ownership presentation to product battle cards: visible objects now show a `我方/对方` controller ribbon based on authoritative `controllerId`/`ownerId`, with green left rails for the active player's controlled cards and red rails for opponent-controlled cards.
+- Added runtime official card art lookup from the public card gallery API used by `https://playloltcg.com/card.html`; front images are referenced from the official CDN at render time and are not committed into the repository.
+- Official art loading has an explicit system notice boundary: loading state is shown while fetching, and failure degrades to the existing text card face without changing game rules or server state.
+- Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed. Local service health checks returned `200` for `http://127.0.0.1:5173/` and `http://127.0.0.1:5088/health`. Browser fallback smoke opened the local page and the official gallery page; Computer Use could verify first-screen rendering but did not dispatch product UI clicks reliably in this turn, so this follow-up is covered by build plus service health and code-path inspection.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:
