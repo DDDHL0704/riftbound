@@ -27833,6 +27833,41 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldPaysTypedPowerToGainScore()
+    {
+        var state = BattlefieldHeldScoreState() with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(0, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    ["red"] = 4
+                })
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-score-typed", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-ENERGY-HUB",
+                ["P1-BATTLEFIELD-ENERGY-ATTACKER"],
+                ["P2-BATTLEFIELD-ENERGY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.Equal(0, result.State.RunePools["P2"].Power);
+        Assert.Empty(result.State.RunePools["P2"].PowerByTrait);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_HELD_PAY_4_POWER_GAIN_SCORE", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["power"], 4));
+    }
+
+    [Fact]
     public async Task P79BattlefieldScoreDelayPreventsHeldScorePaymentBeforeThirdTurn()
     {
         var baseState = BattlefieldHeldScoreState();

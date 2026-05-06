@@ -7364,16 +7364,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
-        if (currentPool.Power < BattlefieldHeldScorePowerCost)
+        if (!CanPayRuneCosts(currentPool, 0, BattlefieldHeldScorePowerCost))
         {
             return false;
         }
 
-        var mutableRunePools = runePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        mutableRunePools[playerId] = currentPool with
-        {
-            Power = currentPool.Power - BattlefieldHeldScorePowerCost
-        };
+        var mutableRunePools = PayRuneCosts(runePools, playerId, 0, BattlefieldHeldScorePowerCost);
         var mutablePlayerScores = playerZones.Keys.ToDictionary(
             scorePlayerId => scorePlayerId,
             scorePlayerId => playerScores.TryGetValue(scorePlayerId, out var currentScore) ? currentScore : 0,
@@ -12215,7 +12211,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         int powerCost,
         IReadOnlyDictionary<string, int>? powerCostByTrait = null)
     {
-        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        return PayRuneCosts(
+            state.RunePools,
+            playerId,
+            manaCost,
+            powerCost,
+            powerCostByTrait);
+    }
+
+    private static Dictionary<string, RunePool> PayRuneCosts(
+        IReadOnlyDictionary<string, RunePool> currentRunePools,
+        string playerId,
+        int manaCost,
+        int powerCost,
+        IReadOnlyDictionary<string, int>? powerCostByTrait = null)
+    {
+        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var currentPool = runePools.TryGetValue(playerId, out var runePool) ? runePool : RunePool.Empty;
         var (remainingAnyPower, remainingPowerByTrait) = PayPowerCost(
             currentPool,
