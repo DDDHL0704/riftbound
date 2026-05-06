@@ -347,6 +347,14 @@ P7.8 validation:
 - User-facing boundary: complex actions still require `提交打出` / `提交移动` / corresponding submit button after source/target/payment selection; the frontend does not execute or validate rules locally.
 - Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed; `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` passed with `0` warnings and `0` errors; `git diff --check` passed. Browser fallback smoke refreshed `http://127.0.0.1:5173/`, entered the existing `p7-1778041374444` match, clicked `移动单位`, verified the `当前选择 / 移动单位` coach, source/destination instructions, highlighted legal cards, and card context action `移动这个单位` filling the draft source.
 
+## P7 Follow-up Card-Centered Flow
+
+- Shifted the product battle flow toward the cards themselves: enabled `ActionPrompt` candidates now build card-side quick actions for `PLAY_CARD`, `MOVE_UNIT`, `ASSEMBLE_EQUIPMENT`, `DECLARE_BATTLE`, `LEGEND_ACT`, and `ACTIVATE_ABILITY` when the server-provided source/target/destination/mode/cost choices are unambiguous enough to submit safely.
+- Card context menus now have a primary `直接执行` section. Examples include moving a unit to a legal destination, assembling a candidate equipment pair, directly playing a no-target card, playing a selected source onto a clicked target, declaring a battle pair, or firing a unique legend/ability action.
+- The right action drawer is now documented in-product as guidance and fallback only. Ambiguous choices still fill drafts instead of submitting, preserving the P7 boundary that the frontend never invents legal targets, costs, or rule outcomes.
+- Verification: `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi` passed; `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` passed; `git diff --check` passed. Local service health checks returned `200` for `http://127.0.0.1:5173/` and `http://127.0.0.1:5088/health`.
+- Browser fallback smoke used Chrome because the Browser Use Node REPL tool was not exposed in this session. Room `p7-1778043232929`: `双人入座` -> `双方准备` -> load `移动测试` -> click `P1-BATTLEFIELD-UNIT-001` -> card menu showed `直接执行` with battle quick actions -> click `攻击P2-BATTLEFIELD-UNIT-001` -> server snapshot advanced to only `结束回合`, confirming card-side direct submit. The same smoke also clicked `P1-SPELL-RIDE-THE-WIND`; because that candidate still exposes multiple server destinations/modes/costs, the card menu fills the source and leaves the right drawer as a safe fallback rather than inventing a play configuration.
+
 ## Browser Smoke Records
 
 - P7.1 room/reconnect smoke:

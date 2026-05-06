@@ -219,6 +219,37 @@ type CardContextAction = {
   reason: string;
 };
 
+type CardQuickActionKind =
+  | "move-submit"
+  | "assemble-submit"
+  | "play-submit"
+  | "battle-submit"
+  | "legend-submit"
+  | "ability-submit";
+
+type CardQuickAction = {
+  id: string;
+  kind: CardQuickActionKind;
+  label: string;
+  detail: string;
+  sourceObjectId?: string;
+  targetObjectId?: string;
+  destination?: string;
+  mode?: string;
+  optionalCost?: string;
+};
+
+type CardQuickActionsByObject = Record<string, CardQuickAction[]>;
+
+type CardQuickActionDrafts = {
+  playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
+  activateDraft: ActivateDraft;
+};
+
 type SelectionIntent =
   | "play-source"
   | "play-target"
@@ -642,6 +673,15 @@ function App() {
   const selectedObjectIds = useMemo(
     () => collectDraftObjectSelections(playDraft, moveDraft, assembleDraft, battleDraft, legendDraft, activateDraft),
     [playDraft, moveDraft, assembleDraft, battleDraft, legendDraft, activateDraft]
+  );
+  const cardQuickActionsByObjectId = useMemo(
+    () => buildCardQuickActions(
+      latestSnapshot,
+      activePlayer.prompt,
+      { playDraft, moveDraft, assembleDraft, battleDraft, legendDraft, activateDraft },
+      cardNamesByNo
+    ),
+    [latestSnapshot, activePlayer.prompt, playDraft, moveDraft, assembleDraft, battleDraft, legendDraft, activateDraft, cardNamesByNo]
   );
 
   useEffect(() => {
@@ -1246,6 +1286,123 @@ function App() {
     }
   }
 
+  async function handleCardQuickAction(action: CardQuickAction, objectId: string) {
+    const sourceObjectId = action.sourceObjectId ?? objectId;
+    const targetObjectId = action.targetObjectId ?? objectId;
+    setContextObjectId("");
+    setProductPanel("actions");
+    setWorkbenchOpen(false);
+
+    if (action.kind === "move-submit") {
+      const origin = objectCoarseZone(latestSnapshot, sourceObjectId) ?? moveDraft.origin;
+      const draft: MoveUnitDraft = {
+        ...moveDraft,
+        sourceObjectId,
+        origin,
+        destination: action.destination ?? moveDraft.destination,
+        optionalCosts: action.optionalCost ?? ""
+      };
+      const command = buildMoveUnitCommand(draft);
+      setOperationMode("move");
+      setSelectionIntent("move-source");
+      setMoveDraft(draft);
+      setCommandForPlayer(activeKey, command);
+      await submitIntent(activeKey, command, players[activeKey].clientIntentId);
+      updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+      return;
+    }
+
+    if (action.kind === "assemble-submit") {
+      const draft: AssembleDraft = {
+        ...assembleDraft,
+        sourceObjectId,
+        targetObjectId,
+        optionalCosts: action.optionalCost ?? ""
+      };
+      const command = buildAssembleCommand(draft);
+      setOperationMode("assemble");
+      setSelectionIntent("assemble-target");
+      setAssembleDraft(draft);
+      setCommandForPlayer(activeKey, command);
+      await submitIntent(activeKey, command, players[activeKey].clientIntentId);
+      updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+      return;
+    }
+
+    if (action.kind === "play-submit") {
+      const object = findObject(latestSnapshot, sourceObjectId);
+      const draft: PlayCardDraft = {
+        ...playDraft,
+        sourceObjectId,
+        cardNo: object?.cardNo ?? playDraft.cardNo,
+        targetObjectIds: action.targetObjectId ?? "",
+        destination: action.destination ?? "",
+        mode: action.mode ?? "",
+        optionalCosts: action.optionalCost ?? ""
+      };
+      const command = buildPlayCardCommand(draft);
+      setOperationMode("play");
+      setSelectionIntent(action.targetObjectId ? "play-target" : "play-source");
+      setPlayDraft(draft);
+      setCommandForPlayer(activeKey, command);
+      await submitIntent(activeKey, command, players[activeKey].clientIntentId);
+      updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+      return;
+    }
+
+    if (action.kind === "legend-submit") {
+      const draft: LegendDraft = {
+        ...legendDraft,
+        sourceObjectId,
+        abilityId: action.mode ?? legendDraft.abilityId,
+        targetObjectIds: action.targetObjectId ?? "",
+        optionalCosts: action.optionalCost ?? ""
+      };
+      const command = buildLegendActCommand(draft);
+      setOperationMode("legend");
+      setSelectionIntent("legend-source");
+      setLegendDraft(draft);
+      setCommandForPlayer(activeKey, command);
+      await submitIntent(activeKey, command, players[activeKey].clientIntentId);
+      updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+      return;
+    }
+
+    if (action.kind === "ability-submit") {
+      const draft: ActivateDraft = {
+        ...activateDraft,
+        sourceObjectId,
+        abilityId: action.mode ?? activateDraft.abilityId,
+        targetObjectIds: action.targetObjectId ?? "",
+        optionalCosts: action.optionalCost ?? ""
+      };
+      const command = buildActivateAbilityCommand(draft);
+      setOperationMode("ability");
+      setSelectionIntent(action.targetObjectId ? "ability-target" : "ability-source");
+      setActivateDraft(draft);
+      setCommandForPlayer(activeKey, command);
+      await submitIntent(activeKey, command, players[activeKey].clientIntentId);
+      updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+      return;
+    }
+
+    const draft: BattleDraft = {
+      ...battleDraft,
+      battlefieldId: action.destination ?? battleDraft.battlefieldId,
+      attackerObjectIds: sourceObjectId,
+      defenderObjectIds: action.targetObjectId ?? "",
+      battlefieldTargetObjectIds: "",
+      optionalCosts: action.optionalCost ?? ""
+    };
+    const command = buildDeclareBattleCommand(draft);
+    setOperationMode("battle");
+    setSelectionIntent("battle-defender");
+    setBattleDraft(draft);
+    setCommandForPlayer(activeKey, command);
+    await submitIntent(activeKey, command, players[activeKey].clientIntentId);
+    updatePlayer(activeKey, (current) => ({ ...current, clientIntentId: "" }));
+  }
+
   function refreshFixtureDraft() {
     setFixtureDraft(buildFixtureDraft(roomId, players));
     setFixtureStatus("draft refreshed");
@@ -1344,9 +1501,11 @@ function App() {
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           cardSpecsByNo={cardSpecsByNo}
+          cardQuickActionsByObjectId={cardQuickActionsByObjectId}
           onPickObject={handleObjectPick}
           onContextObject={setContextObjectId}
           onCardAction={handleCardContextAction}
+          onCardQuickAction={(action, objectId) => void handleCardQuickAction(action, objectId)}
         />
 
         <aside className="product-drawer" aria-label="对战控制台">
@@ -1497,9 +1656,11 @@ function ProductBattleArena({
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
+  cardQuickActionsByObjectId,
   onPickObject,
   onContextObject,
-  onCardAction
+  onCardAction,
+  onCardQuickAction
 }: {
   snapshot?: SnapshotDto;
   activePlayerId: string;
@@ -1509,9 +1670,11 @@ function ProductBattleArena({
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
+  cardQuickActionsByObjectId: CardQuickActionsByObject;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
   const seats = productSeats(snapshot, activePlayerId);
   const bottomSeat = seats.find((seat) => seat.playerId === activePlayerId) ?? seats[seats.length - 1];
@@ -1539,10 +1702,12 @@ function ProductBattleArena({
               selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
               cardSpecsByNo={cardSpecsByNo}
+              cardQuickActionsByObjectId={cardQuickActionsByObjectId}
               perspectivePlayerId={activePlayerId}
               onPickObject={onPickObject}
               onContextObject={onContextObject}
               onCardAction={onCardAction}
+              onCardQuickAction={onCardQuickAction}
               compact
             />
 
@@ -1558,10 +1723,12 @@ function ProductBattleArena({
                 selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
                 cardSpecsByNo={cardSpecsByNo}
+                cardQuickActionsByObjectId={cardQuickActionsByObjectId}
                 perspectivePlayerId={activePlayerId}
                 onPickObject={onPickObject}
                 onContextObject={onContextObject}
                 onCardAction={onCardAction}
+                onCardQuickAction={onCardQuickAction}
               />
               <ProductStackWell timing={timing} stackLabels={stackLabels} />
               <ProductLane
@@ -1575,10 +1742,12 @@ function ProductBattleArena({
                 selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
                 cardSpecsByNo={cardSpecsByNo}
+                cardQuickActionsByObjectId={cardQuickActionsByObjectId}
                 perspectivePlayerId={activePlayerId}
                 onPickObject={onPickObject}
                 onContextObject={onContextObject}
                 onCardAction={onCardAction}
+                onCardQuickAction={onCardQuickAction}
               />
             </div>
 
@@ -1590,10 +1759,12 @@ function ProductBattleArena({
               selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
               cardSpecsByNo={cardSpecsByNo}
+              cardQuickActionsByObjectId={cardQuickActionsByObjectId}
               perspectivePlayerId={activePlayerId}
               onPickObject={onPickObject}
               onContextObject={onContextObject}
               onCardAction={onCardAction}
+              onCardQuickAction={onCardQuickAction}
             />
           </section>
 
@@ -1611,10 +1782,12 @@ function ProductBattleArena({
             selectionIntent={selectionIntent}
             cardNamesByNo={cardNamesByNo}
             cardSpecsByNo={cardSpecsByNo}
+            cardQuickActionsByObjectId={cardQuickActionsByObjectId}
             perspectivePlayerId={activePlayerId}
             onPickObject={onPickObject}
             onContextObject={onContextObject}
             onCardAction={onCardAction}
+            onCardQuickAction={onCardQuickAction}
           />
         </>
       ) : (
@@ -1723,7 +1896,7 @@ function ProductActionPanel(props: {
 
       <div className="action-boundary">
         <strong>{actionableCandidates.length}</strong>
-        <span>项服务端允许操作。点亮的复杂动作会进入操作模式；再点高亮卡牌或服务端候选，最后点提交。</span>
+        <span>项服务端允许操作。优先点桌面高亮卡牌，卡牌菜单会在候选明确时直接提交；右侧只保留说明和兜底。</span>
       </div>
 
       <details
@@ -1881,10 +2054,12 @@ function ProductSupportZones({
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
+  cardQuickActionsByObjectId,
   perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
+  onCardQuickAction,
   compact = false
 }: {
   seat: ProductSeat;
@@ -1894,10 +2069,12 @@ function ProductSupportZones({
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
+  cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   compact?: boolean;
 }) {
   const zones = seat.player.zones ?? {};
@@ -1913,10 +2090,12 @@ function ProductSupportZones({
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         cardSpecsByNo={cardSpecsByNo}
+        cardQuickActionsByObjectId={cardQuickActionsByObjectId}
         perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
+        onCardQuickAction={onCardQuickAction}
       />
       <ProductMiniZone
         title="英雄"
@@ -1928,10 +2107,12 @@ function ProductSupportZones({
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         cardSpecsByNo={cardSpecsByNo}
+        cardQuickActionsByObjectId={cardQuickActionsByObjectId}
         perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
+        onCardQuickAction={onCardQuickAction}
       />
       <ProductMiniZone
         title="基地"
@@ -1943,10 +2124,12 @@ function ProductSupportZones({
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         cardSpecsByNo={cardSpecsByNo}
+        cardQuickActionsByObjectId={cardQuickActionsByObjectId}
         perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
+        onCardQuickAction={onCardQuickAction}
         wide
       />
     </aside>
@@ -1963,10 +2146,12 @@ function ProductMiniZone({
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
+  cardQuickActionsByObjectId,
   perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
+  onCardQuickAction,
   wide = false
 }: {
   title: string;
@@ -1978,10 +2163,12 @@ function ProductMiniZone({
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
+  cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   wide?: boolean;
 }) {
   return (
@@ -1999,10 +2186,12 @@ function ProductMiniZone({
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         cardSpecsByNo={cardSpecsByNo}
+        cardQuickActionsByObjectId={cardQuickActionsByObjectId}
         perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
+        onCardQuickAction={onCardQuickAction}
         compact
       />
     </section>
@@ -2020,10 +2209,12 @@ function ProductLane({
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
+  cardQuickActionsByObjectId,
   perspectivePlayerId,
   onPickObject,
   onContextObject,
-  onCardAction
+  onCardAction,
+  onCardQuickAction
 }: {
   title: string;
   opponent: ProductSeat;
@@ -2035,10 +2226,12 @@ function ProductLane({
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
+  cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
   return (
     <section className="product-lane" aria-label={title}>
@@ -2055,10 +2248,12 @@ function ProductLane({
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         cardSpecsByNo={cardSpecsByNo}
+        cardQuickActionsByObjectId={cardQuickActionsByObjectId}
         perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
+        onCardQuickAction={onCardQuickAction}
       />
       <div className="lane-centerline" aria-hidden="true" />
       <ProductCardList
@@ -2070,10 +2265,12 @@ function ProductLane({
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
         cardSpecsByNo={cardSpecsByNo}
+        cardQuickActionsByObjectId={cardQuickActionsByObjectId}
         perspectivePlayerId={perspectivePlayerId}
         onPickObject={onPickObject}
         onContextObject={onContextObject}
         onCardAction={onCardAction}
+        onCardQuickAction={onCardQuickAction}
       />
     </section>
   );
@@ -2099,10 +2296,12 @@ function ProductHandShelf({
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
+  cardQuickActionsByObjectId,
   perspectivePlayerId,
   onPickObject,
   onContextObject,
-  onCardAction
+  onCardAction,
+  onCardQuickAction
 }: {
   seat: ProductSeat;
   selectedObjectIds: Set<string>;
@@ -2111,10 +2310,12 @@ function ProductHandShelf({
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
+  cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
   const zones = seat.player.zones ?? {};
   const handIds = zones.hand ?? [];
@@ -2140,10 +2341,12 @@ function ProductHandShelf({
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           cardSpecsByNo={cardSpecsByNo}
+          cardQuickActionsByObjectId={cardQuickActionsByObjectId}
           perspectivePlayerId={perspectivePlayerId}
           onPickObject={onPickObject}
           onContextObject={onContextObject}
           onCardAction={onCardAction}
+          onCardQuickAction={onCardQuickAction}
           hand
         />
       )}
@@ -2160,10 +2363,12 @@ function ProductCardList({
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
+  cardQuickActionsByObjectId,
   perspectivePlayerId,
   onPickObject,
   onContextObject,
   onCardAction,
+  onCardQuickAction,
   compact = false,
   hand = false
 }: {
@@ -2175,10 +2380,12 @@ function ProductCardList({
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
+  cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   compact?: boolean;
   hand?: boolean;
 }) {
@@ -2197,6 +2404,7 @@ function ProductCardList({
           selected={selectedObjectIds.has(id)}
           contextOpen={contextObjectId === id}
           contextActions={cardContextActionsForObject(id, prompt)}
+          quickActions={cardQuickActionsByObjectId[id] ?? []}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           cardSpecsByNo={cardSpecsByNo}
@@ -2204,6 +2412,7 @@ function ProductCardList({
           onPickObject={onPickObject}
           onContextObject={onContextObject}
           onCardAction={onCardAction}
+          onCardQuickAction={onCardQuickAction}
           compact={compact}
         />
       ))}
@@ -2218,6 +2427,7 @@ function ProductCard({
   selected,
   contextOpen,
   contextActions,
+  quickActions,
   selectionIntent,
   cardNamesByNo,
   cardSpecsByNo,
@@ -2225,6 +2435,7 @@ function ProductCard({
   onPickObject,
   onContextObject,
   onCardAction,
+  onCardQuickAction,
   compact = false
 }: {
   objectId: string;
@@ -2233,6 +2444,7 @@ function ProductCard({
   selected: boolean;
   contextOpen: boolean;
   contextActions: CardContextAction[];
+  quickActions: CardQuickAction[];
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
@@ -2240,6 +2452,7 @@ function ProductCard({
   onPickObject: (objectId: string) => void;
   onContextObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   compact?: boolean;
 }) {
   const spec = cardSpecForObject(object, cardSpecsByNo);
@@ -2296,10 +2509,12 @@ function ProductCard({
       {contextOpen ? (
         <CardContextMenu
           actions={contextActions}
+          quickActions={quickActions}
           objectId={objectId}
           selectionIntent={selectionIntent}
           onPickObject={onPickObject}
           onCardAction={onCardAction}
+          onCardQuickAction={onCardQuickAction}
         />
       ) : null}
     </article>
@@ -2308,37 +2523,71 @@ function ProductCard({
 
 function CardContextMenu({
   actions,
+  quickActions,
   objectId,
   selectionIntent,
   onPickObject,
-  onCardAction
+  onCardAction,
+  onCardQuickAction
 }: {
   actions: CardContextAction[];
+  quickActions: CardQuickAction[];
   objectId: string;
   selectionIntent: SelectionIntent;
   onPickObject: (objectId: string) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
+  onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
+  const hasAnyActions = actions.length > 0 || quickActions.length > 0;
+
   return (
     <div className="card-context-menu" data-testid={`card-context-${cssSafeId(objectId)}`}>
       <strong>这张牌可操作</strong>
-      {actions.length === 0 ? (
+      {!hasAnyActions ? (
         <span>当前没有服务端开放的卡牌动作</span>
       ) : (
-        actions.map((action) => (
-          <button
-            data-testid={`card-context-action-${cssSafeId(action.id)}`}
-            key={action.id}
-            onClick={(event) => {
-              event.stopPropagation();
-              onCardAction(action, objectId);
-            }}
-            title={action.reason}
-            type="button"
-          >
-            {action.label}
-          </button>
-        ))
+        <>
+          {quickActions.length > 0 ? (
+            <div className="card-context-section quick-actions">
+              <span>直接执行</span>
+              {quickActions.map((action) => (
+                <button
+                  className="quick-submit-action"
+                  data-testid={`card-quick-action-${cssSafeId(action.id)}`}
+                  key={action.id}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onCardQuickAction(action, objectId);
+                  }}
+                  title={action.detail}
+                  type="button"
+                >
+                  <strong>{action.label}</strong>
+                  <small>{action.detail}</small>
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {actions.length > 0 ? (
+            <div className="card-context-section">
+              <span>填入操作</span>
+              {actions.map((action) => (
+                <button
+                  data-testid={`card-context-action-${cssSafeId(action.id)}`}
+                  key={action.id}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onCardAction(action, objectId);
+                  }}
+                  title={action.reason}
+                  type="button"
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </>
       )}
       <button
         className="ghost-context-action"
@@ -4592,6 +4841,300 @@ function cardContextActionsForObject(objectId: string, prompt?: ActionPromptDto)
   return dedupeCardContextActions(actions);
 }
 
+function buildCardQuickActions(
+  snapshot: SnapshotDto | undefined,
+  prompt: ActionPromptDto | undefined,
+  drafts: CardQuickActionDrafts,
+  cardNamesByNo: Record<string, string>
+): CardQuickActionsByObject {
+  const actionsByObject: CardQuickActionsByObject = {};
+
+  for (const candidate of promptCandidatesFor(prompt)) {
+    if (!candidate.enabled || candidate.action === "WAIT") {
+      continue;
+    }
+
+    const sources = candidate.sources ?? [];
+    const targets = candidate.targets ?? [];
+    const destinations = candidate.destinations ?? [];
+    const optionalCost = onlyChoice(candidate.optionalCosts)?.id;
+    const destination = onlyChoice(destinations);
+    const mode = onlyChoice(candidate.modes);
+    const playSourceForTargets = drafts.playDraft.sourceObjectId || (sources.length === 1 ? objectIdFromChoice(sources[0]) : "");
+    const legendSourceForTargets = drafts.legendDraft.sourceObjectId || (sources.length === 1 ? objectIdFromChoice(sources[0]) : "");
+    const abilitySourceForTargets = drafts.activateDraft.sourceObjectId || (sources.length === 1 ? objectIdFromChoice(sources[0]) : "");
+
+    if (candidate.action === "MOVE_UNIT") {
+      for (const source of sources) {
+        const sourceId = objectIdFromChoice(source);
+        for (const moveDestination of destinations) {
+          pushCardQuickAction(actionsByObject, sourceId, {
+            id: `quick-move-${sourceId}-${moveDestination.id}`,
+            kind: "move-submit",
+            label: `移动到${choiceDisplayLabel(moveDestination, cardNamesByNo)}`,
+            detail: "点这张单位牌后直接提交移动命令",
+            sourceObjectId: sourceId,
+            destination: moveDestination.id,
+            optionalCost
+          });
+        }
+      }
+      continue;
+    }
+
+    if (candidate.action === "ASSEMBLE_EQUIPMENT" && choicesAreUnambiguous(candidate.optionalCosts)) {
+      for (const source of sources) {
+        const sourceId = objectIdFromChoice(source);
+        for (const target of targets) {
+          const targetId = objectIdFromChoice(target);
+          const targetLabel = choiceDisplayLabel(target, cardNamesByNo);
+          const sourceLabel = choiceDisplayLabel(source, cardNamesByNo);
+          const baseAction: CardQuickAction = {
+            id: `quick-assemble-${sourceId}-${targetId}-${optionalCost ?? "free"}`,
+            kind: "assemble-submit",
+            label: `装配到${targetLabel}`,
+            detail: "来源和宿主已由这次点击确定，直接提交装配",
+            sourceObjectId: sourceId,
+            targetObjectId: targetId,
+            optionalCost
+          };
+          pushCardQuickAction(actionsByObject, sourceId, baseAction);
+          pushCardQuickAction(actionsByObject, targetId, {
+            ...baseAction,
+            id: `quick-assemble-target-${sourceId}-${targetId}-${optionalCost ?? "free"}`,
+            label: `装配${sourceLabel}`,
+            detail: "点宿主牌即可把服务端候选装备装到这里"
+          });
+        }
+      }
+      continue;
+    }
+
+    if (
+      candidate.action === "PLAY_CARD"
+      && choicesAreUnambiguous(targets)
+      && choicesAreUnambiguous(destinations)
+      && choicesAreUnambiguous(candidate.modes)
+      && choicesAreUnambiguous(candidate.optionalCosts)
+    ) {
+      const target = onlyChoice(targets);
+      for (const source of sources) {
+        const sourceId = objectIdFromChoice(source);
+        const targetId = target ? objectIdFromChoice(target) : undefined;
+        pushCardQuickAction(actionsByObject, sourceId, {
+          id: `quick-play-${sourceId}-${targetId ?? "no-target"}-${destination?.id ?? "no-destination"}-${mode?.id ?? "default"}-${optionalCost ?? "free"}`,
+          kind: "play-submit",
+          label: target ? `打出并指定${choiceDisplayLabel(target, cardNamesByNo)}` : "直接打出",
+          detail: quickActionDetail("打出卡牌", destination, mode, optionalCost),
+          sourceObjectId: sourceId,
+          targetObjectId: targetId,
+          destination: destination?.id,
+          mode: mode?.id,
+          optionalCost
+        });
+      }
+    }
+
+    if (
+      candidate.action === "PLAY_CARD"
+      && playSourceForTargets
+      && choiceListContainsObject(sources, playSourceForTargets)
+      && choicesAreUnambiguous(destinations)
+      && choicesAreUnambiguous(candidate.modes)
+      && choicesAreUnambiguous(candidate.optionalCosts)
+    ) {
+      for (const target of targets) {
+        const targetId = objectIdFromChoice(target);
+        pushCardQuickAction(actionsByObject, targetId, {
+          id: `quick-play-target-${playSourceForTargets}-${targetId}-${destination?.id ?? "no-destination"}-${mode?.id ?? "default"}-${optionalCost ?? "free"}`,
+          kind: "play-submit",
+          label: "以此为目标打出",
+          detail: `来源：${objectChoiceLabel(snapshot, playSourceForTargets, cardNamesByNo)}`,
+          sourceObjectId: playSourceForTargets,
+          targetObjectId: targetId,
+          destination: destination?.id,
+          mode: mode?.id,
+          optionalCost
+        });
+      }
+    }
+
+    if (candidate.action === "DECLARE_BATTLE" && choicesAreUnambiguous(candidate.optionalCosts)) {
+      for (const source of sources) {
+        const sourceId = objectIdFromChoice(source);
+        for (const target of targets) {
+          const targetId = objectIdFromChoice(target);
+          for (const battleDestination of destinations.length ? destinations : [destinationChoiceFromDraft(drafts.battleDraft.battlefieldId)]) {
+            if (!battleDestination?.id) {
+              continue;
+            }
+            const baseAction: CardQuickAction = {
+              id: `quick-battle-${sourceId}-${targetId}-${battleDestination.id}-${optionalCost ?? "free"}`,
+              kind: "battle-submit",
+              label: `攻击${choiceDisplayLabel(target, cardNamesByNo)}`,
+              detail: `战场：${choiceDisplayLabel(battleDestination, cardNamesByNo)}`,
+              sourceObjectId: sourceId,
+              targetObjectId: targetId,
+              destination: battleDestination.id,
+              optionalCost
+            };
+            pushCardQuickAction(actionsByObject, sourceId, baseAction);
+            pushCardQuickAction(actionsByObject, targetId, {
+              ...baseAction,
+              id: `quick-battle-target-${sourceId}-${targetId}-${battleDestination.id}-${optionalCost ?? "free"}`,
+              label: "指定防守并开战",
+              detail: `攻击方：${choiceDisplayLabel(source, cardNamesByNo)}`
+            });
+          }
+        }
+      }
+      continue;
+    }
+
+    if (
+      candidate.action === "LEGEND_ACT"
+      && mode
+      && choicesAreUnambiguous(targets)
+      && choicesAreUnambiguous(candidate.optionalCosts)
+    ) {
+      const target = onlyChoice(targets);
+      for (const source of sources) {
+        const sourceId = objectIdFromChoice(source);
+        const targetId = target ? objectIdFromChoice(target) : undefined;
+        pushCardQuickAction(actionsByObject, sourceId, {
+          id: `quick-legend-${sourceId}-${targetId ?? "no-target"}-${mode.id}-${optionalCost ?? "free"}`,
+          kind: "legend-submit",
+          label: target ? `发动并指定${choiceDisplayLabel(target, cardNamesByNo)}` : "直接发动传奇",
+          detail: quickActionDetail("传奇行动", undefined, mode, optionalCost),
+          sourceObjectId: sourceId,
+          targetObjectId: targetId,
+          mode: mode.id,
+          optionalCost
+        });
+      }
+    }
+
+    if (
+      candidate.action === "LEGEND_ACT"
+      && mode
+      && legendSourceForTargets
+      && choiceListContainsObject(sources, legendSourceForTargets)
+      && choicesAreUnambiguous(candidate.optionalCosts)
+    ) {
+      for (const target of targets) {
+        const targetId = objectIdFromChoice(target);
+        pushCardQuickAction(actionsByObject, targetId, {
+          id: `quick-legend-target-${legendSourceForTargets}-${targetId}-${mode.id}-${optionalCost ?? "free"}`,
+          kind: "legend-submit",
+          label: "以此为目标发动",
+          detail: `传奇：${objectChoiceLabel(snapshot, legendSourceForTargets, cardNamesByNo)}`,
+          sourceObjectId: legendSourceForTargets,
+          targetObjectId: targetId,
+          mode: mode.id,
+          optionalCost
+        });
+      }
+      continue;
+    }
+
+    if (
+      candidate.action === "ACTIVATE_ABILITY"
+      && mode
+      && choicesAreUnambiguous(targets)
+      && choicesAreUnambiguous(candidate.optionalCosts)
+    ) {
+      const target = onlyChoice(targets);
+      for (const source of sources) {
+        const sourceId = objectIdFromChoice(source);
+        const targetId = target ? objectIdFromChoice(target) : undefined;
+        pushCardQuickAction(actionsByObject, sourceId, {
+          id: `quick-ability-${sourceId}-${targetId ?? "no-target"}-${mode.id}-${optionalCost ?? "free"}`,
+          kind: "ability-submit",
+          label: target ? `激活并指定${choiceDisplayLabel(target, cardNamesByNo)}` : "直接激活能力",
+          detail: quickActionDetail("激活能力", undefined, mode, optionalCost),
+          sourceObjectId: sourceId,
+          targetObjectId: targetId,
+          mode: mode.id,
+          optionalCost
+        });
+      }
+      continue;
+    }
+
+    if (
+      candidate.action === "ACTIVATE_ABILITY"
+      && mode
+      && abilitySourceForTargets
+      && choiceListContainsObject(sources, abilitySourceForTargets)
+      && choicesAreUnambiguous(candidate.optionalCosts)
+    ) {
+      for (const target of targets) {
+        const targetId = objectIdFromChoice(target);
+        pushCardQuickAction(actionsByObject, targetId, {
+          id: `quick-ability-target-${abilitySourceForTargets}-${targetId}-${mode.id}-${optionalCost ?? "free"}`,
+          kind: "ability-submit",
+          label: "以此为目标激活",
+          detail: `来源：${objectChoiceLabel(snapshot, abilitySourceForTargets, cardNamesByNo)}`,
+          sourceObjectId: abilitySourceForTargets,
+          targetObjectId: targetId,
+          mode: mode.id,
+          optionalCost
+        });
+      }
+    }
+  }
+
+  return actionsByObject;
+}
+
+function pushCardQuickAction(
+  actionsByObject: CardQuickActionsByObject,
+  objectId: string,
+  action: CardQuickAction
+) {
+  if (!objectId) {
+    return;
+  }
+
+  const existing = actionsByObject[objectId] ?? [];
+  if (existing.some((item) => item.id === action.id)) {
+    return;
+  }
+
+  actionsByObject[objectId] = [...existing, action];
+}
+
+function choicesAreUnambiguous(choices?: ActionPromptChoiceDto[]) {
+  return (choices?.length ?? 0) <= 1;
+}
+
+function objectIdFromChoice(choice: ActionPromptChoiceDto) {
+  return choice.id.replace(/^BATTLEFIELD:/, "");
+}
+
+function destinationChoiceFromDraft(id: string): ActionPromptChoiceDto {
+  return { id, label: id };
+}
+
+function quickActionDetail(
+  actionLabel: string,
+  destination: ActionPromptChoiceDto | undefined,
+  mode: ActionPromptChoiceDto | undefined,
+  optionalCost: string | undefined
+) {
+  const detail = [actionLabel];
+  if (destination) {
+    detail.push(`目的地 ${choiceDisplayLabel(destination)}`);
+  }
+  if (mode) {
+    detail.push(`模式 ${choiceDisplayLabel(mode)}`);
+  }
+  if (optionalCost) {
+    detail.push(optionalCostLabel(optionalCost));
+  }
+  return `${detail.join(" / ")}，点击即提交`;
+}
+
 function choiceListContainsObject(choices: ActionPromptChoiceDto[] | undefined, objectId: string) {
   return choices?.some((choice) => choice.id === objectId || choice.id === `BATTLEFIELD:${objectId}`) ?? false;
 }
@@ -4678,16 +5221,16 @@ function coachSteps(
     return ["当前只有“结束回合”合法", "点“结束回合”推进到下一名玩家", "要测出牌、移动、装备或战斗，可载入下方对应局面"];
   }
   return [
-    "点亮的服务端动作只会进入对应操作模式",
-    "再点桌面上的高亮卡牌或服务端候选来填来源、目标和费用",
-    "最后点提交按钮，日志与桌面会按服务端快照更新"
+    "优先点击桌面上的高亮卡牌",
+    "卡牌旁菜单会显示可直接执行的服务端动作",
+    "需要多步选择时，卡牌菜单会填入草稿，右侧仅作为兜底提交区"
   ];
 }
 
 function guidedActionStatus(prompt: ActionPromptDto | undefined, candidate: ActionPromptCandidateDto | undefined) {
   if (candidate?.enabled) {
     if (operationModeForAction(candidate.action)) {
-      return { label: "进入操作模式", detail: "点后选择高亮卡牌或服务端候选，再点对应提交按钮。", tone: "ready" };
+      return { label: "围绕卡牌操作", detail: "优先点桌面高亮卡牌；若候选足够明确，卡牌菜单会直接提交。", tone: "ready" };
     }
     return { label: "当前可点", detail: promptReasonLabel(candidate.reason), tone: "ready" };
   }
@@ -4878,21 +5421,21 @@ function operationModeSteps(
 
   const currentPick = selectionIntentLabel(selectionIntent);
   if (mode === "play") {
-    return ["先点高亮手牌或“服务端来源”选择要打出的牌。", "需要目标时点高亮目标；有目的地或模式时检查是否已带入。", "确认草稿后点“提交打出”。"];
+    return ["先点要打出的高亮手牌。", "若目标、目的地和费用已明确，卡牌菜单会出现“直接打出”。", "需要多目标时，再点目标卡牌完成选择。"];
   }
   if (mode === "move") {
-    return ["先点高亮的己方可移动单位，或点“服务端来源”。", "选择服务端目的地；若只有一个目的地，页面会自动带入。", "确认单位和目的地后点“提交移动”。"];
+    return ["直接点高亮己方单位。", "卡牌菜单会列出可去的目的地，例如移动到基地或战场。", "点击目的地动作后立即提交移动。"];
   }
   if (mode === "assemble") {
-    return ["先点高亮装备作为来源。", "再点可装配的高亮单位作为宿主。", "确认草稿后点“提交装配”。"];
+    return ["点高亮装备或可装配宿主。", "卡牌菜单会把装备和宿主配对。", "候选明确时点击菜单即可提交装配。"];
   }
   if (mode === "battle") {
-    return ["先选择高亮攻击方。", "再选择防守方或战场目标，检查战场字段。", "确认攻防分配后点“提交战斗”。"];
+    return ["点可攻击的己方单位。", "卡牌菜单会列出可攻击目标和战场。", "也可以直接点防守方卡牌指定防守并开战。"];
   }
   if (mode === "legend") {
-    return ["先点高亮传奇来源。", "选择能力和目标；唯一服务端候选会自动带入。", "确认草稿后点“提交传奇行动”。"];
+    return ["点高亮传奇牌。", "若能力、费用和目标已明确，卡牌菜单会直接发动。", "多目标时继续点目标卡牌完成选择。"];
   }
-  return [`当前桌面点击会作为“${currentPick}”。`, "先点高亮能力来源，再点合法目标。", "确认草稿后点“提交激活”。"];
+  return [`当前桌面点击会作为“${currentPick}”。`, "优先点能力来源卡牌。", "候选明确时卡牌菜单会直接激活能力。"];
 }
 
 function operationDraftSummary(

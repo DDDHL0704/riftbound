@@ -2736,7 +2736,7 @@ body {
   z-index: 30;
   display: grid;
   gap: 6px;
-  width: 178px;
+  width: 216px;
   border: 1px solid rgba(217, 179, 92, 0.52);
   border-radius: 10px;
   background:
@@ -2745,6 +2745,16 @@ body {
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.36);
   padding: 8px;
   color: #162d31;
+}
+
+.card-context-section {
+  display: grid;
+  gap: 5px;
+}
+
+.card-context-section.quick-actions {
+  border-bottom: 1px solid rgba(22, 45, 49, 0.12);
+  padding-bottom: 7px;
 }
 
 .product-card-list.hand .card-context-menu {
@@ -2776,8 +2786,39 @@ body {
   text-align: left;
 }
 
+.card-context-menu .quick-submit-action {
+  display: grid;
+  gap: 2px;
+  min-height: 42px;
+  border-color: rgba(176, 119, 25, 0.48);
+  background:
+    linear-gradient(180deg, rgba(223, 169, 66, 0.98), rgba(164, 111, 32, 0.98));
+  color: #fff9e6;
+  box-shadow: 0 8px 18px rgba(76, 48, 13, 0.18);
+}
+
+.card-context-menu .quick-submit-action strong {
+  color: #fff9e6;
+  font-size: 12px;
+}
+
+.card-context-menu .quick-submit-action small {
+  overflow: hidden;
+  color: rgba(255, 249, 230, 0.82);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .card-context-menu button:hover:not(:disabled) {
   background: rgba(31, 122, 103, 0.16);
+}
+
+.card-context-menu .quick-submit-action:hover:not(:disabled) {
+  background:
+    linear-gradient(180deg, rgba(236, 184, 74, 1), rgba(181, 123, 34, 1));
 }
 
 .card-context-menu .ghost-context-action {
