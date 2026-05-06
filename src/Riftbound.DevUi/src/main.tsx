@@ -219,6 +219,14 @@ type CardContextAction = {
   reason: string;
 };
 
+type CardContextAnchor = {
+  left: number;
+  top: number;
+  width: number;
+  maxHeight: number;
+  placement: "above" | "below";
+};
+
 type CardQuickActionKind =
   | "move-submit"
   | "assemble-submit"
@@ -631,6 +639,66 @@ const initialPlayers: Record<PlayerKey, PlayerState> = {
   }
 };
 
+function computeCardContextAnchor(element: HTMLElement): CardContextAnchor {
+  const margin = 12;
+  const cardRect = element.getBoundingClientRect();
+  const arenaElement = element.closest(".product-arena");
+  const handBoardBoundary = element.closest(".product-hand-shelf")
+    ? arenaElement?.querySelector(".product-board")
+    : null;
+  const boundaryElement = handBoardBoundary ?? element.closest(".product-board") ?? arenaElement;
+  const boundaryRect = boundaryElement?.getBoundingClientRect() ?? {
+    left: margin,
+    top: margin,
+    right: window.innerWidth - margin,
+    bottom: window.innerHeight - margin,
+    width: window.innerWidth - margin * 2,
+    height: window.innerHeight - margin * 2
+  };
+  const boundaryWidth = Math.max(240, boundaryRect.width);
+  const width = Math.round(Math.max(236, Math.min(300, boundaryWidth - margin * 2)));
+  const hardMaxHeight = Math.max(188, Math.min(360, boundaryRect.height - margin * 2));
+  const centerX = cardRect.left + cardRect.width / 2;
+  const leftThird = boundaryRect.left + boundaryRect.width * 0.34;
+  const rightThird = boundaryRect.left + boundaryRect.width * 0.66;
+  let left = cardRect.left;
+
+  if (centerX > rightThird) {
+    left = cardRect.left - width - 10;
+  } else if (centerX < leftThird) {
+    left = cardRect.right + 10;
+  } else if (cardRect.left + width > boundaryRect.right - margin) {
+    left = cardRect.right - width;
+  }
+
+  left = clampNumber(left, boundaryRect.left + margin, boundaryRect.right - width - margin);
+
+  const spaceBelow = boundaryRect.bottom - cardRect.bottom - margin;
+  const spaceAbove = cardRect.top - boundaryRect.top - margin;
+  const placement: CardContextAnchor["placement"] =
+    spaceBelow >= Math.min(220, hardMaxHeight) || spaceBelow >= spaceAbove ? "below" : "above";
+  const availableHeight = placement === "above" ? spaceAbove : spaceBelow;
+  const maxHeight = Math.round(Math.max(160, Math.min(hardMaxHeight, availableHeight)));
+  let top = placement === "above" ? cardRect.top - 8 : cardRect.bottom + 8;
+  top = clampNumber(top, boundaryRect.top + margin, boundaryRect.bottom - margin);
+
+  return {
+    left: Math.round(left),
+    top: Math.round(top),
+    width,
+    maxHeight,
+    placement
+  };
+}
+
+function clampNumber(value: number, min: number, max: number) {
+  if (max < min) {
+    return min;
+  }
+
+  return Math.min(Math.max(value, min), max);
+}
+
 function App() {
   const [serverUrl, setServerUrl] = useState(defaultServerUrl);
   const [roomId, setRoomId] = useState(defaultRoomId);
@@ -644,6 +712,7 @@ function App() {
   const [activateDraft, setActivateDraft] = useState(initialActivateDraft);
   const [selectionIntent, setSelectionIntent] = useState<SelectionIntent>("play-target");
   const [contextObjectId, setContextObjectId] = useState("");
+  const [contextAnchor, setContextAnchor] = useState<CardContextAnchor | null>(null);
   const [workbenchOpen, setWorkbenchOpen] = useState(false);
   const [operationMode, setOperationMode] = useState<OperationMode>("play");
   const [devToolsOpen, setDevToolsOpen] = useState(false);
@@ -711,6 +780,21 @@ function App() {
 
     return () => controller.abort();
   }, [serverUrl]);
+
+  useEffect(() => {
+    if (!contextObjectId) {
+      setContextAnchor(null);
+      return;
+    }
+
+    const closeFloatingMenu = () => {
+      setContextObjectId("");
+      setContextAnchor(null);
+    };
+
+    window.addEventListener("resize", closeFloatingMenu);
+    return () => window.removeEventListener("resize", closeFloatingMenu);
+  }, [contextObjectId]);
 
   function updatePlayer(key: PlayerKey, updater: (state: PlayerState) => PlayerState) {
     setPlayers((current) => {
@@ -898,6 +982,7 @@ function App() {
     setFixtureDraft("");
     setFixtureStatus("idle");
     setContextObjectId("");
+    setContextAnchor(null);
     setWorkbenchOpen(false);
   }
 
@@ -1107,6 +1192,17 @@ function App() {
     updatePlayer(key, (current) => ({ ...current, jsonIntent: formatJson(command) }));
   }
 
+  function openCardContext(objectId: string, element?: HTMLElement) {
+    if (!objectId) {
+      setContextObjectId("");
+      setContextAnchor(null);
+      return;
+    }
+
+    setContextObjectId(objectId);
+    setContextAnchor(element ? computeCardContextAnchor(element) : null);
+  }
+
   function handleObjectPick(objectId: string) {
     if (!objectId) {
       return;
@@ -1290,6 +1386,7 @@ function App() {
     const sourceObjectId = action.sourceObjectId ?? objectId;
     const targetObjectId = action.targetObjectId ?? objectId;
     setContextObjectId("");
+    setContextAnchor(null);
     setProductPanel("actions");
     setWorkbenchOpen(false);
 
@@ -1497,13 +1594,14 @@ function App() {
           activePlayerId={activePlayer.playerId}
           prompt={activePlayer.prompt}
           contextObjectId={contextObjectId}
+          contextAnchor={contextAnchor}
           selectedObjectIds={selectedObjectIds}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
           cardSpecsByNo={cardSpecsByNo}
           cardQuickActionsByObjectId={cardQuickActionsByObjectId}
           onPickObject={handleObjectPick}
-          onContextObject={setContextObjectId}
+          onContextObject={openCardContext}
           onCardAction={handleCardContextAction}
           onCardQuickAction={(action, objectId) => void handleCardQuickAction(action, objectId)}
         />
@@ -1652,6 +1750,7 @@ function ProductBattleArena({
   activePlayerId,
   prompt,
   contextObjectId,
+  contextAnchor,
   selectedObjectIds,
   selectionIntent,
   cardNamesByNo,
@@ -1666,13 +1765,14 @@ function ProductBattleArena({
   activePlayerId: string;
   prompt?: ActionPromptDto;
   contextObjectId: string;
+  contextAnchor: CardContextAnchor | null;
   selectedObjectIds: Set<string>;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
   cardQuickActionsByObjectId: CardQuickActionsByObject;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
@@ -1699,6 +1799,7 @@ function ProductBattleArena({
               seat={topSeat}
               selectedObjectIds={selectedObjectIds}
               contextObjectId={contextObjectId}
+              contextAnchor={contextAnchor}
               prompt={prompt}
               selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
@@ -1720,6 +1821,7 @@ function ProductBattleArena({
                 laneIndex={0}
                 selectedObjectIds={selectedObjectIds}
                 contextObjectId={contextObjectId}
+                contextAnchor={contextAnchor}
                 prompt={prompt}
                 selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
@@ -1739,6 +1841,7 @@ function ProductBattleArena({
                 laneIndex={1}
                 selectedObjectIds={selectedObjectIds}
                 contextObjectId={contextObjectId}
+                contextAnchor={contextAnchor}
                 prompt={prompt}
                 selectionIntent={selectionIntent}
                 cardNamesByNo={cardNamesByNo}
@@ -1756,6 +1859,7 @@ function ProductBattleArena({
               seat={bottomSeat}
               selectedObjectIds={selectedObjectIds}
               contextObjectId={contextObjectId}
+              contextAnchor={contextAnchor}
               prompt={prompt}
               selectionIntent={selectionIntent}
               cardNamesByNo={cardNamesByNo}
@@ -1779,6 +1883,7 @@ function ProductBattleArena({
             seat={bottomSeat}
             selectedObjectIds={selectedObjectIds}
             contextObjectId={contextObjectId}
+            contextAnchor={contextAnchor}
             prompt={prompt}
             selectionIntent={selectionIntent}
             cardNamesByNo={cardNamesByNo}
@@ -2201,6 +2306,7 @@ function ProductSupportZones({
   seat,
   selectedObjectIds,
   contextObjectId,
+  contextAnchor,
   prompt,
   selectionIntent,
   cardNamesByNo,
@@ -2216,6 +2322,7 @@ function ProductSupportZones({
   seat: ProductSeat;
   selectedObjectIds: Set<string>;
   contextObjectId: string;
+  contextAnchor: CardContextAnchor | null;
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
@@ -2223,7 +2330,7 @@ function ProductSupportZones({
   cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   compact?: boolean;
@@ -2237,6 +2344,7 @@ function ProductSupportZones({
         objects={seat.player.objects}
         selectedObjectIds={selectedObjectIds}
         contextObjectId={contextObjectId}
+        contextAnchor={contextAnchor}
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
@@ -2254,6 +2362,7 @@ function ProductSupportZones({
         objects={seat.player.objects}
         selectedObjectIds={selectedObjectIds}
         contextObjectId={contextObjectId}
+        contextAnchor={contextAnchor}
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
@@ -2271,6 +2380,7 @@ function ProductSupportZones({
         objects={seat.player.objects}
         selectedObjectIds={selectedObjectIds}
         contextObjectId={contextObjectId}
+        contextAnchor={contextAnchor}
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
@@ -2293,6 +2403,7 @@ function ProductMiniZone({
   objects,
   selectedObjectIds,
   contextObjectId,
+  contextAnchor,
   prompt,
   selectionIntent,
   cardNamesByNo,
@@ -2310,6 +2421,7 @@ function ProductMiniZone({
   objects?: Record<string, ObjectView>;
   selectedObjectIds: Set<string>;
   contextObjectId: string;
+  contextAnchor: CardContextAnchor | null;
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
@@ -2317,7 +2429,7 @@ function ProductMiniZone({
   cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   wide?: boolean;
@@ -2333,6 +2445,7 @@ function ProductMiniZone({
         objects={objects}
         selectedObjectIds={selectedObjectIds}
         contextObjectId={contextObjectId}
+        contextAnchor={contextAnchor}
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
@@ -2356,6 +2469,7 @@ function ProductLane({
   laneIndex,
   selectedObjectIds,
   contextObjectId,
+  contextAnchor,
   prompt,
   selectionIntent,
   cardNamesByNo,
@@ -2373,6 +2487,7 @@ function ProductLane({
   laneIndex: number;
   selectedObjectIds: Set<string>;
   contextObjectId: string;
+  contextAnchor: CardContextAnchor | null;
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
@@ -2380,7 +2495,7 @@ function ProductLane({
   cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
@@ -2395,6 +2510,7 @@ function ProductLane({
         objects={opponent.player.objects}
         selectedObjectIds={selectedObjectIds}
         contextObjectId={contextObjectId}
+        contextAnchor={contextAnchor}
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
@@ -2412,6 +2528,7 @@ function ProductLane({
         objects={player.player.objects}
         selectedObjectIds={selectedObjectIds}
         contextObjectId={contextObjectId}
+        contextAnchor={contextAnchor}
         prompt={prompt}
         selectionIntent={selectionIntent}
         cardNamesByNo={cardNamesByNo}
@@ -2443,6 +2560,7 @@ function ProductHandShelf({
   seat,
   selectedObjectIds,
   contextObjectId,
+  contextAnchor,
   prompt,
   selectionIntent,
   cardNamesByNo,
@@ -2457,6 +2575,7 @@ function ProductHandShelf({
   seat: ProductSeat;
   selectedObjectIds: Set<string>;
   contextObjectId: string;
+  contextAnchor: CardContextAnchor | null;
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
@@ -2464,7 +2583,7 @@ function ProductHandShelf({
   cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
@@ -2488,6 +2607,7 @@ function ProductHandShelf({
           objects={seat.player.objects}
           selectedObjectIds={selectedObjectIds}
           contextObjectId={contextObjectId}
+          contextAnchor={contextAnchor}
           prompt={prompt}
           selectionIntent={selectionIntent}
           cardNamesByNo={cardNamesByNo}
@@ -2510,6 +2630,7 @@ function ProductCardList({
   objects,
   selectedObjectIds,
   contextObjectId,
+  contextAnchor,
   prompt,
   selectionIntent,
   cardNamesByNo,
@@ -2527,6 +2648,7 @@ function ProductCardList({
   objects?: Record<string, ObjectView>;
   selectedObjectIds: Set<string>;
   contextObjectId: string;
+  contextAnchor: CardContextAnchor | null;
   prompt?: ActionPromptDto;
   selectionIntent: SelectionIntent;
   cardNamesByNo: Record<string, string>;
@@ -2534,7 +2656,7 @@ function ProductCardList({
   cardQuickActionsByObjectId: CardQuickActionsByObject;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   compact?: boolean;
@@ -2554,6 +2676,7 @@ function ProductCardList({
           attachments={attachedObjectsFor(id, objects)}
           selected={selectedObjectIds.has(id)}
           contextOpen={contextObjectId === id}
+          contextAnchor={contextAnchor}
           contextActions={cardContextActionsForObject(id, prompt)}
           quickActions={cardQuickActionsByObjectId[id] ?? []}
           selectionIntent={selectionIntent}
@@ -2577,6 +2700,7 @@ function ProductCard({
   attachments,
   selected,
   contextOpen,
+  contextAnchor,
   contextActions,
   quickActions,
   selectionIntent,
@@ -2594,6 +2718,7 @@ function ProductCard({
   attachments: (ObjectView & { objectId?: string })[];
   selected: boolean;
   contextOpen: boolean;
+  contextAnchor: CardContextAnchor | null;
   contextActions: CardContextAction[];
   quickActions: CardQuickAction[];
   selectionIntent: SelectionIntent;
@@ -2601,7 +2726,7 @@ function ProductCard({
   cardSpecsByNo: Record<string, BehaviorSpecDto>;
   perspectivePlayerId: string;
   onPickObject: (objectId: string) => void;
-  onContextObject: (objectId: string) => void;
+  onContextObject: (objectId: string, element?: HTMLElement) => void;
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
   compact?: boolean;
@@ -2617,7 +2742,7 @@ function ProductCard({
     <article className="product-card-wrap">
       <button
         className={productCardClassName(object, isHighlighted, perspectivePlayerId, contextActions, selectionIntent)}
-        onClick={() => onContextObject(contextOpen ? "" : objectId)}
+        onClick={(event) => onContextObject(contextOpen ? "" : objectId, event.currentTarget)}
         title={productCardTooltip(objectId, object, spec, cardNamesByNo)}
         type="button"
       >
@@ -2649,7 +2774,7 @@ function ProductCard({
           {attachments.slice(0, 3).map((attachment) => (
             <button
               key={attachment.objectId}
-              onClick={() => onContextObject(attachment.objectId ?? "")}
+              onClick={(event) => onContextObject(attachment.objectId ?? "", event.currentTarget)}
               type="button"
             >
               {productCardName(attachment.objectId ?? "装备", attachment, cardNamesByNo)}
@@ -2660,6 +2785,7 @@ function ProductCard({
       {contextOpen ? (
         <CardContextMenu
           actions={contextActions}
+          anchor={contextAnchor}
           quickActions={quickActions}
           objectId={objectId}
           selectionIntent={selectionIntent}
@@ -2674,6 +2800,7 @@ function ProductCard({
 
 function CardContextMenu({
   actions,
+  anchor,
   quickActions,
   objectId,
   selectionIntent,
@@ -2682,6 +2809,7 @@ function CardContextMenu({
   onCardQuickAction
 }: {
   actions: CardContextAction[];
+  anchor: CardContextAnchor | null;
   quickActions: CardQuickAction[];
   objectId: string;
   selectionIntent: SelectionIntent;
@@ -2692,9 +2820,21 @@ function CardContextMenu({
   const visibleQuickActions = quickActions.filter((action) => quickActionMatchesSelectionIntent(action, selectionIntent));
   const visibleActions = actions.filter((action) => contextActionMatchesSelectionIntent(action, selectionIntent));
   const hasAnyActions = visibleActions.length > 0 || visibleQuickActions.length > 0;
+  const floatingStyle = anchor
+    ? {
+        left: `${anchor.left}px`,
+        top: `${anchor.top}px`,
+        width: `${anchor.width}px`,
+        maxHeight: `${anchor.maxHeight}px`
+      }
+    : undefined;
 
   return (
-    <div className="card-context-menu" data-testid={`card-context-${cssSafeId(objectId)}`}>
+    <div
+      className={anchor ? `card-context-menu floating ${anchor.placement}` : "card-context-menu"}
+      data-testid={`card-context-${cssSafeId(objectId)}`}
+      style={floatingStyle}
+    >
         <strong>卡牌动作</strong>
       {!hasAnyActions ? (
         <span>当前没有服务端开放的卡牌动作</span>

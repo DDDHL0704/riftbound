@@ -4467,6 +4467,20 @@ body {
   overflow-y: auto;
 }
 
+.card-context-menu.floating {
+  position: fixed;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 1000;
+  max-height: min(360px, calc(100vh - 24px));
+  transform: none !important;
+  scrollbar-width: thin;
+}
+
+.card-context-menu.floating.above {
+  transform: translateY(-100%) !important;
+}
+
 .card-context-menu,
 .card-context-menu button,
 .card-context-menu small,
