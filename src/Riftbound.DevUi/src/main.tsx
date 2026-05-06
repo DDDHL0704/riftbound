@@ -1874,18 +1874,52 @@ function ProductActionPanel(props: {
     .slice(0, 4);
   const currentOperationCandidate = candidateFor(candidates, operationActionForMode(props.operationMode));
   const testDeckPreset = scenarioPresets.find((preset) => preset.id === "test-decks");
+  const operationDrafts = {
+    playDraft: props.playDraft,
+    moveDraft: props.moveDraft,
+    assembleDraft: props.assembleDraft,
+    battleDraft: props.battleDraft,
+    legendDraft: props.legendDraft,
+    activateDraft: props.activateDraft
+  };
+  const operationReady = operationDraftIsComplete(props.operationMode, operationDrafts);
+  const operationEnabled = Boolean(currentOperationCandidate?.enabled);
 
   function handlePromptCandidate(candidate: ActionPromptCandidateDto) {
     const mode = operationModeForAction(candidate.action);
     if (mode) {
       props.onOperationMode(mode);
-      props.onWorkbenchOpen(true);
+      props.onWorkbenchOpen(false);
       props.onSelectionIntent(defaultSelectionIntentForOperation(mode));
       applyCandidateDefaults(mode, candidate, props);
       return;
     }
 
     props.onPromptAction(candidate.action);
+  }
+
+  function submitCurrentOperation() {
+    if (props.operationMode === "play") {
+      props.onSubmitPlayCard();
+      return;
+    }
+    if (props.operationMode === "move") {
+      props.onSubmitMove();
+      return;
+    }
+    if (props.operationMode === "assemble") {
+      props.onSubmitAssemble();
+      return;
+    }
+    if (props.operationMode === "battle") {
+      props.onSubmitBattle();
+      return;
+    }
+    if (props.operationMode === "legend") {
+      props.onSubmitLegend();
+      return;
+    }
+    props.onSubmitActivate();
   }
 
   return (
@@ -1941,19 +1975,23 @@ function ProductActionPanel(props: {
           ))}
         </ol>
         <div className="operation-mode-draft">
-          {operationDraftSummary(props.operationMode, {
-            playDraft: props.playDraft,
-            moveDraft: props.moveDraft,
-            assembleDraft: props.assembleDraft,
-            battleDraft: props.battleDraft,
-            legendDraft: props.legendDraft,
-            activateDraft: props.activateDraft
-          }, props.snapshot, props.cardNamesByNo).map((item) => (
+          {operationDraftSummary(props.operationMode, operationDrafts, props.snapshot, props.cardNamesByNo).map((item) => (
             <span key={item.label}>
               {item.label}
               <strong>{item.value || "待选"}</strong>
             </span>
           ))}
+        </div>
+        <div className="operation-direct-submit">
+          <button
+            data-testid={`operation-submit-${props.operationMode}`}
+            disabled={!operationEnabled || !operationReady}
+            onClick={submitCurrentOperation}
+            type="button"
+          >
+            {operationSubmitLabel(props.operationMode)}
+          </button>
+          <span>{operationSubmitHint(props.operationMode, operationEnabled, operationReady)}</span>
         </div>
       </section>
 
@@ -5646,6 +5684,58 @@ function operationDraftSummary(
     { label: "能力", value: drafts.activateDraft.abilityId },
     { label: "目标", value: operationObjectLabel(drafts.activateDraft.targetObjectIds, snapshot, cardNamesByNo) || "无" }
   ];
+}
+
+function operationDraftIsComplete(
+  mode: OperationMode,
+  drafts: {
+    playDraft: PlayCardDraft;
+    moveDraft: MoveUnitDraft;
+    assembleDraft: AssembleDraft;
+    battleDraft: BattleDraft;
+    legendDraft: LegendDraft;
+    activateDraft: ActivateDraft;
+  }
+) {
+  if (mode === "play") {
+    return Boolean(drafts.playDraft.sourceObjectId);
+  }
+  if (mode === "move") {
+    return Boolean(drafts.moveDraft.sourceObjectId && drafts.moveDraft.origin && drafts.moveDraft.destination);
+  }
+  if (mode === "assemble") {
+    return Boolean(drafts.assembleDraft.sourceObjectId && drafts.assembleDraft.targetObjectId);
+  }
+  if (mode === "battle") {
+    return Boolean(drafts.battleDraft.attackerObjectIds && drafts.battleDraft.defenderObjectIds);
+  }
+  if (mode === "legend") {
+    return Boolean(drafts.legendDraft.sourceObjectId && drafts.legendDraft.abilityId);
+  }
+  return Boolean(drafts.activateDraft.sourceObjectId && drafts.activateDraft.abilityId);
+}
+
+function operationSubmitLabel(mode: OperationMode) {
+  return (
+    {
+      play: "提交打出",
+      move: "提交移动",
+      assemble: "提交装配",
+      battle: "提交战斗",
+      legend: "提交传奇行动",
+      ability: "提交激活"
+    } satisfies Record<OperationMode, string>
+  )[mode];
+}
+
+function operationSubmitHint(mode: OperationMode, enabled: boolean, ready: boolean) {
+  if (!enabled) {
+    return "当前服务端提示不允许提交这个动作。";
+  }
+  if (!ready) {
+    return `还没选齐${promptActionLabel(operationActionForMode(mode))}需要的来源、目标或目的地。`;
+  }
+  return "已选齐，点击后交给服务端校验并结算。";
 }
 
 function operationObjectLabel(

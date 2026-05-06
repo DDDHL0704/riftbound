@@ -3566,12 +3566,14 @@ Delivered:
 - Stopped opening the heavy right-side workbench when a card is clicked; it now stays folded unless the player explicitly opens fallback controls.
 - Filtered card context actions by the current selection intent so a target-selection click cannot show unrelated movement or battle actions.
 - Relaxed target quick-submit only through server prompt data: after selecting a legal play source, target cards can show `以此为目标打出`, with destination/mode/optional costs left for backend validation when not unambiguous.
+- Added a direct submit CTA under the compact card-operation summary. When a draft has enough server-selected fields, the panel now shows `提交移动`, `提交打出`, `提交装配`, `提交战斗`, `提交传奇行动`, or `提交激活` without requiring users to open the fallback workbench.
 - Tightened the battle table and action rail CSS for a more product-grade desktop layout while preserving the existing React/Vite stack and server-authoritative protocol boundary.
 - Added a reference-inspired physical playmat layer: wood frame, teal felt, upper/lower `1-12` resource tracks, central battlefield dividers, player battlefield labels, and corner deck/rune placeholders. This is visual-only and does not affect snapshot, prompt, or command semantics.
 
 Validation:
 
 - `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi`: passed again after adding direct operation submit CTAs, with existing SignalR Rollup annotation warnings only.
 - Browser smoke with the local page:
   - Web URL: `http://127.0.0.1:5173/`
   - API URL: `http://127.0.0.1:5088`
