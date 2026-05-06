@@ -1933,3 +1933,355 @@ h3 {
   max-height: none;
   overflow: auto;
 }
+
+/* P7.9 local playability pass: keep the workbench readable instead of fully expanded. */
+.workbench-panel {
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.workbench-panel > .section-title {
+  min-height: 32px;
+}
+
+.workbench-panel > .section-title span {
+  max-width: 62%;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workbench-controls {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.workbench-controls label {
+  max-width: none;
+}
+
+.action-chips {
+  max-height: none;
+  justify-content: start;
+}
+
+.workbench-support-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.workbench-fold,
+.advanced-fields {
+  min-width: 0;
+  border: 1px solid rgba(23, 48, 52, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 251, 238, 0.86);
+}
+
+.workbench-fold summary,
+.advanced-fields summary {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  color: #173034;
+  cursor: pointer;
+  list-style: none;
+}
+
+.workbench-fold summary::-webkit-details-marker,
+.advanced-fields summary::-webkit-details-marker {
+  display: none;
+}
+
+.workbench-fold summary::before,
+.advanced-fields summary::before {
+  content: "+";
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  background: #173034;
+  color: #f8e9bd;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.workbench-fold[open] summary::before,
+.advanced-fields[open] summary::before {
+  content: "-";
+}
+
+.workbench-fold summary span,
+.advanced-fields summary span {
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workbench-fold summary strong,
+.advanced-fields summary strong {
+  flex: 0 1 auto;
+  overflow: hidden;
+  color: #5d7077;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workbench-fold[open],
+.advanced-fields[open] {
+  background: rgba(255, 251, 238, 0.98);
+}
+
+.workbench-fold > .response-panel,
+.workbench-fold > .prompt-candidate-panel,
+.workbench-fold > .selection-mode-panel,
+.workbench-fold > .intent-summary-panel {
+  margin: 0 8px 8px;
+  border-color: rgba(23, 48, 52, 0.12);
+  background: rgba(255, 255, 255, 0.56);
+  box-shadow: none;
+}
+
+.advanced-fields .form-grid {
+  display: grid;
+  padding: 0 10px 10px;
+}
+
+.operation-tabs {
+  padding: 4px;
+  border: 1px solid rgba(23, 48, 52, 0.14);
+  border-radius: 10px;
+  background: rgba(23, 48, 52, 0.08);
+}
+
+.operation-tabs button {
+  min-height: 36px;
+  font-size: 13px;
+}
+
+.play-card-panel,
+.command-panel {
+  max-height: 100%;
+  overflow: auto;
+  border-color: rgba(214, 181, 103, 0.38);
+  background: rgba(255, 251, 238, 0.97);
+}
+
+.play-card-panel > .section-title,
+.command-panel > .section-title {
+  min-height: 34px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(23, 48, 52, 0.12);
+}
+
+.play-card-panel > button[data-testid^="submit-"],
+.command-panel > button[data-testid^="submit-"] {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.choice-chip-row {
+  padding: 8px;
+  border: 1px solid rgba(23, 48, 52, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.choice-chip-row > span {
+  color: #3c555b;
+  font-size: 11px;
+}
+
+.choice-chip-row button,
+.target-palette button,
+.cost-palette button,
+.selection-strip button {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.target-palette,
+.cost-palette,
+.selection-strip {
+  padding: 8px;
+  border: 1px solid rgba(23, 48, 52, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.target-palette {
+  max-height: 96px;
+}
+
+.selection-strip span,
+.cost-palette button {
+  font-size: 12px;
+}
+
+.prompt-candidate-list {
+  max-height: 170px;
+}
+
+@media (max-width: 900px) {
+  .workbench-panel {
+    gap: 7px;
+  }
+
+  .workbench-support-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .workbench-fold:not([open]) summary,
+  .advanced-fields:not([open]) summary {
+    min-height: 32px;
+    padding: 6px 8px;
+  }
+
+  .operation-tabs button {
+    min-height: 32px;
+    font-size: 12px;
+  }
+
+  .choice-chip-row,
+  .target-palette,
+  .cost-palette,
+  .selection-strip {
+    padding: 6px;
+  }
+}
+
+@media (max-width: 900px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100%;
+    grid-template-rows: auto auto auto auto;
+    overflow: visible;
+    padding: 10px;
+  }
+
+  .top-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .top-bar > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .top-bar button,
+  .top-bar input,
+  .top-bar select {
+    min-height: 38px;
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+  .room-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .system-notice {
+    min-height: 0;
+  }
+
+  .game-table-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .workbench-panel {
+    order: 1;
+  }
+
+  .desk-panel {
+    order: 2;
+  }
+
+  .side-rail {
+    order: 3;
+  }
+
+  .desk-panel,
+  .workbench-panel,
+  .side-rail {
+    overflow: visible;
+  }
+
+  .lane-board {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .workbench-controls {
+    grid-template-columns: 120px minmax(0, 1fr);
+  }
+
+  .action-chips {
+    gap: 6px;
+  }
+
+  .action-chips button {
+    min-height: 34px;
+    font-size: 12px;
+  }
+
+  .operation-tabs {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .play-card-panel .form-grid,
+  .command-panel .form-grid {
+    display: grid;
+  }
+
+  .play-card-panel,
+  .command-panel {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .side-rail {
+    grid-template-rows: auto auto auto;
+  }
+
+  .side-rail .event-list {
+    max-height: 220px;
+  }
+
+  .catalog-panel.compact .catalog-list {
+    display: grid;
+  }
+
+  .catalog-panel.compact .card-detail {
+    max-height: none;
+  }
+}

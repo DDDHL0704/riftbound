@@ -13,7 +13,7 @@
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
 - P7.9 本地产品版全卡可玩已完成：`1009/1009` 官方条目为 `CONFORMANCE_PASS`，`811/811` 功能单元实现，manual deferred 剩余 `0/811`；最终验证通过后端 full test `2817/2817`、`ConformanceFixtureRunnerTests 2653/2653`、`CardCatalogBaselineTests 38/38`、`GameHubJoinTests 84/84`、前端 build 和 Browser smoke。详见 `docs/CURRENT_P7_9_STATUS.md`。
-- 2026-05-06 已追加本地产品 UI polish：单屏三栏对战桌面、中文化主界面、中文卡牌名/规则/候选操作展示、操作标签页、全卡图鉴弹窗和当前代码 Browser smoke。
+- 2026-05-06 已追加本地产品 UI polish：单屏三栏对战桌面、窄窗口可读布局、中文化主界面、中文卡牌名/规则/候选操作展示、操作标签页、全卡图鉴弹窗和当前代码 Browser smoke。
 
 ## 新窗口接手
 
@@ -67,7 +67,7 @@ npm install
 npm run dev
 ```
 
-访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`。P7/P7.9 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、单屏三栏对战桌面、结构化 ActionPrompt 操作、点击式出牌/目标/费用/战斗/传奇/战场能力、中文化卡牌名/规则/候选操作/事件日志、战报/回放边界、全卡图鉴弹窗和卡牌详情。UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
+访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`。P7/P7.9 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、单屏三栏对战桌面、窄窗口可读布局、结构化 ActionPrompt 操作、点击式出牌/目标/费用/战斗/传奇/战场能力、中文化卡牌名/规则/候选操作/事件日志、战报/回放边界、全卡图鉴弹窗和卡牌详情。UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。
 
 ## 项目结构
 

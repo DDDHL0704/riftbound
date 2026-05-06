@@ -1592,13 +1592,13 @@ function CommandWorkbench({
         </div>
       </div>
 
-      <ResponseWindowPanel snapshot={snapshot} prompt={activePlayer.prompt} />
-      <PromptCandidatePanel candidates={promptCandidates} cardNamesByNo={cardNamesByNo} />
-
-      <SelectionModePanel selectionIntent={selectionIntent} onSelectionIntent={onSelectionIntent} />
-      <IntentSummaryPanel
+      <WorkbenchSupportPanel
+        snapshot={snapshot}
         prompt={activePlayer.prompt}
+        candidates={promptCandidates}
+        cardNamesByNo={cardNamesByNo}
         selectionIntent={selectionIntent}
+        onSelectionIntent={onSelectionIntent}
         playDraft={playDraft}
         moveDraft={moveDraft}
         assembleDraft={assembleDraft}
@@ -1627,62 +1627,68 @@ function CommandWorkbench({
           <h3>打出卡牌</h3>
           <span>{canPlayCard ? "服务端允许打出卡牌" : "当前提示不允许"}</span>
         </div>
-        <div className="form-grid">
-          <label>
-            来源对象
-            <input
-              data-testid="play-source"
-              value={playDraft.sourceObjectId}
-              onChange={(event) => onPlayDraft({ ...playDraft, sourceObjectId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            卡牌编号
-            <input
-              data-testid="play-card-no"
-              value={playDraft.cardNo}
-              onChange={(event) => onPlayDraft({ ...playDraft, cardNo: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            模式
-            <input
-              data-testid="play-mode"
-              value={playDraft.mode}
-              onChange={(event) => onPlayDraft({ ...playDraft, mode: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            目标对象
-            <input
-              data-testid="play-targets"
-              value={playDraft.targetObjectIds}
-              onChange={(event) => onPlayDraft({ ...playDraft, targetObjectIds: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            目的地
-            <input
-              data-testid="play-destination"
-              value={playDraft.destination}
-              onChange={(event) => onPlayDraft({ ...playDraft, destination: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label className="wide-input">
-            可选费用
-            <input
-              data-testid="play-optional-costs"
-              value={playDraft.optionalCosts}
-              onChange={(event) => onPlayDraft({ ...playDraft, optionalCosts: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-        </div>
+        <details className="advanced-fields">
+          <summary>
+            <span>手动参数</span>
+            <strong>来源、卡号、目标、费用</strong>
+          </summary>
+          <div className="form-grid">
+            <label>
+              来源对象
+              <input
+                data-testid="play-source"
+                value={playDraft.sourceObjectId}
+                onChange={(event) => onPlayDraft({ ...playDraft, sourceObjectId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              卡牌编号
+              <input
+                data-testid="play-card-no"
+                value={playDraft.cardNo}
+                onChange={(event) => onPlayDraft({ ...playDraft, cardNo: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              模式
+              <input
+                data-testid="play-mode"
+                value={playDraft.mode}
+                onChange={(event) => onPlayDraft({ ...playDraft, mode: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              目标对象
+              <input
+                data-testid="play-targets"
+                value={playDraft.targetObjectIds}
+                onChange={(event) => onPlayDraft({ ...playDraft, targetObjectIds: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              目的地
+              <input
+                data-testid="play-destination"
+                value={playDraft.destination}
+                onChange={(event) => onPlayDraft({ ...playDraft, destination: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label className="wide-input">
+              可选费用
+              <input
+                data-testid="play-optional-costs"
+                value={playDraft.optionalCosts}
+                onChange={(event) => onPlayDraft({ ...playDraft, optionalCosts: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+          </div>
+        </details>
         <ChoiceChipRow title="服务端来源" testIdPrefix="play-source-choice" choices={playCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={setPlaySource} />
         <ChoiceChipRow title="服务端目的地" testIdPrefix="play-destination-choice" choices={playCandidate?.destinations} cardNamesByNo={cardNamesByNo} onPick={(choice) => onPlayDraft({ ...playDraft, destination: choice.id })} />
         <ChoiceChipRow title="服务端模式" testIdPrefix="play-mode-choice" choices={playCandidate?.modes} cardNamesByNo={cardNamesByNo} onPick={(choice) => onPlayDraft({ ...playDraft, mode: choice.id })} />
@@ -1756,44 +1762,50 @@ function CommandWorkbench({
           <h3>激活能力</h3>
           <span>{activateAbilityEnabled ? "服务端允许激活能力" : canActivateAbility ? "暂无可用来源" : "当前提示不允许"}</span>
         </div>
-        <div className="form-grid">
-          <label>
-            来源对象
-            <input
-              data-testid="ability-source"
-              value={activateDraft.sourceObjectId}
-              onChange={(event) => onActivateDraft({ ...activateDraft, sourceObjectId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            能力
-            <input
-              data-testid="ability-id"
-              value={activateDraft.abilityId}
-              onChange={(event) => onActivateDraft({ ...activateDraft, abilityId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            目标对象
-            <input
-              data-testid="ability-targets"
-              value={activateDraft.targetObjectIds}
-              onChange={(event) => onActivateDraft({ ...activateDraft, targetObjectIds: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            可选费用
-            <input
-              data-testid="ability-optional-costs"
-              value={activateDraft.optionalCosts}
-              onChange={(event) => onActivateDraft({ ...activateDraft, optionalCosts: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-        </div>
+        <details className="advanced-fields">
+          <summary>
+            <span>手动参数</span>
+            <strong>来源、能力、目标、费用</strong>
+          </summary>
+          <div className="form-grid">
+            <label>
+              来源对象
+              <input
+                data-testid="ability-source"
+                value={activateDraft.sourceObjectId}
+                onChange={(event) => onActivateDraft({ ...activateDraft, sourceObjectId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              能力
+              <input
+                data-testid="ability-id"
+                value={activateDraft.abilityId}
+                onChange={(event) => onActivateDraft({ ...activateDraft, abilityId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              目标对象
+              <input
+                data-testid="ability-targets"
+                value={activateDraft.targetObjectIds}
+                onChange={(event) => onActivateDraft({ ...activateDraft, targetObjectIds: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              可选费用
+              <input
+                data-testid="ability-optional-costs"
+                value={activateDraft.optionalCosts}
+                onChange={(event) => onActivateDraft({ ...activateDraft, optionalCosts: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+          </div>
+        </details>
         <ChoiceChipRow title="服务端来源" testIdPrefix="ability-source-choice" choices={activateCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onActivateDraft({ ...activateDraft, sourceObjectId: choice.id })} />
         <ChoiceChipRow title="服务端能力" testIdPrefix="ability-id-choice" choices={activateCandidate?.modes} cardNamesByNo={cardNamesByNo} onPick={(choice) => onActivateDraft({ ...activateDraft, abilityId: choice.id })} />
         <ChoiceChipRow
@@ -1816,44 +1828,50 @@ function CommandWorkbench({
           <h3>移动单位</h3>
           <span>{canMove ? "服务端允许移动" : "当前提示不允许"}</span>
         </div>
-        <div className="form-grid">
-          <label>
-            来源单位
-            <input
-              data-testid="move-source"
-              value={moveDraft.sourceObjectId}
-              onChange={(event) => onMoveDraft({ ...moveDraft, sourceObjectId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            来源区域
-            <input
-              data-testid="move-origin"
-              value={moveDraft.origin}
-              onChange={(event) => onMoveDraft({ ...moveDraft, origin: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            目的地
-            <input
-              data-testid="move-destination"
-              value={moveDraft.destination}
-              onChange={(event) => onMoveDraft({ ...moveDraft, destination: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            可选费用
-            <input
-              data-testid="move-optional-costs"
-              value={moveDraft.optionalCosts}
-              onChange={(event) => onMoveDraft({ ...moveDraft, optionalCosts: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-        </div>
+        <details className="advanced-fields">
+          <summary>
+            <span>手动参数</span>
+            <strong>来源、区域、目的地</strong>
+          </summary>
+          <div className="form-grid">
+            <label>
+              来源单位
+              <input
+                data-testid="move-source"
+                value={moveDraft.sourceObjectId}
+                onChange={(event) => onMoveDraft({ ...moveDraft, sourceObjectId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              来源区域
+              <input
+                data-testid="move-origin"
+                value={moveDraft.origin}
+                onChange={(event) => onMoveDraft({ ...moveDraft, origin: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              目的地
+              <input
+                data-testid="move-destination"
+                value={moveDraft.destination}
+                onChange={(event) => onMoveDraft({ ...moveDraft, destination: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              可选费用
+              <input
+                data-testid="move-optional-costs"
+                value={moveDraft.optionalCosts}
+                onChange={(event) => onMoveDraft({ ...moveDraft, optionalCosts: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+          </div>
+        </details>
         <ChoiceChipRow title="服务端来源" testIdPrefix="move-source-choice" choices={moveCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onMoveDraft({ ...moveDraft, sourceObjectId: choice.id })} />
         <ChoiceChipRow title="服务端目的地" testIdPrefix="move-destination-choice" choices={moveCandidate?.destinations} cardNamesByNo={cardNamesByNo} onPick={(choice) => onMoveDraft({ ...moveDraft, destination: choice.id })} />
         <button data-testid="submit-move-unit" disabled={!canMove} onClick={onSubmitMove}>
@@ -1868,35 +1886,41 @@ function CommandWorkbench({
           <h3>装配装备</h3>
           <span>{canAssemble ? "服务端允许装配" : "当前提示不允许"}</span>
         </div>
-        <div className="form-grid">
-          <label>
-            装备来源
-            <input
-              data-testid="assemble-source"
-              value={assembleDraft.sourceObjectId}
-              onChange={(event) => onAssembleDraft({ ...assembleDraft, sourceObjectId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            装备宿主
-            <input
-              data-testid="assemble-target"
-              value={assembleDraft.targetObjectId}
-              onChange={(event) => onAssembleDraft({ ...assembleDraft, targetObjectId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label className="wide-input">
-            可选费用
-            <input
-              data-testid="assemble-optional-costs"
-              value={assembleDraft.optionalCosts}
-              onChange={(event) => onAssembleDraft({ ...assembleDraft, optionalCosts: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-        </div>
+        <details className="advanced-fields">
+          <summary>
+            <span>手动参数</span>
+            <strong>装备、宿主、费用</strong>
+          </summary>
+          <div className="form-grid">
+            <label>
+              装备来源
+              <input
+                data-testid="assemble-source"
+                value={assembleDraft.sourceObjectId}
+                onChange={(event) => onAssembleDraft({ ...assembleDraft, sourceObjectId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              装备宿主
+              <input
+                data-testid="assemble-target"
+                value={assembleDraft.targetObjectId}
+                onChange={(event) => onAssembleDraft({ ...assembleDraft, targetObjectId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label className="wide-input">
+              可选费用
+              <input
+                data-testid="assemble-optional-costs"
+                value={assembleDraft.optionalCosts}
+                onChange={(event) => onAssembleDraft({ ...assembleDraft, optionalCosts: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+          </div>
+        </details>
         <ChoiceChipRow title="服务端装备" testIdPrefix="assemble-source-choice" choices={assembleCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onAssembleDraft({ ...assembleDraft, sourceObjectId: choice.id })} />
         <ChoiceChipRow title="服务端宿主" testIdPrefix="assemble-target-choice" choices={assembleCandidate?.targets} cardNamesByNo={cardNamesByNo} onPick={(choice) => onAssembleDraft({ ...assembleDraft, targetObjectId: choice.id })} />
         <ChoiceChipRow
@@ -1918,53 +1942,59 @@ function CommandWorkbench({
           <h3>声明战斗</h3>
           <span>{canDeclareBattle ? "服务端允许声明战斗" : "当前提示不允许"}</span>
         </div>
-        <div className="form-grid">
-          <label>
-            战场
-            <input
-              data-testid="battlefield-id"
-              value={battleDraft.battlefieldId}
-              onChange={(event) => onBattleDraft({ ...battleDraft, battlefieldId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            攻击方
-            <input
-              data-testid="battle-attackers"
-              value={battleDraft.attackerObjectIds}
-              onChange={(event) => onBattleDraft({ ...battleDraft, attackerObjectIds: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            防守方
-            <input
-              data-testid="battle-defenders"
-              value={battleDraft.defenderObjectIds}
-              onChange={(event) => onBattleDraft({ ...battleDraft, defenderObjectIds: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            战场目标
-            <input
-              data-testid="battlefield-targets"
-              value={battleDraft.battlefieldTargetObjectIds}
-              onChange={(event) => onBattleDraft({ ...battleDraft, battlefieldTargetObjectIds: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            可选费用
-            <input
-              data-testid="battle-optional-costs"
-              value={battleDraft.optionalCosts}
-              onChange={(event) => onBattleDraft({ ...battleDraft, optionalCosts: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-        </div>
+        <details className="advanced-fields">
+          <summary>
+            <span>手动参数</span>
+            <strong>战场、攻防、分配</strong>
+          </summary>
+          <div className="form-grid">
+            <label>
+              战场
+              <input
+                data-testid="battlefield-id"
+                value={battleDraft.battlefieldId}
+                onChange={(event) => onBattleDraft({ ...battleDraft, battlefieldId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              攻击方
+              <input
+                data-testid="battle-attackers"
+                value={battleDraft.attackerObjectIds}
+                onChange={(event) => onBattleDraft({ ...battleDraft, attackerObjectIds: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              防守方
+              <input
+                data-testid="battle-defenders"
+                value={battleDraft.defenderObjectIds}
+                onChange={(event) => onBattleDraft({ ...battleDraft, defenderObjectIds: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              战场目标
+              <input
+                data-testid="battlefield-targets"
+                value={battleDraft.battlefieldTargetObjectIds}
+                onChange={(event) => onBattleDraft({ ...battleDraft, battlefieldTargetObjectIds: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              可选费用
+              <input
+                data-testid="battle-optional-costs"
+                value={battleDraft.optionalCosts}
+                onChange={(event) => onBattleDraft({ ...battleDraft, optionalCosts: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+          </div>
+        </details>
         <ChoiceChipRow title="服务端战场" testIdPrefix="battle-destination-choice" choices={battleCandidate?.destinations} cardNamesByNo={cardNamesByNo} onPick={(choice) => onBattleDraft({ ...battleDraft, battlefieldId: choice.id })} />
         <ChoiceChipRow
           title="服务端攻击方"
@@ -2006,44 +2036,50 @@ function CommandWorkbench({
           <h3>传奇行动</h3>
           <span>{canLegendAct ? "服务端允许传奇行动" : "当前提示不允许"}</span>
         </div>
-        <div className="form-grid">
-          <label>
-            传奇来源
-            <input
-              data-testid="legend-source"
-              value={legendDraft.sourceObjectId}
-              onChange={(event) => onLegendDraft({ ...legendDraft, sourceObjectId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            能力
-            <input
-              data-testid="legend-ability"
-              value={legendDraft.abilityId}
-              onChange={(event) => onLegendDraft({ ...legendDraft, abilityId: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            目标对象
-            <input
-              data-testid="legend-targets"
-              value={legendDraft.targetObjectIds}
-              onChange={(event) => onLegendDraft({ ...legendDraft, targetObjectIds: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            可选费用
-            <input
-              data-testid="legend-optional-costs"
-              value={legendDraft.optionalCosts}
-              onChange={(event) => onLegendDraft({ ...legendDraft, optionalCosts: event.target.value })}
-              spellCheck={false}
-            />
-          </label>
-        </div>
+        <details className="advanced-fields">
+          <summary>
+            <span>手动参数</span>
+            <strong>传奇、能力、目标</strong>
+          </summary>
+          <div className="form-grid">
+            <label>
+              传奇来源
+              <input
+                data-testid="legend-source"
+                value={legendDraft.sourceObjectId}
+                onChange={(event) => onLegendDraft({ ...legendDraft, sourceObjectId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              能力
+              <input
+                data-testid="legend-ability"
+                value={legendDraft.abilityId}
+                onChange={(event) => onLegendDraft({ ...legendDraft, abilityId: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              目标对象
+              <input
+                data-testid="legend-targets"
+                value={legendDraft.targetObjectIds}
+                onChange={(event) => onLegendDraft({ ...legendDraft, targetObjectIds: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+            <label>
+              可选费用
+              <input
+                data-testid="legend-optional-costs"
+                value={legendDraft.optionalCosts}
+                onChange={(event) => onLegendDraft({ ...legendDraft, optionalCosts: event.target.value })}
+                spellCheck={false}
+              />
+            </label>
+          </div>
+        </details>
         <ChoiceChipRow title="服务端传奇" testIdPrefix="legend-source-choice" choices={legendCandidate?.sources} cardNamesByNo={cardNamesByNo} onPick={(choice) => onLegendDraft({ ...legendDraft, sourceObjectId: choice.id })} />
         <ChoiceChipRow title="服务端能力" testIdPrefix="legend-ability-choice" choices={legendCandidate?.modes} cardNamesByNo={cardNamesByNo} onPick={(choice) => onLegendDraft({ ...legendDraft, abilityId: choice.id })} />
         <ChoiceChipRow
@@ -2078,6 +2114,74 @@ function CommandWorkbench({
       </section>
       ) : null}
     </section>
+  );
+}
+
+function WorkbenchSupportPanel({
+  snapshot,
+  prompt,
+  candidates,
+  cardNamesByNo,
+  selectionIntent,
+  onSelectionIntent,
+  playDraft,
+  moveDraft,
+  assembleDraft,
+  battleDraft,
+  legendDraft,
+  activateDraft
+}: {
+  snapshot?: SnapshotDto;
+  prompt?: ActionPromptDto;
+  candidates: ActionPromptCandidateDto[];
+  cardNamesByNo: Record<string, string>;
+  selectionIntent: SelectionIntent;
+  onSelectionIntent: (intent: SelectionIntent) => void;
+  playDraft: PlayCardDraft;
+  moveDraft: MoveUnitDraft;
+  assembleDraft: AssembleDraft;
+  battleDraft: BattleDraft;
+  legendDraft: LegendDraft;
+  activateDraft: ActivateDraft;
+}) {
+  const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
+  const timing = timingLabel(String(snapshot?.timing?.timingState ?? snapshot?.turnState ?? "-"));
+  const stackCount = snapshot?.stack?.length ?? 0;
+
+  return (
+    <div className="workbench-support-panel" data-testid="workbench-support">
+      <details className="workbench-fold">
+        <summary>
+          <span>响应窗口</span>
+          <strong>{timing} / 结算栈 {stackCount}</strong>
+        </summary>
+        <ResponseWindowPanel snapshot={snapshot} prompt={prompt} />
+      </details>
+      <details className="workbench-fold">
+        <summary>
+          <span>服务端候选</span>
+          <strong>{actionableCandidates.length} 项可执行</strong>
+        </summary>
+        <PromptCandidatePanel candidates={candidates} cardNamesByNo={cardNamesByNo} />
+      </details>
+      <details className="workbench-fold">
+        <summary>
+          <span>点击与草稿</span>
+          <strong>{selectionIntentLabel(selectionIntent)}</strong>
+        </summary>
+        <SelectionModePanel selectionIntent={selectionIntent} onSelectionIntent={onSelectionIntent} />
+        <IntentSummaryPanel
+          prompt={prompt}
+          selectionIntent={selectionIntent}
+          playDraft={playDraft}
+          moveDraft={moveDraft}
+          assembleDraft={assembleDraft}
+          battleDraft={battleDraft}
+          legendDraft={legendDraft}
+          activateDraft={activateDraft}
+        />
+      </details>
+    </div>
   );
 }
 
@@ -3176,7 +3280,9 @@ function timingLabel(timing: string) {
       COMBAT: "战斗",
       CLEANUP: "清理",
       START: "开始",
-      IN_PROGRESS: "进行中"
+      IN_PROGRESS: "进行中",
+      NEUTRAL_OPEN: "普通行动窗口",
+      SPELL_DUEL_OPEN: "法术对决窗口"
     }[timing] ?? timing
   );
 }

@@ -3417,6 +3417,34 @@ Delivered:
 Validation:
 
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
+
+## Post-P7.9 Readability Layout Polish
+
+Date: 2026-05-06
+
+This is a UI readability pass for local Web testing after the Chinese card-surface polish. It stays out of P8 production accounts, matchmaking, deployment, monitoring, risk control, mobile-specific work, complex AI, and production replay/spectator APIs.
+
+Delivered:
+
+- Replaced the always-expanded workbench stack with folded support panels for response-window details, server candidate detail, click mode, and command draft summary.
+- Moved raw/manual command fields behind per-operation `手动参数` expanders so the primary operation surface shows server choices, selected targets/costs, and the submit action first.
+- Added a narrow viewport layout for the in-app browser:
+  - top controls flow into a readable two-column header instead of overlapping
+  - room summary uses compact rows
+  - operation panel is shown before the battle desk and side rail
+  - panels stack vertically and use natural page scroll when the viewport is too narrow for the desktop three-column table
+- Increased workbench control contrast, spacing, button height, and section separation so the current action path is legible.
+- Localized `NEUTRAL_OPEN` / `SPELL_DUEL_OPEN` timing labels on the visible workbench surface.
+
+Validation:
+
+- `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
+- Browser smoke through the in-app browser:
+  - Web URL: `http://127.0.0.1:5173/`
+  - Current-code API URL: `http://127.0.0.1:5092`
+  - Room IDs: `p7-ui-readable-2-1778031866725`, then `p7-ui-readable-3-1778031899200` after the timing-label patch.
+  - Operation path: reloaded the page in the narrow in-app browser viewport, set server URL to `5092`, joined both players, readied both players, verified the operation panel visual hierarchy, and confirmed prompt actions remain available.
+  - Verified visible surfaces: `响应窗口 普通行动窗口 / 结算栈 0`, `服务端候选 6 项可执行`, folded `手动参数`, visible `打出卡牌` / `让过` / `结束回合` buttons, and a readable submit area.
 - Browser smoke through the in-app browser:
   - Web URL: `http://127.0.0.1:5173/`
   - Current-code API URL: `http://127.0.0.1:5090`
