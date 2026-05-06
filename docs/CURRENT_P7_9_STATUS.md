@@ -3539,3 +3539,47 @@ Delivered:
 Validation:
 
 - `cd src/Riftbound.DevUi && source ../../scripts/dev-env.sh && npm run build`: passed with existing SignalR Rollup annotation warnings only.
+
+## Post-P7.9 Product Battle Flow Redesign
+
+Date: 2026-05-06
+
+This is a card-centered product battle-page redesign after P7.9 final audit. It stays inside the local product alpha scope and does not start P8 production accounts, matchmaking, deployment, monitoring, risk control, mobile-specific work, complex AI, or production replay/spectator APIs.
+
+Design:
+
+- Keep the first screen as the real battle/room experience: no marketing landing page.
+- Main table stays authoritative and glanceable: P2 top, P1 bottom, left/right battlefields, legend/hero/base support zones, hand shelf, stack well, and ownership ribbons.
+- User operations start on cards, not in the right rail:
+  - click a playable hand card to set the server prompt source
+  - click a legal target card to open a filtered action sheet
+  - submit direct card actions only when the server `ActionPrompt` candidate allows them
+  - keep the old detailed workbench behind a folded fallback
+- Right panel now acts as a compact status assistant: current prompt, server candidate count, card-operation steps, selected draft, local test deck seed, recent events, and disabled-action boundary.
+- All visible operation labels stay Chinese. Card surfaces show Chinese name, official number, normal cost, rune cost, power, rules text, owner/controller, damage/status, and attachments.
+
+Delivered:
+
+- Reworked `ProductActionPanel` into a compact prompt/status panel with `卡牌操作`, selected draft summary, `载入双人测试牌组`, recent event feed, and disabled-action hints.
+- Changed card context menus from development wording to player-facing wording: `卡牌动作`, `立即执行`, and `选择下一步`.
+- Kept operation drafts readable by showing Chinese card names in the operation summary when an object id maps to a card number.
+- Stopped opening the heavy right-side workbench when a card is clicked; it now stays folded unless the player explicitly opens fallback controls.
+- Filtered card context actions by the current selection intent so a target-selection click cannot show unrelated movement or battle actions.
+- Relaxed target quick-submit only through server prompt data: after selecting a legal play source, target cards can show `以此为目标打出`, with destination/mode/optional costs left for backend validation when not unambiguous.
+- Tightened the battle table and action rail CSS for a more product-grade desktop layout while preserving the existing React/Vite stack and server-authoritative protocol boundary.
+- Added a reference-inspired physical playmat layer: wood frame, teal felt, upper/lower `1-12` resource tracks, central battlefield dividers, player battlefield labels, and corner deck/rune placeholders. This is visual-only and does not affect snapshot, prompt, or command semantics.
+
+Validation:
+
+- `source scripts/dev-env.sh && npm run build --prefix src/Riftbound.DevUi`: passed with existing SignalR Rollup annotation warnings only.
+- Browser smoke with the local page:
+  - Web URL: `http://127.0.0.1:5173/`
+  - API URL: `http://127.0.0.1:5088`
+  - Room ID: `p7-1778046681635`
+  - Operation path: created a fresh room, joined both players, readied both players, loaded `双人测试牌组`, clicked the hand card `海克斯射线`, clicked `打出这张牌`, clicked an opposing `大力仙灵` on the battlefield, verified the target action sheet only showed play-target actions, then clicked `以此为目标打出`.
+  - Event log summary: `DEV_SCENARIO_SEEDED`, `玩家准备`, `对局开始`, `打出卡牌 P1 打出海克斯射线`, `支付费用 P1 支付 1 点费用`, `STACK_ITEM_ADDED 海克斯射线加入结算链`.
+  - Final snapshot summary: room `IN_PROGRESS`, turn `#1001`, active player `P1`, timing `NEUTRAL_CLOSED`, stack `1`, hand `4`, target `大力仙灵（SFD·125/221） / P2-UNIT-001`.
+- Visual reference smoke:
+  - Reloaded `http://127.0.0.1:5173/` after adding the playmat layer.
+  - Verified visible wood frame, teal felt, top `12-1` track, bottom `1-12` track, battlefield labels, corner slots, and that card objects/action panel remain above the guide layer.
+  - Rejoined the existing room `p7-1778046681635`; the table still rendered the in-progress snapshot with stack `1` and visible P1/P2 card zones.

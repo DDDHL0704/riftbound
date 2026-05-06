@@ -1177,7 +1177,7 @@ function App() {
     }));
   }
 
-  function openWorkbenchForAction(action: string) {
+  function openWorkbenchForAction(action: string, open = true) {
     const mode = operationModeForAction(action);
     if (!mode) {
       return;
@@ -1185,7 +1185,7 @@ function App() {
 
     setProductPanel("actions");
     setOperationMode(mode);
-    setWorkbenchOpen(true);
+    setWorkbenchOpen(open);
     setSelectionIntent(defaultSelectionIntentForOperation(mode));
   }
 
@@ -1195,7 +1195,7 @@ function App() {
     }
 
     setContextObjectId(objectId);
-    openWorkbenchForAction(contextAction.action);
+    openWorkbenchForAction(contextAction.action, false);
 
     const object = findObject(latestSnapshot, objectId);
     if (contextAction.action === "PLAY_CARD") {
@@ -1685,6 +1685,7 @@ function ProductBattleArena({
   return (
     <section className="product-arena" data-testid="battle-desk" aria-label="产品级对战桌面">
       <div className="arena-glow" aria-hidden="true" />
+      <ProductPlaymatGuides />
       {snapshot && topSeat && bottomSeat ? (
         <>
           <ProductPlayerBanner
@@ -1797,6 +1798,30 @@ function ProductBattleArena({
   );
 }
 
+function ProductPlaymatGuides() {
+  const bottomTrack = Array.from({ length: 12 }, (_, index) => index + 1);
+  const topTrack = [...bottomTrack].reverse();
+
+  return (
+    <div className="playmat-guides" aria-hidden="true">
+      <div className="mat-rune-track top">
+        {topTrack.map((value) => <span key={`top-${value}`}>{value}</span>)}
+      </div>
+      <div className="mat-rune-track bottom">
+        {bottomTrack.map((value) => <span key={`bottom-${value}`}>{value}</span>)}
+      </div>
+      <div className="mat-battle-label mat-battle-label-top">对手战场</div>
+      <div className="mat-battle-label mat-battle-label-bottom">我方战场</div>
+      <div className="mat-midline horizontal" />
+      <div className="mat-midline vertical" />
+      <div className="mat-corner-slot top-left">备牌</div>
+      <div className="mat-corner-slot top-right">符文堆</div>
+      <div className="mat-corner-slot bottom-left">符文堆</div>
+      <div className="mat-corner-slot bottom-right">主牌堆</div>
+    </div>
+  );
+}
+
 function ProductActionPanel(props: {
   activeKey: PlayerKey;
   activePlayer: PlayerState;
@@ -1839,6 +1864,16 @@ function ProductActionPanel(props: {
   const prompt = props.activePlayer.prompt;
   const candidates = promptCandidatesFor(prompt);
   const actionableCandidates = candidates.filter((candidate) => candidate.enabled && candidate.action !== "WAIT");
+  const blockedCandidates = candidates.filter((candidate) => !candidate.enabled && candidate.action !== "WAIT").slice(0, 3);
+  const recentEvents = props.activePlayer.events
+    .flatMap((message) => message.payload.map((event, index) => ({
+      key: `${message.serverTick}-${event.kind}-${index}`,
+      tick: message.serverTick,
+      event
+    })))
+    .slice(0, 4);
+  const currentOperationCandidate = candidateFor(candidates, operationActionForMode(props.operationMode));
+  const testDeckPreset = scenarioPresets.find((preset) => preset.id === "test-decks");
 
   function handlePromptCandidate(candidate: ActionPromptCandidateDto) {
     const mode = operationModeForAction(candidate.action);
@@ -1855,24 +1890,17 @@ function ProductActionPanel(props: {
 
   return (
     <section className="product-action-panel" aria-label="当前操作">
-      <div className="action-spotlight">
+      <div className={prompt?.actionable ? "action-spotlight live" : "action-spotlight"}>
         <div>
           <p className="eyebrow">当前提示</p>
           <h2>{prompt?.actionable ? "轮到你行动" : "等待服务器提示"}</h2>
-          <span>{promptReasonLabel(prompt?.reason) || "所有可点击操作均来自服务端 ActionPrompt。"}</span>
+          <span>{promptReasonLabel(prompt?.reason) || "点击高亮卡牌，所有可执行动作都来自服务端 ActionPrompt。"}</span>
         </div>
         <div className="prompt-version">
-          <span>状态</span>
+          <span>提示版本</span>
           <strong>{prompt?.snapshotTick ?? "-"}</strong>
         </div>
       </div>
-
-      <GuidedActionCoach
-        snapshot={props.snapshot}
-        prompt={prompt}
-        candidates={candidates}
-        onSeedScenario={props.onSeedScenario}
-      />
 
       <div className="product-prompt-actions" data-testid="product-prompt-actions">
         {candidates.length === 0 ? (
@@ -1896,8 +1924,93 @@ function ProductActionPanel(props: {
 
       <div className="action-boundary">
         <strong>{actionableCandidates.length}</strong>
-        <span>项服务端允许操作。优先点桌面高亮卡牌，卡牌菜单会在候选明确时直接提交；右侧只保留说明和兜底。</span>
+        <span>项服务端允许操作。优先点桌面高亮卡牌，候选明确时卡牌动作片会直接提交；这里仅展示状态和兜底确认。</span>
       </div>
+
+      <section className="operation-focus-card" aria-label="当前卡牌操作指引">
+        <header>
+          <div>
+            <p className="eyebrow">卡牌操作</p>
+            <h3>{promptActionLabel(operationActionForMode(props.operationMode))}</h3>
+          </div>
+          <span>{selectionIntentLabel(props.selectionIntent)}</span>
+        </header>
+        <ol>
+          {operationModeSteps(props.operationMode, currentOperationCandidate, props.selectionIntent).map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <div className="operation-mode-draft">
+          {operationDraftSummary(props.operationMode, {
+            playDraft: props.playDraft,
+            moveDraft: props.moveDraft,
+            assembleDraft: props.assembleDraft,
+            battleDraft: props.battleDraft,
+            legendDraft: props.legendDraft,
+            activateDraft: props.activateDraft
+          }, props.snapshot, props.cardNamesByNo).map((item) => (
+            <span key={item.label}>
+              {item.label}
+              <strong>{item.value || "待选"}</strong>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <section className="quick-test-dock" aria-label="本地测试入口">
+        <div>
+          <p className="eyebrow">本地测试</p>
+          <strong>双人牌组与规则局面</strong>
+        </div>
+        {testDeckPreset ? (
+          <button data-testid="seed-test-decks" onClick={() => props.onSeedScenario(testDeckPreset)} type="button">
+            载入双人测试牌组
+          </button>
+        ) : null}
+        <details>
+          <summary>更多局面</summary>
+          <div>
+            {scenarioPresets.filter((preset) => preset.id !== "test-decks").slice(0, 10).map((preset) => (
+              <button key={preset.id} onClick={() => props.onSeedScenario(preset)} type="button">
+                {preset.title}
+              </button>
+            ))}
+          </div>
+        </details>
+      </section>
+
+      <section className="live-feed-card" aria-label="最近事件">
+        <header>
+          <div>
+            <p className="eyebrow">最近事件</p>
+            <h3>战报流</h3>
+          </div>
+          <span>{props.activePlayer.events.length}</span>
+        </header>
+        {recentEvents.length === 0 ? (
+          <p>暂无事件。入座、准备、出牌、让过和结算都会在这里出现。</p>
+        ) : (
+          <ul>
+            {recentEvents.map((item) => (
+              <li key={item.key}>
+                <strong>{eventKindLabel(item.event.kind)}</strong>
+                <span>{item.event.description || eventPayloadSummary(item.event.payload)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {blockedCandidates.length > 0 ? (
+        <section className="blocked-action-card" aria-label="当前不可用动作">
+          <p className="eyebrow">不可用动作</p>
+          {blockedCandidates.map((candidate) => (
+            <span key={candidate.action}>
+              {candidate.label}：{promptReasonLabel(candidate.reason) || "服务端未开放"}
+            </span>
+          ))}
+        </section>
+      ) : null}
 
       <details
         className="product-workbench-drawer"
@@ -2538,19 +2651,21 @@ function CardContextMenu({
   onCardAction: (contextAction: CardContextAction, objectId: string) => void;
   onCardQuickAction: (quickAction: CardQuickAction, objectId: string) => void;
 }) {
-  const hasAnyActions = actions.length > 0 || quickActions.length > 0;
+  const visibleQuickActions = quickActions.filter((action) => quickActionMatchesSelectionIntent(action, selectionIntent));
+  const visibleActions = actions.filter((action) => contextActionMatchesSelectionIntent(action, selectionIntent));
+  const hasAnyActions = visibleActions.length > 0 || visibleQuickActions.length > 0;
 
   return (
     <div className="card-context-menu" data-testid={`card-context-${cssSafeId(objectId)}`}>
-      <strong>这张牌可操作</strong>
+        <strong>卡牌动作</strong>
       {!hasAnyActions ? (
         <span>当前没有服务端开放的卡牌动作</span>
       ) : (
         <>
-          {quickActions.length > 0 ? (
+          {visibleQuickActions.length > 0 ? (
             <div className="card-context-section quick-actions">
-              <span>直接执行</span>
-              {quickActions.map((action) => (
+              <span>立即执行</span>
+              {visibleQuickActions.map((action) => (
                 <button
                   className="quick-submit-action"
                   data-testid={`card-quick-action-${cssSafeId(action.id)}`}
@@ -2568,10 +2683,10 @@ function CardContextMenu({
               ))}
             </div>
           ) : null}
-          {actions.length > 0 ? (
+          {visibleActions.length > 0 ? (
             <div className="card-context-section">
-              <span>填入操作</span>
-              {actions.map((action) => (
+              <span>选择下一步</span>
+              {visibleActions.map((action) => (
                 <button
                   data-testid={`card-context-action-${cssSafeId(action.id)}`}
                   key={action.id}
@@ -2601,6 +2716,45 @@ function CardContextMenu({
       </button>
     </div>
   );
+}
+
+function quickActionMatchesSelectionIntent(action: CardQuickAction, intent: SelectionIntent) {
+  return contextActionMatchesSelectionIntent({ action: actionNameForQuickAction(action.kind) }, intent);
+}
+
+function contextActionMatchesSelectionIntent(action: Pick<CardContextAction, "action">, intent: SelectionIntent) {
+  if (intent.startsWith("play")) {
+    return action.action === "PLAY_CARD";
+  }
+  if (intent.startsWith("move")) {
+    return action.action === "MOVE_UNIT";
+  }
+  if (intent.startsWith("assemble")) {
+    return action.action === "ASSEMBLE_EQUIPMENT";
+  }
+  if (intent.startsWith("battle")) {
+    return action.action === "DECLARE_BATTLE";
+  }
+  if (intent.startsWith("legend")) {
+    return action.action === "LEGEND_ACT";
+  }
+  if (intent.startsWith("ability")) {
+    return action.action === "ACTIVATE_ABILITY";
+  }
+  return true;
+}
+
+function actionNameForQuickAction(kind: CardQuickActionKind) {
+  return (
+    {
+      "play-submit": "PLAY_CARD",
+      "move-submit": "MOVE_UNIT",
+      "assemble-submit": "ASSEMBLE_EQUIPMENT",
+      "battle-submit": "DECLARE_BATTLE",
+      "legend-submit": "LEGEND_ACT",
+      "ability-submit": "ACTIVATE_ABILITY"
+    } satisfies Record<CardQuickActionKind, string>
+  )[kind];
 }
 
 function ProductEmptyArena() {
@@ -4939,22 +5093,22 @@ function buildCardQuickActions(
       candidate.action === "PLAY_CARD"
       && playSourceForTargets
       && choiceListContainsObject(sources, playSourceForTargets)
-      && choicesAreUnambiguous(destinations)
-      && choicesAreUnambiguous(candidate.modes)
-      && choicesAreUnambiguous(candidate.optionalCosts)
     ) {
       for (const target of targets) {
         const targetId = objectIdFromChoice(target);
+        const relaxedDestination = choicesAreUnambiguous(destinations) ? destination?.id : undefined;
+        const relaxedMode = choicesAreUnambiguous(candidate.modes) ? mode?.id : undefined;
+        const relaxedOptionalCost = choicesAreUnambiguous(candidate.optionalCosts) ? optionalCost : undefined;
         pushCardQuickAction(actionsByObject, targetId, {
-          id: `quick-play-target-${playSourceForTargets}-${targetId}-${destination?.id ?? "no-destination"}-${mode?.id ?? "default"}-${optionalCost ?? "free"}`,
+          id: `quick-play-target-${playSourceForTargets}-${targetId}-${relaxedDestination ?? "server-default-destination"}-${relaxedMode ?? "server-default-mode"}-${relaxedOptionalCost ?? "base-cost"}`,
           kind: "play-submit",
           label: "以此为目标打出",
-          detail: `来源：${objectChoiceLabel(snapshot, playSourceForTargets, cardNamesByNo)}`,
+          detail: `来源：${objectChoiceLabel(snapshot, playSourceForTargets, cardNamesByNo)} / 基础选项，服务端校验`,
           sourceObjectId: playSourceForTargets,
           targetObjectId: targetId,
-          destination: destination?.id,
-          mode: mode?.id,
-          optionalCost
+          destination: relaxedDestination,
+          mode: relaxedMode,
+          optionalCost: relaxedOptionalCost
         });
       }
     }
@@ -5447,49 +5601,68 @@ function operationDraftSummary(
     battleDraft: BattleDraft;
     legendDraft: LegendDraft;
     activateDraft: ActivateDraft;
-  }
+  },
+  snapshot?: SnapshotDto,
+  cardNamesByNo: Record<string, string> = {}
 ) {
   if (mode === "play") {
     return [
-      { label: "来源", value: drafts.playDraft.sourceObjectId },
-      { label: "目标", value: drafts.playDraft.targetObjectIds || "无" },
+      { label: "来源", value: operationObjectLabel(drafts.playDraft.sourceObjectId, snapshot, cardNamesByNo) },
+      { label: "目标", value: operationObjectLabel(drafts.playDraft.targetObjectIds, snapshot, cardNamesByNo) || "无" },
       { label: "目的地", value: drafts.playDraft.destination },
       { label: "费用", value: drafts.playDraft.optionalCosts || "无" }
     ];
   }
   if (mode === "move") {
     return [
-      { label: "单位", value: drafts.moveDraft.sourceObjectId },
+      { label: "单位", value: operationObjectLabel(drafts.moveDraft.sourceObjectId, snapshot, cardNamesByNo) },
       { label: "来源区", value: drafts.moveDraft.origin },
       { label: "去向", value: drafts.moveDraft.destination }
     ];
   }
   if (mode === "assemble") {
     return [
-      { label: "装备", value: drafts.assembleDraft.sourceObjectId },
-      { label: "宿主", value: drafts.assembleDraft.targetObjectId },
+      { label: "装备", value: operationObjectLabel(drafts.assembleDraft.sourceObjectId, snapshot, cardNamesByNo) },
+      { label: "宿主", value: operationObjectLabel(drafts.assembleDraft.targetObjectId, snapshot, cardNamesByNo) },
       { label: "费用", value: drafts.assembleDraft.optionalCosts || "无" }
     ];
   }
   if (mode === "battle") {
     return [
       { label: "战场", value: drafts.battleDraft.battlefieldId },
-      { label: "攻击方", value: drafts.battleDraft.attackerObjectIds },
-      { label: "防守方", value: drafts.battleDraft.defenderObjectIds }
+      { label: "攻击方", value: operationObjectLabel(drafts.battleDraft.attackerObjectIds, snapshot, cardNamesByNo) },
+      { label: "防守方", value: operationObjectLabel(drafts.battleDraft.defenderObjectIds, snapshot, cardNamesByNo) }
     ];
   }
   if (mode === "legend") {
     return [
-      { label: "传奇", value: drafts.legendDraft.sourceObjectId },
+      { label: "传奇", value: operationObjectLabel(drafts.legendDraft.sourceObjectId, snapshot, cardNamesByNo) },
       { label: "能力", value: drafts.legendDraft.abilityId },
-      { label: "目标", value: drafts.legendDraft.targetObjectIds || "无" }
+      { label: "目标", value: operationObjectLabel(drafts.legendDraft.targetObjectIds, snapshot, cardNamesByNo) || "无" }
     ];
   }
   return [
-    { label: "来源", value: drafts.activateDraft.sourceObjectId },
+    { label: "来源", value: operationObjectLabel(drafts.activateDraft.sourceObjectId, snapshot, cardNamesByNo) },
     { label: "能力", value: drafts.activateDraft.abilityId },
-    { label: "目标", value: drafts.activateDraft.targetObjectIds || "无" }
+    { label: "目标", value: operationObjectLabel(drafts.activateDraft.targetObjectIds, snapshot, cardNamesByNo) || "无" }
   ];
+}
+
+function operationObjectLabel(
+  objectIds: string | undefined,
+  snapshot: SnapshotDto | undefined,
+  cardNamesByNo: Record<string, string>
+) {
+  if (!objectIds) {
+    return "";
+  }
+
+  return objectIds
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean)
+    .map((id) => objectChoiceLabel(snapshot, id, cardNamesByNo))
+    .join("、");
 }
 
 function selectionIntentLabel(intent: SelectionIntent) {
