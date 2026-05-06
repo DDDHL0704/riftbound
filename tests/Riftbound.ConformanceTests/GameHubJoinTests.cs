@@ -343,7 +343,43 @@ public sealed class GameHubJoinTests
         var finalSnapshot = SnapshotFor(secondMulliganClients, activePlayerId);
         Assert.Equal(MatchPhases.Main, Assert.IsType<string>(finalSnapshot.Timing["phase"]));
         Assert.Equal(TimingStates.NeutralOpen, Assert.IsType<string>(finalSnapshot.Timing["timingState"]));
-        Assert.True(PromptFor(secondMulliganClients, activePlayerId).Actionable);
+        var finalPrompt = PromptFor(secondMulliganClients, activePlayerId);
+        Assert.True(finalPrompt.Actionable);
+        var tapRuneCandidate = Assert.Single(
+            finalPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        Assert.True(tapRuneCandidate.Enabled);
+        Assert.NotNull(tapRuneCandidate.Sources);
+        var runeSourceId = tapRuneCandidate.Sources.First().Id;
+
+        var tapRuneClients = new RecordingHubClients();
+        await CreateHub(
+                tapRuneClients,
+                new RecordingGroupManager(),
+                string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
+                registry)
+            .SubmitIntent(roomId, activePlayerId, "tap-rune-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "TAP_RUNE",
+                sourceObjectId = runeSourceId
+            }));
+
+        Assert.Empty(tapRuneClients.CallerClient.Errors);
+        var tapRuneEvents = EventsFor(tapRuneClients);
+        Assert.Contains(tapRuneEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNE_TAPPED", StringComparison.Ordinal));
+        Assert.Contains(tapRuneEvents, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
+        var tapRuneSnapshot = SnapshotFor(tapRuneClients, activePlayerId);
+        var activePlayer = PlayerView(tapRuneSnapshot, activePlayerId);
+        var activeRunePool = Assert.IsType<Dictionary<string, object?>>(activePlayer["runePool"]);
+        Assert.Equal(1, Assert.IsType<int>(activeRunePool["mana"]));
+        var activeObjects = Assert.IsType<Dictionary<string, object?>>(activePlayer["objects"]);
+        var tappedRune = Assert.IsType<Dictionary<string, object?>>(activeObjects[runeSourceId]);
+        Assert.True(Assert.IsType<bool>(tappedRune["isExhausted"]));
+        var postTapPrompt = PromptFor(tapRuneClients, activePlayerId);
+        var postTapRuneCandidate = Assert.Single(
+            postTapPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        Assert.DoesNotContain(postTapRuneCandidate.Sources ?? [], source => string.Equals(source.Id, runeSourceId, StringComparison.Ordinal));
     }
 
     [Fact]

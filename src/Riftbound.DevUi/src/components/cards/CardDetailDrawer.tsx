@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
-import { costText, keywordsText, statusLabel } from "../../utils/formatters";
+import { Play, X } from "lucide-react";
+import { ActionPromptCandidateDto, ActionPromptDto, GameCommand } from "../../types/protocol";
+import { costText, keywordsText, promptActionLabel, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -8,9 +9,11 @@ import { InspectedCard, objectStateLabels } from "./CardFace";
 type CardDetailDrawerProps = {
   card?: InspectedCard;
   onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  prompt?: ActionPromptDto;
 };
 
-export function CardDetailDrawer({ card, onClose }: CardDetailDrawerProps) {
+export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetailDrawerProps) {
   if (!card) {
     return null;
   }
@@ -18,6 +21,8 @@ export function CardDetailDrawer({ card, onClose }: CardDetailDrawerProps) {
   const hidden = isHiddenObject(card.object) && !card.spec;
   const title = hidden ? "未公开卡牌" : card.spec?.cardName ?? card.object?.cardNo ?? card.objectId ?? "未知卡牌";
   const states = objectStateLabels(card.object);
+  const sourceObjectId = card.objectId ?? card.object?.objectId;
+  const sourceActions = hidden ? [] : sourceCandidatesFor(prompt, sourceObjectId);
 
   return (
     <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
@@ -79,10 +84,77 @@ export function CardDetailDrawer({ card, onClose }: CardDetailDrawerProps) {
               {(card.object?.tags?.length ?? 0) > 0 && <p className="detail-muted">标签：{card.object?.tags?.join("、")}</p>}
               {(card.object?.untilEndOfTurnEffects?.length ?? 0) > 0 && <p className="detail-muted">本回合效果：{card.object?.untilEndOfTurnEffects?.join("、")}</p>}
             </section>
+            <section className="detail-section detail-actions">
+              <strong>可执行操作</strong>
+              {sourceActions.length === 0 ? (
+                <p className="detail-muted">当前服务端 prompt 没有给这张牌可提交的操作。</p>
+              ) : (
+                <div className="detail-action-list">
+                  {sourceActions.map((candidate) => {
+                    const command = commandForSourceCandidate(candidate, sourceObjectId, card);
+                    return (
+                      <Button
+                        disabled={!candidate.enabled || !command || !onCommand}
+                        icon={<Play size={16} />}
+                        key={candidate.action}
+                        onClick={() => {
+                          if (command && onCommand) {
+                            onCommand(command);
+                            onClose();
+                          }
+                        }}
+                        title={command ? candidate.reason : "该操作还需要服务端提供目标、模式或费用选择后才能提交"}
+                        variant={candidate.enabled && command ? "primary" : "ghost"}
+                      >
+                        {promptActionLabel(candidate)}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
           </>
         )}
       </aside>
     </div>
+  );
+}
+
+function sourceCandidatesFor(prompt: ActionPromptDto | undefined, sourceObjectId: string | undefined): ActionPromptCandidateDto[] {
+  if (!prompt || !sourceObjectId) {
+    return [];
+  }
+
+  return (prompt.candidates ?? []).filter((candidate) =>
+    (candidate.sources ?? []).some((source) => source.id === sourceObjectId));
+}
+
+function commandForSourceCandidate(
+  candidate: ActionPromptCandidateDto,
+  sourceObjectId: string | undefined,
+  card: InspectedCard
+): GameCommand | undefined {
+  if (!sourceObjectId || !candidate.enabled) {
+    return undefined;
+  }
+
+  if (candidate.action === "TAP_RUNE") {
+    return { cmdType: "TAP_RUNE", sourceObjectId };
+  }
+
+  if (candidate.action === "PLAY_CARD" && card.object?.cardNo && !requiresFurtherChoice(candidate)) {
+    return { cmdType: "PLAY_CARD", sourceObjectId, cardNo: card.object.cardNo, targetObjectIds: [] };
+  }
+
+  return undefined;
+}
+
+function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
+  return Boolean(
+    (candidate.targets?.length ?? 0) > 0
+    || (candidate.destinations?.length ?? 0) > 0
+    || (candidate.modes?.length ?? 0) > 0
+    || (candidate.optionalCosts?.length ?? 0) > 0
   );
 }
 

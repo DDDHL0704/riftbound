@@ -60,7 +60,12 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
           />
         </aside>
       </div>
-      <CardDetailDrawer card={inspectedCard} onClose={() => setInspectedCard(undefined)} />
+      <CardDetailDrawer
+        card={inspectedCard}
+        onClose={() => setInspectedCard(undefined)}
+        onCommand={(command) => void controller.submitCommand(command)}
+        prompt={controller.state.prompt}
+      />
     </div>
   );
 }

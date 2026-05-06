@@ -2151,6 +2151,7 @@ internal static class ActionPromptBuilder
             || string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
             || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
             || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "TAP_RUNE", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
         var requiresTargetChoices = string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
@@ -2194,6 +2195,10 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsImplementedStandbyHideSource(state, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented standby source"))
                 .ToArray(),
+            "TAP_RUNE" => zones.Base
+                .Where(objectId => IsTapRuneSource(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "ready controlled base rune"))
+                .ToArray(),
             "ACTIVATE_ABILITY" => zones.Base
                 .Concat(zones.Battlefields)
                 .Where(objectId => IsImplementedActivatedAbilitySource(state, playerId, objectId))
@@ -2231,6 +2236,16 @@ internal static class ActionPromptBuilder
             && !cardObject.IsFaceDown
             && !cardObject.IsAttacking
             && !cardObject.IsDefending;
+    }
+
+    private static bool IsTapRuneSource(MatchState state, string playerId, string objectId)
+    {
+        return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.IsExhausted;
     }
 
     private static bool IsImplementedAssembleEquipmentSource(MatchState state, string playerId, string objectId)
@@ -2465,6 +2480,11 @@ internal static class ActionPromptBuilder
             {
                 ["sourcePolicy"] = "implemented-standby-card-only",
                 ["destinationPolicy"] = "server-validates-standby-or-bandle-tree-battlefield"
+            },
+            "TAP_RUNE" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "ready-controlled-base-rune",
+                ["resourceGain"] = "1-mana"
             },
             "ACTIVATE_ABILITY" => new Dictionary<string, object?>
             {

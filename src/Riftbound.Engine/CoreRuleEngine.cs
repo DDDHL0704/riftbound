@@ -13,6 +13,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
     private const string StandbyHideTeemoOptionalCost = "STANDBY_TEEMO_MANA";
     private const int StandbyHideManaCost = 1;
+    private const string BasicRuneTapAbilityId = "BASIC_RUNE_EXHAUST_GAIN_1_MANA";
+    private const int BasicRuneTapManaGain = 1;
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
     private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
@@ -277,6 +279,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (command is HideCardCommand hideCardCommand)
         {
             return ValueTask.FromResult(ResolveHideCard(state, intent, hideCardCommand));
+        }
+
+        if (command is TapRuneCommand tapRuneCommand)
+        {
+            return ValueTask.FromResult(ResolveTapRune(state, intent, tapRuneCommand));
         }
 
         if (command is RevealCardCommand revealCardCommand)
@@ -3744,6 +3751,101 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "CARD_HIDDEN",
                 $"{intent.PlayerId} 正面朝下放置一张待命牌",
                 hiddenPayload));
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveTapRune(
+        MatchState state,
+        PlayerIntent intent,
+        TapRuneCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "TAP_RUNE is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (string.IsNullOrWhiteSpace(command.SourceObjectId)
+            || !state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var runeState)
+            || !runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || !string.Equals(runeState.ControllerId, intent.PlayerId, StringComparison.Ordinal)
+            || runeState.IsFaceDown)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "TAP_RUNE requires a face-up controlled rune in the player's base.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (runeState.IsExhausted)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "TAP_RUNE source rune is already exhausted.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = runeState with
+        {
+            IsExhausted = true
+        };
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var pool) ? pool : RunePool.Empty;
+        var nextPool = currentPool with
+        {
+            Mana = currentPool.Mana + BasicRuneTapManaGain
+        };
+        runePools[intent.PlayerId] = nextPool;
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            CardObjects = cardObjects,
+            RunePools = runePools,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
+        var events = new List<GameEvent>
+        {
+            new(
+                "RUNE_TAPPED",
+                $"{intent.PlayerId} 横置符文获得 1 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = runeState.CardNo,
+                    ["abilityId"] = BasicRuneTapAbilityId,
+                    ["mana"] = BasicRuneTapManaGain,
+                    ["manaAfter"] = nextPool.Mana
+                }),
+            new(
+                "MANA_GAINED",
+                $"{intent.PlayerId} 通过基础符文获得 1 点法力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = BasicRuneTapAbilityId,
+                    ["mana"] = BasicRuneTapManaGain,
+                    ["manaAfter"] = nextPool.Mana
+                })
+        };
 
         return new ResolutionResult(
             true,
@@ -20603,7 +20705,34 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId,
             playerId == state.ActivePlayerId,
             playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
-            playerId == state.ActivePlayerId ? ["END_TURN"] : ["WAIT"]));
+            playerId == state.ActivePlayerId ? ImplementedMainOpenActions(state, playerId) : ["WAIT"]));
+    }
+
+    private static IReadOnlyList<string> ImplementedMainOpenActions(MatchState state, string playerId)
+    {
+        var reason = "当前玩家普通开环行动";
+        var implementedSourceDrivenActions = new[]
+        {
+            "PLAY_CARD",
+            "ACTIVATE_ABILITY",
+            "ASSEMBLE_EQUIPMENT",
+            "MOVE_UNIT",
+            "DECLARE_BATTLE",
+            "HIDE_CARD",
+            "TAP_RUNE",
+            "LEGEND_ACT"
+        };
+        var actions = implementedSourceDrivenActions
+            .Where(action =>
+            {
+                var prompt = ActionPromptBuilder.Build(state, playerId, true, reason, [action]);
+                var candidate = prompt.Candidates?.FirstOrDefault();
+                return candidate?.Enabled == true;
+            })
+            .ToList();
+
+        actions.Add("END_TURN");
+        return actions;
     }
 
     private static IReadOnlyList<GameEvent> BuildTurnEndEvents(

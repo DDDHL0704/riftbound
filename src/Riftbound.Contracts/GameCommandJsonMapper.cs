@@ -51,6 +51,7 @@ public static class GameCommandJsonMapper
                 Text(cmd, "cardNo"),
                 Text(cmd, "destination"),
                 TextArray(cmd, "optionalCosts")),
+            "TAP_RUNE" => new TapRuneCommand(Text(cmd, "sourceObjectId")),
             "REVEAL_CARD" => new RevealCardCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "cardNo"),

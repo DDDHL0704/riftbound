@@ -116,13 +116,27 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
     case "WAIT":
       return undefined;
     default:
+      if (hasSingleChoice(candidate.sources) && candidate.action === "TAP_RUNE") {
+        return { cmdType: "TAP_RUNE", sourceObjectId: candidate.sources![0].id };
+      }
       if (hasSingleChoice(candidate.sources) && candidate.action === "PLAY_CARD") {
         const source = candidate.sources![0].id;
         const cardNo = findCardNo(snapshot, source);
-        return cardNo ? { cmdType: "PLAY_CARD", sourceObjectId: source, cardNo, targetObjectIds: [] } : undefined;
+        return cardNo && !requiresFurtherChoice(candidate)
+          ? { cmdType: "PLAY_CARD", sourceObjectId: source, cardNo, targetObjectIds: [] }
+          : undefined;
       }
       return undefined;
   }
+}
+
+function requiresFurtherChoice(candidate: ActionPromptCandidateDto): boolean {
+  return Boolean(
+    (candidate.targets?.length ?? 0) > 0
+    || (candidate.destinations?.length ?? 0) > 0
+    || (candidate.modes?.length ?? 0) > 0
+    || (candidate.optionalCosts?.length ?? 0) > 0
+  );
 }
 
 function hasSingleChoice(choices?: Array<{ id: string }> | null): boolean {

@@ -41,7 +41,7 @@
 - SignalR 方法：`JoinRoom(roomId, playerId, reconnectToken?)`、`Reconnect(roomId, playerId, reconnectToken)`、`RequestSnapshot(roomId, playerId)`、`Ready(roomId, playerId, clientIntentId)`、`SubmitIntent(roomId, playerId, clientIntentId, cmd)`。
 - Development-only：`SeedScenario(roomId, playerId, scenarioId, clientIntentId)`，只能用于本地 smoke 和开发场景，不得伪装成生产对局能力。
 - 服务端消息：`Joined`、`Snapshot`、`Prompt`、`Events`、`Error`。
-- 命令 DTO：`SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`PLAY_CARD`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、`HIDE_CARD`、`REVEAL_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`。
+- 命令 DTO：`SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`PLAY_CARD`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、`HIDE_CARD`、`TAP_RUNE`、`REVEAL_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`。
 - Snapshot 已提供 `players`、`lanes`、`stack`、`timing`、`turnState`，其中 `timing` 已包含 `turnWindow`、`spellDuel`、`battle`、`battlefieldTasks`、`pendingTaskQueue`、`continuousEffects` 等服务端权威视图。
 - Prompt 已提供 `actions` 与结构化 `candidates`，包含 `sources`、`targets`、`destinations`、`modes`、`optionalCosts`、`metadata`。
 - 图鉴与卡牌状态可从 `/catalog/behavior-specs` 和 `/catalog/keyword-coverage` 获得；当前只能展示 `representative-rule-pass`，不能宣称 full official rule pass。
@@ -145,15 +145,24 @@
 
 ### Batch 5：卡牌驱动操作
 
-目标：
+状态：完成第一片。
 
-- 点击卡牌弹出服务端候选动作菜单。
-- 目标、模式、费用、目的地、确认/取消全部来自 `ActionPrompt.candidates`。
-- 支持 `PLAY_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`LEGEND_ACT`、`ACTIVATE_ABILITY`、`PASS_PRIORITY`、`PASS_FOCUS`、`END_TURN`、`MULLIGAN`。
+交付：
+
+- 前端发现 `TAP_RUNE` 被 prompt 暴露但协议/规则引擎不可执行，已按核心规则和自查文档 8.2 补齐基础符文“横置获得 1 法力”服务端路径。
+- `TAP_RUNE` 新增协议命令、JSON mapper、规则解析、`RUNE_TAPPED` / `MANA_GAINED` 事件、runePool snapshot 更新、符文横置状态更新。
+- `ActionPromptBuilder` 现在只把基地中未横置、正面、受控的符文作为 `TAP_RUNE.sources`；横置后该来源会从后续候选中移除。
+- 卡牌详情抽屉开始读取当前 `ActionPrompt.candidates`，并在具体卡牌上展示服务端给出的来源型候选；基础符文可从详情抽屉直接提交“横置符文”。
+- 全局行动面板只在服务端候选可直接提交时启用按钮；`PLAY_CARD` 等仍需目标/模式/费用/目的地选择的动作会显示“需选择”并保持禁用，避免前端提交不完整命令。
+- 仍待后续批次补：完整目标选择、模式选择、费用选择、目的地选择、确认/取消流程，以及 `PLAY_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`LEGEND_ACT`、`ACTIVATE_ABILITY` 的卡牌驱动完整 UI。
 
 验收：
 
-- Browser smoke：出牌、让过、结束回合、移动或声明战斗中至少一条真实服务端路径。
+- `source ../../scripts/dev-env.sh && npm run build`：通过。
+- `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，0 warning/0 error。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 85/85。
+- Browser Use smoke：P1/P2 通过 UI 创建/加入房间、提交卡组、ready、双方在对战桌面执行 `MULLIGAN` 进入 `MAIN`；P2 点击基地符文《灵光符文》打开详情抽屉，详情中出现服务端候选“横置符文”，点击后事件日志出现 `RUNE_TAPPED` / `MANA_GAINED`，我方法力从 0 变为 1，符文状态变成“横置”；刷新/重连后全局单来源“横置符文”按钮可执行第二张符文，法力变为 2；随后执行 `END_TURN`，事件日志显示回合结束清理、符文池清空、P1 回合开始和召出符文。
+- Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
 
@@ -170,7 +179,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**38%**
+估算整体进度：**44%**
 
 已经完成：
 
@@ -180,8 +189,9 @@
 - 旧 Dev UI 已清理，新的 React/Vite 前端架构、中文页面壳、REST/SignalR adapter 和基础对战桌面已落地。
 - 房间/连接/提交卡组/ready/起手调度到主阶段的正式双人 Web 闭环已由服务端 prompt 驱动，不再由前端常驻按钮绕过。
 - 对战桌面已有卡牌详情抽屉，公开对象细节和隐藏信息保护已通过 Browser Use smoke。
+- 基础符文横置资源能力已由服务端补齐并接入卡牌详情/行动面板；前端不再展示不可解析的 `TAP_RUNE` 假操作。
 
-预计剩余批次数：**至少 7 批**
+预计剩余批次数：**至少 6 批**
 
 原因：
 

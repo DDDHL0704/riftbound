@@ -592,6 +592,17 @@ button.card-face:hover {
   line-height: 1.5;
 }
 
+.detail-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-action-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 @media (max-width: 1366px) {
   .app-frame {
     grid-template-columns: 188px minmax(0, 1fr);

@@ -123,6 +123,9 @@ public sealed record HideCardCommand(
     string Destination = "",
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("HIDE_CARD");
 
+public sealed record TapRuneCommand(
+    string SourceObjectId) : GameCommand("TAP_RUNE");
+
 public sealed record RevealCardCommand(
     string SourceObjectId,
     string CardNo,
