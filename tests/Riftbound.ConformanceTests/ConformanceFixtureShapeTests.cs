@@ -647,6 +647,32 @@ public sealed class ConformanceFixtureShapeTests
             task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
                 && string.Equals(task.Reason, "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST", StringComparison.Ordinal)
                 && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+
+        Assert.Collection(
+            state.BattlefieldTasks,
+            task =>
+            {
+                Assert.Equal("START_SPELL_DUEL", task.Kind);
+                Assert.Equal("PENDING", task.Status);
+                Assert.Equal("BF-1", task.BattlefieldObjectId);
+                Assert.Equal(["alice", "bob"], task.ParticipantControllerIds);
+                Assert.Equal(["A-UNIT-1", "B-UNIT-1"], task.ParticipantObjectIds);
+            },
+            task =>
+            {
+                Assert.Equal("START_BATTLE", task.Kind);
+                Assert.Equal("PENDING", task.Status);
+                Assert.Equal("BF-1", task.BattlefieldObjectId);
+                Assert.Equal(["alice", "bob"], task.ParticipantControllerIds);
+                Assert.Equal(["A-UNIT-1", "B-UNIT-1"], task.ParticipantObjectIds);
+            });
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        Assert.Collection(
+            battlefieldTasks,
+            task => Assert.Equal("START_SPELL_DUEL", Assert.IsType<string>(task["kind"])),
+            task => Assert.Equal("START_BATTLE", Assert.IsType<string>(task["kind"])));
     }
 
     [Fact]

@@ -210,6 +210,17 @@ public sealed record CleanupTaskState(
     string? ObjectId = null,
     string? BattlefieldObjectId = null);
 
+public sealed record BattlefieldTaskState(
+    string TaskId,
+    string Kind,
+    string Status,
+    string Reason,
+    string BattlefieldObjectId,
+    IReadOnlyList<string> ParticipantControllerIds,
+    IReadOnlyList<string> ParticipantObjectIds,
+    string? ActingPlayerId,
+    IReadOnlyList<string> StackItemIds);
+
 public sealed record TurnWindowState(
     string State,
     bool IsSpellDuel,
@@ -571,6 +582,8 @@ public sealed record MatchState
 
     public IReadOnlyList<CleanupTaskState> PendingCleanupTasks => BuildPendingCleanupTasks(this);
 
+    public IReadOnlyList<BattlefieldTaskState> BattlefieldTasks => BuildBattlefieldTaskStates(this);
+
     public IReadOnlyList<ContinuousEffectState> ContinuousEffects => BuildContinuousEffectStates(this);
 
     public IReadOnlyDictionary<string, int> PlayerScores { get; init; }
@@ -909,6 +922,62 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<BattlefieldTaskState> BuildBattlefieldTaskStates(MatchState state)
+    {
+        var tasks = new List<BattlefieldTaskState>();
+        foreach (var battlefield in state.BattlefieldStates.Values
+            .Where(battlefield => battlefield.Contested)
+            .OrderBy(battlefield => battlefield.BattlefieldObjectId, StringComparer.Ordinal))
+        {
+            var participantObjectIds = battlefield.OccupantObjectIds
+                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray();
+            var participantControllerIds = participantObjectIds
+                .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                    ? cardObject.ControllerId ?? string.Empty
+                    : string.Empty)
+                .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
+                .ToArray();
+            var stackItemIds = state.StackItems
+                .Where(item => string.Equals(item.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                    || IsSpellDuelTimingState(state.TimingState))
+                .Select(item => item.StackItemId)
+                .ToArray();
+            var spellDuelStatus = state.SpellDuelState.IsActive ? "ACTIVE" : "PENDING";
+            var battleStatus = state.BattleState.IsActive
+                && string.Equals(state.BattleState.BattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
+                    ? "ACTIVE"
+                    : state.SpellDuelState.IsActive ? "WAITING_FOR_SPELL_DUEL" : "PENDING";
+
+            tasks.Add(new BattlefieldTaskState(
+                $"task:start-spell-duel:{battlefield.BattlefieldObjectId}",
+                "START_SPELL_DUEL",
+                spellDuelStatus,
+                "BATTLEFIELD_CONTESTED",
+                battlefield.BattlefieldObjectId,
+                participantControllerIds,
+                participantObjectIds,
+                state.SpellDuelState.FocusPlayerId,
+                stackItemIds));
+            tasks.Add(new BattlefieldTaskState(
+                $"task:start-battle:{battlefield.BattlefieldObjectId}",
+                "START_BATTLE",
+                battleStatus,
+                "SPELL_DUEL_AFTER_BATTLEFIELD_CONTEST",
+                battlefield.BattlefieldObjectId,
+                participantControllerIds,
+                participantObjectIds,
+                state.BattleState.IsActive ? state.ActivePlayerId : null,
+                []));
+        }
+
+        return tasks;
+    }
+
     private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
     {
         var effects = new List<ContinuousEffectState>();
@@ -1211,6 +1280,7 @@ public sealed record ResolutionResult(
                 ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
                 ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
                 ["battle"] = BuildBattleSnapshotView(state.BattleState),
+                ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
                 ["winningScore"] = EffectiveWinningScore(state),
@@ -1312,6 +1382,22 @@ public sealed record ResolutionResult(
             ["attackerObjectIds"] = battle.AttackerObjectIds,
             ["defenderObjectIds"] = battle.DefenderObjectIds,
             ["participantControllerIds"] = battle.ParticipantControllerIds
+        };
+    }
+
+    private static Dictionary<string, object?> BuildBattlefieldTaskSnapshotView(BattlefieldTaskState task)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["taskId"] = task.TaskId,
+            ["kind"] = task.Kind,
+            ["status"] = task.Status,
+            ["reason"] = task.Reason,
+            ["battlefieldObjectId"] = task.BattlefieldObjectId,
+            ["participantControllerIds"] = task.ParticipantControllerIds,
+            ["participantObjectIds"] = task.ParticipantObjectIds,
+            ["actingPlayerId"] = task.ActingPlayerId,
+            ["stackItemIds"] = task.StackItemIds
         };
     }
 
