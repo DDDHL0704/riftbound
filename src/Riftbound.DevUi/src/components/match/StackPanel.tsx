@@ -18,6 +18,12 @@ const phaseLabels: Record<string, string> = {
   STATE_BASED_CLEANUP: "状态清理"
 };
 
+const resolutionKindLabels: Record<string, string> = {
+  CONQUERED: "征服",
+  CONTROL_RESOLVED: "控制结算",
+  HELD: "据守"
+};
+
 function labelFor(map: Record<string, string>, value: unknown, fallback = "无") {
   const key = asString(value, "");
   return key ? (map[key] ?? key) : fallback;
@@ -25,8 +31,10 @@ function labelFor(map: Record<string, string>, value: unknown, fallback = "无")
 
 export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
   const stack = snapshot?.stack ?? [];
-  const queue = asRecord(asRecord(snapshot?.timing).pendingTaskQueue);
+  const timing = asRecord(snapshot?.timing);
+  const queue = asRecord(timing.pendingTaskQueue);
   const tasks = asArray<Record<string, unknown>>(queue.tasks);
+  const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions);
 
   return (
     <section className="side-panel">
@@ -51,6 +59,12 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
         {tasks.slice(0, 4).map((task, index) => (
           <span key={asString(task.taskId, `task-${index}`)}>
             {labelFor(taskKindLabels, task.kind, "任务")}：{asString(task.reason, "服务端规则")}
+          </span>
+        ))}
+        {battlefieldResolutions.slice(0, 3).map((resolution, index) => (
+          <span key={asString(resolution.resolutionId, `battlefield-resolution-${index}`)}>
+            {labelFor(resolutionKindLabels, resolution.kind, "战场结果")}：
+            {asString(resolution.playerId ?? resolution.controllerId, "无控制者")}
           </span>
         ))}
       </div>

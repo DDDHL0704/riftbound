@@ -5377,11 +5377,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             battlefieldId,
             resolvedBattleWinnerPlayerId));
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        var battlefieldResolutions = AppendBattlefieldResolutionEvents(
+            state.BattlefieldResolutions,
+            combatEvents,
+            state.Tick + 1);
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
+            BattlefieldResolutions = battlefieldResolutions,
             PlayerScores = playerScores,
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
@@ -5642,6 +5647,113 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["reason"] = "BATTLEFIELD_CONTROL_CLEANUP"
                 })
         ];
+    }
+
+    private static IReadOnlyList<BattlefieldResolutionState> AppendBattlefieldResolutionEvents(
+        IReadOnlyList<BattlefieldResolutionState> existing,
+        IReadOnlyList<GameEvent> events,
+        long tick)
+    {
+        var newResolutions = new List<BattlefieldResolutionState>();
+        for (var eventIndex = 0; eventIndex < events.Count; eventIndex++)
+        {
+            var gameEvent = events[eventIndex];
+            var kind = gameEvent.Kind switch
+            {
+                "BATTLEFIELD_HELD" => "HELD",
+                "BATTLEFIELD_CONQUERED" => "CONQUERED",
+                "BATTLEFIELD_CONTROL_RESOLVED" => "CONTROL_RESOLVED",
+                _ => string.Empty
+            };
+            if (string.IsNullOrWhiteSpace(kind))
+            {
+                continue;
+            }
+
+            var battlefieldObjectId = EventPayloadString(gameEvent, "battlefieldObjectId")
+                ?? EventPayloadString(gameEvent, "battlefieldId")
+                ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(battlefieldObjectId))
+            {
+                continue;
+            }
+
+            var playerId = EventPayloadString(gameEvent, "playerId")
+                ?? EventPayloadString(gameEvent, "controllerId");
+            var sourceObjectId = EventPayloadString(gameEvent, "sourceObjectId");
+            var participantObjectIds = EventPayloadStringList(gameEvent, "defenderObjectIds")
+                .Concat(EventPayloadStringList(gameEvent, "defeatedObjectIds"))
+                .Concat(sourceObjectId is null ? Array.Empty<string>() : new[] { sourceObjectId })
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            var reason = EventPayloadString(gameEvent, "resolution")
+                ?? EventPayloadString(gameEvent, "trigger")
+                ?? gameEvent.Kind;
+
+            newResolutions.Add(new BattlefieldResolutionState(
+                $"battlefield-result:{tick}:{eventIndex}:{kind}:{battlefieldObjectId}",
+                tick,
+                kind,
+                reason,
+                battlefieldObjectId,
+                playerId,
+                EventPayloadString(gameEvent, "previousControllerId"),
+                EventPayloadString(gameEvent, "controllerId"),
+                sourceObjectId,
+                participantObjectIds,
+                [gameEvent.Kind]));
+        }
+
+        if (newResolutions.Count == 0)
+        {
+            return existing;
+        }
+
+        return newResolutions
+            .Concat(existing)
+            .GroupBy(resolution => resolution.ResolutionId, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .Take(12)
+            .ToArray();
+    }
+
+    private static string? EventPayloadString(GameEvent gameEvent, string key)
+    {
+        if (!gameEvent.Payload.TryGetValue(key, out var value))
+        {
+            return null;
+        }
+
+        return value switch
+        {
+            string text when !string.IsNullOrWhiteSpace(text) => text,
+            _ => null
+        };
+    }
+
+    private static IReadOnlyList<string> EventPayloadStringList(GameEvent gameEvent, string key)
+    {
+        if (!gameEvent.Payload.TryGetValue(key, out var value) || value is null)
+        {
+            return [];
+        }
+
+        if (value is IEnumerable<string> strings)
+        {
+            return strings
+                .Where(text => !string.IsNullOrWhiteSpace(text))
+                .ToArray();
+        }
+
+        if (value is IEnumerable<object?> objects)
+        {
+            return objects
+                .OfType<string>()
+                .Where(text => !string.IsNullOrWhiteSpace(text))
+                .ToArray();
+        }
+
+        return value is string text && !string.IsNullOrWhiteSpace(text) ? [text] : [];
     }
 
     private static bool TryBuildMinimalDeclareBattle(

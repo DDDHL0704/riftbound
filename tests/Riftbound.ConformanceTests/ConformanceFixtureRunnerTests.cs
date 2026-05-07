@@ -22396,6 +22396,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1", controlEvent.Payload["controllerId"]);
         Assert.Equal("CONTROL_CHANGED", controlEvent.Payload["resolution"]);
         Assert.True(Assert.IsType<bool>(controlEvent.Payload["changed"]));
+        var controlResolution = Assert.Single(
+            result.State.BattlefieldResolutions,
+            resolution => string.Equals(resolution.Kind, "CONTROL_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal(result.State.Tick, controlResolution.Tick);
+        Assert.Equal("BF-2", controlResolution.BattlefieldObjectId);
+        Assert.Equal("P2", controlResolution.PreviousControllerId);
+        Assert.Equal("P1", controlResolution.ControllerId);
+        Assert.Equal("CONTROL_CHANGED", controlResolution.Reason);
+        var snapshotResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            result.Snapshots["P1"].Timing["battlefieldResolutions"]);
+        var snapshotControlResolution = Assert.Single(
+            snapshotResolutions,
+            resolution => string.Equals(resolution["kind"] as string, "CONTROL_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal("BF-2", snapshotControlResolution["battlefieldObjectId"]);
+        Assert.Equal("P1", snapshotControlResolution["controllerId"]);
     }
 
     [Fact]
@@ -26757,6 +26772,21 @@ public sealed class ConformanceFixtureRunnerTests
         var triggerEvent = resultEvents[triggerIndex];
         Assert.Equal("BATTLEFIELD_HELD_DRAW_ONE", triggerEvent.Payload["trigger"]);
         Assert.Equal("P2-BATTLEFIELD-DREAM-TREE", triggerEvent.Payload["battlefieldObjectId"]);
+        var heldResolution = Assert.Single(
+            result.State.BattlefieldResolutions,
+            resolution => string.Equals(resolution.Kind, "HELD", StringComparison.Ordinal));
+        Assert.Equal(result.State.Tick, heldResolution.Tick);
+        Assert.Equal("P2", heldResolution.PlayerId);
+        Assert.Equal("P2-BATTLEFIELD-DREAM-TREE", heldResolution.BattlefieldObjectId);
+        Assert.Contains("P1-BATTLEFIELD-HELD-ATTACKER", heldResolution.ParticipantObjectIds);
+        Assert.Contains("P2-BATTLEFIELD-HELD-DEFENDER", heldResolution.ParticipantObjectIds);
+        var snapshotResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            result.Snapshots["P2"].Timing["battlefieldResolutions"]);
+        var snapshotHeldResolution = Assert.Single(
+            snapshotResolutions,
+            resolution => string.Equals(resolution["kind"] as string, "HELD", StringComparison.Ordinal));
+        Assert.Equal("P2", snapshotHeldResolution["playerId"]);
+        Assert.Equal("P2-BATTLEFIELD-DREAM-TREE", snapshotHeldResolution["battlefieldObjectId"]);
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal)
@@ -26941,6 +26971,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", triggerEvent.Payload["battlefieldObjectId"]);
         var millEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_MILLED", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-MILL-001", "P1-BATTLEFIELD-MILL-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(millEvent.Payload["cardIds"]));
+        var conqueredResolution = Assert.Single(
+            result.State.BattlefieldResolutions,
+            resolution => string.Equals(resolution.Kind, "CONQUERED", StringComparison.Ordinal));
+        Assert.Equal(result.State.Tick, conqueredResolution.Tick);
+        Assert.Equal("P1", conqueredResolution.PlayerId);
+        Assert.Equal("P1-BATTLEFIELD-SCRAPYARD", conqueredResolution.BattlefieldObjectId);
+        Assert.Contains("P1-BATTLEFIELD-CONQUER-ATTACKER", conqueredResolution.ParticipantObjectIds);
+        Assert.Contains("P2-BATTLEFIELD-CONQUER-DEFENDER", conqueredResolution.ParticipantObjectIds);
     }
 
     [Fact]

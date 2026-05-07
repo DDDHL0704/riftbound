@@ -1148,6 +1148,13 @@ public sealed class GameHubJoinTests
             && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
 
         var battleSnapshot = SnapshotFor(battleClients, "P2");
+        var battlefieldResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            battleSnapshot.Timing["battlefieldResolutions"]);
+        var heldResolution = Assert.Single(
+            battlefieldResolutions,
+            resolution => string.Equals(resolution["kind"] as string, "HELD", StringComparison.Ordinal));
+        Assert.Equal("P2", heldResolution["playerId"]);
+        Assert.Equal("P2-BATTLEFIELD-DREAM-TREE", heldResolution["battlefieldObjectId"]);
         var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
         var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
         Assert.Contains("P2-BATTLEFIELD-HELD-DRAW-001", Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["hand"]));
@@ -1306,6 +1313,13 @@ public sealed class GameHubJoinTests
         var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
         Assert.Equal(["P1-BATTLEFIELD-BOON-DRAW-CARD"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        var battlefieldResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            battleSnapshot.Timing["battlefieldResolutions"]);
+        var conqueredResolution = Assert.Single(
+            battlefieldResolutions,
+            resolution => string.Equals(resolution["kind"] as string, "CONQUERED", StringComparison.Ordinal));
+        Assert.Equal("P1", conqueredResolution["playerId"]);
+        Assert.Equal("P2-BATTLEFIELD-SHIRANA-MONASTERY", conqueredResolution["battlefieldObjectId"]);
         var attacker = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-BATTLEFIELD-SHIRANA-ATTACKER"]);
         Assert.Equal(3, Assert.IsType<int>(attacker["power"]));
         Assert.DoesNotContain(CardObjectTags.Boon, Assert.IsAssignableFrom<IReadOnlyList<string>>(attacker["tags"]));

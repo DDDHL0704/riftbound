@@ -231,6 +231,19 @@ public sealed record BattlefieldTaskState(
     string? ActingPlayerId,
     IReadOnlyList<string> StackItemIds);
 
+public sealed record BattlefieldResolutionState(
+    string ResolutionId,
+    long Tick,
+    string Kind,
+    string Reason,
+    string BattlefieldObjectId,
+    string? PlayerId,
+    string? PreviousControllerId,
+    string? ControllerId,
+    string? SourceObjectId,
+    IReadOnlyList<string> ParticipantObjectIds,
+    IReadOnlyList<string> RelatedEventKinds);
+
 public sealed record PendingTaskQueueState(
     bool HasTasks,
     bool IsBlocking,
@@ -517,7 +530,8 @@ public sealed record MatchState
         IReadOnlyDictionary<string, OfficialDecklist>? playerDecklists = null,
         IReadOnlyList<string>? mulliganCompletedPlayerIds = null,
         string? openingSecondActionPlayerId = null,
-        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null)
+        IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null,
+        IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -549,6 +563,7 @@ public sealed record MatchState
         MulliganCompletedPlayerIds = NormalizeTextList(mulliganCompletedPlayerIds);
         OpeningSecondActionPlayerId = NormalizeOptionalText(openingSecondActionPlayerId);
         CardObjects = NormalizeCardObjects(cardObjects);
+        BattlefieldResolutions = NormalizeBattlefieldResolutions(battlefieldResolutions);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
         StackItems = NormalizeStackItems(stackItems);
@@ -600,6 +615,8 @@ public sealed record MatchState
     public IReadOnlyList<CleanupTaskState> PendingCleanupTasks => BuildPendingCleanupTasks(this);
 
     public IReadOnlyList<BattlefieldTaskState> BattlefieldTasks => BuildBattlefieldTaskStates(this);
+
+    public IReadOnlyList<BattlefieldResolutionState> BattlefieldResolutions { get; init; }
 
     public PendingTaskQueueState PendingTaskQueue => BuildPendingTaskQueue(this);
 
@@ -1379,6 +1396,28 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<BattlefieldResolutionState> NormalizeBattlefieldResolutions(
+        IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions)
+    {
+        return (battlefieldResolutions ?? [])
+            .Where(resolution => resolution is not null && !string.IsNullOrWhiteSpace(resolution.ResolutionId))
+            .Select(resolution => new BattlefieldResolutionState(
+                resolution.ResolutionId.Trim(),
+                Math.Max(0, resolution.Tick),
+                string.IsNullOrWhiteSpace(resolution.Kind) ? "UNKNOWN" : resolution.Kind.Trim(),
+                string.IsNullOrWhiteSpace(resolution.Reason) ? "UNKNOWN" : resolution.Reason.Trim(),
+                string.IsNullOrWhiteSpace(resolution.BattlefieldObjectId) ? string.Empty : resolution.BattlefieldObjectId.Trim(),
+                NormalizeOptionalText(resolution.PlayerId),
+                NormalizeOptionalText(resolution.PreviousControllerId),
+                NormalizeOptionalText(resolution.ControllerId),
+                NormalizeOptionalText(resolution.SourceObjectId),
+                NormalizeTextList(resolution.ParticipantObjectIds),
+                NormalizeTextList(resolution.RelatedEventKinds)))
+            .Where(resolution => !string.IsNullOrWhiteSpace(resolution.BattlefieldObjectId))
+            .Take(12)
+            .ToArray();
+    }
+
     private static string? NormalizeOptionalText(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -1515,6 +1554,7 @@ public sealed record ResolutionResult(
                 ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
                 ["battle"] = BuildBattleSnapshotView(state.BattleState),
                 ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
+                ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state.PendingTaskQueue),
                 ["continuousEffects"] = state.ContinuousEffects.Select(BuildContinuousEffectSnapshotView).ToArray(),
                 ["triggerQueue"] = state.TriggerQueue.Select(BuildTriggerQueueItemSnapshotView).ToArray(),
@@ -1633,6 +1673,24 @@ public sealed record ResolutionResult(
             ["participantObjectIds"] = task.ParticipantObjectIds,
             ["actingPlayerId"] = task.ActingPlayerId,
             ["stackItemIds"] = task.StackItemIds
+        };
+    }
+
+    private static Dictionary<string, object?> BuildBattlefieldResolutionSnapshotView(BattlefieldResolutionState resolution)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["resolutionId"] = resolution.ResolutionId,
+            ["tick"] = resolution.Tick,
+            ["kind"] = resolution.Kind,
+            ["reason"] = resolution.Reason,
+            ["battlefieldObjectId"] = resolution.BattlefieldObjectId,
+            ["playerId"] = resolution.PlayerId,
+            ["previousControllerId"] = resolution.PreviousControllerId,
+            ["controllerId"] = resolution.ControllerId,
+            ["sourceObjectId"] = resolution.SourceObjectId,
+            ["participantObjectIds"] = resolution.ParticipantObjectIds,
+            ["relatedEventKinds"] = resolution.RelatedEventKinds
         };
     }
 

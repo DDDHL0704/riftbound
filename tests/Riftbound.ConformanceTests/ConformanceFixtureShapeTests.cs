@@ -686,7 +686,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.True(Assert.IsType<bool>(battlefield["contested"]));
         Assert.Equal(["A-STANDBY-1"], StringList(battlefield["standbyObjectIds"]));
         Assert.Equal(1, Assert.IsType<int>(battlefield["faceDownStandbyCount"]));
-        Assert.Equal(["A-STANDBY-1", "A-UNIT-1", "B-UNIT-1"], StringList(battlefield["occupantObjectIds"]));
+        Assert.Equal(["A-UNIT-1", "B-UNIT-1"], StringList(battlefield["occupantObjectIds"]));
     }
 
     [Fact]
