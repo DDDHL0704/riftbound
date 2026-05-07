@@ -768,8 +768,22 @@ public sealed class GameHubJoinTests
             string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["controllerId"] as string, "P2", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["resolution"] as string, "CONTROL_CHANGED", StringComparison.Ordinal));
+        Assert.Contains(declareBattleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_STANDBY_REMOVED", StringComparison.Ordinal)
+            && Assert.IsType<object[]>(gameEvent.Payload["removedObjectIds"]).Contains("P1-STANDBY-CONTEST-001"));
         Assert.Contains(declareBattleEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
         var battleResolvedP1Snapshot = SnapshotFor(declareBattleClients, "P1");
+        var battleResolvedP1 = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Snapshot.Players["P1"]);
+        var battleResolvedP1Zones = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1["zones"]);
+        Assert.DoesNotContain(
+            "P1-STANDBY-CONTEST-001",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(battleResolvedP1Zones["battlefields"]));
+        Assert.Contains(
+            "P1-STANDBY-CONTEST-001",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(battleResolvedP1Zones["graveyard"]));
+        var battleResolvedP1Objects = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1["objects"]);
+        var clearedStandbyObject = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Objects["P1-STANDBY-CONTEST-001"]);
+        Assert.Equal(false, clearedStandbyObject["isFaceDown"]);
         var battleResolvedTaskQueue = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Snapshot.Timing["pendingTaskQueue"]);
         Assert.Equal("IDLE", Assert.IsType<string>(battleResolvedTaskQueue["phase"]));
         var battleResolvedBattle = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Snapshot.Timing["battle"]);
@@ -779,6 +793,7 @@ public sealed class GameHubJoinTests
             battlefields,
             item => string.Equals(item["battlefieldObjectId"] as string, "P1-BATTLEFIELD-CONTEST-001", StringComparison.Ordinal));
         Assert.Equal("P2", contestBattlefield["controllerId"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(contestBattlefield["standbyObjectIds"]));
     }
 
     [Fact]

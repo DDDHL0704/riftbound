@@ -22399,6 +22399,107 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRemovesIllegalStandbyAfterBattlefieldControlChanges()
+    {
+        var state = new MatchState(
+            "battlefield-control-standby-cleanup-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-2", "P1-ATTACKER", "P1-STANDBY-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DEFENDER"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-2"] = new(
+                    "BF-2",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ATTACKER"] = new(
+                    "P1-ATTACKER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-STANDBY-1"] = new(
+                    "P1-STANDBY-1",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-2")],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-2"] = new("P1", "BATTLEFIELD", "BF-2"),
+                ["P1-ATTACKER"] = new("P1", "BATTLEFIELD", "BF-2"),
+                ["P1-STANDBY-1"] = new("P1", "BATTLEFIELD", "BF-2"),
+                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BF-2")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-battlefield-control-standby-cleanup", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BF-2",
+                ["P1-ATTACKER"],
+                ["P2-DEFENDER"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.CardObjects["BF-2"].ControllerId);
+        Assert.DoesNotContain("P1-STANDBY-1", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Contains("P1-STANDBY-1", result.State.PlayerZones["P1"].Graveyard);
+        Assert.False(result.State.CardObjects["P1-STANDBY-1"].IsFaceDown);
+        Assert.Equal("P1", result.State.CardObjects["P1-STANDBY-1"].ControllerId);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-STANDBY-1"].Zone);
+        var standbyRemovedEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_STANDBY_REMOVED", StringComparison.Ordinal));
+        Assert.Equal("BF-2", standbyRemovedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal(["P1-STANDBY-1"], Assert.IsType<object[]>(standbyRemovedEvent.Payload["removedObjectIds"]));
+    }
+
+    [Fact]
     public void P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows()
     {
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·004/298", out var swiftDefinition));

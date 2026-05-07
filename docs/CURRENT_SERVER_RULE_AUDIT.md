@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 battle close/control resolution 与 Dev UI CORS 补丁
+审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle 补丁
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,13 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-002/P0-004 第十八批已落地：战场待命对象不再计入 battlefield occupant。`SnapshotDto.Lanes.battlefields[].occupantObjectIds` 现在只包含正面、非待命单位；`standbyObjectIds` 单独表达待命对象，避免战场争夺/控制结算把面朝下待命牌当成占据单位。
+- P0-002/P0-004 第十八批补充：Development `battlefield-contest-stack` seed 新增 `P1-STANDBY-CONTEST-001`，用于覆盖“原控制者失去战场控制后，其非法待命牌必须离开待命区”的代表路径。`DECLARE_BATTLE` 后的战场控制结算会清理不再由当前战场控制者控制的待命对象，把它们翻面并移入所属者墓地，广播 `BATTLEFIELD_STANDBY_REMOVED`，并同步 `ObjectLocations` 到 `GRAVEYARD`。
+- 前端/集成补充：事件日志新增 `BATTLEFIELD_STANDBY_REMOVED` 中文标签“待命清理”，并将任务队列 phase/kind 中文化展示。前端仍只展示服务端 snapshot / prompt / events，不自行判断待命是否合法或是否应移入墓地。
+- 已补测试：新增 `CoreRuleEngineRemovesIllegalStandbyAfterBattlefieldControlChanges` 覆盖战场控制从 P1 变更为 P2 后，P1 面朝下待命从战场移入 P1 墓地、翻面、位置同步为 `GRAVEYARD` 并发出 `BATTLEFIELD_STANDBY_REMOVED`；扩展 `P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass` 覆盖 Hub seed 战后 `BATTLEFIELD_STANDBY_REMOVED`、P1 待命移入墓地、中央战场 `standbyObjectIds` 为空且 controllerId 为 P2。
+- 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRemovesIllegalStandbyAfterBattlefieldControlChanges|FullyQualifiedName~CoreRuleEngineChangesBattlefieldControllerAfterBattle|FullyQualifiedName~CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask"` 通过 3/3；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass|FullyQualifiedName~P79BattlefieldExtraStandbySeedOffersBandleDestinationAndHides"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 87/87；`source ../../scripts/dev-env.sh && npm run build` 通过。
+- Browser Use smoke：IAB backend 可用，本批优先使用 Browser Use。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093` 以无持久化配置启动，房间 `smoke-standby-cleanup-3`。P1 先入座，P2 在前端设置 `serverUrl = http://127.0.0.1:5093`、`playerId = P2` 并连接房间；后台 SignalR 让 P1 `SeedScenario(battlefield-contest-stack)`。P2 通过前端点击“让过优先权”；后台 P1 提交 `PASS_FOCUS`；P2 再通过前端点击“让过焦点”；后台 P1 提交服务端 `DECLARE_BATTLE`。P2 页面随后显示中文“战斗结束”“战场控制结算”“待命清理”，中央战场显示 `控制：P2`、待命 `0 张面朝下`、pending queue `IDLE`。额外 SignalR 校验确认 authoritative snapshot 中 `P1-STANDBY-CONTEST-001` 已从 battlefield 移到 P1 graveyard，`isFaceDown = false`，`ObjectLocations` zone 为 `GRAVEYARD`，battlefield `standbyObjectIds = []`，`controllerId = P2`。刷新页面后 P2 点击“连接/重连”，仍恢复同一最终 snapshot。
+- 复审结论补充：本批关闭的是“战场控制改变后旧控制方非法待命仍残留在战场/待命区，且待命可能被 occupant 计入控制结算”的 P0 代表路径缺口；整体结论仍为 **NOT READY**。剩余阻断继续集中在完整每战场 held/conquer/control task 生命周期、多参与者战斗与战斗响应窗口、central cleanup task queue、PaymentEngine、LayerEngine 和全官方卡牌证据。
 - P0-002/P0-004 第十七批已落地：`DECLARE_BATTLE` 代表路径结算后现在会清除参战单位 `IsAttacking` / `IsDefending` 标记、关闭 `BattleState`，并广播 `BATTLE_CLOSED`。前端 snapshot 不再在战斗完成后把幸存单位误显示为仍在攻击/防守中。
 - P0-002/P0-004 第十七批补充：当战斗发生在真实 battlefield object id 上时，服务端会基于战后仍在该战场、正面、非待命的占据单位控制者结算战场控制方；控制权改变或确认都会广播 `BATTLEFIELD_CONTROL_RESOLVED`，并把 `CardObjectState.ControllerId` 写回权威状态。该路径覆盖当前 direct/minimal 代表战斗后的控制方结算，但仍不等同于完整官方 held/conquer/control task 生命周期。
 - 前端/集成补充：事件日志新增中文事件标签，`BATTLE_CLOSED` 显示为“战斗结束”，`BATTLEFIELD_CONTROL_RESOLVED` 显示为“战场控制结算”，未知事件仍以“服务端事件”兜底并保留原始 kind title。API Development CORS 策略补齐 loopback Vite 端口段 `5173-5179`，解决本批新窗口 `5175` smoke 时 SignalR negotiate 被旧白名单拒绝的问题；生产环境仍不启用该 fallback。

@@ -841,19 +841,25 @@ public sealed record MatchState
                 var battlefieldObject = state.CardObjects.TryGetValue(battlefieldObjectId, out var knownBattlefieldObject)
                     ? knownBattlefieldObject
                     : new CardObjectState(battlefieldObjectId);
-                var occupantObjectIds = state.ObjectLocations
+                var battlefieldRelatedObjectIds = state.ObjectLocations
                     .Where(entry => string.Equals(entry.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
                         && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                         && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
-                        && state.CardObjects.TryGetValue(entry.Key, out var cardObject)
-                        && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                        && TryFindFieldObjectLocation(state.PlayerZones, entry.Key, out _)
+                        && state.CardObjects.ContainsKey(entry.Key))
                     .Select(entry => entry.Key)
                     .Distinct(StringComparer.Ordinal)
                     .OrderBy(objectId => objectId, StringComparer.Ordinal)
                     .ToArray();
-                var standbyObjectIds = occupantObjectIds
+                var standbyObjectIds = battlefieldRelatedObjectIds
                     .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                         && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)))
+                    .ToArray();
+                var occupantObjectIds = battlefieldRelatedObjectIds
+                    .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+                        && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                        && !cardObject.IsFaceDown
+                        && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
                     .ToArray();
                 var occupantControllerIds = occupantObjectIds
                     .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
@@ -6912,7 +6918,7 @@ public sealed class MatchSession : IMatchSession
                 [seed.P1] = Zones(
                     mainDeck: [],
                     runeDeck: [],
-                    battlefields: ["P1-BATTLEFIELD-CONTEST-001", "P1-UNIT-CONTEST-001"],
+                    battlefields: ["P1-BATTLEFIELD-CONTEST-001", "P1-UNIT-CONTEST-001", "P1-STANDBY-CONTEST-001"],
                     legendZone: ["P1-LEGEND-001"],
                     championZone: ["P1-CHAMPION-001"]),
                 [seed.P2] = Zones(
@@ -6935,6 +6941,14 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-STANDBY-CONTEST-001"] = new(
+                    "P1-STANDBY-CONTEST-001",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-UNIT-CONTEST-001"] = new(
@@ -6966,6 +6980,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-CONTEST-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
                 ["P1-UNIT-CONTEST-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
+                ["P1-STANDBY-CONTEST-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
                 ["P2-UNIT-CONTEST-001"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001")
             }
         };

@@ -3764,13 +3764,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 $"{intent.PlayerId} 正面朝下放置一张待命牌",
                 hiddenPayload));
 
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        if (usesBattlefieldExtraStandby)
+        {
+            objectLocations[command.SourceObjectId] = new ObjectLocationState(
+                intent.PlayerId,
+                MoveUnitBattlefieldZone,
+                extraStandbyBattlefieldObjectId);
+        }
+        var nextStateWithLocations = nextState with { ObjectLocations = objectLocations };
+
         return new ResolutionResult(
             true,
             null,
-            nextState,
+            nextStateWithLocations,
             events,
-            ResolutionResult.BuildSnapshots(nextState),
-            BuildCorePrompts(nextState));
+            ResolutionResult.BuildSnapshots(nextStateWithLocations),
+            BuildCorePrompts(nextStateWithLocations));
     }
 
     private static ResolutionResult ResolveTapRune(
@@ -5366,6 +5376,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             objectLocations,
             battlefieldId,
             resolvedBattleWinnerPlayerId));
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -5462,7 +5473,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<GameEvent> ResolveBattlefieldControlAfterBattle(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string battlefieldId,
@@ -5512,8 +5523,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ? $"{nextControllerId} 确立战场控制"
                 : $"{nextControllerId} 保持战场控制";
 
-        return
-        [
+        var events = new List<GameEvent>
+        {
             new GameEvent(
                 "BATTLEFIELD_CONTROL_RESOLVED",
                 description,
@@ -5528,6 +5539,107 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["resolution"] = resolution,
                     ["battleWinnerPlayerId"] = battleWinnerPlayerId,
                     ["occupantControllerIds"] = occupantControllerIds
+                })
+        };
+        events.AddRange(RemoveIllegalStandbyAfterBattlefieldControl(
+            playerZones,
+            cardObjects,
+            objectLocations,
+            battlefieldObjectId,
+            nextControllerId));
+        return events;
+    }
+
+    private static IReadOnlyList<GameEvent> RemoveIllegalStandbyAfterBattlefieldControl(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string battlefieldObjectId,
+        string? battlefieldControllerId)
+    {
+        var removed = new List<Dictionary<string, object?>>();
+        var standbyObjectIds = objectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && cardObjects.TryGetValue(entry.Key, out var cardObject)
+                && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && !string.Equals(cardObject.ControllerId, battlefieldControllerId, StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .ToArray();
+        foreach (var objectId in standbyObjectIds)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject))
+            {
+                continue;
+            }
+
+            var ownerPlayerId = cardObject.OwnerId;
+            if (string.IsNullOrWhiteSpace(ownerPlayerId)
+                && objectLocations.TryGetValue(objectId, out var location))
+            {
+                ownerPlayerId = location.PlayerId;
+            }
+            if (string.IsNullOrWhiteSpace(ownerPlayerId)
+                || !playerZones.ContainsKey(ownerPlayerId))
+            {
+                continue;
+            }
+
+            foreach (var playerId in playerZones.Keys.ToArray())
+            {
+                var zones = playerZones[playerId];
+                playerZones[playerId] = zones with
+                {
+                    Base = RemoveFromZone(zones.Base, objectId),
+                    Battlefields = RemoveFromZone(zones.Battlefields, objectId)
+                };
+            }
+
+            var ownerZones = playerZones[ownerPlayerId];
+            playerZones[ownerPlayerId] = ownerZones with
+            {
+                Graveyard = ownerZones.Graveyard.Contains(objectId, StringComparer.Ordinal)
+                    ? ownerZones.Graveyard
+                    : ownerZones.Graveyard.Concat([objectId]).ToArray()
+            };
+            cardObjects[objectId] = cardObject with
+            {
+                Damage = 0,
+                IsFaceDown = false,
+                IsAttacking = false,
+                IsDefending = false,
+                ControllerId = ownerPlayerId
+            };
+            removed.Add(new Dictionary<string, object?>
+            {
+                ["objectId"] = objectId,
+                ["ownerPlayerId"] = ownerPlayerId,
+                ["previousControllerId"] = cardObject.ControllerId,
+                ["destinationZone"] = "GRAVEYARD"
+            });
+        }
+
+        if (removed.Count == 0)
+        {
+            return [];
+        }
+
+        return
+        [
+            new GameEvent(
+                "BATTLEFIELD_STANDBY_REMOVED",
+                "战场控制结算清理待命牌",
+                new Dictionary<string, object?>
+                {
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["controllerId"] = battlefieldControllerId,
+                    ["removedObjectIds"] = removed.Select(item => item["objectId"]).ToArray(),
+                    ["removedCards"] = removed,
+                    ["reason"] = "BATTLEFIELD_CONTROL_CLEANUP"
                 })
         ];
     }

@@ -145,7 +145,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第十二片。
+状态：完成第十三片。
 
 交付：
 
@@ -228,6 +228,7 @@
 - Computer Use smoke 第十片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-battlefield-contest-2`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 构造争夺战场与待结算栈项目。P2 浏览器视角显示 `SPELL_DUEL_OPEN`、规则队列 `SPELL_DUEL_TASKS`、active task `task:start-spell-duel:P1-BATTLEFIELD-CONTEST-001` 和服务端 prompt “让过焦点”；P2 点击后事件日志出现 `FOCUS_PASSED`，Node/SignalR 让 P1 继续 `PASS_FOCUS` 后出现 `SPELL_DUEL_CLOSED`；最终页面显示 `NEUTRAL_OPEN`、规则队列 `BATTLE_TASKS`、active task `task:start-battle:P1-BATTLEFIELD-CONTEST-001`，当前行动为服务端 blocking `WAIT`。
 - Computer Use smoke 第十一片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-battlefield-contest-3`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 推进到 `BATTLE_TASKS` 后，P2 浏览器视角获得服务端 `DECLARE_BATTLE` prompt；点击己方《大力仙灵》打开详情抽屉，抽屉展示服务端限定的 `DECLARE_BATTLE` 组合器、当前争夺战场和唯一防守者，确认后事件日志出现 `BATTLE_DECLARED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED`，最终 pending queue `IDLE`、prompt 回到 `END_TURN`。
 - Computer Use smoke 第十二片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5175` 下打开房间 `smoke-battlefield-control-1`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 推进到 `BATTLE_TASKS` 后，P2 浏览器视角按服务端 `DECLARE_BATTLE` 候选从详情抽屉确认战斗；事件日志显示中文“战斗结束”“战场控制结算”，最终中央战场显示 `控制：P1`、pending queue `IDLE`、prompt 回到普通开环。刷新页面后 P2 点击“连接/重连”能恢复该权威 snapshot。
+- Browser Use smoke 第十三片：IAB backend 可用，优先使用 Browser Use。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093` 以无持久化配置启动，房间 `smoke-standby-cleanup-3`；P2 在前端设置 `serverUrl = http://127.0.0.1:5093`、`playerId = P2` 并连接房间。后台 SignalR 让 P1 加入并 seed `battlefield-contest-stack`；P2 在 UI 点击“让过优先权”，后台 P1 提交 `PASS_FOCUS`，P2 在 UI 点击“让过焦点”，后台 P1 提交服务端 `DECLARE_BATTLE`。P2 页面事件日志显示中文“战斗结束”“战场控制结算”“待命清理”，中央战场显示 `控制：P2`、待命 `0 张面朝下`、规则队列 `空闲`；额外 SignalR 校验 authoritative snapshot 中 `P1-STANDBY-CONTEST-001` 已进入 P1 graveyard、`isFaceDown = false`、`ObjectLocations` zone 为 `GRAVEYARD`、battlefield `standbyObjectIds = []`、`controllerId = P2`。刷新页面后 P2 点击“连接/重连”能恢复同一最终 snapshot。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -245,7 +246,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**76%**
+估算整体进度：**78%**
 
 已经完成：
 
@@ -267,6 +268,7 @@
 - 争夺战场法术对决在双方让过焦点后已能由服务端切到 `BATTLE_TASKS` / `START_BATTLE` active task；前端只显示服务端 blocking prompt，不自行推进战斗或控制权。
 - `START_BATTLE` active task 已能通过服务端 `DECLARE_BATTLE` prompt 推进代表性战斗结算，并在真实 UI 中从卡牌详情提交后回到 `IDLE`。
 - 战斗代表路径结算后已能关闭 battle state、清理攻防标记，并按战后占据单位更新真实战场对象控制方；前端事件日志和战场控制提示均来自服务端事件/snapshot。
+- 战场控制改变后已能清理旧控制方非法待命：待命对象不再计入占据单位，服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`，前端中文显示“待命清理”，最终 snapshot 中待命进入所属者墓地且战场 `standbyObjectIds` 清空。
 
 预计剩余批次数：**4 批**
 
