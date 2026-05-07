@@ -250,6 +250,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
         }
 
+        if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
+        {
+            return ValueTask.FromResult(RejectWithCorePrompts(
+                state,
+                "Match is not in progress.",
+                ErrorCodes.PhaseNotAllowed));
+        }
+
         if (command is DeclareBattleCommand activeTaskDeclareBattleCommand
             && ResolutionResult.ActiveStartBattleTask(state) is not null
             && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
