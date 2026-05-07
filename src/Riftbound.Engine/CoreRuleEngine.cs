@@ -4106,6 +4106,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         events.AddRange(movementTriggerEvents);
         events.AddRange(lethalCleanup.Events);
 
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        nextState = taskAdvance.State;
+        events.AddRange(taskAdvance.Events);
+
         return new ResolutionResult(
             true,
             null,
@@ -4355,6 +4359,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         events.AddRange(movementTriggerEvents);
         events.AddRange(lethalCleanup.Events);
+
+        var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(nextState, intent.PlayerId);
+        nextState = taskAdvance.State;
+        events.AddRange(taskAdvance.Events);
 
         return new ResolutionResult(
             true,
@@ -10705,9 +10713,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
 
         MatchState nextState;
+        string? pendingBattlefieldTaskCausePlayerId = null;
         if (seatPlayerIds.All(passedPlayerIds.Contains))
         {
             var resolvedItem = state.StackItems[^1];
+            pendingBattlefieldTaskCausePlayerId = resolvedItem.ControllerId;
             var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
             var stackResolution = ResolveStackItemEffect(state, resolvedItem);
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
@@ -10800,6 +10810,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             };
         }
 
+        if (!string.IsNullOrWhiteSpace(pendingBattlefieldTaskCausePlayerId))
+        {
+            var taskAdvance = AdvancePendingBattlefieldTasksAfterStateChange(
+                nextState,
+                pendingBattlefieldTaskCausePlayerId);
+            nextState = taskAdvance.State;
+            events.AddRange(taskAdvance.Events);
+        }
+
         return new ResolutionResult(
             true,
             null,
@@ -10869,6 +10888,85 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static (MatchState State, IReadOnlyList<GameEvent> Events) AdvancePendingBattlefieldTasksAfterStateChange(
+        MatchState state,
+        string? causingPlayerId)
+    {
+        if (string.IsNullOrWhiteSpace(causingPlayerId)
+            || !string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+            || !string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || state.StackItems.Count > 0
+            || state.SpellDuelState.IsActive
+            || state.BattleState.IsActive
+            || state.PendingCleanupTasks.Any(task => IsPendingStateBasedCleanupTask(task.Kind)))
+        {
+            return (state, []);
+        }
+
+        var battlefield = state.BattlefieldStates.Values
+            .Where(candidate => candidate.Contested)
+            .OrderBy(candidate => candidate.BattlefieldObjectId, StringComparer.Ordinal)
+            .FirstOrDefault();
+        if (battlefield is null || battlefield.OccupantControllerIds.Count < 2)
+        {
+            return (state, []);
+        }
+
+        var focusPlayerId = battlefield.OccupantControllerIds.Contains(causingPlayerId, StringComparer.Ordinal)
+            ? causingPlayerId.Trim()
+            : battlefield.OccupantControllerIds.FirstOrDefault(playerId => state.Seats.ContainsKey(playerId));
+        if (string.IsNullOrWhiteSpace(focusPlayerId))
+        {
+            return (state, []);
+        }
+
+        var nextState = state with
+        {
+            ActivePlayerId = focusPlayerId,
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = focusPlayerId,
+            PassedFocusPlayerIds = [],
+            PassedPriorityPlayerIds = []
+        };
+        var events = new GameEvent[]
+        {
+            new(
+                "BATTLEFIELD_CONTESTED",
+                "战场进入争夺状态",
+                new Dictionary<string, object?>
+                {
+                    ["battlefieldObjectId"] = battlefield.BattlefieldObjectId,
+                    ["playerId"] = focusPlayerId,
+                    ["causedByPlayerId"] = causingPlayerId.Trim(),
+                    ["participantControllerIds"] = battlefield.OccupantControllerIds.ToArray(),
+                    ["participantObjectIds"] = battlefield.OccupantObjectIds.ToArray()
+                }),
+            new(
+                "SPELL_DUEL_STARTED",
+                "争夺战场触发法术对决",
+                new Dictionary<string, object?>
+                {
+                    ["battlefieldObjectId"] = battlefield.BattlefieldObjectId,
+                    ["taskId"] = $"task:start-spell-duel:{battlefield.BattlefieldObjectId}",
+                    ["reason"] = "BATTLEFIELD_CONTESTED",
+                    ["playerId"] = focusPlayerId,
+                    ["focusPlayerId"] = focusPlayerId,
+                    ["causedByPlayerId"] = causingPlayerId.Trim(),
+                    ["participantControllerIds"] = battlefield.OccupantControllerIds.ToArray(),
+                    ["participantObjectIds"] = battlefield.OccupantObjectIds.ToArray()
+                })
+        };
+
+        return (nextState, events);
+    }
+
+    private static bool IsPendingStateBasedCleanupTask(string kind)
+    {
+        return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)

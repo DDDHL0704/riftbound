@@ -659,6 +659,58 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass()
+    {
+        const string roomId = "p6-3c-battlefield-contest-task-advance";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-contest-stack", "seed-p6-battlefield-contest-stack");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p2Prompt = PromptFor(seedClients, "P2");
+        Assert.True(p2Prompt.Actionable);
+        Assert.Equal(["PASS_PRIORITY"], p2Prompt.Actions);
+        var seededP1Snapshot = SnapshotFor(seedClients, "P1");
+        Assert.Equal("NEUTRAL_CLOSED", seededP1Snapshot.Timing["timingState"]);
+        Assert.Equal("P2", seededP1Snapshot.Timing["priorityPlayerId"]);
+        var seededQueue = Assert.IsType<Dictionary<string, object?>>(seededP1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("BATTLEFIELD_TASKS", Assert.IsType<string>(seededQueue["phase"]));
+
+        var passClients = new RecordingHubClients();
+        await CreateHub(passClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-stack-pass", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PASS_PRIORITY"
+            }));
+
+        Assert.Empty(passClients.CallerClient.Errors);
+        var events = EventsFor(passClients);
+        Assert.Equal(
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var p1Snapshot = SnapshotFor(passClients, "P1");
+        Assert.Equal("SPELL_DUEL_OPEN", p1Snapshot.Timing["timingState"]);
+        Assert.Equal("P1", p1Snapshot.Timing["focusPlayerId"]);
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("SPELL_DUEL_TASKS", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.Equal("task:start-spell-duel:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(taskQueue["activeTaskId"]));
+        var p1Prompt = PromptFor(passClients, "P1");
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(["PASS_FOCUS"], p1Prompt.Actions);
+    }
+
+    [Fact]
     public async Task P6MovementAndScoreSeedsBroadcastCoreSnapshotsInDevelopment()
     {
         var movementRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);

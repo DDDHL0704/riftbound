@@ -6564,6 +6564,7 @@ public sealed class MatchSession : IMatchSession
             "movement" => BuildMovementScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
+            "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -6811,6 +6812,82 @@ public sealed class MatchSession : IMatchSession
             TimingState = TimingStates.SpellDuelOpen,
             FocusPlayerId = seed.P1,
             PassedFocusPlayerIds = []
+        };
+    }
+
+    private static MatchState BuildBattlefieldContestStackScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303027,
+            97,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P1-BATTLEFIELD-CONTEST-001", "P1-UNIT-CONTEST-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-UNIT-CONTEST-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-CONTEST-001"] = new(
+                    "P1-BATTLEFIELD-CONTEST-001",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-CONTEST-001"] = new(
+                    "P1-UNIT-CONTEST-001",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-CONTEST-001"] = new(
+                    "P2-UNIT-CONTEST-001",
+                    cardNo: "UNL-036/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+
+        return state with
+        {
+            ActivePlayerId = seed.P2,
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = seed.P2,
+            PassedPriorityPlayerIds = [seed.P1],
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-BATTLEFIELD-CONTEST-001",
+                    seed.P1,
+                    "P1-SPELL-BATTLEFIELD-CONTEST",
+                    "TEST_RESOLVE",
+                    "TEST-000",
+                    [])
+            ],
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-CONTEST-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
+                ["P1-UNIT-CONTEST-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001"),
+                ["P2-UNIT-CONTEST-001"] = new(seed.P2, "BATTLEFIELD", "P1-BATTLEFIELD-CONTEST-001")
+            }
         };
     }
 

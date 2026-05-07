@@ -21982,6 +21982,129 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineStartsBattlefieldSpellDuelAfterStackResolutionLeavesContestedBattlefield()
+    {
+        var state = new MatchState(
+            "battlefield-contest-starts-spell-duel-room",
+            7,
+            3,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P1-UNIT-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-1"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-1"] = new(
+                    "P1-UNIT-1",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-1"] = new(
+                    "P2-UNIT-1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            priorityPlayerId: "P2",
+            passedPriorityPlayerIds: ["P1"],
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-CONTEST-1",
+                    "P1",
+                    "P1-SPELL-CONTEST",
+                    "TEST_RESOLVE",
+                    "TEST-000",
+                    [])
+            ],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P1-UNIT-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-UNIT-1"] = new("P2", "BATTLEFIELD", "BF-1")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-pass-priority-contested-battlefield", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(8, result.State.Tick);
+        Assert.Equal(
+            ["PRIORITY_PASSED", "STACK_ITEM_RESOLVED", "BATTLEFIELD_CONTESTED", "SPELL_DUEL_STARTED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.SpellDuelOpen, result.State.TimingState);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal("P1", result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedPriorityPlayerIds);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Empty(result.State.StackItems);
+        Assert.Collection(
+            result.State.BattlefieldTasks,
+            task =>
+            {
+                Assert.Equal("START_SPELL_DUEL", task.Kind);
+                Assert.Equal("ACTIVE", task.Status);
+                Assert.Equal("P1", task.ActingPlayerId);
+            },
+            task =>
+            {
+                Assert.Equal("START_BATTLE", task.Kind);
+                Assert.Equal("WAITING_FOR_SPELL_DUEL", task.Status);
+            });
+        Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-spell-duel:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(["PASS_FOCUS"], result.Prompts["P1"].Actions);
+        Assert.Equal(["WAIT"], result.Prompts["P2"].Actions);
+
+        var startedEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_STARTED", StringComparison.Ordinal));
+        Assert.Equal("BF-1", startedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P1", startedEvent.Payload["focusPlayerId"]);
+        Assert.Equal(["P1", "P2"], Assert.IsType<string[]>(startedEvent.Payload["participantControllerIds"]));
+        Assert.Equal(["P1-UNIT-1", "P2-UNIT-1"], Assert.IsType<string[]>(startedEvent.Payload["participantObjectIds"]));
+    }
+
+    [Fact]
     public void P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows()
     {
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·004/298", out var swiftDefinition));
