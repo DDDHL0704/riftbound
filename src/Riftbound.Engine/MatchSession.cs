@@ -244,6 +244,22 @@ public sealed record BattlefieldResolutionState(
     IReadOnlyList<string> ParticipantObjectIds,
     IReadOnlyList<string> RelatedEventKinds);
 
+public sealed record BattleResolutionState(
+    string ResolutionId,
+    long Tick,
+    string Kind,
+    string Reason,
+    string BattlefieldId,
+    string? AttackingPlayerId,
+    string? DefendingPlayerId,
+    string? WinnerPlayerId,
+    IReadOnlyList<string> AttackerObjectIds,
+    IReadOnlyList<string> DefenderObjectIds,
+    IReadOnlyList<string> SurvivingAttackerObjectIds,
+    IReadOnlyList<string> SurvivingDefenderObjectIds,
+    IReadOnlyList<string> DestroyedObjectIds,
+    IReadOnlyList<string> RelatedEventKinds);
+
 public sealed record PendingTaskQueueState(
     bool HasTasks,
     bool IsBlocking,
@@ -531,7 +547,8 @@ public sealed record MatchState
         IReadOnlyList<string>? mulliganCompletedPlayerIds = null,
         string? openingSecondActionPlayerId = null,
         IReadOnlyDictionary<string, ObjectLocationState>? objectLocations = null,
-        IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions = null)
+        IReadOnlyList<BattlefieldResolutionState>? battlefieldResolutions = null,
+        IReadOnlyList<BattleResolutionState>? battleResolutions = null)
     {
         RoomId = roomId;
         Tick = tick;
@@ -564,6 +581,7 @@ public sealed record MatchState
         OpeningSecondActionPlayerId = NormalizeOptionalText(openingSecondActionPlayerId);
         CardObjects = NormalizeCardObjects(cardObjects);
         BattlefieldResolutions = NormalizeBattlefieldResolutions(battlefieldResolutions);
+        BattleResolutions = NormalizeBattleResolutions(battleResolutions);
         PriorityPlayerId = NormalizeOptionalText(priorityPlayerId);
         PassedPriorityPlayerIds = NormalizeTextList(passedPriorityPlayerIds);
         StackItems = NormalizeStackItems(stackItems);
@@ -617,6 +635,8 @@ public sealed record MatchState
     public IReadOnlyList<BattlefieldTaskState> BattlefieldTasks => BuildBattlefieldTaskStates(this);
 
     public IReadOnlyList<BattlefieldResolutionState> BattlefieldResolutions { get; init; }
+
+    public IReadOnlyList<BattleResolutionState> BattleResolutions { get; init; }
 
     public PendingTaskQueueState PendingTaskQueue => BuildPendingTaskQueue(this);
 
@@ -1418,6 +1438,30 @@ public sealed record MatchState
             .ToArray();
     }
 
+    private static IReadOnlyList<BattleResolutionState> NormalizeBattleResolutions(
+        IReadOnlyList<BattleResolutionState>? battleResolutions)
+    {
+        return (battleResolutions ?? [])
+            .Where(resolution => !string.IsNullOrWhiteSpace(resolution.ResolutionId))
+            .Select(resolution => new BattleResolutionState(
+                resolution.ResolutionId.Trim(),
+                resolution.Tick,
+                string.IsNullOrWhiteSpace(resolution.Kind) ? string.Empty : resolution.Kind.Trim(),
+                string.IsNullOrWhiteSpace(resolution.Reason) ? string.Empty : resolution.Reason.Trim(),
+                string.IsNullOrWhiteSpace(resolution.BattlefieldId) ? string.Empty : resolution.BattlefieldId.Trim(),
+                NormalizeOptionalText(resolution.AttackingPlayerId),
+                NormalizeOptionalText(resolution.DefendingPlayerId),
+                NormalizeOptionalText(resolution.WinnerPlayerId),
+                NormalizeTextList(resolution.AttackerObjectIds),
+                NormalizeTextList(resolution.DefenderObjectIds),
+                NormalizeTextList(resolution.SurvivingAttackerObjectIds),
+                NormalizeTextList(resolution.SurvivingDefenderObjectIds),
+                NormalizeTextList(resolution.DestroyedObjectIds),
+                NormalizeTextList(resolution.RelatedEventKinds)))
+            .Take(12)
+            .ToArray();
+    }
+
     private static string? NormalizeOptionalText(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -1553,6 +1597,7 @@ public sealed record ResolutionResult(
                 ["turnWindow"] = BuildTurnWindowSnapshotView(state.TurnWindow),
                 ["spellDuel"] = BuildSpellDuelSnapshotView(state.SpellDuelState),
                 ["battle"] = BuildBattleSnapshotView(state.BattleState),
+                ["battleResolutions"] = state.BattleResolutions.Select(BuildBattleResolutionSnapshotView).ToArray(),
                 ["battlefieldTasks"] = state.BattlefieldTasks.Select(BuildBattlefieldTaskSnapshotView).ToArray(),
                 ["battlefieldResolutions"] = state.BattlefieldResolutions.Select(BuildBattlefieldResolutionSnapshotView).ToArray(),
                 ["pendingTaskQueue"] = BuildPendingTaskQueueSnapshotView(state.PendingTaskQueue),
@@ -1690,6 +1735,27 @@ public sealed record ResolutionResult(
             ["controllerId"] = resolution.ControllerId,
             ["sourceObjectId"] = resolution.SourceObjectId,
             ["participantObjectIds"] = resolution.ParticipantObjectIds,
+            ["relatedEventKinds"] = resolution.RelatedEventKinds
+        };
+    }
+
+    private static Dictionary<string, object?> BuildBattleResolutionSnapshotView(BattleResolutionState resolution)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["resolutionId"] = resolution.ResolutionId,
+            ["tick"] = resolution.Tick,
+            ["kind"] = resolution.Kind,
+            ["reason"] = resolution.Reason,
+            ["battlefieldId"] = resolution.BattlefieldId,
+            ["attackingPlayerId"] = resolution.AttackingPlayerId,
+            ["defendingPlayerId"] = resolution.DefendingPlayerId,
+            ["winnerPlayerId"] = resolution.WinnerPlayerId,
+            ["attackerObjectIds"] = resolution.AttackerObjectIds,
+            ["defenderObjectIds"] = resolution.DefenderObjectIds,
+            ["survivingAttackerObjectIds"] = resolution.SurvivingAttackerObjectIds,
+            ["survivingDefenderObjectIds"] = resolution.SurvivingDefenderObjectIds,
+            ["destroyedObjectIds"] = resolution.DestroyedObjectIds,
             ["relatedEventKinds"] = resolution.RelatedEventKinds
         };
     }

@@ -1403,6 +1403,16 @@ public sealed class GameHubJoinTests
         Assert.Equal(
             ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"],
             Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+        var battleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            battleSnapshot.Timing["battleResolutions"]);
+        var battleResolution = Assert.Single(battleResolutions);
+        Assert.Equal("CLOSED", battleResolution["kind"]);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", battleResolution["battlefieldId"]);
+        Assert.Equal("P1", battleResolution["attackingPlayerId"]);
+        Assert.Equal("P2", battleResolution["defendingPlayerId"]);
+        Assert.Equal("P1", battleResolution["winnerPlayerId"]);
+        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-YI"], Assert.IsAssignableFrom<IReadOnlyList<string>>(battleResolution["survivingAttackerObjectIds"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(battleResolution["survivingDefenderObjectIds"]));
     }
 
     [Fact]

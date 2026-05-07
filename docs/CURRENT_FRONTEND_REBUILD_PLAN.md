@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **82%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
+当前完成度：约 **83%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -43,7 +43,7 @@
 - Development-only：`SeedScenario(roomId, playerId, scenarioId, clientIntentId)`，只能用于本地 smoke 和开发场景，不得伪装成生产对局能力。
 - 服务端消息：`Joined`、`Snapshot`、`Prompt`、`Events`、`Error`。
 - 命令 DTO：`SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`PLAY_CARD`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、`HIDE_CARD`、`TAP_RUNE`、`RECYCLE_RUNE`、`REVEAL_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`。
-- Snapshot 已提供 `players`、`lanes`、`stack`、`timing`、`turnState`，其中 `timing` 已包含 `turnWindow`、`spellDuel`、`battle`、`battlefieldTasks`、`pendingTaskQueue`、`continuousEffects` 等服务端权威视图。
+- Snapshot 已提供 `players`、`lanes`、`stack`、`timing`、`turnState`，其中 `timing` 已包含 `turnWindow`、`spellDuel`、`battle`、`battleResolutions`、`battlefieldTasks`、`battlefieldResolutions`、`pendingTaskQueue`、`continuousEffects` 等服务端权威视图。
 - Prompt 已提供 `actions` 与结构化 `candidates`，包含 `sources`、`targets`、`destinations`、`modes`、`optionalCosts`、`metadata`。
 - 图鉴与卡牌状态可从 `/catalog/behavior-specs` 和 `/catalog/keyword-coverage` 获得；当前只能展示 `representative-rule-pass`，不能宣称 full official rule pass。
 
@@ -204,7 +204,7 @@
 - 事件日志新增中文事件标签：本批关键路径中的 `BATTLE_CLOSED` 显示为“战斗结束”，`BATTLE_NO_RESULT` 显示为“战斗无结果”，`BATTLEFIELD_CONTROL_RESOLVED` 显示为“战场控制结算”；未知事件仍显示“服务端事件”，避免把未专门翻译的服务端 kind 当成前端裁决语义。
 - 本批 smoke 发现 Vite 自动切到 `5175` 时 API CORS 仍只放行旧端口；已补服务端 Development-only loopback Vite 端口 fallback，并加测试，保证新窗口/新端口前端仍能连上 SignalR。Production 不放行该 fallback。
 - 当前已通过新的 Chrome 窗口真实 UI/SignalR 混合 smoke：API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-battlefield-control-1`。P2 连接后，Node 加入 P1 并 seed `battlefield-contest-stack`，P1 过优先权、P2/P1 依次让过焦点后进入 `BATTLE_TASKS`；P2 点击己方《大力仙灵》打开详情抽屉，按服务端候选选择战场和防守者确认战斗；事件日志显示“战斗结束”“战场控制结算”，最终中央战场显示 `控制：P1`，pending queue 为 `IDLE`，刷新后 P2 重新连接可恢复同一 snapshot。
-- 仍待后续批次补：当前只是 `START_BATTLE` 的 direct/minimal 代表路径；完整 control/held/conquer task 生命周期、多参与者战斗、战斗响应窗口、复杂可选费用/费用目标、完整法术对决/战斗 task lifecycle UI 仍未完成；部分双目标依赖型传奇行动仍需 PaymentEngine/目标依赖模型后再开放提交。
+- 仍待后续批次补：当前只是 `START_BATTLE` 的 direct/minimal 代表路径；完整 control/held/conquer task 生命周期、官方级多参与者战斗 task、战斗响应窗口、独立战斗伤害分配 prompt、复杂可选费用/费用目标、完整法术对决/战斗 task lifecycle UI 仍未完成；部分双目标依赖型传奇行动仍需 PaymentEngine/目标依赖模型后再开放提交。
 
 验收：
 
@@ -261,7 +261,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**82%**
+估算整体进度：**83%**
 
 已经完成：
 
@@ -301,6 +301,7 @@
 - P0-004 补齐同优先级壁垒防守者顺序选择的代表性证据：`DECLARE_BATTLE` metadata 记录同级顺序策略，Development-only `battle-same-priority-bulwark` seed 和后台 smoke 均验证前端只按服务端候选提交顺序；后端 full test 当前通过 2893/2893。
 - P0-004 补齐无胜者战斗状态代表性证据：服务端广播 `BATTLE_NO_RESULT`，前端事件日志中文显示“战斗无结果”，Development-only `battle-no-result` seed 与后台 smoke 验证双方同归于尽后 battle inactive、双方单位入墓；后端 full test 当前通过 2895/2895。
 - P0-004 补齐 2 攻击者 + 2 防守者组合代表路径：服务端 `DECLARE_BATTLE.sourceRequirements` 可同时暴露第二攻击者槽和第二防守者槽，metadata 明确 `multiParticipantBattlePolicy = up-to-two-attackers-and-defenders-without-independent-assignment-prompt`；Development-only `battle-multi-participant` seed 与后台 Chrome/CDP smoke 覆盖 P1 点击《盖伦》、选择《易》作为第二攻击者、选择壁垒与普通防守者后确认，事件日志显示“造成伤害”“战斗结束”，最终 snapshot 显示易留场 1 伤害、盖伦和 P2 两个防守者入墓，reload/reconnect 后恢复同一结果；后端 full test 当前通过 2897/2897。
+- P0-004 补齐最近战斗结果 snapshot：服务端 `timing.battleResolutions` 会持久公开最近 `BATTLE_CLOSED` / `BATTLE_NO_RESULT` 的结构化结果，包含攻防玩家、胜者/无胜者、攻防对象、幸存对象和摧毁对象；前端规则队列只读显示“战斗结束：P1”等结果。后台 Chrome/CDP smoke 覆盖 2 攻 + 2 防战斗后右侧显示 `战斗结束：P1`，reload/reconnect 后仍由 authoritative snapshot 恢复同一标签；后端 full test 当前通过 2897/2897。
 
 预计剩余批次数：**3 批左右**
 

@@ -5796,12 +5796,25 @@ public sealed class CoreRuleEngine : IRuleEngine
             state.BattlefieldResolutions,
             combatEvents,
             state.Tick + 1);
+        var battleResolutions = AppendBattleResolutionEvents(
+            state.BattleResolutions,
+            combatEvents,
+            state.Tick + 1,
+            battlefieldId,
+            intent.PlayerId,
+            defendingPlayerId,
+            resolvedBattleWinnerPlayerId,
+            attackerObjectIds,
+            defenderObjectIds,
+            playerZones,
+            cardObjects);
         var nextState = state with
         {
             Tick = state.Tick + 1,
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             BattlefieldResolutions = battlefieldResolutions,
+            BattleResolutions = battleResolutions,
             PlayerScores = playerScores,
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
@@ -6127,6 +6140,85 @@ public sealed class CoreRuleEngine : IRuleEngine
         return newResolutions
             .Concat(existing)
             .GroupBy(resolution => resolution.ResolutionId, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .Take(12)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<BattleResolutionState> AppendBattleResolutionEvents(
+        IReadOnlyList<BattleResolutionState> existing,
+        IReadOnlyList<GameEvent> combatEvents,
+        long tick,
+        string battlefieldId,
+        string attackingPlayerId,
+        string? defendingPlayerId,
+        string? winnerPlayerId,
+        IReadOnlyList<string> attackerObjectIds,
+        IReadOnlyList<string> defenderObjectIds,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
+    {
+        var noResultEvent = combatEvents.FirstOrDefault(gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
+        var closedEvent = combatEvents.FirstOrDefault(gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        if (noResultEvent is null && closedEvent is null)
+        {
+            return existing;
+        }
+
+        var destroyedObjectIds = combatEvents
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal))
+            .Select(gameEvent => EventPayloadString(gameEvent, "targetObjectId"))
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Select(objectId => objectId!)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var destroyedObjectIdSet = destroyedObjectIds.ToHashSet(StringComparer.Ordinal);
+        var survivingAttackerObjectIds = noResultEvent is null
+            ? attackerObjectIds
+                .Where(objectId => !destroyedObjectIdSet.Contains(objectId)
+                    && cardObjects.ContainsKey(objectId)
+                    && IsObjectOnField(playerZones, objectId))
+                .ToArray()
+            : EventPayloadStringList(noResultEvent, "survivingAttackerObjectIds");
+        var survivingDefenderObjectIds = noResultEvent is null
+            ? defenderObjectIds
+                .Where(objectId => !destroyedObjectIdSet.Contains(objectId)
+                    && cardObjects.ContainsKey(objectId)
+                    && IsObjectOnField(playerZones, objectId))
+                .ToArray()
+            : EventPayloadStringList(noResultEvent, "survivingDefenderObjectIds");
+        var kind = noResultEvent is null ? "CLOSED" : "NO_RESULT";
+        var reason = noResultEvent is null
+            ? "BATTLE_CLOSED"
+            : EventPayloadString(noResultEvent, "reason") ?? "BATTLE_NO_RESULT";
+        var resolution = new BattleResolutionState(
+            $"battle-result:{tick}:{kind}:{battlefieldId}:{attackerObjectIds.FirstOrDefault() ?? attackingPlayerId}",
+            tick,
+            kind,
+            reason,
+            battlefieldId,
+            attackingPlayerId,
+            defendingPlayerId,
+            winnerPlayerId,
+            attackerObjectIds.ToArray(),
+            defenderObjectIds.ToArray(),
+            survivingAttackerObjectIds,
+            survivingDefenderObjectIds,
+            destroyedObjectIds,
+            combatEvents
+                .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                    || string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                    || string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
+                    || string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal))
+                .Select(gameEvent => gameEvent.Kind)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray());
+
+        return new[] { resolution }
+            .Concat(existing)
+            .GroupBy(item => item.ResolutionId, StringComparer.Ordinal)
             .Select(group => group.First())
             .Take(12)
             .ToArray();

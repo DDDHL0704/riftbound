@@ -24,6 +24,11 @@ const resolutionKindLabels: Record<string, string> = {
   HELD: "据守"
 };
 
+const battleResolutionKindLabels: Record<string, string> = {
+  CLOSED: "战斗结束",
+  NO_RESULT: "战斗无结果"
+};
+
 function labelFor(map: Record<string, string>, value: unknown, fallback = "无") {
   const key = asString(value, "");
   return key ? (map[key] ?? key) : fallback;
@@ -34,6 +39,7 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
   const timing = asRecord(snapshot?.timing);
   const queue = asRecord(timing.pendingTaskQueue);
   const tasks = asArray<Record<string, unknown>>(queue.tasks);
+  const battleResolutions = asArray<Record<string, unknown>>(timing.battleResolutions);
   const battlefieldResolutions = asArray<Record<string, unknown>>(timing.battlefieldResolutions);
 
   return (
@@ -59,6 +65,12 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
         {tasks.slice(0, 4).map((task, index) => (
           <span key={asString(task.taskId, `task-${index}`)}>
             {labelFor(taskKindLabels, task.kind, "任务")}：{asString(task.reason, "服务端规则")}
+          </span>
+        ))}
+        {battleResolutions.slice(0, 3).map((resolution, index) => (
+          <span key={asString(resolution.resolutionId, `battle-resolution-${index}`)}>
+            {labelFor(battleResolutionKindLabels, resolution.kind, "战斗结果")}：
+            {asString(resolution.winnerPlayerId, "无胜者")}
           </span>
         ))}
         {battlefieldResolutions.slice(0, 3).map((resolution, index) => (

@@ -38290,6 +38290,25 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        var battleResolution = Assert.Single(result.State.BattleResolutions);
+        Assert.Equal(result.State.Tick, battleResolution.Tick);
+        Assert.Equal("CLOSED", battleResolution.Kind);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", battleResolution.BattlefieldId);
+        Assert.Equal("P1", battleResolution.AttackingPlayerId);
+        Assert.Equal("P2", battleResolution.DefendingPlayerId);
+        Assert.Equal("P1", battleResolution.WinnerPlayerId);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN", "P1-BATTLEFIELD-YI"], battleResolution.AttackerObjectIds);
+        Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], battleResolution.DefenderObjectIds);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], battleResolution.SurvivingAttackerObjectIds);
+        Assert.Empty(battleResolution.SurvivingDefenderObjectIds);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER"],
+            battleResolution.DestroyedObjectIds);
+        var snapshotBattleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            result.Snapshots["P1"].Timing["battleResolutions"]);
+        var snapshotBattleResolution = Assert.Single(snapshotBattleResolutions);
+        Assert.Equal("CLOSED", snapshotBattleResolution["kind"]);
+        Assert.Equal("P1", snapshotBattleResolution["winnerPlayerId"]);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -38412,6 +38431,25 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
         Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        var battleResolution = Assert.Single(result.State.BattleResolutions);
+        Assert.Equal(result.State.Tick, battleResolution.Tick);
+        Assert.Equal("CLOSED", battleResolution.Kind);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", battleResolution.BattlefieldId);
+        Assert.Equal("P1", battleResolution.AttackingPlayerId);
+        Assert.Equal("P2", battleResolution.DefendingPlayerId);
+        Assert.Equal("P1", battleResolution.WinnerPlayerId);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN", "P1-BATTLEFIELD-YI"], battleResolution.AttackerObjectIds);
+        Assert.Equal(["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"], battleResolution.DefenderObjectIds);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], battleResolution.SurvivingAttackerObjectIds);
+        Assert.Empty(battleResolution.SurvivingDefenderObjectIds);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"],
+            battleResolution.DestroyedObjectIds);
+        var snapshotBattleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            result.Snapshots["P1"].Timing["battleResolutions"]);
+        var snapshotBattleResolution = Assert.Single(snapshotBattleResolutions);
+        Assert.Equal("CLOSED", snapshotBattleResolution["kind"]);
+        Assert.Equal("P1", snapshotBattleResolution["winnerPlayerId"]);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -38491,6 +38529,13 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.False(result.State.BattleState.IsActive);
+        var battleResolution = Assert.Single(result.State.BattleResolutions);
+        Assert.Equal("NO_RESULT", battleResolution.Kind);
+        Assert.Equal("ALL_PARTICIPANTS_DESTROYED", battleResolution.Reason);
+        Assert.Null(battleResolution.WinnerPlayerId);
+        Assert.Empty(battleResolution.SurvivingAttackerObjectIds);
+        Assert.Empty(battleResolution.SurvivingDefenderObjectIds);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER"], battleResolution.DestroyedObjectIds);
         Assert.Empty(result.State.StackItems);
     }
 
