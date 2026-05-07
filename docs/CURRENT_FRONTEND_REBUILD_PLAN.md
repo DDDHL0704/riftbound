@@ -213,6 +213,8 @@
 - 卡牌详情抽屉新增“布置待命”组合器：只读取服务端 `HIDE_CARD.metadata.sourceRequirements` 渲染目的地和待命费用，确认命令只提交服务端候选的 `sourceObjectId`、`cardNo`、`destination`、`optionalCosts`，不从卡面文本、玩家法力或传奇身份自行裁决。
 - `REVEAL_CARD` 现在也进入每来源 `sourceRequirements`。服务端只在普通开环或持有结算链优先权的闭环窗口公开自己基地中的面朝下待命对象；普通翻开目的地限定 `BASE`，反应打出目的地限定 `STACK`，费用限定 `STANDBY_REVEAL_0`。
 - 卡牌详情抽屉新增“翻开待命”组合器：只读取服务端 `REVEAL_CARD.metadata.sourceRequirements` 渲染模式、目的地和翻开费用，确认命令只提交服务端给出的 `sourceObjectId`、`cardNo`、`mode`、`destination` 与 `optionalCosts`，不从卡面文本、对象状态或当前窗口自行判断。
+- 普通结算链优先权窗口现在也会在服务端有反应牌来源时公开 `PLAY_CARD`。`ActionPromptBuilder.StackPriorityActions` 只按 `PlayCardSourceRequirements` 暴露可支付、时点合法且有服务端目标槽的反应牌；普通非反应手牌不会出现在该窗口。新增 `priority-reaction-counter` seed，用于真实 UI 验证 P2 从手牌打出《强买强卖》反制栈上《焚烧》。
+- 卡牌详情抽屉继续复用既有 `PLAY_CARD` 组合器：反应牌窗口只读取服务端 `sourceRequirements` 渲染栈目标、模式和确认按钮，提交命令只包含服务端候选的 `sourceObjectId`、`cardNo`、`mode` 与 `targetObjectIds`。事件日志新增 `STACK_ITEM_COUNTERED` 中文“无效化法术”。
 - Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
 - 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
 - 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
@@ -232,6 +234,7 @@
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，继续避免抢用户前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-prevent-unit-play-rnfcoybs`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battlefield-static-prevent-play-units`；页面行动面板只显示“让过优先权”，没有全局“打出卡牌”；打开《阴森药剂师》详情抽屉也不渲染“确认打出”组合器。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：已优先尝试 Browser Use，但本地 IAB backend 未发现；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-standby-hide-yy6gku5x`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battlefield-extra-standby`；P1 打开 Teemo 待命手牌详情，抽屉显示“待命费用”“支付 1 法力布置待命”和《班德尔树》目的地，点击“确认布置待命”后事件日志显示“班德尔树额外布置待命牌”；authoritative snapshot 中 `P1-STANDBY-BANDLE-TEEMO` 已从手牌移到《班德尔树》战场、`isFaceDown = true`、P1 法力为 0；reload/reconnect 后仍恢复同一最终 snapshot。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：已优先尝试 Browser Use，但本地 IAB backend 未发现；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-reveal-card-3eexrdzw`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `standby-reaction`；P1 从面朝下待命牌详情抽屉看到“翻开费用”和“确认作为反应打出”，提交后事件日志显示“翻开待命 / 打出卡牌 / 支付费用 / 加入结算链”；authoritative snapshot 中 `P1-FACEDOWN-OGN-TEEMO-PURPLE` 已离开 P1 基地，结算链包含 `OGN·197/298` 待命反应项目；reload/reconnect 后仍恢复该栈状态。后端 build、后端 full test 2949/2949 和前端 build 均已通过。
+- 当前已通过后台 headless Chrome/CDP 真实 UI smoke：已优先尝试 Browser Use，但本地 IAB backend 未发现；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-priority-reaction-wotz00vd`。P2 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `priority-reaction-counter`；P2 行动面板显示服务端候选 `PLAY_CARD` 与 `PASS_PRIORITY`，打开《强买强卖》详情抽屉后选择栈上 `OGS·003/024` 目标并确认打出，事件日志显示“打出卡牌 / 支付费用 / 加入结算链”；P2 通过 UI 让过优先权、后台 P1 让过后，页面显示“无效化法术”和“当前无结算链项目”，authoritative snapshot 结算链为空；reload/reconnect 后仍恢复最终 snapshot。后端 build、后端 full test 2950/2950 和前端 build 均已通过。
 - 争夺战场的服务端任务队列新增权威推进入口：状态变化后若留下争夺战场且无致命/0 战力清理优先项，服务端会广播 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` 并进入 `SPELL_DUEL_OPEN`，前端只展示 resulting snapshot/prompt，不提供自定义“启动法术对决”按钮。
 - 新增 Development-only `battlefield-contest-stack` seed，专门用于 smoke“优先权栈项目结算后留下争夺战场 -> 服务端自动启动法术对决”的链路。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角看到 `BATTLEFIELD_TASKS`、争夺战场与阻塞队列；Node 让 P1 过优先权后，事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，状态切到 `SPELL_DUEL_OPEN`，P2 只获得服务端给出的 `PASS_FOCUS`。
@@ -323,7 +326,7 @@
 - 基础符文回收资源能力已补代表性 open-main 服务端路径并接入卡牌详情/行动面板；前端只按 `RECYCLE_RUNE.sources` 提交，当前仍不宣称完整 reaction payment-window 支持。
 - `HIDE_CARD` 已有服务端每来源元数据和前端卡牌详情待命布置组合器；待命费用、Teemo 替代费用、免费待命效果与《班德尔树》额外待命目的地都只按服务端候选展示和提交，真实 UI smoke 已覆盖布置后 face-down 战场对象、法力扣除与 reload/reconnect；后端 full test 当前通过 2948/2948，前端 build 已通过。
 - `REVEAL_CARD` 已有服务端每来源元数据和前端卡牌详情待命翻开/反应打出组合器；普通开环翻回基地与优先权闭环作为反应入栈都只按服务端候选展示和提交，真实 UI smoke 已覆盖待命反应入栈、事件日志和 reload/reconnect；后端 full test 当前通过 2949/2949，前端 build 已通过。
-- `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算。
+- `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算；普通结算链优先权窗口现已能只按服务端候选公开反应牌来源、栈目标和模式，真实 UI smoke 已覆盖《强买强卖》反制栈上法术、事件日志和 reload/reconnect。
 - `MOVE_UNIT` 已有服务端每来源元数据和前端卡牌详情移动组合器，可真实把基地单位移动到战场；前端不再自行判断移动目的地或游走费用。
 - `ASSEMBLE_EQUIPMENT` 已有长剑代表路径的服务端每来源元数据、红色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
 - `ACTIVATE_ABILITY` 已有 Vi、Xerath 和蜕变花园授予能力代表路径的服务端每来源元数据、目标/费用/Spellshield 加税候选过滤和前端卡牌详情激活组合器；前端不再自行判断可激活来源、能力目标或横置费用。

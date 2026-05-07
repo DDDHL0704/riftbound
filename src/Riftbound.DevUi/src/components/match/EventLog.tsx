@@ -24,6 +24,7 @@ const eventKindLabels: Record<string, string> = {
   SPELL_DUEL_CLOSED: "法术对决关闭",
   SPELL_DUEL_STARTED: "法术对决开始",
   STACK_ITEM_ADDED: "加入结算链",
+  STACK_ITEM_COUNTERED: "无效化法术",
   STACK_ITEM_RESOLVED: "结算链项目结算",
   UNIT_DESTROYED: "单位摧毁"
 };

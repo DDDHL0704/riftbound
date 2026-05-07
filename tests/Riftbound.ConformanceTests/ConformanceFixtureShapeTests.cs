@@ -1544,6 +1544,94 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptExposesPlayableReactionCardsDuringStackPriority()
+    {
+        var state = new MatchState(
+            "prompt-priority-reaction-room",
+            19,
+            5,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            priorityPlayerId: "P2",
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(2, 0)
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-HARD-BARGAIN", "P2-HAND-ORDINARY-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPELL-HARD-BARGAIN"] = new(
+                    "P2-SPELL-HARD-BARGAIN",
+                    cardNo: "SFD·136/221",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-HAND-ORDINARY-UNIT"] = new(
+                    "P2-HAND-ORDINARY-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-INCINERATE",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024")
+            ]);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P2"];
+
+        Assert.Equal(["PLAY_CARD", "PASS_PRIORITY"], prompt.Actions);
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Equal(["P2-SPELL-HARD-BARGAIN"], (playCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], (playCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        Assert.Equal(["TARGET_DECLINES_PAY_2_NO_ECHO"], (playCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        Assert.Equal("P2-SPELL-HARD-BARGAIN", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("SFD·136/221", Assert.IsType<string>(sourceRequirement["cardNo"]));
+        Assert.Equal("TARGET_DECLINES_PAY_2_NO_ECHO", Assert.IsType<string>(sourceRequirement["mode"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
+
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]);
+        Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], firstTargetChoices.Select(choice => choice.Id).ToArray());
+
+        var opponentPrompt = ResolutionResult.BuildPrompts(state)["P1"];
+        Assert.Equal(["WAIT"], opponentPrompt.Actions);
+    }
+
+    [Fact]
     public void ActionPromptPlayCardMetadataFiltersTargetsBySourceRequirement()
     {
         var state = new MatchState(

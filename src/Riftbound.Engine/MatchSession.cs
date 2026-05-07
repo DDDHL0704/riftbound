@@ -2496,6 +2496,11 @@ internal static class ActionPromptBuilder
     public static IReadOnlyList<string> StackPriorityActions(MatchState state, string playerId)
     {
         var actions = new List<string>();
+        if (SourcesFor(state, playerId, "PLAY_CARD")?.Count > 0)
+        {
+            actions.Add("PLAY_CARD");
+        }
+
         if (SourcesFor(state, playerId, "REVEAL_CARD")?.Count > 0)
         {
             actions.Add("REVEAL_CARD");
@@ -7825,6 +7830,7 @@ public sealed class MatchSession : IMatchSession
             "haste-payment-colored-recycle" => BuildHastePaymentColoredRecycleScenario(current, seed),
             "spellshield-multiple-tax" => BuildSpellshieldMultipleTaxScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
+            "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
             "equipment" => BuildEquipmentScenario(current, seed),
@@ -8766,6 +8772,69 @@ public sealed class MatchSession : IMatchSession
                     championZone: ["P2-CHAMPION-001"])
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+    }
+
+    private static MatchState BuildPriorityReactionCounterScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303136,
+            136,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = new(2, 0)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    hand: ["P2-SPELL-HARD-BARGAIN"],
+                    battlefields: ["P2-UNIT-HARD-BARGAIN-TARGET"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPELL-HARD-BARGAIN"] = new(
+                    "P2-SPELL-HARD-BARGAIN",
+                    cardNo: "SFD·136/221",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-UNIT-HARD-BARGAIN-TARGET"] = new(
+                    "P2-UNIT-HARD-BARGAIN-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+
+        return state with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = seed.P2,
+            PassedPriorityPlayerIds = [seed.P1],
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-1-P1-SPELL-INCINERATE",
+                    seed.P1,
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-HARD-BARGAIN-TARGET"])
+            ]
+        };
     }
 
     private static MatchState BuildStandbyReactionScenario(MatchState current, DevScenarioSeed seed)
