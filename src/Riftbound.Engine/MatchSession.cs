@@ -6049,6 +6049,7 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(zonePlayerId, out var zones)
             && zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown
             && !cardObject.IsAttacking
             && !cardObject.IsDefending
@@ -7971,6 +7972,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
             "unknown-rune-source-prompt" => BuildUnknownRuneSourcePromptScenario(current, seed),
+            "unknown-declare-battle-source-prompt" => BuildUnknownDeclareBattleSourcePromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
@@ -8968,6 +8970,50 @@ public sealed class MatchSession : IMatchSession
             });
     }
 
+    private static MatchState BuildUnknownDeclareBattleSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304168,
+            4168,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P1-BATTLE-UNKNOWN-ATTACKER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-BATTLE-UNKNOWN-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-UNKNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-UNKNOWN-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-UNKNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-UNKNOWN-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
     private static MatchState BuildAssemblePaymentRecycleScenario(MatchState current, DevScenarioSeed seed)
     {
         return BuildScenarioState(
@@ -9939,6 +9985,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLE-PROMPT-ATTACKER"] = new(
                     "P1-BATTLE-PROMPT-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -9959,12 +10006,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLE-PROMPT-BASE-DEFENDER"] = new(
                     "P2-BATTLE-PROMPT-BASE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2),
                 ["P2-BATTLE-PROMPT-DEFENDER"] = new(
                     "P2-BATTLE-PROMPT-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10268,6 +10317,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EPHEMERAL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10280,6 +10330,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-EPHEMERAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
                     ownerId: seed.P2,
@@ -10318,6 +10369,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-MINION-ATTACKER"] = new(
                     "P1-BATTLEFIELD-MINION-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10330,6 +10382,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-MINION-DEFENDER"] = new(
                     "P2-BATTLEFIELD-MINION-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10368,6 +10421,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-HELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-HELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10380,6 +10434,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10418,6 +10473,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-REHEARSAL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10430,6 +10486,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-REHEARSAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-REHEARSAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10468,6 +10525,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-BOON-ATTACKER"] = new(
                     "P1-BATTLEFIELD-BOON-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10480,6 +10538,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-BOON-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BOON-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10518,6 +10577,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-TOMB-ATTACKER"] = new(
                     "P1-BATTLEFIELD-TOMB-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10530,6 +10590,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-TOMB-DEFENDER"] = new(
                     "P2-BATTLEFIELD-TOMB-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10574,6 +10635,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SHIRANA-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Boon, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
@@ -10591,6 +10653,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SHIRANA-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10629,6 +10692,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new(
                     "P1-BATTLEFIELD-HUNTING-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
@@ -10641,6 +10705,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HUNTING-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10837,6 +10902,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-BLOOD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-BLOOD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10849,6 +10915,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-BLOOD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BLOOD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -10984,6 +11051,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-ENERGY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ENERGY-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -10996,6 +11064,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-ENERGY-DEFENDER"] = new(
                     "P2-BATTLEFIELD-ENERGY-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -11012,6 +11081,7 @@ public sealed class MatchSession : IMatchSession
         {
             ["P1-BATTLEFIELD-GRAND-ATTACKER"] = new(
                 "P1-BATTLEFIELD-GRAND-ATTACKER",
+                cardNo: "SFD·125/221",
                 power: 1,
                 tags: [CardObjectTags.UnitCard],
                 ownerId: seed.P1,
@@ -11027,6 +11097,7 @@ public sealed class MatchSession : IMatchSession
         {
             cardObjects[defenderUnitObjectId] = new CardObjectState(
                 defenderUnitObjectId,
+                cardNo: "SFD·125/221",
                 power: string.Equals(defenderUnitObjectId, defenderUnitObjectIds[0], StringComparison.Ordinal) ? 3 : 1,
                 tags: [CardObjectTags.UnitCard],
                 ownerId: seed.P2,
@@ -11103,12 +11174,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CANDLE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -11299,6 +11372,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-PILTOVER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-PILTOVER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -11311,6 +11385,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-PILTOVER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PILTOVER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -11532,6 +11607,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12141,12 +12217,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CONQUER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12192,6 +12270,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
@@ -12202,6 +12281,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DISCARD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12247,6 +12327,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
@@ -12258,6 +12339,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RECYCLE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12296,6 +12378,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-REVEAL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-REVEAL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12308,6 +12391,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-REVEAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-REVEAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12351,6 +12435,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-RUNES-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNES-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12363,6 +12448,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-RUNES-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RUNES-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12401,6 +12487,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12413,6 +12500,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12457,12 +12545,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-STATIC-ATTACKER"] = new(
                     "P1-BATTLEFIELD-STATIC-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-STATIC-DEFENDER"] = new(
                     "P2-BATTLEFIELD-STATIC-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12501,6 +12591,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
                     "P1-BATTLEFIELD-FORTIFIED-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12513,6 +12604,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(
                     "P2-BATTLEFIELD-FORTIFIED-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12551,6 +12643,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-PLUNDER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-PLUNDER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12563,6 +12656,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-PLUNDER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PLUNDER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12601,6 +12695,7 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-ISOLATED-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ISOLATED-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12613,6 +12708,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P2),
                 ["P2-BATTLEFIELD-ISOLATED-DEFENDER"] = new(
                     "P2-BATTLEFIELD-ISOLATED-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12657,6 +12753,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
@@ -12670,6 +12767,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-READY-DEFENDER"] = new(
                     "P2-BATTLEFIELD-READY-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12715,12 +12813,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RUNE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12800,12 +12900,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DRAW-OTHER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DRAW-OTHER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12862,12 +12964,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-POWERFUL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12920,12 +13024,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-SAND-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SAND-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -12970,12 +13076,14 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
@@ -13021,6 +13129,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: seed.P1,
@@ -13041,6 +13150,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new(
                     "P2-BATTLEFIELD-EQUIPMENT-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,

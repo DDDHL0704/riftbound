@@ -1,6 +1,6 @@
 # 符文战场 Web 前端重建与服务端补齐计划
 
-更新日期：2026-05-07
+更新日期：2026-05-08
 当前结论：**NOT READY**
 当前完成度：约 **99%**，预计仍需 completion audit 与少量收口修复。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
@@ -146,7 +146,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第二十三片。
+状态：完成第二十四片。
 
 交付：
 
@@ -218,6 +218,7 @@
 - 新增 Development-only `unknown-move-unit-source-prompt` seed，用于 smoke“基地单位对象存在但 `cardNo = null`”的 UI 场景。服务端 Hub 测试覆盖 `MOVE_UNIT.enabled=false`、`sources=[]`、`sourceRequirements=[]`、P1 基地仍包含 `P1-UNIT-UNKNOWN-MOVE-SOURCE` 且该对象 `cardNo` 为空。
 - `TAP_RUNE` / `RECYCLE_RUNE` 来源过滤补齐无行为定义边界：基地符文必须公开已知 `cardNo` 才能作为横置/回收来源。缺少 `cardNo` 的符文不会出现在两个资源动作的 `sources` 中；Core 手写命令同样拒绝该未知符文来源，前端只展示隐藏信息和 disabled 候选。
 - 新增 Development-only `unknown-rune-source-prompt` seed，用于 smoke“基地符文对象存在但 `cardNo = null`”的 UI 场景。服务端 Hub 测试覆盖 `TAP_RUNE.enabled=false`、`RECYCLE_RUNE.enabled=false`、两个候选 `sources=[]`、P1 基地仍包含 `P1-RUNE-UNKNOWN-SOURCE` 且该对象 `cardNo` 为空。
+- 新增 Development-only `unknown-declare-battle-source-prompt` seed，用于 smoke“战场攻防单位对象存在但 `cardNo = null`”的 UI 场景。服务端 Hub 测试覆盖 `DECLARE_BATTLE.enabled=false`、`sources=[]`、`targets=[]`、`sourceRequirements=[]`，P1 战场仍包含 `P1-BATTLE-UNKNOWN-ATTACKER` 且该对象 `cardNo` 为空，同时不向 P1 泄漏 P2 隐藏防守者对象。
 - `ASSEMBLE_EQUIPMENT` 支付窗口新增服务端候选支付资源动作：当前红色符能不足但基地有可回收红色基础符文时，服务端在 `sourceRequirements.paymentResourceChoices` 暴露 `RECYCLE_RUNE:<objectId>`，同时给出 `paymentResourcePowerByChoice` 与加总后的 `availablePowerByTraitWithPaymentResources`。前端详情抽屉新增“支付资源”选择组，未选择服务端候选时“确认装配”禁用，选择后才提交 `ASSEMBLE_RED` 与该 `RECYCLE_RUNE:*` token，不读取符文 tag 自行裁决。
 - 新增 Development-only `assemble-payment-recycle` seed，用于 smoke“0 红色符能 + 基地《长剑》 + 合法单位目标 + 可回收红色基础符文”的装配支付场景。服务端 Core/Hub 测试覆盖回收符文进入符文牌堆、`paymentWindow = ASSEMBLE_EQUIPMENT`、红色装配费用扣空、长剑贴附目标和 reload/reconnect。
 - 战场 Echo 减免现在进入 `PLAY_CARD.sourceRequirements.optionalCostChoices` 的服务端候选口径。`battlefield-static-echo-cost-reduction` seed 中 P1 只有 3 法力，基础费用 2、Echo 原费用 2 且《玛莱尖塔》减免 1；前端详情抽屉会看到“回响：额外支付 1 法力”，并只提交服务端给出的 `ECHO` token。
@@ -250,6 +251,7 @@
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use 本轮无可调用 IAB backend；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-unknown-activate-eb9aeq92`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `unknown-activate-ability-source-prompt`；authoritative prompt 中 `ACTIVATE_ABILITY.enabled=false`、sources 数量 0、sourceRequirements 为空，snapshot 中 P1 战场仍包含 `P1-BATTLEFIELD-UNKNOWN-ABILITY-SOURCE` 且对象 `cardNo = null`，同时控制《蜕变花园》。页面行动面板“激活能力（需选择）”disabled，title 为“ACTIVATE_ABILITY 当前没有服务端可执行候选”；打开未知单位详情只显示隐藏信息保护，不出现“确认激活能力”；reload/reconnect 后仍恢复同一禁用 prompt。后端 build、目标回归 5/5、后端 full test 2964/2964 和前端 build 均已通过。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use 本轮无可调用 IAB backend；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-unknown-move-weqq9zpl`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `unknown-move-unit-source-prompt`；authoritative prompt 中 `MOVE_UNIT.enabled=false`、sources 数量 0、sourceRequirements 为空，snapshot 中 P1 基地仍包含 `P1-UNIT-UNKNOWN-MOVE-SOURCE` 且对象 `cardNo = null`。页面行动面板“移动单位（需选择）”disabled，title 为“MOVE_UNIT 当前没有服务端可执行候选”；打开未知单位详情只显示隐藏信息保护，不出现“确认移动”；reload/reconnect 后仍恢复同一禁用 prompt。后端 build、目标回归 5/5、移动相关宽回归 43/43、后端 full test 2967/2967 和前端 build 均已通过。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use 本轮无可调用 IAB backend；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-unknown-rune-oegg6dgn`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `unknown-rune-source-prompt`；authoritative prompt 中 `TAP_RUNE.enabled=false`、`RECYCLE_RUNE.enabled=false`、两个候选 sources 均为空，snapshot 中 P1 基地仍包含 `P1-RUNE-UNKNOWN-SOURCE` 且对象 `cardNo = null`。页面行动面板“横置符文（需选择）”和“回收符文（需选择）”均 disabled；打开未知符文详情只显示隐藏信息保护，不出现横置/回收确认入口；reload/reconnect 后仍恢复同一禁用 prompt。后端 build、目标回归 6/6、后端 full test 2971/2971 和前端 build 均已通过。
+- 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use 本轮无可调用 IAB backend；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-unknown-declare-movrd1ki`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `unknown-declare-battle-source-prompt`；authoritative prompt 中 `DECLARE_BATTLE.enabled=false`、sources/targets/sourceRequirements 均为空，snapshot 中 P1 战场仍包含 `P1-BATTLE-UNKNOWN-ATTACKER` 且对象 `cardNo = null`，并且未向 P1 泄漏 P2 隐藏防守者对象。页面行动面板“声明战斗（需选择）”disabled，title 为“DECLARE_BATTLE 当前没有服务端可执行候选”；打开未知攻击者详情只显示隐藏信息保护，不出现“确认声明战斗”；reload/reconnect 后仍恢复同一禁用 prompt。后端 build、目标回归 7/7、失败收口回归 8/8、GameHubJoinTests 110/110、后端 full test 2975/2975 和前端 build 均已通过。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB backend 本次不可用；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-assemble-payment-c6a6643h`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `assemble-payment-recycle`；P1 打开《长剑》详情抽屉，页面显示“支付资源 / 回收符文支付”，未选择资源时“确认装配”disabled，选择后 enabled 并提交。事件日志显示“回收符文 / 支付费用 / 装配长剑”；authoritative snapshot 中红色基础符文离开基地进入符文牌堆、`runeDeckCount = 2`、长剑贴附到 `P1-UNIT-ASSEMBLE-PAYMENT-TARGET`、red power 已扣空；reload/reconnect 后仍恢复该最终 snapshot。后端 build、目标回归 4/4、后端 full test 2958/2958 和前端 build 均已通过。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：已优先尝试 Browser Use，但 IAB backend 仍不可用；未使用 Computer Use 抢前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-echo-reduction-ldgywesc`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `battlefield-static-echo-cost-reduction`；P1 打开《台前作秀》详情抽屉，页面显示“回响：额外支付 1 法力”，选择后“确认打出”启用并提交。事件日志显示“支付费用 / 加入结算链”；P1 通过 UI 让过优先权、后台 P2 让过后 authoritative snapshot 中 P1 抽到两张牌、`P1-SPELL-CENTER-STAGE` 入墓、P1 法力为 0、stack 为空；reload/reconnect 后仍恢复 `废牌堆 1` 与空结算链。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，继续避免抢用户前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-held-echo-prompt-3ak2nocn`。P2 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `battlefield-held-next-spell-echo-prompt`；P2 打开《台前作秀》详情抽屉，页面显示“回响：额外支付 2 法力”，选择后确认启用并提交。事件日志显示“支付费用 / 加入结算链”，后台事件含 `BATTLEFIELD_TRIGGER_RESOLVED`；P2 通过 UI 让过优先权、后台 P1 让过后 authoritative snapshot 中 P2 抽到两张牌、`P2-SPELL-CENTER-STAGE` 入墓、P2 法力为 0、stack 为空；reload/reconnect 后仍恢复 `废牌堆 1` 与空结算链。

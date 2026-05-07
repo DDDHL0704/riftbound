@@ -575,6 +575,64 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesDeclareBattleCombatantsWhenUnitHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-declare-battle-unknown-source-room",
+            25,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLE-UNKNOWN-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-UNKNOWN-DEFENDER"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-UNKNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-UNKNOWN-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-UNKNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-UNKNOWN-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var battleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        Assert.False(battleCandidate.Enabled);
+        Assert.Empty(battleCandidate.Sources ?? []);
+        Assert.Empty(battleCandidate.Targets ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(
@@ -1051,12 +1109,14 @@ public sealed class ConformanceFixtureShapeTests
                     controllerId: "alice"),
                 ["A-UNIT-1"] = new(
                     "A-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "alice",
                     controllerId: "alice"),
                 ["B-UNIT-1"] = new(
                     "B-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "bob",
@@ -1134,12 +1194,14 @@ public sealed class ConformanceFixtureShapeTests
                     controllerId: "alice"),
                 ["A-UNIT-1"] = new(
                     "A-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "alice",
                     controllerId: "alice"),
                 ["B-UNIT-1"] = new(
                     "B-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "bob",

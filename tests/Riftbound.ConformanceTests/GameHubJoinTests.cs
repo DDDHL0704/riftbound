@@ -1544,6 +1544,58 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownDeclareBattleSourceSeedHidesCombatantsWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-declare-battle-source-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-declare-battle-source-prompt",
+                "seed-p7-9-unknown-declare-battle-source-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.False(battleCandidate.Enabled);
+        Assert.Empty(battleCandidate.Sources ?? []);
+        Assert.Empty(battleCandidate.Targets ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains(
+            "P1-BATTLE-UNKNOWN-ATTACKER",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Contains(
+            "P2-BATTLE-UNKNOWN-DEFENDER",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownAttacker = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-BATTLE-UNKNOWN-ATTACKER"]);
+        Assert.Null(unknownAttacker["cardNo"]);
+        Assert.False(p1Objects.ContainsKey("P2-BATTLE-UNKNOWN-DEFENDER"));
+    }
+
+    [Fact]
     public async Task P79AssemblePaymentRecycleSeedOffersResourceAndAttachesThroughHub()
     {
         const string roomId = "p7-9-assemble-payment-recycle-core";

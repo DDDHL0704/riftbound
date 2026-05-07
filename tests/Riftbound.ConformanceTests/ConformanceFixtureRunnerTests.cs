@@ -741,12 +741,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLE-ATTACKER"] = new(
                     "P1-BATTLE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLE-DEFENDER"] = new(
                     "P2-BATTLE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -23250,12 +23252,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-UNIT-1"] = new(
                     "P1-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-UNIT-1"] = new(
                     "P2-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -23373,12 +23377,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-UNIT-1"] = new(
                     "P1-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-UNIT-1"] = new(
                     "P2-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -23479,12 +23485,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-UNIT-1"] = new(
                     "P1-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-UNIT-1"] = new(
                     "P2-UNIT-1",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -23577,12 +23585,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P1-ATTACKER"] = new(
                     "P1-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-DEFENDER"] = new(
                     "P2-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -23682,6 +23692,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-ATTACKER"] = new(
                     "P1-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -23696,6 +23707,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-DEFENDER"] = new(
                     "P2-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -26952,12 +26964,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-MECHANICAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-MECHANICAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, "机械"],
                     ownerId: "P2",
@@ -27019,6 +27033,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -27036,6 +27051,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -27088,12 +27104,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 5,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -27152,12 +27170,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -27217,6 +27237,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -27228,13 +27249,13 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-DRAVEN-DRAW-001"] = new(
                     "P1-DRAVEN-DRAW-001",
-                    cardNo: "SFD·125/221",
                     ownerId: "P1",
                     controllerId: "P1",
                     power: 3,
                     tags: [CardObjectTags.UnitCard]),
                 ["P2-BATTLEFIELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -27292,6 +27313,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -27321,7 +27343,6 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-GAREN-DRAW-001"] = new(
                     "P1-GAREN-DRAW-001",
-                    cardNo: "SFD·125/221",
                     ownerId: "P1",
                     controllerId: "P1",
                     power: 3,
@@ -27335,6 +27356,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard]),
                 ["P2-BATTLEFIELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -30421,6 +30443,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -30432,6 +30455,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -36019,7 +36043,6 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-BASE-KEEPER"] = new(
                     "P1-MOVE-BASE-KEEPER",
-                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-MOVE-UNIT-BATTLEFIELD-001"] = new(
@@ -36584,6 +36607,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard]),
                 ["P2-MOVE-UNIT-DEFENDER-001"] = new(
                     "P2-MOVE-UNIT-DEFENDER-001",
+                    cardNo: "SFD·125/221",
                     isDefending: true,
                     power: 3,
                     tags: [CardObjectTags.UnitCard, "壁垒"])
@@ -38699,10 +38723,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -38807,9 +38833,9 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-100/219"),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
-                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
-                    cardNo: "UNL-036/219")
+                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
         };
 
@@ -38936,9 +38962,9 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "UNL-090/219"),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
-                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
-                    cardNo: "UNL-036/219")
+                    tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
         };
 
@@ -39166,9 +39192,9 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
-                    tags: [CardObjectTags.UnitCard],
-                    cardNo: "OGS·007/024"),
+                    tags: [CardObjectTags.UnitCard]),
                 ["P1-BATTLEFIELD-YI"] = new(
                     "P1-BATTLEFIELD-YI",
                     power: 2,
@@ -39503,10 +39529,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             },
@@ -39571,10 +39599,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39625,10 +39655,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39679,10 +39711,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39733,10 +39767,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39787,10 +39823,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39841,10 +39879,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39895,10 +39935,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BASE-GAREN"] = new(
                     "P1-BASE-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -39949,10 +39991,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BASE-MUTANT-KITTEN"] = new(
                     "P2-BASE-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40003,10 +40047,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40054,10 +40100,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P1-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P1-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40108,10 +40156,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40162,10 +40212,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40216,10 +40268,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40270,10 +40324,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40326,10 +40382,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40382,10 +40440,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40437,10 +40497,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-GAREN"] = new(
                     "P1-BATTLEFIELD-GAREN",
+                    cardNo: "OGS·007/024",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, "强攻2", "坚守2"]),
                 ["P2-BATTLEFIELD-MUTANT-KITTEN"] = new(
                     "P2-BATTLEFIELD-MUTANT-KITTEN",
+                    cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"])
             }
@@ -40469,6 +40531,120 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].IsDefending);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-MUTANT-KITTEN"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandRejectsAttackerWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLE-UNKNOWN-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-KNOWN-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-UNKNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-UNKNOWN-ATTACKER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-KNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-KNOWN-DEFENDER",
+                    cardNo: "UNL-036/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-unknown-cardno-attacker", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLE-UNKNOWN-ATTACKER"],
+                ["P2-BATTLE-KNOWN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-BATTLE-UNKNOWN-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLE-KNOWN-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Null(result.State.CardObjects["P1-BATTLE-UNKNOWN-ATTACKER"].CardNo);
+        Assert.False(result.State.CardObjects["P1-BATTLE-UNKNOWN-ATTACKER"].IsAttacking);
+        Assert.False(result.State.CardObjects["P2-BATTLE-KNOWN-DEFENDER"].IsDefending);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandRejectsDefenderWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLE-KNOWN-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-UNKNOWN-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-KNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-KNOWN-ATTACKER",
+                    cardNo: "OGS·007/024",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-UNKNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-UNKNOWN-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-unknown-cardno-defender", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLE-KNOWN-ATTACKER"],
+                ["P2-BATTLE-UNKNOWN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-BATTLE-KNOWN-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLE-UNKNOWN-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Null(result.State.CardObjects["P2-BATTLE-UNKNOWN-DEFENDER"].CardNo);
+        Assert.False(result.State.CardObjects["P1-BATTLE-KNOWN-ATTACKER"].IsAttacking);
+        Assert.False(result.State.CardObjects["P2-BATTLE-UNKNOWN-DEFENDER"].IsDefending);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -41532,6 +41708,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-VI-ATTACKER"] = new(
                     "P1-VI-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: attackerPower,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -41550,6 +41727,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-VI-DEFENDER"] = new(
                     "P2-VI-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41582,12 +41760,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-VEX-ATTACKER"] = new(
                     "P1-VEX-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-VEX-DEFENDER"] = new(
                     "P2-VEX-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41680,6 +41860,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-IRELIA-ATTACKER"] = new(
                     "P1-IRELIA-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -41692,6 +41873,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-IRELIA-DEFENDER"] = new(
                     "P2-IRELIA-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41729,12 +41911,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-RENATA-ATTACKER"] = new(
                     "P1-RENATA-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-RENATA-DEFENDER"] = new(
                     "P2-RENATA-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41790,6 +41974,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-LEBLANC-DEFENDER"] = new(
                     "P2-LEBLANC-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41823,6 +42008,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-LEBLANC-ATTACKER"] = new(
                     "P1-LEBLANC-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -41876,6 +42062,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-REKSAI-ATTACKER"] = new(
                     "P1-REKSAI-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -41888,6 +42075,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-REKSAI-DEFENDER"] = new(
                     "P2-REKSAI-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41942,12 +42130,14 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-IVERN-ATTACKER"] = new(
                     "P1-IVERN-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: controllerHolds ? 1 : 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-IVERN-DEFENDER"] = new(
                     "P2-IVERN-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: controllerHolds ? 4 : 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41986,6 +42176,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-SETT-BOON-ATTACKER"] = new(
                     "P1-SETT-BOON-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
                     ownerId: "P1",
@@ -41998,6 +42189,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-SETT-DEFENDER"] = new(
                     "P2-SETT-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42029,6 +42221,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-SETT-ATTACKER"] = new(
                     "P1-SETT-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42041,6 +42234,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-SETT-DEFENDER"] = new(
                     "P2-SETT-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42069,6 +42263,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-HELD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-HELD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42081,6 +42276,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42108,6 +42304,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-BOON-ATTACKER"] = new(
                     "P1-BATTLEFIELD-BOON-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42120,6 +42317,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-BOON-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BOON-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42147,6 +42345,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-REHEARSAL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-REHEARSAL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42159,6 +42358,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-REHEARSAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-REHEARSAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42186,6 +42386,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-PLUNDER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-PLUNDER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42198,6 +42399,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-PLUNDER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PLUNDER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42226,6 +42428,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SHIRANA-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Boon, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42243,6 +42446,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-SHIRANA-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SHIRANA-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42270,6 +42474,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-HUNTING-ATTACKER"] = new(
                     "P1-BATTLEFIELD-HUNTING-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42282,6 +42487,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-HUNTING-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HUNTING-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42316,12 +42522,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-CONQUER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CONQUER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-CONQUER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CONQUER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42357,6 +42565,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-DISCARD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DISCARD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42367,6 +42576,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DISCARD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DISCARD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42402,6 +42612,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-RECYCLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECYCLE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42413,6 +42624,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-RECYCLE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RECYCLE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42444,6 +42656,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-REVEAL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-REVEAL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42456,6 +42669,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-REVEAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-REVEAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42493,6 +42707,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EPHEMERAL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42505,6 +42720,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-EPHEMERAL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
                     ownerId: "P2",
@@ -42532,6 +42748,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"] = new(
                     "P1-BATTLEFIELD-FORTIFIED-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42544,6 +42761,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"] = new(
                     "P2-BATTLEFIELD-FORTIFIED-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42571,6 +42789,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ISOLATED-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ISOLATED-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42583,6 +42802,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-ISOLATED-DEFENDER"] = new(
                     "P2-BATTLEFIELD-ISOLATED-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42617,6 +42837,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-READY-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42630,6 +42851,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-READY-DEFENDER"] = new(
                     "P2-BATTLEFIELD-READY-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42666,12 +42888,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-RUNE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RUNE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42745,12 +42969,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-DRAW-OTHER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-DRAW-OTHER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42797,12 +43023,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-POWERFUL-ATTACKER"] = new(
                     "P1-BATTLEFIELD-POWERFUL-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 5,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-POWERFUL-DEFENDER"] = new(
                     "P2-BATTLEFIELD-POWERFUL-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42844,12 +43072,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-GOLD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-GOLD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-GOLD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-GOLD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42883,12 +43113,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-SAND-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SAND-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-SAND-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SAND-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42923,6 +43155,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"] = new(
                     "P1-BATTLEFIELD-EQUIPMENT-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
@@ -42943,6 +43176,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"] = new(
                     "P2-BATTLEFIELD-EQUIPMENT-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -42970,6 +43204,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-MINION-ATTACKER"] = new(
                     "P1-BATTLEFIELD-MINION-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42982,6 +43217,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-MINION-DEFENDER"] = new(
                     "P2-BATTLEFIELD-MINION-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -43011,6 +43247,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-RUNES-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RUNES-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -43023,6 +43260,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-RUNES-DEFENDER"] = new(
                     "P2-BATTLEFIELD-RUNES-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -43052,6 +43290,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-SINGLE-RUNE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -43064,6 +43303,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-SINGLE-RUNE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -43097,12 +43337,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-STATIC-ATTACKER"] = new(
                     "P1-BATTLEFIELD-STATIC-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-STATIC-DEFENDER"] = new(
                     "P2-BATTLEFIELD-STATIC-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -43930,6 +44172,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-ENERGY-ATTACKER"] = new(
                     "P1-BATTLEFIELD-ENERGY-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -43942,6 +44185,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-ENERGY-DEFENDER"] = new(
                     "P2-BATTLEFIELD-ENERGY-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -43975,6 +44219,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-PILTOVER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-PILTOVER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -43987,6 +44232,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-PILTOVER-DEFENDER"] = new(
                     "P2-BATTLEFIELD-PILTOVER-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -44026,6 +44272,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -44089,6 +44336,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-RECKONER-ATTACKER"] = new(
                     "P1-BATTLEFIELD-RECKONER-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -44143,6 +44391,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-BLOOD-ATTACKER"] = new(
                     "P1-BATTLEFIELD-BLOOD-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -44155,6 +44404,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-BLOOD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BLOOD-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -44183,6 +44433,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-TOMB-ATTACKER"] = new(
                     "P1-BATTLEFIELD-TOMB-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -44195,6 +44446,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-TOMB-DEFENDER"] = new(
                     "P2-BATTLEFIELD-TOMB-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -44220,6 +44472,7 @@ public sealed class ConformanceFixtureRunnerTests
         {
             ["P1-BATTLEFIELD-GRAND-ATTACKER"] = new(
                 "P1-BATTLEFIELD-GRAND-ATTACKER",
+                cardNo: "SFD·125/221",
                 power: 1,
                 tags: [CardObjectTags.UnitCard],
                 ownerId: "P1",
@@ -44235,6 +44488,7 @@ public sealed class ConformanceFixtureRunnerTests
         {
             cardObjects[defenderUnitObjectId] = new CardObjectState(
                 defenderUnitObjectId,
+                cardNo: "SFD·125/221",
                 power: string.Equals(defenderUnitObjectId, defenderUnitObjectIds[0], StringComparison.Ordinal) ? 3 : 1,
                 tags: [CardObjectTags.UnitCard],
                 ownerId: "P2",
@@ -44289,12 +44543,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-CANDLE-ATTACKER"] = new(
                     "P1-BATTLEFIELD-CANDLE-ATTACKER",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P2-BATTLEFIELD-CANDLE-DEFENDER"] = new(
                     "P2-BATTLEFIELD-CANDLE-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -44992,7 +45248,6 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-JINX-DRAW-001"] = new(
                     "P1-JINX-DRAW-001",
-                    cardNo: "SFD·125/221",
                     ownerId: "P1",
                     controllerId: "P1",
                     power: 3,

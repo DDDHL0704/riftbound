@@ -11191,7 +11191,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsReadyFaceUpUnitForMinimalBattle(CardObjectState cardObject)
     {
-        return !cardObject.IsFaceDown
+        return !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && !cardObject.IsFaceDown
             && !cardObject.IsAttacking
             && !cardObject.IsDefending
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
