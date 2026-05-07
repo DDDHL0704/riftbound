@@ -403,6 +403,7 @@
 - 恢复链路新增服务端 action-log final hash audit：Postgres recovery frame 带 replay 初始状态，registry 在恢复前重放 recovered commands 并阻止 hash mismatch 的恢复帧，降低重连时用错误 authoritative snapshot 静默恢复的风险。
 - 真实 Postgres recovery store smoke 已覆盖 migration/journal/state snapshot/recovery frame/registry 恢复闭环，并修复 `MatchState` seed/rngCursor 构造参数类型导致 authoritative snapshot 无法反序列化的问题。
 - recovery frame 已携带公开 spectator replay frame，使用 authoritative state hash 和 spectator redaction，Postgres smoke 覆盖 seed/rngCursor 不泄漏。
+- recovery validator 已校验 spectator replay frame 与 authoritative state 对齐：room、tick、last event sequence、authoritative hash 必须一致，且公开 frame timing 不得泄漏 `seed` / `rngCursor`。新增恢复 validator 回归；后端 full test 当前通过 3011/3011，前端 build 已通过。本批没有前端 UI 代码变更，未启动新的 browser/API/Vite/Chrome smoke 进程。
 - spectator replay redaction 新增生成式 property 覆盖，防止多组隐藏手牌、面朝下对象和随机状态重新泄漏到公开回放帧。
 - P0-003 补齐战力修正降到 0 的 pending task 证据：服务端会公开 `DESTROY_ZERO_POWER_UNIT` / `STATE_BASED_CLEANUP`，前端只能显示 WAIT，不自行继续开放普通操作。
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。

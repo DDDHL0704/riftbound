@@ -47,7 +47,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             events,
             playerViews,
             authoritativeState,
-            metadata.CurrentTick);
+            metadata.CurrentTick,
+            spectatorReplayFrame);
 
         return new MatchRecoveryFrame(
             metadata.RoomId,

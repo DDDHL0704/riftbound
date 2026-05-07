@@ -436,7 +436,8 @@ public static class MatchRecoveryValidator
         IReadOnlyList<RecoveredEvent> events,
         IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
         MatchState? authoritativeState = null,
-        long? currentTick = null)
+        long? currentTick = null,
+        MatchReplayFrame? spectatorReplayFrame = null)
     {
         var errors = new List<string>();
 
@@ -455,6 +456,13 @@ public static class MatchRecoveryValidator
         ValidatePlayerViews(lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
         ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
+        ValidateSpectatorReplayFrame(
+            roomId,
+            lastEventSequence,
+            currentTick,
+            authoritativeState,
+            spectatorReplayFrame,
+            errors);
 
         return errors;
     }
@@ -648,6 +656,60 @@ public static class MatchRecoveryValidator
             {
                 errors.Add($"snapshot for {view.PlayerId} disagrees with authoritative state seats");
             }
+        }
+    }
+
+    private static void ValidateSpectatorReplayFrame(
+        string roomId,
+        long lastEventSequence,
+        long? currentTick,
+        MatchState? authoritativeState,
+        MatchReplayFrame? spectatorReplayFrame,
+        List<string> errors)
+    {
+        if (spectatorReplayFrame is null)
+        {
+            return;
+        }
+
+        if (authoritativeState is null)
+        {
+            errors.Add("spectator replay frame requires authoritative state");
+            return;
+        }
+
+        if (!string.Equals(spectatorReplayFrame.RoomId, roomId, StringComparison.Ordinal))
+        {
+            errors.Add($"spectator replay frame room {spectatorReplayFrame.RoomId} does not match recovery room {roomId}");
+        }
+
+        if (spectatorReplayFrame.EventSequence != lastEventSequence)
+        {
+            errors.Add(
+                $"spectator replay frame event sequence {spectatorReplayFrame.EventSequence} does not match recovery sequence {lastEventSequence}");
+        }
+
+        if (spectatorReplayFrame.Tick != authoritativeState.Tick)
+        {
+            errors.Add(
+                $"spectator replay frame tick {spectatorReplayFrame.Tick} does not match authoritative state tick {authoritativeState.Tick}");
+        }
+
+        if (currentTick is { } expectedTick && spectatorReplayFrame.Tick != expectedTick)
+        {
+            errors.Add($"spectator replay frame tick {spectatorReplayFrame.Tick} does not match recovery tick {expectedTick}");
+        }
+
+        var expectedHash = MatchStateHasher.Hash(authoritativeState);
+        if (!string.Equals(spectatorReplayFrame.AuthoritativeStateHash, expectedHash, StringComparison.Ordinal))
+        {
+            errors.Add("spectator replay frame hash does not match authoritative state hash");
+        }
+
+        if (spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("seed")
+            || spectatorReplayFrame.SpectatorSnapshot.Timing.ContainsKey("rngCursor"))
+        {
+            errors.Add("spectator replay frame timing leaks random state");
         }
     }
 
