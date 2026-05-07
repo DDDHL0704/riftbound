@@ -3062,6 +3062,43 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineTapsBasicRuneAndReconcilesObjectLocation()
+    {
+        const string runeObjectId = "P1-RUNE-RED-TAP";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-tap-location", "P1", "TAP_RUNE"),
+            new TapRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("BASE", result.State.ObjectLocations[runeObjectId].Zone);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsRecycleRuneSourceWithoutCardNo()
     {
         const string runeObjectId = "P1-RUNE-UNKNOWN-RECYCLE";
@@ -46284,7 +46321,7 @@ public sealed class ConformanceFixtureRunnerTests
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
-                ["P1-LEGEND-JINX"] = new("P1", "LEGEND_ZONE"),
+                ["P1-LEGEND-JINX"] = new("P1", "LEGEND"),
                 ["P1-JINX-DRAW-001"] = new("P1", "MAIN_DECK"),
                 ["P1-JINX-DRAW-002"] = new("P1", "MAIN_DECK")
             });

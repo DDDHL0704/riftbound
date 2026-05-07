@@ -3965,12 +3965,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             Mana = currentPool.Mana + BasicRuneTapManaGain
         };
         runePools[intent.PlayerId] = nextPool;
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones);
 
         var nextState = state with
         {
             Tick = state.Tick + 1,
             CardObjects = cardObjects,
             RunePools = runePools,
+            ObjectLocations = objectLocations,
             PriorityPlayerId = null,
             PassedPriorityPlayerIds = []
         };
