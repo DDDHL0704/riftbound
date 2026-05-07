@@ -35,7 +35,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             commands,
             events,
             playerViews,
-            authoritativeState);
+            authoritativeState,
+            metadata.CurrentTick);
 
         return new MatchRecoveryFrame(
             metadata.RoomId,

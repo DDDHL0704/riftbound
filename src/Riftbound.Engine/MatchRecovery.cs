@@ -161,7 +161,8 @@ public static class MatchRecoveryValidator
         IReadOnlyList<RecoveredCommand> commands,
         IReadOnlyList<RecoveredEvent> events,
         IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
-        MatchState? authoritativeState = null)
+        MatchState? authoritativeState = null,
+        long? currentTick = null)
     {
         var errors = new List<string>();
 
@@ -179,7 +180,7 @@ public static class MatchRecoveryValidator
         ValidateCommands(lastEventSequence, commands, events, errors);
         ValidatePlayerViews(lastEventSequence, playerViews, errors);
         ValidatePlayerViewAgreement(playerViews, errors);
-        ValidateAuthoritativeState(roomId, authoritativeState, playerViews, errors);
+        ValidateAuthoritativeState(roomId, currentTick, authoritativeState, playerViews, errors);
 
         return errors;
     }
@@ -336,6 +337,7 @@ public static class MatchRecoveryValidator
 
     private static void ValidateAuthoritativeState(
         string roomId,
+        long? currentTick,
         MatchState? authoritativeState,
         IReadOnlyDictionary<string, RecoveredPlayerView> playerViews,
         List<string> errors)
@@ -348,6 +350,11 @@ public static class MatchRecoveryValidator
         if (!string.Equals(authoritativeState.RoomId, roomId, StringComparison.Ordinal))
         {
             errors.Add($"authoritative state room {authoritativeState.RoomId} does not match recovery room {roomId}");
+        }
+
+        if (currentTick is { } expectedTick && authoritativeState.Tick != expectedTick)
+        {
+            errors.Add($"authoritative state tick {authoritativeState.Tick} does not match recovery tick {expectedTick}");
         }
 
         foreach (var view in playerViews.Values)

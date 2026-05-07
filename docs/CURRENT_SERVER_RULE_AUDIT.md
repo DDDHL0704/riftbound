@@ -14,6 +14,9 @@
 
 ## 2026-05-07 开发进度更新
 
+- P1-004 第二十二批补充：恢复一致性校验新增 authoritative state tick guard。`PostgresMatchRecoveryStore` 现在把 `matches.current_tick` 传入 `MatchRecoveryValidator`；当持久化的 `state_snapshots.payload.Tick` 与 match metadata current tick 不一致时，恢复帧会被标记不一致，避免 `MatchSession.RestoreState` 静默覆盖 authoritative state tick 并掩盖持久化/重放边界错误。
+- 已补测试：新增 `RecoveryValidatorRejectsAuthoritativeStateTickMismatch` 覆盖 authoritative state tick 与 recovery current tick 不一致时返回明确错误；`MatchRecoveryTests` 目标回归 16/16 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
+- 复审结论补充：本批是 replay/recovery 的一致性护栏，不能等同于完成严格 action-log replay final-state hash。P1-004 仍保留，后续还需要从 command log 重放到最终 state hash，并与实时 authoritative hash 比对。
 - P0-005 第二十一批补充：基础符文现在补齐代表性 `RECYCLE_RUNE` 服务端命令。普通开环中，服务端只会把基地中正面、受控、带 `COLOR:*` 特性的符文作为回收来源公开；提交后符文回到所属者符文牌堆底部，来源重置为未横置/正面，玩家获得 1 点与被回收符文特性相同的 typed power，并广播 `RUNE_RECYCLED` / `POWER_GAINED`。
 - 前端/集成补充：协议类型、行动面板、卡牌详情抽屉和事件日志已接入 `RECYCLE_RUNE`。前端只在服务端 `ActionPrompt.candidates` 暴露合法来源时启用“回收符文”，多来源时仍要求用户点具体卡牌详情提交，不从卡面文本或客户端资源池自行裁决。
 - 已补测试：新增 `CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower` 覆盖横置基础符文可被回收、移入 rune deck、typed power 增加、对象位置同步和事件广播；扩展 `OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖正式 Hub 开局中横置后回收符文的权威路径；同步更新 legacy/java fixture 期望中的 open-main action 列表。
@@ -352,7 +355,7 @@
 
 ### P1-004 隐藏信息与 replay 边界仍需加固
 
-当前状态：**PARTIALLY RESOLVED / 普通 snapshot、spectator replay redaction 与权威状态 hash 已修，严格 action-log replay 仍待补**
+当前状态：**PARTIALLY RESOLVED / 普通 snapshot、spectator replay redaction、权威状态 hash 与 recovery tick 一致性 guard 已修，严格 action-log replay 仍待补**
 
 规则依据：自查文档 2、18；客户端不得得到能预测未来随机信息的私密状态；replay/观战要区分公开信息与玩家私有视角。
 
@@ -360,20 +363,23 @@
 - `src/Riftbound.Engine/MatchSession.cs` 的普通玩家 snapshot 已移除 `seed` 和 `rngCursor`，并新增 `BuildSpectatorSnapshot` 统一观战视角裁剪。
 - `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchReplayRedactor.BuildSpectatorFrame`，从权威 journal entry 生成观战/回放 frame 时不复用任一玩家私有视角。
 - `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchStateHasher`，`MatchReplayFrame.AuthoritativeStateHash` 会携带 canonical SHA-256 状态 hash，供 replay frame 与实时权威状态对账。
+- `src/Riftbound.Engine/MatchRecovery.cs` 的 `MatchRecoveryValidator` 会在调用方提供 recovery current tick 时校验 authoritative state tick；`src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs` 会传入 `matches.current_tick`，避免恢复时静默掩盖 tick 不一致。
 - `src/Riftbound.Engine/MatchSession.cs` 的 `RestoreState` 仍优先恢复 authoritative state；没有 action-log replay 到相同最终状态的独立校验路径。
 
-现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot，并携带稳定的权威状态 hash 用于最终状态对账。剩余风险是 replay 更像恢复快照/权威状态，不是严格的命令日志重放到最终状态的模型。
+现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot，并携带稳定的权威状态 hash 用于最终状态对账。恢复路径也会拒绝 authoritative state tick 与 match metadata current tick 不一致的持久化帧。剩余风险是 replay 更像恢复快照/权威状态，不是严格的命令日志重放到最终状态的模型。
 
 建议修复：
 - 已完成：从普通玩家 snapshot 中移除 seed/rngCursor；如后续需要调试随机状态，应单独走 Development/debug stream，不能复用普通玩家 snapshot。
 - 已完成：从 journal entry 构建 spectator replay frame 时强制使用 spectator redaction。
 - 已完成：replay frame 携带 canonical authoritative state hash，用于最终状态一致性校验。
+- 已完成：recovery store 传入 current tick 后，validator 会拒绝 authoritative state tick 不一致的恢复帧。
 - 建立 action log replay：从初始公开/私有边界 + 命令日志重放到最终 authoritative state，并输出 spectator frame。
 
 建议测试：
 - 已新增：玩家 snapshot 不含 seed/rngCursor。
 - 已新增：spectator replay 不泄露手牌、面朝下内容和未来随机 seed/rngCursor，并携带 64 位 hex authoritative state hash。
 - 已新增：authoritative state hash 对字典插入顺序稳定。
+- 已新增：authoritative state tick 与 recovery current tick 不一致时 recovery validator 返回明确错误。
 - 待补：真正 action log replay 后的 final state hash 等于实时 state hash。
 
 ## P2 问题

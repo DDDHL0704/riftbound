@@ -341,6 +341,34 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public void RecoveryValidatorRejectsAuthoritativeStateTickMismatch()
+    {
+        var authoritativeState = new MatchState(
+            "room-a",
+            3,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+
+        var errors = MatchRecoveryValidator.Validate(
+            "room-a",
+            0,
+            [],
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            authoritativeState,
+            currentTick: 4);
+
+        Assert.Contains(
+            errors,
+            error => error.Contains("authoritative state tick 3 does not match recovery tick 4", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void MatchStateHashIsStableAcrossDictionaryInsertionOrder()
     {
         var first = new MatchState(
