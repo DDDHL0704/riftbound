@@ -1,7 +1,7 @@
 import { Check, Play, X } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand } from "../../types/protocol";
-import { costText, keywordsText, promptActionLabel, statusLabel } from "../../utils/formatters";
+import { costText, keywordsText, objectTypeText, promptActionLabel, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -37,7 +37,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
           <Button icon={<X size={18} />} onClick={onClose} variant="ghost">关闭</Button>
         </header>
         <div className="detail-section">
-          <StatusPill tone={hidden ? "warn" : "info"}>{hidden ? "隐藏信息" : card.spec?.cardCategoryName ?? "公开对象"}</StatusPill>
+          <StatusPill tone={hidden ? "warn" : "info"}>{hidden ? "隐藏信息" : objectTypeText(card.object, card.spec)}</StatusPill>
           <StatusPill tone="neutral">{card.spec?.cardNo ?? card.object?.cardNo ?? card.objectId ?? "无编号"}</StatusPill>
           {card.spec && <StatusPill tone={card.spec.conformanceTier === "full-official-rule-pass" ? "good" : "warn"}>{statusLabel(card.spec.status)}</StatusPill>}
         </div>
@@ -121,6 +121,18 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                     if (candidate.action === "ASSEMBLE_EQUIPMENT") {
                       return (
                         <AssembleEquipmentComposer
+                          candidate={candidate}
+                          key={candidate.action}
+                          onClose={onClose}
+                          onCommand={onCommand}
+                          sourceObjectId={sourceObjectId}
+                        />
+                      );
+                    }
+
+                    if (candidate.action === "ACTIVATE_ABILITY") {
+                      return (
+                        <ActivateAbilityComposer
                           candidate={candidate}
                           key={candidate.action}
                           onClose={onClose}
@@ -233,6 +245,27 @@ type AssembleEquipmentSourceRequirement = {
   optionalCostChoices: ActionPromptChoiceDto[];
   requiredOptionalCosts: string[];
   powerCost: number;
+  composable: boolean;
+  unsupportedReason?: string;
+};
+
+type ActivateAbilitySourceRequirement = {
+  sourceObjectId: string;
+  cardNo: string;
+  abilityId: string;
+  displayName: string;
+  abilityLabel: string;
+  manaCost: number;
+  powerCost: number;
+  minTargetCount: number;
+  maxTargetCount: number;
+  targetCountLabel: string;
+  targetScopeLabel: string;
+  targetChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
+  optionalCostChoices: ActionPromptChoiceDto[];
+  requiredOptionalCosts: string[];
+  exhaustsSource: boolean;
+  resolvesImmediately: boolean;
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -730,6 +763,202 @@ function AssembleEquipmentComposer({
   );
 }
 
+function ActivateAbilityComposer({
+  candidate,
+  onClose,
+  onCommand,
+  sourceObjectId
+}: {
+  candidate: ActionPromptCandidateDto;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  sourceObjectId?: string;
+}) {
+  const requirements = useMemo(
+    () => activateAbilityRequirementsFor(candidate, sourceObjectId),
+    [candidate, sourceObjectId]
+  );
+  const [selectedAbilityId, setSelectedAbilityId] = useState<string>("");
+  const [targetSelections, setTargetSelections] = useState<Record<number, string>>({});
+  const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (requirements.length === 0) {
+      setSelectedAbilityId("");
+      return;
+    }
+
+    const hasCurrentAbility = requirements.some((requirement) => requirement.abilityId === selectedAbilityId);
+    if (!hasCurrentAbility) {
+      setSelectedAbilityId(requirements[0].abilityId);
+    }
+  }, [requirements, selectedAbilityId]);
+
+  const selectedRequirement = requirements.find((requirement) => requirement.abilityId === selectedAbilityId) ?? requirements[0];
+  const requirementKey = selectedRequirement
+    ? `${selectedRequirement.sourceObjectId}:${selectedRequirement.abilityId}`
+    : "";
+
+  useEffect(() => {
+    setTargetSelections({});
+    setOptionalCosts([]);
+  }, [requirementKey]);
+
+  if (!sourceObjectId) {
+    return (
+      <article className="play-card-composer">
+        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造能力命令。</p>
+      </article>
+    );
+  }
+
+  if (requirements.length === 0 || !selectedRequirement) {
+    return (
+      <article className="play-card-composer">
+        <div className="composer-heading">
+          <strong>{promptActionLabel(candidate)}</strong>
+          <span>{candidate.reason}</span>
+        </div>
+        <p className="detail-muted">服务端尚未为这张牌提供可提交的激活能力约束。</p>
+      </article>
+    );
+  }
+
+  const targetSlots = Array.from({ length: selectedRequirement.maxTargetCount }, (_, index) => index);
+  const orderedTargets = targetSlots
+    .map((targetIndex) => targetSelections[targetIndex])
+    .filter((targetId): targetId is string => Boolean(targetId));
+  const hasTargetGap = targetSlots.some((targetIndex) =>
+    !targetSelections[targetIndex] && targetSlots.slice(targetIndex + 1).some((laterIndex) => Boolean(targetSelections[laterIndex])));
+  const missingRequiredTargetChoice = targetSlots
+    .slice(0, selectedRequirement.minTargetCount)
+    .some((targetIndex) => (selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? []).length === 0);
+  const targetCountValid = orderedTargets.length >= selectedRequirement.minTargetCount
+    && orderedTargets.length <= selectedRequirement.maxTargetCount
+    && !hasTargetGap
+    && !missingRequiredTargetChoice;
+  const requiredCosts = selectedRequirement.requiredOptionalCosts;
+  const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) => !requiredCosts.includes(choice.id));
+  const requiredCostLabels = requiredCosts.map((cost) =>
+    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+  const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts]);
+  const canSubmit = Boolean(
+    candidate.enabled
+    && selectedRequirement.composable
+    && targetCountValid
+    && onCommand
+  );
+
+  return (
+    <article className="play-card-composer">
+      <div className="composer-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{candidate.reason}</span>
+      </div>
+      <div className="composer-meta">
+        <span>{selectedRequirement.displayName}</span>
+        <span>法力 {selectedRequirement.manaCost}</span>
+        <span>符能 {selectedRequirement.powerCost}</span>
+        <span>目标 {selectedRequirement.targetCountLabel} 个</span>
+        {selectedRequirement.exhaustsSource && <span>横置来源</span>}
+        {selectedRequirement.resolvesImmediately && <span>立即结算</span>}
+      </div>
+      {requirements.length > 1 && (
+        <ChoiceGroup label="能力">
+          {requirements.map((requirement) => (
+            <ChoiceButton
+              active={requirement.abilityId === selectedAbilityId}
+              key={`${requirement.sourceObjectId}-${requirement.abilityId}`}
+              onClick={() => setSelectedAbilityId(requirement.abilityId)}
+            >
+              {requirement.abilityLabel}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      <div className="composer-meta">
+        <span>{selectedRequirement.abilityLabel}</span>
+        <span>{selectedRequirement.targetScopeLabel}</span>
+      </div>
+      {targetSlots.map((targetIndex) => {
+        const choices = selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? [];
+        const required = targetIndex < selectedRequirement.minTargetCount;
+        return (
+          <ChoiceGroup key={targetIndex} label={`目标 ${targetIndex + 1}${required ? "" : "（可选）"}`}>
+            {!required && (
+              <ChoiceButton
+                active={!targetSelections[targetIndex]}
+                onClick={() => setTargetSelections((current) => withoutTargetAt(current, targetIndex))}
+              >
+                不选择
+              </ChoiceButton>
+            )}
+            {choices.length === 0 && <span className="composer-warning">服务端没有给出该目标槽候选。</span>}
+            {choices.map((choice) => (
+              <ChoiceButton
+                active={targetSelections[targetIndex] === choice.id}
+                key={choice.id}
+                onClick={() => setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
+                title={choice.reason ?? undefined}
+              >
+                {choice.label}
+              </ChoiceButton>
+            ))}
+          </ChoiceGroup>
+        );
+      })}
+      {requiredCosts.length > 0 && (
+        <div className="composer-meta">
+          {requiredCostLabels.map((costLabel) => (
+            <span key={costLabel}>费用 {costLabel}</span>
+          ))}
+        </div>
+      )}
+      {optionalChoices.length > 0 && (
+        <ChoiceGroup label="可选费用">
+          {optionalChoices.map((choice) => (
+            <ChoiceButton
+              active={optionalCosts.includes(choice.id)}
+              key={choice.id}
+              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {!selectedRequirement.composable && (
+        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该能力当前不能由前端组合提交。"}</p>
+      )}
+      {!targetCountValid && selectedRequirement.composable && (
+        <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
+      )}
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => {
+          if (!canSubmit || !onCommand) {
+            return;
+          }
+
+          onCommand({
+            cmdType: "ACTIVATE_ABILITY",
+            sourceObjectId,
+            abilityId: selectedRequirement.abilityId,
+            targetObjectIds: orderedTargets,
+            optionalCosts: commandOptionalCosts.length > 0 ? commandOptionalCosts : undefined
+          });
+          onClose();
+        }}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        确认激活
+      </Button>
+    </article>
+  );
+}
+
 function ChoiceGroup({ children, label }: { children: ReactNode; label: string }) {
   return (
     <div className="composer-choice-group">
@@ -814,6 +1043,59 @@ function assembleEquipmentRequirementsFor(
     .map(parseAssembleEquipmentRequirement)
     .filter((requirement): requirement is AssembleEquipmentSourceRequirement =>
       Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function activateAbilityRequirementsFor(
+  candidate: ActionPromptCandidateDto,
+  sourceObjectId?: string
+): ActivateAbilitySourceRequirement[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const rawRequirements = candidate.metadata?.sourceRequirements;
+  if (!Array.isArray(rawRequirements)) {
+    return [];
+  }
+
+  return rawRequirements
+    .map(parseActivateAbilityRequirement)
+    .filter((requirement): requirement is ActivateAbilitySourceRequirement =>
+      Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function parseActivateAbilityRequirement(value: unknown): ActivateAbilitySourceRequirement | undefined {
+  const record = asRecord(value);
+  if (!record) {
+    return undefined;
+  }
+
+  const sourceObjectId = stringField(record, "sourceObjectId");
+  const abilityId = stringField(record, "abilityId");
+  if (!sourceObjectId || !abilityId) {
+    return undefined;
+  }
+
+  return {
+    sourceObjectId,
+    cardNo: stringField(record, "cardNo"),
+    abilityId,
+    displayName: stringField(record, "displayName") || abilityId,
+    abilityLabel: stringField(record, "abilityLabel") || abilityId,
+    manaCost: numberField(record, "manaCost"),
+    powerCost: numberField(record, "powerCost"),
+    minTargetCount: numberField(record, "minTargetCount"),
+    maxTargetCount: numberField(record, "maxTargetCount"),
+    targetCountLabel: stringField(record, "targetCountLabel") || "0",
+    targetScopeLabel: stringField(record, "targetScopeLabel") || "服务端目标",
+    targetChoicesByIndex: choiceRecord(record.targetChoicesByIndex),
+    optionalCostChoices: choiceList(record.optionalCostChoices),
+    requiredOptionalCosts: stringList(record.requiredOptionalCosts),
+    exhaustsSource: booleanField(record, "exhaustsSource"),
+    resolvesImmediately: booleanField(record, "resolvesImmediately"),
+    composable: booleanField(record, "composable", true),
+    unsupportedReason: nullableStringField(record, "unsupportedReason")
+  };
 }
 
 function parseAssembleEquipmentRequirement(value: unknown): AssembleEquipmentSourceRequirement | undefined {

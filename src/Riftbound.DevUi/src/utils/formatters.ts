@@ -1,5 +1,5 @@
 import { BehaviorSpec } from "../types/catalog";
-import { ActionPromptCandidateDto, RunePoolView } from "../types/protocol";
+import { ActionPromptCandidateDto, CardObjectView, RunePoolView } from "../types/protocol";
 
 export function costText(spec?: BehaviorSpec): string {
   if (!spec) {
@@ -21,6 +21,31 @@ export function keywordsText(spec?: BehaviorSpec): string {
   }
 
   return spec.keywords.map((keyword) => keyword.value ? `${keyword.keyword} ${keyword.value}` : keyword.keyword).join("、");
+}
+
+export function objectTypeText(object?: CardObjectView, spec?: BehaviorSpec): string {
+  const tags = object?.tags ?? [];
+  if (tags.includes("CARD_TYPE:UNIT")) {
+    return "单位";
+  }
+
+  if (tags.includes("CARD_TYPE:EQUIPMENT")) {
+    return "装备";
+  }
+
+  if (tags.includes("CARD_TYPE:BATTLEFIELD")) {
+    return "战场";
+  }
+
+  if (tags.includes("CARD_TYPE:RUNE")) {
+    return "符文";
+  }
+
+  if (tags.includes("CARD_TYPE:SPELL")) {
+    return "法术";
+  }
+
+  return spec?.cardCategoryName ?? "对象";
 }
 
 export function conformanceLabel(tier?: string): string {

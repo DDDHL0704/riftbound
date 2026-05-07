@@ -2071,6 +2071,25 @@ internal static class ActionPromptBuilder
         int PowerCost,
         bool Composable,
         string? UnsupportedReason);
+
+    private sealed record ActivateAbilityPromptRequirement(
+        string SourceObjectId,
+        string CardNo,
+        string AbilityId,
+        string DisplayName,
+        string AbilityLabel,
+        int ManaCost,
+        int PowerCost,
+        int MinTargetCount,
+        int MaxTargetCount,
+        string TargetScopeLabel,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<string> RequiredOptionalCosts,
+        bool ExhaustsSource,
+        bool ResolvesImmediately,
+        bool Composable,
+        string? UnsupportedReason);
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
@@ -2227,9 +2246,9 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsTapRuneSource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "ready controlled base rune"))
                 .ToArray(),
-            "ACTIVATE_ABILITY" => zones.Base
-                .Concat(zones.Battlefields)
-                .Where(objectId => IsImplementedActivatedAbilitySource(state, playerId, objectId))
+            "ACTIVATE_ABILITY" => ActivateAbilitySourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented activated ability source"))
                 .ToArray(),
             "MOVE_UNIT" => MoveUnitSourceRequirements(state, playerId)
@@ -2457,6 +2476,226 @@ internal static class ActionPromptBuilder
             && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && !cardObject.IsExhausted;
+    }
+
+    private static IReadOnlyList<ActivateAbilityPromptRequirement> ActivateAbilitySourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .SelectMany(objectId => ActivateAbilityRequirementsForSource(state, playerId, objectId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActivateAbilityPromptRequirement> ActivateAbilityRequirementsForSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
+            || !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown)
+        {
+            return [];
+        }
+
+        var requirements = new List<ActivateAbilityPromptRequirement>();
+        foreach (var ability in P4ActivatedAbilityCatalog.GetAll())
+        {
+            if (!string.Equals(cardObject.CardNo, ability.SourceCardNo, StringComparison.Ordinal)
+                || (ability.RequiresBattlefieldSource && !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal))
+                || (ability.ExhaustsSourceAsCost && cardObject.IsExhausted))
+            {
+                continue;
+            }
+
+            var targetChoicesByIndex = ActivateAbilityTargetChoicesByIndex(state, playerId, ability);
+            if (ability.RequiredTargetCount > 0
+                && Enumerable.Range(0, ability.RequiredTargetCount)
+                    .Any(index => !targetChoicesByIndex.TryGetValue(index.ToString(System.Globalization.CultureInfo.InvariantCulture), out var choices)
+                        || choices.Count == 0))
+            {
+                continue;
+            }
+
+            requirements.Add(new ActivateAbilityPromptRequirement(
+                sourceObjectId,
+                ability.SourceCardNo,
+                ability.AbilityId,
+                ActivateAbilityDisplayName(ability),
+                ActivateAbilityLabel(ability),
+                ability.ManaCost,
+                ability.PowerCost,
+                ability.RequiredTargetCount,
+                ability.RequiredTargetCount,
+                ActivateAbilityTargetScopeLabel(ability),
+                targetChoicesByIndex,
+                [],
+                [],
+                ability.ExhaustsSourceAsCost,
+                false,
+                true,
+                null));
+        }
+
+        if (zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
+            && !cardObject.IsExhausted
+            && BattlefieldGrantUnitExperienceObjectId(state, playerId, sourceObjectId) is not null)
+        {
+            requirements.Add(new ActivateAbilityPromptRequirement(
+                sourceObjectId,
+                cardObject.CardNo ?? string.Empty,
+                BattlefieldUnitGainExperienceAbilityId,
+                "蜕变花园授予能力",
+                "横置：获得 1 经验",
+                0,
+                0,
+                0,
+                0,
+                "无目标",
+                new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal),
+                [],
+                [],
+                true,
+                true,
+                true,
+                null));
+        }
+
+        return requirements
+            .Where(requirement => CanPayActivateAbilityRequirement(state, playerId, requirement))
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> ActivateAbilityTargetChoicesByIndex(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability)
+    {
+        if (ability.RequiredTargetCount == 0)
+        {
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        if (string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal))
+        {
+            var choices = PublicBoardObjects(state)
+                .Where(objectId => IsPromptFieldUnitObject(state, objectId))
+                .Where(objectId => CanPayXerathTargetCost(state, playerId, ability, objectId))
+                .Select(objectId => ObjectChoice(
+                    state,
+                    objectId,
+                    IsPromptEnemyFieldObject(state, playerId, objectId)
+                        && state.CardObjects.TryGetValue(objectId, out var targetState)
+                        && CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags) > 0
+                            ? "unit target with spellshield tax"
+                            : "unit target"))
+                .ToArray();
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+            {
+                ["0"] = choices
+            };
+        }
+
+        return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+    }
+
+    private static bool CanPayXerathTargetCost(
+        MatchState state,
+        string playerId,
+        P4ActivatedAbilityDefinition ability,
+        string targetObjectId)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return CanPayManaAndAnyPower(
+            runePool,
+            SpellshieldTaxManaForTarget(state, playerId, targetObjectId),
+            ability.PowerCost);
+    }
+
+    private static bool CanPayActivateAbilityRequirement(
+        MatchState state,
+        string playerId,
+        ActivateAbilityPromptRequirement requirement)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        return CanPayManaAndAnyPower(runePool, requirement.ManaCost, requirement.PowerCost);
+    }
+
+    private static bool CanPayManaAndAnyPower(RunePool runePool, int manaCost, int powerCost)
+    {
+        return manaCost >= 0
+            && powerCost >= 0
+            && runePool.Mana >= manaCost
+            && runePool.TotalPower >= powerCost;
+    }
+
+    private static string ActivateAbilityDisplayName(P4ActivatedAbilityDefinition ability)
+    {
+        return ability.AbilityId switch
+        {
+            P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚",
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯",
+            _ => ability.DisplayName
+        };
+    }
+
+    private static string ActivateAbilityLabel(P4ActivatedAbilityDefinition ability)
+    {
+        return ability.AbilityId switch
+        {
+            P4ActivatedAbilityCatalog.ViDoublePowerAbilityId => "蔚：支付 2 法力和 1 符能，战力翻倍",
+            P4ActivatedAbilityCatalog.XerathDamageAbilityId => "泽拉斯：横置并支付符能，造成 3 点伤害",
+            _ => ability.DisplayName
+        };
+    }
+
+    private static string ActivateAbilityTargetScopeLabel(P4ActivatedAbilityDefinition ability)
+    {
+        return ability.RequiredTargetCount == 0
+            ? "无目标"
+            : string.Equals(ability.AbilityId, P4ActivatedAbilityCatalog.XerathDamageAbilityId, StringComparison.Ordinal)
+                ? "任意场上单位"
+                : "服务端目标";
+    }
+
+    private static int SpellshieldTaxManaForTarget(MatchState state, string playerId, string targetObjectId)
+    {
+        return IsPromptEnemyFieldObject(state, playerId, targetObjectId)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            ? CardResourceKeywordRules.SpellshieldTaxFromTags(targetState.Tags)
+            : 0;
+    }
+
+    private static string? BattlefieldGrantUnitExperienceObjectId(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return null;
+        }
+
+        return zones.Battlefields.FirstOrDefault(battlefieldObjectId =>
+            !string.Equals(battlefieldObjectId, sourceObjectId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+            && string.Equals(battlefieldState.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
+            && (string.IsNullOrWhiteSpace(battlefieldState.ControllerId)
+                || string.Equals(battlefieldState.ControllerId, playerId, StringComparison.Ordinal)));
     }
 
     private static IReadOnlyList<AssembleEquipmentPromptRequirement> AssembleEquipmentSourceRequirements(
@@ -2918,8 +3157,11 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardTargetChoices(state, playerId),
-            "ACTIVATE_ABILITY" => PublicBoardObjects(state)
-                .Select(objectId => ObjectChoice(state, objectId, "server validates ability target scope on submit"))
+            "ACTIVATE_ABILITY" => ActivateAbilitySourceRequirements(state, playerId)
+                .SelectMany(requirement => requirement.TargetChoicesByIndex.Values)
+                .SelectMany(choices => choices)
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
                 .ToArray(),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentSourceRequirements(state, playerId)
                 .SelectMany(requirement => requirement.TargetChoices)
@@ -3009,11 +3251,7 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardModeChoices(state, playerId),
-            "ACTIVATE_ABILITY" => [
-                new ActionPromptChoiceDto("PAY_2_RED_DOUBLE_POWER", "蔚：支付 2 法力和 1 符能，战力翻倍"),
-                new ActionPromptChoiceDto("PAY_RED_EXHAUST_DAMAGE_3", "泽拉斯：横置并支付符能，造成 3 点伤害"),
-                new ActionPromptChoiceDto(BattlefieldUnitGainExperienceAbilityId, "蜕变花园：横置单位，获得 1 经验")
-            ],
+            "ACTIVATE_ABILITY" => ActivateAbilityModeChoices(state, playerId),
             "LEGEND_ACT" => [
                 new ActionPromptChoiceDto("LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT", "支付 2 并横置：移动友方单位"),
                 new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_GRANT_BOON", "支付 1 并横置：给予友方单位增益"),
@@ -3047,6 +3285,18 @@ internal static class ActionPromptBuilder
             .Where(mode => !string.IsNullOrWhiteSpace(mode))
             .Distinct(StringComparer.Ordinal)
             .Select(mode => new ActionPromptChoiceDto(mode, PlayCardModeLabel(mode)))
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? ActivateAbilityModeChoices(MatchState state, string playerId)
+    {
+        var choices = ActivateAbilitySourceRequirements(state, playerId)
+            .GroupBy(requirement => requirement.AbilityId, StringComparer.Ordinal)
+            .Select(group => new ActionPromptChoiceDto(
+                group.Key,
+                group.First().AbilityLabel,
+                "server-filtered implemented ability"))
             .ToArray();
         return choices.Length == 0 ? null : choices;
     }
@@ -3202,12 +3452,7 @@ internal static class ActionPromptBuilder
                 ["sourcePolicy"] = "ready-controlled-base-rune",
                 ["resourceGain"] = "1-mana"
             },
-            "ACTIVATE_ABILITY" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "implemented-activated-ability-only",
-                ["abilityPolicy"] = "server-validates-activated-ability-on-submit",
-                ["targetPolicy"] = "server-validates-ability-target-scope-on-submit"
-            },
+            "ACTIVATE_ABILITY" => ActivateAbilityMetadataFor(state, playerId),
             "MOVE_UNIT" => MoveUnitMetadataFor(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
             "DECLARE_BATTLE" => new Dictionary<string, object?>
@@ -3227,6 +3472,49 @@ internal static class ActionPromptBuilder
                 ["abilityPolicy"] = "server-validates-legend-ability-on-submit"
             },
             _ => null
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> ActivateAbilityMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = ActivateAbilitySourceRequirements(state, playerId)
+            .Select(ActivateAbilitySourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-activated-ability-only",
+            ["abilityPolicy"] = "source-specific-server-filtered-abilities",
+            ["targetPolicy"] = "source-specific-server-filtered-targets",
+            ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> ActivateAbilitySourceRequirementView(
+        ActivateAbilityPromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["cardNo"] = requirement.CardNo,
+            ["abilityId"] = requirement.AbilityId,
+            ["displayName"] = requirement.DisplayName,
+            ["abilityLabel"] = requirement.AbilityLabel,
+            ["manaCost"] = requirement.ManaCost,
+            ["powerCost"] = requirement.PowerCost,
+            ["minTargetCount"] = requirement.MinTargetCount,
+            ["maxTargetCount"] = requirement.MaxTargetCount,
+            ["targetCountLabel"] = requirement.MinTargetCount == requirement.MaxTargetCount
+                ? requirement.MaxTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : $"{requirement.MinTargetCount}-{requirement.MaxTargetCount}",
+            ["targetScopeLabel"] = requirement.TargetScopeLabel,
+            ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["exhaustsSource"] = requirement.ExhaustsSource,
+            ["resolvesImmediately"] = requirement.ResolvesImmediately,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 
@@ -3491,31 +3779,7 @@ internal static class ActionPromptBuilder
         string playerId,
         string objectId)
     {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones)
-            || !state.CardObjects.TryGetValue(objectId, out var cardObject)
-            || !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
-            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
-        {
-            return false;
-        }
-
-        var p4Source = P4ActivatedAbilityCatalog.GetAll().Any(ability =>
-            string.Equals(cardObject.CardNo, ability.SourceCardNo, StringComparison.Ordinal)
-            && (!ability.RequiresBattlefieldSource || zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
-            && (!ability.ExhaustsSourceAsCost || !cardObject.IsExhausted));
-        if (p4Source)
-        {
-            return true;
-        }
-
-        return zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
-            && !cardObject.IsExhausted
-            && zones.Battlefields.Any(battlefieldObjectId =>
-                !string.Equals(battlefieldObjectId, objectId, StringComparison.Ordinal)
-                && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
-                && string.Equals(battlefieldState.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
-                && (string.IsNullOrWhiteSpace(battlefieldState.ControllerId)
-                    || string.Equals(battlefieldState.ControllerId, playerId, StringComparison.Ordinal)));
+        return ActivateAbilityRequirementsForSource(state, playerId, objectId).Count > 0;
     }
 
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)

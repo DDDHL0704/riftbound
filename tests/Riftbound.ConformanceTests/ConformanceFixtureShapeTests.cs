@@ -1123,6 +1123,147 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptActivateAbilityMetadataFiltersSourcesTargetsAndSpellshieldTax()
+    {
+        var noResourceState = new MatchState(
+            "prompt-activate-ability-room",
+            17,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"],
+                    Battlefields = ["P1-UNIT-XERATH"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT", "P2-SPELLSHIELD-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    cardNo: "UNL-030/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-XERATH"] = new(
+                    "P1-UNIT-XERATH",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT"] = new(
+                    "P2-UNIT",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-SPELLSHIELD-UNIT"] = new(
+                    "P2-SPELLSHIELD-UNIT",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var noResourcePrompt = ResolutionResult.BuildPrompts(noResourceState)["P1"];
+        var noResourceCandidate = Assert.Single(
+            noResourcePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.False(noResourceCandidate.Enabled);
+        Assert.Empty(noResourceCandidate.Sources ?? []);
+
+        var payableState = noResourceState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payableCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.True(payableCandidate.Enabled);
+        Assert.Equal(["P1-UNIT-VI", "P1-UNIT-XERATH"], (payableCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            ["PAY_2_RED_DOUBLE_POWER", "PAY_RED_EXHAUST_DAMAGE_3"],
+            (payableCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Equal(
+            ["P1-UNIT-VI", "P1-UNIT-XERATH", "P2-UNIT", "P2-SPELLSHIELD-UNIT"],
+            (payableCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(payableCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        Assert.Equal(2, sourceRequirements.Length);
+        var viRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["abilityId"]), "PAY_2_RED_DOUBLE_POWER", StringComparison.Ordinal));
+        Assert.Equal("P1-UNIT-VI", Assert.IsType<string>(viRequirement["sourceObjectId"]));
+        Assert.Equal(2, Assert.IsType<int>(viRequirement["manaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(viRequirement["powerCost"]));
+        Assert.Equal(0, Assert.IsType<int>(viRequirement["minTargetCount"]));
+        Assert.Equal(0, Assert.IsType<int>(viRequirement["maxTargetCount"]));
+        Assert.True(Assert.IsType<bool>(viRequirement["composable"]));
+
+        var xerathRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["abilityId"]), "PAY_RED_EXHAUST_DAMAGE_3", StringComparison.Ordinal));
+        Assert.Equal("P1-UNIT-XERATH", Assert.IsType<string>(xerathRequirement["sourceObjectId"]));
+        Assert.Equal(0, Assert.IsType<int>(xerathRequirement["manaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(xerathRequirement["powerCost"]));
+        Assert.Equal(1, Assert.IsType<int>(xerathRequirement["minTargetCount"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            xerathRequirement["targetChoicesByIndex"]);
+        Assert.Equal(
+            ["P1-UNIT-VI", "P1-UNIT-XERATH", "P2-UNIT", "P2-SPELLSHIELD-UNIT"],
+            targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+
+        var noSpellshieldTaxManaState = noResourceState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var noSpellshieldTaxManaCandidate = Assert.Single(
+            ResolutionResult.BuildPrompts(noSpellshieldTaxManaState)["P1"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        var noTaxMetadata = Assert.IsType<Dictionary<string, object?>>(noSpellshieldTaxManaCandidate.Metadata);
+        var noTaxRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            noTaxMetadata["sourceRequirements"]);
+        var noTaxXerath = Assert.Single(noTaxRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["abilityId"]), "PAY_RED_EXHAUST_DAMAGE_3", StringComparison.Ordinal));
+        var noTaxTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            noTaxXerath["targetChoicesByIndex"]);
+        Assert.Equal(
+            ["P1-UNIT-VI", "P1-UNIT-XERATH", "P2-UNIT"],
+            noTaxTargetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void MatchStateExposesTurnWindowSpellDuelAndBattleViews()
     {
         var state = new MatchState(

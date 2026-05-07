@@ -1,5 +1,5 @@
 import { BehaviorSpec } from "../../types/catalog";
-import { SnapshotDto } from "../../types/protocol";
+import { CardObjectView, SnapshotDto } from "../../types/protocol";
 import { asArray, asRecord, asString } from "../../utils/collections";
 import { CardFace, InspectedCard } from "../cards/CardFace";
 import { StatusPill } from "../ui/StatusPill";
@@ -7,6 +7,7 @@ import { StatusPill } from "../ui/StatusPill";
 export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectCard: (card: InspectedCard) => void; snapshot?: SnapshotDto; specs: Record<string, BehaviorSpec> }) {
   const lanes = asRecord(snapshot?.lanes);
   const battlefields = asArray<Record<string, unknown>>(lanes.battlefields);
+  const objects = objectIndex(snapshot);
 
   return (
     <section className="battlefield-area">
@@ -45,14 +46,15 @@ export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectC
                 spec={specs[cardNo]}
               />
               <div className="battlefield-occupants">
-                <div>
-                  <strong>单位</strong>
-                  <span>{occupants.length ? occupants.join("、") : "无"}</span>
-                </div>
-                <div>
-                  <strong>待命</strong>
-                  <span>{standby.length ? standby.join("、") : `${field.faceDownStandbyCount ?? 0} 张面朝下`}</span>
-                </div>
+                <BattlefieldObjectStrip ids={occupants} label="单位" objects={objects} onInspectCard={onInspectCard} specs={specs} />
+                <BattlefieldObjectStrip
+                  emptyText={`${field.faceDownStandbyCount ?? 0} 张面朝下`}
+                  ids={standby}
+                  label="待命"
+                  objects={objects}
+                  onInspectCard={onInspectCard}
+                  specs={specs}
+                />
               </div>
             </article>
           );
@@ -60,4 +62,57 @@ export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectC
       </div>
     </section>
   );
+}
+
+function BattlefieldObjectStrip({
+  emptyText = "无",
+  ids,
+  label,
+  objects,
+  onInspectCard,
+  specs
+}: {
+  emptyText?: string;
+  ids: string[];
+  label: string;
+  objects: Record<string, CardObjectView>;
+  onInspectCard: (card: InspectedCard) => void;
+  specs: Record<string, BehaviorSpec>;
+}) {
+  return (
+    <div>
+      <strong>{label}</strong>
+      {ids.length === 0 ? (
+        <span>{emptyText}</span>
+      ) : (
+        <div className="battlefield-object-row">
+          {ids.map((id) => {
+            const object = objects[id];
+            return object ? (
+              <CardFace
+                compact
+                key={id}
+                object={object}
+                objectId={id}
+                onInspect={onInspectCard}
+                spec={object.cardNo ? specs[object.cardNo] : undefined}
+              />
+            ) : (
+              <span className="empty-hint" key={id}>{id}</span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function objectIndex(snapshot?: SnapshotDto): Record<string, CardObjectView> {
+  const indexed: Record<string, CardObjectView> = {};
+  for (const player of Object.values(snapshot?.players ?? {})) {
+    for (const [objectId, object] of Object.entries(player.objects ?? {})) {
+      indexed[objectId] = object;
+    }
+  }
+  return indexed;
 }

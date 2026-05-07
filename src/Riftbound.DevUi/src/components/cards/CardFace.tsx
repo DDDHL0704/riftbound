@@ -1,6 +1,6 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
-import { costText, keywordsText, statusLabel } from "../../utils/formatters";
+import { costText, keywordsText, objectTypeText, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -46,7 +46,7 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
   return (
     <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`} {...containerProps}>
       <div className="card-frame-top">
-        <span>{spec?.cardCategoryName ?? "对象"}</span>
+        <span>{objectTypeText(object, spec)}</span>
         <span>{spec?.cardNo ?? object?.cardNo ?? objectId}</span>
       </div>
       <strong>{title}</strong>
