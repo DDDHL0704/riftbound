@@ -4518,7 +4518,8 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
-        var effectivePowerWithRecycle = runePool.TotalPower + paymentResourceChoices.Count * BasicRuneRecyclePowerGain;
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior);
+        var effectivePowerWithRecycle = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum();
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -4551,6 +4552,12 @@ internal static class ActionPromptBuilder
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
             choices.Add(new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 符能"));
+            foreach (var trait in PlayCardAvailablePowerTraits(runePool, paymentResourcePowerByTrait))
+            {
+                choices.Add(new ActionPromptChoiceDto(
+                    $"SPEND_POWER:{trait}:1",
+                    $"支付 1 {RuneTraitLabel(trait)}符能"));
+            }
         }
 
         choices.AddRange(paymentResourceChoices);
@@ -4595,6 +4602,88 @@ internal static class ActionPromptBuilder
                     choice.Reason);
             })
             .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!behavior.DamageAmountFromOptionalPowerCost
+            && behavior.HasteReadyPowerCost <= 0)
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost && runePool.TotalPower <= 0
+            || behavior.HasteReadyPowerCost > runePool.TotalPower;
+        if (!needsPaymentResource
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
+        return zones.Base
+            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+            .Select(objectId => state.CardObjects[objectId])
+            .Select(runeState => TryGetRuneTrait(runeState, out var runeTrait) ? runeTrait : string.Empty)
+            .Where(trait => !string.IsNullOrWhiteSpace(trait))
+            .GroupBy(trait => trait, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Count() * BasicRuneRecyclePowerGain,
+                StringComparer.Ordinal);
+    }
+
+    private static IEnumerable<string> PlayCardAvailablePowerTraits(
+        RunePool runePool,
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait)
+    {
+        return runePool.PowerByTrait
+            .Concat(paymentResourcePowerByTrait)
+            .Where(entry => entry.Value > 0)
+            .Select(entry => RuneTrait.Normalize(entry.Key))
+            .Where(trait => !string.IsNullOrWhiteSpace(trait))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(trait => trait, StringComparer.Ordinal);
+    }
+
+    private static bool TryGetRuneTrait(CardObjectState runeState, out string runeTrait)
+    {
+        foreach (var tag in runeState.Tags)
+        {
+            if (!tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var trait = RuneTrait.Normalize(tag["COLOR:".Length..]);
+            if (!string.IsNullOrWhiteSpace(trait))
+            {
+                runeTrait = trait;
+                return true;
+            }
+        }
+
+        runeTrait = string.Empty;
+        return false;
+    }
+
+    private static string RuneTraitLabel(string trait)
+    {
+        return trait switch
+        {
+            RuneTrait.Red => "红色",
+            RuneTrait.Green => "绿色",
+            RuneTrait.Blue => "蓝色",
+            RuneTrait.Yellow => "黄色",
+            RuneTrait.Orange => "橙色",
+            RuneTrait.Purple => "紫色",
+            _ => trait
+        };
     }
 
     private static string PlayCardModeLabel(string mode)

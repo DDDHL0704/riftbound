@@ -1766,6 +1766,8 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["optionalCostChoices"]);
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["paymentResourceChoices"]);
