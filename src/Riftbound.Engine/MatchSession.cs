@@ -4098,8 +4098,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        if (!string.IsNullOrWhiteSpace(cardObject.CardNo)
-            && !string.Equals(cardObject.CardNo, LongSwordCardNo, StringComparison.Ordinal))
+        if (!string.Equals(cardObject.CardNo, LongSwordCardNo, StringComparison.Ordinal))
         {
             return false;
         }
@@ -7861,6 +7860,7 @@ public sealed class MatchSession : IMatchSession
             "spellshield-multiple-tax" => BuildSpellshieldMultipleTaxScenario(current, seed),
             "spellshield-tax-insufficient-prompt" => BuildSpellshieldTaxInsufficientPromptScenario(current, seed),
             "unknown-play-source-prompt" => BuildUnknownPlaySourcePromptScenario(current, seed),
+            "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
@@ -8635,6 +8635,52 @@ public sealed class MatchSession : IMatchSession
                 ["P1-HAND-UNKNOWN-PLAY-SOURCE"] = new(
                     "P1-HAND-UNKNOWN-PLAY-SOURCE",
                     tags: [CardObjectTags.SpellCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownAssembleSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304162,
+            4162,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(0, 0, powerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone: ["P1-EQUIPMENT-UNKNOWN-ASSEMBLE-SOURCE", "P1-UNIT-ASSEMBLE-TARGET"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-UNKNOWN-ASSEMBLE-SOURCE"] = new(
+                    "P1-EQUIPMENT-UNKNOWN-ASSEMBLE-SOURCE",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
