@@ -1,7 +1,15 @@
 import { Check, Play, X } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand } from "../../types/protocol";
-import { costText, keywordsText, objectTypeText, promptActionLabel, statusLabel } from "../../utils/formatters";
+import {
+  conformanceLabel,
+  conformanceTone,
+  costText,
+  keywordsText,
+  objectTypeText,
+  promptActionLabel,
+  statusLabel
+} from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -39,7 +47,8 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
         <div className="detail-section">
           <StatusPill tone={hidden ? "warn" : "info"}>{hidden ? "隐藏信息" : objectTypeText(card.object, card.spec)}</StatusPill>
           <StatusPill tone="neutral">{card.spec?.cardNo ?? card.object?.cardNo ?? card.objectId ?? "无编号"}</StatusPill>
-          {card.spec && <StatusPill tone={card.spec.conformanceTier === "full-official-rule-pass" ? "good" : "warn"}>{statusLabel(card.spec.status)}</StatusPill>}
+          {card.spec && <StatusPill tone={conformanceTone(card.spec.conformanceTier)}>{conformanceLabel(card.spec.conformanceTier)}</StatusPill>}
+          {card.spec && <StatusPill tone={card.spec.status === "implemented" ? "info" : "warn"}>{statusLabel(card.spec.status)}</StatusPill>}
         </div>
         {hidden ? (
           <p className="detail-muted">该对象未向当前玩家公开。前端只展示服务端 snapshot 允许的信息，不读取或推断卡名、费用、类型或规则文本。</p>
@@ -79,6 +88,13 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
               <strong>规则文本</strong>
               <p className="card-rules">{card.spec?.officialText || "服务端未提供卡面规则文本。"}</p>
             </section>
+            {card.spec && (
+              <section className="detail-section">
+                <strong>服务端证据</strong>
+                <p>{conformanceLabel(card.spec.conformanceTier)}：{card.spec.conformanceReason}</p>
+                <p>{statusLabel(card.spec.status)}：{card.spec.reason}</p>
+              </section>
+            )}
             <section className="detail-section">
               <strong>对象状态</strong>
               <p>{states.length ? states.join("、") : "正常"}</p>

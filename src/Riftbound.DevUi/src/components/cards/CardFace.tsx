@@ -1,6 +1,6 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
-import { costText, keywordsText, objectTypeText, statusLabel } from "../../utils/formatters";
+import { conformanceLabel, conformanceTone, costText, keywordsText, objectTypeText, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -70,7 +70,10 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
             {object?.damage != null && <span>伤害：{object.damage}</span>}
             {states.map((state) => <span key={state}>{state}</span>)}
           </div>
-          <StatusPill tone={spec?.conformanceTier === "full-official-rule-pass" ? "good" : "warn"}>
+          <StatusPill tone={conformanceTone(spec?.conformanceTier)}>
+            {conformanceLabel(spec?.conformanceTier)}
+          </StatusPill>
+          <StatusPill tone={spec?.status === "implemented" ? "info" : "warn"}>
             {statusLabel(spec?.status)}
           </StatusPill>
         </>

@@ -29,7 +29,7 @@ export function CardLibraryPage() {
         <div>
           <span className="eyebrow">卡牌图鉴</span>
           <h1>官方卡牌视图</h1>
-          <p>当前只展示服务端 BehaviorSpec 和关键词覆盖口径，不宣称官方完整通过。</p>
+          <p>当前只展示服务端 BehaviorSpec 和关键词覆盖口径，完整规则结论以最终复审为准。</p>
         </div>
         <StatusPill tone={error ? "bad" : "good"}>{loading ? "加载中" : error ? "加载失败" : `${specs.length} 张卡`}</StatusPill>
       </section>
