@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { CardFace } from "../components/cards/CardFace";
+import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
+import { CardFace, InspectedCard } from "../components/cards/CardFace";
 import { StatusPill } from "../components/ui/StatusPill";
 import { useCatalog } from "../stores/catalogStore";
 import { conformanceLabel } from "../utils/formatters";
@@ -10,6 +11,7 @@ export function CardLibraryPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
   const [tier, setTier] = useState("全部");
+  const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
 
   const categories = useMemo(() => ["全部", ...Array.from(new Set(specs.map((spec) => spec.cardCategoryName))).sort()], [specs]);
   const tiers = useMemo(() => ["全部", ...Array.from(new Set(specs.map((spec) => spec.conformanceTier))).sort()], [specs]);
@@ -56,8 +58,9 @@ export function CardLibraryPage() {
         <span>图鉴必须暴露 deferred/representative 状态，不能隐藏服务端证据缺口。</span>
       </section>
       <section className="card-library-grid">
-        {filtered.map((spec) => <CardFace key={spec.cardNo} spec={spec} />)}
+        {filtered.map((spec) => <CardFace key={spec.cardNo} onInspect={setInspectedCard} spec={spec} />)}
       </section>
+      <CardDetailDrawer card={inspectedCard} onClose={() => setInspectedCard(undefined)} />
     </div>
   );
 }
