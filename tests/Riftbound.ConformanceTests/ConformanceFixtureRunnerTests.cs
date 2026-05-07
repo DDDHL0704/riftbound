@@ -31679,6 +31679,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("UNL-030/219", stackItem.CardNo);
         Assert.Equal("VI_PAY_2_RED_DOUBLE_POWER_UNTIL_END_OF_TURN", stackItem.EffectKind);
         Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Equal("BASE", result.State.ObjectLocations["P1-UNIT-VI"].Zone);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations["P2-SPELLSHIELD-UNIT-001"].Zone);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));
@@ -32229,6 +32231,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("XERATH_PAY_RED_EXHAUST_DAMAGE_3", stackItem.EffectKind);
         Assert.Equal(3, stackItem.DamageAmount);
         Assert.Equal(["P2-SPELLSHIELD-UNIT-001"], stackItem.TargetObjectIds);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations["P1-UNIT-XERATH"].Zone);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations["P2-SPELLSHIELD-UNIT-001"].Zone);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         Assert.Equal(["ABILITY_ACTIVATED", "COST_PAID", "UNIT_EXHAUSTED", "STACK_ITEM_ADDED"], result.Events.Select(evt => evt.Kind));

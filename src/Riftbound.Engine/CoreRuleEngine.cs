@@ -1620,6 +1620,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ActivePlayerId = intent.PlayerId,
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones),
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
             StackItems = state.StackItems.Concat([stackItem]).ToArray()
@@ -3597,6 +3598,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             TimingState = TimingStates.NeutralClosed,
             RunePools = runePools,
             CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones),
             UntilEndOfTurnEffects = untilEndOfTurnEffects,
             PriorityPlayerId = intent.PlayerId,
             PassedPriorityPlayerIds = [],
