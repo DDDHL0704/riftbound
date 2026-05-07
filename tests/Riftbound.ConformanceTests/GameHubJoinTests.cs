@@ -4587,6 +4587,89 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldNextSpellEchoPromptOffersGrantedEchoAndRepeatsThroughHub()
+    {
+        const string roomId = "p7-9-battlefield-held-next-spell-echo-prompt";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-2",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P2", "battlefield-held-next-spell-echo-prompt", "seed-p7-9-battlefield-held-next-spell-echo-prompt");
+
+        var p2Prompt = PromptFor(seedClients, "P2");
+        var playCandidate = Assert.Single(
+            p2Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("P2-SPELL-CENTER-STAGE", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+        var echoChoice = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "ECHO", StringComparison.Ordinal));
+        Assert.Equal("回响：额外支付 2 法力", echoChoice.Label);
+        Assert.Equal("战场效果授予此法术回响", echoChoice.Reason);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-held-next-spell-echo-play", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P2-SPELL-CENTER-STAGE",
+                cardNo = "UNL-061/219",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { "ECHO" }
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        var costPaid = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(4, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Contains(playEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["effectRepeatCount"], 2));
+        Assert.Contains(playEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["effectRepeatCount"], 2));
+
+        var passP2Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-battlefield-held-next-spell-echo-p2-pass", passPriority);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+
+        var passP1Clients = new RecordingHubClients();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-held-next-spell-echo-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP1Clients);
+        var drawEvent = Assert.Single(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(2, drawEvent.Payload["count"]);
+
+        var finalSnapshot = SnapshotFor(passP1Clients, "P2");
+        Assert.Empty(finalSnapshot.Stack);
+        var p2 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Equal(["P2-DRAW-001", "P2-DRAW-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["hand"]));
+        Assert.Equal(["P2-SPELL-CENTER-STAGE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+        var runePool = Assert.IsType<Dictionary<string, object?>>(p2["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(runePool["mana"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldBattleDestroyedRecallSeedOffersBattlefieldDestinationAndRecalls()
     {
         const string roomId = "p7-9-battlefield-battle-destroyed-recall";

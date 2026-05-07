@@ -4777,15 +4777,13 @@ internal static class ActionPromptBuilder
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
 
-        var effectiveEchoManaCost = PromptEffectiveEchoManaCost(state, playerId, behavior);
-        if (behavior.EchoManaCost > 0
+        if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
             && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + effectiveEchoManaCost)
         {
-            var echoReduction = behavior.EchoManaCost - effectiveEchoManaCost;
             choices.Add(new ActionPromptChoiceDto(
                 "ECHO",
                 $"回响：额外支付 {effectiveEchoManaCost} 法力",
-                echoReduction > 0 ? $"战场效果已减免 {echoReduction} 法力" : null));
+                echoReason));
         }
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
@@ -4833,18 +4831,45 @@ internal static class ActionPromptBuilder
         return choices;
     }
 
-    private static int PromptEffectiveEchoManaCost(
+    private static bool TryPromptEchoOptionalCost(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        out int effectiveEchoManaCost,
+        out string? reason)
     {
+        effectiveEchoManaCost = 0;
+        reason = null;
+        if (PromptBattlefieldHeldNextSpellEchoActive(state, playerId)
+            && IsPromptSpellPlayBehavior(behavior))
+        {
+            effectiveEchoManaCost = behavior.ManaCost;
+            reason = "战场效果授予此法术回响";
+            return true;
+        }
+
         if (behavior.EchoManaCost <= 0)
         {
-            return 0;
+            return false;
         }
 
         var reduction = PromptBattlefieldEchoCostReductionMana(state, playerId, behavior.EchoManaCost);
-        return Math.Max(0, behavior.EchoManaCost - reduction);
+        effectiveEchoManaCost = Math.Max(0, behavior.EchoManaCost - reduction);
+        reason = reduction > 0 ? $"战场效果已减免 {reduction} 法力" : null;
+        return true;
+    }
+
+    private static bool IsPromptSpellPlayBehavior(CardBehaviorDefinition behavior)
+    {
+        return !behavior.PlaysSourceToBaseAsUnit
+            && !behavior.PlaysSourceToBaseAsEquipment;
+    }
+
+    private static bool PromptBattlefieldHeldNextSpellEchoActive(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            $"BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:{playerId}",
+            StringComparer.Ordinal);
     }
 
     private static int PromptBattlefieldEchoCostReductionMana(
@@ -7412,6 +7437,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-static-prevent-play-units" => BuildBattlefieldStaticPreventPlayUnitsScenario(current, seed),
             "battlefield-static-echo-cost-reduction" => BuildBattlefieldStaticEchoCostReductionScenario(current, seed),
             "battlefield-held-next-spell-echo" => BuildBattlefieldHeldNextSpellEchoScenario(current, seed),
+            "battlefield-held-next-spell-echo-prompt" => BuildBattlefieldHeldNextSpellEchoPromptScenario(current, seed),
             "battlefield-static-equipment-cost-reduction" => BuildBattlefieldStaticEquipmentCostReductionScenario(current, seed),
             "battlefield-legend-attach-armament" => BuildBattlefieldLegendAttachArmamentScenario(current, seed),
             "battlefield-extra-standby" => BuildBattlefieldExtraStandbyScenario(current, seed),
@@ -10289,6 +10315,50 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+    }
+
+    private static MatchState BuildBattlefieldHeldNextSpellEchoPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303067,
+            67,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = new(4, 0)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-DRAW-001", "P2-DRAW-002"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    hand: ["P2-SPELL-CENTER-STAGE"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPELL-CENTER-STAGE"] = new(
+                    "P2-SPELL-CENTER-STAGE",
+                    cardNo: "UNL-061/219",
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+
+        return state with
+        {
+            ActivePlayerId = seed.P2,
+            TurnPlayerId = seed.P2,
+            PriorityPlayerId = seed.P2,
+            UntilEndOfTurnEffects = [$"BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:{seed.P2}"]
+        };
     }
 
     private static MatchState BuildBattlefieldStaticEquipmentCostReductionScenario(MatchState current, DevScenarioSeed seed)
