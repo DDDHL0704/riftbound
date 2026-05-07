@@ -65,9 +65,16 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
             Assert.True(recovery.IsConsistent, string.Join("; ", recovery.ValidationErrors));
             Assert.NotNull(recovery.AuthoritativeState);
             Assert.NotNull(recovery.ReplayInitialState);
+            Assert.NotNull(recovery.SpectatorReplayFrame);
             Assert.Equal(roomId, recovery.ReplayInitialState.RoomId);
             Assert.Equal("alice", recovery.ReplayInitialState.ActivePlayerId);
             Assert.Equal(3, recovery.Commands.Count);
+            Assert.Equal(recovery.LastEventSequence, recovery.SpectatorReplayFrame.EventSequence);
+            Assert.Equal(
+                MatchStateHasher.Hash(recovery.AuthoritativeState),
+                recovery.SpectatorReplayFrame.AuthoritativeStateHash);
+            Assert.DoesNotContain("seed", recovery.SpectatorReplayFrame.SpectatorSnapshot.Timing.Keys);
+            Assert.DoesNotContain("rngCursor", recovery.SpectatorReplayFrame.SpectatorSnapshot.Timing.Keys);
 
             var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
                 recovery,

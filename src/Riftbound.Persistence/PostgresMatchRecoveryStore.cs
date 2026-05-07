@@ -32,6 +32,14 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         var replayInitialState = authoritativeState is not null && commands.Count > 0
             ? await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false)
             : null;
+        var spectatorReplayFrame = authoritativeState is null
+            ? null
+            : MatchReplayRedactor.BuildSpectatorFrame(
+                metadata.RoomId,
+                authoritativeState.Tick,
+                metadata.LastEventSequence,
+                events.Select(recoveredEvent => recoveredEvent.Event).ToArray(),
+                authoritativeState);
         var validationErrors = MatchRecoveryValidator.Validate(
             metadata.RoomId,
             metadata.LastEventSequence,
@@ -50,7 +58,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             playerViews,
             validationErrors,
             authoritativeState,
-            replayInitialState);
+            replayInitialState,
+            spectatorReplayFrame);
     }
 
     private static async Task<MatchRecoveryMetadata?> LoadMetadataAsync(

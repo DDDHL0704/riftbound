@@ -40,7 +40,8 @@ public sealed record MatchRecoveryFrame(
     IReadOnlyDictionary<string, RecoveredPlayerView> PlayerViews,
     IReadOnlyList<string> ValidationErrors,
     MatchState? AuthoritativeState = null,
-    MatchState? ReplayInitialState = null)
+    MatchState? ReplayInitialState = null,
+    MatchReplayFrame? SpectatorReplayFrame = null)
 {
     public bool IsConsistent => ValidationErrors.Count == 0;
 
@@ -65,13 +66,32 @@ public static class MatchReplayRedactor
     {
         ArgumentNullException.ThrowIfNull(entry);
 
-        return new MatchReplayFrame(
+        return BuildSpectatorFrame(
             entry.RoomId,
             entry.CompletedTick,
             entry.CompletedEventSequence,
             entry.Events,
-            MatchStateHasher.Hash(entry.AuthoritativeState),
-            ResolutionResult.BuildSpectatorSnapshot(entry.AuthoritativeState));
+            entry.AuthoritativeState);
+    }
+
+    public static MatchReplayFrame BuildSpectatorFrame(
+        string roomId,
+        long tick,
+        long eventSequence,
+        IReadOnlyList<GameEvent> events,
+        MatchState authoritativeState)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roomId);
+        ArgumentNullException.ThrowIfNull(events);
+        ArgumentNullException.ThrowIfNull(authoritativeState);
+
+        return new MatchReplayFrame(
+            roomId.Trim(),
+            tick,
+            eventSequence,
+            events,
+            MatchStateHasher.Hash(authoritativeState),
+            ResolutionResult.BuildSpectatorSnapshot(authoritativeState));
     }
 }
 

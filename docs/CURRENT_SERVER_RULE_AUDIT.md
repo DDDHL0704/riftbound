@@ -14,6 +14,9 @@
 
 ## 2026-05-07 开发进度更新
 
+- P1-004 第二十六批补充：`MatchRecoveryFrame` 新增 `SpectatorReplayFrame`，`MatchReplayRedactor.BuildSpectatorFrame` 新增可从 `roomId`、tick、event sequence、公开事件列表和 authoritative state 直接生成 spectator frame 的 overload；`PostgresMatchRecoveryStore` 在读取 authoritative state snapshot 时同步生成已裁剪的 recovery spectator replay frame。
+- 已补测试：扩展 `PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit`，覆盖 recovery frame 自带 `SpectatorReplayFrame`、event sequence 与最终 recovery sequence 对齐、authoritative state hash 等于最终 state hash，且 spectator snapshot timing 不包含 `seed` / `rngCursor`。`MatchRecoveryTests|PostgresMatchRecoveryStoreSmokeTests` 目标回归 21/21 通过；`GameHubJoinTests` 目标回归 88/88 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
+- 复审结论补充：本批补齐了 recovery 读取路径的公开 spectator replay frame 输出，避免恢复/回放调用方只能拿最终 authoritative state 再自行拼装公开帧。整体仍 **NOT READY**，因为随机/隐藏信息与 replay determinism 还缺更广泛 property tests，且 P0 战场/任务/Payment/LayerEngine 等核心规则阻断仍未清零。
 - P1-004 第二十五批补充：新增真实 `PostgresMatchRecoveryStoreSmokeTests`，在 `ConnectionStrings__Riftbound` 可用时对本地 PostgreSQL 执行迁移 SQL、写入 `match_players`、通过 `PostgresMatchJournal` 记录 `READY -> READY -> PASS` 命令日志和 authoritative state snapshot，再由 `PostgresMatchRecoveryStore` 读取 recovery frame，验证 `ReplayInitialState` 存在、replay final hash audit 通过，并经 registry 恢复最终 snapshot。
 - 持久化缺口修复：Postgres smoke 暴露出 `MatchState` 的 `[JsonConstructor]` 中 `seed` / `rngCursor` 为 `long?`、而属性为 `long` 导致 `state_snapshots.payload` 无法反序列化的问题；现已把构造参数改为非空 `long` 默认值，并将 fixture 初始状态的可空 seed 在构造前归零，确保 authoritative state snapshot 可从数据库恢复。
 - 已补测试：`PostgresRecoveryStoreLoadsReplayInitialStateAndPassesRegistryReplayAudit` 真实 DB smoke 1/1 通过；`MatchRecoveryTests|PostgresMatchRecoveryStoreSmokeTests` 目标回归 21/21 通过；`GameHubJoinTests` 目标回归 88/88 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
@@ -365,7 +368,7 @@
 
 ### P1-004 隐藏信息与 replay 边界仍需加固
 
-当前状态：**PARTIALLY RESOLVED / 普通 snapshot、spectator replay redaction、权威状态 hash、recovery tick 一致性 guard、给定初始状态的 action-log final hash verifier、registry 恢复前审计与 Postgres 集成 smoke 已修，replay 输出与 property tests 仍待补**
+当前状态：**PARTIALLY RESOLVED / 普通 snapshot、spectator replay redaction、权威状态 hash、recovery tick 一致性 guard、给定初始状态的 action-log final hash verifier、registry 恢复前审计、Postgres 集成 smoke 与 recovery spectator replay frame 已修，property tests 仍待补**
 
 规则依据：自查文档 2、18；客户端不得得到能预测未来随机信息的私密状态；replay/观战要区分公开信息与玩家私有视角。
 
@@ -376,10 +379,11 @@
 - `src/Riftbound.Engine/MatchRecovery.cs` 的 `MatchRecoveryValidator` 会在调用方提供 recovery current tick 时校验 authoritative state tick；`src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs` 会传入 `matches.current_tick`，避免恢复时静默掩盖 tick 不一致。
 - `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchActionLogReplayer.VerifyFinalStateAsync`，可从调用方提供的初始权威状态重放 recovered commands，并比对 final state hash。
 - `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchReplayInitialStateBuilder.FromSeats` 与 `MatchActionLogReplayer.ValidateRecoveryFrameAsync`；`src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs` 会从 `match_players` 构造 `ReplayInitialState`，`src/Riftbound.Engine/MatchSession.cs` 的 registry 在 `Restore` 前执行 replay final hash audit。
+- `src/Riftbound.Engine/MatchRecovery.cs` 的 `MatchRecoveryFrame.SpectatorReplayFrame` 会携带 recovery 读取路径生成的公开回放帧；`src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs` 会基于最终 authoritative state 与 recovered events 生成该帧。
 - `src/Riftbound.Engine/MatchSession.cs` 的 `MatchState` JSON 构造参数已与 `Seed` / `RngCursor` 属性类型对齐，避免 `state_snapshots.payload` 无法反序列化；`tests/Riftbound.ConformanceTests/PostgresMatchRecoveryStoreSmokeTests.cs` 已覆盖真实 PostgreSQL journal/recovery/registry 恢复路径。
-- `src/Riftbound.Engine/MatchSession.cs` 的 `RestoreState` 仍优先恢复 authoritative state；当前已经有恢复前 hash audit 钩子和 Postgres smoke，但尚未在恢复过程中自动输出 spectator replay frame。
+- `src/Riftbound.Engine/MatchSession.cs` 的 `RestoreState` 仍优先恢复 authoritative state；当前已经有恢复前 hash audit 钩子、Postgres smoke 和恢复路径 spectator replay frame。
 
-现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot，并携带稳定的权威状态 hash 用于最终状态对账。恢复路径也会拒绝 authoritative state tick 与 match metadata current tick 不一致的持久化帧。服务端现在具备“给定初始状态 + recovered commands -> final state hash”的可测 verifier，并且生产 registry 在恢复 Postgres recovery frame 前会执行该审计。真实 Postgres smoke 已证明 command log / state snapshot / match_players 可恢复并通过 final hash audit。剩余风险是恢复过程中还未自动输出 spectator replay frame，以及更广泛的随机/隐藏信息 property tests 仍不足。
+现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot，并携带稳定的权威状态 hash 用于最终状态对账。恢复路径也会拒绝 authoritative state tick 与 match metadata current tick 不一致的持久化帧。服务端现在具备“给定初始状态 + recovered commands -> final state hash”的可测 verifier，并且生产 registry 在恢复 Postgres recovery frame 前会执行该审计。真实 Postgres smoke 已证明 command log / state snapshot / match_players 可恢复并通过 final hash audit，且 recovery frame 会带公开 spectator replay frame。剩余风险是更广泛的随机/隐藏信息 property tests 仍不足。
 
 建议修复：
 - 已完成：从普通玩家 snapshot 中移除 seed/rngCursor；如后续需要调试随机状态，应单独走 Development/debug stream，不能复用普通玩家 snapshot。
@@ -389,7 +393,8 @@
 - 已完成：建立给定初始权威状态的 action-log verifier，重放命令后校验 final authoritative state hash。
 - 已完成：Postgres recovery frame 从 `match_players` 构造 replay 初始状态，registry 在恢复前强制执行 action-log final hash audit。
 - 已完成：补真实 Postgres store 集成 smoke，并修复 `MatchState` authoritative snapshot 反序列化构造参数类型不匹配。
-- 待补：恢复时输出 spectator replay frame，并扩大随机/隐藏信息 property tests。
+- 已完成：恢复读取路径输出 spectator replay frame，且该 frame 使用 spectator redaction 与 authoritative state hash。
+- 待补：扩大随机/隐藏信息 property tests。
 
 建议测试：
 - 已新增：玩家 snapshot 不含 seed/rngCursor。
@@ -399,7 +404,8 @@
 - 已新增：给定初始状态时，recovered command log 重放后的 final state hash 等于实时 journal authoritative state hash；篡改 expected final state 时会报告 hash mismatch。
 - 已新增：registry 在恢复前执行 action-log replay audit；hash mismatch 会阻止恢复并返回 `RECOVERY_INCONSISTENT`。
 - 已新增：真实 Postgres store 集成 smoke 覆盖从持久化 command log / state snapshot / match_players 自动恢复并通过 final state hash audit。
-- 待补：recovery spectator replay frame 输出与随机/隐藏信息 property tests。
+- 已新增：真实 Postgres store smoke 覆盖 recovery spectator replay frame 输出、state hash 和 seed/rngCursor 裁剪。
+- 待补：随机/隐藏信息 property tests。
 
 ## P2 问题
 
