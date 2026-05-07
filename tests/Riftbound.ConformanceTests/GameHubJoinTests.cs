@@ -739,9 +739,34 @@ public sealed class GameHubJoinTests
         Assert.Equal("BATTLE_TASKS", Assert.IsType<string>(finalTaskQueue["phase"]));
         Assert.Equal("task:start-battle:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(finalTaskQueue["activeTaskId"]));
         var finalP1Prompt = PromptFor(p2FocusPassClients, "P1");
-        Assert.False(finalP1Prompt.Actionable);
-        Assert.Equal(["WAIT"], finalP1Prompt.Actions);
-        Assert.Contains("START_BATTLE", finalP1Prompt.Reason, StringComparison.Ordinal);
+        Assert.True(finalP1Prompt.Actionable);
+        Assert.Equal(["DECLARE_BATTLE"], finalP1Prompt.Actions);
+        var declareBattleCandidate = Assert.Single(
+            finalP1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.True(declareBattleCandidate.Enabled);
+        Assert.Equal(["P1-UNIT-CONTEST-001"], (declareBattleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["P2-UNIT-CONTEST-001"], (declareBattleCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        Assert.Equal(["P1-BATTLEFIELD-CONTEST-001"], (declareBattleCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+
+        var declareBattleClients = new RecordingHubClients();
+        await CreateHub(declareBattleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-battlefield-contest-declare-battle", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "DECLARE_BATTLE",
+                battlefieldId = "P1-BATTLEFIELD-CONTEST-001",
+                attackerObjectIds = new[] { "P1-UNIT-CONTEST-001" },
+                defenderObjectIds = new[] { "P2-UNIT-CONTEST-001" },
+                optionalCosts = new[] { "COMBAT_ASSIGNMENT" }
+            }));
+
+        Assert.Empty(declareBattleClients.CallerClient.Errors);
+        var declareBattleEvents = EventsFor(declareBattleClients);
+        Assert.Contains(declareBattleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(declareBattleEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        var battleResolvedP1Snapshot = SnapshotFor(declareBattleClients, "P1");
+        var battleResolvedTaskQueue = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("IDLE", Assert.IsType<string>(battleResolvedTaskQueue["phase"]));
     }
 
     [Fact]

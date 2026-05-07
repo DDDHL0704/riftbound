@@ -1401,6 +1401,13 @@ public sealed record ResolutionResult(
         return state.PendingTaskQueue.IsBlocking;
     }
 
+    public static CleanupTaskState? ActiveStartBattleTask(MatchState state)
+    {
+        return state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
+            string.Equals(task.TaskId, state.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)
+            && string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
+    }
+
     public static string BlockingPendingTaskQueueReason(MatchState state)
     {
         var queue = state.PendingTaskQueue;
@@ -1942,6 +1949,23 @@ public sealed record ResolutionResult(
                     : ["WAIT"]));
         }
 
+        if (ActiveStartBattleTask(state) is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+            {
+                var canDeclareBattle = string.Equals(playerId, state.ActivePlayerId, StringComparison.Ordinal)
+                    && ActionPromptBuilder.CanDeclareBattleForActiveTask(state, playerId);
+                return ActionPromptBuilder.Build(
+                    state,
+                    playerId,
+                    canDeclareBattle,
+                    canDeclareBattle
+                        ? "请为争夺战场声明战斗"
+                        : "等待对手处理争夺战场战斗任务",
+                    canDeclareBattle ? ["DECLARE_BATTLE"] : ["WAIT"]);
+            });
+        }
+
         if (HasBlockingPendingTaskQueue(state))
         {
             var reason = BlockingPendingTaskQueueReason(state);
@@ -2266,6 +2290,11 @@ internal static class ActionPromptBuilder
 
         actions.Add("PASS_FOCUS");
         return actions;
+    }
+
+    public static bool CanDeclareBattleForActiveTask(MatchState state, string playerId)
+    {
+        return DeclareBattleSourceRequirements(state, playerId).Count > 0;
     }
 
     public static ActionPromptDto Build(
@@ -4112,6 +4141,11 @@ internal static class ActionPromptBuilder
 
     private static IReadOnlyList<ActionPromptChoiceDto>? DeclareBattleDestinationChoices(MatchState state, string playerId)
     {
+        if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } activeStartBattleTask)
+        {
+            return [ObjectChoice(state, activeStartBattleTask.BattlefieldObjectId, "当前争夺战场战斗任务")];
+        }
+
         var choices = new[]
             {
                 new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场", "默认战斗战场")
@@ -4262,17 +4296,25 @@ internal static class ActionPromptBuilder
             return [];
         }
 
+        var activeStartBattleTask = ResolutionResult.ActiveStartBattleTask(state);
+        var activeBattlefieldObjectId = activeStartBattleTask?.BattlefieldObjectId ?? string.Empty;
         var defenderChoices = OpposingBattlefieldObjects(state, playerId)
+            .Where(entry => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
+                || IsObjectLocatedAtBattlefield(state, entry.ObjectId, activeBattlefieldObjectId))
             .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
             .Select(entry => ObjectChoice(state, entry.ObjectId, "服务端合法防守单位"))
             .ToArray();
-        var battlefieldChoices = DeclareBattleDestinationChoices(state, playerId)?.ToArray() ?? [];
+        var battlefieldChoices = string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
+            ? DeclareBattleDestinationChoices(state, playerId)?.ToArray() ?? []
+            : [ObjectChoice(state, activeBattlefieldObjectId, "当前争夺战场战斗任务")];
         if (defenderChoices.Length == 0 || battlefieldChoices.Length == 0)
         {
             return [];
         }
 
         return zones.Battlefields
+            .Where(objectId => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
+                || IsObjectLocatedAtBattlefield(state, objectId, activeBattlefieldObjectId))
             .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
             .Where(objectId => state.CardObjects.ContainsKey(objectId))
             .Select(objectId =>
@@ -4297,6 +4339,16 @@ internal static class ActionPromptBuilder
                     null);
             })
             .ToArray();
+    }
+
+    private static bool IsObjectLocatedAtBattlefield(
+        MatchState state,
+        string objectId,
+        string battlefieldObjectId)
+    {
+        return state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static IEnumerable<CardBehaviorDefinition> PlayablePlayCardBehaviors(MatchState state, string playerId)

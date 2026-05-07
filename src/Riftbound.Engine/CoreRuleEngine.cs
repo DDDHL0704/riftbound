@@ -247,6 +247,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
         }
 
+        if (command is DeclareBattleCommand activeTaskDeclareBattleCommand
+            && ResolutionResult.ActiveStartBattleTask(state) is not null
+            && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
+        {
+            return ValueTask.FromResult(ResolveDeclareBattle(state, intent, activeTaskDeclareBattleCommand));
+        }
+
         if (ResolutionResult.HasBlockingPendingTaskQueue(state))
         {
             return ValueTask.FromResult(RejectWithCorePrompts(
@@ -4393,6 +4400,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var battlefieldId = command.BattlefieldId?.Trim() ?? string.Empty;
+        if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } activeStartBattleTask
+            && !DeclareBattleMatchesActiveStartBattleTask(
+                state,
+                activeStartBattleTask.BattlefieldObjectId,
+                battlefieldId,
+                attackerObjectId,
+                defenderObjectIds))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "DECLARE_BATTLE must match the active START_BATTLE task.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
@@ -5474,6 +5495,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefieldId, out _, out _);
+    }
+
+    private static bool DeclareBattleMatchesActiveStartBattleTask(
+        MatchState state,
+        string battlefieldObjectId,
+        string commandBattlefieldId,
+        string attackerObjectId,
+        IReadOnlyList<string> defenderObjectIds)
+    {
+        return string.Equals(commandBattlefieldId, battlefieldObjectId, StringComparison.Ordinal)
+            && IsObjectLocatedAtBattlefield(state, attackerObjectId, battlefieldObjectId)
+            && defenderObjectIds.All(defenderObjectId => IsObjectLocatedAtBattlefield(state, defenderObjectId, battlefieldObjectId));
+    }
+
+    private static bool IsObjectLocatedAtBattlefield(
+        MatchState state,
+        string objectId,
+        string battlefieldObjectId)
+    {
+        return state.ObjectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal);
     }
 
     private static int ResolveBattleCombatPower(
@@ -20808,6 +20851,23 @@ public sealed class CoreRuleEngine : IRuleEngine
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
                     ? ActionPromptBuilder.SpellDuelFocusActions(state, playerId)
                     : ["WAIT"]));
+        }
+
+        if (ResolutionResult.ActiveStartBattleTask(state) is not null)
+        {
+            return state.Seats.Keys.ToDictionary(playerId => playerId, playerId =>
+            {
+                var canDeclareBattle = string.Equals(playerId, state.ActivePlayerId, StringComparison.Ordinal)
+                    && ActionPromptBuilder.CanDeclareBattleForActiveTask(state, playerId);
+                return ActionPromptBuilder.Build(
+                    state,
+                    playerId,
+                    canDeclareBattle,
+                    canDeclareBattle
+                        ? "请为争夺战场声明战斗"
+                        : "等待对手处理争夺战场战斗任务",
+                    canDeclareBattle ? ["DECLARE_BATTLE"] : ["WAIT"]);
+            });
         }
 
         if (ResolutionResult.HasBlockingPendingTaskQueue(state))

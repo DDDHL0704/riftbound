@@ -22200,13 +22200,105 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["WAIT"], result.Prompts["P1"].Actions);
-        Assert.Contains("START_BATTLE", result.Prompts["P1"].Reason, StringComparison.Ordinal);
+        Assert.Equal(["DECLARE_BATTLE"], result.Prompts["P1"].Actions);
+        Assert.True(result.Prompts["P1"].Actionable);
+        Assert.Contains("争夺战场", result.Prompts["P1"].Reason, StringComparison.Ordinal);
 
         var closedEvent = Assert.Single(
             result.Events,
             gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
         Assert.Equal(["BF-1"], Assert.IsType<string[]>(closedEvent.Payload["completedBattlefieldObjectIds"]));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask()
+    {
+        var state = new MatchState(
+            "battlefield-contest-start-battle-room",
+            9,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P1-UNIT-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-1"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-1"] = new(
+                    "P1-UNIT-1",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-1"] = new(
+                    "P2-UNIT-1",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-1")],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P1-UNIT-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-UNIT-1"] = new("P2", "BATTLEFIELD", "BF-1")
+            });
+
+        Assert.Equal("BATTLE_TASKS", state.PendingTaskQueue.Phase);
+        Assert.Equal(["DECLARE_BATTLE"], ResolutionResult.BuildPrompts(state)["P1"].Actions);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-declare-active-start-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BF-1",
+                ["P1-UNIT-1"],
+                ["P2-UNIT-1"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(10, result.State.Tick);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.DoesNotContain("P2-UNIT-1", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.DoesNotContain("START_BATTLE", result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+        Assert.Contains("P2-UNIT-1", result.State.PlayerZones["P2"].Graveyard);
     }
 
     [Fact]

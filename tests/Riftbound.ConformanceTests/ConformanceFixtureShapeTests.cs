@@ -1004,9 +1004,16 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal("task:start-battle:BF-1", Assert.IsType<string>(taskQueue["activeTaskId"]));
 
         var prompts = ResolutionResult.BuildPrompts(state);
-        Assert.False(prompts["alice"].Actionable);
-        Assert.Equal(["WAIT"], prompts["alice"].Actions);
-        Assert.Contains("START_BATTLE", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.True(prompts["alice"].Actionable);
+        Assert.Equal(["DECLARE_BATTLE"], prompts["alice"].Actions);
+        Assert.Contains("争夺战场", prompts["alice"].Reason, StringComparison.Ordinal);
+        var candidate = Assert.Single(prompts["alice"].Candidates ?? []);
+        Assert.Equal("DECLARE_BATTLE", candidate.Action);
+        Assert.True(candidate.Enabled);
+        Assert.Equal(["A-UNIT-1"], (candidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["B-UNIT-1"], (candidate.Targets ?? []).Select(target => target.Id).ToArray());
+        Assert.Equal(["BF-1"], (candidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        Assert.Equal(["COMBAT_ASSIGNMENT"], (candidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
     }
 
     [Fact]
