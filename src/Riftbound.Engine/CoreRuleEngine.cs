@@ -17865,6 +17865,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         var destroyedUnitOwnerIds = new List<string>();
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var runePools = state.RunePools;
         var targetObjectId = stackItem.TargetObjectIds.FirstOrDefault() ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(targetObjectId)
             && IsFieldObject(playerZones, targetObjectId)
@@ -17899,6 +17900,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 state.RunePools,
                 damageTriggeredDestroyTargetObjectIds: damageTriggeredDestroyTargetObjectIds);
+            runePools = lethalCleanup.RunePools;
             events.AddRange(lethalCleanup.Events);
             destroyedUnitOwnerIds.AddRange(lethalCleanup.DestroyedUnitOwnerIds);
         }
@@ -17908,7 +17910,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             state.PlayerScores,
             NormalizeExperienceForSeats(state),
-            state.RunePools,
+            runePools,
             state.UntilEndOfTurnEffects,
             null,
             events,
