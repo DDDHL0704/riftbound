@@ -1283,6 +1283,132 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptFiltersHideCardSourcesByPayableStandbyCosts()
+    {
+        var noManaState = new MatchState(
+            "prompt-hide-card-source-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-STANDBY-TEEMO"],
+                    Battlefields = ["P1-BATTLEFIELD-BANDLE-TREE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-STANDBY-TEEMO"] = new(
+                    "P1-STANDBY-TEEMO",
+                    cardNo: "OGN·121/298",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
+                    "P1-BATTLEFIELD-BANDLE-TREE",
+                    cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var noManaPrompt = ResolutionResult.BuildPrompts(noManaState)["P1"];
+        var noManaHideCandidate = Assert.Single(
+            noManaPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.False(noManaHideCandidate.Enabled);
+        Assert.Empty(noManaHideCandidate.Sources ?? []);
+        Assert.Empty(noManaHideCandidate.OptionalCosts ?? []);
+        var noManaMetadata = Assert.IsType<Dictionary<string, object?>>(noManaHideCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            noManaMetadata["sourceRequirements"]));
+
+        var payableState = noManaState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(noManaState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = noManaState.PlayerZones["P1"] with
+                {
+                    LegendZone = ["P1-LEGEND-TEEMO"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(noManaState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-TEEMO"] = new(
+                    "P1-LEGEND-TEEMO",
+                    cardNo: "OGN·263/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payableHideCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.True(payableHideCandidate.Enabled);
+        Assert.Equal("布置待命", payableHideCandidate.Label);
+        Assert.Equal(["P1-STANDBY-TEEMO"], (payableHideCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            ["STANDBY_A", "STANDBY_TEEMO_MANA"],
+            (payableHideCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+        Assert.Equal(
+            ["STANDBY", "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
+            (payableHideCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+
+        var payableMetadata = Assert.IsType<Dictionary<string, object?>>(payableHideCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            payableMetadata["sourceRequirements"]));
+        Assert.Equal("P1-STANDBY-TEEMO", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("OGN·121/298", Assert.IsType<string>(sourceRequirement["cardNo"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
+        Assert.Equal(
+            ["STANDBY_A", "STANDBY_TEEMO_MANA"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(sourceRequirement["optionalCostChoices"])
+                .Select(cost => cost.Id)
+                .ToArray());
+        Assert.Equal(
+            ["STANDBY", "BATTLEFIELD:P1-BATTLEFIELD-BANDLE-TREE"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(sourceRequirement["destinationChoices"])
+                .Select(destination => destination.Id)
+                .ToArray());
+
+        var freeState = noManaState with
+        {
+            UntilEndOfTurnEffects = ["FREE_STANDBY_HIDE:P1"]
+        };
+        var freePrompt = ResolutionResult.BuildPrompts(freeState)["P1"];
+        var freeHideCandidate = Assert.Single(
+            freePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.True(freeHideCandidate.Enabled);
+        Assert.Equal(["STANDBY_FREE"], (freeHideCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptPlayCardMetadataFiltersTargetsBySourceRequirement()
     {
         var state = new MatchState(

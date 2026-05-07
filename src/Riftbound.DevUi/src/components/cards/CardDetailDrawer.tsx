@@ -106,6 +106,18 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                       );
                     }
 
+                    if (candidate.action === "HIDE_CARD") {
+                      return (
+                        <HideCardComposer
+                          candidate={candidate}
+                          key={candidate.action}
+                          onClose={onClose}
+                          onCommand={onCommand}
+                          sourceObjectId={sourceObjectId}
+                        />
+                      );
+                    }
+
                     if (candidate.action === "MOVE_UNIT") {
                       return (
                         <MoveUnitComposer
@@ -284,6 +296,17 @@ type MoveUnitSourceRequirement = {
   destinationChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
   requiredOptionalCosts: string[];
+  composable: boolean;
+  unsupportedReason?: string;
+};
+
+type HideCardSourceRequirement = {
+  sourceObjectId: string;
+  cardNo: string;
+  displayName: string;
+  destinationChoices: ActionPromptChoiceDto[];
+  optionalCostChoices: ActionPromptChoiceDto[];
+  manaCost: number;
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -618,6 +641,130 @@ function PlayCardComposer({
         variant={canSubmit ? "primary" : "ghost"}
       >
         确认打出
+      </Button>
+    </article>
+  );
+}
+
+function HideCardComposer({
+  candidate,
+  onClose,
+  onCommand,
+  sourceObjectId
+}: {
+  candidate: ActionPromptCandidateDto;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  sourceObjectId?: string;
+}) {
+  const requirements = useMemo(
+    () => hideCardRequirementsFor(candidate, sourceObjectId),
+    [candidate, sourceObjectId]
+  );
+  const selectedRequirement = requirements[0];
+  const requirementKey = selectedRequirement?.sourceObjectId ?? "";
+  const [destination, setDestination] = useState<string>("");
+  const [optionalCost, setOptionalCost] = useState<string>("");
+
+  useEffect(() => {
+    setDestination(selectedRequirement?.destinationChoices[0]?.id ?? "");
+    setOptionalCost(selectedRequirement?.optionalCostChoices[0]?.id ?? "");
+  }, [requirementKey, selectedRequirement]);
+
+  if (!sourceObjectId) {
+    return (
+      <article className="play-card-composer">
+        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造待命命令。</p>
+      </article>
+    );
+  }
+
+  if (requirements.length === 0 || !selectedRequirement) {
+    return (
+      <article className="play-card-composer">
+        <div className="composer-heading">
+          <strong>{promptActionLabel(candidate)}</strong>
+          <span>{candidate.reason}</span>
+        </div>
+        <p className="detail-muted">服务端尚未为这张牌提供可提交的待命约束。</p>
+      </article>
+    );
+  }
+
+  const selectedCost = selectedRequirement.optionalCostChoices.find((choice) => choice.id === optionalCost);
+  const selectedCostMana = optionalCost === "STANDBY_FREE" ? 0 : selectedRequirement.manaCost;
+  const canSubmit = Boolean(
+    candidate.enabled
+    && selectedRequirement.composable
+    && destination
+    && selectedCost
+    && onCommand
+  );
+
+  return (
+    <article className="play-card-composer">
+      <div className="composer-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{candidate.reason}</span>
+      </div>
+      <div className="composer-meta">
+        <span>费用 {selectedCostMana}</span>
+        <span>{selectedRequirement.displayName}</span>
+      </div>
+      {selectedRequirement.destinationChoices.length > 0 && (
+        <ChoiceGroup label="目的地">
+          {selectedRequirement.destinationChoices.map((choice) => (
+            <ChoiceButton
+              active={destination === choice.id}
+              key={choice.id}
+              onClick={() => setDestination(choice.id)}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {selectedRequirement.optionalCostChoices.length > 0 && (
+        <ChoiceGroup label="待命费用">
+          {selectedRequirement.optionalCostChoices.map((choice) => (
+            <ChoiceButton
+              active={optionalCost === choice.id}
+              key={choice.id}
+              onClick={() => setOptionalCost(choice.id)}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {!selectedRequirement.composable && (
+        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该待命操作当前不能由前端组合提交。"}</p>
+      )}
+      {selectedRequirement.composable && !selectedCost && (
+        <p className="composer-warning">请选择服务端给出的待命费用。</p>
+      )}
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => {
+          if (!canSubmit || !onCommand || !selectedCost) {
+            return;
+          }
+
+          onCommand({
+            cmdType: "HIDE_CARD",
+            sourceObjectId,
+            cardNo: selectedRequirement.cardNo,
+            destination,
+            optionalCosts: [selectedCost.id]
+          });
+          onClose();
+        }}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        确认布置待命
       </Button>
     </article>
   );
@@ -1568,6 +1715,22 @@ function moveUnitRequirementsFor(candidate: ActionPromptCandidateDto, sourceObje
       Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
 }
 
+function hideCardRequirementsFor(candidate: ActionPromptCandidateDto, sourceObjectId?: string): HideCardSourceRequirement[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const rawRequirements = candidate.metadata?.sourceRequirements;
+  if (!Array.isArray(rawRequirements)) {
+    return [];
+  }
+
+  return rawRequirements
+    .map(parseHideCardRequirement)
+    .filter((requirement): requirement is HideCardSourceRequirement =>
+      Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
 function assembleEquipmentRequirementsFor(
   candidate: ActionPromptCandidateDto,
   sourceObjectId?: string
@@ -1791,6 +1954,30 @@ function parseMoveUnitRequirement(value: unknown): MoveUnitSourceRequirement | u
     destinationChoices: choiceList(record.destinationChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
     requiredOptionalCosts: stringList(record.requiredOptionalCosts),
+    composable: booleanField(record, "composable", true),
+    unsupportedReason: nullableStringField(record, "unsupportedReason")
+  };
+}
+
+function parseHideCardRequirement(value: unknown): HideCardSourceRequirement | undefined {
+  const record = asRecord(value);
+  if (!record) {
+    return undefined;
+  }
+
+  const sourceObjectId = stringField(record, "sourceObjectId");
+  const cardNo = stringField(record, "cardNo");
+  if (!sourceObjectId || !cardNo) {
+    return undefined;
+  }
+
+  return {
+    sourceObjectId,
+    cardNo,
+    displayName: stringField(record, "displayName") || cardNo,
+    destinationChoices: choiceList(record.destinationChoices),
+    optionalCostChoices: choiceList(record.optionalCostChoices),
+    manaCost: numberField(record, "manaCost"),
     composable: booleanField(record, "composable", true),
     unsupportedReason: nullableStringField(record, "unsupportedReason")
   };

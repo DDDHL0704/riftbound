@@ -2220,6 +2220,12 @@ internal static class ActionPromptBuilder
 {
     private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
     private const int BasicRuneRecyclePowerGain = 1;
+    private const string StandbyHideDestination = "STANDBY";
+    private const string StandbyHideOptionalCost = "STANDBY_A";
+    private const string StandbyHideFreeOptionalCost = "STANDBY_FREE";
+    private const string StandbyHideTeemoOptionalCost = "STANDBY_TEEMO_MANA";
+    private const int StandbyHideManaCost = 1;
+    private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
@@ -2288,6 +2294,16 @@ internal static class ActionPromptBuilder
         IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
         IReadOnlyList<string> RequiredOptionalCosts,
+        bool Composable,
+        string? UnsupportedReason);
+
+    private sealed record HideCardPromptRequirement(
+        string SourceObjectId,
+        string CardNo,
+        string DisplayName,
+        IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        int ManaCost,
         bool Composable,
         string? UnsupportedReason);
 
@@ -2565,8 +2581,9 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented payable PLAY_CARD source"))
                 .ToArray(),
-            "HIDE_CARD" => zones.Hand
-                .Where(objectId => IsImplementedStandbyHideSource(state, objectId))
+            "HIDE_CARD" => HideCardSourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented standby source"))
                 .ToArray(),
             "TAP_RUNE" => zones.Base
@@ -2604,6 +2621,109 @@ internal static class ActionPromptBuilder
                 .ToArray(),
             _ => null
         };
+    }
+
+    private static IReadOnlyList<HideCardPromptRequirement> HideCardSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        var costChoices = HideCardOptionalCostChoicesForState(state, playerId);
+        if (costChoices.Length == 0)
+        {
+            return [];
+        }
+
+        var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
+        var requirements = new List<HideCardPromptRequirement>();
+        foreach (var objectId in zones.Hand.Where(objectId => IsImplementedStandbyHideSource(state, objectId)))
+        {
+            if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                || string.IsNullOrWhiteSpace(cardObject.CardNo)
+                || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior))
+            {
+                continue;
+            }
+
+            requirements.Add(new HideCardPromptRequirement(
+                objectId,
+                behavior.CardNo,
+                behavior.DisplayName,
+                destinationChoices,
+                costChoices,
+                StandbyHideManaCost,
+                true,
+                null));
+        }
+
+        return requirements;
+    }
+
+    private static ActionPromptChoiceDto[] HideCardOptionalCostChoicesForState(
+        MatchState state,
+        string playerId)
+    {
+        var currentPool = state.RunePools.TryGetValue(playerId, out var runePool)
+            ? runePool
+            : RunePool.Empty;
+        var choices = new List<ActionPromptChoiceDto>();
+        if (currentPool.Mana >= StandbyHideManaCost)
+        {
+            choices.Add(new ActionPromptChoiceDto(StandbyHideOptionalCost, "支付 1 法力布置待命"));
+            if (HasTeemoStandbyHidePermission(state, playerId))
+            {
+                choices.Add(new ActionPromptChoiceDto(StandbyHideTeemoOptionalCost, "提莫布置待命"));
+            }
+        }
+
+        if (HasFreeStandbyHidePermission(state, playerId))
+        {
+            choices.Add(new ActionPromptChoiceDto(
+                StandbyHideFreeOptionalCost,
+                "免费布置待命",
+                "本回合已有服务端授权"));
+        }
+
+        return choices.ToArray();
+    }
+
+    private static ActionPromptChoiceDto[] HideCardDestinationChoicesForState(
+        MatchState state,
+        string playerId)
+    {
+        return
+        [
+            new ActionPromptChoiceDto(StandbyHideDestination, "待命"),
+            .. ControlledBattlefieldExtraStandbyObjects(state, playerId)
+                .Select(objectId => BattlefieldDestinationChoice(state, objectId, "班德尔树额外待命目的地"))
+        ];
+    }
+
+    private static bool HasFreeStandbyHidePermission(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            $"{FreeStandbyHideEffectPrefix}{playerId}",
+            StringComparer.Ordinal);
+    }
+
+    private static bool HasTeemoStandbyHidePermission(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.LegendZone.Any(legendObjectId =>
+                state.CardObjects.TryGetValue(legendObjectId, out var legendState)
+                && IsTeemoLegendCardNo(legendState.CardNo));
+    }
+
+    private static bool IsTeemoLegendCardNo(string? cardNo)
+    {
+        return cardNo is TeemoOriginLegendCardNo
+            or "OGN·263a/298"
+            or "OGN·307/298"
+            or "OGN·307*/298";
     }
 
     private static bool IsMovableUnitSource(MatchState state, string playerId, string objectId)
@@ -4470,9 +4590,10 @@ internal static class ActionPromptBuilder
         {
             "PLAY_CARD" => PlayCardDestinationChoices(state, playerId),
             "HIDE_CARD" => [
-                new ActionPromptChoiceDto("STANDBY", "待命"),
-                .. ControlledBattlefieldExtraStandbyObjects(state, playerId)
-                    .Select(objectId => BattlefieldDestinationChoice(state, objectId, "班德尔树额外待命目的地"))
+                .. HideCardSourceRequirements(state, playerId)
+                    .SelectMany(requirement => requirement.DestinationChoices)
+                    .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                    .Select(group => group.First())
             ],
             "MOVE_UNIT" => MoveUnitDestinationChoices(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleDestinationChoices(state, playerId),
@@ -4578,17 +4699,25 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardOptionalCostChoices(state, playerId),
-            "HIDE_CARD" => [
-                new ActionPromptChoiceDto("STANDBY_A", "支付 1 法力布置待命"),
-                new ActionPromptChoiceDto("STANDBY_FREE", "免费布置待命"),
-                new ActionPromptChoiceDto("STANDBY_TEEMO_MANA", "提莫布置待命")
-            ],
+            "HIDE_CARD" => HideCardOptionalCostChoices(state, playerId),
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleOptionalCostChoices(state, playerId),
             "LEGEND_ACT" => LegendActionOptionalCostChoices(state, playerId),
             _ => null
         };
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? HideCardOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = HideCardSourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? MoveUnitOptionalCostChoices(
@@ -5122,11 +5251,7 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardMetadataFor(state, playerId),
-            "HIDE_CARD" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "implemented-standby-card-only",
-                ["destinationPolicy"] = "server-validates-standby-or-bandle-tree-battlefield"
-            },
+            "HIDE_CARD" => HideCardMetadataFor(state, playerId),
             "TAP_RUNE" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "ready-controlled-base-rune",
@@ -5144,6 +5269,36 @@ internal static class ActionPromptBuilder
             "DECLARE_BATTLE" => DeclareBattleMetadataFor(state, playerId),
             "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> HideCardMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = HideCardSourceRequirements(state, playerId)
+            .Select(HideCardSourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-payable-standby-card-only",
+            ["destinationPolicy"] = "source-specific-server-filtered-standby-destinations",
+            ["optionalCostPolicy"] = "source-specific-server-filtered-standby-costs",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> HideCardSourceRequirementView(
+        HideCardPromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["cardNo"] = requirement.CardNo,
+            ["displayName"] = requirement.DisplayName,
+            ["destinationChoices"] = requirement.DestinationChoices,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["manaCost"] = requirement.ManaCost,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 
@@ -5797,7 +5952,7 @@ internal static class ActionPromptBuilder
             "ASSEMBLE_EQUIPMENT" => "装配装备",
             "MOVE_UNIT" => "移动单位",
             "DECLARE_BATTLE" => "声明战斗",
-            "HIDE_CARD" => "隐藏卡牌",
+            "HIDE_CARD" => "布置待命",
             "TAP_RUNE" => "横置符文",
             "RECYCLE_RUNE" => "回收符文",
             "LEGEND_ACT" => "传奇行动",
