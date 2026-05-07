@@ -369,6 +369,7 @@ public sealed class OfficialOpeningTests
             {
                 ["P1-UNIT-ROAM"] = new(
                     "P1-UNIT-ROAM",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard, "游走"],
                     ownerId: "P1",

@@ -69,6 +69,7 @@
         "manaCost": 1
       },
       "P1-UNIT-ASSEMBLE-TARGET": {
+        "cardNo": "SFD·125/221",
         "ownerId": "P1",
         "controllerId": "P1",
         "power": 3,
@@ -158,6 +159,7 @@
           "attachedToObjectId": "P1-UNIT-ASSEMBLE-TARGET"
         },
         "P1-UNIT-ASSEMBLE-TARGET": {
+          "cardNo": "SFD·125/221",
           "ownerId": "P1",
           "controllerId": "P1",
           "power": 3,

@@ -2867,6 +2867,7 @@ internal static class ActionPromptBuilder
     {
         return IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown
             && !cardObject.IsAttacking
             && !cardObject.IsDefending;
@@ -7966,6 +7967,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
             "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
+            "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
@@ -8883,6 +8885,43 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-UNKNOWN-ABILITY-SOURCE"] = new(
                     "P1-BATTLEFIELD-UNKNOWN-ABILITY-SOURCE",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownMoveUnitSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304166,
+            4166,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone: ["P1-UNIT-UNKNOWN-MOVE-SOURCE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-UNKNOWN-MOVE-SOURCE"] = new(
+                    "P1-UNIT-UNKNOWN-MOVE-SOURCE",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -11086,6 +11125,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-BAR-REGULAR"] = new(
                     "P1-BATTLEFIELD-BAR-REGULAR",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -11973,6 +12013,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-TRAPPED-UNIT"] = new(
                     "P1-BATTLEFIELD-TRAPPED-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
@@ -12016,6 +12057,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-BATTLEFIELD-WIND-RUNNER"] = new(
                     "P1-BATTLEFIELD-WIND-RUNNER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,

@@ -4476,6 +4476,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must expose a known unit card number.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         if (sourceState.IsAttacking || sourceState.IsDefending)
         {
             return RejectWithCorePrompts(
@@ -4749,6 +4757,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 "MOVE_UNIT source must be a face-up unit.",
                 ErrorCodes.InvalidTarget);
+        }
+
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must expose a known unit card number.",
+                ErrorCodes.UnsupportedCardBehavior);
         }
 
         if (!HasRoamPermission(state, intent.PlayerId, command.SourceObjectId, sourceState))

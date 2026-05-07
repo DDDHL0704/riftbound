@@ -67,6 +67,7 @@
         "manaCost": 1
       },
       "P1-UNIT-ASSEMBLE-TARGET": {
+        "cardNo": "SFD·125/221",
         "power": 3,
         "isExhausted": false,
         "tags": ["CARD_TYPE:UNIT"]
@@ -151,6 +152,7 @@
           "attachedToObjectId": "P1-UNIT-ASSEMBLE-TARGET"
         },
         "P1-UNIT-ASSEMBLE-TARGET": {
+          "cardNo": "SFD·125/221",
           "power": 3,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT"]

@@ -60,6 +60,7 @@
     },
     "cardObjects": {
       "P1-MOVE-UNIT-ATTACHED-001": {
+        "cardNo": "SFD·125/221",
         "ownerId": "P1",
         "controllerId": "P1",
         "power": 4,
@@ -146,6 +147,7 @@
       },
       "cardObjects": {
         "P1-MOVE-UNIT-ATTACHED-001": {
+          "cardNo": "SFD·125/221",
           "ownerId": "P1",
           "controllerId": "P1",
           "power": 4,

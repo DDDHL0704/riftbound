@@ -60,11 +60,13 @@
     },
     "cardObjects": {
       "P1-MOVE-BASE-KEEPER": {
+        "cardNo": "SFD·125/221",
         "power": 2,
         "isExhausted": false,
         "tags": ["CARD_TYPE:UNIT"]
       },
       "P1-MOVE-UNIT-BATTLEFIELD-001": {
+        "cardNo": "SFD·125/221",
         "power": 3,
         "isExhausted": true,
         "tags": ["CARD_TYPE:UNIT"]
@@ -129,11 +131,13 @@
       },
       "cardObjects": {
         "P1-MOVE-BASE-KEEPER": {
+          "cardNo": "SFD·125/221",
           "power": 2,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT"]
         },
         "P1-MOVE-UNIT-BATTLEFIELD-001": {
+          "cardNo": "SFD·125/221",
           "power": 3,
           "isExhausted": true,
           "tags": ["CARD_TYPE:UNIT"]

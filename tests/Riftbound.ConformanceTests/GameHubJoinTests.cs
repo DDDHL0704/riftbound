@@ -1452,6 +1452,51 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownMoveUnitSourceSeedHidesUnitWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-move-unit-source-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-move-unit-source-prompt",
+                "seed-p7-9-unknown-move-unit-source-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var moveCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.False(moveCandidate.Enabled);
+        Assert.Empty(moveCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains(
+            "P1-UNIT-UNKNOWN-MOVE-SOURCE",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownUnit = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-UNKNOWN-MOVE-SOURCE"]);
+        Assert.Null(unknownUnit["cardNo"]);
+    }
+
+    [Fact]
     public async Task P79AssemblePaymentRecycleSeedOffersResourceAndAttachesThroughHub()
     {
         const string roomId = "p7-9-assemble-payment-recycle-core";

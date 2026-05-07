@@ -35882,10 +35882,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-BASE-001"] = new(
                     "P1-MOVE-UNIT-BASE-001",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-MOVE-FIELD-KEEPER"] = new(
                     "P1-MOVE-FIELD-KEEPER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -35930,10 +35932,12 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-BASE-KEEPER"] = new(
                     "P1-MOVE-BASE-KEEPER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-MOVE-UNIT-BATTLEFIELD-001"] = new(
                     "P1-MOVE-UNIT-BATTLEFIELD-001",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     isExhausted: true,
                     tags: [CardObjectTags.UnitCard])
@@ -35959,6 +35963,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(3, result.State.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].Power);
         Assert.True(result.State.CardObjects["P1-MOVE-UNIT-BATTLEFIELD-001"].IsExhausted);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandRejectsSourceWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNKNOWN-MOVE-UNIT-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNKNOWN-MOVE-UNIT-001"] = new(
+                    "P1-UNKNOWN-MOVE-UNIT-001",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-unknown-source", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-UNKNOWN-MOVE-UNIT-001",
+                "BASE",
+                "BATTLEFIELD",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT source must expose a known unit card number.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-UNKNOWN-MOVE-UNIT-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Null(result.State.CardObjects["P1-UNKNOWN-MOVE-UNIT-001"].CardNo);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -36442,6 +36491,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-COMBATANT-001"] = new(
                     "P1-MOVE-UNIT-COMBATANT-001",
+                    cardNo: "SFD·125/221",
                     isAttacking: true,
                     power: 4,
                     tags: [CardObjectTags.UnitCard]),
@@ -36495,6 +36545,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-ATTACHED-001"] = new(
                     "P1-MOVE-UNIT-ATTACHED-001",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-MOVE-EQUIPMENT-ATTACHED-001"] = new(
@@ -36548,6 +36599,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-ATTACHED-001"] = new(
                     "P1-MOVE-UNIT-ATTACHED-001",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -36608,6 +36660,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-MOVE-UNIT-ATTACHED-001"] = new(
                     "P1-MOVE-UNIT-ATTACHED-001",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -42993,6 +43046,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-WIND-RUNNER"] = new(
                     "P1-BATTLEFIELD-WIND-RUNNER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -43023,6 +43077,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-TRAPPED-UNIT"] = new(
                     "P1-BATTLEFIELD-TRAPPED-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -43053,6 +43108,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-BAR-REGULAR"] = new(
                     "P1-BATTLEFIELD-BAR-REGULAR",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",

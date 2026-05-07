@@ -1962,6 +1962,7 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1-READY-UNIT"] = new(
                     "P1-READY-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -2000,6 +2001,53 @@ public sealed class ConformanceFixtureShapeTests
         var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["destinationChoices"]);
         Assert.Equal(["BATTLEFIELD"], destinationChoices.Select(destination => destination.Id).ToArray());
+    }
+
+    [Fact]
+    public void ActionPromptHidesMoveUnitSourceWhenUnitHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-move-unknown-source-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNKNOWN-MOVE-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNKNOWN-MOVE-UNIT"] = new(
+                    "P1-UNKNOWN-MOVE-UNIT",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.False(moveCandidate.Enabled);
+        Assert.Empty(moveCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
     }
 
     [Fact]
