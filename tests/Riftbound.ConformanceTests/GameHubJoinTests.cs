@@ -1693,6 +1693,75 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownActivateAbilityTargetSeedHidesUnitWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-activate-ability-target-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-activate-ability-target-prompt",
+                "seed-p7-9-unknown-activate-ability-target-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var abilityCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+        Assert.True(abilityCandidate.Enabled);
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            (abilityCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            (abilityCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(abilityCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var xerathRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-UNIT-XERATH-TARGET-FILTER", Assert.IsType<string>(xerathRequirement["sourceObjectId"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            xerathRequirement["targetChoicesByIndex"]);
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var xerath = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-XERATH-TARGET-FILTER"]);
+        Assert.Equal("UNL-026/219", Assert.IsType<string>(xerath["cardNo"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Equal(
+            ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+
+        var p2Snapshot = SnapshotFor(seedClients, "P2");
+        var p2Self = Assert.IsType<Dictionary<string, object?>>(p2Snapshot.Players["P2"]);
+        var p2Objects = Assert.IsType<Dictionary<string, object?>>(p2Self["objects"]);
+        var unknownTarget = Assert.IsType<Dictionary<string, object?>>(
+            p2Objects["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"]);
+        Assert.Null(unknownTarget["cardNo"]);
+    }
+
+    [Fact]
     public async Task P79UnknownMoveUnitSourceSeedHidesUnitWithoutCardNoThroughHub()
     {
         const string roomId = "p7-9-unknown-move-unit-source-prompt-core";

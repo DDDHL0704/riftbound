@@ -2714,6 +2714,81 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesActivateAbilityTargetWhenUnitHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-activate-unknown-target-room",
+            25,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-XERATH-TARGET-FILTER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH-TARGET-FILTER"] = new(
+                    "P1-UNIT-XERATH-TARGET-FILTER",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"] = new(
+                    "P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var abilityCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+
+        Assert.True(abilityCandidate.Enabled);
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            (abilityCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            (abilityCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(abilityCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var xerathRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-UNIT-XERATH-TARGET-FILTER", Assert.IsType<string>(xerathRequirement["sourceObjectId"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            xerathRequirement["targetChoicesByIndex"]);
+        Assert.Equal(
+            ["P1-UNIT-XERATH-TARGET-FILTER"],
+            targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptActivateAbilityMetadataFiltersSourcesTargetsAndSpellshieldTax()
     {
         var noResourceState = new MatchState(

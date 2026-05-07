@@ -3517,7 +3517,9 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var targetObjectId = command.TargetObjectIds[0];
         if (!IsFieldObject(state.PlayerZones, targetObjectId)
-            || !CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard))
+            || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,

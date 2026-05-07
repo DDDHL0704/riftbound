@@ -77,6 +77,7 @@
         "manaCost": 5
       },
       "P2-UNIT-STAND-FIRM-SKILL-001": {
+        "cardNo": "SFD·125/221",
         "ownerId": "P2",
         "controllerId": "P2",
         "power": 5,
@@ -310,6 +311,7 @@
           "manaCost": 5
         },
         "P2-UNIT-STAND-FIRM-SKILL-001": {
+          "cardNo": "SFD·125/221",
           "ownerId": "P2",
           "controllerId": "P2",
           "power": 5,

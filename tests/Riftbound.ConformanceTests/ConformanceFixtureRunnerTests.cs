@@ -31564,6 +31564,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-SPELLSHIELD-UNIT-001"] = new(
                     "P2-SPELLSHIELD-UNIT-001",
                     power: 5,
+                    cardNo: "SFD·125/221",
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
             }
         };
@@ -31638,6 +31639,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-SPELLSHIELD-UNIT-001"] = new(
                     "P2-SPELLSHIELD-UNIT-001",
                     power: 5,
+                    cardNo: "SFD·125/221",
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
             }
         };
@@ -31700,6 +31702,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-SPELLSHIELD-UNIT-001"] = new(
                     "P1-SPELLSHIELD-UNIT-001",
                     power: 5,
+                    cardNo: "SFD·125/221",
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
             }
         };
@@ -31850,6 +31853,69 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
         Assert.Equal(1, result.State.RunePools["P1"].TotalPower);
         Assert.False(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillTargetWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-XERATH"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new(
+                    "P1-UNIT-XERATH",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-026/219"),
+                ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"] = new(
+                    "P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-xerath-unknown-target", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, result.State.RunePools["P1"].TotalPower);
+        Assert.False(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.State.CardObjects["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"].Damage);
         Assert.Empty(result.State.StackItems);
     }
 
@@ -32218,6 +32284,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-SPELLSHIELD-UNIT-001"] = new(
                     "P2-SPELLSHIELD-UNIT-001",
                     power: 5,
+                    cardNo: "SFD·125/221",
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield])
             }
         };

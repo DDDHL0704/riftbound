@@ -7991,6 +7991,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
             "unknown-legend-action-target-prompt" => BuildUnknownLegendActionTargetPromptScenario(current, seed),
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
+            "unknown-activate-ability-target-prompt" => BuildUnknownActivateAbilityTargetPromptScenario(current, seed),
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
             "unknown-rune-source-prompt" => BuildUnknownRuneSourcePromptScenario(current, seed),
             "unknown-declare-battle-source-prompt" => BuildUnknownDeclareBattleSourcePromptScenario(current, seed),
@@ -9122,6 +9123,51 @@ public sealed class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownActivateAbilityTargetPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304175,
+            4175,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(0, 1),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P1-UNIT-XERATH-TARGET-FILTER"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH-TARGET-FILTER"] = new(
+                    "P1-UNIT-XERATH-TARGET-FILTER",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET"] = new(
+                    "P2-UNIT-UNKNOWN-ACTIVATE-ABILITY-TARGET",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

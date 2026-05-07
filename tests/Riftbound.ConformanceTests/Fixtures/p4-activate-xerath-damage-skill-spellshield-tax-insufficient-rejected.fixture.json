@@ -67,6 +67,7 @@
         "manaCost": 5
       },
       "P2-SPELLSHIELD-UNIT-001": {
+        "cardNo": "SFD·125/221",
         "power": 5,
         "damage": 0,
         "tags": ["CARD_TYPE:UNIT", "法盾"]
@@ -126,6 +127,7 @@
           "manaCost": 5
         },
         "P2-SPELLSHIELD-UNIT-001": {
+          "cardNo": "SFD·125/221",
           "power": 5,
           "damage": 0,
           "tags": ["CARD_TYPE:UNIT", "法盾"]
