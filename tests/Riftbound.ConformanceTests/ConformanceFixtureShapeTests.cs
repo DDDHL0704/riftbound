@@ -2267,6 +2267,85 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesMoveUnitBattlefieldDestinationWhenCardHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-move-unknown-battlefield-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                        "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                        "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"] = new(
+                    "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"] = new(
+                    "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                    cardNo: "SFD·096/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "游走"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"),
+                ["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"),
+                ["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+
+        Assert.True(moveCandidate.Enabled);
+        Assert.Contains(moveCandidate.Sources ?? [], source => string.Equals(source.Id, "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            moveCandidate.Destinations ?? [],
+            choice => string.Equals(choice.Id, "BATTLEFIELD:P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var roamRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(requirement["mode"] as string, "ROAM", StringComparison.Ordinal));
+        var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            roamRequirement["destinationChoices"]);
+        Assert.Equal(["BATTLEFIELD:P1-MAIN"], destinationChoices.Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptHidesRuneSourcesWhenRuneHasNoCardNo()
     {
         var state = new MatchState(

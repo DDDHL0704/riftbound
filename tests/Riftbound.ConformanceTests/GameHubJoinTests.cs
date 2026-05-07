@@ -1807,6 +1807,62 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownMoveUnitBattlefieldSeedHidesDestinationWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-move-unit-battlefield-prompt-core";
+        const string unknownBattlefieldObjectId = "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-move-unit-battlefield-prompt",
+                "seed-p7-9-unknown-move-unit-battlefield-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var moveCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        Assert.True(moveCandidate.Enabled);
+        Assert.Contains(
+            moveCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            moveCandidate.Destinations ?? [],
+            choice => string.Equals(choice.Id, $"BATTLEFIELD:{unknownBattlefieldObjectId}", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var roamRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(requirement["mode"] as string, "ROAM", StringComparison.Ordinal));
+        var destinationChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            roamRequirement["destinationChoices"]);
+        Assert.Equal(["BATTLEFIELD:P1-MAIN"], destinationChoices.Select(choice => choice.Id).ToArray());
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains(
+            unknownBattlefieldObjectId,
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownBattlefield = Assert.IsType<Dictionary<string, object?>>(p1Objects[unknownBattlefieldObjectId]);
+        Assert.Null(unknownBattlefield["cardNo"]);
+    }
+
+    [Fact]
     public async Task P79UnknownRuneSourceSeedHidesRuneWithoutCardNoThroughHub()
     {
         const string roomId = "p7-9-unknown-rune-source-prompt-core";

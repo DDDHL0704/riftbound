@@ -4763,6 +4763,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (!MoveUnitPreciseBattlefieldLocationIsKnownOrAbstract(state, originLocation)
+            || !MoveUnitPreciseBattlefieldLocationIsKnownOrAbstract(state, destinationLocation))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT precise battlefield card locations must expose a known battlefield card number.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         var sourceLocation = FindFieldObjectLocation(state.PlayerZones, command.SourceObjectId);
         if (sourceLocation is null
             || !string.Equals(sourceLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
@@ -13464,6 +13473,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         return location.StartsWith(
             $"{MoveUnitBattlefieldZone}:{playerId}-",
             StringComparison.Ordinal);
+    }
+
+    private static bool MoveUnitPreciseBattlefieldLocationIsKnownOrAbstract(MatchState state, string location)
+    {
+        var battlefieldObjectId = PreciseBattlefieldLocationObjectId(location);
+        if (string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !state.CardObjects.TryGetValue(battlefieldObjectId, out var cardObject))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && IsBattlefieldCardObject(cardObject);
     }
 
     private static bool HasRoamPermission(

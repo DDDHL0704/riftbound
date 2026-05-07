@@ -37122,6 +37122,74 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectsPreciseBattlefieldDestinationWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                        "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                        "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"] = new(
+                    "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"] = new(
+                    "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                    cardNo: "SFD·096/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "游走"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"),
+                ["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"),
+                ["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-unknown-cardno-battlefield", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                "BATTLEFIELD:P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                "BATTLEFIELD:P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(
+            "MOVE_UNIT precise battlefield card locations must expose a known battlefield card number.",
+            result.ErrorMessage);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal("P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN", result.State.ObjectLocations["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"].BattlefieldObjectId);
+        Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"].CardNo);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsPreciseBattlefieldDestinationWithoutRoamCost()
     {
         var state = PunishmentState(mana: 0) with

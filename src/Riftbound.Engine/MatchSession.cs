@@ -3007,7 +3007,7 @@ internal static class ActionPromptBuilder
         var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
             !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && IsBattlefieldCardObject(cardObject));
+            && IsPromptBattlefieldCardObject(cardObject));
         if (string.IsNullOrWhiteSpace(battlefieldObjectId))
         {
             return false;
@@ -3026,7 +3026,7 @@ internal static class ActionPromptBuilder
         IEnumerable<ActionPromptChoiceDto> choices = state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Battlefields
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    && IsBattlefieldCardObject(cardObject))
+                    && IsPromptBattlefieldCardObject(cardObject))
                 .Select(objectId => new ActionPromptChoiceDto(
                     $"{MoveUnitBattlefieldZone}:{objectId}",
                     BattlefieldLocationLabel(state, objectId),
@@ -8009,6 +8009,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
             "unknown-activate-ability-target-prompt" => BuildUnknownActivateAbilityTargetPromptScenario(current, seed),
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
+            "unknown-move-unit-battlefield-prompt" => BuildUnknownMoveUnitBattlefieldPromptScenario(current, seed),
             "unknown-rune-source-prompt" => BuildUnknownRuneSourcePromptScenario(current, seed),
             "unknown-declare-battle-source-prompt" => BuildUnknownDeclareBattleSourcePromptScenario(current, seed),
             "unknown-declare-battle-battlefield-prompt" => BuildUnknownDeclareBattleBattlefieldPromptScenario(current, seed),
@@ -9223,6 +9224,79 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
+    }
+
+    private static MatchState BuildUnknownMoveUnitBattlefieldPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603304173,
+            4173,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields:
+                    [
+                        "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                        "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                        "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"] = new(
+                    "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"] = new(
+                    "P1-UNIT-ROAM-MOVE-DESTINATION-FILTER",
+                    cardNo: "SFD·096/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "游走"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+
+        return state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(state.ObjectLocations, StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"] = new(
+                    seed.P1,
+                    "BATTLEFIELD",
+                    "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"),
+                ["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"] = new(
+                    seed.P1,
+                    "BATTLEFIELD",
+                    "P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN"),
+                ["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"] = new(
+                    seed.P1,
+                    "BATTLEFIELD",
+                    "P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION")
+            }
+        };
     }
 
     private static MatchState BuildUnknownRuneSourcePromptScenario(MatchState current, DevScenarioSeed seed)
