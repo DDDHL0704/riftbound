@@ -784,6 +784,91 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79TypedPowerPaymentMixedRecycleSeedExposesTraitsAndAcceptsMatchingResourceThroughHub()
+    {
+        const string roomId = "p7-9-typed-power-payment-mixed-recycle-core";
+        const string redPaymentRuneObjectId = "P1-RUNE-RED-PARTIAL-PAYMENT-001";
+        const string bluePaymentRuneObjectId = "P1-RUNE-BLUE-EXTRA-PAYMENT-001";
+        var redPaymentResourceAction = $"RECYCLE_RUNE:{redPaymentRuneObjectId}";
+        var bluePaymentResourceAction = $"RECYCLE_RUNE:{bluePaymentRuneObjectId}";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "typed-power-payment-mixed-recycle", "seed-p7-9-typed-power-payment-mixed-recycle");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Contains(redPaymentResourceAction, paymentResourceChoices);
+        Assert.Contains(bluePaymentResourceAction, paymentResourceChoices);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePowerByChoice[redPaymentResourceAction]["trait"]));
+        Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(paymentResourcePowerByChoice[bluePaymentResourceAction]["trait"]));
+
+        var rejectedClients = new RecordingHubClients();
+        await CreateHub(rejectedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-mixed-reject-blue", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-BULLET-TIME",
+                cardNo = "OGN·268/298",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { bluePaymentResourceAction, "SPEND_POWER:red:2" }
+        }));
+
+        var error = Assert.Single(rejectedClients.CallerClient.Errors);
+        var errorPayload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.InsufficientCost, errorPayload.Code);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-typed-power-mixed-red-bullet-time", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-BULLET-TIME",
+                cardNo = "OGN·268/298",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { redPaymentResourceAction, "SPEND_POWER:red:2" }
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([redPaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        var snapshot = SnapshotFor(playClients, "P1");
+        var stackItem = Assert.IsType<Dictionary<string, object?>>(Assert.Single(snapshot.Stack));
+        Assert.Equal(2, Assert.IsType<int>(stackItem["damageAmount"]));
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        var baseZone = Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]);
+        Assert.DoesNotContain(redPaymentRuneObjectId, baseZone);
+        Assert.Contains(bluePaymentRuneObjectId, baseZone);
+        var runePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(runePool["powerByTrait"]);
+        Assert.DoesNotContain(RuneTrait.Red, powerByTrait.Keys);
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

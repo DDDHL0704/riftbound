@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **87%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
+当前完成度：约 **88%**，预计仍需 **2-3 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -196,6 +196,7 @@
 - 支付资源 UI 闭环继续收紧：服务端 `PLAY_CARD.sourceRequirements` 新增 `paymentResourcePowerByChoice`，逐个 `RECYCLE_RUNE:*` token 暴露 trait 与 power 贡献；前端只按该服务端元数据计算当前所选 `SPEND_POWER:*` / 代表性 `HASTE_READY` 还缺多少资源。未补足时确认禁用，刚好补足后额外资源禁用，trait 不匹配或缺少贡献元数据的资源不会被当作可支付选择；前端仍不自行读取卡面或对象状态裁决资源能力。
 - 新增 Development-only `typed-power-payment-over-recycle` seed，用于 smoke“当前 1 红 + 两张可回收红符文 + 只需支付 2 红”的 UI 场景，验证前端不会允许用户把两张符文都夹带进同一次 `PLAY_CARD`。
 - 新增 Development-only `typed-power-payment-double-recycle` seed，用于 smoke“当前没有红色符能 + 两张可回收红符文 + 需要支付 2 红”的 UI 场景，验证前端不是硬性限制只能选一张支付资源，而是按服务端贡献元数据允许两张都选中后再提交。
+- 新增 Development-only `typed-power-payment-mixed-recycle` seed，用于 smoke“当前 1 红 + red/blue 两张可回收符文 + 需要支付 2 红”的 UI 场景。前端选择 `SPEND_POWER:red:2` 后，blue 支付资源因 trait 不匹配禁用，red 支付资源可选并能提交；前端不从对象 tag 自行推断颜色，只消费服务端 `paymentResourcePowerByChoice`。
 - Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
 - 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
 - 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
@@ -203,6 +204,7 @@
 - 当前已通过后台 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-typed-power-recycle-1uj64kjn`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `typed-power-payment-recycle`；P1 打开《弹幕时间》详情抽屉，选择 `支付 2 红色符能` 时“确认打出”仍禁用，继续选择 `回收符文支付：P1-RUNE-RED-PARTIAL-PAYMENT-001` 后才启用。确认后事件日志显示“回收符文 / 支付费用 / 加入结算链”，authoritative snapshot 中 stack item `damageAmount = 2`，P1 基地为空、符文牌堆计数为 2、`runePool.powerByTrait` 已无 red；reload/reconnect 后仍恢复包含 `P1-SPELL-BULLET-TIME` 与 `damageAmount` 的 stack snapshot。
 - 当前已通过后台 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-over-recycle-ui-x3dj3adn`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `typed-power-payment-over-recycle`；P1 打开《弹幕时间》详情抽屉，选择 `支付 2 红色符能` 后确认仍禁用，支付资源组显示两张红色符文候选。选择第一张后确认启用，第二张立即禁用且点击不会加入命令。提交后事件日志显示“回收符文 / 支付费用 / 加入结算链”，authoritative snapshot 中 `damageAmount = 2`、只回收 `P1-RUNE-RED-EXTRA-PAYMENT-001`、`P1-RUNE-RED-PARTIAL-PAYMENT-001` 留在基地、`runeDeckCount = 2`、red power 扣空；reload/reconnect 后仍恢复该 stack snapshot。
 - 当前已通过独立 Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，Computer Use 读取直启测试 Chrome 时返回 `cgWindowNotFound`，因此使用可见 Chrome 的 CDP 端口完成断言。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-double-recycle-ui-w3n10ikh`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `typed-power-payment-double-recycle`；P1 选择 `支付 2 红色符能` 后确认禁用，选择第一张支付资源后确认仍禁用且第二张仍可选，两张都选择后确认启用。提交后事件日志显示“回收符文 / 支付费用 / 加入结算链”，authoritative snapshot 中两张符文都离开基地、`runeDeckCount = 3`、stack `damageAmount = 2`；reload/reconnect 后仍恢复该 stack snapshot。
+- 当前已通过独立 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-mixed-recycle-ui-nieihg25`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `typed-power-payment-mixed-recycle`；P1 选择 `支付 2 红色符能` 后，blue 支付资源禁用且点击不生效，red 支付资源可选。选中 red 后确认启用并提交，事件日志显示“回收符文 / 支付费用 / 加入结算链”；authoritative snapshot 中 red 符文离开基地、blue 符文仍在基地、`runeDeckCount = 2`、stack `damageAmount = 2`；reload/reconnect 后仍恢复该 stack snapshot。
 - 争夺战场的服务端任务队列新增权威推进入口：状态变化后若留下争夺战场且无致命/0 战力清理优先项，服务端会广播 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` 并进入 `SPELL_DUEL_OPEN`，前端只展示 resulting snapshot/prompt，不提供自定义“启动法术对决”按钮。
 - 新增 Development-only `battlefield-contest-stack` seed，专门用于 smoke“优先权栈项目结算后留下争夺战场 -> 服务端自动启动法术对决”的链路。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角看到 `BATTLEFIELD_TASKS`、争夺战场与阻塞队列；Node 让 P1 过优先权后，事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，状态切到 `SPELL_DUEL_OPEN`，P2 只获得服务端给出的 `PASS_FOCUS`。
@@ -228,6 +230,8 @@
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：本批支付资源精确选择回归通过 2902/2902。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P7PlayCardAllowsRequiredMultipleRecycledPaymentResourceActions|FullyQualifiedName~P7PlayCardRejectsOverRecycledPaymentResourceActions|FullyQualifiedName~P79TypedPowerPaymentDoubleRecycleSeedRequiresBothResourcesAndPlaysThroughHub"`：通过 3/3。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：本批双支付资源回归通过 2904/2904。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P7PlayCardPaymentResourceContributionMetadataSeparatesTraits|FullyQualifiedName~P79TypedPowerPaymentMixedRecycleSeedExposesTraitsAndAcceptsMatchingResourceThroughHub"`：通过 2/2。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：本批 mixed-trait 支付资源回归通过 2906/2906。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"`：通过 46/46。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineStartsBattlefieldSpellDuelAfterStackResolutionLeavesContestedBattlefield"`：通过 1/1。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PendingTaskQueueUsesStartBattleTaskAfterContestSpellDuelCloses"`：通过 1/1。
@@ -278,7 +282,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**87%**
+估算整体进度：**88%**
 
 已经完成：
 
@@ -316,13 +320,14 @@
 - P0-005 补齐代表性出牌支付步骤资源动作与 X 符能金额候选：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付；X 符能法术 prompt 会按当前可支付上限公开金额选项，前端不得自行构造未出现在候选中的资源动作或金额。
 - P0-005 进一步补齐逐支付资源贡献元数据和 UI 精确选择：`paymentResourcePowerByChoice` 让前端能只按服务端数据判断“还缺多少、哪类资源能补足”，当前 1 红 + 两张可回收红符文的场景已通过 smoke 验证只能选择一张并提交，另一张保持在基地；后端 full test 当前通过 2902/2902，前端 build 已通过。
 - P0-005 补齐真实需要两张支付资源的代表性证据：当前没有红色符能、两张红色符文都必须回收时，前端会在第一张选中后保持确认禁用并允许第二张继续选择，两张都选中后才启用确认；后端 full test 当前通过 2904/2904，真实 UI smoke 已通过。
+- P0-005 补齐 typed 费用错 trait 支付资源禁用证据：red/blue 两张可回收符文同时出现时，`SPEND_POWER:red:2` 只允许 red 资源补足，blue 资源在 UI 中禁用且服务端提交兜底拒绝；后端 full test 当前通过 2906/2906，真实 UI smoke 已通过。
 - 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；该批后端 full test 验证为 2889/2889。
 - P0-004 补齐同优先级壁垒防守者顺序选择的代表性证据：`DECLARE_BATTLE` metadata 记录同级顺序策略，Development-only `battle-same-priority-bulwark` seed 和后台 smoke 均验证前端只按服务端候选提交顺序；后端 full test 当前通过 2893/2893。
 - P0-004 补齐无胜者战斗状态代表性证据：服务端广播 `BATTLE_NO_RESULT`，前端事件日志中文显示“战斗无结果”，Development-only `battle-no-result` seed 与后台 smoke 验证双方同归于尽后 battle inactive、双方单位入墓；后端 full test 当前通过 2895/2895。
 - P0-004 补齐 2 攻击者 + 2 防守者组合代表路径：服务端 `DECLARE_BATTLE.sourceRequirements` 可同时暴露第二攻击者槽和第二防守者槽，metadata 明确 `multiParticipantBattlePolicy = up-to-two-attackers-and-defenders-without-independent-assignment-prompt`；Development-only `battle-multi-participant` seed 与后台 Chrome/CDP smoke 覆盖 P1 点击《盖伦》、选择《易》作为第二攻击者、选择壁垒与普通防守者后确认，事件日志显示“造成伤害”“战斗结束”，最终 snapshot 显示易留场 1 伤害、盖伦和 P2 两个防守者入墓，reload/reconnect 后恢复同一结果；后端 full test 当前通过 2897/2897。
 - P0-004 补齐最近战斗结果 snapshot：服务端 `timing.battleResolutions` 会持久公开最近 `BATTLE_CLOSED` / `BATTLE_NO_RESULT` 的结构化结果，包含攻防玩家、胜者/无胜者、攻防对象、幸存对象和摧毁对象；前端规则队列只读显示“战斗结束：P1”等结果。后台 Chrome/CDP smoke 覆盖 2 攻 + 2 防战斗后右侧显示 `战斗结束：P1`，reload/reconnect 后仍由 authoritative snapshot 恢复同一标签；后端 full test 当前通过 2897/2897。
 
-预计剩余批次数：**3 批左右**
+预计剩余批次数：**2-3 批左右**
 
 原因：
 

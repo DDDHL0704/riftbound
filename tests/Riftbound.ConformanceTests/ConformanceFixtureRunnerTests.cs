@@ -2044,6 +2044,125 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PlayCardPaymentResourceContributionMetadataSeparatesTraits()
+    {
+        const string redRuneObjectId = "P1-RUNE-RED-PARTIAL-PAYMENT-001";
+        const string blueRuneObjectId = "P1-RUNE-BLUE-EXTRA-PAYMENT-001";
+        var redPaymentResourceAction = $"RECYCLE_RUNE:{redRuneObjectId}";
+        var bluePaymentResourceAction = $"RECYCLE_RUNE:{blueRuneObjectId}";
+        var state = PunishmentState(mana: 1) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    1,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BULLET-TIME"],
+                    Base = [redRuneObjectId, blueRuneObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BULLET-TIME-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BULLET-TIME"] = new(
+                    "P1-SPELL-BULLET-TIME",
+                    cardNo: "OGN·268/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [redRuneObjectId] = new(
+                    redRuneObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [blueRuneObjectId] = new(
+                    blueRuneObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BULLET-TIME"] = new("P1", "HAND"),
+                [redRuneObjectId] = new("P1", "BASE"),
+                [blueRuneObjectId] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK"),
+                ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePowerByChoice[redPaymentResourceAction]["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(paymentResourcePowerByChoice[redPaymentResourceAction]["power"]));
+        Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(paymentResourcePowerByChoice[bluePaymentResourceAction]["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(paymentResourcePowerByChoice[bluePaymentResourceAction]["power"]));
+
+        var rejected = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bullet-time-mismatched-recycle-rune-payment", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:red:2"]),
+            CancellationToken.None);
+
+        Assert.False(rejected.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, rejected.ErrorCode);
+        Assert.Equal([redRuneObjectId, blueRuneObjectId], rejected.State.PlayerZones["P1"].Base);
+        Assert.Equal(1, rejected.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Empty(rejected.Events);
+
+        var accepted = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bullet-time-matching-recycle-rune-payment", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: [redPaymentResourceAction, "SPEND_POWER:red:2"]),
+            CancellationToken.None);
+
+        Assert.True(accepted.Accepted, accepted.ErrorMessage);
+        Assert.DoesNotContain(redRuneObjectId, accepted.State.PlayerZones["P1"].Base);
+        Assert.Contains(blueRuneObjectId, accepted.State.PlayerZones["P1"].Base);
+        Assert.Equal(2, Assert.Single(accepted.State.StackItems).DamageAmount);
+        var costEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([redPaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+    }
+
+    [Fact]
     public async Task P7PlayCardAllowsRequiredMultipleRecycledPaymentResourceActions()
     {
         const string firstRuneObjectId = "P1-RUNE-RED-PARTIAL-PAYMENT-001";
