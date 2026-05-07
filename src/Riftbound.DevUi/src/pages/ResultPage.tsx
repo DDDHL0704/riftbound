@@ -16,7 +16,7 @@ export function ResultPage({ matchId }: { matchId: string; onNavigate: unknown }
   const players = Object.entries(snapshot?.players ?? {});
 
   useEffect(() => {
-    void controller.join();
+    void controller.join().catch(() => undefined);
   }, [controller.join]);
 
   return (

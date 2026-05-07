@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MatchSocket } from "../services/matchSocket";
 import { buildStarterDeck } from "../services/starterDeck";
 import {
@@ -72,6 +72,11 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     socketRef.current = nextSocket;
     return nextSocket;
   }, [rememberSession, serverUrl]);
+
+  useEffect(() => () => {
+    socketRef.current?.disconnect().catch(() => undefined);
+    socketRef.current = undefined;
+  }, []);
 
   const join = useCallback(async () => {
     const stored = loadSession(roomId, playerId);
