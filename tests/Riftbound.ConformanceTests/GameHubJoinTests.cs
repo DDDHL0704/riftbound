@@ -946,6 +946,101 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79HastePaymentRecycleSeedPaysReadyBranchThroughHub()
+    {
+        const string roomId = "p7-9-haste-payment-recycle-core";
+        const string paymentRuneObjectId = "P1-RUNE-PURPLE-HASTE-PAYMENT-001";
+        var paymentResourceAction = $"RECYCLE_RUNE:{paymentRuneObjectId}";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "haste-payment-recycle", "seed-p7-9-haste-payment-recycle");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Contains(HasteOptionalCostNames.HasteReady, optionalCostChoices);
+        Assert.Contains(paymentResourceAction, optionalCostChoices);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Contains(paymentResourceAction, paymentResourceChoices);
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["hasteReadyPowerCost"]));
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-haste-payment-recycle-sivir", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-UNIT-SIVIR",
+                cardNo = "SFD·143/221",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { paymentResourceAction, HasteOptionalCostNames.HasteReady }
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(5, costEvent.Payload["mana"]);
+        Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        var playSnapshot = SnapshotFor(playClients, "P1");
+        Assert.Single(playSnapshot.Stack);
+
+        var passP1Clients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-haste-payment-recycle-p1-pass", passPriority);
+
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-haste-payment-recycle-p2-pass", passPriority);
+
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP2Clients);
+        var unitPlayedEvent = Assert.Single(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Equal(true, unitPlayedEvent.Payload["hasteReadyOptionalCostPaid"]);
+        Assert.Equal(false, unitPlayedEvent.Payload["isExhausted"]);
+        var finalSnapshot = SnapshotFor(passP2Clients, "P1");
+        Assert.Empty(finalSnapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        var baseZone = Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]);
+        Assert.Contains("P1-UNIT-SIVIR", baseZone);
+        Assert.DoesNotContain(paymentRuneObjectId, baseZone);
+        Assert.Equal(2, Assert.IsType<int>(p1Zones["runeDeckCount"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var sivir = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-SIVIR"]);
+        Assert.False(Assert.IsType<bool>(sivir["isExhausted"]));
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

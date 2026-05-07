@@ -7137,6 +7137,7 @@ public sealed class MatchSession : IMatchSession
             "typed-power-payment-double-recycle" => BuildTypedPowerPaymentDoubleRecycleScenario(current, seed),
             "typed-power-payment-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
             "typed-power-payment-generic-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
+            "haste-payment-recycle" => BuildHastePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -7647,6 +7648,59 @@ public sealed class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildHastePaymentRecycleScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302697,
+            697,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(5, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: ["P1-RUNE-BOTTOM-001"],
+                    hand: ["P1-UNIT-SIVIR"],
+                    baseZone: ["P1-RUNE-PURPLE-HASTE-PAYMENT-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-SIVIR"] = new(
+                    "P1-UNIT-SIVIR",
+                    cardNo: "SFD·143/221",
+                    tags: [CardObjectTags.UnitCard, CardPermissionKeywordNames.Haste],
+                    manaCost: 4,
+                    power: 4,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-PURPLE-HASTE-PAYMENT-001"] = new(
+                    "P1-RUNE-PURPLE-HASTE-PAYMENT-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:purple"],
+                    cardNo: "UNL-R04",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
             });
     }
 
