@@ -40947,6 +40947,71 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandRejectsBattlefieldDestinationWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                        "P1-BATTLE-KNOWN-ATTACKER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-KNOWN-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLE-KNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-KNOWN-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-KNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-KNOWN-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-unknown-cardno-battlefield", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                ["P1-BATTLE-KNOWN-ATTACKER"],
+                ["P2-BATTLE-KNOWN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION"].CardNo);
+        Assert.False(result.State.CardObjects["P1-BATTLE-KNOWN-ATTACKER"].IsAttacking);
+        Assert.False(result.State.CardObjects["P2-BATTLE-KNOWN-DEFENDER"].IsDefending);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandSingleCombatantsFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -6514,7 +6514,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        return TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefieldId, out _, out _);
+        return TryGetBattlefieldCardObject(state.PlayerZones, state.CardObjects, battlefieldId, out _, out var battlefieldState)
+            && !string.IsNullOrWhiteSpace(battlefieldState.CardNo);
     }
 
     private static bool DeclareBattleMatchesActiveStartBattleTask(

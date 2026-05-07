@@ -4913,7 +4913,9 @@ internal static class ActionPromptBuilder
     {
         if (ResolutionResult.ActiveStartBattleTask(state) is { BattlefieldObjectId.Length: > 0 } activeStartBattleTask)
         {
-            return [ObjectChoice(state, activeStartBattleTask.BattlefieldObjectId, "当前争夺战场战斗任务")];
+            return IsPromptBattlefieldCardObject(state, activeStartBattleTask.BattlefieldObjectId)
+                ? [ObjectChoice(state, activeStartBattleTask.BattlefieldObjectId, "当前争夺战场战斗任务")]
+                : null;
         }
 
         var choices = new[]
@@ -5122,7 +5124,9 @@ internal static class ActionPromptBuilder
             .ToArray();
         var battlefieldChoices = string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
             ? DeclareBattleDestinationChoices(state, playerId)?.ToArray() ?? []
-            : [ObjectChoice(state, activeBattlefieldObjectId, "当前争夺战场战斗任务")];
+            : IsPromptBattlefieldCardObject(state, activeBattlefieldObjectId)
+                ? [ObjectChoice(state, activeBattlefieldObjectId, "当前争夺战场战斗任务")]
+                : [];
         if (defenderChoices.Length == 0 || battlefieldChoices.Length == 0)
         {
             return [];
@@ -6050,7 +6054,19 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.Values
             .SelectMany(zones => zones.Battlefields)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldCardObject(cardObject));
+                && IsPromptBattlefieldCardObject(cardObject));
+    }
+
+    private static bool IsPromptBattlefieldCardObject(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && IsPromptBattlefieldCardObject(cardObject);
+    }
+
+    private static bool IsPromptBattlefieldCardObject(CardObjectState cardObject)
+    {
+        return !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && IsBattlefieldCardObject(cardObject);
     }
 
     private static IEnumerable<(string PlayerId, string ObjectId)> OpposingBattlefieldObjects(MatchState state, string playerId)
@@ -7995,6 +8011,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
             "unknown-rune-source-prompt" => BuildUnknownRuneSourcePromptScenario(current, seed),
             "unknown-declare-battle-source-prompt" => BuildUnknownDeclareBattleSourcePromptScenario(current, seed),
+            "unknown-declare-battle-battlefield-prompt" => BuildUnknownDeclareBattleBattlefieldPromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
@@ -9281,6 +9298,61 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P2-BATTLE-UNKNOWN-DEFENDER"] = new(
                     "P2-BATTLE-UNKNOWN-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildUnknownDeclareBattleBattlefieldPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304172,
+            4172,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields:
+                    [
+                        "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                        "P1-BATTLE-KNOWN-ATTACKER"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-BATTLE-KNOWN-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-KNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-KNOWN-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-KNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-KNOWN-DEFENDER",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,

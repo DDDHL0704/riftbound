@@ -633,6 +633,84 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesDeclareBattleBattlefieldDestinationWhenCardHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-declare-battle-unknown-battlefield-room",
+            25,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                        "P1-BATTLE-KNOWN-ATTACKER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-KNOWN-DEFENDER"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLE-KNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-KNOWN-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-KNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-KNOWN-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var battleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        Assert.True(battleCandidate.Enabled);
+        Assert.Equal(["P1-BATTLE-KNOWN-ATTACKER"], (battleCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P2-BATTLE-KNOWN-DEFENDER"], (battleCandidate.Targets ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            battleCandidate.Destinations ?? [],
+            choice => string.Equals(choice.Id, "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var battlefieldChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["battlefieldChoices"]);
+        Assert.DoesNotContain(
+            battlefieldChoices,
+            choice => string.Equals(choice.Id, "P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(
