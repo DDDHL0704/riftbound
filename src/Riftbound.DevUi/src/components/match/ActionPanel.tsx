@@ -1,5 +1,6 @@
 import { Check, Hourglass, Play, Send } from "lucide-react";
-import { ActionPromptCandidateDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import { useEffect, useMemo, useState } from "react";
+import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
 import { actionLabel, promptActionLabel } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -30,7 +31,13 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
       </div>
       <div className="action-buttons">
         {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可执行候选。</span>}
-        {candidates.map((candidate) => (
+        {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
+          <MulliganCandidate
+            candidate={candidate}
+            key={`${candidate.action}-${candidate.label}`}
+            onCommand={onCommand}
+          />
+        ) : (
           <CandidateButton
             candidate={candidate}
             key={`${candidate.action}-${candidate.label}`}
@@ -42,6 +49,98 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
         ))}
       </div>
     </section>
+  );
+}
+
+function MulliganCandidate({
+  candidate,
+  onCommand
+}: {
+  candidate: ActionPromptCandidateDto;
+  onCommand: (command: GameCommand) => void;
+}) {
+  const choices = useMemo(() => candidate.sources ?? [], [candidate.sources]);
+  const maxSelectionCount = numberMetadata(candidate.metadata, "maxSelectionCount");
+  const sourceKey = choices.map((choice) => choice.id).join("|");
+  const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSelectedObjectIds((current) => {
+      const allowed = new Set(choices.map((choice) => choice.id));
+      const kept = current.filter((objectId) => allowed.has(objectId));
+      return maxSelectionCount == null ? [] : kept.slice(0, maxSelectionCount);
+    });
+  }, [maxSelectionCount, sourceKey, choices]);
+
+  const hasServerLimit = maxSelectionCount != null;
+  const canSubmit = candidate.enabled && hasServerLimit && selectedObjectIds.length <= maxSelectionCount;
+
+  return (
+    <div className="mulligan-selector">
+      <div className="mulligan-summary">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{hasServerLimit ? `已选 ${selectedObjectIds.length} / ${maxSelectionCount}` : "等待服务端选择上限"}</span>
+      </div>
+      <div className="mulligan-choice-list">
+        {choices.length === 0 && <span className="empty-hint">服务端未提供可调度手牌候选。</span>}
+        {choices.map((choice) => (
+          <MulliganChoiceButton
+            choice={choice}
+            disabled={!candidate.enabled || !hasServerLimit}
+            key={choice.id}
+            maxSelectionCount={maxSelectionCount ?? 0}
+            selected={selectedObjectIds.includes(choice.id)}
+            selectedCount={selectedObjectIds.length}
+            toggle={() => {
+              setSelectedObjectIds((current) => current.includes(choice.id)
+                ? current.filter((objectId) => objectId !== choice.id)
+                : current.length < (maxSelectionCount ?? 0)
+                  ? [...current, choice.id]
+                  : current);
+            }}
+          />
+        ))}
+      </div>
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => onCommand({ cmdType: "MULLIGAN", handObjectIds: selectedObjectIds })}
+        title={candidate.reason}
+        variant={candidate.enabled ? "primary" : "ghost"}
+      >
+        确认起手调整
+      </Button>
+    </div>
+  );
+}
+
+function MulliganChoiceButton({
+  choice,
+  disabled,
+  maxSelectionCount,
+  selected,
+  selectedCount,
+  toggle
+}: {
+  choice: ActionPromptChoiceDto;
+  disabled: boolean;
+  maxSelectionCount: number;
+  selected: boolean;
+  selectedCount: number;
+  toggle: () => void;
+}) {
+  const lockedByLimit = !selected && selectedCount >= maxSelectionCount;
+  return (
+    <button
+      className={`mulligan-choice ${selected ? "is-selected" : ""}`}
+      disabled={disabled || lockedByLimit}
+      onClick={toggle}
+      title={choice.reason ?? choice.id}
+      type="button"
+    >
+      <span>{choice.label}</span>
+      <small>{selected ? "将调度" : lockedByLimit ? "已达上限" : "保留"}</small>
+    </button>
   );
 }
 
@@ -111,8 +210,6 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
       return { cmdType: "PASS" };
     case "END_TURN":
       return { cmdType: "END_TURN" };
-    case "MULLIGAN":
-      return { cmdType: "MULLIGAN", handObjectIds: [] };
     case "WAIT":
       return undefined;
     default:
@@ -159,6 +256,11 @@ function findCardNo(snapshot: SnapshotDto | undefined, objectId: string): string
   }
 
   return undefined;
+}
+
+function numberMetadata(metadata: Record<string, unknown> | null | undefined, key: string): number | undefined {
+  const value = metadata?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 export function candidateListLabel(prompt?: ActionPromptDto): string {

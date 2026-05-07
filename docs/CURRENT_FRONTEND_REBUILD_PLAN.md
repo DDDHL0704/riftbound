@@ -404,6 +404,8 @@
 - 真实 Postgres recovery store smoke 已覆盖 migration/journal/state snapshot/recovery frame/registry 恢复闭环，并修复 `MatchState` seed/rngCursor 构造参数类型导致 authoritative snapshot 无法反序列化的问题。
 - recovery frame 已携带公开 spectator replay frame，使用 authoritative state hash 和 spectator redaction，Postgres smoke 覆盖 seed/rngCursor 不泄漏。
 - recovery validator 已校验 spectator replay frame 与 authoritative state 对齐：room、tick、last event sequence、authoritative hash 必须一致，且公开 frame timing 不得泄漏 `seed` / `rngCursor`。新增恢复 validator 回归；后端 full test 当前通过 3011/3011，前端 build 已通过。本批没有前端 UI 代码变更，未启动新的 browser/API/Vite/Chrome smoke 进程。
+- `MULLIGAN` 正式开局 UI 已改为服务端候选驱动：服务端 prompt 公开当前手牌 `sources` 与 `maxSelectionCount = 2`，前端行动面板渲染“起手调度”选择器、已选数量和每张服务端来源，只提交这些候选的 `handObjectIds`，不再默认提交空数组或在前端自行判断起手调度上限。
+- 当前已通过后台 headless Chrome/CDP 真实 UI smoke：已优先尝试 Browser Use，但本地 IAB backend 未发现；为避免抢用户前台，没有使用 Computer Use 操控前台 Chrome。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-mulligan-mow0wz4v`。P1 Web UI 连接后显示 4 个服务端 `MULLIGAN.sources` 和“已选 0 / 2”；点击第一张后显示“已选 1 / 2 / 将调度”，确认后事件日志显示“P1 完成起手调度 / 双方完成起手调度，开始第一个回合”。authoritative snapshot 校验 P1 `mulliganCompleted = true`、被选对象不再在手牌、手牌仍为 4 张、prompt 收敛为 `WAIT`；reload/reconnect 后恢复 `Prompt：smoke-mulligan-mow0wz4v:5:P1:WAIT` 且不再出现调度按钮。后端 build、起手调度目标回归 3/3、GameHubJoinTests 118/118、后端 full test 3011/3011 和前端 build 均已通过；当前完成度仍约 **99%**，结论仍 **NOT READY**。
 - spectator replay redaction 新增生成式 property 覆盖，防止多组隐藏手牌、面朝下对象和随机状态重新泄漏到公开回放帧。
 - P0-003 补齐战力修正降到 0 的 pending task 证据：服务端会公开 `DESTROY_ZERO_POWER_UNIT` / `STATE_BASED_CLEANUP`，前端只能显示 WAIT，不自行继续开放普通操作。
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。

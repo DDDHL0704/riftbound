@@ -323,6 +323,12 @@ public sealed class GameHubJoinTests
         var activeSnapshot = SnapshotFor(readyClients, activePlayerId);
         var activeHand = StringList(ZoneView(PlayerView(activeSnapshot, activePlayerId))["hand"]);
         Assert.Equal(4, activeHand.Count);
+        var mulliganCandidate = Assert.Single(
+            activePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MULLIGAN", StringComparison.Ordinal));
+        Assert.Equal(activeHand, (mulliganCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.NotNull(mulliganCandidate.Metadata);
+        Assert.Equal(2, mulliganCandidate.Metadata["maxSelectionCount"]);
         var activeMulliganClients = new RecordingHubClients();
         await CreateHub(activeMulliganClients, new RecordingGroupManager(), "connection-1", registry)
             .SubmitIntent(roomId, activePlayerId, "mulligan-active", MulliganJson(activeHand.Take(1).ToArray()));

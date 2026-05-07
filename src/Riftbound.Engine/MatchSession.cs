@@ -2624,6 +2624,9 @@ internal static class ActionPromptBuilder
 
         return action switch
         {
+            "MULLIGAN" => zones.Hand
+                .Select(objectId => ObjectChoice(state, objectId, "opening hand mulligan candidate"))
+                .ToArray(),
             "PLAY_CARD" => zones.Hand
                 .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "implemented payable PLAY_CARD source"))
@@ -5566,6 +5569,12 @@ internal static class ActionPromptBuilder
     {
         return action switch
         {
+            "MULLIGAN" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "opening-hand-cards",
+                ["minSelectionCount"] = 0,
+                ["maxSelectionCount"] = OfficialDeckValidator.MaximumMulliganCount
+            },
             "PLAY_CARD" => PlayCardMetadataFor(state, playerId),
             "HIDE_CARD" => HideCardMetadataFor(state, playerId),
             "REVEAL_CARD" => RevealCardMetadataFor(state, playerId),

@@ -514,6 +514,64 @@ button.card-face:hover {
   overflow-wrap: anywhere;
 }
 
+.mulligan-selector {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 10px;
+}
+
+.mulligan-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.mulligan-summary span {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.mulligan-choice-list {
+  display: grid;
+  gap: 6px;
+}
+
+.mulligan-choice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  padding: 7px 9px;
+  text-align: left;
+}
+
+.mulligan-choice span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mulligan-choice small {
+  color: var(--text-secondary);
+}
+
+.mulligan-choice.is-selected {
+  border-color: rgba(215, 173, 85, 0.68);
+  background: rgba(215, 173, 85, 0.16);
+}
+
 .stack-item code {
   max-height: 80px;
   overflow: auto;
