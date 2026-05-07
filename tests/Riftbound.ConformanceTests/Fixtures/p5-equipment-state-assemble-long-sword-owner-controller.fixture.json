@@ -31,7 +31,7 @@
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 0, "power": 1 },
+      "P1": { "mana": 0, "power": 0, "powerByTrait": { "red": 1 } },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -120,7 +120,7 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
+      "P1": ["MOVE_UNIT", "END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {

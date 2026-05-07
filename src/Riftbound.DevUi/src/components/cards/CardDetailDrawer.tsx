@@ -118,6 +118,18 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                       );
                     }
 
+                    if (candidate.action === "ASSEMBLE_EQUIPMENT") {
+                      return (
+                        <AssembleEquipmentComposer
+                          candidate={candidate}
+                          key={candidate.action}
+                          onClose={onClose}
+                          onCommand={onCommand}
+                          sourceObjectId={sourceObjectId}
+                        />
+                      );
+                    }
+
                     return (
                       <Button
                         disabled={!candidate.enabled || !command || !onCommand}
@@ -209,6 +221,18 @@ type MoveUnitSourceRequirement = {
   destinationChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
   requiredOptionalCosts: string[];
+  composable: boolean;
+  unsupportedReason?: string;
+};
+
+type AssembleEquipmentSourceRequirement = {
+  sourceObjectId: string;
+  equipmentCardNo: string;
+  displayName: string;
+  targetChoices: ActionPromptChoiceDto[];
+  optionalCostChoices: ActionPromptChoiceDto[];
+  requiredOptionalCosts: string[];
+  powerCost: number;
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -579,6 +603,133 @@ function MoveUnitComposer({
   );
 }
 
+function AssembleEquipmentComposer({
+  candidate,
+  onClose,
+  onCommand,
+  sourceObjectId
+}: {
+  candidate: ActionPromptCandidateDto;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  sourceObjectId?: string;
+}) {
+  const requirements = useMemo(
+    () => assembleEquipmentRequirementsFor(candidate, sourceObjectId),
+    [candidate, sourceObjectId]
+  );
+  const selectedRequirement = requirements[0];
+  const [targetObjectId, setTargetObjectId] = useState<string>("");
+  const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
+
+  useEffect(() => {
+    setTargetObjectId(selectedRequirement?.targetChoices[0]?.id ?? "");
+    setOptionalCosts([]);
+  }, [selectedRequirement]);
+
+  if (!sourceObjectId) {
+    return (
+      <article className="play-card-composer">
+        <p className="detail-muted">服务端 snapshot 未公开该装备来源的对象 ID，前端不会构造装配命令。</p>
+      </article>
+    );
+  }
+
+  if (requirements.length === 0 || !selectedRequirement) {
+    return (
+      <article className="play-card-composer">
+        <div className="composer-heading">
+          <strong>{promptActionLabel(candidate)}</strong>
+          <span>{candidate.reason}</span>
+        </div>
+        <p className="detail-muted">服务端尚未为这张装备提供可提交的装配约束。</p>
+      </article>
+    );
+  }
+
+  const requiredCosts = selectedRequirement.requiredOptionalCosts;
+  const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) => !requiredCosts.includes(choice.id));
+  const requiredCostLabels = requiredCosts.map((cost) =>
+    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+  const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts]);
+  const canSubmit = Boolean(
+    candidate.enabled
+    && selectedRequirement.composable
+    && targetObjectId
+    && onCommand
+  );
+
+  return (
+    <article className="play-card-composer">
+      <div className="composer-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{candidate.reason}</span>
+      </div>
+      <div className="composer-meta">
+        <span>{selectedRequirement.displayName}</span>
+        <span>符能费用 {selectedRequirement.powerCost}</span>
+      </div>
+      <ChoiceGroup label="装配目标">
+        {selectedRequirement.targetChoices.length === 0 && <span className="composer-warning">服务端没有给出可装配单位。</span>}
+        {selectedRequirement.targetChoices.map((choice) => (
+          <ChoiceButton
+            active={targetObjectId === choice.id}
+            key={choice.id}
+            onClick={() => setTargetObjectId(choice.id)}
+            title={choice.reason ?? undefined}
+          >
+            {choice.label}
+          </ChoiceButton>
+        ))}
+      </ChoiceGroup>
+      {requiredCosts.length > 0 && (
+        <div className="composer-meta">
+          {requiredCostLabels.map((costLabel) => (
+            <span key={costLabel}>费用 {costLabel}</span>
+          ))}
+        </div>
+      )}
+      {optionalChoices.length > 0 && (
+        <ChoiceGroup label="可选费用">
+          {optionalChoices.map((choice) => (
+            <ChoiceButton
+              active={optionalCosts.includes(choice.id)}
+              key={choice.id}
+              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {!selectedRequirement.composable && (
+        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该装配当前不能由前端组合提交。"}</p>
+      )}
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => {
+          if (!canSubmit || !onCommand) {
+            return;
+          }
+
+          onCommand({
+            cmdType: "ASSEMBLE_EQUIPMENT",
+            sourceObjectId,
+            targetObjectId,
+            optionalCosts: commandOptionalCosts.length > 0 ? commandOptionalCosts : undefined
+          });
+          onClose();
+        }}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        确认装配
+      </Button>
+    </article>
+  );
+}
+
 function ChoiceGroup({ children, label }: { children: ReactNode; label: string }) {
   return (
     <div className="composer-choice-group">
@@ -644,6 +795,50 @@ function moveUnitRequirementsFor(candidate: ActionPromptCandidateDto, sourceObje
     .map(parseMoveUnitRequirement)
     .filter((requirement): requirement is MoveUnitSourceRequirement =>
       Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function assembleEquipmentRequirementsFor(
+  candidate: ActionPromptCandidateDto,
+  sourceObjectId?: string
+): AssembleEquipmentSourceRequirement[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const rawRequirements = candidate.metadata?.sourceRequirements;
+  if (!Array.isArray(rawRequirements)) {
+    return [];
+  }
+
+  return rawRequirements
+    .map(parseAssembleEquipmentRequirement)
+    .filter((requirement): requirement is AssembleEquipmentSourceRequirement =>
+      Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function parseAssembleEquipmentRequirement(value: unknown): AssembleEquipmentSourceRequirement | undefined {
+  const record = asRecord(value);
+  if (!record) {
+    return undefined;
+  }
+
+  const sourceObjectId = stringField(record, "sourceObjectId");
+  const equipmentCardNo = stringField(record, "equipmentCardNo");
+  if (!sourceObjectId || !equipmentCardNo) {
+    return undefined;
+  }
+
+  return {
+    sourceObjectId,
+    equipmentCardNo,
+    displayName: stringField(record, "displayName") || equipmentCardNo,
+    targetChoices: choiceList(record.targetChoices),
+    optionalCostChoices: choiceList(record.optionalCostChoices),
+    requiredOptionalCosts: stringList(record.requiredOptionalCosts),
+    powerCost: numberField(record, "powerCost"),
+    composable: booleanField(record, "composable", true),
+    unsupportedReason: nullableStringField(record, "unsupportedReason")
+  };
 }
 
 function parseMoveUnitRequirement(value: unknown): MoveUnitSourceRequirement | undefined {

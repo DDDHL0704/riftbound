@@ -1992,6 +1992,7 @@ internal static class ActionPromptBuilder
 {
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
+    private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
@@ -2057,6 +2058,17 @@ internal static class ActionPromptBuilder
         IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
         IReadOnlyList<string> RequiredOptionalCosts,
+        bool Composable,
+        string? UnsupportedReason);
+
+    private sealed record AssembleEquipmentPromptRequirement(
+        string SourceObjectId,
+        string EquipmentCardNo,
+        string DisplayName,
+        IReadOnlyList<ActionPromptChoiceDto> TargetChoices,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<string> RequiredOptionalCosts,
+        int PowerCost,
         bool Composable,
         string? UnsupportedReason);
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
@@ -2225,9 +2237,9 @@ internal static class ActionPromptBuilder
                 .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "face-up controlled non-combat unit with implemented move route"))
                 .ToArray(),
-            "ASSEMBLE_EQUIPMENT" => zones.Base
-                .Concat(zones.Battlefields)
-                .Where(objectId => IsImplementedAssembleEquipmentSource(state, playerId, objectId))
+            "ASSEMBLE_EQUIPMENT" => AssembleEquipmentSourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented assemble equipment source"))
                 .ToArray(),
             "DECLARE_BATTLE" => zones.Battlefields
@@ -2447,6 +2459,44 @@ internal static class ActionPromptBuilder
             && !cardObject.IsExhausted;
     }
 
+    private static IReadOnlyList<AssembleEquipmentPromptRequirement> AssembleEquipmentSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Where(objectId => IsImplementedAssembleEquipmentSource(state, playerId, objectId))
+            .Distinct(StringComparer.Ordinal)
+            .Select(objectId => new AssembleEquipmentPromptRequirement(
+                objectId,
+                LongSwordCardNo,
+                "长剑",
+                AssembleEquipmentTargetChoicesForSource(state, playerId, objectId),
+                [new ActionPromptChoiceDto(LongSwordAssembleOptionalCost, "装配红色符能")],
+                [LongSwordAssembleOptionalCost],
+                LongSwordAssemblePowerCost,
+                true,
+                null))
+            .Where(requirement => requirement.TargetChoices.Count > 0)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentTargetChoicesForSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        return ControlledBoardObjects(state, playerId)
+            .Where(objectId => !string.Equals(objectId, sourceObjectId, StringComparison.Ordinal))
+            .Where(objectId => IsImplementedAssembleEquipmentTarget(state, playerId, objectId))
+            .Select(objectId => ObjectChoice(state, objectId, "implemented controlled unit host"))
+            .ToArray();
+    }
+
     private static bool IsImplementedAssembleEquipmentSource(MatchState state, string playerId, string objectId)
     {
         if (!IsObjectInPlayerZone(state, playerId, objectId, "BASE")
@@ -2469,9 +2519,21 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return runePool.TotalPower >= LongSwordAssemblePowerCost
-            && ControlledBoardObjects(state, playerId).Any(targetObjectId =>
-                IsControlledObjectWithTag(state, playerId, targetObjectId, CardObjectTags.UnitCard));
+        return CanPayLongSwordAssembleCost(runePool)
+            && AssembleEquipmentTargetChoicesForSource(state, playerId, objectId).Count > 0;
+    }
+
+    private static bool CanPayLongSwordAssembleCost(RunePool runePool)
+    {
+        return runePool.PowerByTrait.TryGetValue(RuneTrait.Red, out var redPower)
+            && redPower >= LongSwordAssemblePowerCost;
+    }
+
+    private static bool IsImplementedAssembleEquipmentTarget(MatchState state, string playerId, string objectId)
+    {
+        return IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !cardObject.IsFaceDown;
     }
 
     private static bool IsObjectInPlayerZone(
@@ -2859,9 +2921,10 @@ internal static class ActionPromptBuilder
             "ACTIVATE_ABILITY" => PublicBoardObjects(state)
                 .Select(objectId => ObjectChoice(state, objectId, "server validates ability target scope on submit"))
                 .ToArray(),
-            "ASSEMBLE_EQUIPMENT" => ControlledBoardObjects(state, playerId)
-                .Where(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard))
-                .Select(objectId => ObjectChoice(state, objectId, "controlled unit host"))
+            "ASSEMBLE_EQUIPMENT" => AssembleEquipmentSourceRequirements(state, playerId)
+                .SelectMany(requirement => requirement.TargetChoices)
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
                 .ToArray(),
             "DECLARE_BATTLE" => OpposingBattlefieldObjects(state, playerId)
                 .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
@@ -3002,7 +3065,7 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto("STANDBY_TEEMO_MANA", "提莫布置待命")
             ],
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
-            "ASSEMBLE_EQUIPMENT" => [new ActionPromptChoiceDto("ASSEMBLE_RED", "装配红色符能")],
+            "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
             "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
             "LEGEND_ACT" => [
                 new ActionPromptChoiceDto("SPEND_MANA:1", "支付 1 法力"),
@@ -3022,6 +3085,18 @@ internal static class ActionPromptBuilder
         string playerId)
     {
         var choices = MoveUnitSourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? AssembleEquipmentOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = AssembleEquipmentSourceRequirements(state, playerId)
             .SelectMany(requirement => requirement.OptionalCostChoices)
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
@@ -3134,11 +3209,7 @@ internal static class ActionPromptBuilder
                 ["targetPolicy"] = "server-validates-ability-target-scope-on-submit"
             },
             "MOVE_UNIT" => MoveUnitMetadataFor(state, playerId),
-            "ASSEMBLE_EQUIPMENT" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "controlled-equipment",
-                ["targetPolicy"] = "controlled-unit-host"
-            },
+            "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
             "DECLARE_BATTLE" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "controlled-battlefield-unit",
@@ -3170,6 +3241,37 @@ internal static class ActionPromptBuilder
             ["destinationPolicy"] = "source-specific-server-filtered-destinations",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
             ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> AssembleEquipmentMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = AssembleEquipmentSourceRequirements(state, playerId)
+            .Select(AssembleEquipmentSourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-unattached-controlled-base-equipment",
+            ["targetPolicy"] = "source-specific-controlled-unit-hosts",
+            ["optionalCostPolicy"] = "source-specific-required-assemble-costs",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> AssembleEquipmentSourceRequirementView(
+        AssembleEquipmentPromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["equipmentCardNo"] = requirement.EquipmentCardNo,
+            ["displayName"] = requirement.DisplayName,
+            ["targetChoices"] = requirement.TargetChoices,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["powerCost"] = requirement.PowerCost,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 
@@ -5581,7 +5683,13 @@ public sealed class MatchSession : IMatchSession
             787,
             new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                [seed.P1] = new(2, 1),
+                [seed.P1] = new(
+                    2,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 [seed.P2] = RunePool.Empty
             },
             new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -5601,10 +5709,20 @@ public sealed class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    manaCost: 2,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
                     power: 3,
-                    tags: [CardObjectTags.UnitCard])
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
             });
     }
 

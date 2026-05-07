@@ -1065,11 +1065,32 @@ public sealed class ConformanceFixtureShapeTests
         Assert.False(noPowerCandidate.Enabled);
         Assert.Empty(noPowerCandidate.Sources ?? []);
 
-        var payableState = noPowerState with
+        var genericPowerState = noPowerState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
                 ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var genericPowerPrompt = ResolutionResult.BuildPrompts(genericPowerState)["P1"];
+        var genericPowerCandidate = Assert.Single(
+            genericPowerPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.False(genericPowerCandidate.Enabled);
+        Assert.Empty(genericPowerCandidate.Sources ?? []);
+
+        var payableState = noPowerState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 ["P2"] = RunePool.Empty
             }
         };
@@ -1080,6 +1101,25 @@ public sealed class ConformanceFixtureShapeTests
         Assert.True(payableCandidate.Enabled);
         Assert.Equal(["P1-LONG-SWORD"], (payableCandidate.Sources ?? []).Select(source => source.Id).ToArray());
         Assert.Equal(["P1-UNIT"], (payableCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        Assert.Equal(["ASSEMBLE_RED"], (payableCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(payableCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-LONG-SWORD", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("SFD·022/221", Assert.IsType<string>(sourceRequirement["equipmentCardNo"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["powerCost"]));
+        Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
+        var targetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["targetChoices"]);
+        Assert.Equal(["P1-UNIT"], targetChoices.Select(target => target.Id).ToArray());
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+        Assert.Equal(["ASSEMBLE_RED"], optionalCostChoices.Select(cost => cost.Id).ToArray());
+        var requiredOptionalCosts = Assert.IsAssignableFrom<IEnumerable<string>>(
+            sourceRequirement["requiredOptionalCosts"]);
+        Assert.Equal(["ASSEMBLE_RED"], requiredOptionalCosts.ToArray());
     }
 
     [Fact]

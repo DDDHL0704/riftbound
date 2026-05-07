@@ -145,7 +145,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第三片。
+状态：完成第四片。
 
 交付：
 
@@ -162,7 +162,12 @@
 - `MOVE_UNIT` 来源进一步收紧：只暴露正面、受控、非战斗中的单位；基地单位公开“基地 -> 战场”，战场单位在未被静态效果禁止时公开“战场 -> 基地”，有游走权限且能从权威位置索引精确定位时才公开游走目的地与必需 `ROAM` 可选费用。
 - 卡牌详情抽屉新增移动单位组合器：只读取服务端 `sourceRequirements` 渲染移动模式、目的地和费用确认；确认命令只提交服务端提供的 `origin`、`destination`、`optionalCosts`，不从卡面文本、关键词或客户端位置自行裁决。
 - 当前已通过真实 UI 将已结算到基地的《军团后卫》移动到战场；事件日志出现 `UNIT_MOVED_TO_BATTLEFIELD`，后续移动候选仍由服务端 prompt 决定。
-- 仍待后续批次补：`ASSEMBLE_EQUIPMENT`、`LEGEND_ACT`、`ACTIVATE_ABILITY` 的同等级选择器，以及带目标法术、复杂可选费用、战斗声明和法术对决响应窗口的完整 UI。
+- `ASSEMBLE_EQUIPMENT` prompt 从泛化来源/目标升级为每来源 `sourceRequirements` 元数据。服务端现在只对已实现代表路径的未贴附《长剑》公开装配来源、单位目标候选、必需 `ASSEMBLE_RED` 费用、红色符能费用和 `composable` 状态。
+- `ASSEMBLE_EQUIPMENT` 来源继续收紧：只有基地中正面、受控、未贴附、具备长剑/武装/灵便身份、存在合法单位目标且 `powerByTrait.red >= 1` 时才暴露；泛化符能不再被当作红色装配费用，提交侧也会以 `INSUFFICIENT_COST` 拒绝。
+- 卡牌详情抽屉新增装备装配组合器：只读取服务端 `sourceRequirements` 渲染目标和费用，确认命令只提交服务端给出的 `sourceObjectId`、`targetObjectId`、`optionalCosts`，不从卡面文本或关键词自行判断。
+- Development `equipment` seed 已补齐手牌长剑与目标单位的 cardNo、owner/controller 和红色符能池，避免 smoke 场景出现 prompt 来源可见但 snapshot 缺对象详情的断裂。
+- 当前已通过真实 UI 将《长剑》从手牌打出、P1/P2 过优先权结算到基地，再从详情抽屉按服务端候选装配到《大力仙灵》；事件日志出现 `EQUIPMENT_PLAYED_TO_BASE`、`COST_PAID`、`EQUIPMENT_ATTACHED`，最终 snapshot 显示长剑 `attachedToObjectId = P1-UNIT-ASSEMBLE-TARGET`。
+- 仍待后续批次补：`LEGEND_ACT`、`ACTIVATE_ABILITY` 的同等级选择器，以及带目标法术、复杂可选费用、战斗声明和法术对决响应窗口的完整 UI。
 
 验收：
 
@@ -170,9 +175,11 @@
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，0 warning/0 error。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 85/85。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"`：通过 41/41。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"`：通过 29/29。
 - Browser Use smoke：P1/P2 通过 UI 创建/加入房间、提交卡组、ready、双方在对战桌面执行 `MULLIGAN` 进入 `MAIN`；P2 点击基地符文《灵光符文》打开详情抽屉，详情中出现服务端候选“横置符文”，点击后事件日志出现 `RUNE_TAPPED` / `MANA_GAINED`，我方法力从 0 变为 1，符文状态变成“横置”；刷新/重连后全局单来源“横置符文”按钮可执行第二张符文，法力变为 2；随后执行 `END_TURN`，事件日志显示回合结束清理、符文池清空、P1 回合开始和召出符文。
 - Browser Use smoke 第二片：P1/P2 正式房间重跑，双方提交 deck/ready/mulligan 后进入 `MAIN`；P2 重连视角横置两张符文，点击手牌《军团后卫》打开详情抽屉；抽屉展示 `PLAY_CARD` 组合器、费用 2、目标 0、目的地“基地/己方主战场”和“确认打出”；确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`；P2/P1 依次让过优先权后结算，事件日志出现 `STACK_ITEM_RESOLVED`、`UNIT_PLAYED_TO_BASE`，P2 基地公开对象增加《军团后卫》；P2 执行 `END_TURN` 后进入 P1 主阶段并显示回合开始事件。
 - Computer Use smoke 第三片：Browser Use 当前无可用 IAB backend，按用户授权降级使用 Computer Use。API `http://127.0.0.1:5088` 与 Vite `http://127.0.0.1:5173` 下创建房间 `room-9z3bds`；P1/P2 入座、提交 deck、ready、双方 mulligan 后进入 `MAIN`；P1 横置两张符文、从详情抽屉打出《军团后卫》、P1/P2 让过优先权，服务端结算到基地并记录 `UNIT_PLAYED_TO_BASE`；P1 点击基地《军团后卫》，抽屉展示服务端驱动的 `MOVE_UNIT` 组合器“基地 -> 战场”和目的地“战场”；确认后事件日志出现 `UNIT_MOVED_TO_BATTLEFIELD` / “P1 将单位移动到战场”，最终 prompt 继续来自服务端 snapshot。
+- Computer Use smoke 第四片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用 Computer Use。API `http://127.0.0.1:5088` 与 Vite `http://127.0.0.1:5173` 下创建房间 `smoke-assemble-2`；通过 Development-only `SeedScenario(equipment)` 准备红色符能、手牌《长剑》和基地《大力仙灵》；P1 从详情抽屉打出《长剑》，事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`；P1/P2 让过优先权后出现 `STACK_ITEM_RESOLVED`、`EQUIPMENT_PLAYED_TO_BASE`；P1 点击基地《长剑》，详情抽屉展示服务端驱动的 `ASSEMBLE_EQUIPMENT` 组合器、目标 `P1-UNIT-ASSEMBLE-TARGET` 与费用“装配红色符能”；确认后事件日志出现 `COST_PAID`、`EQUIPMENT_ATTACHED`，最终 snapshot 显示长剑贴附到目标单位。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -190,7 +197,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**52%**
+估算整体进度：**56%**
 
 已经完成：
 
@@ -203,6 +210,7 @@
 - 基础符文横置资源能力已由服务端补齐并接入卡牌详情/行动面板；前端不再展示不可解析的 `TAP_RUNE` 假操作。
 - `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算。
 - `MOVE_UNIT` 已有服务端每来源元数据和前端卡牌详情移动组合器，可真实把基地单位移动到战场；前端不再自行判断移动目的地或游走费用。
+- `ASSEMBLE_EQUIPMENT` 已有长剑代表路径的服务端每来源元数据、红色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
 
 预计剩余批次数：**至少 5 批**
 

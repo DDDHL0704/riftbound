@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 MOVE_UNIT 服务端候选提交
+审计基准提交：`45bb446`；本轮复审代码提交至本批 ASSEMBLE_EQUIPMENT 服务端候选提交
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,11 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-005 第九批已落地：`ASSEMBLE_EQUIPMENT` prompt 从泛化来源/目标升级为每来源 `sourceRequirements` 元数据。服务端现在只对已实现代表路径的未贴附《长剑》公开来源、单位目标候选、必需 `ASSEMBLE_RED` 费用、红色符能费用和 `composable` 状态；前端详情抽屉只读取这些服务端候选渲染装配组合器，不从卡面文本、关键词或客户端位置自行裁决。
+- P0-005 第九批补充收紧：长剑装配费用从“任意 1 符能”收紧为 `powerByTrait.red >= 1`。泛化符能不再使 prompt 暴露 `ASSEMBLE_EQUIPMENT` 来源，提交侧也会以 `INSUFFICIENT_COST` 拒绝；成功 fixture 和手写测试已迁到 `powerByTrait.red`，避免 UI 把“装配红色符能”展示成可用但服务端支付语义不一致。
+- 已补测试：`ActionPromptFiltersAssembleEquipmentSourcesBySupportedAttachmentAndPower` 已扩展断言 `ASSEMBLE_EQUIPMENT.sourceRequirements`、目标候选、必需费用和红色符能过滤；新增 `P4AssembleEquipmentCommandRejectsGenericPowerForRedAssembleCost` 覆盖泛化符能拒绝；装配成功 fixture 迁到红色符能池，并更新装配后 prompt 仍可暴露 `MOVE_UNIT` 的真实候选。
+- 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 通过 41/41；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 85/85；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"` 通过 29/29；`source ../../scripts/dev-env.sh && npm run build` 通过；`git diff --check` 通过。Browser Use 当前无可用 IAB backend，按用户授权降级使用 Computer Use smoke：房间 `smoke-assemble-2` 覆盖 Development-only `equipment` seed、P1 从详情抽屉打出《长剑》、P1/P2 让过优先权结算到基地，再由卡牌详情 `ASSEMBLE_EQUIPMENT` 组合器选择服务端目标并装配，事件日志出现 `EQUIPMENT_PLAYED_TO_BASE`、`COST_PAID`、`EQUIPMENT_ATTACHED`，最终 snapshot 显示长剑 `attachedToObjectId = P1-UNIT-ASSEMBLE-TARGET`。最近完整回归记录仍为 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2852/2852。
+- 复审结论补充：本批关闭的是“前端可装配装备但不能自行判断合法目标和红色费用”的产品级服务端候选缺口；整体结论仍为 **NOT READY**。剩余阻断仍集中在完整 battlefield/standby/control task 状态机、central cleanup task queue、spell duel/battle lifecycle、PaymentEngine、LayerEngine 和全官方卡牌证据。
 - P0-005 第八批已落地：`MOVE_UNIT` prompt 从泛化来源/目的地升级为每来源 `sourceRequirements` 元数据。服务端现在按具体单位公开来源、起点区域、移动模式、目的地候选、必需/可选额外费用和 `composable` 状态；基地单位公开“基地 -> 战场”，战场单位在未被静态效果禁止时公开“战场 -> 基地”，有游走权限且能从权威位置索引精确定位时才公开游走目的地与必需 `ROAM` 费用。前端详情抽屉只读取这些服务端候选渲染移动组合器，不从卡面文本、关键词或客户端位置自行裁决。
 - 已补测试：`ActionPromptFiltersMoveUnitSourcesToFaceUpNonCombatUnits` 已扩展断言 `MOVE_UNIT.sourceRequirements`，覆盖基地正面受控非战斗单位只暴露 `origin=BASE`、`mode=BASE_TO_BATTLEFIELD`、`destinationChoices=BATTLEFIELD` 且不暴露可选费用。
 - 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 通过 41/41；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 85/85；`source ../../scripts/dev-env.sh && npm run build` 通过。Browser Use 当前无可用 IAB backend，按用户授权降级使用 Computer Use smoke：房间 `room-9z3bds` 覆盖 P1/P2 入座、提交 deck、ready、双方 mulligan、P1 横置符文、打出《军团后卫》、P1/P2 让过优先权结算到基地，再由卡牌详情 `MOVE_UNIT` 组合器移动到战场，事件日志出现 `UNIT_MOVED_TO_BATTLEFIELD`。最近完整回归记录仍为 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2852/2852；本批最终提交前仍需执行 `git diff --check`。

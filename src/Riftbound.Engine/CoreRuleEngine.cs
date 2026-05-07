@@ -28,6 +28,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LongSwordCardNo = "SFD·022/221";
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
     private const int LongSwordAssemblePowerCost = 1;
+    private static readonly IReadOnlyDictionary<string, int> LongSwordAssemblePowerCostByTrait =
+        new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Red] = LongSwordAssemblePowerCost
+        };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
@@ -919,7 +924,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (!CanPayRuneCosts(currentPool, 0, LongSwordAssemblePowerCost))
+        if (!CanPayRuneCosts(currentPool, 0, 0, LongSwordAssemblePowerCostByTrait))
         {
             return RejectWithCorePrompts(
                 state,
@@ -927,7 +932,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = PayRuneCosts(state, intent.PlayerId, 0, LongSwordAssemblePowerCost);
+        var runePools = PayRuneCosts(state, intent.PlayerId, 0, 0, LongSwordAssemblePowerCostByTrait);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);

@@ -29736,7 +29736,13 @@ public sealed class ConformanceFixtureRunnerTests
             },
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(0, 1),
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 ["P2"] = RunePool.Empty
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -29795,7 +29801,13 @@ public sealed class ConformanceFixtureRunnerTests
             },
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(0, 1),
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 ["P2"] = RunePool.Empty
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -29849,7 +29861,13 @@ public sealed class ConformanceFixtureRunnerTests
             },
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(0, 1),
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 ["P2"] = RunePool.Empty
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -35450,7 +35468,13 @@ public sealed class ConformanceFixtureRunnerTests
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(0, 1),
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 ["P2"] = RunePool.Empty
             },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
@@ -35503,6 +35527,53 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-EQUIPMENT-LONG-SWORD", attachedEvent.Payload["equipmentObjectId"]);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachedEvent.Payload["unitObjectId"]);
         Assert.Equal("P1-UNIT-ASSEMBLE-TARGET", attachedEvent.Payload["attachedToObjectId"]);
+    }
+
+    [Fact]
+    public async Task P4AssembleEquipmentCommandRejectsGenericPowerForRedAssembleCost()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(0, 1),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
+                ["P1-UNIT-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-generic-power", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-ASSEMBLE-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
     }
 
     [Fact]
@@ -35568,7 +35639,13 @@ public sealed class ConformanceFixtureRunnerTests
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
             {
-                ["P1"] = new(0, 1),
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
                 ["P2"] = RunePool.Empty
             },
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
