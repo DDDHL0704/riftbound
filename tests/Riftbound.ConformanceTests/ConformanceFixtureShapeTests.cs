@@ -466,11 +466,11 @@ public sealed class ConformanceFixtureShapeTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Base = ["P1-BASE-UNIT"],
-                    Battlefields = ["P1-ATTACKER", "P1-FACEDOWN", "P1-ALREADY-ATTACKING"]
+                    Battlefields = ["P1-ATTACKER", "P1-FACEDOWN", "P1-ALREADY-ATTACKING", "P1-OPPONENT-CONTROLLED-ATTACKER"]
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P2-BATTLEFIELD-CARD", "P2-DEFENDER", "P2-BULWARK-DEFENDER", "P2-FACEDOWN", "P2-EQUIPMENT"]
+                    Battlefields = ["P2-BATTLEFIELD-CARD", "P2-DEFENDER", "P2-BULWARK-DEFENDER", "P2-FACEDOWN", "P2-EQUIPMENT", "P2-ACTING-CONTROLLED-DEFENDER"]
                 }
             },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -503,6 +503,13 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-OPPONENT-CONTROLLED-ATTACKER"] = new(
+                    "P1-OPPONENT-CONTROLLED-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P2"),
                 ["P2-BATTLEFIELD-CARD"] = new(
                     "P2-BATTLEFIELD-CARD",
                     cardNo: "OGN·275/298",
@@ -535,7 +542,14 @@ public sealed class ConformanceFixtureShapeTests
                     cardNo: "SFD·011/221",
                     tags: [CardObjectTags.EquipmentCard],
                     ownerId: "P2",
-                    controllerId: "P2")
+                    controllerId: "P2"),
+                ["P2-ACTING-CONTROLLED-DEFENDER"] = new(
+                    "P2-ACTING-CONTROLLED-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P1")
             });
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];

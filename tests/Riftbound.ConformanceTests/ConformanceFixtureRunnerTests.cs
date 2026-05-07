@@ -42070,6 +42070,122 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandRejectsOpponentControlledAttackerInPlayerBattlefield()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-KNOWN-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"] = new(
+                    "P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P2"),
+                ["P2-BATTLE-KNOWN-DEFENDER"] = new(
+                    "P2-BATTLE-KNOWN-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-opponent-controlled-attacker", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"],
+                ["P2-BATTLE-KNOWN-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLE-KNOWN-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal("P2", result.State.CardObjects["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"].ControllerId);
+        Assert.False(result.State.CardObjects["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"].IsAttacking);
+        Assert.False(result.State.CardObjects["P2-BATTLE-KNOWN-DEFENDER"].IsDefending);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandRejectsActingPlayerControlledDefenderInOpponentBattlefield()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLE-KNOWN-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLE-ACTING-CONTROLLED-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-KNOWN-ATTACKER"] = new(
+                    "P1-BATTLE-KNOWN-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLE-ACTING-CONTROLLED-DEFENDER"] = new(
+                    "P2-BATTLE-ACTING-CONTROLLED-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-acting-controlled-defender", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLE-KNOWN-ATTACKER"],
+                ["P2-BATTLE-ACTING-CONTROLLED-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-BATTLE-KNOWN-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLE-ACTING-CONTROLLED-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal("P1", result.State.CardObjects["P2-BATTLE-ACTING-CONTROLLED-DEFENDER"].ControllerId);
+        Assert.False(result.State.CardObjects["P1-BATTLE-KNOWN-ATTACKER"].IsAttacking);
+        Assert.False(result.State.CardObjects["P2-BATTLE-ACTING-CONTROLLED-DEFENDER"].IsDefending);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandSingleCombatantsFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(

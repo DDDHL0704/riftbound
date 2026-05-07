@@ -5698,7 +5698,7 @@ internal static class ActionPromptBuilder
             ["multiDefenderPolicy"] = "up-to-two-defenders-requires-assignment-keyword-representative-path",
             ["multiParticipantBattlePolicy"] = "up-to-two-attackers-and-defenders-without-independent-assignment-prompt",
             ["samePriorityAssignmentPolicy"] = "preserve-player-submitted-object-order-within-same-priority",
-            ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat",
+            ["candidateFiltering"] = "battlefield-zone-controlled-face-up-units-not-already-in-combat",
             ["sourceRequirements"] = sourceRequirements
         };
     }
@@ -6108,6 +6108,7 @@ internal static class ActionPromptBuilder
             && zones.Battlefields.Contains(objectId, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, zonePlayerId)
             && !cardObject.IsFaceDown
             && !cardObject.IsAttacking
             && !cardObject.IsDefending

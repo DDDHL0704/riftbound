@@ -6567,6 +6567,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             }
 
             if (!state.CardObjects.TryGetValue(attackingObjectId, out var attackerState)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(attackerState, intent.PlayerId)
                 || !IsReadyFaceUpUnitForMinimalBattle(attackerState))
             {
                 return false;
@@ -6581,6 +6582,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || string.Equals(defenderLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
                 || !string.Equals(defenderLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 || !state.CardObjects.TryGetValue(defenderObjectId, out var defenderState)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(defenderState, defenderLocation.Value.PlayerId)
                 || !IsReadyFaceUpUnitForMinimalBattle(defenderState))
             {
                 return false;
