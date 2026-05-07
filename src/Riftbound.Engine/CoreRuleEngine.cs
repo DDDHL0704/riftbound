@@ -730,11 +730,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["playedAfterAnotherCardThisTurn"] = stackItem.PlayedAfterAnotherCardThisTurn
                 }));
 
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         nextState = nextState with
         {
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             CardObjects = cardObjects,
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
             PlayerScores = playerScores,
             WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId,
             RngCursor = rngCursor,

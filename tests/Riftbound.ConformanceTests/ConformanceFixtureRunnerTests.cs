@@ -4248,6 +4248,63 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineReconcilesObjectLocationsForDestroyedAdditionalCost()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-SACRIFICE"],
+                    Battlefields = ["P1-UNIT-SACRIFICE-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-SACRIFICE"] = new(
+                    "P1-SPELL-SACRIFICE",
+                    cardNo: "UNL-173/219",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-SACRIFICE-001"] = new(
+                    "P1-UNIT-SACRIFICE-001",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-SACRIFICE"] = new("P1", "HAND"),
+                ["P1-UNIT-SACRIFICE-001"] = new("P1", "BATTLEFIELD", "P1-MAIN")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-sacrifice-additional-cost-location", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SACRIFICE",
+                "UNL-173/219",
+                [],
+                OptionalCosts: ["DESTROY_FRIENDLY_POWERFUL_UNIT:P1-UNIT-SACRIFICE-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-UNIT-SACRIFICE-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-UNIT-SACRIFICE-001"].Zone);
+        Assert.Equal("STACK", result.State.ObjectLocations["P1-SPELL-SACRIFICE"].Zone);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "ADDITIONAL_COST", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsSacrificeWithoutAdditionalCost()
     {
         var state = PunishmentState(mana: 1) with
