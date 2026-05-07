@@ -250,11 +250,11 @@
 
 每个服务端批次必须先补测试，再补实现，最后更新 `CURRENT_SERVER_RULE_AUDIT.md` 和本文。
 
-本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。recovery frame 现在还会携带已裁剪的 spectator replay frame。随后补充 P0-003 0 战力清理证据：代表性法术栈项目会把战场单位修正到 0，服务端在同一栈结算后的状态性 cleanup loop 中以 `ZERO_POWER` 入墓。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界和前端只能等待/展示的 cleanup 规则边界。
+本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。recovery frame 现在还会携带已裁剪的 spectator replay frame。随后补充 P0-003 0 战力与非法待命清理证据：代表性法术栈项目会把战场单位修正到 0，服务端在同一栈结算后的状态性 cleanup loop 中以 `ZERO_POWER` 入墓；非法待命也会在栈结算后的 cleanup loop 中自动翻面入墓并清空 pending task。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界和前端只能等待/展示的 cleanup 规则边界。
 
 ## 6. 当前总体进度
 
-估算整体进度：**90%**
+估算整体进度：**91%**
 
 已经完成：
 
@@ -287,8 +287,9 @@
 - spectator replay redaction 新增生成式 property 覆盖，防止多组隐藏手牌、面朝下对象和随机状态重新泄漏到公开回放帧。
 - P0-003 补齐战力修正降到 0 的 pending task 证据：服务端会公开 `DESTROY_ZERO_POWER_UNIT` / `STATE_BASED_CLEANUP`，前端只能显示 WAIT，不自行继续开放普通操作。
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。
+- P0-003 补齐代表性栈结算后的非法待命自动清理：服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`、同步墓地和对象位置，并清空 `REMOVE_ILLEGAL_STANDBY` pending task；前端继续只读事件/snapshot。
 
-预计剩余批次数：**3 批左右**
+预计剩余批次数：**2-3 批左右**
 
 原因：
 

@@ -4240,7 +4240,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             cleanupStackItem,
-            state.RunePools);
+            state.RunePools,
+            objectLocations: objectLocations);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
 
@@ -4499,7 +4500,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             cleanupStackItem,
-            state.RunePools);
+            state.RunePools,
+            objectLocations: objectLocations);
         var runePools = lethalCleanup.RunePools;
         objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         var nextState = state with
@@ -11273,6 +11275,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             var resolvedPlayerZones = stackResolution.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedCardObjects = stackResolution.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
             var resolvedRunePools = stackResolution.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
             var postStackCleanupEvents = Array.Empty<GameEvent>();
             var resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds;
             if (stackResolution.WinnerPlayerId is null)
@@ -11281,7 +11284,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     resolvedPlayerZones,
                     resolvedCardObjects,
                     resolvedItem,
-                    resolvedRunePools);
+                    resolvedRunePools,
+                    objectLocations: objectLocations);
                 resolvedRunePools = postStackCleanup.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
                 postStackCleanupEvents = postStackCleanup.Events.ToArray();
                 resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds
@@ -11292,7 +11296,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     .ToArray();
             }
 
-            var objectLocations = ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
+            objectLocations = ReconcileObjectLocations(objectLocations, resolvedPlayerZones);
             ApplyResolvedStackSourceLocation(objectLocations, resolvedPlayerZones, resolvedItem);
             var returnsToSpellDuel = nextStack.Length == 0
                 && string.Equals(resolvedItem.TimingContext, TimingStates.SpellDuelOpen, StringComparison.Ordinal);
@@ -20218,7 +20222,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         IReadOnlyDictionary<string, RunePool> runePools,
         string? battlefieldId = null,
-        IReadOnlySet<string>? damageTriggeredDestroyTargetObjectIds = null)
+        IReadOnlySet<string>? damageTriggeredDestroyTargetObjectIds = null,
+        Dictionary<string, ObjectLocationState>? objectLocations = null)
     {
         var events = new List<GameEvent>();
         var destroyedObjectIds = new List<string>();
@@ -20238,12 +20243,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                     : new HashSet<string>(StringComparer.Ordinal),
                 nextRunePools,
                 battlefieldId);
-            if (cleanup.Events.Count == 0 && cleanup.DestroyedObjectIds.Count == 0)
+            var illegalStandbyCleanup = objectLocations is null
+                ? IllegalStandbyCleanupResult.Empty
+                : ApplyIllegalStandbyCleanup(playerZones, cardObjects, objectLocations);
+            if (cleanup.Events.Count == 0
+                && cleanup.DestroyedObjectIds.Count == 0
+                && illegalStandbyCleanup.Events.Count == 0
+                && illegalStandbyCleanup.RemovedObjectIds.Count == 0)
             {
                 break;
             }
 
             events.AddRange(cleanup.Events);
+            events.AddRange(illegalStandbyCleanup.Events);
             destroyedObjectIds.AddRange(cleanup.DestroyedObjectIds);
             destroyedUnitOwnerIds.AddRange(cleanup.DestroyedUnitOwnerIds);
             nextRunePools = cleanup.RunePools;
@@ -20261,6 +20273,119 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray(),
             nextRunePools);
+    }
+
+    private static IllegalStandbyCleanupResult ApplyIllegalStandbyCleanup(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations)
+    {
+        var removedByBattlefield = new Dictionary<string, List<Dictionary<string, object?>>>(StringComparer.Ordinal);
+        var standbyObjectIds = objectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(entry.Value.BattlefieldObjectId)
+                && !string.Equals(entry.Key, entry.Value.BattlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && cardObjects.TryGetValue(entry.Key, out var cardObject)
+                && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+                && cardObjects.TryGetValue(entry.Value.BattlefieldObjectId, out var battlefieldState)
+                && !string.Equals(cardObject.ControllerId, battlefieldState.ControllerId, StringComparison.Ordinal))
+            .OrderBy(entry => entry.Value.BattlefieldObjectId, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .ToArray();
+
+        foreach (var objectId in standbyObjectIds)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !objectLocations.TryGetValue(objectId, out var location)
+                || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+            {
+                continue;
+            }
+
+            var ownerPlayerId = cardObject.OwnerId;
+            if (string.IsNullOrWhiteSpace(ownerPlayerId))
+            {
+                ownerPlayerId = location.PlayerId;
+            }
+            if (string.IsNullOrWhiteSpace(ownerPlayerId)
+                || !playerZones.ContainsKey(ownerPlayerId))
+            {
+                continue;
+            }
+
+            foreach (var playerId in playerZones.Keys.ToArray())
+            {
+                var zones = playerZones[playerId];
+                playerZones[playerId] = zones with
+                {
+                    Base = RemoveFromZone(zones.Base, objectId),
+                    Battlefields = RemoveFromZone(zones.Battlefields, objectId)
+                };
+            }
+
+            var ownerZones = playerZones[ownerPlayerId];
+            playerZones[ownerPlayerId] = ownerZones with
+            {
+                Graveyard = ownerZones.Graveyard.Contains(objectId, StringComparer.Ordinal)
+                    ? ownerZones.Graveyard
+                    : ownerZones.Graveyard.Concat([objectId]).ToArray()
+            };
+            cardObjects[objectId] = cardObject with
+            {
+                Damage = 0,
+                IsFaceDown = false,
+                IsAttacking = false,
+                IsDefending = false,
+                ControllerId = ownerPlayerId
+            };
+            objectLocations[objectId] = new ObjectLocationState(ownerPlayerId, "GRAVEYARD");
+
+            if (!removedByBattlefield.TryGetValue(location.BattlefieldObjectId, out var removed))
+            {
+                removed = [];
+                removedByBattlefield[location.BattlefieldObjectId] = removed;
+            }
+            removed.Add(new Dictionary<string, object?>
+            {
+                ["objectId"] = objectId,
+                ["ownerPlayerId"] = ownerPlayerId,
+                ["previousControllerId"] = cardObject.ControllerId,
+                ["destinationZone"] = "GRAVEYARD"
+            });
+        }
+
+        var events = removedByBattlefield
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry =>
+            {
+                var battlefieldObjectId = entry.Key;
+                cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState);
+                return new GameEvent(
+                    "BATTLEFIELD_STANDBY_REMOVED",
+                    "状态清理移除非法待命牌",
+                    new Dictionary<string, object?>
+                    {
+                        ["battlefieldObjectId"] = battlefieldObjectId,
+                        ["controllerId"] = battlefieldState?.ControllerId,
+                        ["removedObjectIds"] = entry.Value.Select(item => item["objectId"]).ToArray(),
+                        ["removedCards"] = entry.Value,
+                        ["reason"] = "BATTLEFIELD_CONTROL_CLEANUP"
+                    });
+            })
+            .ToArray();
+
+        return new IllegalStandbyCleanupResult(
+            events,
+            removedByBattlefield.Values
+                .SelectMany(items => items)
+                .Select(item => item["objectId"] as string)
+                .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+                .Cast<string>()
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray());
     }
 
     private static LethalDamageCleanupResult ApplyLethalDamageCleanup(
@@ -21794,6 +21919,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DestroyedObjectIds,
         IReadOnlyList<string> DestroyedUnitOwnerIds,
         IReadOnlyDictionary<string, RunePool> RunePools);
+
+    private sealed record IllegalStandbyCleanupResult(
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> RemovedObjectIds)
+    {
+        public static IllegalStandbyCleanupResult Empty { get; } = new([], []);
+    }
 
     private sealed record StateBasedCleanupResult(
         IReadOnlyList<GameEvent> Events,

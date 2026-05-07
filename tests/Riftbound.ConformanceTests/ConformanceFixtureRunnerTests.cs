@@ -540,6 +540,94 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PostStackCleanupRemovesIllegalStandbyFromBattlefield()
+    {
+        var state = new MatchState(
+            "p7-post-stack-illegal-standby-cleanup-room",
+            1,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-ILLEGAL-STANDBY", "P1-ILLEGAL-STANDBY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-ILLEGAL-STANDBY"] = new(
+                    "BF-ILLEGAL-STANDBY",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P2"),
+                ["P1-ILLEGAL-STANDBY"] = new(
+                    "P1-ILLEGAL-STANDBY",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P2",
+            passedPriorityPlayerIds: ["P1"],
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-NOOP-ILLEGAL-STANDBY-CLEANUP",
+                    "P1",
+                    "P1-SPELL-NOOP",
+                    "UNKNOWN_NOOP_EFFECT")
+            ],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-ILLEGAL-STANDBY"] = new("P1", "BATTLEFIELD", "BF-ILLEGAL-STANDBY"),
+                ["P1-ILLEGAL-STANDBY"] = new("P1", "BATTLEFIELD", "BF-ILLEGAL-STANDBY")
+            });
+
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "P1-ILLEGAL-STANDBY", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-pass-illegal-standby-cleanup", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain("P1-ILLEGAL-STANDBY", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-ILLEGAL-STANDBY"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.False(result.State.CardObjects["P1-ILLEGAL-STANDBY"].IsFaceDown);
+        Assert.Equal("P1", result.State.CardObjects["P1-ILLEGAL-STANDBY"].ControllerId);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-ILLEGAL-STANDBY"].Zone);
+        Assert.DoesNotContain(
+            result.State.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal));
+        var standbyRemovedEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_STANDBY_REMOVED", StringComparison.Ordinal));
+        Assert.Equal("BF-ILLEGAL-STANDBY", standbyRemovedEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("P2", standbyRemovedEvent.Payload["controllerId"]);
+        Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", standbyRemovedEvent.Payload["reason"]);
+        Assert.Equal(["P1-ILLEGAL-STANDBY"], Assert.IsType<object[]>(standbyRemovedEvent.Payload["removedObjectIds"]));
+    }
+
+    [Fact]
     public async Task P7BattleCleanupReconcilesAuthoritativeObjectLocations()
     {
         var state = new MatchState(
