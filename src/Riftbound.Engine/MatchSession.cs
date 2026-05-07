@@ -520,8 +520,8 @@ public sealed record MatchState
         IReadOnlyList<string>? passedFocusPlayerIds = null,
         string? winnerPlayerId = null,
         IReadOnlyList<string>? destroyedUnitOwnerIdsThisTurn = null,
-        long? seed = null,
-        long? rngCursor = null,
+        long seed = 0,
+        long rngCursor = 0,
         IReadOnlyList<string>? untilEndOfTurnEffects = null,
         string? extraTurnPlayerId = null,
         IReadOnlyDictionary<string, int>? playerExperience = null,
@@ -572,8 +572,8 @@ public sealed record MatchState
         PassedFocusPlayerIds = NormalizeTextList(passedFocusPlayerIds);
         WinnerPlayerId = NormalizeOptionalText(winnerPlayerId);
         DestroyedUnitOwnerIdsThisTurn = NormalizeTextList(destroyedUnitOwnerIdsThisTurn);
-        Seed = seed ?? 0;
-        RngCursor = Math.Max(0, rngCursor ?? 0);
+        Seed = seed;
+        RngCursor = Math.Max(0, rngCursor);
         UntilEndOfTurnEffects = NormalizeTextList(untilEndOfTurnEffects);
         ExtraTurnPlayerId = NormalizeOptionalText(extraTurnPlayerId);
     }

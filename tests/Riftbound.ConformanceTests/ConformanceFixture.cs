@@ -317,7 +317,7 @@ public static class ConformanceFixtureRunner
             initial.FocusPlayerId,
             initial.PassedFocusPlayerIds,
             initial.WinnerPlayerId,
-            seed: initial.Seed,
+            seed: initial.Seed ?? 0,
             untilEndOfTurnEffects: initial.UntilEndOfTurnEffects,
             playerExperience: BuildPlayerExperience(initial, fixture.Players));
     }

@@ -250,11 +250,11 @@
 
 每个服务端批次必须先补测试，再补实现，最后更新 `CURRENT_SERVER_RULE_AUDIT.md` 和本文。
 
-本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界。
+本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界。
 
 ## 6. 当前总体进度
 
-估算整体进度：**85%**
+估算整体进度：**86%**
 
 已经完成：
 
@@ -282,6 +282,7 @@
 - 最近 held/conquer/control 战场结果已进入服务端 `timing.battlefieldResolutions`，前端规则队列只读显示“据守 / 征服 / 控制结算”，reload/reconnect 后仍能恢复最近战场结果。
 - 前端重连流程新增过期 token fallback：`Reconnect` 失败时清理本地旧 session 并退回服务端 `JoinRoom`，恢复 snapshot/prompt 后写回新的 reconnect token；前端仍不自行构造游戏状态。
 - 恢复链路新增服务端 action-log final hash audit：Postgres recovery frame 带 replay 初始状态，registry 在恢复前重放 recovered commands 并阻止 hash mismatch 的恢复帧，降低重连时用错误 authoritative snapshot 静默恢复的风险。
+- 真实 Postgres recovery store smoke 已覆盖 migration/journal/state snapshot/recovery frame/registry 恢复闭环，并修复 `MatchState` seed/rngCursor 构造参数类型导致 authoritative snapshot 无法反序列化的问题。
 
 预计剩余批次数：**3 批左右**
 
