@@ -466,6 +466,80 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PostStackCleanupDestroysUnitReducedToZeroPower()
+    {
+        var state = new MatchState(
+            "p7-post-stack-zero-power-modifier-cleanup-room",
+            1,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-ZERO-MODIFIER-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-ZERO-MODIFIER-UNIT"] = new(
+                    "P2-ZERO-MODIFIER-UNIT",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            priorityPlayerId: "P2",
+            passedPriorityPlayerIds: ["P1"],
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-PERFECT-FINALE-ZERO-POWER",
+                    "P1",
+                    "P1-SPELL-PERFECT-FINALE",
+                    "PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4",
+                    "UNL-182/219",
+                    ["P2-ZERO-MODIFIER-UNIT"])
+            ],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P2-ZERO-MODIFIER-UNIT"] = new("P2", "BATTLEFIELD", "BF-ZERO-POWER")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-pass-zero-power-modifier-cleanup", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain("P2-ZERO-MODIFIER-UNIT", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-ZERO-MODIFIER-UNIT"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-ZERO-MODIFIER-UNIT"].Zone);
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        var modifiedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-ZERO-MODIFIER-UNIT", StringComparison.Ordinal));
+        Assert.Equal(0, Assert.IsType<int>(modifiedEvent.Payload["resultingPower"]));
+        var destroyedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-ZERO-MODIFIER-UNIT", StringComparison.Ordinal));
+        Assert.Equal("ZERO_POWER", destroyedEvent.Payload["reason"]);
+    }
+
+    [Fact]
     public async Task P7BattleCleanupReconcilesAuthoritativeObjectLocations()
     {
         var state = new MatchState(
