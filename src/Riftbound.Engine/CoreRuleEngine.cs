@@ -11388,12 +11388,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 timingContext: StackTimingContextForNewStackItem(state));
         }
 
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        if (playsReactionToStack)
+        {
+            objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
+        }
+
         var nextState = state with
         {
             Tick = state.Tick + 1,
             ActivePlayerId = playsReactionToStack ? intent.PlayerId : state.ActivePlayerId,
             CardObjects = cardObjects,
             PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
             PriorityPlayerId = playsReactionToStack ? intent.PlayerId : null,
             PassedPriorityPlayerIds = [],
             StackItems = stackItem is null

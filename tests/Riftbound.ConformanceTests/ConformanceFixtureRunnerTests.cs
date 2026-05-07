@@ -35692,6 +35692,10 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
                     manaCost: 2,
                     cardNo: "OGN·121/298")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OGN-TEEMO"] = new("P1", "BASE")
             }
         };
 
@@ -35717,6 +35721,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
         Assert.Equal("P1", result.State.PriorityPlayerId);
         Assert.Equal(1, result.State.PlayerCardsPlayedThisTurn["P1"]);
+        Assert.Equal("STACK", result.State.ObjectLocations["P1-FACEDOWN-OGN-TEEMO"].Zone);
 
         var revealedCard = result.State.CardObjects["P1-FACEDOWN-OGN-TEEMO"];
         Assert.False(revealedCard.IsFaceDown);
