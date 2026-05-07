@@ -951,8 +951,52 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.UnsupportedCommand);
         }
 
+        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                optionalCosts,
+                out _,
+                out var paymentResourceActions,
+                out var recycledRuneObjectIds))
+        {
+            return RejectWithCorePrompts(
+                state,
+                AssembleEquipmentUnsupportedMessage,
+                ErrorCodes.UnsupportedCommand);
+        }
+
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
-        if (!CanPayRuneCosts(currentPool, 0, 0, LongSwordAssemblePowerCostByTrait))
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledRuneObjectIds,
+                0,
+                LongSwordAssemblePowerCostByTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Recycle rune payment resources are not required to assemble Long Sword.",
+                ErrorCodes.InsufficientCost);
+        }
+
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            recycledRuneObjectIds,
+            paymentEvents,
+            "ASSEMBLE_EQUIPMENT");
+        var paymentAdjustedPool = runePools.TryGetValue(intent.PlayerId, out var adjustedPool)
+            ? adjustedPool
+            : RunePool.Empty;
+        if (!CanPayRuneCosts(paymentAdjustedPool, 0, 0, LongSwordAssemblePowerCostByTrait))
         {
             return RejectWithCorePrompts(
                 state,
@@ -960,8 +1004,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InsufficientCost);
         }
 
-        var runePools = PayRuneCosts(state, intent.PlayerId, 0, 0, LongSwordAssemblePowerCostByTrait);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        runePools = PayRuneCosts(runePools, intent.PlayerId, 0, 0, LongSwordAssemblePowerCostByTrait);
         var equipmentWithIdentity = WithFieldIdentityDefaults(equipmentState, intent.PlayerId);
         var targetWithIdentity = WithFieldIdentityDefaults(targetState, intent.PlayerId);
         cardObjects[command.SourceObjectId] = equipmentWithIdentity with
@@ -974,11 +1017,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             RunePools = runePools,
+            PlayerZones = playerZones,
             CardObjects = cardObjects,
+            ObjectLocations = objectLocations,
             PassedPriorityPlayerIds = []
         };
-        var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        var events = new List<GameEvent>
+        var events = new List<GameEvent>(paymentEvents)
         {
             new(
                 "COST_PAID",
@@ -990,7 +1034,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["power"] = LongSwordAssemblePowerCost,
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["targetObjectId"] = command.TargetObjectId,
-                    ["optionalCosts"] = optionalCosts.ToArray()
+                    ["optionalCosts"] = optionalCosts.ToArray(),
+                    ["paymentResourceActions"] = paymentResourceActions.ToArray()
                 }),
             new(
                 "EQUIPMENT_ATTACHED",
@@ -1005,7 +1050,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["attachedToObjectId"] = command.TargetObjectId,
                     ["equipmentCardNo"] = string.IsNullOrWhiteSpace(equipmentWithIdentity.CardNo) ? LongSwordCardNo : equipmentWithIdentity.CardNo,
                     ["targetPower"] = targetWithIdentity.Power,
-                    ["optionalCosts"] = optionalCosts.ToArray()
+                    ["optionalCosts"] = optionalCosts.ToArray(),
+                    ["paymentResourceActions"] = paymentResourceActions.ToArray()
                 })
         };
 
@@ -1037,8 +1083,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
-        if (optionalCosts.Count != 1
-            || !string.Equals(optionalCosts[0], LongSwordAssembleOptionalCost, StringComparison.Ordinal)
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                optionalCosts,
+                out var behaviorOptionalCosts,
+                out _,
+                out _)
+            || behaviorOptionalCosts.Count != 1
+            || !string.Equals(behaviorOptionalCosts[0], LongSwordAssembleOptionalCost, StringComparison.Ordinal)
             || string.IsNullOrWhiteSpace(command.SourceObjectId)
             || string.IsNullOrWhiteSpace(command.TargetObjectId)
             || string.Equals(command.SourceObjectId, command.TargetObjectId, StringComparison.Ordinal))
@@ -1061,8 +1114,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!string.IsNullOrWhiteSpace(knownEquipmentState.CardNo)
-            && !string.Equals(knownEquipmentState.CardNo, LongSwordCardNo, StringComparison.Ordinal))
+        if (!string.Equals(knownEquipmentState.CardNo, LongSwordCardNo, StringComparison.Ordinal))
         {
             return false;
         }
@@ -4191,7 +4243,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         Dictionary<string, ObjectLocationState> objectLocations,
         string playerId,
         IReadOnlyList<string> recycledRuneObjectIds,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        string paymentWindow = "PLAY_CARD")
     {
         var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         if (recycledRuneObjectIds.Count == 0)
@@ -4247,7 +4300,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = BasicRuneRecycleAbilityId,
                     ["trait"] = runeTrait,
                     ["power"] = BasicRuneRecyclePowerGain,
-                    ["paymentWindow"] = "PLAY_CARD",
+                    ["paymentWindow"] = paymentWindow,
                     ["runeDeckCountAfter"] = playerZones[playerId].RuneDeck.Count
                 }));
             events.Add(new GameEvent(
@@ -4260,7 +4313,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["abilityId"] = BasicRuneRecycleAbilityId,
                     ["trait"] = runeTrait,
                     ["power"] = BasicRuneRecyclePowerGain,
-                    ["paymentWindow"] = "PLAY_CARD",
+                    ["paymentWindow"] = paymentWindow,
                     ["powerAfter"] = currentPool.TotalPower,
                     ["traitPowerAfter"] = powerByTrait[runeTrait]
                 }));

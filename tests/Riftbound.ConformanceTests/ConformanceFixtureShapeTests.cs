@@ -2071,6 +2071,45 @@ public sealed class ConformanceFixtureShapeTests
         Assert.False(genericPowerCandidate.Enabled);
         Assert.Empty(genericPowerCandidate.Sources ?? []);
 
+        var recyclePaymentState = noPowerState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-LONG-SWORD", "P1-UNIT", "P1-RUNE-RED-ASSEMBLE-PAYMENT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(noPowerState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-RUNE-RED-ASSEMBLE-PAYMENT"] = new(
+                    "P1-RUNE-RED-ASSEMBLE-PAYMENT",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var recyclePaymentPrompt = ResolutionResult.BuildPrompts(recyclePaymentState)["P1"];
+        var recyclePaymentCandidate = Assert.Single(
+            recyclePaymentPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(recyclePaymentCandidate.Enabled);
+        Assert.Equal(["P1-LONG-SWORD"], (recyclePaymentCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var recyclePaymentMetadata = Assert.IsType<Dictionary<string, object?>>(recyclePaymentCandidate.Metadata);
+        var recyclePaymentRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            recyclePaymentMetadata["sourceRequirements"]);
+        var recyclePaymentRequirement = Assert.Single(recyclePaymentRequirements);
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            recyclePaymentRequirement["paymentResourceChoices"]);
+        Assert.Equal(["RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            recyclePaymentRequirement["paymentResourcePowerByChoice"]);
+        var paymentResourcePower = paymentResourcePowerByChoice["RECYCLE_RUNE:P1-RUNE-RED-ASSEMBLE-PAYMENT"];
+        Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePower["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(paymentResourcePower["power"]));
+
         var payableState = noPowerState with
         {
             RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)

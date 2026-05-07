@@ -1356,6 +1356,80 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79AssemblePaymentRecycleSeedOffersResourceAndAttachesThroughHub()
+    {
+        const string roomId = "p7-9-assemble-payment-recycle-core";
+        const string equipmentObjectId = "P1-EQUIPMENT-LONG-SWORD-ASSEMBLE-PAYMENT";
+        const string targetObjectId = "P1-UNIT-ASSEMBLE-PAYMENT-TARGET";
+        const string paymentRuneObjectId = "P1-RUNE-RED-ASSEMBLE-PAYMENT-001";
+        var paymentResourceAction = $"RECYCLE_RUNE:{paymentRuneObjectId}";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "assemble-payment-recycle", "seed-p7-9-assemble-payment-recycle");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var assembleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal));
+        Assert.True(assembleCandidate.Enabled);
+        Assert.Equal([equipmentObjectId], (assembleCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        var metadata = Assert.IsType<Dictionary<string, object?>>(assembleCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .ToArray();
+        Assert.Equal([paymentResourceAction], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
+            sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
+
+        var attachClients = new RecordingHubClients();
+        await CreateHub(attachClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-assemble-payment-recycle", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "ASSEMBLE_EQUIPMENT",
+                sourceObjectId = equipmentObjectId,
+                targetObjectId,
+                optionalCosts = new[] { "ASSEMBLE_RED", paymentResourceAction }
+            }));
+
+        Assert.Empty(attachClients.CallerClient.Errors);
+        var events = EventsFor(attachClients);
+        Assert.Equal(
+            ["RUNE_RECYCLED", "POWER_GAINED", "COST_PAID", "EQUIPMENT_ATTACHED"],
+            events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var recycleEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal("ASSEMBLE_EQUIPMENT", recycleEvent.Payload["paymentWindow"]);
+        var costEvent = Assert.Single(events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+
+        var snapshot = SnapshotFor(attachClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.DoesNotContain(paymentRuneObjectId, Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        Assert.Equal(2, Assert.IsType<int>(p1Zones["runeDeckCount"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var equipment = Assert.IsType<Dictionary<string, object?>>(p1Objects[equipmentObjectId]);
+        Assert.Equal(targetObjectId, Assert.IsType<string>(equipment["attachedToObjectId"]));
+        var runePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(runePool["powerByTrait"]);
+        Assert.DoesNotContain(RuneTrait.Red, powerByTrait.Keys);
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

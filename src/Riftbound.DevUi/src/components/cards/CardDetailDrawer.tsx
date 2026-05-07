@@ -342,6 +342,10 @@ type AssembleEquipmentSourceRequirement = {
   displayName: string;
   targetChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
+  paymentResourceChoices: ActionPromptChoiceDto[];
+  paymentResourcePowerByChoice: Record<string, PaymentResourceContribution>;
+  availablePowerByTrait: Record<string, number>;
+  availablePowerByTraitWithPaymentResources: Record<string, number>;
   requiredOptionalCosts: string[];
   powerCost: number;
   composable: boolean;
@@ -1100,10 +1104,12 @@ function AssembleEquipmentComposer({
   const selectedRequirement = requirements[0];
   const [targetObjectId, setTargetObjectId] = useState<string>("");
   const [optionalCosts, setOptionalCosts] = useState<string[]>([]);
+  const [paymentResourceCosts, setPaymentResourceCosts] = useState<string[]>([]);
 
   useEffect(() => {
     setTargetObjectId(selectedRequirement?.targetChoices[0]?.id ?? "");
     setOptionalCosts([]);
+    setPaymentResourceCosts([]);
   }, [selectedRequirement]);
 
   if (!sourceObjectId) {
@@ -1127,14 +1133,19 @@ function AssembleEquipmentComposer({
   }
 
   const requiredCosts = selectedRequirement.requiredOptionalCosts;
-  const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) => !requiredCosts.includes(choice.id));
+  const paymentResourceChoiceIds = new Set(selectedRequirement.paymentResourceChoices.map((choice) => choice.id));
+  const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) =>
+    !requiredCosts.includes(choice.id) && !paymentResourceChoiceIds.has(choice.id));
   const requiredCostLabels = requiredCosts.map((cost) =>
     selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
-  const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts]);
+  const paymentResourceRequired = selectedRequirement.paymentResourceChoices.length > 0;
+  const paymentResourceSelectionValid = !paymentResourceRequired || paymentResourceCosts.length === 1;
+  const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts, ...paymentResourceCosts]);
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
     && targetObjectId
+    && paymentResourceSelectionValid
     && onCommand
   );
 
@@ -1181,6 +1192,27 @@ function AssembleEquipmentComposer({
             </ChoiceButton>
           ))}
         </ChoiceGroup>
+      )}
+      {selectedRequirement.paymentResourceChoices.length > 0 && (
+        <ChoiceGroup label="支付资源">
+          {selectedRequirement.paymentResourceChoices.map((choice) => {
+            const active = paymentResourceCosts.includes(choice.id);
+            return (
+              <ChoiceButton
+                active={active}
+                disabled={!active && paymentResourceCosts.length >= 1}
+                key={choice.id}
+                onClick={() => setPaymentResourceCosts((current) => active ? [] : [choice.id])}
+                title={choice.reason ?? undefined}
+              >
+                {choice.label}
+              </ChoiceButton>
+            );
+          })}
+        </ChoiceGroup>
+      )}
+      {paymentResourceRequired && !paymentResourceSelectionValid && selectedRequirement.composable && (
+        <p className="composer-warning">需要选择服务端给出的回收符文支付资源。</p>
       )}
       {!selectedRequirement.composable && (
         <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该装配当前不能由前端组合提交。"}</p>
@@ -2095,6 +2127,10 @@ function parseAssembleEquipmentRequirement(value: unknown): AssembleEquipmentSou
     displayName: stringField(record, "displayName") || equipmentCardNo,
     targetChoices: choiceList(record.targetChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
+    paymentResourceChoices: choiceList(record.paymentResourceChoices),
+    paymentResourcePowerByChoice: paymentResourceContributionRecord(record.paymentResourcePowerByChoice),
+    availablePowerByTrait: numberRecord(record.availablePowerByTrait),
+    availablePowerByTraitWithPaymentResources: numberRecord(record.availablePowerByTraitWithPaymentResources),
     requiredOptionalCosts: stringList(record.requiredOptionalCosts),
     powerCost: numberField(record, "powerCost"),
     composable: booleanField(record, "composable", true),

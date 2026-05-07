@@ -2333,6 +2333,10 @@ internal static class ActionPromptBuilder
         string DisplayName,
         IReadOnlyList<ActionPromptChoiceDto> TargetChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<ActionPromptChoiceDto> PaymentResourceChoices,
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> PaymentResourcePowerByChoice,
+        IReadOnlyDictionary<string, int> AvailablePowerByTrait,
+        IReadOnlyDictionary<string, int> AvailablePowerByTraitWithPaymentResources,
         IReadOnlyList<string> RequiredOptionalCosts,
         int PowerCost,
         bool Composable,
@@ -4059,18 +4063,36 @@ internal static class ActionPromptBuilder
         return zones.Base
             .Where(objectId => IsImplementedAssembleEquipmentSource(state, playerId, objectId))
             .Distinct(StringComparer.Ordinal)
-            .Select(objectId => new AssembleEquipmentPromptRequirement(
-                objectId,
-                LongSwordCardNo,
-                "长剑",
-                AssembleEquipmentTargetChoicesForSource(state, playerId, objectId),
-                [new ActionPromptChoiceDto(LongSwordAssembleOptionalCost, "装配红色符能")],
-                [LongSwordAssembleOptionalCost],
-                LongSwordAssemblePowerCost,
-                true,
-                null))
+            .Select(objectId => AssembleEquipmentSourceRequirement(state, playerId, objectId))
             .Where(requirement => requirement.TargetChoices.Count > 0)
             .ToArray();
+    }
+
+    private static AssembleEquipmentPromptRequirement AssembleEquipmentSourceRequirement(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var paymentResourceChoices = AssembleEquipmentPaymentResourceChoices(state, playerId);
+        var paymentResourcePowerByTrait = AssembleEquipmentPaymentResourcePowerByTrait(state, playerId);
+
+        return new AssembleEquipmentPromptRequirement(
+            objectId,
+            LongSwordCardNo,
+            "长剑",
+            AssembleEquipmentTargetChoicesForSource(state, playerId, objectId),
+            [new ActionPromptChoiceDto(LongSwordAssembleOptionalCost, "装配红色符能")],
+            paymentResourceChoices,
+            AssembleEquipmentPaymentResourcePowerByChoice(state, playerId),
+            PlayCardAvailablePowerByTrait(runePool, new Dictionary<string, int>(StringComparer.Ordinal)),
+            PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait),
+            [LongSwordAssembleOptionalCost],
+            LongSwordAssemblePowerCost,
+            true,
+            null);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentTargetChoicesForSource(
@@ -4106,14 +4128,89 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return CanPayLongSwordAssembleCost(runePool)
+        return CanPayLongSwordAssembleCost(runePool, AssembleEquipmentPaymentResourcePowerByTrait(state, playerId))
             && AssembleEquipmentTargetChoicesForSource(state, playerId, objectId).Count > 0;
     }
 
-    private static bool CanPayLongSwordAssembleCost(RunePool runePool)
+    private static bool CanPayLongSwordAssembleCost(
+        RunePool runePool,
+        IReadOnlyDictionary<string, int>? paymentResourcePowerByTrait = null)
     {
-        return runePool.PowerByTrait.TryGetValue(RuneTrait.Red, out var redPower)
+        var availablePowerByTrait = PlayCardAvailablePowerByTrait(
+            runePool,
+            paymentResourcePowerByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal));
+        return availablePowerByTrait.TryGetValue(RuneTrait.Red, out var redPower)
             && redPower >= LongSwordAssemblePowerCost;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> AssembleEquipmentPaymentResourceChoices(
+        MatchState state,
+        string playerId)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (CanPayLongSwordAssembleCost(runePool))
+        {
+            return [];
+        }
+
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var runeState)
+                && TryGetRuneTrait(runeState, out var runeTrait)
+                && string.Equals(runeTrait, RuneTrait.Red, StringComparison.Ordinal))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "payment resource action: recycle red rune for assemble cost");
+                return new ActionPromptChoiceDto(
+                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
+                    $"回收符文支付：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, int> AssembleEquipmentPaymentResourcePowerByTrait(
+        MatchState state,
+        string playerId)
+    {
+        var choices = AssembleEquipmentPaymentResourceChoices(state, playerId);
+        if (choices.Count == 0)
+        {
+            return new Dictionary<string, int>(StringComparer.Ordinal);
+        }
+
+        return new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Red] = choices.Count * BasicRuneRecyclePowerGain
+        };
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> AssembleEquipmentPaymentResourcePowerByChoice(
+        MatchState state,
+        string playerId)
+    {
+        var choices = AssembleEquipmentPaymentResourceChoices(state, playerId);
+        if (choices.Count == 0)
+        {
+            return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
+        }
+
+        return choices.ToDictionary(
+            choice => choice.Id,
+            _ => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["trait"] = RuneTrait.Red,
+                ["power"] = BasicRuneRecyclePowerGain
+            },
+            StringComparer.Ordinal);
     }
 
     private static bool IsImplementedAssembleEquipmentTarget(MatchState state, string playerId, string objectId)
@@ -5704,6 +5801,10 @@ internal static class ActionPromptBuilder
             ["displayName"] = requirement.DisplayName,
             ["targetChoices"] = requirement.TargetChoices,
             ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["paymentResourceChoices"] = requirement.PaymentResourceChoices,
+            ["paymentResourcePowerByChoice"] = requirement.PaymentResourcePowerByChoice,
+            ["availablePowerByTrait"] = requirement.AvailablePowerByTrait,
+            ["availablePowerByTraitWithPaymentResources"] = requirement.AvailablePowerByTraitWithPaymentResources,
             ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
             ["powerCost"] = requirement.PowerCost,
             ["composable"] = requirement.Composable,
@@ -7861,6 +7962,7 @@ public sealed class MatchSession : IMatchSession
             "spellshield-tax-insufficient-prompt" => BuildSpellshieldTaxInsufficientPromptScenario(current, seed),
             "unknown-play-source-prompt" => BuildUnknownPlaySourcePromptScenario(current, seed),
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
+            "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
@@ -8681,6 +8783,68 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildAssemblePaymentRecycleScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304163,
+            4163,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: ["P1-RUNE-BOTTOM-ASSEMBLE-PAYMENT-001"],
+                    baseZone:
+                    [
+                        "P1-EQUIPMENT-LONG-SWORD-ASSEMBLE-PAYMENT",
+                        "P1-UNIT-ASSEMBLE-PAYMENT-TARGET",
+                        "P1-RUNE-RED-ASSEMBLE-PAYMENT-001"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD-ASSEMBLE-PAYMENT"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD-ASSEMBLE-PAYMENT",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-ASSEMBLE-PAYMENT-TARGET"] = new(
+                    "P1-UNIT-ASSEMBLE-PAYMENT-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-RED-ASSEMBLE-PAYMENT-001"] = new(
+                    "P1-RUNE-RED-ASSEMBLE-PAYMENT-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-BOTTOM-ASSEMBLE-PAYMENT-001"] = new(
+                    "P1-RUNE-BOTTOM-ASSEMBLE-PAYMENT-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
