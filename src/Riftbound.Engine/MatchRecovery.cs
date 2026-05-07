@@ -39,7 +39,8 @@ public sealed record MatchRecoveryFrame(
     IReadOnlyList<RecoveredEvent> Events,
     IReadOnlyDictionary<string, RecoveredPlayerView> PlayerViews,
     IReadOnlyList<string> ValidationErrors,
-    MatchState? AuthoritativeState = null)
+    MatchState? AuthoritativeState = null,
+    MatchState? ReplayInitialState = null)
 {
     public bool IsConsistent => ValidationErrors.Count == 0;
 
@@ -83,6 +84,55 @@ public sealed record MatchActionLogReplayResult(
 public static class MatchActionLogReplayer
 {
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
+
+    public static async ValueTask<IReadOnlyList<string>> ValidateRecoveryFrameAsync(
+        MatchRecoveryFrame recovery,
+        IRuleEngine ruleEngine,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(recovery);
+        ArgumentNullException.ThrowIfNull(ruleEngine);
+
+        if (recovery.Commands.Count == 0)
+        {
+            return [];
+        }
+
+        if (recovery.AuthoritativeState is null
+            && recovery.ReplayInitialState is null)
+        {
+            return [];
+        }
+
+        var errors = new List<string>();
+        if (recovery.AuthoritativeState is null)
+        {
+            errors.Add("action-log replay audit requires authoritative final state");
+        }
+
+        if (recovery.ReplayInitialState is null)
+        {
+            errors.Add("action-log replay audit requires replay initial state");
+        }
+
+        if (errors.Count > 0)
+        {
+            return errors;
+        }
+
+        var replay = await VerifyFinalStateAsync(
+                recovery.ReplayInitialState!,
+                recovery.Commands,
+                recovery.AuthoritativeState!,
+                ruleEngine,
+                cancellationToken)
+            .ConfigureAwait(false);
+        return replay.IsMatch
+            ? []
+            : replay.Errors
+                .Select(error => $"action-log replay audit failed: {error}")
+                .ToArray();
+    }
 
     public static async ValueTask<MatchActionLogReplayResult> VerifyFinalStateAsync(
         MatchState initialState,
@@ -203,6 +253,78 @@ public static class MatchActionLogReplayer
 
         using var document = JsonDocument.Parse($$"""{"cmdType":"{{recovered.CommandType}}"}""");
         return document.RootElement.Clone();
+    }
+}
+
+public static class MatchReplayInitialStateBuilder
+{
+    public static MatchState FromSeats(
+        string roomId,
+        IReadOnlyDictionary<string, string> seats)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roomId);
+        ArgumentNullException.ThrowIfNull(seats);
+
+        var normalizedSeats = seats
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.Key) && !string.IsNullOrWhiteSpace(entry.Value))
+            .Select(entry => new KeyValuePair<string, string>(entry.Key.Trim(), entry.Value.Trim()))
+            .GroupBy(entry => entry.Key, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.First().Value,
+                StringComparer.Ordinal);
+        var playerIds = normalizedSeats
+            .OrderBy(entry => SeatSort(entry.Value))
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .ToArray();
+        var activePlayerId = playerIds.FirstOrDefault()
+            ?? "P1";
+
+        return new MatchState(
+            roomId.Trim(),
+            0,
+            1,
+            activePlayerId,
+            normalizedSeats,
+            MatchStatuses.Seating,
+            [],
+            activePlayerId,
+            MatchPhases.Room,
+            TimingStates.Room,
+            playerIds.ToDictionary(playerId => playerId, _ => RunePool.Empty, StringComparer.Ordinal),
+            playerIds.ToDictionary(playerId => playerId, _ => PlayerZones.Empty, StringComparer.Ordinal),
+            playerIds.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal),
+            null,
+            [],
+            [],
+            null,
+            [],
+            null,
+            [],
+            0,
+            0,
+            [],
+            null,
+            playerIds.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
+            playerIds.ToDictionary(playerId => playerId, _ => 0, StringComparer.Ordinal),
+            [],
+            new Dictionary<string, OfficialDecklist>(StringComparer.Ordinal),
+            [],
+            null,
+            new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal),
+            []);
+    }
+
+    private static int SeatSort(string seat)
+    {
+        return seat switch
+        {
+            "P1" => 0,
+            "P2" => 1,
+            _ => 10
+        };
     }
 }
 

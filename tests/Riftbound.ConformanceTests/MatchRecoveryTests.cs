@@ -469,6 +469,82 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task RegistryRunsActionLogReplayAuditBeforeRecoveryRestore()
+    {
+        var initialState = MatchReplayInitialStateBuilder.FromSeats(
+            "room-a",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            expectedFinalState.Tick,
+            journal.Entries[^1].CompletedEventSequence,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            expectedFinalState,
+            initialState);
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(frame));
+
+        var recovered = await registry.GetOrCreateAsync("room-a", CancellationToken.None);
+
+        var snapshot = recovered.SnapshotFor("alice");
+        Assert.Equal(expectedFinalState.Tick, snapshot.Tick);
+        Assert.Equal("alice", snapshot.ActivePlayerId);
+    }
+
+    [Fact]
+    public async Task RegistryRejectsRecoveryFrameWhenActionLogReplayHashMismatches()
+    {
+        var initialState = MatchReplayInitialStateBuilder.FromSeats(
+            "room-a",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            });
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.ReadyAsync("alice", "intent-ready-a", RawCommand("READY"), CancellationToken.None);
+        var wrongFinalState = journal.Entries[^1].AuthoritativeState with
+        {
+            Tick = journal.Entries[^1].AuthoritativeState.Tick + 1
+        };
+        var frame = new MatchRecoveryFrame(
+            "room-a",
+            wrongFinalState.Tick,
+            journal.Entries[^1].CompletedEventSequence,
+            journal.Entries.Select(ToRecoveredCommand).ToArray(),
+            [],
+            new Dictionary<string, RecoveredPlayerView>(StringComparer.Ordinal),
+            [],
+            wrongFinalState,
+            initialState);
+        var registry = new InMemoryMatchSessionRegistry(
+            new PlaceholderRuleEngine(),
+            NoopMatchJournal.Instance,
+            new FixedRecoveryStore(frame));
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await registry.GetOrCreateAsync("room-a", CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.RecoveryInconsistent, error.Code);
+        Assert.Contains("action-log audit failed", error.Message, StringComparison.Ordinal);
+        Assert.Contains("replayed final state hash", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
     {
         var state = new MatchState(

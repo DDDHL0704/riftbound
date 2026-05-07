@@ -5421,6 +5421,21 @@ public sealed class InMemoryMatchSessionRegistry : IMatchSessionRegistry
                 $"match recovery returned room {recovery.RoomId} for requested room {roomId}");
         }
 
+        if (recovery.IsConsistent)
+        {
+            var replayErrors = await MatchActionLogReplayer.ValidateRecoveryFrameAsync(
+                    recovery,
+                    ruleEngine,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            if (replayErrors.Count > 0)
+            {
+                throw new MatchSessionException(
+                    ErrorCodes.RecoveryInconsistent,
+                    $"match recovery action-log audit failed: {string.Join("; ", replayErrors)}");
+            }
+        }
+
         return MatchSession.Restore(recovery, ruleEngine, journal, playerStore, sessionOptions);
     }
 }

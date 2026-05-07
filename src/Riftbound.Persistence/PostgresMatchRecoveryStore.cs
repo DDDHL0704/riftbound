@@ -29,6 +29,9 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             roomId,
             metadata.LastEventSequence,
             cancellationToken).ConfigureAwait(false);
+        var replayInitialState = authoritativeState is not null && commands.Count > 0
+            ? await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false)
+            : null;
         var validationErrors = MatchRecoveryValidator.Validate(
             metadata.RoomId,
             metadata.LastEventSequence,
@@ -46,7 +49,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             events,
             playerViews,
             validationErrors,
-            authoritativeState);
+            authoritativeState,
+            replayInitialState);
     }
 
     private static async Task<MatchRecoveryMetadata?> LoadMetadataAsync(
@@ -192,6 +196,37 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         command.Parameters.AddWithValue("last_event_sequence", lastEventSequence);
         var payload = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         return payload is string json ? Deserialize<MatchState>(json) : null;
+    }
+
+    private static async Task<MatchState> LoadReplayInitialStateAsync(
+        NpgsqlConnection connection,
+        string roomId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            select player_id, seat
+            from match_players
+            where match_id = @match_id
+            order by
+                case seat
+                    when 'P1' then 0
+                    when 'P2' then 1
+                    else 10
+                end,
+                joined_at,
+                player_id;
+            """;
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("match_id", roomId);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+
+        var seats = new Dictionary<string, string>(StringComparer.Ordinal);
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            seats[reader.GetString(0)] = reader.GetString(1);
+        }
+
+        return MatchReplayInitialStateBuilder.FromSeats(roomId, seats);
     }
 
     private static async Task<IReadOnlyDictionary<string, RecoveredPrompt>> LoadLatestPromptsAsync(
