@@ -7136,6 +7136,7 @@ public sealed class MatchSession : IMatchSession
             "typed-power-payment-over-recycle" => BuildTypedPowerPaymentOverRecycleScenario(current, seed),
             "typed-power-payment-double-recycle" => BuildTypedPowerPaymentDoubleRecycleScenario(current, seed),
             "typed-power-payment-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
+            "typed-power-payment-generic-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
