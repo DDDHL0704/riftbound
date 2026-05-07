@@ -2090,6 +2090,55 @@ internal static class ActionPromptBuilder
         bool ResolvesImmediately,
         bool Composable,
         string? UnsupportedReason);
+
+    private sealed record LegendActionPromptRequirement(
+        string SourceObjectId,
+        string CardNo,
+        string AbilityId,
+        string DisplayName,
+        string AbilityLabel,
+        int ManaCost,
+        int ExperienceCost,
+        int MinTargetCount,
+        int MaxTargetCount,
+        string TargetScopeLabel,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<string> RequiredOptionalCosts,
+        string TimingLabel,
+        bool ExhaustsSource,
+        bool ResolvesImmediately,
+        bool Composable,
+        string? UnsupportedReason);
+
+    private sealed record LegendActionAbilityDefinition(
+        string AbilityId,
+        IReadOnlyList<string> SourceCardNos,
+        string DisplayName,
+        int ManaCost,
+        int ExperienceCost,
+        string RequiredCostToken,
+        int RequiredTargetCount,
+        bool RequiresFriendlyUnitTarget,
+        string EffectKind,
+        bool RequiresBattlefieldTarget = false,
+        bool RequiresExhaustedTarget = false,
+        bool RequiresArmamentSecondTarget = false,
+        bool RequiresUnattachedArmamentSecondTarget = false,
+        bool RequiresAttachedArmamentSecondTarget = false,
+        bool RequiresDifferentArmamentHost = false,
+        bool RequiresPlayedAnotherCardThisTurn = false,
+        bool RequiresPlayedArmamentThisTurn = false,
+        bool RequiresOwnedTeemoUnitTarget = false,
+        string ManaCostReductionKind = "",
+        int ManaGainAmount = 0,
+        int PowerGainAmount = 0,
+        string TimingKind = LegendActionTimingKinds.MainOpen,
+        bool RequiresPendingSpellStackItem = false,
+        bool RequiresPendingEquipmentStackItem = false,
+        bool RequiresEzrealEnemyTargetsThisTurn = false,
+        bool RequiresPendingFriendlyUnitTarget = false,
+        string RequiredControlledBattlefieldCardNo = "");
     private const string BattlefieldHighCostSpellInsightCardNo = "UNL-211/219";
     private const string BattlefieldUnitReturnedCallRuneCardNo = "UNL-214/219";
     private const string BattlefieldPlayUnitPayOneBoonCardNo = "UNL-218/219";
@@ -2099,6 +2148,54 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
+    private const string YasuoLegendCardNo = "FND-259/298";
+    private const string YasuoLegendAbilityId = "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT";
+    private const string LeeSinLegendCardNo = "OGN·257/298";
+    private const string LeeSinLegendAbilityId = "LEGEND_PAY_1_EXHAUST_GRANT_BOON";
+    private const string PoppyLegendCardNo = "UNL-237/219";
+    private const string PoppyLegendAbilityId = "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW";
+    private const string ViktorLegendCardNo = "FND-265/298";
+    private const string ViktorLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_MINION";
+    private const string MissFortuneLegendCardNo = "OGN·267/298";
+    private const string MissFortuneLegendAbilityId = "LEGEND_EXHAUST_GRANT_ROAM";
+    private const string KhazixLegendCardNo = "UNL-201/219";
+    private const string KhazixLegendBoonAbilityId = "LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON";
+    private const string KhazixLegendMoveAbilityId = "LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE";
+    private const string PykeLegendCardNo = "UNL-185/219";
+    private const string PykeLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN";
+    private const string JaxSpiritforgedLegendCardNo = "SFD·193/221";
+    private const string JaxLegendAttachAbilityId = "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT";
+    private const string JaxLegendReattachAbilityId = "LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT";
+    private const string DariusOriginLegendCardNo = "OGN·253/298";
+    private const string DariusLegendAbilityId = "LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA";
+    private const string DianaLegendAbilityId = "LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA";
+    private const string KaisaLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL";
+    private const string OrnnLegendAbilityId = "LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT";
+    private const string EzrealLegendAbilityId = "LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS";
+    private const string IreliaLegendCardNo = "SFD·195/221";
+    private const string IreliaLegendAbilityId = "LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT";
+    private const string TeemoOriginLegendCardNo = "OGN·263/298";
+    private const string TeemoLegendAbilityId = "LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT";
+    private const string AzirSpiritforgedLegendCardNo = "SFD·197/221";
+    private const string AzirLegendAbilityId = "LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT";
+    private const string LilliaLegendCardNo = "UNL-189/219";
+    private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
+    private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
+    private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
+    private const int EzrealEnemyTargetThreshold = 2;
+    private const int LilliaLegendBaseManaCost = 4;
+
+    private static class LegendActionTimingKinds
+    {
+        public const string MainOpen = "MAIN_OPEN";
+        public const string PriorityWindow = "PRIORITY_WINDOW";
+        public const string SpellDuelFocus = "SPELL_DUEL_FOCUS";
+    }
+
+    private static class LegendActionManaCostReductionKinds
+    {
+        public const string FriendlyEphemeralFieldObjects = "FRIENDLY_EPHEMERAL_FIELD_OBJECTS";
+    }
 
     public static IReadOnlyList<string> ActionsWithLegendActIfAvailable(
         MatchState state,
@@ -2265,11 +2362,9 @@ internal static class ActionPromptBuilder
                 .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "legal battlefield attacker candidate"))
                 .ToArray(),
-            "LEGEND_ACT" => zones.LegendZone
-                .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    && (IsImplementedLegendActionCardNo(cardObject.CardNo)
-                        || PlayerControlsBattlefieldCard(state, playerId, BattlefieldGrantLegendAttachArmamentCardNo))
-                    && !cardObject.IsExhausted)
+            "LEGEND_ACT" => LegendActionSourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented legend action source"))
                 .ToArray(),
             _ => null
@@ -2574,6 +2669,762 @@ internal static class ActionPromptBuilder
         return requirements
             .Where(requirement => CanPayActivateAbilityRequirement(state, playerId, requirement))
             .ToArray();
+    }
+
+    private static IReadOnlyList<LegendActionPromptRequirement> LegendActionSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.LegendZone
+            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var legendObject)
+                && !legendObject.IsExhausted
+                && (string.IsNullOrWhiteSpace(legendObject.ControllerId)
+                    || string.Equals(legendObject.ControllerId, playerId, StringComparison.Ordinal)))
+            .SelectMany(objectId => LegendActionRequirementsForSource(state, playerId, objectId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<LegendActionPromptRequirement> LegendActionRequirementsForSource(
+        MatchState state,
+        string playerId,
+        string sourceObjectId)
+    {
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState))
+        {
+            return [];
+        }
+
+        var requirements = new List<LegendActionPromptRequirement>();
+        foreach (var ability in ImplementedLegendActionAbilities())
+        {
+            if (!LegendActionSourceHasAbility(state, playerId, sourceState.CardNo, ability)
+                || !LegendActionTimingAllowed(state, playerId, ability)
+                || !LegendActionPrerequisitesMet(state, playerId, ability))
+            {
+                continue;
+            }
+
+            var targetChoicesByIndex = LegendActionTargetChoicesByIndex(state, playerId, ability);
+            var requiredTargetCount = ability.RequiredTargetCount;
+            if (requiredTargetCount > 0
+                && Enumerable.Range(0, requiredTargetCount)
+                    .Any(targetIndex => !targetChoicesByIndex.TryGetValue(targetIndex.ToString(System.Globalization.CultureInfo.InvariantCulture), out var choices)
+                        || choices.Count == 0))
+            {
+                continue;
+            }
+
+            var manaCost = ResolveLegendActionManaCost(state, playerId, ability);
+            var requiredCosts = LegendActionRequiredCostTokens(manaCost, ability);
+            var optionalCostChoices = requiredCosts
+                .Select(cost => new ActionPromptChoiceDto(cost, LegendActionCostLabel(cost)))
+                .ToArray();
+            var unsupportedReason = LegendActionUnsupportedCompositionReason(ability);
+            var requirement = new LegendActionPromptRequirement(
+                sourceObjectId,
+                sourceState.CardNo ?? string.Empty,
+                ability.AbilityId,
+                ability.DisplayName,
+                LegendActionAbilityLabel(ability),
+                manaCost,
+                ability.ExperienceCost,
+                ability.RequiredTargetCount,
+                ability.RequiredTargetCount,
+                LegendActionTargetScopeLabel(ability),
+                targetChoicesByIndex,
+                optionalCostChoices,
+                requiredCosts,
+                LegendActionTimingLabel(ability.TimingKind),
+                true,
+                true,
+                unsupportedReason is null,
+                unsupportedReason);
+
+            if (CanPayLegendActionRequirement(state, playerId, requirement))
+            {
+                requirements.Add(requirement);
+            }
+        }
+
+        return requirements;
+    }
+
+    private static IReadOnlyList<LegendActionAbilityDefinition> ImplementedLegendActionAbilities()
+    {
+        return [
+            new(
+                YasuoLegendAbilityId,
+                [YasuoLegendCardNo, "OGN·259/298", "OGN·305*/298", "OGN·305/298"],
+                "亚索传奇移动技能",
+                2,
+                0,
+                "SPEND_MANA:2",
+                1,
+                true,
+                "MOVE_FRIENDLY_UNIT"),
+            new(
+                LeeSinLegendAbilityId,
+                [LeeSinLegendCardNo, "OGN·304*/298", "OGN·304/298"],
+                "李青传奇增益技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                1,
+                true,
+                "GRANT_BOON"),
+            new(
+                PoppyLegendAbilityId,
+                ["UNL-203/219", "UNL-237*/219", PoppyLegendCardNo],
+                "波比传奇抽牌技能",
+                0,
+                3,
+                "SPEND_EXPERIENCE:3",
+                0,
+                false,
+                "DRAW_ONE"),
+            new(
+                ViktorLegendAbilityId,
+                [ViktorLegendCardNo, "OGN·265/298", "OGN·308*/298", "OGN·308/298"],
+                "维克托传奇随从技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                0,
+                false,
+                "CREATE_MINION"),
+            new(
+                MissFortuneLegendAbilityId,
+                [MissFortuneLegendCardNo, "OGN·309/298", "OGN·309*/298"],
+                "赏金猎人传奇游走技能",
+                0,
+                0,
+                string.Empty,
+                1,
+                true,
+                "GRANT_ROAM"),
+            new(
+                KhazixLegendBoonAbilityId,
+                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                "卡兹克传奇增益技能",
+                0,
+                1,
+                "SPEND_EXPERIENCE:1",
+                1,
+                true,
+                "GRANT_BOON"),
+            new(
+                KhazixLegendMoveAbilityId,
+                [KhazixLegendCardNo, "UNL-236/219", "UNL-236*/219"],
+                "卡兹克传奇休眠单位移动技能",
+                0,
+                2,
+                "SPEND_EXPERIENCE:2",
+                1,
+                true,
+                "MOVE_FRIENDLY_UNIT",
+                RequiresBattlefieldTarget: true,
+                RequiresExhaustedTarget: true),
+            new(
+                PykeLegendAbilityId,
+                [PykeLegendCardNo, "UNL-228/219", "UNL-228*/219"],
+                "派克传奇召回金币技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                1,
+                true,
+                "RETURN_BATTLEFIELD_UNIT_AND_CREATE_COIN",
+                RequiresBattlefieldTarget: true),
+            new(
+                JaxLegendAttachAbilityId,
+                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                "武器大师传奇贴附技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                2,
+                true,
+                "ATTACH_ARMAMENT",
+                RequiresArmamentSecondTarget: true,
+                RequiresUnattachedArmamentSecondTarget: true),
+            new(
+                JaxLegendReattachAbilityId,
+                [JaxSpiritforgedLegendCardNo, "SFD·245/221"],
+                "武器大师传奇重贴附技能",
+                0,
+                0,
+                string.Empty,
+                2,
+                true,
+                "REATTACH_ARMAMENT",
+                RequiresArmamentSecondTarget: true,
+                RequiresAttachedArmamentSecondTarget: true,
+                RequiresDifferentArmamentHost: true),
+            new(
+                BattlefieldGrantedLegendAttachArmamentAbilityId,
+                [],
+                "魄罗熔炉传奇贴附技能",
+                0,
+                0,
+                string.Empty,
+                2,
+                true,
+                "ATTACH_ARMAMENT",
+                RequiresArmamentSecondTarget: true,
+                RequiredControlledBattlefieldCardNo: BattlefieldGrantLegendAttachArmamentCardNo),
+            new(
+                DariusLegendAbilityId,
+                [DariusOriginLegendCardNo, "OGN·302/298", "OGN·302*/298"],
+                "诺克萨斯之手传奇鼓舞技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                false,
+                "GAIN_MANA",
+                RequiresPlayedAnotherCardThisTurn: true,
+                ManaGainAmount: 1),
+            new(
+                DianaLegendAbilityId,
+                ["UNL-197/219", "UNL-234/219", "UNL-234*/219"],
+                "皎月女神传奇法术对决法力技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                false,
+                "GAIN_MANA",
+                ManaGainAmount: 1,
+                TimingKind: LegendActionTimingKinds.SpellDuelFocus),
+            new(
+                KaisaLegendAbilityId,
+                ["OGN·247/298", "OGN·299/298", "OGN·299*/298"],
+                "虚空之女传奇法术反应符能技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                false,
+                "GAIN_POWER",
+                PowerGainAmount: 1,
+                TimingKind: LegendActionTimingKinds.PriorityWindow,
+                RequiresPendingSpellStackItem: true),
+            new(
+                OrnnLegendAbilityId,
+                ["SFD·189/221", "SFD·244/221"],
+                "山隐之焰传奇装备反应符能技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                false,
+                "GAIN_POWER",
+                PowerGainAmount: 1,
+                TimingKind: LegendActionTimingKinds.PriorityWindow,
+                RequiresPendingEquipmentStackItem: true),
+            new(
+                EzrealLegendAbilityId,
+                ["SFD·199/221", "SFD·248/221"],
+                "探险家传奇反应抽牌技能",
+                0,
+                0,
+                string.Empty,
+                0,
+                false,
+                "DRAW_ONE",
+                TimingKind: LegendActionTimingKinds.PriorityWindow,
+                RequiresEzrealEnemyTargetsThisTurn: true),
+            new(
+                IreliaLegendAbilityId,
+                [IreliaLegendCardNo, "SFD·195a/221·P", "SFD·246/221"],
+                "刀锋舞者传奇反应重置技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                1,
+                true,
+                "READY_FRIENDLY_UNIT",
+                TimingKind: LegendActionTimingKinds.PriorityWindow,
+                RequiresPendingFriendlyUnitTarget: true),
+            new(
+                TeemoLegendAbilityId,
+                [TeemoOriginLegendCardNo, "OGN·263a/298", "OGN·307/298", "OGN·307*/298"],
+                "迅捷斥候传奇召回技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                1,
+                false,
+                "RETURN_OWNED_TEEMO_UNIT_TO_HAND",
+                RequiresOwnedTeemoUnitTarget: true),
+            new(
+                AzirLegendAbilityId,
+                [AzirSpiritforgedLegendCardNo, "SFD·247/221"],
+                "沙漠皇帝传奇沙兵技能",
+                1,
+                0,
+                "SPEND_MANA:1",
+                0,
+                false,
+                "CREATE_SAND_SOLDIER",
+                RequiresPlayedArmamentThisTurn: true),
+            new(
+                LilliaLegendAbilityId,
+                [LilliaLegendCardNo, "UNL-230/219", "UNL-230*/219"],
+                "莉莉娅传奇精灵技能",
+                LilliaLegendBaseManaCost,
+                0,
+                string.Empty,
+                0,
+                false,
+                "CREATE_FAERIE",
+                ManaCostReductionKind: LegendActionManaCostReductionKinds.FriendlyEphemeralFieldObjects)
+        ];
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> LegendActionTargetChoicesByIndex(
+        MatchState state,
+        string playerId,
+        LegendActionAbilityDefinition ability)
+    {
+        if (ability.RequiredTargetCount == 0)
+        {
+            return new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        }
+
+        var result = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal);
+        if (ability.RequiresArmamentSecondTarget)
+        {
+            var unitChoices = LegendActionFriendlyUnitTargetChoices(state, playerId, ability).ToArray();
+            result["0"] = unitChoices;
+            result["1"] = LegendActionArmamentTargetChoices(state, playerId, ability, unitChoices.FirstOrDefault()?.Id).ToArray();
+            return result;
+        }
+
+        if (ability.RequiresOwnedTeemoUnitTarget)
+        {
+            result["0"] = LegendActionOwnedTeemoTargetChoices(state, playerId).ToArray();
+            return result;
+        }
+
+        if (ability.RequiresPendingFriendlyUnitTarget)
+        {
+            result["0"] = LegendActionPendingFriendlyUnitTargetChoices(state, playerId).ToArray();
+            return result;
+        }
+
+        if (ability.RequiresFriendlyUnitTarget)
+        {
+            result["0"] = LegendActionFriendlyUnitTargetChoices(state, playerId, ability).ToArray();
+        }
+
+        return result;
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> LegendActionFriendlyUnitTargetChoices(
+        MatchState state,
+        string playerId,
+        LegendActionAbilityDefinition ability)
+    {
+        return ControlledLegendActionObjects(state, playerId)
+            .Where(objectId => LegendActionIsValidFriendlyUnitTarget(state, playerId, objectId, ability))
+            .Select(objectId => ObjectChoice(state, objectId, LegendActionTargetScopeLabel(ability)));
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> LegendActionArmamentTargetChoices(
+        MatchState state,
+        string playerId,
+        LegendActionAbilityDefinition ability,
+        string? selectedUnitObjectId)
+    {
+        return ControlledLegendActionObjects(state, playerId)
+            .Where(objectId => LegendActionIsValidArmamentSecondTarget(state, playerId, selectedUnitObjectId, objectId, ability))
+            .Select(objectId => ObjectChoice(state, objectId, "受控武装目标"));
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> LegendActionOwnedTeemoTargetChoices(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Concat(zones.ChampionZone)
+            .Where(objectId => LegendActionIsValidOwnedTeemoUnitTarget(state, playerId, objectId))
+            .Select(objectId => ObjectChoice(state, objectId, "己方提莫单位"));
+    }
+
+    private static IEnumerable<ActionPromptChoiceDto> LegendActionPendingFriendlyUnitTargetChoices(
+        MatchState state,
+        string playerId)
+    {
+        return ControlledLegendActionObjects(state, playerId)
+            .Where(objectId => LegendActionIsPendingFriendlyUnitTarget(state, playerId, objectId))
+            .Select(objectId => ObjectChoice(state, objectId, "被当前结算链项目指定的友方单位"));
+    }
+
+    private static bool LegendActionIsValidFriendlyUnitTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId,
+        LegendActionAbilityDefinition ability)
+    {
+        if (!LegendActionIsControlledFieldObjectWithTag(state, playerId, targetObjectId, CardObjectTags.UnitCard))
+        {
+            return false;
+        }
+
+        if (ability.RequiresBattlefieldTarget
+            && (!TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectId, out var location)
+                || !string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)))
+        {
+            return false;
+        }
+
+        return !ability.RequiresExhaustedTarget
+            || (state.CardObjects.TryGetValue(targetObjectId, out var targetState) && targetState.IsExhausted);
+    }
+
+    private static bool LegendActionIsValidArmamentSecondTarget(
+        MatchState state,
+        string playerId,
+        string? unitObjectId,
+        string equipmentObjectId,
+        LegendActionAbilityDefinition ability)
+    {
+        if (string.IsNullOrWhiteSpace(unitObjectId)
+            || string.Equals(unitObjectId, equipmentObjectId, StringComparison.Ordinal)
+            || !LegendActionIsControlledFieldObjectWithTag(state, playerId, equipmentObjectId, CardObjectTags.EquipmentCard)
+            || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            || equipmentState.IsFaceDown
+            || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        var isAttached = !string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId);
+        if (ability.RequiresUnattachedArmamentSecondTarget && isAttached)
+        {
+            return false;
+        }
+
+        if (ability.RequiresAttachedArmamentSecondTarget && !isAttached)
+        {
+            return false;
+        }
+
+        return !ability.RequiresDifferentArmamentHost
+            || !string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
+    }
+
+    private static bool LegendActionIsValidOwnedTeemoUnitTarget(MatchState state, string playerId, string targetObjectId)
+    {
+        return state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !targetState.IsFaceDown
+            && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && string.Equals(targetState.OwnerId, playerId, StringComparison.Ordinal)
+            && LegendActionIsTeemoUnitCardNo(targetState.CardNo);
+    }
+
+    private static bool LegendActionIsTeemoUnitCardNo(string? cardNo)
+    {
+        return cardNo is "FND-196/298"
+            or "OGN·121/298"
+            or "OGN·121a/298"
+            or "OGN·197/298"
+            or "OGN·197a/298"
+            or "OGN·197b/298"
+            or "SFD·230/221"
+            or "SFD·230*/221";
+    }
+
+    private static bool LegendActionIsPendingFriendlyUnitTarget(
+        MatchState state,
+        string playerId,
+        string targetObjectId)
+    {
+        return LegendActionIsControlledFieldObjectWithTag(state, playerId, targetObjectId, CardObjectTags.UnitCard)
+            && state.StackItems.Any(stackItem =>
+                string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
+                && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
+    }
+
+    private static bool LegendActionIsControlledFieldObjectWithTag(
+        MatchState state,
+        string playerId,
+        string objectId,
+        string tag)
+    {
+        return IsControlledObjectWithTag(state, playerId, objectId, tag)
+            && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool TryFindLegendActionFieldObjectLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out (string PlayerId, string Zone) location)
+    {
+        foreach (var (playerId, zones) in playerZones)
+        {
+            if (zones.Base.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, MoveUnitBaseZone);
+                return true;
+            }
+
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                location = (playerId, MoveUnitBattlefieldZone);
+                return true;
+            }
+        }
+
+        location = default;
+        return false;
+    }
+
+    private static bool LegendActionSourceHasAbility(
+        MatchState state,
+        string playerId,
+        string? sourceCardNo,
+        LegendActionAbilityDefinition ability)
+    {
+        return ability.SourceCardNos.Contains(sourceCardNo, StringComparer.Ordinal)
+            || (!string.IsNullOrWhiteSpace(ability.RequiredControlledBattlefieldCardNo)
+                && PlayerControlsBattlefieldCard(state, playerId, ability.RequiredControlledBattlefieldCardNo));
+    }
+
+    private static bool LegendActionTimingAllowed(
+        MatchState state,
+        string playerId,
+        LegendActionAbilityDefinition ability)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return ability.TimingKind switch
+        {
+            LegendActionTimingKinds.MainOpen =>
+                string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+                && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+                && state.StackItems.Count == 0,
+            LegendActionTimingKinds.PriorityWindow =>
+                state.StackItems.Count > 0
+                && !string.IsNullOrWhiteSpace(state.PriorityPlayerId)
+                && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal),
+            LegendActionTimingKinds.SpellDuelFocus =>
+                state.StackItems.Count == 0
+                && string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(state.FocusPlayerId)
+                && string.Equals(state.FocusPlayerId, playerId, StringComparison.Ordinal),
+            _ => false
+        };
+    }
+
+    private static bool LegendActionPrerequisitesMet(
+        MatchState state,
+        string playerId,
+        LegendActionAbilityDefinition ability)
+    {
+        if (ability.RequiresPlayedAnotherCardThisTurn
+            && (!state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var playedCount) || playedCount <= 0))
+        {
+            return false;
+        }
+
+        if (ability.RequiresPlayedArmamentThisTurn
+            && !state.UntilEndOfTurnEffects.Contains($"{PlayedArmamentThisTurnEffectPrefix}{playerId}", StringComparer.Ordinal))
+        {
+            return false;
+        }
+
+        if (ability.RequiresPendingSpellStackItem
+            && !LegendActionPendingStackSourceHasTag(state, CardObjectTags.SpellCard))
+        {
+            return false;
+        }
+
+        if (ability.RequiresPendingEquipmentStackItem
+            && !LegendActionPendingStackSourceHasTag(state, CardObjectTags.EquipmentCard))
+        {
+            return false;
+        }
+
+        return !ability.RequiresEzrealEnemyTargetsThisTurn
+            || LegendActionEzrealEnemyTargetsThisTurnCount(state.UntilEndOfTurnEffects, playerId) >= EzrealEnemyTargetThreshold;
+    }
+
+    private static bool LegendActionPendingStackSourceHasTag(MatchState state, string tag)
+    {
+        return state.StackItems.Any(stackItem =>
+            state.CardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+            && sourceState.Tags.Contains(tag, StringComparer.Ordinal));
+    }
+
+    private static int LegendActionEzrealEnemyTargetsThisTurnCount(IReadOnlyList<string> effectIds, string playerId)
+    {
+        var prefix = $"{EzrealEnemyTargetsThisTurnPrefix}{playerId}:";
+        return effectIds
+            .Where(effectId => effectId.StartsWith(prefix, StringComparison.Ordinal))
+            .Select(effectId => effectId[prefix.Length..])
+            .Select(value => int.TryParse(value, out var count) ? count : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
+    private static int ResolveLegendActionManaCost(
+        MatchState state,
+        string playerId,
+        LegendActionAbilityDefinition ability)
+    {
+        var reduction = string.Equals(
+            ability.ManaCostReductionKind,
+            LegendActionManaCostReductionKinds.FriendlyEphemeralFieldObjects,
+            StringComparison.Ordinal)
+                ? CountLegendActionFriendlyEphemeralFieldObjects(state, playerId)
+                : 0;
+        return Math.Max(0, ability.ManaCost - reduction);
+    }
+
+    private static int CountLegendActionFriendlyEphemeralFieldObjects(MatchState state, string playerId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base
+                .Concat(zones.Battlefields)
+                .Count(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.Ephemeral))
+            : 0;
+    }
+
+    private static IReadOnlyList<string> LegendActionRequiredCostTokens(int manaCost, LegendActionAbilityDefinition ability)
+    {
+        var requiredCostToken = string.IsNullOrWhiteSpace(ability.RequiredCostToken)
+            ? manaCost > 0 ? $"SPEND_MANA:{manaCost}" : string.Empty
+            : ability.RequiredCostToken;
+        return string.IsNullOrWhiteSpace(requiredCostToken) ? [] : [requiredCostToken];
+    }
+
+    private static bool CanPayLegendActionRequirement(
+        MatchState state,
+        string playerId,
+        LegendActionPromptRequirement requirement)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        if (runePool.Mana < requirement.ManaCost)
+        {
+            return false;
+        }
+
+        var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
+            ? currentExperience
+            : 0;
+        return requirement.ExperienceCost <= 0 || experience >= requirement.ExperienceCost;
+    }
+
+    private static string? LegendActionUnsupportedCompositionReason(LegendActionAbilityDefinition ability)
+    {
+        return ability.RequiresArmamentSecondTarget
+            ? "该传奇行动需要第二目标依赖第一目标，服务端已公开候选但前端组合器暂不提交依赖型双目标。"
+            : null;
+    }
+
+    private static string LegendActionAbilityLabel(LegendActionAbilityDefinition ability)
+    {
+        return ability.AbilityId switch
+        {
+            YasuoLegendAbilityId => "支付 2 并横置：移动友方单位",
+            LeeSinLegendAbilityId => "支付 1 并横置：给予友方单位增益",
+            PoppyLegendAbilityId => "花费 3 经验并横置：抽 1 张",
+            ViktorLegendAbilityId => "支付 1 并横置：打出 1 战力随从",
+            MissFortuneLegendAbilityId => "横置：给予友方单位游走",
+            KhazixLegendBoonAbilityId => "花费 1 经验并横置：给予友方单位增益",
+            KhazixLegendMoveAbilityId => "花费 2 经验并横置：移动休眠友方单位回基地",
+            PykeLegendAbilityId => "支付 1 并横置：召回战场友方单位并打出金币",
+            JaxLegendAttachAbilityId => "支付 1 并横置：贴附未贴附武装",
+            JaxLegendReattachAbilityId => "横置：重贴附已贴附武装",
+            BattlefieldGrantedLegendAttachArmamentAbilityId => "魄罗熔炉横置：贴附受控武装",
+            DariusLegendAbilityId => "鼓舞并横置：获得 1 法力",
+            DianaLegendAbilityId => "法术对决横置：获得 1 法力",
+            KaisaLegendAbilityId => "法术反应横置：获得 1 符能",
+            OrnnLegendAbilityId => "装备反应横置：获得 1 符能",
+            EzrealLegendAbilityId => "反应横置：抽 1 张",
+            IreliaLegendAbilityId => "反应支付 1 并横置：重置被选为目标的友方单位",
+            TeemoLegendAbilityId => "支付 1 并横置：召回己方提莫单位",
+            AzirLegendAbilityId => "支付 1 并横置：打出黄沙士兵",
+            LilliaLegendAbilityId => "动态支付并横置：打出精灵",
+            _ => ability.DisplayName
+        };
+    }
+
+    private static string LegendActionTargetScopeLabel(LegendActionAbilityDefinition ability)
+    {
+        if (ability.RequiredTargetCount == 0)
+        {
+            return "无需目标";
+        }
+
+        if (ability.RequiresOwnedTeemoUnitTarget)
+        {
+            return "己方提莫单位";
+        }
+
+        if (ability.RequiresPendingFriendlyUnitTarget)
+        {
+            return "被当前结算链项目指定的友方单位";
+        }
+
+        if (ability.RequiresArmamentSecondTarget)
+        {
+            return "友方单位 + 受控武装";
+        }
+
+        if (ability.RequiresBattlefieldTarget)
+        {
+            return "友方战场单位";
+        }
+
+        return ability.RequiresFriendlyUnitTarget ? "友方单位" : "服务端目标";
+    }
+
+    private static string LegendActionTimingLabel(string timingKind)
+    {
+        return timingKind switch
+        {
+            LegendActionTimingKinds.MainOpen => "主阶段开环",
+            LegendActionTimingKinds.PriorityWindow => "优先权窗口",
+            LegendActionTimingKinds.SpellDuelFocus => "法术对决焦点",
+            _ => timingKind
+        };
+    }
+
+    private static string LegendActionCostLabel(string cost)
+    {
+        if (cost.StartsWith("SPEND_MANA:", StringComparison.Ordinal)
+            && int.TryParse(cost["SPEND_MANA:".Length..], out var mana))
+        {
+            return $"支付 {mana} 法力";
+        }
+
+        if (cost.StartsWith("SPEND_EXPERIENCE:", StringComparison.Ordinal)
+            && int.TryParse(cost["SPEND_EXPERIENCE:".Length..], out var experience))
+        {
+            return $"支付 {experience} 经验";
+        }
+
+        return cost;
     }
 
     private static IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> ActivateAbilityTargetChoicesByIndex(
@@ -3172,11 +4023,11 @@ internal static class ActionPromptBuilder
                 .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
                 .Select(entry => ObjectChoice(state, entry.ObjectId, "legal opposing battlefield defender candidate"))
                 .ToArray(),
-            "LEGEND_ACT" => ControlledLegendActionObjects(state, playerId)
-                .Where(objectId =>
-                    IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
-                    || IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.EquipmentCard))
-                .Select(objectId => ObjectChoice(state, objectId, "controlled unit/equipment target"))
+            "LEGEND_ACT" => LegendActionSourceRequirements(state, playerId)
+                .SelectMany(requirement => requirement.TargetChoicesByIndex.Values)
+                .SelectMany(choices => choices)
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
                 .ToArray(),
             _ => null
         };
@@ -3252,28 +4103,7 @@ internal static class ActionPromptBuilder
         {
             "PLAY_CARD" => PlayCardModeChoices(state, playerId),
             "ACTIVATE_ABILITY" => ActivateAbilityModeChoices(state, playerId),
-            "LEGEND_ACT" => [
-                new ActionPromptChoiceDto("LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT", "支付 2 并横置：移动友方单位"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_GRANT_BOON", "支付 1 并横置：给予友方单位增益"),
-                new ActionPromptChoiceDto("LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", "花费 3 经验并横置：抽 1 张"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_MINION", "支付 1 并横置：打出 1 战力随从"),
-                new ActionPromptChoiceDto("LEGEND_EXHAUST_GRANT_ROAM", "横置：给予友方单位游走"),
-                new ActionPromptChoiceDto("LEGEND_SPEND_1_EXPERIENCE_EXHAUST_GRANT_BOON", "花费 1 经验并横置：给予友方单位增益"),
-                new ActionPromptChoiceDto("LEGEND_SPEND_2_EXPERIENCE_EXHAUST_MOVE_DORMANT_UNIT_TO_BASE", "花费 2 经验并横置：移动休眠友方单位回基地"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_BATTLEFIELD_UNIT_CREATE_COIN", "支付 1 并横置：召回战场友方单位并打出金币"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT", "支付 1 并横置：贴附未贴附武装"),
-                new ActionPromptChoiceDto("LEGEND_EXHAUST_REATTACH_ATTACHED_ARMAMENT", "横置：重贴附已贴附武装"),
-                new ActionPromptChoiceDto("LEGEND_ENCOURAGE_EXHAUST_GAIN_1_MANA", "鼓舞并横置：获得 1 法力"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_RECALL_OWNED_TEEMO_UNIT", "支付 1 并横置：召回己方提莫单位"),
-                new ActionPromptChoiceDto("LEGEND_PAY_1_EXHAUST_CREATE_SAND_SOLDIER_AFTER_ARMAMENT", "支付 1 并横置：打出黄沙士兵"),
-                new ActionPromptChoiceDto("LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE", "动态支付并横置：打出精灵"),
-                new ActionPromptChoiceDto("LEGEND_SPELL_DUEL_EXHAUST_GAIN_1_MANA", "法术对决横置：获得 1 法力"),
-                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_SPELL", "法术反应横置：获得 1 符能"),
-                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_GAIN_1_POWER_FOR_EQUIPMENT", "装备反应横置：获得 1 符能"),
-                new ActionPromptChoiceDto("LEGEND_REACTION_EXHAUST_DRAW_AFTER_TWO_ENEMY_TARGETS", "反应横置：抽 1 张"),
-                new ActionPromptChoiceDto("LEGEND_REACTION_PAY_1_EXHAUST_READY_TARGETED_FRIENDLY_UNIT", "反应支付 1 并横置：重置被选为目标的友方单位"),
-                new ActionPromptChoiceDto(BattlefieldGrantedLegendAttachArmamentAbilityId, "魄罗熔炉横置：贴附受控武装")
-            ],
+            "LEGEND_ACT" => LegendActionModeChoices(state, playerId),
             _ => null
         };
     }
@@ -3301,6 +4131,18 @@ internal static class ActionPromptBuilder
         return choices.Length == 0 ? null : choices;
     }
 
+    private static IReadOnlyList<ActionPromptChoiceDto>? LegendActionModeChoices(MatchState state, string playerId)
+    {
+        var choices = LegendActionSourceRequirements(state, playerId)
+            .GroupBy(requirement => requirement.AbilityId, StringComparer.Ordinal)
+            .Select(group => new ActionPromptChoiceDto(
+                group.Key,
+                group.First().AbilityLabel,
+                "server-filtered implemented legend ability"))
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto>? OptionalCostsFor(
         MatchState state,
         string playerId,
@@ -3317,15 +4159,7 @@ internal static class ActionPromptBuilder
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
             "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
-            "LEGEND_ACT" => [
-                new ActionPromptChoiceDto("SPEND_MANA:1", "支付 1 法力"),
-                new ActionPromptChoiceDto("SPEND_MANA:2", "支付 2 法力"),
-                new ActionPromptChoiceDto("SPEND_MANA:3", "支付 3 法力"),
-                new ActionPromptChoiceDto("SPEND_MANA:4", "支付 4 法力"),
-                new ActionPromptChoiceDto("SPEND_EXPERIENCE:1", "支付 1 经验"),
-                new ActionPromptChoiceDto("SPEND_EXPERIENCE:2", "支付 2 经验"),
-                new ActionPromptChoiceDto("SPEND_EXPERIENCE:3", "支付 3 经验")
-            ],
+            "LEGEND_ACT" => LegendActionOptionalCostChoices(state, playerId),
             _ => null
         };
     }
@@ -3347,6 +4181,18 @@ internal static class ActionPromptBuilder
         string playerId)
     {
         var choices = AssembleEquipmentSourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? LegendActionOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = LegendActionSourceRequirements(state, playerId)
             .SelectMany(requirement => requirement.OptionalCostChoices)
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
@@ -3466,11 +4312,7 @@ internal static class ActionPromptBuilder
                 ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
                 ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat"
             },
-            "LEGEND_ACT" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "implemented-legend-action-only",
-                ["abilityPolicy"] = "server-validates-legend-ability-on-submit"
-            },
+            "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
         };
     }
@@ -3487,6 +4329,50 @@ internal static class ActionPromptBuilder
             ["targetPolicy"] = "source-specific-server-filtered-targets",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
             ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> LegendActionMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = LegendActionSourceRequirements(state, playerId)
+            .Select(LegendActionSourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-legend-action-only",
+            ["abilityPolicy"] = "source-specific-server-filtered-legend-abilities",
+            ["targetPolicy"] = "source-specific-server-filtered-targets",
+            ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> LegendActionSourceRequirementView(
+        LegendActionPromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["cardNo"] = requirement.CardNo,
+            ["abilityId"] = requirement.AbilityId,
+            ["displayName"] = requirement.DisplayName,
+            ["abilityLabel"] = requirement.AbilityLabel,
+            ["manaCost"] = requirement.ManaCost,
+            ["experienceCost"] = requirement.ExperienceCost,
+            ["minTargetCount"] = requirement.MinTargetCount,
+            ["maxTargetCount"] = requirement.MaxTargetCount,
+            ["targetCountLabel"] = requirement.MinTargetCount == requirement.MaxTargetCount
+                ? requirement.MaxTargetCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : $"{requirement.MinTargetCount}-{requirement.MaxTargetCount}",
+            ["targetScopeLabel"] = requirement.TargetScopeLabel,
+            ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["timingLabel"] = requirement.TimingLabel,
+            ["exhaustsSource"] = requirement.ExhaustsSource,
+            ["resolvesImmediately"] = requirement.ResolvesImmediately,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 
@@ -3782,6 +4668,12 @@ internal static class ActionPromptBuilder
         return ActivateAbilityRequirementsForSource(state, playerId, objectId).Count > 0;
     }
 
+    private static bool IsImplementedLegendActionCardNo(string? cardNo)
+    {
+        return ImplementedLegendActionAbilities()
+            .Any(ability => ability.SourceCardNos.Contains(cardNo, StringComparer.Ordinal));
+    }
+
     private static bool IsBattlefieldCardObject(CardObjectState cardObject)
     {
         return cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
@@ -3847,60 +4739,6 @@ internal static class ActionPromptBuilder
     {
         return string.Equals(cardNo, BattlefieldExtraStandbyCardNo, StringComparison.Ordinal)
             || string.Equals(cardNo, BattlefieldExtraStandbyAltCardNo, StringComparison.Ordinal);
-    }
-
-    private static bool IsImplementedLegendActionCardNo(string? cardNo)
-    {
-        return cardNo is "FND-259/298"
-            or "OGN·259/298"
-            or "OGN·305*/298"
-            or "OGN·305/298"
-            or "OGN·257/298"
-            or "OGN·304*/298"
-            or "OGN·304/298"
-            or "UNL-203/219"
-            or "UNL-237*/219"
-            or "UNL-237/219"
-            or "FND-265/298"
-            or "OGN·265/298"
-            or "OGN·308*/298"
-            or "OGN·308/298"
-            or "OGN·267/298"
-            or "OGN·309/298"
-            or "OGN·309*/298"
-            or "UNL-201/219"
-            or "UNL-236/219"
-            or "UNL-236*/219"
-            or "UNL-185/219"
-            or "UNL-228/219"
-            or "UNL-228*/219"
-            or "SFD·193/221"
-            or "SFD·245/221"
-            or "OGN·253/298"
-            or "OGN·302/298"
-            or "OGN·302*/298"
-            or "OGN·263/298"
-            or "OGN·263a/298"
-            or "OGN·307/298"
-            or "OGN·307*/298"
-            or "SFD·197/221"
-            or "SFD·247/221"
-            or "UNL-197/219"
-            or "UNL-234/219"
-            or "UNL-234*/219"
-            or "OGN·247/298"
-            or "OGN·299/298"
-            or "OGN·299*/298"
-            or "SFD·189/221"
-            or "SFD·244/221"
-            or "SFD·199/221"
-            or "SFD·248/221"
-            or "SFD·195/221"
-            or "SFD·195a/221·P"
-            or "SFD·246/221"
-            or "UNL-189/219"
-            or "UNL-230*/219"
-            or "UNL-230/219";
     }
 
     private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)

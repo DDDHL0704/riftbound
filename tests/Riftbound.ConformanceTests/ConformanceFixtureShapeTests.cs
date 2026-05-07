@@ -1264,6 +1264,168 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptLegendActMetadataFiltersSourcesAbilitiesTargetsAndCosts()
+    {
+        var noResourceState = new MatchState(
+            "prompt-legend-action-room",
+            18,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerExperience: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BASE-UNIT", "P1-ARMAMENT"],
+                    Battlefields = ["P1-BATTLEFIELD-UNIT"],
+                    LegendZone = ["P1-LEGEND-YASUO", "P1-LEGEND-POPPY", "P1-LEGEND-JAX"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-YASUO"] = new(
+                    "P1-LEGEND-YASUO",
+                    cardNo: "FND-259/298",
+                    tags: ["CARD_TYPE:LEGEND"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-POPPY"] = new(
+                    "P1-LEGEND-POPPY",
+                    cardNo: "UNL-237/219",
+                    tags: ["CARD_TYPE:LEGEND"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-JAX"] = new(
+                    "P1-LEGEND-JAX",
+                    cardNo: "SFD·193/221",
+                    tags: ["CARD_TYPE:LEGEND"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BASE-UNIT"] = new(
+                    "P1-BASE-UNIT",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-UNIT"] = new(
+                    "P1-BATTLEFIELD-UNIT",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ARMAMENT"] = new(
+                    "P1-ARMAMENT",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var noResourcePrompt = ResolutionResult.BuildPrompts(noResourceState)["P1"];
+        var noResourceCandidate = Assert.Single(
+            noResourcePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+        Assert.False(noResourceCandidate.Enabled);
+        Assert.Empty(noResourceCandidate.Sources ?? []);
+
+        var payableState = noResourceState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerExperience = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 3,
+                ["P2"] = 0
+            }
+        };
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payableCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+
+        Assert.True(payableCandidate.Enabled);
+        Assert.Equal(
+            ["P1-LEGEND-YASUO", "P1-LEGEND-POPPY", "P1-LEGEND-JAX"],
+            (payableCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(
+            [
+                "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT"
+            ],
+            (payableCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Equal(
+            ["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT", "P1-ARMAMENT"],
+            (payableCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        Assert.Equal(
+            ["SPEND_MANA:2", "SPEND_EXPERIENCE:3", "SPEND_MANA:1"],
+            (payableCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(payableCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        Assert.Equal(3, sourceRequirements.Length);
+
+        var yasuoRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["abilityId"]), "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-YASUO", Assert.IsType<string>(yasuoRequirement["sourceObjectId"]));
+        Assert.Equal(2, Assert.IsType<int>(yasuoRequirement["manaCost"]));
+        Assert.Equal(0, Assert.IsType<int>(yasuoRequirement["experienceCost"]));
+        Assert.Equal(1, Assert.IsType<int>(yasuoRequirement["minTargetCount"]));
+        Assert.Equal("主阶段开环", Assert.IsType<string>(yasuoRequirement["timingLabel"]));
+        Assert.True(Assert.IsType<bool>(yasuoRequirement["composable"]));
+        var yasuoTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            yasuoRequirement["targetChoicesByIndex"]);
+        Assert.Equal(
+            ["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT"],
+            yasuoTargetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        var yasuoRequiredCosts = Assert.IsAssignableFrom<IEnumerable<string>>(yasuoRequirement["requiredOptionalCosts"]);
+        Assert.Equal(["SPEND_MANA:2"], yasuoRequiredCosts.ToArray());
+
+        var poppyRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["abilityId"]), "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-POPPY", Assert.IsType<string>(poppyRequirement["sourceObjectId"]));
+        Assert.Equal(0, Assert.IsType<int>(poppyRequirement["manaCost"]));
+        Assert.Equal(3, Assert.IsType<int>(poppyRequirement["experienceCost"]));
+        Assert.Equal(0, Assert.IsType<int>(poppyRequirement["minTargetCount"]));
+        Assert.True(Assert.IsType<bool>(poppyRequirement["composable"]));
+        var poppyRequiredCosts = Assert.IsAssignableFrom<IEnumerable<string>>(poppyRequirement["requiredOptionalCosts"]);
+        Assert.Equal(["SPEND_EXPERIENCE:3"], poppyRequiredCosts.ToArray());
+
+        var jaxRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["abilityId"]), "LEGEND_PAY_1_EXHAUST_ATTACH_UNATTACHED_ARMAMENT", StringComparison.Ordinal));
+        Assert.Equal("P1-LEGEND-JAX", Assert.IsType<string>(jaxRequirement["sourceObjectId"]));
+        Assert.False(Assert.IsType<bool>(jaxRequirement["composable"]));
+        Assert.Contains("第二目标", Assert.IsType<string>(jaxRequirement["unsupportedReason"]));
+        var jaxTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            jaxRequirement["targetChoicesByIndex"]);
+        Assert.Equal(["P1-BASE-UNIT", "P1-BATTLEFIELD-UNIT"], jaxTargetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P1-ARMAMENT"], jaxTargetChoicesByIndex["1"].Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void MatchStateExposesTurnWindowSpellDuelAndBattleViews()
     {
         var state = new MatchState(
