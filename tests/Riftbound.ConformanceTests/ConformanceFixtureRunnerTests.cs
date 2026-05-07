@@ -22105,6 +22105,111 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineMarksContestSpellDuelCompletedWhenAllPlayersPassFocus()
+    {
+        var state = new MatchState(
+            "battlefield-contest-closes-spell-duel-room",
+            8,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P1-UNIT-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-1"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-1"] = new(
+                    "P1-UNIT-1",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-1"] = new(
+                    "P2-UNIT-1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            focusPlayerId: "P1",
+            passedFocusPlayerIds: ["P2"],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P1-UNIT-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-UNIT-1"] = new("P2", "BATTLEFIELD", "BF-1")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-pass-focus-contested-battlefield", "P1", "PASS_FOCUS"),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(9, result.State.Tick);
+        Assert.Equal(["FOCUS_PASSED", "SPELL_DUEL_CLOSED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Empty(result.State.PassedFocusPlayerIds);
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-1"), result.State.UntilEndOfTurnEffects);
+        Assert.Collection(
+            result.State.BattlefieldTasks,
+            task =>
+            {
+                Assert.Equal("START_SPELL_DUEL", task.Kind);
+                Assert.Equal("COMPLETED", task.Status);
+            },
+            task =>
+            {
+                Assert.Equal("START_BATTLE", task.Kind);
+                Assert.Equal("PENDING", task.Status);
+            });
+        Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(["WAIT"], result.Prompts["P1"].Actions);
+        Assert.Contains("START_BATTLE", result.Prompts["P1"].Reason, StringComparison.Ordinal);
+
+        var closedEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(["BF-1"], Assert.IsType<string[]>(closedEvent.Payload["completedBattlefieldObjectIds"]));
+    }
+
+    [Fact]
     public void P4PermissionKeywordTimingSeparatesSwiftReactionAndOrdinaryWindows()
     {
         Assert.True(CardBehaviorRegistry.TryGetByCardNo("OGN·004/298", out var swiftDefinition));

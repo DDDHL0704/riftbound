@@ -10851,20 +10851,35 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState nextState;
         if (seatPlayerIds.All(passedPlayerIds.Contains))
         {
+            var activeBattlefieldSpellDuelTask = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
+                string.Equals(task.TaskId, state.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)
+                && string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(task.BattlefieldObjectId));
+            var completedBattlefieldObjectIds = activeBattlefieldSpellDuelTask?.BattlefieldObjectId is { Length: > 0 } battlefieldObjectId
+                ? new[] { battlefieldObjectId }
+                : Array.Empty<string>();
+            var untilEndOfTurnEffects = state.UntilEndOfTurnEffects
+                .Concat(completedBattlefieldObjectIds.Select(BattlefieldTaskMarkers.SpellDuelCompleted))
+                .Where(effectId => !string.IsNullOrWhiteSpace(effectId))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(effectId => effectId, StringComparer.Ordinal)
+                .ToArray();
             nextState = state with
             {
                 Tick = state.Tick + 1,
                 ActivePlayerId = state.TurnPlayerId,
                 TimingState = TimingStates.NeutralOpen,
                 FocusPlayerId = null,
-                PassedFocusPlayerIds = []
+                PassedFocusPlayerIds = [],
+                UntilEndOfTurnEffects = untilEndOfTurnEffects
             };
             events.Add(new GameEvent(
                 "SPELL_DUEL_CLOSED",
                 "所有玩家让过焦点，法术对决关闭",
                 new Dictionary<string, object?>
                 {
-                    ["turnPlayerId"] = state.TurnPlayerId
+                    ["turnPlayerId"] = state.TurnPlayerId,
+                    ["completedBattlefieldObjectIds"] = completedBattlefieldObjectIds
                 }));
         }
         else
@@ -10907,7 +10922,10 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var battlefield = state.BattlefieldStates.Values
-            .Where(candidate => candidate.Contested)
+            .Where(candidate => candidate.Contested
+                && !state.UntilEndOfTurnEffects.Contains(
+                    BattlefieldTaskMarkers.SpellDuelCompleted(candidate.BattlefieldObjectId),
+                    StringComparer.Ordinal))
             .OrderBy(candidate => candidate.BattlefieldObjectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (battlefield is null || battlefield.OccupantControllerIds.Count < 2)

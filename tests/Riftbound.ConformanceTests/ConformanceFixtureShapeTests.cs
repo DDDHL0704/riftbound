@@ -910,6 +910,106 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void PendingTaskQueueUsesStartBattleTaskAfterContestSpellDuelCloses()
+    {
+        var state = new MatchState(
+            "battlefield-start-battle-task-room",
+            13,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            turnPlayerId: "alice",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "A-UNIT-1"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["B-UNIT-1"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["A-UNIT-1"] = new(
+                    "A-UNIT-1",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["B-UNIT-1"] = new(
+                    "B-UNIT-1",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "bob",
+                    controllerId: "bob")
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-1")],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["A-UNIT-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["B-UNIT-1"] = new("bob", "BATTLEFIELD", "BF-1")
+            });
+
+        Assert.Collection(
+            state.BattlefieldTasks,
+            task =>
+            {
+                Assert.Equal("START_SPELL_DUEL", task.Kind);
+                Assert.Equal("COMPLETED", task.Status);
+            },
+            task =>
+            {
+                Assert.Equal("START_BATTLE", task.Kind);
+                Assert.Equal("PENDING", task.Status);
+            });
+        Assert.Equal("BATTLE_TASKS", state.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-1", state.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["BATTLEFIELD_CONTESTED", "START_SPELL_DUEL", "START_BATTLE"],
+            state.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var battlefieldTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(snapshot.Timing["battlefieldTasks"]);
+        Assert.Collection(
+            battlefieldTasks,
+            task =>
+            {
+                Assert.Equal("START_SPELL_DUEL", Assert.IsType<string>(task["kind"]));
+                Assert.Equal("COMPLETED", Assert.IsType<string>(task["status"]));
+            },
+            task =>
+            {
+                Assert.Equal("START_BATTLE", Assert.IsType<string>(task["kind"]));
+                Assert.Equal("PENDING", Assert.IsType<string>(task["status"]));
+            });
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("BATTLE_TASKS", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.Equal("task:start-battle:BF-1", Assert.IsType<string>(taskQueue["activeTaskId"]));
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        Assert.False(prompts["alice"].Actionable);
+        Assert.Equal(["WAIT"], prompts["alice"].Actions);
+        Assert.Contains("START_BATTLE", prompts["alice"].Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ActionPromptFiltersPlayCardSourcesByImplementedTimingAndBaseCost()
     {
         var noManaState = new MatchState(

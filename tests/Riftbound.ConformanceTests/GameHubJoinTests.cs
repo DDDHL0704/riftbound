@@ -708,6 +708,40 @@ public sealed class GameHubJoinTests
         var p1Prompt = PromptFor(passClients, "P1");
         Assert.True(p1Prompt.Actionable);
         Assert.Equal(["PASS_FOCUS"], p1Prompt.Actions);
+
+        var p1FocusPassClients = new RecordingHubClients();
+        await CreateHub(p1FocusPassClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-battlefield-contest-p1-focus-pass", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PASS_FOCUS"
+            }));
+
+        Assert.Empty(p1FocusPassClients.CallerClient.Errors);
+        var p2FocusPrompt = PromptFor(p1FocusPassClients, "P2");
+        Assert.True(p2FocusPrompt.Actionable);
+        Assert.Equal(["PASS_FOCUS"], p2FocusPrompt.Actions);
+
+        var p2FocusPassClients = new RecordingHubClients();
+        await CreateHub(p2FocusPassClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-p2-focus-pass", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PASS_FOCUS"
+            }));
+
+        Assert.Empty(p2FocusPassClients.CallerClient.Errors);
+        var focusPassEvents = EventsFor(p2FocusPassClients);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED"],
+            focusPassEvents.Select(gameEvent => gameEvent.Kind).ToArray());
+        var finalP1Snapshot = SnapshotFor(p2FocusPassClients, "P1");
+        Assert.Equal("NEUTRAL_OPEN", finalP1Snapshot.Timing["timingState"]);
+        var finalTaskQueue = Assert.IsType<Dictionary<string, object?>>(finalP1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("BATTLE_TASKS", Assert.IsType<string>(finalTaskQueue["phase"]));
+        Assert.Equal("task:start-battle:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(finalTaskQueue["activeTaskId"]));
+        var finalP1Prompt = PromptFor(p2FocusPassClients, "P1");
+        Assert.False(finalP1Prompt.Actionable);
+        Assert.Equal(["WAIT"], finalP1Prompt.Actions);
+        Assert.Contains("START_BATTLE", finalP1Prompt.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -41,6 +41,16 @@ public static class TimingStates
     public const string SpellDuelClosed = "SPELL_DUEL_CLOSED";
 }
 
+public static class BattlefieldTaskMarkers
+{
+    public const string SpellDuelCompletedPrefix = "BATTLEFIELD_SPELL_DUEL_COMPLETED:";
+
+    public static string SpellDuelCompleted(string battlefieldObjectId)
+    {
+        return $"{SpellDuelCompletedPrefix}{battlefieldObjectId}";
+    }
+}
+
 public sealed record RunePool
 {
     private static readonly IReadOnlyDictionary<string, int> EmptyPowerByTrait =
@@ -967,7 +977,10 @@ public sealed record MatchState
                     || IsSpellDuelTimingState(state.TimingState))
                 .Select(item => item.StackItemId)
                 .ToArray();
-            var spellDuelStatus = state.SpellDuelState.IsActive ? "ACTIVE" : "PENDING";
+            var spellDuelCompleted = HasBattlefieldSpellDuelCompleted(state, battlefield.BattlefieldObjectId);
+            var spellDuelStatus = state.SpellDuelState.IsActive
+                ? "ACTIVE"
+                : spellDuelCompleted ? "COMPLETED" : "PENDING";
             var battleStatus = state.BattleState.IsActive
                 && string.Equals(state.BattleState.BattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
                     ? "ACTIVE"
@@ -1040,6 +1053,15 @@ public sealed record MatchState
             }
         }
 
+        var completedBattlefieldSpellDuelTask = tasks.FirstOrDefault(task =>
+            string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(task.BattlefieldObjectId)
+            && HasBattlefieldSpellDuelCompleted(state, task.BattlefieldObjectId));
+        if (completedBattlefieldSpellDuelTask is not null)
+        {
+            return completedBattlefieldSpellDuelTask;
+        }
+
         if (state.SpellDuelState.IsActive)
         {
             var activeSpellDuelTask = tasks.FirstOrDefault(task =>
@@ -1065,8 +1087,7 @@ public sealed record MatchState
             return "STATE_BASED_CLEANUP";
         }
 
-        if (string.Equals(activeTask.Kind, "START_BATTLE", StringComparison.Ordinal)
-            && state.BattleState.IsActive)
+        if (string.Equals(activeTask.Kind, "START_BATTLE", StringComparison.Ordinal))
         {
             return "BATTLE_TASKS";
         }
@@ -1097,6 +1118,13 @@ public sealed record MatchState
     {
         return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
             || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal);
+    }
+
+    private static bool HasBattlefieldSpellDuelCompleted(MatchState state, string battlefieldObjectId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            BattlefieldTaskMarkers.SpellDuelCompleted(battlefieldObjectId),
+            StringComparer.Ordinal);
     }
 
     private static IReadOnlyList<ContinuousEffectState> BuildContinuousEffectStates(MatchState state)
