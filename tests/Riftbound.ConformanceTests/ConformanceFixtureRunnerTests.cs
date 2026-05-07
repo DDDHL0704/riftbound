@@ -3216,6 +3216,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRecyclesBasicRuneAndReconcilesObjectLocations()
+    {
+        const string runeObjectId = "P1-RUNE-RED-RECYCLE-LOCATION";
+        const string bottomRuneObjectId = "P1-RUNE-BOTTOM-RECYCLE-LOCATION";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = [bottomRuneObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [bottomRuneObjectId] = new(
+                    bottomRuneObjectId,
+                    cardNo: "UNL-R03",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-recycle-location", "P1", "RECYCLE_RUNE"),
+            new RecycleRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal([bottomRuneObjectId, runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[runeObjectId].Zone);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[bottomRuneObjectId].Zone);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPortalpalRescueBanishPlayBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(

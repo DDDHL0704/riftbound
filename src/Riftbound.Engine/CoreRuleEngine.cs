@@ -4088,7 +4088,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
         runePools[intent.PlayerId] = nextPool;
 
-        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "RUNE_DECK");
 
         var nextState = state with
