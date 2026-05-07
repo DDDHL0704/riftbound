@@ -2452,6 +2452,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        var initialStateHash = MatchStateHasher.Hash(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -2481,6 +2482,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Contains("not required", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
         Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
@@ -22658,6 +22660,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task CoreRuleEngineRejectsEchoWhenManaIsInsufficient()
     {
         var state = CenterStageState(mana: 3);
+        var initialStateHash = MatchStateHasher.Hash(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -22668,6 +22671,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
         Assert.Empty(result.Events);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
         Assert.Equal(new[] { "P1-SPELL-CENTER-STAGE" }, result.State.PlayerZones["P1"].Hand);
@@ -23958,6 +23962,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2"] = RunePool.Empty
             }
         };
+        var initialStateHash = MatchStateHasher.Hash(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -23972,6 +23977,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
         Assert.Empty(result.Events);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
         Assert.Equal(["P1-UNIT-SIVIR"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(5, result.State.RunePools["P1"].Mana);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
@@ -40666,6 +40672,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task CoreRuleEngineRejectsSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4SpellshieldTaxState(mana: 2);
+        var initialStateHash = MatchStateHasher.Hash(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -40679,6 +40686,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
         Assert.Empty(result.Events);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-INCINERATE"], result.State.PlayerZones["P1"].Hand);
@@ -40709,6 +40717,7 @@ public sealed class ConformanceFixtureRunnerTests
     public async Task CoreRuleEngineRejectsMultipleSpellshieldTaxWhenManaIsInsufficient()
     {
         var state = P4MultipleSpellshieldTaxState(mana: 5);
+        var initialStateHash = MatchStateHasher.Hash(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -40722,6 +40731,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
         Assert.Empty(result.Events);
+        Assert.Equal(initialStateHash, MatchStateHasher.Hash(result.State));
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], result.State.PlayerZones["P1"].Hand);
