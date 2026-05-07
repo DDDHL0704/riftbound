@@ -630,6 +630,27 @@ public sealed class MatchRecoveryTests
         Assert.Equal(1, Assert.IsType<int>(bobZones["handHidden"]));
     }
 
+    [Fact]
+    public void SpectatorReplayFramesRedactPrivateInformationAcrossGeneratedStates()
+    {
+        for (var index = 0; index < 16; index++)
+        {
+            var state = GeneratedPrivateState(index);
+            var frame = MatchReplayRedactor.BuildSpectatorFrame(
+                state.RoomId,
+                state.Tick,
+                index + 1,
+                [new GameEvent("PROPERTY_EVENT", "property event", new Dictionary<string, object?>())],
+                state);
+
+            Assert.Equal(MatchStateHasher.Hash(state), frame.AuthoritativeStateHash);
+            Assert.DoesNotContain("seed", frame.SpectatorSnapshot.Timing.Keys);
+            Assert.DoesNotContain("rngCursor", frame.SpectatorSnapshot.Timing.Keys);
+            AssertSpectatorPlayerRedacted(frame.SpectatorSnapshot, "alice", $"A-{index}", 1 + index % 3);
+            AssertSpectatorPlayerRedacted(frame.SpectatorSnapshot, "bob", $"B-{index}", 2 + index % 2);
+        }
+    }
+
     private static MatchState ReplayInitialState()
     {
         return new MatchState(
@@ -646,6 +667,133 @@ public sealed class MatchRecoveryTests
             readyPlayerIds: ["alice", "bob"],
             phase: MatchPhases.Main,
             timingState: TimingStates.NeutralOpen);
+    }
+
+    private static MatchState GeneratedPrivateState(int index)
+    {
+        var alicePrefix = $"A-{index}";
+        var bobPrefix = $"B-{index}";
+        var aliceHand = Enumerable.Range(0, 1 + index % 3)
+            .Select(cardIndex => $"{alicePrefix}-HAND-{cardIndex}")
+            .ToArray();
+        var bobHand = Enumerable.Range(0, 2 + index % 2)
+            .Select(cardIndex => $"{bobPrefix}-HAND-{cardIndex}")
+            .ToArray();
+        var aliceFaceDown = $"{alicePrefix}-FACEDOWN";
+        var bobFaceDown = $"{bobPrefix}-FACEDOWN";
+        var aliceVisible = $"{alicePrefix}-VISIBLE";
+        var bobVisible = $"{bobPrefix}-VISIBLE";
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            [aliceFaceDown] = new(
+                aliceFaceDown,
+                power: 5 + index,
+                isFaceDown: true,
+                cardNo: "OGN·173/298",
+                ownerId: "alice",
+                controllerId: "alice",
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+            [bobFaceDown] = new(
+                bobFaceDown,
+                power: 4 + index,
+                isFaceDown: true,
+                cardNo: "SFD·126/221",
+                ownerId: "bob",
+                controllerId: "bob",
+                tags: [CardObjectTags.UnitCard, CardObjectTags.Standby]),
+            [aliceVisible] = new(
+                aliceVisible,
+                power: 3,
+                cardNo: "SFD·125/221",
+                ownerId: "alice",
+                controllerId: "alice",
+                tags: [CardObjectTags.UnitCard]),
+            [bobVisible] = new(
+                bobVisible,
+                power: 2,
+                cardNo: "SFD·126/221",
+                ownerId: "bob",
+                controllerId: "bob",
+                tags: [CardObjectTags.UnitCard])
+        };
+        foreach (var objectId in aliceHand)
+        {
+            cardObjects[objectId] = new(
+                objectId,
+                power: 7,
+                cardNo: "OGN·096/298",
+                ownerId: "alice",
+                controllerId: "alice",
+                tags: [CardObjectTags.UnitCard]);
+        }
+
+        foreach (var objectId in bobHand)
+        {
+            cardObjects[objectId] = new(
+                objectId,
+                power: 6,
+                cardNo: "UNL-021/219",
+                ownerId: "bob",
+                controllerId: "bob",
+                tags: [CardObjectTags.UnitCard]);
+        }
+
+        return new MatchState(
+            "room-property",
+            10 + index,
+            2 + index,
+            index % 2 == 0 ? "alice" : "bob",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Hand = aliceHand,
+                    Base = [aliceFaceDown],
+                    Battlefields = [aliceVisible]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Hand = bobHand,
+                    Base = [bobFaceDown],
+                    Battlefields = [bobVisible]
+                }
+            },
+            cardObjects: cardObjects,
+            seed: 260330 + index,
+            rngCursor: 17 + index);
+    }
+
+    private static void AssertSpectatorPlayerRedacted(
+        SnapshotDto snapshot,
+        string playerId,
+        string objectPrefix,
+        int expectedHiddenHandCount)
+    {
+        var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
+        var zones = Assert.IsType<Dictionary<string, object?>>(player["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(zones["hand"]));
+        Assert.Equal(expectedHiddenHandCount, Assert.IsType<int>(zones["handHidden"]));
+
+        var objects = Assert.IsType<Dictionary<string, object?>>(player["objects"]);
+        for (var cardIndex = 0; cardIndex < expectedHiddenHandCount; cardIndex++)
+        {
+            Assert.DoesNotContain($"{objectPrefix}-HAND-{cardIndex}", objects.Keys);
+        }
+
+        var faceDown = Assert.IsType<Dictionary<string, object?>>(objects[$"{objectPrefix}-FACEDOWN"]);
+        Assert.True(Assert.IsType<bool>(faceDown["isFaceDown"]));
+        Assert.DoesNotContain("cardNo", faceDown.Keys);
+        Assert.DoesNotContain("tags", faceDown.Keys);
+        Assert.DoesNotContain("power", faceDown.Keys);
     }
 
     private static RecoveredCommand ToRecoveredCommand(MatchJournalEntry entry)

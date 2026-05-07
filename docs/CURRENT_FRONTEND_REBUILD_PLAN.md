@@ -254,7 +254,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**87%**
+估算整体进度：**88%**
 
 已经完成：
 
@@ -284,6 +284,7 @@
 - 恢复链路新增服务端 action-log final hash audit：Postgres recovery frame 带 replay 初始状态，registry 在恢复前重放 recovered commands 并阻止 hash mismatch 的恢复帧，降低重连时用错误 authoritative snapshot 静默恢复的风险。
 - 真实 Postgres recovery store smoke 已覆盖 migration/journal/state snapshot/recovery frame/registry 恢复闭环，并修复 `MatchState` seed/rngCursor 构造参数类型导致 authoritative snapshot 无法反序列化的问题。
 - recovery frame 已携带公开 spectator replay frame，使用 authoritative state hash 和 spectator redaction，Postgres smoke 覆盖 seed/rngCursor 不泄漏。
+- spectator replay redaction 新增生成式 property 覆盖，防止多组隐藏手牌、面朝下对象和随机状态重新泄漏到公开回放帧。
 
 预计剩余批次数：**3 批左右**
 
