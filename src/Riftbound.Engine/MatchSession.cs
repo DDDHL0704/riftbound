@@ -4777,10 +4777,15 @@ internal static class ActionPromptBuilder
             : 0;
         var choices = new List<ActionPromptChoiceDto>();
 
+        var effectiveEchoManaCost = PromptEffectiveEchoManaCost(state, playerId, behavior);
         if (behavior.EchoManaCost > 0
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + behavior.EchoManaCost)
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + effectiveEchoManaCost)
         {
-            choices.Add(new ActionPromptChoiceDto("ECHO", $"回响：额外支付 {behavior.EchoManaCost} 法力"));
+            var echoReduction = behavior.EchoManaCost - effectiveEchoManaCost;
+            choices.Add(new ActionPromptChoiceDto(
+                "ECHO",
+                $"回响：额外支付 {effectiveEchoManaCost} 法力",
+                echoReduction > 0 ? $"战场效果已减免 {echoReduction} 法力" : null));
         }
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
@@ -4826,6 +4831,37 @@ internal static class ActionPromptBuilder
 
         choices.AddRange(paymentResourceChoices);
         return choices;
+    }
+
+    private static int PromptEffectiveEchoManaCost(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.EchoManaCost <= 0)
+        {
+            return 0;
+        }
+
+        var reduction = PromptBattlefieldEchoCostReductionMana(state, playerId, behavior.EchoManaCost);
+        return Math.Max(0, behavior.EchoManaCost - reduction);
+    }
+
+    private static int PromptBattlefieldEchoCostReductionMana(
+        MatchState state,
+        string playerId,
+        int echoManaCost)
+    {
+        if (echoManaCost <= 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal)))
+        {
+            return 0;
+        }
+
+        return Math.Min(1, echoManaCost);
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(

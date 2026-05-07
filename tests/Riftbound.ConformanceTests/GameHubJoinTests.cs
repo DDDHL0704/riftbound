@@ -3550,13 +3550,31 @@ public sealed class GameHubJoinTests
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
             .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
         await CreateHub(
-                new RecordingHubClients(),
+                seedClients,
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
                 new TestHostEnvironment(Environments.Development))
             .SeedScenario(roomId, "P1", "battlefield-static-echo-cost-reduction", "seed-p7-9-battlefield-static-echo-cost-reduction");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+        var echoChoice = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "ECHO", StringComparison.Ordinal));
+        Assert.Equal("回响：额外支付 1 法力", echoChoice.Label);
+        Assert.Equal("战场效果已减免 1 法力", echoChoice.Reason);
 
         var playClients = new RecordingHubClients();
         var centerStage = JsonDocument.Parse("""
