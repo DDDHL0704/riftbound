@@ -26030,6 +26030,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldForgeLegendAttachRejectsLegendSourceWithoutCardNo()
+    {
+        var state = BattlefieldLegendAttachArmamentState(includeForge: true, armamentAttachedToObjectId: null);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-PORO-FORGE"] = cardObjects["P1-LEGEND-PORO-FORGE"] with
+        {
+            CardNo = null
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-forge-legend-unknown-source", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-PORO-FORGE",
+                "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD",
+                ["P1-LEGEND-BASE-UNIT", "P1-PORO-FORGE-ARMAMENT"],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.False(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
+    }
+
+    [Fact]
     public async Task P79LegendActDariusGainsManaAfterAnotherCardThisTurn()
     {
         var state = LegendActiveAbilityState("OGN·253/298", "P1-LEGEND-DARIUS", mana: 0) with

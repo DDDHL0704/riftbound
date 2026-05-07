@@ -3196,7 +3196,8 @@ internal static class ActionPromptBuilder
         string playerId,
         string sourceObjectId)
     {
-        if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState))
+        if (!state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+            || string.IsNullOrWhiteSpace(sourceState.CardNo))
         {
             return [];
         }
@@ -7962,6 +7963,7 @@ public sealed class MatchSession : IMatchSession
             "spellshield-tax-insufficient-prompt" => BuildSpellshieldTaxInsufficientPromptScenario(current, seed),
             "unknown-play-source-prompt" => BuildUnknownPlaySourcePromptScenario(current, seed),
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
+            "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
@@ -8783,6 +8785,61 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownLegendActionSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304164,
+            4164,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone: ["P1-UNIT-LEGEND-ACTION-TARGET", "P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT"],
+                    battlefields: ["P1-BATTLEFIELD-PORO-FORGE"],
+                    legendZone: ["P1-LEGEND-UNKNOWN-ACTION-SOURCE"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-UNKNOWN-ACTION-SOURCE"] = new(
+                    "P1-LEGEND-UNKNOWN-ACTION-SOURCE",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-PORO-FORGE"] = new(
+                    "P1-BATTLEFIELD-PORO-FORGE",
+                    cardNo: BattlefieldGrantLegendAttachArmamentCardNo,
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-LEGEND-ACTION-TARGET"] = new(
+                    "P1-UNIT-LEGEND-ACTION-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT"] = new(
+                    "P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });

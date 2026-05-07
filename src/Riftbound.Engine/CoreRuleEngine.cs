@@ -1857,6 +1857,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "LEGEND_ACT source must expose a known legend card number.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         if (!LegendAbilitySourceHasAbility(state, intent.PlayerId, sourceState.CardNo, ability))
         {
             return RejectWithCorePrompts(
