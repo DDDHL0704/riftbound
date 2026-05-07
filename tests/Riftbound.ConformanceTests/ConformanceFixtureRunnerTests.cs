@@ -1798,6 +1798,118 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PlayCardRecyclesRuneForHasteReadyPaymentResourceAction()
+    {
+        const string runeObjectId = "P1-RUNE-PURPLE-HASTE-PAYMENT-001";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var state = PunishmentState(mana: 5) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(5, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SIVIR"],
+                    Base = [runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-SIVIR"] = new(
+                    "P1-UNIT-SIVIR",
+                    cardNo: "SFD·143/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:purple"],
+                    cardNo: "UNL-R04",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-SIVIR"] = new("P1", "HAND"),
+                [runeObjectId] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, HasteOptionalCostNames.HasteReady, StringComparison.Ordinal));
+        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["paymentResourceChoices"]);
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+
+        var engine = new CoreRuleEngine();
+        var playResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-sivir-recycle-rune-haste-ready-payment", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SIVIR",
+                "SFD·143/221",
+                [],
+                OptionalCosts: [paymentResourceAction, HasteOptionalCostNames.HasteReady]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted, playResult.ErrorMessage);
+        Assert.DoesNotContain(runeObjectId, playResult.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], playResult.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal("RUNE_DECK", playResult.State.ObjectLocations[runeObjectId].Zone);
+        Assert.False(playResult.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal(0, playResult.State.RunePools["P1"].Mana);
+        Assert.False(playResult.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Purple));
+        var recycledEvent = Assert.Single(playResult.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal("PLAY_CARD", recycledEvent.Payload["paymentWindow"]);
+        var costEvent = Assert.Single(playResult.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(5, costEvent.Payload["mana"]);
+        Assert.Equal(1, costEvent.Payload["power"]);
+        Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+
+        var p1Pass = await engine.ResolveAsync(
+            playResult.State,
+            new PlayerIntent("intent-sivir-recycle-rune-haste-ready-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-sivir-recycle-rune-haste-ready-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Empty(p2Pass.State.StackItems);
+        Assert.Equal(["P1-UNIT-SIVIR"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.False(p2Pass.State.CardObjects["P1-UNIT-SIVIR"].IsExhausted);
+        var unitPlayedEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.Equal(true, unitPlayedEvent.Payload["hasteReadyOptionalCostPaid"]);
+        Assert.Equal(false, unitPlayedEvent.Payload["isExhausted"]);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower()
     {
         const string runeObjectId = "P1-RUNE-RED-001";
