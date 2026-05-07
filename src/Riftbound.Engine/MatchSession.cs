@@ -4687,14 +4687,14 @@ internal static class ActionPromptBuilder
     private static bool IsPromptBattlefieldObject(MatchState state, string objectId)
     {
         return !string.IsNullOrWhiteSpace(objectId)
-            && state.CardObjects.ContainsKey(objectId)
+            && IsPromptKnownCardObject(state, objectId)
             && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
     private static bool IsPromptBaseObject(MatchState state, string objectId)
     {
         return !string.IsNullOrWhiteSpace(objectId)
-            && state.CardObjects.ContainsKey(objectId)
+            && IsPromptKnownCardObject(state, objectId)
             && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
     }
 
@@ -4764,14 +4764,14 @@ internal static class ActionPromptBuilder
     {
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Hand.Contains(objectId, StringComparer.Ordinal)
-            && state.CardObjects.ContainsKey(objectId);
+            && IsPromptKnownCardObject(state, objectId);
     }
 
     private static bool IsPromptFriendlyGraveyardCard(MatchState state, string playerId, string objectId)
     {
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Graveyard.Contains(objectId, StringComparer.Ordinal)
-            && state.CardObjects.ContainsKey(objectId);
+            && IsPromptKnownCardObject(state, objectId);
     }
 
     private static bool IsPromptOpponentGraveyardCard(MatchState state, string playerId, string objectId)
@@ -4779,7 +4779,13 @@ internal static class ActionPromptBuilder
         return state.PlayerZones
             .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
             .Any(entry => entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal))
-            && state.CardObjects.ContainsKey(objectId);
+            && IsPromptKnownCardObject(state, objectId);
+    }
+
+    private static bool IsPromptKnownCardObject(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo);
     }
 
     private static bool IsPromptAttackingBattlefieldObject(MatchState state, string objectId)
@@ -7967,6 +7973,7 @@ public sealed class MatchSession : IMatchSession
             "spellshield-multiple-tax" => BuildSpellshieldMultipleTaxScenario(current, seed),
             "spellshield-tax-insufficient-prompt" => BuildSpellshieldTaxInsufficientPromptScenario(current, seed),
             "unknown-play-source-prompt" => BuildUnknownPlaySourcePromptScenario(current, seed),
+            "unknown-play-target-prompt" => BuildUnknownPlayTargetPromptScenario(current, seed),
             "unknown-hide-card-source-prompt" => BuildUnknownHideCardSourcePromptScenario(current, seed),
             "unknown-reveal-card-source-prompt" => BuildUnknownRevealCardSourcePromptScenario(current, seed),
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
@@ -8755,6 +8762,51 @@ public sealed class MatchSession : IMatchSession
             });
     }
 
+    private static MatchState BuildUnknownPlayTargetPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304162,
+            4162,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    hand: ["P1-SPELL-UNKNOWN-PLAY-TARGET"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-UNIT-UNKNOWN-PLAY-TARGET"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-UNKNOWN-PLAY-TARGET"] = new(
+                    "P1-SPELL-UNKNOWN-PLAY-TARGET",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-UNKNOWN-PLAY-TARGET"] = new(
+                    "P2-UNIT-UNKNOWN-PLAY-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
     private static MatchState BuildUnknownHideCardSourcePromptScenario(MatchState current, DevScenarioSeed seed)
     {
         return BuildScenarioState(
@@ -9182,8 +9234,30 @@ public sealed class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P1-BATTLEFIELD-UNIT-001"] = new(power: 3, damage: 1, isExhausted: true, tags: ["CARD_TYPE:UNIT"]),
-                ["P2-BATTLEFIELD-UNIT-001"] = new(power: 3, isExhausted: true, tags: ["CARD_TYPE:UNIT"])
+                ["P1-SPELL-RIDE-THE-WIND"] = new(
+                    "P1-SPELL-RIDE-THE-WIND",
+                    cardNo: "OGN·173/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLEFIELD-UNIT-001"] = new(
+                    "P1-BATTLEFIELD-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    damage: 1,
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLEFIELD-UNIT-001"] = new(
+                    "P2-BATTLEFIELD-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    isExhausted: true,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 
@@ -9397,7 +9471,16 @@ public sealed class MatchSession : IMatchSession
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
-            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-CENTER-STAGE"] = new(
+                    "P1-SPELL-CENTER-STAGE",
+                    cardNo: "UNL-061/219",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
     }
 
     private static MatchState BuildPriorityReactionCounterScenario(MatchState current, DevScenarioSeed seed)
@@ -9731,7 +9814,25 @@ public sealed class MatchSession : IMatchSession
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
-            new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-DEMACIA-ENVOY"] = new(
+                    "P1-UNIT-DEMACIA-ENVOY",
+                    cardNo: "UNL-092/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 3,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-MOSS-STEPPER"] = new(
+                    "P1-UNIT-MOSS-STEPPER",
+                    cardNo: "UNL-047/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 2,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
 
         return state with
         {
@@ -9926,6 +10027,13 @@ public sealed class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                ["P1-SPELL-VENGEANCE"] = new(
+                    "P1-SPELL-VENGEANCE",
+                    cardNo: "OGN·229/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 4,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
                 ["P2-WATCHFUL-SENTINEL-001"] = new(
                     "P2-WATCHFUL-SENTINEL-001",
                     cardNo: "OGN·096/298",
@@ -11589,6 +11697,7 @@ public sealed class MatchSession : IMatchSession
                     controllerId: seed.P1),
                 ["P1-UNIT-PORO-FORGE-TARGET"] = new(
                     "P1-UNIT-PORO-FORGE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,

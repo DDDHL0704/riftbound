@@ -23154,6 +23154,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P2-UNIT-HEXTECH-RAY-001"] = new(
                     "P2-UNIT-HEXTECH-RAY-001",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
@@ -41804,7 +41805,20 @@ public sealed class ConformanceFixtureRunnerTests
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P2-UNIT-001"] = new("P2-UNIT-001")
+                ["P1-SPELL-PUNISHMENT"] = new(
+                    "P1-SPELL-PUNISHMENT",
+                    cardNo: "UNL-007/219",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
             });
     }
 

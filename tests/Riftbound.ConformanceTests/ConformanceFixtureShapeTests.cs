@@ -2576,12 +2576,14 @@ public sealed class ConformanceFixtureShapeTests
                     controllerId: "P1"),
                 ["P2-UNIT"] = new(
                     "P2-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
                 ["P2-SPELLSHIELD-UNIT"] = new(
                     "P2-SPELLSHIELD-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
                     ownerId: "P2",
