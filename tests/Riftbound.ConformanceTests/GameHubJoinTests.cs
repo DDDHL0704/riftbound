@@ -5877,6 +5877,17 @@ public sealed class GameHubJoinTests
         var battleSnapshot = SnapshotFor(battleClients, "P2");
         Assert.Equal("P2", battleSnapshot.Timing["winnerPlayerId"]);
         Assert.Equal(MatchStatuses.Finished, battleSnapshot.Timing["roomStatus"]);
+
+        var afterFinishedClients = new RecordingHubClients();
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(afterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-pass", passPriority);
+
+        var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
+        var payload = Assert.IsType<ErrorDto>(error.Payload);
+        Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
+        Assert.Equal("match already finished", payload.Message);
+        Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
     }
 
     [Fact]

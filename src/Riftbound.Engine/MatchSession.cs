@@ -7394,6 +7394,11 @@ public sealed class MatchSession : IMatchSession
                 return cached.Result;
             }
 
+            if (state.Status == MatchStatuses.Finished)
+            {
+                throw new MatchSessionException(ErrorCodes.MatchFinished, "match already finished");
+            }
+
             if (state.Status != MatchStatuses.InProgress)
             {
                 throw new MatchSessionException(ErrorCodes.MatchNotStarted, "match has not started");
