@@ -2,6 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
+当前完成度：约 **78%**，预计仍需 **4 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -59,7 +60,7 @@
 
 - 完整 battlefield/standby/control task 状态机未完成：前端只能展示服务端 `battlefieldTasks` / `pendingTaskQueue`，不能自行推进战场控制、待命移除、征服/据守或争夺结论。
 - Central cleanup task queue 未完成：前端只能展示清理结果和阻塞 `WAIT` prompt，不能本地继续开放普通行动。
-- Spell duel/battle lifecycle 未完整官方化：前端可以显示 `spellDuel`、`battle`、`PASS_FOCUS`、`DECLARE_BATTLE` 等候选，但不能用客户端 UI 计算“法术对决结束”“战斗伤害结算”“控制权改变”。
+- Spell duel/battle lifecycle 未完整官方化：前端可以显示 `spellDuel`、`battle`、`PASS_FOCUS`、`DECLARE_BATTLE` 等候选；当前只开放服务端支持的单攻击者/多防守者代表路径与多攻击者/单防守者代表路径，不能用客户端 UI 计算“法术对决结束”“战斗伤害结算”“控制权改变”。
 - PaymentEngine 未统一：前端只能提交服务端候选中暴露的 `optionalCosts` / 支付 token；未暴露的费用分支不得做成可选项。
 - LayerEngine 未完整：前端展示 `basePower` / `effectivePower` / `continuousEffects`，不得从卡面和装备自行重算战力或关键词。
 - 全官方卡牌证据仍不足：图鉴必须明确展示 `representative-rule-pass` / deferred family 状态，不能显示“官方完整通过”。
@@ -274,6 +275,7 @@
 - `ACTIVATE_ABILITY` 已有 Vi、Xerath 和蜕变花园授予能力代表路径的服务端每来源元数据、目标/费用/Spellshield 加税候选过滤和前端卡牌详情激活组合器；前端不再自行判断可激活来源、能力目标或横置费用。
 - `LEGEND_ACT` 已有代表性传奇行动的服务端每来源元数据、经验/资源/时点/前置条件过滤和前端卡牌详情传奇行动组合器；Poppy 抽牌路径已完成真实 UI smoke。
 - `DECLARE_BATTLE` 已有攻击者/防守者/战场/战斗分配费用候选的服务端每来源元数据和前端卡牌详情组合器；单攻击者/单防守者代表路径已完成真实 UI smoke，1-2 防守者代表候选已由服务端 prompt/test 覆盖，双防守槽真实 UI smoke 也已覆盖。
+- `DECLARE_BATTLE` 现已补齐 1-2 攻击者 + 单防守者代表路径：服务端 `sourceRequirements` 暴露第二攻击者槽位，前端详情抽屉只渲染服务端给出的“攻击单位 2（可选）”候选，并把 `attackerObjectIds` 限定为这些候选；后台 Chrome/CDP smoke 已覆盖 P1 点击《盖伦》、选择《易》作为第二攻击者、选择《变异猫咪》防守并确认，最终 authoritative snapshot 显示盖伦和防守者入墓、易留场 1 伤害，reload/reconnect 后恢复同一结果。
 - 法术对决焦点窗口已能由服务端 prompt 暴露带目标迅捷法术出牌来源和目标槽；《海克斯射线》代表路径已完成真实 UI smoke，并验证后续优先权与 P2 `PASS_FOCUS`。
 - 争夺战场 task queue 已能在状态变化后由服务端自动进入 `SPELL_DUEL_OPEN`，并通过事件与 prompt 驱动前端显示；前端不再需要本地启动法术对决入口。
 - 争夺战场法术对决在双方让过焦点后已能由服务端切到 `BATTLE_TASKS` / `START_BATTLE` active task；前端只显示服务端 blocking prompt，不自行推进战斗或控制权。
@@ -293,12 +295,12 @@
 - P0-005 补齐代表性出牌支付步骤资源动作：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付；前端不得自行构造未出现在候选中的资源动作。
 - 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；后端 full test 当前通过 2889/2889。
 
-预计剩余批次数：**2-3 批左右**
+预计剩余批次数：**4 批左右**
 
 原因：
 
 - 前端仍需补齐法术对决/响应窗口、带目标法术和复杂费用选择等产品级操作流。
-- 服务端仍需补齐完整 control/held/conquer task 生命周期、多攻击者战斗、战斗响应窗口和官方级 battle task 状态机。
+- 服务端仍需补齐完整 control/held/conquer task 生命周期、多攻击者 + 多防守者组合战斗、战斗响应窗口和官方级 battle task 状态机。
 - Browser/Computer smoke 仍需继续覆盖响应窗口、断线重连和最终长链路。
 - 服务端仍有多个架构级 P0/P1 规则缺口，不是单个 UI 批次可以关闭。
 

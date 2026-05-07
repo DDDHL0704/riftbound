@@ -2279,6 +2279,10 @@ internal static class ActionPromptBuilder
         string SourceObjectId,
         string CardNo,
         string DisplayName,
+        int MinAttackerCount,
+        int MaxAttackerCount,
+        string AttackerCountLabel,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> AttackerChoicesByIndex,
         int MinDefenderCount,
         int MaxDefenderCount,
         string DefenderCountLabel,
@@ -4451,16 +4455,41 @@ internal static class ActionPromptBuilder
             return [];
         }
 
-        return zones.Battlefields
+        var attackerCandidates = zones.Battlefields
             .Where(objectId => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
                 || IsObjectLocatedAtBattlefield(state, objectId, activeBattlefieldObjectId))
             .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
             .Where(objectId => state.CardObjects.ContainsKey(objectId))
-            .Select(objectId =>
+            .Select(objectId => new
             {
-                var attackerState = state.CardObjects[objectId];
-                var attackerChoice = ObjectChoice(state, objectId, "服务端合法攻击单位");
-                var maxDefenderCount = defenderChoices.Length > 1 && assignmentDefenderChoices.Length > 0 ? 2 : 1;
+                ObjectId = objectId,
+                CardObject = state.CardObjects[objectId],
+                Choice = ObjectChoice(state, objectId, "服务端合法攻击单位")
+            })
+            .ToArray();
+
+        return attackerCandidates
+            .Select(attacker =>
+            {
+                var alternateAttackerChoices = attackerCandidates
+                    .Where(candidate => !string.Equals(candidate.ObjectId, attacker.ObjectId, StringComparison.Ordinal))
+                    .Select(candidate => candidate.Choice)
+                    .ToArray();
+                var maxAttackerCount = defenderChoices.Length == 1 && alternateAttackerChoices.Length > 0 ? 2 : 1;
+                var attackerChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+                {
+                    ["0"] = [attacker.Choice]
+                };
+                if (maxAttackerCount > 1)
+                {
+                    attackerChoicesByIndex["1"] = alternateAttackerChoices;
+                }
+
+                var maxDefenderCount = maxAttackerCount > 1
+                    ? 1
+                    : defenderChoices.Length > 1 && assignmentDefenderChoices.Length > 0
+                        ? 2
+                        : 1;
                 var targetChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
                 {
                     ["0"] = defenderChoices
@@ -4471,9 +4500,13 @@ internal static class ActionPromptBuilder
                 }
 
                 return new DeclareBattlePromptRequirement(
-                    objectId,
-                    attackerState.CardNo ?? string.Empty,
-                    attackerChoice.Label,
+                    attacker.ObjectId,
+                    attacker.CardObject.CardNo ?? string.Empty,
+                    attacker.Choice.Label,
+                    1,
+                    maxAttackerCount,
+                    maxAttackerCount > 1 ? "1 个，或 2 个攻击单位" : "1 个攻击单位",
+                    attackerChoicesByIndex,
                     1,
                     maxDefenderCount,
                     maxDefenderCount > 1 ? "1 个，或含壁垒/后排的 2 个" : "1 个防守单位",
@@ -4744,8 +4777,11 @@ internal static class ActionPromptBuilder
             ["battlefieldPolicy"] = "source-specific-server-filtered-battlefields",
             ["optionalCostPolicy"] = "source-specific-required-combat-assignment",
             ["attackerCount"] = 1,
+            ["attackerCountMin"] = 1,
+            ["attackerCountMax"] = 2,
             ["defenderCountMin"] = 1,
             ["defenderCountMax"] = 2,
+            ["multiAttackerPolicy"] = "up-to-two-attackers-only-against-one-defender",
             ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
             ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat",
             ["sourceRequirements"] = sourceRequirements
@@ -4790,6 +4826,10 @@ internal static class ActionPromptBuilder
             ["sourceObjectId"] = requirement.SourceObjectId,
             ["cardNo"] = requirement.CardNo,
             ["displayName"] = requirement.DisplayName,
+            ["minAttackerCount"] = requirement.MinAttackerCount,
+            ["maxAttackerCount"] = requirement.MaxAttackerCount,
+            ["attackerCountLabel"] = requirement.AttackerCountLabel,
+            ["attackerChoicesByIndex"] = requirement.AttackerChoicesByIndex,
             ["minDefenderCount"] = requirement.MinDefenderCount,
             ["maxDefenderCount"] = requirement.MaxDefenderCount,
             ["defenderCountLabel"] = requirement.DefenderCountLabel,
@@ -6967,6 +7007,7 @@ public sealed class MatchSession : IMatchSession
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battle-prompt-filter" => BuildBattlePromptFilterScenario(current, seed),
             "battle-multi-defender" => BuildBattleMultiDefenderScenario(current, seed),
+            "battle-multi-attacker" => BuildBattleMultiAttackerScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
             "battlefield-held-minion" => BuildBattlefieldHeldMinionScenario(current, seed),
@@ -8062,6 +8103,55 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattleMultiAttackerScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303073,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLE-MULTI-GAREN", "P1-BATTLE-MULTI-YI"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    battlefields: ["P2-BATTLE-MULTI-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-MULTI-GAREN"] = new(
+                    "P1-BATTLE-MULTI-GAREN",
+                    cardNo: "OGS·007/024",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-MULTI-YI"] = new(
+                    "P1-BATTLE-MULTI-YI",
+                    cardNo: "UNL-059/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-MULTI-DEFENDER"] = new(
+                    "P2-BATTLE-MULTI-DEFENDER",
+                    cardNo: "UNL-036/219",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });

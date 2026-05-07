@@ -4758,7 +4758,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 intent,
                 command,
-                out var attackerObjectId,
+                out var attackerObjectIds,
                 out var defenderObjectIds,
                 out var optionalCosts))
         {
@@ -4774,7 +4774,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 state,
                 activeStartBattleTask.BattlefieldObjectId,
                 battlefieldId,
-                attackerObjectId,
+                attackerObjectIds,
                 defenderObjectIds))
         {
             return RejectWithCorePrompts(
@@ -4786,17 +4786,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerZones = NormalizeZonesForSeats(state);
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var rngCursor = state.RngCursor;
+        var attackerObjectId = attackerObjectIds[0];
+        var attackerStates = attackerObjectIds.ToDictionary(
+            attackerObjectId => attackerObjectId,
+            attackerObjectId => cardObjects[attackerObjectId],
+            StringComparer.Ordinal);
         var attackerState = cardObjects[attackerObjectId];
         var defenderStates = defenderObjectIds.ToDictionary(
             defenderObjectId => defenderObjectId,
             defenderObjectId => cardObjects[defenderObjectId],
             StringComparer.Ordinal);
         var huntAmount = CardResourceKeywordRules.HuntAmountFromTags(attackerState.Tags);
-        cardObjects[attackerObjectId] = attackerState with
+        foreach (var attackingObjectId in attackerObjectIds)
         {
-            IsAttacking = true,
-            IsDefending = false
-        };
+            var attackingState = cardObjects[attackingObjectId];
+            cardObjects[attackingObjectId] = attackingState with
+            {
+                IsAttacking = true,
+                IsDefending = false
+            };
+        }
 
         foreach (var defenderObjectId in defenderObjectIds)
         {
@@ -4865,73 +4874,79 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var damageTriggeredDestroyTargetObjectIds = new HashSet<string>(StringComparer.Ordinal);
+        var hasMultipleAttackers = attackerObjectIds.Count > 1;
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
-        var attackerCombatPower = ResolveBattleCombatPower(
-            state,
-            playerZones,
-            attackerObjectId,
-            attackerState,
-            true,
-            0,
-            defendingPlayerId,
-            battlefieldId,
-            battlefieldSteadfastObjectId,
-            out var assaultBonus,
-            out var attackerStaticPowerBonus);
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
-        var remainingAttackerDamage = attackerCombatPower;
         var defendingUnitCount = defenderAssignments.Count;
         var assignedOverkillDamageToEnemyUnits = 0;
-        for (var defenderIndex = 0; defenderIndex < defenderAssignments.Count && remainingAttackerDamage > 0; defenderIndex++)
+        foreach (var attackingObjectId in attackerObjectIds)
         {
-            var assignment = defenderAssignments[defenderIndex];
-            var defenderState = defenderStates[assignment.ObjectId];
-            var defenderCombatPower = ResolveBattleCombatPower(
+            var attackingState = attackerStates[attackingObjectId];
+            var attackerCombatPower = ResolveBattleCombatPower(
                 state,
                 playerZones,
-                assignment.ObjectId,
-                defenderState,
-                false,
-                defendingUnitCount,
-                null,
+                attackingObjectId,
+                attackingState,
+                true,
+                0,
+                defendingPlayerId,
                 battlefieldId,
                 battlefieldSteadfastObjectId,
-                out _,
-                out _);
-            var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
-            var damageAmount = defenderIndex == defenderAssignments.Count - 1
-                ? remainingAttackerDamage
-                : Math.Min(remainingAttackerDamage, lethalDamage);
-            if (damageAmount <= 0)
+                out var assaultBonus,
+                out var attackerStaticPowerBonus);
+            var remainingAttackerDamage = attackerCombatPower;
+            for (var defenderIndex = 0; defenderIndex < defenderAssignments.Count && remainingAttackerDamage > 0; defenderIndex++)
             {
-                continue;
-            }
-
-            assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
-            var attackerDamageApplication = ApplyDamageToCardObject(
-                cardObjects,
-                assignment.ObjectId,
-                damageAmount,
-                damageTriggeredDestroyTargetObjectIds);
-            combatEvents.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                "战斗中进攻单位造成伤害",
-                BuildCombatDamagePayload(
-                    attackerObjectId,
+                var assignment = defenderAssignments[defenderIndex];
+                var defenderState = cardObjects[assignment.ObjectId];
+                var defenderCombatPower = ResolveBattleCombatPower(
+                    state,
+                    playerZones,
                     assignment.ObjectId,
-                    attackerDamageApplication,
+                    defenderState,
+                    false,
+                    defendingUnitCount,
+                    null,
                     battlefieldId,
-                    "ATTACKER",
-                    attackerState.Power,
-                    assaultBonus,
-                    attackerCombatPower,
-                    CardCombatKeywordNames.Assault,
-                    attackerStaticPowerBonus,
-                    hasMultipleDefenders ? defenderIndex + 1 : null,
-                    hasMultipleDefenders ? assignment.Role : null)));
-            remainingAttackerDamage -= damageAmount;
+                    battlefieldSteadfastObjectId,
+                    out _,
+                    out _);
+                var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
+                var damageAmount = defenderIndex == defenderAssignments.Count - 1
+                    ? remainingAttackerDamage
+                    : Math.Min(remainingAttackerDamage, lethalDamage);
+                if (damageAmount <= 0)
+                {
+                    continue;
+                }
+
+                assignedOverkillDamageToEnemyUnits += Math.Max(0, damageAmount - lethalDamage);
+                var attackerDamageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    assignment.ObjectId,
+                    damageAmount,
+                    damageTriggeredDestroyTargetObjectIds);
+                combatEvents.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    "战斗中进攻单位造成伤害",
+                    BuildCombatDamagePayload(
+                        attackingObjectId,
+                        assignment.ObjectId,
+                        attackerDamageApplication,
+                        battlefieldId,
+                        "ATTACKER",
+                        attackingState.Power,
+                        assaultBonus,
+                        attackerCombatPower,
+                        CardCombatKeywordNames.Assault,
+                        attackerStaticPowerBonus,
+                        hasMultipleDefenders ? defenderIndex + 1 : null,
+                        hasMultipleDefenders ? assignment.Role : null)));
+                remainingAttackerDamage -= damageAmount;
+            }
         }
 
+        var attackerAssignments = BuildBattleDamageAssignmentOrder(attackerObjectIds, attackerStates);
         foreach (var assignment in defenderAssignments)
         {
             var defenderState = defenderStates[assignment.ObjectId];
@@ -4952,25 +4967,55 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            var defenderDamageApplication = ApplyDamageToCardObject(
-                cardObjects,
-                attackerObjectId,
-                defenderCombatPower,
-                damageTriggeredDestroyTargetObjectIds);
-            combatEvents.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                "战斗中防守单位造成伤害",
-                BuildCombatDamagePayload(
-                    assignment.ObjectId,
-                    attackerObjectId,
-                    defenderDamageApplication,
+            var remainingDefenderDamage = defenderCombatPower;
+            for (var attackerIndex = 0; attackerIndex < attackerAssignments.Count && remainingDefenderDamage > 0; attackerIndex++)
+            {
+                var attackerAssignment = attackerAssignments[attackerIndex];
+                var targetAttackerState = cardObjects[attackerAssignment.ObjectId];
+                var targetAttackerCombatPower = ResolveBattleCombatPower(
+                    state,
+                    playerZones,
+                    attackerAssignment.ObjectId,
+                    targetAttackerState,
+                    true,
+                    0,
+                    defendingPlayerId,
                     battlefieldId,
-                    "DEFENDER",
-                    defenderState.Power,
-                    steadfastBonus,
-                    defenderCombatPower,
-                    CardCombatKeywordNames.Steadfast,
-                    defenderStaticPowerBonus)));
+                    battlefieldSteadfastObjectId,
+                    out _,
+                    out _);
+                var lethalDamage = Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
+                var damageAmount = attackerIndex == attackerAssignments.Count - 1
+                    ? remainingDefenderDamage
+                    : Math.Min(remainingDefenderDamage, lethalDamage);
+                if (damageAmount <= 0)
+                {
+                    continue;
+                }
+
+                var defenderDamageApplication = ApplyDamageToCardObject(
+                    cardObjects,
+                    attackerAssignment.ObjectId,
+                    damageAmount,
+                    damageTriggeredDestroyTargetObjectIds);
+                combatEvents.Add(new GameEvent(
+                    "DAMAGE_APPLIED",
+                    "战斗中防守单位造成伤害",
+                    BuildCombatDamagePayload(
+                        assignment.ObjectId,
+                        attackerAssignment.ObjectId,
+                        defenderDamageApplication,
+                        battlefieldId,
+                        "DEFENDER",
+                        defenderState.Power,
+                        steadfastBonus,
+                        defenderCombatPower,
+                        CardCombatKeywordNames.Steadfast,
+                        defenderStaticPowerBonus,
+                        hasMultipleAttackers ? attackerIndex + 1 : null,
+                        hasMultipleAttackers ? attackerAssignment.Role : null)));
+                remainingDefenderDamage -= damageAmount;
+            }
         }
 
         var combatStackItem = new StackItemState(
@@ -4979,7 +5024,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             sourceObjectId: attackerObjectId,
             effectKind: "DECLARE_BATTLE_COMBAT_DAMAGE",
             cardNo: attackerState.CardNo,
-            targetObjectIds: new[] { attackerObjectId }.Concat(defenderObjectIds).ToArray(),
+            targetObjectIds: attackerObjectIds.Concat(defenderObjectIds).ToArray(),
             optionalCosts: optionalCosts);
         IReadOnlyDictionary<string, RunePool> runePools = state.RunePools;
         IReadOnlyList<string> untilEndOfTurnEffects = state.UntilEndOfTurnEffects;
@@ -5277,7 +5322,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (TryResolveBattleWinnerPlayerId(
                 playerZones,
                 cardObjects,
-                attackerObjectId,
+                attackerObjectIds,
                 defenderObjectIds,
                 defendingPlayerId,
                 intent.PlayerId,
@@ -5728,7 +5773,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
-        CloseResolvedBattle(cardObjects, battlefieldId, attackerObjectId, defenderObjectIds, combatEvents);
+        CloseResolvedBattle(cardObjects, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
         combatEvents.AddRange(ResolveBattlefieldControlAfterBattle(
             playerZones,
             cardObjects,
@@ -5768,7 +5813,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldId"] = battlefieldId,
-                    ["attackerObjectIds"] = new[] { attackerObjectId },
+                    ["attackerObjectIds"] = attackerObjectIds.ToArray(),
                     ["defenderObjectIds"] = defenderObjectIds.ToArray(),
                     ["optionalCosts"] = optionalCosts.ToArray(),
                     ["battlefieldTargetObjectIds"] = new[]
@@ -5794,11 +5839,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static void CloseResolvedBattle(
         Dictionary<string, CardObjectState> cardObjects,
         string battlefieldId,
-        string attackerObjectId,
+        IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
         List<GameEvent> events)
     {
-        var participantObjectIds = new[] { attackerObjectId }
+        var participantObjectIds = attackerObjectIds
             .Concat(defenderObjectIds)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
@@ -6119,11 +6164,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         PlayerIntent intent,
         DeclareBattleCommand command,
-        out string attackerObjectId,
+        out IReadOnlyList<string> attackerObjectIds,
         out IReadOnlyList<string> defenderObjectIds,
         out IReadOnlyList<string> optionalCosts)
     {
-        attackerObjectId = string.Empty;
+        attackerObjectIds = [];
         defenderObjectIds = [];
         optionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
 
@@ -6146,31 +6191,37 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var attackerObjectIds = NormalizeTargetObjectIds(command.AttackerObjectIds ?? []);
+        var normalizedAttackerObjectIds = NormalizeTargetObjectIds(command.AttackerObjectIds ?? []);
         var normalizedDefenderObjectIds = NormalizeTargetObjectIds(command.DefenderObjectIds ?? []);
-        if (attackerObjectIds.Count != 1
+        if (normalizedAttackerObjectIds.Count is < 1 or > 2
             || normalizedDefenderObjectIds.Count is < 1 or > 2
+            || normalizedAttackerObjectIds.Count > 1 && normalizedDefenderObjectIds.Count > 1
+            || HasDuplicateObjectIds(normalizedAttackerObjectIds)
             || HasDuplicateObjectIds(normalizedDefenderObjectIds)
-            || normalizedDefenderObjectIds.Contains(attackerObjectIds[0], StringComparer.Ordinal))
+            || normalizedAttackerObjectIds.Any(attackingObjectId =>
+                normalizedDefenderObjectIds.Contains(attackingObjectId, StringComparer.Ordinal)))
         {
             return false;
         }
 
-        attackerObjectId = attackerObjectIds[0];
+        attackerObjectIds = normalizedAttackerObjectIds;
         defenderObjectIds = normalizedDefenderObjectIds;
 
-        var attackerLocation = FindFieldObjectLocation(state.PlayerZones, attackerObjectId);
-        if (attackerLocation is null
-            || !string.Equals(attackerLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
-            || !string.Equals(attackerLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+        foreach (var attackingObjectId in attackerObjectIds)
         {
-            return false;
-        }
+            var attackerLocation = FindFieldObjectLocation(state.PlayerZones, attackingObjectId);
+            if (attackerLocation is null
+                || !string.Equals(attackerLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
+                || !string.Equals(attackerLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+            {
+                return false;
+            }
 
-        if (!state.CardObjects.TryGetValue(attackerObjectId, out var attackerState)
-            || !IsReadyFaceUpUnitForMinimalBattle(attackerState))
-        {
-            return false;
+            if (!state.CardObjects.TryGetValue(attackingObjectId, out var attackerState)
+                || !IsReadyFaceUpUnitForMinimalBattle(attackerState))
+            {
+                return false;
+            }
         }
 
         var hasAssignmentOrderingKeyword = false;
@@ -6209,11 +6260,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         MatchState state,
         string battlefieldObjectId,
         string commandBattlefieldId,
-        string attackerObjectId,
+        IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds)
     {
         return string.Equals(commandBattlefieldId, battlefieldObjectId, StringComparison.Ordinal)
-            && IsObjectLocatedAtBattlefield(state, attackerObjectId, battlefieldObjectId)
+            && attackerObjectIds.All(attackerObjectId => IsObjectLocatedAtBattlefield(state, attackerObjectId, battlefieldObjectId))
             && defenderObjectIds.All(defenderObjectId => IsObjectLocatedAtBattlefield(state, defenderObjectId, battlefieldObjectId));
     }
 
@@ -6474,16 +6525,17 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattleWinnerPlayerId(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
-        string attackerObjectId,
+        IReadOnlyList<string> attackerObjectIds,
         IReadOnlyList<string> defenderObjectIds,
         string? defendingPlayerId,
         string attackingPlayerId,
         out string winnerPlayerId)
     {
         winnerPlayerId = string.Empty;
-        var attackerSurvived = cardObjects.TryGetValue(attackerObjectId, out var attackerState)
+        var attackerSurvived = attackerObjectIds.Any(attackerObjectId =>
+            cardObjects.TryGetValue(attackerObjectId, out var attackerState)
             && attackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && IsObjectOnField(playerZones, attackerObjectId);
+            && IsObjectOnField(playerZones, attackerObjectId));
         var anyDefenderSurvived = defenderObjectIds.Any(defenderObjectId =>
             cardObjects.TryGetValue(defenderObjectId, out var defenderState)
             && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)

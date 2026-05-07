@@ -324,6 +324,10 @@ type DeclareBattleSourceRequirement = {
   sourceObjectId: string;
   cardNo: string;
   displayName: string;
+  minAttackerCount: number;
+  maxAttackerCount: number;
+  attackerCountLabel: string;
+  attackerChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
   minDefenderCount: number;
   maxDefenderCount: number;
   defenderCountLabel: string;
@@ -1219,11 +1223,13 @@ function DeclareBattleComposer({
     [candidate, sourceObjectId]
   );
   const selectedRequirement = requirements[0];
+  const [attackerSelections, setAttackerSelections] = useState<Record<number, string>>({});
   const [defenderSelections, setDefenderSelections] = useState<Record<number, string>>({});
   const [battlefieldId, setBattlefieldId] = useState<string>("");
   const requirementKey = selectedRequirement?.sourceObjectId ?? "";
 
   useEffect(() => {
+    setAttackerSelections({});
     setDefenderSelections({});
     setBattlefieldId(selectedRequirement?.battlefieldChoices[0]?.id ?? "");
   }, [requirementKey, selectedRequirement]);
@@ -1248,12 +1254,30 @@ function DeclareBattleComposer({
     );
   }
 
+  const attackerSlots = Array.from({ length: selectedRequirement.maxAttackerCount }, (_, index) => index);
   const defenderSlots = Array.from({ length: selectedRequirement.maxDefenderCount }, (_, index) => index);
+  const optionalAttackerSlots = attackerSlots.filter((attackerIndex) => attackerIndex > 0);
+  const orderedAttackers = [
+    sourceObjectId,
+    ...optionalAttackerSlots
+      .map((attackerIndex) => attackerSelections[attackerIndex])
+      .filter((attackerId): attackerId is string => Boolean(attackerId))
+  ];
   const orderedDefenders = defenderSlots
     .map((targetIndex) => defenderSelections[targetIndex])
     .filter((targetId): targetId is string => Boolean(targetId));
+  const hasAttackerGap = optionalAttackerSlots.some((attackerIndex) =>
+    !attackerSelections[attackerIndex]
+    && optionalAttackerSlots.slice(attackerIndex).some((laterIndex) => Boolean(attackerSelections[laterIndex])));
+  const missingRequiredAttackerChoice = attackerSlots
+    .slice(1, selectedRequirement.minAttackerCount)
+    .some((attackerIndex) => (selectedRequirement.attackerChoicesByIndex[String(attackerIndex)] ?? []).length === 0);
   const hasTargetGap = defenderSlots.some((targetIndex) =>
     !defenderSelections[targetIndex] && defenderSlots.slice(targetIndex + 1).some((laterIndex) => Boolean(defenderSelections[laterIndex])));
+  const attackerCountValid = orderedAttackers.length >= selectedRequirement.minAttackerCount
+    && orderedAttackers.length <= selectedRequirement.maxAttackerCount
+    && !hasAttackerGap
+    && !missingRequiredAttackerChoice;
   const missingRequiredDefenderChoice = defenderSlots
     .slice(0, selectedRequirement.minDefenderCount)
     .some((targetIndex) => (selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? []).length === 0);
@@ -1267,6 +1291,7 @@ function DeclareBattleComposer({
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
+    && attackerCountValid
     && defenderCountValid
     && battlefieldId
     && onCommand
@@ -1280,7 +1305,7 @@ function DeclareBattleComposer({
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
-        <span>攻击者 1</span>
+        <span>攻击者 {selectedRequirement.attackerCountLabel}</span>
         <span>防守者 {selectedRequirement.defenderCountLabel}</span>
       </div>
       <ChoiceGroup label="战场">
@@ -1295,6 +1320,38 @@ function DeclareBattleComposer({
           </ChoiceButton>
         ))}
       </ChoiceGroup>
+      {optionalAttackerSlots.map((attackerIndex) => {
+        const choices = selectedRequirement.attackerChoicesByIndex[String(attackerIndex)] ?? [];
+        const required = attackerIndex < selectedRequirement.minAttackerCount;
+        return (
+          <ChoiceGroup key={attackerIndex} label={`攻击单位 ${attackerIndex + 1}${required ? "" : "（可选）"}`}>
+            {!required && (
+              <ChoiceButton
+                active={!attackerSelections[attackerIndex]}
+                onClick={() => setAttackerSelections((current) => withoutTargetAt(current, attackerIndex))}
+              >
+                不选择
+              </ChoiceButton>
+            )}
+            {choices.length === 0 && <span className="composer-warning">服务端没有给出该攻击槽候选。</span>}
+            {choices.map((choice) => {
+              const alreadySelected = orderedAttackers.includes(choice.id)
+                && attackerSelections[attackerIndex] !== choice.id;
+              return (
+                <ChoiceButton
+                  active={attackerSelections[attackerIndex] === choice.id}
+                  disabled={alreadySelected}
+                  key={choice.id}
+                  onClick={() => setAttackerSelections((current) => ({ ...current, [attackerIndex]: choice.id }))}
+                  title={choice.reason ?? undefined}
+                >
+                  {choice.label}
+                </ChoiceButton>
+              );
+            })}
+          </ChoiceGroup>
+        );
+      })}
       {defenderSlots.map((targetIndex) => {
         const choices = selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? [];
         const required = targetIndex < selectedRequirement.minDefenderCount;
@@ -1337,6 +1394,9 @@ function DeclareBattleComposer({
       {!selectedRequirement.composable && (
         <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该战斗声明当前不能由前端组合提交。"}</p>
       )}
+      {!attackerCountValid && selectedRequirement.composable && (
+        <p className="composer-warning">请按服务端攻击槽候选完成攻击单位选择。</p>
+      )}
       {!defenderCountValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端防守槽候选完成防守单位选择。</p>
       )}
@@ -1351,7 +1411,7 @@ function DeclareBattleComposer({
           onCommand({
             cmdType: "DECLARE_BATTLE",
             battlefieldId,
-            attackerObjectIds: [sourceObjectId],
+            attackerObjectIds: orderedAttackers,
             defenderObjectIds: orderedDefenders,
             optionalCosts: requiredCosts.length > 0 ? requiredCosts : undefined
           });
@@ -1523,6 +1583,10 @@ function parseDeclareBattleRequirement(value: unknown): DeclareBattleSourceRequi
     sourceObjectId,
     cardNo: stringField(record, "cardNo"),
     displayName: stringField(record, "displayName") || sourceObjectId,
+    minAttackerCount: numberField(record, "minAttackerCount") || 1,
+    maxAttackerCount: numberField(record, "maxAttackerCount") || 1,
+    attackerCountLabel: stringField(record, "attackerCountLabel") || "1 个攻击单位",
+    attackerChoicesByIndex: choiceRecord(record.attackerChoicesByIndex),
     minDefenderCount: numberField(record, "minDefenderCount"),
     maxDefenderCount: numberField(record, "maxDefenderCount"),
     defenderCountLabel: stringField(record, "defenderCountLabel") || "1 个防守单位",
