@@ -27406,6 +27406,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchStatuses.InProgress, result.State.Status);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-JINX-DRAW-001", "P1-JINX-DRAW-002"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("HAND", result.State.ObjectLocations["P1-JINX-DRAW-001"].Zone);
+        Assert.Equal("HAND", result.State.ObjectLocations["P1-JINX-DRAW-002"].Zone);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal));
         Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)));
         Assert.Null(result.State.WinnerPlayerId);
@@ -46279,6 +46281,12 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1",
                     power: 2,
                     tags: [CardObjectTags.UnitCard])
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-JINX"] = new("P1", "LEGEND_ZONE"),
+                ["P1-JINX-DRAW-001"] = new("P1", "MAIN_DECK"),
+                ["P1-JINX-DRAW-002"] = new("P1", "MAIN_DECK")
             });
     }
 

@@ -12573,6 +12573,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerScores = jinxDrawApplication.PlayerScores;
             winnerPlayerId = jinxDrawApplication.WinnerPlayerId;
             rngCursor = jinxDrawApplication.RngCursor;
+            objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
         }
 
         var nextState = state with
