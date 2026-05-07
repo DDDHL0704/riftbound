@@ -265,8 +265,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.PhaseNotAllowed));
         }
 
-        if (command is EndTurnCommand
-            && string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal))
+        if (command is EndTurnCommand)
         {
             return ValueTask.FromResult(ResolveEndTurn(state, intent));
         }
@@ -12175,6 +12174,18 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)
     {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || !string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "END_TURN is only available to the active player during an open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
         var nextPlayerId = !string.IsNullOrWhiteSpace(state.ExtraTurnPlayerId)
             && state.Seats.ContainsKey(state.ExtraTurnPlayerId)
             ? state.ExtraTurnPlayerId

@@ -353,6 +353,69 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsEndTurnFromNonActivePlayer()
+    {
+        var state = PunishmentState(mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-end-turn-out-of-turn", "P2", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("END_TURN is only available to the active player during an open main window.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal("P1", result.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, result.State.Phase);
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Equal(["P1-SPELL-PUNISHMENT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsEndTurnDuringClosedPriorityWindow()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-END-TURN-GUARD",
+                    "P1",
+                    "P1-SPELL-PUNISHMENT",
+                    "UNKNOWN_NOOP_EFFECT",
+                    "UNL-007/219",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-end-turn-closed-window", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("END_TURN is only available to the active player during an open main window.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal("P1", result.State.ActivePlayerId);
+        Assert.Equal("P1", result.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.Main, result.State.Phase);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal("P1", result.State.PriorityPlayerId);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("STACK-END-TURN-GUARD", stackItem.StackItemId);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineAppliesTurnEndSpecialCleanup()
     {
         var fixture = await ConformanceFixture.LoadAsync(
