@@ -249,6 +249,7 @@ type PlayCardSourceRequirement = {
   destinationChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
   paymentResourceChoices: ActionPromptChoiceDto[];
+  paymentResourcePowerByChoice: Record<string, PaymentResourceContribution>;
   availablePower: number;
   availablePowerByTrait: Record<string, number>;
   availablePowerWithPaymentResources: number;
@@ -256,6 +257,17 @@ type PlayCardSourceRequirement = {
   hasteReadyPowerCost: number;
   composable: boolean;
   unsupportedReason?: string;
+};
+
+type PaymentResourceContribution = {
+  trait?: string;
+  power: number;
+};
+
+type PaymentResourceRequirement = {
+  required: boolean;
+  missingPower: number;
+  trait?: string;
 };
 
 type MoveUnitSourceRequirement = {
@@ -430,16 +442,21 @@ function PlayCardComposer({
   const behaviorOptionalCosts = optionalCosts.filter((optionalCost) => !paymentResourceChoiceIds.has(optionalCost));
   const paymentResourceCosts = optionalCosts.filter((optionalCost) => paymentResourceChoiceIds.has(optionalCost));
   const optionalCostChoices = selectedRequirement.optionalCostChoices.filter((choice) => !paymentResourceChoiceIds.has(choice.id));
-  const paymentResourceRequired = playCardPaymentResourceRequired(behaviorOptionalCosts, selectedRequirement);
+  const paymentResourceRequirement = playCardPaymentResourceRequirement(behaviorOptionalCosts, selectedRequirement);
+  const paymentResourceSelectionValid = playCardPaymentResourceSelectionValid(
+    paymentResourceCosts,
+    paymentResourceRequirement,
+    selectedRequirement
+  );
   const commandOptionalCosts = uniqueStrings([
     ...behaviorOptionalCosts,
-    ...(paymentResourceRequired ? paymentResourceCosts : [])
+    ...(paymentResourceRequirement.required && paymentResourceSelectionValid ? paymentResourceCosts : [])
   ]);
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
     && targetCountValid
-    && (!paymentResourceRequired || paymentResourceCosts.length > 0)
+    && paymentResourceSelectionValid
     && onCommand
   );
 
@@ -532,16 +549,26 @@ function PlayCardComposer({
       )}
       {selectedRequirement.paymentResourceChoices.length > 0 && (
         <ChoiceGroup label="支付资源">
-          {selectedRequirement.paymentResourceChoices.map((choice) => (
-            <ChoiceButton
-              active={optionalCosts.includes(choice.id)}
-              key={choice.id}
-              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
-              title={choice.reason ?? undefined}
-            >
-              {choice.label}
-            </ChoiceButton>
-          ))}
+          {selectedRequirement.paymentResourceChoices.map((choice) => {
+            const active = optionalCosts.includes(choice.id);
+            const disabled = playCardPaymentResourceChoiceDisabled(
+              choice.id,
+              paymentResourceCosts,
+              paymentResourceRequirement,
+              selectedRequirement
+            );
+            return (
+              <ChoiceButton
+                active={active}
+                disabled={disabled}
+                key={choice.id}
+                onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+                title={choice.reason ?? undefined}
+              >
+                {choice.label}
+              </ChoiceButton>
+            );
+          })}
         </ChoiceGroup>
       )}
       {!selectedRequirement.composable && (
@@ -550,8 +577,8 @@ function PlayCardComposer({
       {!targetCountValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
       )}
-      {paymentResourceRequired && paymentResourceCosts.length === 0 && selectedRequirement.composable && (
-        <p className="composer-warning">所选费用需要服务端支付资源。</p>
+      {paymentResourceRequirement.required && !paymentResourceSelectionValid && selectedRequirement.composable && (
+        <p className="composer-warning">请选择刚好足以支付所选费用的服务端支付资源。</p>
       )}
       <Button
         disabled={!canSubmit}
@@ -1781,6 +1808,7 @@ function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | u
     destinationChoices: choiceList(record.destinationChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
     paymentResourceChoices: choiceList(record.paymentResourceChoices),
+    paymentResourcePowerByChoice: paymentResourceContributionRecord(record.paymentResourcePowerByChoice),
     availablePower: numberField(record, "availablePower"),
     availablePowerByTrait: numberRecord(record.availablePowerByTrait),
     availablePowerWithPaymentResources: numberField(record, "availablePowerWithPaymentResources"),
@@ -1811,6 +1839,37 @@ function numberRecord(value: unknown): Record<string, number> {
   return Object.fromEntries(
     Object.entries(record)
       .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+  );
+}
+
+function paymentResourceContributionRecord(value: unknown): Record<string, PaymentResourceContribution> {
+  const record = asRecord(value);
+  if (!record) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(record)
+      .map(([key, contribution]): [string, PaymentResourceContribution] | undefined => {
+        const contributionRecord = asRecord(contribution);
+        if (!contributionRecord) {
+          return undefined;
+        }
+
+        const power = numberField(contributionRecord, "power");
+        if (power <= 0) {
+          return undefined;
+        }
+
+        return [
+          key,
+          {
+            trait: nullableStringField(contributionRecord, "trait"),
+            power
+          }
+        ];
+      })
+      .filter((entry): entry is [string, PaymentResourceContribution] => Boolean(entry))
   );
 }
 
@@ -1863,22 +1922,111 @@ function toggleOptionalCost(values: string[], value: string): string[] {
     : [...values.filter((current) => !current.startsWith("SPEND_POWER:")), value];
 }
 
-function playCardPaymentResourceRequired(optionalCosts: string[], requirement: PlayCardSourceRequirement): boolean {
+function playCardPaymentResourceRequirement(
+  optionalCosts: string[],
+  requirement: PlayCardSourceRequirement
+): PaymentResourceRequirement {
   const spendPowerCost = optionalCosts.find((optionalCost) => optionalCost.startsWith("SPEND_POWER:"));
   if (spendPowerCost) {
     const parsed = parseSpendPowerCost(spendPowerCost);
     if (!parsed) {
-      return false;
+      return { required: false, missingPower: 0 };
     }
 
     const availablePower = parsed.trait
       ? requirement.availablePowerByTrait[parsed.trait] ?? 0
       : requirement.availablePower;
-    return parsed.amount > availablePower;
+    const missingPower = Math.max(0, parsed.amount - availablePower);
+    return {
+      required: missingPower > 0,
+      missingPower,
+      trait: parsed.trait
+    };
   }
 
-  return optionalCosts.includes("HASTE_READY")
-    && requirement.hasteReadyPowerCost > requirement.availablePower;
+  if (!optionalCosts.includes("HASTE_READY")) {
+    return { required: false, missingPower: 0 };
+  }
+
+  const missingPower = Math.max(0, requirement.hasteReadyPowerCost - requirement.availablePower);
+  return {
+    required: missingPower > 0,
+    missingPower
+  };
+}
+
+function playCardPaymentResourceSelectionValid(
+  selectedResourceCosts: string[],
+  resourceRequirement: PaymentResourceRequirement,
+  requirement: PlayCardSourceRequirement
+): boolean {
+  if (!resourceRequirement.required) {
+    return selectedResourceCosts.length === 0;
+  }
+
+  if (selectedResourceCosts.length === 0) {
+    return false;
+  }
+
+  return selectedResourceCosts.every((choiceId) =>
+    playCardPaymentResourceChoiceMatches(choiceId, resourceRequirement, requirement))
+    && playCardPaymentResourceSelectionPower(selectedResourceCosts, resourceRequirement, requirement) === resourceRequirement.missingPower;
+}
+
+function playCardPaymentResourceChoiceDisabled(
+  choiceId: string,
+  selectedResourceCosts: string[],
+  resourceRequirement: PaymentResourceRequirement,
+  requirement: PlayCardSourceRequirement
+): boolean {
+  const active = selectedResourceCosts.includes(choiceId);
+  if (!resourceRequirement.required) {
+    return !active;
+  }
+
+  if (!playCardPaymentResourceChoiceMatches(choiceId, resourceRequirement, requirement)) {
+    return !active;
+  }
+
+  if (active) {
+    return false;
+  }
+
+  const contribution = requirement.paymentResourcePowerByChoice[choiceId];
+  if (!contribution) {
+    return true;
+  }
+
+  return playCardPaymentResourceSelectionPower(selectedResourceCosts, resourceRequirement, requirement) + contribution.power
+    > resourceRequirement.missingPower;
+}
+
+function playCardPaymentResourceChoiceMatches(
+  choiceId: string,
+  resourceRequirement: PaymentResourceRequirement,
+  requirement: PlayCardSourceRequirement
+): boolean {
+  const contribution = requirement.paymentResourcePowerByChoice[choiceId];
+  if (!contribution) {
+    return false;
+  }
+
+  return !resourceRequirement.trait
+    || normalizeTrait(contribution.trait) === normalizeTrait(resourceRequirement.trait);
+}
+
+function playCardPaymentResourceSelectionPower(
+  selectedResourceCosts: string[],
+  resourceRequirement: PaymentResourceRequirement,
+  requirement: PlayCardSourceRequirement
+): number {
+  return selectedResourceCosts
+    .filter((choiceId) => playCardPaymentResourceChoiceMatches(choiceId, resourceRequirement, requirement))
+    .reduce((sum, choiceId) => sum + (requirement.paymentResourcePowerByChoice[choiceId]?.power ?? 0), 0);
+}
+
+function normalizeTrait(value?: string): string {
+  return value?.trim().toLowerCase() ?? "";
 }
 
 function parseSpendPowerCost(value: string): { amount: number; trait?: string } | undefined {

@@ -2114,6 +2114,20 @@ public sealed class ConformanceFixtureRunnerTests
             }
         };
 
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePowerByChoice[firstPaymentResourceAction]["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(paymentResourcePowerByChoice[firstPaymentResourceAction]["power"]));
+        Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePowerByChoice[secondPaymentResourceAction]["trait"]));
+        Assert.Equal(1, Assert.IsType<int>(paymentResourcePowerByChoice[secondPaymentResourceAction]["power"]));
+
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-bullet-time-over-recycle-rune-payment", "P1", "PLAY_CARD"),
