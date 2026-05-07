@@ -2282,6 +2282,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             ActivePlayerId = intent.PlayerId,
             RunePools = runePools,
             PlayerZones = playerZones,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones),
             CardObjects = cardObjects,
             PlayerExperience = playerExperience,
             PlayerScores = playerScores,

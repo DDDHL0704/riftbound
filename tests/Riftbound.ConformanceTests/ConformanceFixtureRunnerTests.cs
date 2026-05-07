@@ -26215,7 +26215,14 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendActSpendsExperienceExhaustsLegendAndDraws()
     {
-        var state = LegendActState(experience: 3);
+        var state = LegendActState(experience: 3) with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-POPPY"] = new("P1", "LEGEND"),
+                ["P1-LEGEND-DRAW-001"] = new("P1", "MAIN_DECK")
+            }
+        };
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -26233,6 +26240,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
         Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("HAND", result.State.ObjectLocations["P1-LEGEND-DRAW-001"].Zone);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_ABILITY_ACTIVATED", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_SPENT", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
