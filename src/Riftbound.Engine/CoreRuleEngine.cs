@@ -1689,6 +1689,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Battlefield unit experience ability source must expose a known unit card number.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         if (sourceState.IsExhausted)
         {
             return RejectWithCorePrompts(

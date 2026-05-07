@@ -2290,6 +2290,65 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesActivateAbilitySourceWhenGrantedUnitHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-activate-unknown-source-room",
+            24,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-MUTATION-GARDEN", "P1-BATTLEFIELD-UNKNOWN-ABILITY-SOURCE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-MUTATION-GARDEN"] = new(
+                    "P1-BATTLEFIELD-MUTATION-GARDEN",
+                    cardNo: "UNL-213/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-UNKNOWN-ABILITY-SOURCE"] = new(
+                    "P1-BATTLEFIELD-UNKNOWN-ABILITY-SOURCE",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var abilityCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+
+        Assert.False(abilityCandidate.Enabled);
+        Assert.Empty(abilityCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(abilityCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+    }
+
+    [Fact]
     public void ActionPromptActivateAbilityMetadataFiltersSourcesTargetsAndSpellshieldTax()
     {
         var noResourceState = new MatchState(

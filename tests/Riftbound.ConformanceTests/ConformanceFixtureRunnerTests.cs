@@ -29174,6 +29174,36 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityRejectsSourceWithoutCardNo()
+    {
+        var state = BattlefieldUnitExperienceAbilityState();
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"] = cardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"] with
+        {
+            CardNo = null
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-unknown-source", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79BattlefieldReturnedUnitPaysOneAndCallsRune()
     {
         var state = BattlefieldReturnCallRuneState();
