@@ -4150,6 +4150,40 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static bool AreRecycleRunePaymentResourceActionsRequired(
+        RunePool currentPool,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> recycledRuneObjectIds,
+        int extraPowerCost,
+        IReadOnlyDictionary<string, int> extraPowerCostByTrait)
+    {
+        if (recycledRuneObjectIds.Count == 0)
+        {
+            return true;
+        }
+
+        if (CanPayPowerCost(currentPool, extraPowerCost, extraPowerCostByTrait))
+        {
+            return false;
+        }
+
+        for (var index = 0; index < recycledRuneObjectIds.Count; index++)
+        {
+            var adjustedPool = ApplyRecycleRunePaymentToPool(
+                currentPool,
+                cardObjects,
+                recycledRuneObjectIds
+                    .Where((_, currentIndex) => currentIndex != index)
+                    .ToArray());
+            if (CanPayPowerCost(adjustedPool, extraPowerCost, extraPowerCostByTrait))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static Dictionary<string, RunePool> ApplyRecycleRunePaymentResourceActions(
         IReadOnlyDictionary<string, RunePool> currentRunePools,
         Dictionary<string, PlayerZones> playerZones,
@@ -11586,8 +11620,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
-        if (recycledPaymentRuneObjectIds.Count > 0
-            && CanPayPowerCost(currentPool, extraPowerCost, extraPowerCostByTrait))
+        if (!AreRecycleRunePaymentResourceActionsRequired(
+                currentPool,
+                state.CardObjects,
+                recycledPaymentRuneObjectIds,
+                extraPowerCost,
+                extraPowerCostByTrait))
         {
             rejection = RejectWithCorePrompts(
                 state,
