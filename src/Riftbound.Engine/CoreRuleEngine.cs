@@ -12518,7 +12518,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Graveyard = drawResult.Graveyard,
             Base = currentZones.Base.Concat(calledRunes).ToArray()
         };
-        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         foreach (var runeObjectId in calledRunes)
         {
             objectLocations[runeObjectId] = new ObjectLocationState(turnPlayerId, MoveUnitBaseZone);

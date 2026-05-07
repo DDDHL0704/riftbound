@@ -30384,6 +30384,7 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["reason"] as string, "LETHAL_DAMAGE", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-FROST-HOLD"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-FROST-FALLING"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-BATTLEFIELD-FROST-FALLING"].Zone);
         Assert.Contains("P2-BATTLEFIELD-FROST-SURVIVOR", result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-FROST-SURVIVOR"].Damage);
         Assert.Contains("P1", result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -45032,6 +45033,16 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FROST-HOLD"] = new("P1", "BATTLEFIELD", "P1-MAIN"),
+                ["P1-BATTLEFIELD-FROST-FALLING"] = new("P1", "BATTLEFIELD", "P1-MAIN"),
+                ["P2-BATTLEFIELD-FROST-SURVIVOR"] = new("P2", "BATTLEFIELD", "P2-MAIN"),
+                ["P2-MAIN-001"] = new("P2", "MAIN_DECK"),
+                ["P2-RUNE-001"] = new("P2", "RUNE_DECK"),
+                ["P2-RUNE-002"] = new("P2", "RUNE_DECK"),
+                ["P2-RUNE-003"] = new("P2", "RUNE_DECK")
             }
         };
     }
