@@ -68,6 +68,7 @@
     },
     "cardObjects": {
       "P2-HOSTILE-TAKEOVER-TARGET": {
+        "cardNo": "SFD·125/221",
         "ownerId": "P2",
         "controllerId": "P2",
         "damage": 0,
@@ -187,6 +188,7 @@
       },
       "cardObjects": {
         "P2-HOSTILE-TAKEOVER-TARGET": {
+          "cardNo": "SFD·125/221",
           "ownerId": "P2",
           "controllerId": "P1",
           "damage": 0,

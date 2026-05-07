@@ -11493,6 +11493,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState))
+        {
+            if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+            {
+                rejection = RejectWithCorePrompts(
+                    state,
+                    "PLAY_CARD source must expose a known card number.",
+                    ErrorCodes.UnsupportedCardBehavior);
+                return false;
+            }
+
+            if (!string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
+            {
+                rejection = RejectWithCorePrompts(
+                    state,
+                    "PLAY_CARD source card number must match the submitted card number.",
+                    ErrorCodes.InvalidTarget);
+                return false;
+            }
+        }
+
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var rengarUnitPlayedTargetObjectId = ExtractRengarUnitPlayedTriggerTarget(
             state,
@@ -11509,6 +11530,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             targetObjectIds,
             out targetObjectIds);
         if (!HasValidTargetCount(state, intent.PlayerId, behavior, targetObjectIds)
+            || !PlayCardTargetsExposeKnownCardNumbers(state, targetObjectIds)
             || !HasValidTotalTargetPower(state, behavior, targetObjectIds)
             || !AreTargetsAfterFirstPowerLessThanFirstTarget(state, behavior, targetObjectIds)
             || !HasRequiredAnyTargetTag(state, behavior, targetObjectIds)
@@ -14327,6 +14349,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return selectedPlayerIds.SetEquals(playerIds);
+    }
+
+    private static bool PlayCardTargetsExposeKnownCardNumbers(
+        MatchState state,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        return targetObjectIds.All(targetObjectId =>
+            !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || !PlayCardTargetRequiresKnownCardNumber(targetState)
+            || !string.IsNullOrWhiteSpace(targetState.CardNo));
+    }
+
+    private static bool PlayCardTargetRequiresKnownCardNumber(CardObjectState targetState)
+    {
+        return !string.IsNullOrWhiteSpace(targetState.OwnerId)
+            || !string.IsNullOrWhiteSpace(targetState.ControllerId);
     }
 
     private static bool HasRequiredAnyTargetTag(

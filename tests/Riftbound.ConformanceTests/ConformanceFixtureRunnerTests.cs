@@ -828,6 +828,135 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4PlayCardCommandRejectsSourceWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNKNOWN-PLAY-SOURCE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNKNOWN-PLAY-SOURCE"] = new(
+                    "P1-HAND-UNKNOWN-PLAY-SOURCE",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-play-card-unknown-cardno-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-HAND-UNKNOWN-PLAY-SOURCE", "OGN·009/298", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("PLAY_CARD source must expose a known card number.", result.ErrorMessage);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-HAND-UNKNOWN-PLAY-SOURCE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Null(result.State.CardObjects["P1-HAND-UNKNOWN-PLAY-SOURCE"].CardNo);
+        Assert.Empty(result.Events);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4PlayCardCommandRejectsSourceCardNoMismatch()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HEXTECH-RAY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HEXTECH-RAY"] = new(
+                    "P1-SPELL-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-play-card-source-cardno-mismatch", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-HEXTECH-RAY", "SFD·125/221", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("PLAY_CARD source card number must match the submitted card number.", result.ErrorMessage);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-HEXTECH-RAY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("OGN·009/298", result.State.CardObjects["P1-SPELL-HEXTECH-RAY"].CardNo);
+        Assert.Empty(result.Events);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4PlayCardCommandRejectsTargetWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HEXTECH-RAY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-UNKNOWN-PLAY-TARGET"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HEXTECH-RAY"] = new(
+                    "P1-SPELL-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-UNKNOWN-PLAY-TARGET"] = new(
+                    "P2-UNIT-UNKNOWN-PLAY-TARGET",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-play-card-unknown-cardno-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-HEXTECH-RAY", "OGN·009/298", ["P2-UNIT-UNKNOWN-PLAY-TARGET"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-HEXTECH-RAY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Null(result.State.CardObjects["P2-UNIT-UNKNOWN-PLAY-TARGET"].CardNo);
+        Assert.Empty(result.Events);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4PunishmentBaseUnitTargetRejectedFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -30195,6 +30324,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BATTLEFIELD-PUNISHMENT-TARGET"] = new(
                     "P1-BATTLEFIELD-PUNISHMENT-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -45253,6 +45383,7 @@ public sealed class ConformanceFixtureRunnerTests
             controllerId: "P1");
         cardObjects["P2-LEONA-STUN-TARGET"] = new(
             "P2-LEONA-STUN-TARGET",
+            cardNo: "SFD·125/221",
             power: 2,
             tags: [CardObjectTags.UnitCard],
             ownerId: "P2",
@@ -45282,6 +45413,7 @@ public sealed class ConformanceFixtureRunnerTests
             controllerId: "P1");
         cardObjects["P1-SIVIR-RUNE-RECYCLE"] = new(
             "P1-SIVIR-RUNE-RECYCLE",
+            cardNo: "UNL-R01",
             tags: [CardObjectTags.RuneCard],
             ownerId: "P1",
             controllerId: "P1");
@@ -45317,6 +45449,7 @@ public sealed class ConformanceFixtureRunnerTests
             controllerId: "P1");
         cardObjects["P2-SIVIR-DESTROY-TARGET"] = new(
             "P2-SIVIR-DESTROY-TARGET",
+            cardNo: "SFD·125/221",
             power: 3,
             tags: [CardObjectTags.UnitCard],
             ownerId: "P2",
@@ -45350,6 +45483,7 @@ public sealed class ConformanceFixtureRunnerTests
             controllerId: "P2");
         cardObjects["P2-SIVIR-SELF-DESTROY-TARGET"] = new(
             "P2-SIVIR-SELF-DESTROY-TARGET",
+            cardNo: "SFD·125/221",
             power: 3,
             tags: [CardObjectTags.UnitCard],
             ownerId: "P2",
@@ -45459,12 +45593,14 @@ public sealed class ConformanceFixtureRunnerTests
             controllerId: "P1");
         cardObjects["P2-EZREAL-TARGET-001"] = new(
             "P2-EZREAL-TARGET-001",
+            cardNo: "SFD·125/221",
             power: 3,
             tags: [CardObjectTags.UnitCard],
             ownerId: "P2",
             controllerId: "P2");
         cardObjects["P2-EZREAL-TARGET-002"] = new(
             "P2-EZREAL-TARGET-002",
+            cardNo: "SFD·125/221",
             power: 3,
             tags: [CardObjectTags.UnitCard],
             ownerId: "P2",

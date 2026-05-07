@@ -68,6 +68,7 @@
     },
     "cardObjects": {
       "P2-HOST-LEAVE-UNIT": {
+        "cardNo": "SFD·125/221",
         "ownerId": "P2",
         "controllerId": "P2",
         "power": 3,

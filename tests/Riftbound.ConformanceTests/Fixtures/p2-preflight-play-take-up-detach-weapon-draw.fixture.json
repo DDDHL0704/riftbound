@@ -63,6 +63,7 @@
     },
     "cardObjects": {
       "P2-UNIT-TAKE-UP-001": {
+        "cardNo": "SFD·125/221",
         "ownerId": "P2",
         "controllerId": "P2",
         "damage": 0,
@@ -70,6 +71,7 @@
         "tags": ["CARD_TYPE:UNIT"]
       },
       "P2-EQUIPMENT-TAKE-UP-WEAPON": {
+        "cardNo": "SFD·022/221",
         "ownerId": "P2",
         "controllerId": "P2",
         "damage": 0,
@@ -225,6 +227,7 @@
       },
       "cardObjects": {
         "P2-UNIT-TAKE-UP-001": {
+          "cardNo": "SFD·125/221",
           "ownerId": "P2",
           "controllerId": "P2",
           "damage": 0,
@@ -232,6 +235,7 @@
           "tags": ["CARD_TYPE:UNIT"]
         },
         "P2-EQUIPMENT-TAKE-UP-WEAPON": {
+          "cardNo": "SFD·022/221",
           "ownerId": "P2",
           "controllerId": "P2",
           "damage": 0,
