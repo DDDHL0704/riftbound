@@ -38294,6 +38294,85 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandEmitsNoResultWhenAllParticipantsAreDestroyed()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GAREN"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-GAREN"] = new(
+                    "P1-BATTLEFIELD-GAREN",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "OGS·007/024"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-036/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-no-result", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-GAREN"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var damageEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-DEFENDER", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 4));
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-GAREN", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 4));
+
+        var noResultEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
+        Assert.Equal("BATTLEFIELD:P1-MAIN", noResultEvent.Payload["battlefieldId"]);
+        Assert.Equal("P1", noResultEvent.Payload["attackingPlayerId"]);
+        Assert.Equal("P2", noResultEvent.Payload["defendingPlayerId"]);
+        Assert.Equal("ALL_PARTICIPANTS_DESTROYED", noResultEvent.Payload["reason"]);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], Assert.IsType<string[]>(noResultEvent.Payload["attackerObjectIds"]));
+        Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], Assert.IsType<string[]>(noResultEvent.Payload["defenderObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingAttackerObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingDefenderObjectIds"]));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+
+        Assert.Equal(1, result.State.Tick);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-GAREN"));
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.False(result.State.BattleState.IsActive);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandInPriorityWindowIsRejectedUntilCombatSystemExists()
     {
         var state = PunishmentState(mana: 0) with

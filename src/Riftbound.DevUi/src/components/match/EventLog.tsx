@@ -8,6 +8,7 @@ const eventKindLabels: Record<string, string> = {
   BATTLEFIELD_CONQUERED: "征服战场",
   BATTLEFIELD_HELD: "据守战场",
   BATTLEFIELD_STANDBY_REMOVED: "待命清理",
+  BATTLE_NO_RESULT: "战斗无结果",
   CARD_DRAWN: "抽牌",
   CARD_HIDDEN: "布置待命",
   CARD_PLAYED: "打出卡牌",

@@ -7010,6 +7010,7 @@ public sealed class MatchSession : IMatchSession
             "battle-multi-defender" => BuildBattleMultiDefenderScenario(current, seed),
             "battle-same-priority-bulwark" => BuildBattleSamePriorityBulwarkScenario(current, seed),
             "battle-multi-attacker" => BuildBattleMultiAttackerScenario(current, seed),
+            "battle-no-result" => BuildBattleNoResultScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
             "battlefield-held-minion" => BuildBattlefieldHeldMinionScenario(current, seed),
@@ -8202,6 +8203,48 @@ public sealed class MatchSession : IMatchSession
                     "P2-BATTLE-MULTI-DEFENDER",
                     cardNo: "UNL-036/219",
                     power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattleNoResultScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303075,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLE-NO-RESULT-GAREN"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    battlefields: ["P2-BATTLE-NO-RESULT-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-NO-RESULT-GAREN"] = new(
+                    "P1-BATTLE-NO-RESULT-GAREN",
+                    cardNo: "OGS·007/024",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-NO-RESULT-DEFENDER"] = new(
+                    "P2-BATTLE-NO-RESULT-DEFENDER",
+                    cardNo: "UNL-036/219",
+                    power: 4,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)

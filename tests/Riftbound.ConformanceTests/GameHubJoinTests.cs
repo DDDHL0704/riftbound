@@ -1313,6 +1313,73 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79CombatNoResultSeedEmitsNoResultAndMovesBothParticipantsToGraveyard()
+    {
+        const string roomId = "p7-9-combat-no-result";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battle-no-result", "seed-p7-9-combat-no-result");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-NO-RESULT-GAREN", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-NO-RESULT-DEFENDER", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-NO-RESULT-GAREN"],
+              "defenderObjectIds": ["P2-BATTLE-NO-RESULT-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-combat-no-result", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLE-NO-RESULT-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLE-NO-RESULT-DEFENDER", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 4));
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLE-NO-RESULT-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLE-NO-RESULT-GAREN", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 4));
+        var noResultEvent = Assert.Single(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
+        Assert.Equal("ALL_PARTICIPANTS_DESTROYED", noResultEvent.Payload["reason"]);
+        Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingAttackerObjectIds"]));
+        Assert.Empty(Assert.IsType<string[]>(noResultEvent.Payload["survivingDefenderObjectIds"]));
+
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Equal(["P1-BATTLE-NO-RESULT-GAREN"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(["P2-BATTLE-NO-RESULT-DEFENDER"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+        var timing = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Timing);
+        var battle = Assert.IsType<Dictionary<string, object?>>(timing["battle"]);
+        Assert.False(Assert.IsType<bool>(battle["isActive"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldDrawSeedOffersBattlefieldDestinationAndDraws()
     {
         const string roomId = "p7-9-battlefield-held-draw";

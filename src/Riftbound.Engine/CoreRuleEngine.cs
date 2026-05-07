@@ -5771,6 +5771,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 rngCursor = drawApplication.RngCursor;
             }
         }
+        else
+        {
+            combatEvents.Add(BuildBattleNoResultEvent(
+                playerZones,
+                cardObjects,
+                battlefieldId,
+                attackerObjectIds,
+                defenderObjectIds,
+                intent.PlayerId,
+                defendingPlayerId));
+        }
 
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         CloseResolvedBattle(cardObjects, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
@@ -6520,6 +6531,49 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsMasterYiLevelLegendCardNo(string? cardNo)
     {
         return cardNo is MasterYiLevelLegendCardNo or "UNL-231/219" or "UNL-231*/219";
+    }
+
+    private static GameEvent BuildBattleNoResultEvent(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string battlefieldId,
+        IReadOnlyList<string> attackerObjectIds,
+        IReadOnlyList<string> defenderObjectIds,
+        string attackingPlayerId,
+        string? defendingPlayerId)
+    {
+        var survivingAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
+        var survivingDefenderObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds);
+        var reason = survivingAttackerObjectIds.Length == 0 && survivingDefenderObjectIds.Length == 0
+            ? "ALL_PARTICIPANTS_DESTROYED"
+            : "BOTH_SIDES_RETAIN_UNITS";
+
+        return new GameEvent(
+            "BATTLE_NO_RESULT",
+            "战斗没有胜者",
+            new Dictionary<string, object?>
+            {
+                ["battlefieldId"] = battlefieldId,
+                ["attackingPlayerId"] = attackingPlayerId,
+                ["defendingPlayerId"] = defendingPlayerId,
+                ["attackerObjectIds"] = attackerObjectIds.ToArray(),
+                ["defenderObjectIds"] = defenderObjectIds.ToArray(),
+                ["survivingAttackerObjectIds"] = survivingAttackerObjectIds,
+                ["survivingDefenderObjectIds"] = survivingDefenderObjectIds,
+                ["reason"] = reason
+            });
+    }
+
+    private static string[] SurvivingBattleUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> objectIds)
+    {
+        return objectIds
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, objectId))
+            .ToArray();
     }
 
     private static bool TryResolveBattleWinnerPlayerId(
