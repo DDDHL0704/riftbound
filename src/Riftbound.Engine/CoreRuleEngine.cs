@@ -1123,6 +1123,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (targetLocation is null
             || !string.Equals(targetLocation.Value.PlayerId, intent.PlayerId, StringComparison.Ordinal)
             || !state.CardObjects.TryGetValue(command.TargetObjectId, out var knownTargetState)
+            || string.IsNullOrWhiteSpace(knownTargetState.CardNo)
             || knownTargetState.IsFaceDown
             || !knownTargetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !FieldIdentityMatchesZone(knownTargetState, targetLocation.Value.PlayerId))

@@ -4222,6 +4222,7 @@ internal static class ActionPromptBuilder
     {
         return IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown;
     }
 
@@ -7977,6 +7978,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-hide-card-source-prompt" => BuildUnknownHideCardSourcePromptScenario(current, seed),
             "unknown-reveal-card-source-prompt" => BuildUnknownRevealCardSourcePromptScenario(current, seed),
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
+            "unknown-assemble-target-prompt" => BuildUnknownAssembleTargetPromptScenario(current, seed),
             "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
@@ -8920,6 +8922,52 @@ public sealed class MatchSession : IMatchSession
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
                     cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownAssembleTargetPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304171,
+            4171,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(0, 0, powerByTrait: new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone: ["P1-EQUIPMENT-ASSEMBLE-TARGET-FILTER", "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-ASSEMBLE-TARGET-FILTER"] = new(
+                    "P1-EQUIPMENT-ASSEMBLE-TARGET-FILTER",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-UNKNOWN-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,

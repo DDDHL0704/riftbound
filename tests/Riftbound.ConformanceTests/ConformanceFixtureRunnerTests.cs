@@ -37587,6 +37587,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -37649,6 +37650,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -37668,6 +37670,63 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.Events);
         Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
         Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+    }
+
+    [Fact]
+    public async Task P4AssembleEquipmentCommandRejectsTargetWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
+                ["P1-UNIT-UNKNOWN-ASSEMBLE-TARGET"] = new(
+                    "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-assemble-equipment-unknown-cardno-target", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Null(result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD", "P1-UNIT-UNKNOWN-ASSEMBLE-TARGET"], result.State.PlayerZones["P1"].Base);
     }
 
     [Fact]
@@ -37702,6 +37761,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -37758,6 +37818,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-RUNE-RED-ASSEMBLE-PAYMENT"] = new(
@@ -37840,6 +37901,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -37912,6 +37974,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2"),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
@@ -37965,6 +38028,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             },
@@ -38034,6 +38098,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38164,6 +38229,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38206,6 +38272,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38253,6 +38320,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38303,6 +38371,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38351,6 +38420,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38447,6 +38517,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
@@ -38493,6 +38564,7 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"]),
                 ["P1-UNIT-ASSEMBLE-TARGET"] = new(
                     "P1-UNIT-ASSEMBLE-TARGET",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
             }
