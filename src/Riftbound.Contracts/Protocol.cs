@@ -126,6 +126,9 @@ public sealed record HideCardCommand(
 public sealed record TapRuneCommand(
     string SourceObjectId) : GameCommand("TAP_RUNE");
 
+public sealed record RecycleRuneCommand(
+    string SourceObjectId) : GameCommand("RECYCLE_RUNE");
+
 public sealed record RevealCardCommand(
     string SourceObjectId,
     string CardNo,

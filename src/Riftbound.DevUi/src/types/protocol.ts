@@ -142,6 +142,7 @@ export type GameCommand =
   | { cmdType: "END_TURN" }
   | { cmdType: "PLAY_CARD"; sourceObjectId: string; cardNo: string; targetObjectIds: string[]; mode?: string; optionalCosts?: string[]; destination?: string }
   | { cmdType: "TAP_RUNE"; sourceObjectId: string }
+  | { cmdType: "RECYCLE_RUNE"; sourceObjectId: string }
   | { cmdType: "MOVE_UNIT"; sourceObjectId: string; origin?: string; destination?: string; optionalCosts?: string[] }
   | { cmdType: "ASSEMBLE_EQUIPMENT"; sourceObjectId: string; targetObjectId?: string; optionalCosts?: string[] }
   | { cmdType: "DECLARE_BATTLE"; battlefieldId?: string; attackerObjectIds?: string[]; defenderObjectIds?: string[]; battlefieldTargetObjectIds?: string[]; optionalCosts?: string[] }

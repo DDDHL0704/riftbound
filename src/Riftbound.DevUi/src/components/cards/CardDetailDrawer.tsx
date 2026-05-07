@@ -215,6 +215,10 @@ function commandForSourceCandidate(
     return { cmdType: "TAP_RUNE", sourceObjectId };
   }
 
+  if (candidate.action === "RECYCLE_RUNE") {
+    return { cmdType: "RECYCLE_RUNE", sourceObjectId };
+  }
+
   return undefined;
 }
 

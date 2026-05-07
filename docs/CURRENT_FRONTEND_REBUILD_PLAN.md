@@ -41,7 +41,7 @@
 - SignalR 方法：`JoinRoom(roomId, playerId, reconnectToken?)`、`Reconnect(roomId, playerId, reconnectToken)`、`RequestSnapshot(roomId, playerId)`、`Ready(roomId, playerId, clientIntentId)`、`SubmitIntent(roomId, playerId, clientIntentId, cmd)`。
 - Development-only：`SeedScenario(roomId, playerId, scenarioId, clientIntentId)`，只能用于本地 smoke 和开发场景，不得伪装成生产对局能力。
 - 服务端消息：`Joined`、`Snapshot`、`Prompt`、`Events`、`Error`。
-- 命令 DTO：`SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`PLAY_CARD`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、`HIDE_CARD`、`TAP_RUNE`、`REVEAL_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`。
+- 命令 DTO：`SUBMIT_DECK`、`MULLIGAN`、`PASS_PRIORITY`、`PASS_FOCUS`、`PASS`、`END_TURN`、`PLAY_CARD`、`ACTIVATE_ABILITY`、`LEGEND_ACT`、`HIDE_CARD`、`TAP_RUNE`、`RECYCLE_RUNE`、`REVEAL_CARD`、`MOVE_UNIT`、`ASSEMBLE_EQUIPMENT`、`DECLARE_BATTLE`。
 - Snapshot 已提供 `players`、`lanes`、`stack`、`timing`、`turnState`，其中 `timing` 已包含 `turnWindow`、`spellDuel`、`battle`、`battlefieldTasks`、`pendingTaskQueue`、`continuousEffects` 等服务端权威视图。
 - Prompt 已提供 `actions` 与结构化 `candidates`，包含 `sources`、`targets`、`destinations`、`modes`、`optionalCosts`、`metadata`。
 - 图鉴与卡牌状态可从 `/catalog/behavior-specs` 和 `/catalog/keyword-coverage` 获得；当前只能展示 `representative-rule-pass`，不能宣称 full official rule pass。
@@ -145,14 +145,17 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第十六片。
+状态：完成第十七片。
 
 交付：
 
 - 前端发现 `TAP_RUNE` 被 prompt 暴露但协议/规则引擎不可执行，已按核心规则和自查文档 8.2 补齐基础符文“横置获得 1 法力”服务端路径。
 - `TAP_RUNE` 新增协议命令、JSON mapper、规则解析、`RUNE_TAPPED` / `MANA_GAINED` 事件、runePool snapshot 更新、符文横置状态更新。
 - `ActionPromptBuilder` 现在只把基地中未横置、正面、受控的符文作为 `TAP_RUNE.sources`；横置后该来源会从后续候选中移除。
+- `RECYCLE_RUNE` 新增协议命令、JSON mapper、规则解析、`RUNE_RECYCLED` / `POWER_GAINED` 事件、runePool typed power snapshot 更新、符文牌堆区域移动与对象位置同步。
+- `ActionPromptBuilder` 现在只把基地中正面、受控、带 `COLOR:*` 特性的符文作为 `RECYCLE_RUNE.sources`；回收后该来源离开基地并进入符文牌堆底部，前端不自行判断符文特性或资源获得。
 - 卡牌详情抽屉开始读取当前 `ActionPrompt.candidates`，并在具体卡牌上展示服务端给出的来源型候选；基础符文可从详情抽屉直接提交“横置符文”。
+- 卡牌详情抽屉和全局行动面板接入“回收符文”：单来源时可直接提交，多来源时只允许从服务端给出的具体来源卡牌详情中提交。
 - 全局行动面板只在服务端候选可直接提交时启用按钮；`PLAY_CARD` 等仍需目标/模式/费用/目的地选择的动作会显示“需选择”并保持禁用，避免前端提交不完整命令。
 - `PLAY_CARD` prompt 现在增加每来源 `sourceRequirements` 元数据，由服务端按具体手牌暴露最小/最大目标数、目标范围中文标签、逐目标槽候选、可选模式、可选费用、目的地候选和当前是否可由前端组合提交。
 - `PLAY_CARD` 来源进一步收紧：需要目标的牌必须有服务端过滤后的必需目标槽候选才会作为可执行来源暴露，避免前端出现“可点但必然被服务端拒绝”的假入口。
@@ -231,6 +234,7 @@
 - Browser Use smoke 第十四片：IAB backend 可用，优先使用 Browser Use。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093` 以无持久化配置启动，房间 `local`；P2 在前端设置 `serverUrl = http://127.0.0.1:5093`、`playerId = P2` 并连接房间，后台 SignalR 让 P1 加入并 seed `battlefield-illegal-standby`。P2 页面规则队列显示中文“状态清理”“待命清理”，prompt 原因显示 `REMOVE_ILLEGAL_STANDBY`，服务端 snapshot 的战场 pendingTaskKinds 同步包含 `REMOVE_ILLEGAL_STANDBY`，规则队列阶段为 `STATE_BASED_CLEANUP`、活动任务为非法待命清理任务，prompt 为 `WAIT`；刷新页面后 P2 点击“连接/重连”能恢复同一权威 snapshot。
 - 后台 Chrome/CDP smoke 第十五片：Browser Use IAB backend 本次不可用，按不抢前台的 smoke 原则使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-battlefield-resolutions-4`；P1 由 Web UI 连接，P2 后台 SignalR 入座，后台开发连接 seed `battlefield-held-draw` 并提交 P1 `DECLARE_BATTLE`。页面事件日志显示“据守战场”“战场控制结算”，规则队列从服务端 `timing.battlefieldResolutions` 只读显示 `据守：P2` 与 `控制结算：无控制者`；reload 后 P1 点击“连接/重连”恢复同一权威结果。
 - 后台 Chrome/CDP smoke 第十六片：Browser Use IAB backend 本次不可用，继续使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-reconnect-fallback-1`；后台先让 P1/P2 入座并 seed `battlefield-held-draw`，随后浏览器本地故意写入过期 `riftbound.session.{room}.P1` reconnect token。P1 在 Web UI 点击“连接/重连”后，前端先收到服务端 reconnect 拒绝，再自动清理旧 token 并 fallback 到 `JoinRoom`，最终恢复含“帝柳之林”的权威 snapshot，localStorage 写回新的 `rt_` token。该补丁只处理连接恢复，不改变任何游戏命令候选或规则裁决。
+- 后台 Chrome/CDP smoke 第十七片：Browser Use IAB backend 本次不可用，按不抢前台原则使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-recycle-rune-browser-mov6ieuw-1`；后台 SignalR 将正式房间推进到 P2 主阶段并横置一张基础符文后，P2 Web UI 连接房间、进入对战桌面、点击基地符文详情中的“回收符文”。页面事件日志显示“回收符文”“获得符能”，额外 SignalR 观察者确认 authoritative snapshot 中 `P2-RUNE-SFD-R03-10` 已从基地移到符文牌堆底部、`runeDeckCount 10 -> 11`、`runePool.powerByTrait.blue = 1`；reload 后点击“连接/重连”仍恢复该最终 snapshot。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -248,7 +252,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**83%**
+估算整体进度：**84%**
 
 已经完成：
 
@@ -259,6 +263,7 @@
 - 房间/连接/提交卡组/ready/起手调度到主阶段的正式双人 Web 闭环已由服务端 prompt 驱动，不再由前端常驻按钮绕过。
 - 对战桌面已有卡牌详情抽屉，公开对象细节和隐藏信息保护已通过 Browser Use smoke。
 - 基础符文横置资源能力已由服务端补齐并接入卡牌详情/行动面板；前端不再展示不可解析的 `TAP_RUNE` 假操作。
+- 基础符文回收资源能力已补代表性 open-main 服务端路径并接入卡牌详情/行动面板；前端只按 `RECYCLE_RUNE.sources` 提交，当前仍不宣称完整 reaction payment-window 支持。
 - `PLAY_CARD` 首个产品级选择器已由服务端每来源元数据驱动，可真实打出无目标单位牌并走完优先权结算。
 - `MOVE_UNIT` 已有服务端每来源元数据和前端卡牌详情移动组合器，可真实把基地单位移动到战场；前端不再自行判断移动目的地或游走费用。
 - `ASSEMBLE_EQUIPMENT` 已有长剑代表路径的服务端每来源元数据、红色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。

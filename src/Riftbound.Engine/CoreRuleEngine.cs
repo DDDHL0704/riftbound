@@ -15,6 +15,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int StandbyHideManaCost = 1;
     private const string BasicRuneTapAbilityId = "BASIC_RUNE_EXHAUST_GAIN_1_MANA";
     private const int BasicRuneTapManaGain = 1;
+    private const string BasicRuneRecycleAbilityId = "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER";
+    private const int BasicRuneRecyclePowerGain = 1;
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
     private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
@@ -296,6 +298,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (command is TapRuneCommand tapRuneCommand)
         {
             return ValueTask.FromResult(ResolveTapRune(state, intent, tapRuneCommand));
+        }
+
+        if (command is RecycleRuneCommand recycleRuneCommand)
+        {
+            return ValueTask.FromResult(ResolveRecycleRune(state, intent, recycleRuneCommand));
         }
 
         if (command is RevealCardCommand revealCardCommand)
@@ -3876,6 +3883,155 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static ResolutionResult ResolveRecycleRune(
+        MatchState state,
+        PlayerIntent intent,
+        RecycleRuneCommand command)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, intent.PlayerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "RECYCLE_RUNE is only available during the active player's open main window.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        if (string.IsNullOrWhiteSpace(command.SourceObjectId)
+            || !state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
+            || !zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
+            || !state.CardObjects.TryGetValue(command.SourceObjectId, out var runeState)
+            || !runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            || !string.Equals(runeState.ControllerId, intent.PlayerId, StringComparison.Ordinal)
+            || runeState.IsFaceDown
+            || !TryGetRuneTrait(runeState, out var runeTrait))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "RECYCLE_RUNE requires a face-up controlled trait rune in the player's base.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones[intent.PlayerId] = zones with
+        {
+            Base = zones.Base
+                .Where(objectId => !string.Equals(objectId, command.SourceObjectId, StringComparison.Ordinal))
+                .ToArray(),
+            RuneDeck = zones.RuneDeck
+                .Concat([command.SourceObjectId])
+                .ToArray()
+        };
+
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[command.SourceObjectId] = runeState with
+        {
+            IsFaceDown = false,
+            IsExhausted = false
+        };
+
+        var runePools = state.RunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var currentPool = runePools.TryGetValue(intent.PlayerId, out var pool) ? pool : RunePool.Empty;
+        var powerByTrait = currentPool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var currentTraitPower)
+            ? currentTraitPower + BasicRuneRecyclePowerGain
+            : BasicRuneRecyclePowerGain;
+        var nextPool = currentPool with
+        {
+            PowerByTrait = powerByTrait
+        };
+        runePools[intent.PlayerId] = nextPool;
+
+        var objectLocations = state.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "RUNE_DECK");
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            RunePools = runePools,
+            ObjectLocations = objectLocations,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
+
+        var events = new List<GameEvent>
+        {
+            new(
+                "RUNE_RECYCLED",
+                $"{intent.PlayerId} 回收符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["cardNo"] = runeState.CardNo,
+                    ["abilityId"] = BasicRuneRecycleAbilityId,
+                    ["trait"] = runeTrait,
+                    ["power"] = BasicRuneRecyclePowerGain,
+                    ["runeDeckCountAfter"] = playerZones[intent.PlayerId].RuneDeck.Count
+                }),
+            new(
+                "POWER_GAINED",
+                $"{intent.PlayerId} 通过基础符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["sourceObjectId"] = command.SourceObjectId,
+                    ["abilityId"] = BasicRuneRecycleAbilityId,
+                    ["trait"] = runeTrait,
+                    ["power"] = BasicRuneRecyclePowerGain,
+                    ["powerAfter"] = nextPool.TotalPower,
+                    ["traitPowerAfter"] = powerByTrait[runeTrait]
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            BuildCorePrompts(nextState));
+    }
+
+    private static bool TryGetRuneTrait(CardObjectState runeState, out string runeTrait)
+    {
+        foreach (var tag in runeState.Tags)
+        {
+            if (!tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var trait = RuneTrait.Normalize(tag["COLOR:".Length..]);
+            if (!string.IsNullOrWhiteSpace(trait))
+            {
+                runeTrait = trait;
+                return true;
+            }
+        }
+
+        runeTrait = string.Empty;
+        return false;
+    }
+
+    private static string RuneTraitLabel(string trait)
+    {
+        return trait switch
+        {
+            RuneTrait.Red => "红色",
+            RuneTrait.Green => "绿色",
+            RuneTrait.Blue => "蓝色",
+            RuneTrait.Yellow => "黄色",
+            RuneTrait.Orange => "橙色",
+            RuneTrait.Purple => "紫色",
+            _ => trait
+        };
     }
 
     private static bool HasFreeStandbyHidePermission(MatchState state, string playerId)
@@ -21251,6 +21407,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             "DECLARE_BATTLE",
             "HIDE_CARD",
             "TAP_RUNE",
+            "RECYCLE_RUNE",
             "LEGEND_ACT"
         };
         var actions = implementedSourceDrivenActions

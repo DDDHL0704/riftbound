@@ -1541,6 +1541,76 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower()
+    {
+        const string runeObjectId = "P1-RUNE-RED-001";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new("P1", "BASE"),
+                ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var recycleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.True(recycleCandidate.Enabled);
+        Assert.Contains(recycleCandidate.Sources ?? [], source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-recycle-red", "P1", "RECYCLE_RUNE"),
+            new RecycleRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, result.State.RunePools["P1"].TotalPower);
+        Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[runeObjectId].Zone);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trait"] as string, RuneTrait.Red, StringComparison.Ordinal));
+        var powerEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        Assert.Equal(RuneTrait.Red, powerEvent.Payload["trait"]);
+        Assert.Equal(1, powerEvent.Payload["power"]);
+        Assert.Equal(1, powerEvent.Payload["traitPowerAfter"]);
+
+        var postPrompt = result.Prompts["P1"];
+        Assert.DoesNotContain(postPrompt.Actions, action => string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPortalpalRescueBanishPlayBase()
     {
         var fixture = await ConformanceFixture.LoadAsync(

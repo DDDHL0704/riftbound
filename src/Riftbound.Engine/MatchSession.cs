@@ -2100,6 +2100,7 @@ public sealed record ResolutionResult(
                     "DECLARE_BATTLE",
                     "HIDE_CARD",
                     "TAP_RUNE",
+                    "RECYCLE_RUNE",
                     "LEGEND_ACT",
                     "PASS",
                     "END_TURN"
@@ -2451,6 +2452,7 @@ internal static class ActionPromptBuilder
             || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
             || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
             || string.Equals(action, "TAP_RUNE", StringComparison.Ordinal)
+            || string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
         var requiresTargetChoices = string.Equals(action, "ASSEMBLE_EQUIPMENT", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
@@ -2497,6 +2499,10 @@ internal static class ActionPromptBuilder
             "TAP_RUNE" => zones.Base
                 .Where(objectId => IsTapRuneSource(state, playerId, objectId))
                 .Select(objectId => ObjectChoice(state, objectId, "ready controlled base rune"))
+                .ToArray(),
+            "RECYCLE_RUNE" => zones.Base
+                .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+                .Select(objectId => ObjectChoice(state, objectId, "controlled trait base rune"))
                 .ToArray(),
             "ACTIVATE_ABILITY" => ActivateAbilitySourceRequirements(state, playerId)
                 .Select(requirement => requirement.SourceObjectId)
@@ -2727,6 +2733,16 @@ internal static class ActionPromptBuilder
             && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && !cardObject.IsExhausted;
+    }
+
+    private static bool IsRecycleRuneSource(MatchState state, string playerId, string objectId)
+    {
+        return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && cardObject.Tags.Any(tag => tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))
+            && !cardObject.IsFaceDown;
     }
 
     private static IReadOnlyList<ActivateAbilityPromptRequirement> ActivateAbilitySourceRequirements(
@@ -4548,6 +4564,12 @@ internal static class ActionPromptBuilder
                 ["sourcePolicy"] = "ready-controlled-base-rune",
                 ["resourceGain"] = "1-mana"
             },
+            "RECYCLE_RUNE" => new Dictionary<string, object?>
+            {
+                ["sourcePolicy"] = "controlled-trait-base-rune",
+                ["resourceGain"] = "1-matching-trait-power",
+                ["destination"] = "rune-deck-bottom"
+            },
             "ACTIVATE_ABILITY" => ActivateAbilityMetadataFor(state, playerId),
             "MOVE_UNIT" => MoveUnitMetadataFor(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
@@ -5105,6 +5127,7 @@ internal static class ActionPromptBuilder
             "DECLARE_BATTLE" => "声明战斗",
             "HIDE_CARD" => "隐藏卡牌",
             "TAP_RUNE" => "横置符文",
+            "RECYCLE_RUNE" => "回收符文",
             "LEGEND_ACT" => "传奇行动",
             "PASS" => "让过",
             "PASS_PRIORITY" => "让过优先权",

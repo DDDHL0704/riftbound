@@ -91,6 +91,7 @@ export function actionLabel(action: string): string {
     END_TURN: "结束回合",
     PLAY_CARD: "打出卡牌",
     TAP_RUNE: "横置符文",
+    RECYCLE_RUNE: "回收符文",
     MOVE_UNIT: "移动单位",
     ASSEMBLE_EQUIPMENT: "装配装备",
     DECLARE_BATTLE: "声明战斗",

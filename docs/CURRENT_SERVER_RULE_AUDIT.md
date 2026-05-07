@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot 补丁
+审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / basic rune recycle 补丁
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,11 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-005 第二十一批补充：基础符文现在补齐代表性 `RECYCLE_RUNE` 服务端命令。普通开环中，服务端只会把基地中正面、受控、带 `COLOR:*` 特性的符文作为回收来源公开；提交后符文回到所属者符文牌堆底部，来源重置为未横置/正面，玩家获得 1 点与被回收符文特性相同的 typed power，并广播 `RUNE_RECYCLED` / `POWER_GAINED`。
+- 前端/集成补充：协议类型、行动面板、卡牌详情抽屉和事件日志已接入 `RECYCLE_RUNE`。前端只在服务端 `ActionPrompt.candidates` 暴露合法来源时启用“回收符文”，多来源时仍要求用户点具体卡牌详情提交，不从卡面文本或客户端资源池自行裁决。
+- 已补测试：新增 `CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower` 覆盖横置基础符文可被回收、移入 rune deck、typed power 增加、对象位置同步和事件广播；扩展 `OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 覆盖正式 Hub 开局中横置后回收符文的权威路径；同步更新 legacy/java fixture 期望中的 open-main action 列表。
+- 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower|FullyQualifiedName~OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub|FullyQualifiedName~GameCommandMapperParsesOfficialDeckAndMulliganPayloads"` 通过 3/3；fixture runner/shape 相关目标回归通过 52/52；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 88/88；`source ../../scripts/dev-env.sh && npm run build` 通过。Browser Use IAB backend 本次不可用，按不抢前台原则使用后台 Chrome/CDP smoke：Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-recycle-rune-browser-mov6ieuw-1`；P2 前端连接后点击基地符文详情中的“回收符文”，页面显示“回收符文”“获得符能”，额外 SignalR 观察者确认 authoritative snapshot 中 `P2-RUNE-SFD-R03-10` 从基地移到符文牌堆、`runeDeckCount 10 -> 11`、`runePool.powerByTrait.blue = 1`，reload/reconnect 后仍恢复最终 snapshot。
+- 复审结论补充：本批关闭的是“基础符文回收获得同特性符能完全缺失”的代表性 open-main 路径；整体结论仍为 **NOT READY**。官方文本要求该资源技能可作为 `[反应]` 在支付费用步骤产生资源，当前还不是完整 PaymentEngine / reaction payment-window 集成。
 - P0-002/P0-004 第十八批已落地：战场待命对象不再计入 battlefield occupant。`SnapshotDto.Lanes.battlefields[].occupantObjectIds` 现在只包含正面、非待命单位；`standbyObjectIds` 单独表达待命对象，避免战场争夺/控制结算把面朝下待命牌当成占据单位。
 - P0-002/P0-004 第十八批补充：Development `battlefield-contest-stack` seed 新增 `P1-STANDBY-CONTEST-001`，用于覆盖“原控制者失去战场控制后，其非法待命牌必须离开待命区”的代表路径。`DECLARE_BATTLE` 后的战场控制结算会清理不再由当前战场控制者控制的待命对象，把它们翻面并移入所属者墓地，广播 `BATTLEFIELD_STANDBY_REMOVED`，并同步 `ObjectLocations` 到 `GRAVEYARD`。
 - 前端/集成补充：事件日志新增 `BATTLEFIELD_STANDBY_REMOVED` 中文标签“待命清理”，并将任务队列 phase/kind 中文化展示。前端仍只展示服务端 snapshot / prompt / events，不自行判断待命是否合法或是否应移入墓地。
@@ -253,7 +258,7 @@
 
 ### P0-005 彩色符能、普通费用、符能费用与资源技能模型不足
 
-当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径和基础符文横置得法力，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，回收符文与完整 PaymentEngine 仍待统一**
+当前状态：**PARTIALLY RESOLVED / typed pool 已覆盖 PLAY_CARD、代表性非出牌支付、一个 battlefield trigger 支付路径和基础符文横置得法力、代表性回收得同特性符能，MOVE_UNIT、ASSEMBLE_EQUIPMENT、ACTIVATE_ABILITY 与 LEGEND_ACT 已有每来源服务端候选，完整 PaymentEngine 与 reaction payment window 仍待统一**
 
 规则依据：自查文档 8、15；核心规则关于 `A/C`、阵营符能、费用支付、符文技能、可选费用、Spellshield/Encourage/Echo/Haste 等费用分支。
 
@@ -268,19 +273,20 @@
 - `ASSEMBLE_EQUIPMENT` prompt 现在公开每来源 `sourceRequirements`，包括代表性长剑装配目标、红色符能费用、必需费用 token 和可组合状态；前端已按该元数据提交装配命令。
 - `ACTIVATE_ABILITY` prompt 现在公开每来源 `sourceRequirements`，包括代表性 Vi/Xerath/蜕变花园授予能力来源、目标槽、资源费用、Spellshield 加税过滤、横置来源和立即结算状态；前端已按该元数据提交激活能力命令。
 - `LEGEND_ACT` prompt 现在公开每来源 `sourceRequirements`，包括代表性传奇行动来源、能力、目标槽、经验/资源费用、前置条件、横置来源和立即结算状态；前端已按该元数据提交 Poppy 传奇行动命令。依赖第一目标再决定第二目标的武装类传奇行动暂以 `composable=false` 禁用前端提交。
-- 仍缺：回收基础符文获得同特性符能、战场技能、Haste/Echo/Spellshield 等所有支付路径和依赖型费用目标选择都统一进入同一个官方费用模型。
+- `RECYCLE_RUNE` 现在实现基础符文代表性 open-main 回收路径，来源回到底部符文牌堆，并按 `COLOR:*` 标签向 `PowerByTrait` 增加 1 点同特性符能。
+- 仍缺：把回收基础符文作为真正 `[反应]` 支付窗口资源技能接入统一 PaymentEngine；战场技能、Haste/Echo/Spellshield 等所有支付路径和依赖型费用目标选择也仍待进入同一个官方费用模型。
 
-现象：服务端现在可以在 `PLAY_CARD` 的可选符能支付中表达并校验指定特性，例如 `SPEND_POWER:red:2` 会要求红色符能并只扣红色；旧 fixtures 的泛化 `power` 仍按任意符能兼容。装备装配、两个代表性主动技能和一个战场据守支付触发也可以用 `PowerByTrait` 支付泛化符能费用。普通开环 prompt 不再把无服务端来源、基础费用不足的出牌、非正面/战斗中移动源、无可支付装配源、无可支付/可选目标激活能力源、无可支付/时点不合法传奇行动源或不可横置符文展示为 enabled。基础符文横置会横置来源并向 runePool 增加 1 法力。`MOVE_UNIT` 已能按具体来源暴露基地到战场、战场回基地和可定位游走候选，`ASSEMBLE_EQUIPMENT` 已能按具体来源暴露红色装配目标，`ACTIVATE_ABILITY` 已能按具体来源暴露代表性能力与目标槽，`LEGEND_ACT` 已能按具体传奇来源暴露代表性传奇行动与经验/目标要求，前端只按这些候选提交命令。但同阵营符能、多符能组合、回收符文获得同特性符能，以及由 legend/battlefield/skill 产生的复杂支付来源选择仍未统一。
+现象：服务端现在可以在 `PLAY_CARD` 的可选符能支付中表达并校验指定特性，例如 `SPEND_POWER:red:2` 会要求红色符能并只扣红色；旧 fixtures 的泛化 `power` 仍按任意符能兼容。装备装配、两个代表性主动技能和一个战场据守支付触发也可以用 `PowerByTrait` 支付泛化符能费用。普通开环 prompt 不再把无服务端来源、基础费用不足的出牌、非正面/战斗中移动源、无可支付装配源、无可支付/可选目标激活能力源、无可支付/时点不合法传奇行动源、不可横置符文或不可回收符文展示为 enabled。基础符文横置会横置来源并向 runePool 增加 1 法力；基础符文回收会把来源回收到符文牌堆底部，并向 runePool 增加 1 点同特性符能。`MOVE_UNIT` 已能按具体来源暴露基地到战场、战场回基地和可定位游走候选，`ASSEMBLE_EQUIPMENT` 已能按具体来源暴露红色装配目标，`ACTIVATE_ABILITY` 已能按具体来源暴露代表性能力与目标槽，`LEGEND_ACT` 已能按具体传奇来源暴露代表性传奇行动与经验/目标要求，前端只按这些候选提交命令。但同阵营符能、多符能组合、回收符文在支付费用步骤作为反应资源技能使用，以及由 legend/battlefield/skill 产生的复杂支付来源选择仍未统一。
 
-最小复现场景：P1 拥有 `powerByTrait.red = 2` 时打出《弹幕时间》并提交 `SPEND_POWER:red:2` 会成功入栈且只消耗红色；如果只有 `powerByTrait.blue = 3`，同一命令会以 `INSUFFICIENT_COST` 拒绝且手牌、资源和结算链不变。P1 只有 `powerByTrait.red = 1` 且普通 `Power = 0` 时，也可以装配长剑、启动 Vi/Xerath 的代表性泛化符能技能，并在支付后清空对应 typed 符能。P2 只有 `powerByTrait.red = 4` 且普通 `Power = 0` 时，能量枢纽据守支付 4 符能得分也会成功并扣空 red。需要 `[A]`、`[C]`、同阵营 Haste 支付、Spellshield 多目标加税或 Echo 复杂费用的更广路径仍未完整。
+最小复现场景：P1 拥有 `powerByTrait.red = 2` 时打出《弹幕时间》并提交 `SPEND_POWER:red:2` 会成功入栈且只消耗红色；如果只有 `powerByTrait.blue = 3`，同一命令会以 `INSUFFICIENT_COST` 拒绝且手牌、资源和结算链不变。P1 只有 `powerByTrait.red = 1` 且普通 `Power = 0` 时，也可以装配长剑、启动 Vi/Xerath 的代表性泛化符能技能，并在支付后清空对应 typed 符能。P2 只有 `powerByTrait.red = 4` 且普通 `Power = 0` 时，能量枢纽据守支付 4 符能得分也会成功并扣空 red。正式开局后，P2 横置基础蓝色符文获得 1 法力，再回收同一符文会把它移入符文牌堆底部并获得 `powerByTrait.blue = 1`。需要 `[A]`、支付步骤中的 `[C]` 反应资源技能、同阵营 Haste 支付、Spellshield 多目标加税或 Echo 复杂费用的更广路径仍未完整。
 
 建议修复：
 - 继续把所有支付都通过统一 `PaymentEngine` 校验，支持普通费用、符能费用、额外/可选费用、替代费用、减费/加费、符文技能。
 - 为 `CardBehaviorDefinition` 或 BehaviorSpec 费用模型补充官方颜色需求，而不是只靠客户端传入 `SPEND_POWER:<trait>:<amount>`。
 
 建议测试：
-- 已新增：指定红色符能支付成功扣对应 trait；指定红色但只有蓝色时拒绝且状态不变；装备装配、Vi 技能、Xerath 技能和能量枢纽据守得分触发可以用 typed 符能支付泛化符能费用；出牌/移动/装配/激活能力/传奇行动/TAP_RUNE prompt 对基础不合法来源禁用；基础符文横置得 1 法力；`MOVE_UNIT.sourceRequirements` 覆盖基地单位来源、起点、模式、目的地候选和可选费用边界；`ACTIVATE_ABILITY.sourceRequirements` 覆盖 Vi/Xerath 来源、目标槽和 Spellshield 加税过滤；`LEGEND_ACT.sourceRequirements` 覆盖 Poppy/Yasuo/Jax 来源、能力、目标槽、费用和不可组合依赖型双目标原因。
-- 待补：`[A]`、`[C]`、回收符文、单阵营/多阵营费用、Haste 彩色支付、Spellshield 多目标加税、Echo 费用、支付失败不改变状态。
+- 已新增：指定红色符能支付成功扣对应 trait；指定红色但只有蓝色时拒绝且状态不变；装备装配、Vi 技能、Xerath 技能和能量枢纽据守得分触发可以用 typed 符能支付泛化符能费用；出牌/移动/装配/激活能力/传奇行动/TAP_RUNE/RECYCLE_RUNE prompt 对基础不合法来源禁用；基础符文横置得 1 法力；基础符文回收得 1 点同特性符能并进入符文牌堆；`MOVE_UNIT.sourceRequirements` 覆盖基地单位来源、起点、模式、目的地候选和可选费用边界；`ACTIVATE_ABILITY.sourceRequirements` 覆盖 Vi/Xerath 来源、目标槽和 Spellshield 加税过滤；`LEGEND_ACT.sourceRequirements` 覆盖 Poppy/Yasuo/Jax 来源、能力、目标槽、费用和不可组合依赖型双目标原因。
+- 待补：`[A]`、支付步骤中的 `[C]` 反应资源技能、单阵营/多阵营费用、Haste 彩色支付、Spellshield 多目标加税、Echo 费用、支付失败不改变状态。
 
 ## P1 问题
 

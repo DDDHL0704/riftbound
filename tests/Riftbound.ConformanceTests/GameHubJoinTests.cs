@@ -380,6 +380,39 @@ public sealed class GameHubJoinTests
             postTapPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
         Assert.DoesNotContain(postTapRuneCandidate.Sources ?? [], source => string.Equals(source.Id, runeSourceId, StringComparison.Ordinal));
+
+        var recycleRuneCandidate = Assert.Single(
+            postTapPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.True(recycleRuneCandidate.Enabled);
+        Assert.Contains(recycleRuneCandidate.Sources ?? [], source => string.Equals(source.Id, runeSourceId, StringComparison.Ordinal));
+
+        var recycleRuneClients = new RecordingHubClients();
+        await CreateHub(
+                recycleRuneClients,
+                new RecordingGroupManager(),
+                string.Equals(activePlayerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2",
+                registry)
+            .SubmitIntent(roomId, activePlayerId, "recycle-rune-active", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "RECYCLE_RUNE",
+                sourceObjectId = runeSourceId
+            }));
+
+        Assert.Empty(recycleRuneClients.CallerClient.Errors);
+        var recycleEvents = EventsFor(recycleRuneClients);
+        Assert.Contains(recycleEvents, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Contains(recycleEvents, gameEvent => string.Equals(gameEvent.Kind, "POWER_GAINED", StringComparison.Ordinal));
+        var recycleRuneSnapshot = SnapshotFor(recycleRuneClients, activePlayerId);
+        var recyclePlayer = PlayerView(recycleRuneSnapshot, activePlayerId);
+        var recycleRunePool = Assert.IsType<Dictionary<string, object?>>(recyclePlayer["runePool"]);
+        Assert.Equal(1, Assert.IsType<int>(recycleRunePool["mana"]));
+        Assert.Equal(1, Assert.IsType<int>(recycleRunePool["power"]));
+        var recyclePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(recycleRunePool["powerByTrait"]);
+        Assert.Single(recyclePowerByTrait);
+        var recycleZones = ZoneView(recyclePlayer);
+        Assert.DoesNotContain(runeSourceId, StringList(recycleZones["base"]));
+        Assert.True(Assert.IsType<int>(recycleZones["runeDeckCount"]) > 0);
     }
 
     [Fact]
