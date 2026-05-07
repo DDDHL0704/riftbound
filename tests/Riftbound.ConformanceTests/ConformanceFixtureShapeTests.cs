@@ -1064,6 +1064,92 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptSpellDuelFocusOnlyExposesPlayCardWhenSourceIsComposable()
+    {
+        var emptyFocusState = new MatchState(
+            "prompt-spell-duel-focus-room",
+            16,
+            4,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty
+            },
+            focusPlayerId: "P1");
+
+        var emptyPrompt = ResolutionResult.BuildPrompts(emptyFocusState)["P1"];
+        Assert.Equal(["PASS_FOCUS"], emptyPrompt.Actions);
+        Assert.DoesNotContain(
+            emptyPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        var playableFocusState = emptyFocusState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HEXTECH-RAY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HEXTECH-RAY"] = new(
+                    "P1-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-UNIT"] = new(
+                    "P2-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var playablePrompt = ResolutionResult.BuildPrompts(playableFocusState)["P1"];
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS"], playablePrompt.Actions);
+        var playCandidate = Assert.Single(
+            playablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-HEXTECH-RAY", StringComparison.Ordinal));
+        Assert.Contains(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P2-BATTLEFIELD-UNIT", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ActionPromptFiltersMoveUnitSourcesToFaceUpNonCombatUnits()
     {
         var state = new MatchState(

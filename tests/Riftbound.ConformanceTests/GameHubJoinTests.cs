@@ -562,6 +562,103 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6SpellDuelFocusSeedExposesPlayableSwiftCardPrompt()
+    {
+        const string roomId = "p6-3b-response-window-focus-prompt";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "spell-duel-focus", "seed-p6-spell-duel-focus");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var seedEvents = EventsFor(seedClients);
+        Assert.Contains(seedEvents, gameEvent => string.Equals(gameEvent.Kind, "DEV_SCENARIO_SEEDED", StringComparison.Ordinal));
+        Assert.Equal(2, seedClients.GroupClient.Snapshots.Count);
+        Assert.Equal(2, seedClients.GroupClient.Prompts.Count);
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        Assert.Equal("SPELL_DUEL_OPEN", p1Snapshot.Timing["timingState"]);
+        Assert.Equal("P1", p1Snapshot.Timing["focusPlayerId"]);
+        var p1View = PlayerView(p1Snapshot, "P1");
+        var p1Zones = ZoneView(p1View);
+        Assert.Contains("P1-SPELL-HEXTECH-RAY", StringList(p1Zones["hand"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1View["objects"]);
+        var p1Spell = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-SPELL-HEXTECH-RAY"]);
+        Assert.Equal("OGN·009/298", Assert.IsType<string>(p1Spell["cardNo"]));
+        Assert.Contains(
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Spell["tags"]),
+            tag => string.Equals(tag, CardObjectTags.SpellCard, StringComparison.Ordinal));
+
+        var p2ViewFromP1 = PlayerView(p1Snapshot, "P2");
+        var p2ObjectsFromP1 = Assert.IsType<Dictionary<string, object?>>(p2ViewFromP1["objects"]);
+        var p2Target = Assert.IsType<Dictionary<string, object?>>(p2ObjectsFromP1["P2-UNIT-HEXTECH-RAY-001"]);
+        Assert.Equal("SFD·125/221", Assert.IsType<string>(p2Target["cardNo"]));
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        Assert.True(p1Prompt.Actionable);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS"], p1Prompt.Actions);
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Sources ?? [],
+            source => string.Equals(source.Id, "P1-SPELL-HEXTECH-RAY", StringComparison.Ordinal));
+        Assert.Contains(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P2-UNIT-HEXTECH-RAY-001", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-SPELL-HEXTECH-RAY", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("OGN·009/298", Assert.IsType<string>(sourceRequirement["cardNo"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]);
+        Assert.Contains(
+            firstTargetChoices,
+            target => string.Equals(target.Id, "P2-UNIT-HEXTECH-RAY-001", StringComparison.Ordinal));
+
+        var p2Prompt = PromptFor(seedClients, "P2");
+        Assert.False(p2Prompt.Actionable);
+        Assert.Contains("WAIT", p2Prompt.Actions);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-play-hextech-ray-focus", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-HEXTECH-RAY",
+                cardNo = "OGN·009/298",
+                targetObjectIds = new[] { "P2-UNIT-HEXTECH-RAY-001" }
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "CARD_PLAYED", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Contains(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        var playP1Prompt = PromptFor(playClients, "P1");
+        Assert.True(playP1Prompt.Actionable);
+        Assert.Contains("PASS_PRIORITY", playP1Prompt.Actions);
+    }
+
+    [Fact]
     public async Task P6MovementAndScoreSeedsBroadcastCoreSnapshotsInDevelopment()
     {
         var movementRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);

@@ -2225,7 +2225,7 @@ internal static class ActionPromptBuilder
     public static IReadOnlyList<string> SpellDuelFocusActions(MatchState state, string playerId)
     {
         var actions = new List<string>();
-        if (HasSpellDuelPlayableHandSource(state, playerId))
+        if (SourcesFor(state, playerId, "PLAY_CARD")?.Count > 0)
         {
             actions.Add("PLAY_CARD");
         }
@@ -2238,31 +2238,6 @@ internal static class ActionPromptBuilder
 
         actions.Add("PASS_FOCUS");
         return actions;
-    }
-
-    private static bool HasSpellDuelPlayableHandSource(MatchState state, string playerId)
-    {
-        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.Hand)
-        {
-            if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
-                || string.IsNullOrWhiteSpace(cardObject.CardNo))
-            {
-                return true;
-            }
-
-            if (CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
-                && CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public static ActionPromptDto Build(
@@ -6588,6 +6563,7 @@ public sealed class MatchSession : IMatchSession
             "basic-play" => BuildBasicPlayScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
+            "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -6768,8 +6744,74 @@ public sealed class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P2-UNIT-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"])
+                ["P1-SPELL-HEXTECH-RAY"] = new(
+                    "P1-SPELL-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
+    }
+
+    private static MatchState BuildSpellDuelFocusScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303023,
+            93,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    hand: ["P1-SPELL-HEXTECH-RAY"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-UNIT-HEXTECH-RAY-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HEXTECH-RAY"] = new(
+                    "P1-SPELL-HEXTECH-RAY",
+                    cardNo: "OGN·009/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-HEXTECH-RAY-001"] = new(
+                    "P2-UNIT-HEXTECH-RAY-001",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+
+        return state with
+        {
+            TimingState = TimingStates.SpellDuelOpen,
+            FocusPlayerId = seed.P1,
+            PassedFocusPlayerIds = []
+        };
     }
 
     private static MatchState BuildEchoStackScenario(MatchState current, DevScenarioSeed seed)

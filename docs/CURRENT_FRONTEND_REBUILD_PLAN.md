@@ -145,7 +145,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第七片。
+状态：完成第八片。
 
 交付：
 
@@ -181,14 +181,20 @@
 - 卡牌详情抽屉新增战斗声明组合器：只读取服务端 `sourceRequirements` 渲染攻击者、战场、防守槽、必需费用和确认按钮，确认命令只提交服务端提供的 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds`、`optionalCosts`，不从卡面文本、关键词或客户端战场状态自行裁决。
 - Development `battle-declare` seed 已补齐攻防单位的 cardNo、owner/controller 和单位标签，避免 smoke 场景出现 prompt 来源可见但 snapshot 仍显示卡背的断裂。
 - 当前已通过真实 UI 点击己方战场《大力仙灵》，详情抽屉展示 `DECLARE_BATTLE` 组合器、战场“己方主战场”、防守者 `P2-BATTLE-DEFENDER-001` 和必需费用“战斗分配”；确认后事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`，后续 prompt 收敛为 `END_TURN`。
-- 仍待后续批次补：带目标法术、复杂可选费用/费用目标和法术对决响应窗口的完整 UI；部分双目标依赖型传奇行动仍需 PaymentEngine/目标依赖模型后再开放提交；战斗仍是 direct/minimal 代表路径，完整 battle task lifecycle 仍需服务端后续补齐。
+- `SPELL_DUEL_OPEN` 焦点窗口的 `PLAY_CARD` 暴露已收紧到同一套服务端 `sourceRequirements`：只有存在可支付、合法时点、目标槽可组合的服务端来源时才显示 `PLAY_CARD`，避免前端出现空的响应窗口操作。
+- Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
+- 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
+- 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
+- 仍待后续批次补：更多带目标法术族、复杂可选费用/费用目标、完整法术对决/战斗 task lifecycle UI；部分双目标依赖型传奇行动仍需 PaymentEngine/目标依赖模型后再开放提交；战斗仍是 direct/minimal 代表路径，完整 battle task lifecycle 仍需服务端后续补齐。
 
 验收：
 
 - `source ../../scripts/dev-env.sh && npm run build`：通过。
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，0 warning/0 error。
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 85/85。
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"`：通过 44/44。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 86/86。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"`：通过 45/45。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6SpellDuel"`：通过 2/2。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6SwiftKeywordAllowsHextechRayInSpellDuelFocusWindow"`：通过 1/1。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"`：通过 29/29。
 - Browser Use smoke：P1/P2 通过 UI 创建/加入房间、提交卡组、ready、双方在对战桌面执行 `MULLIGAN` 进入 `MAIN`；P2 点击基地符文《灵光符文》打开详情抽屉，详情中出现服务端候选“横置符文”，点击后事件日志出现 `RUNE_TAPPED` / `MANA_GAINED`，我方法力从 0 变为 1，符文状态变成“横置”；刷新/重连后全局单来源“横置符文”按钮可执行第二张符文，法力变为 2；随后执行 `END_TURN`，事件日志显示回合结束清理、符文池清空、P1 回合开始和召出符文。
 - Browser Use smoke 第二片：P1/P2 正式房间重跑，双方提交 deck/ready/mulligan 后进入 `MAIN`；P2 重连视角横置两张符文，点击手牌《军团后卫》打开详情抽屉；抽屉展示 `PLAY_CARD` 组合器、费用 2、目标 0、目的地“基地/己方主战场”和“确认打出”；确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`；P2/P1 依次让过优先权后结算，事件日志出现 `STACK_ITEM_RESOLVED`、`UNIT_PLAYED_TO_BASE`，P2 基地公开对象增加《军团后卫》；P2 执行 `END_TURN` 后进入 P1 主阶段并显示回合开始事件。
@@ -197,6 +203,7 @@
 - Computer Use smoke 第五片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用 Computer Use。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5173` 下打开房间 `smoke-activate-1`；通过 Development-only `SeedScenario(battlefield-unit-experience-ability)` 准备蜕变花园授予能力来源；P1 对战桌面显示 `ACTIVATE_ABILITY` 候选，全局按钮因需选择来源保持禁用；点击 `P1-BATTLEFIELD-EXPERIENCE-UNIT` 后详情抽屉展示服务端驱动的激活能力组合器，确认后事件日志出现 `ABILITY_ACTIVATED`、`UNIT_EXHAUSTED`、`BATTLEFIELD_TRIGGER_RESOLVED`、`EXPERIENCE_GAINED`。额外 SignalR 校验确认最终 snapshot 中 `experience = 1`、来源 `exhausted = true`、后续 prompt 为 `MOVE_UNIT,END_TURN`。
 - Computer Use smoke 第六片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用 Computer Use。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-legend-1`；通过 Development-only `SeedScenario(legend-act)` 准备 Poppy 传奇行动；P1 对战桌面显示 `LEGEND_ACT` 候选，全局按钮因需选择来源保持禁用；点击 `P1-LEGEND-POPPY` 后详情抽屉展示服务端驱动的传奇行动组合器，确认后事件日志出现 `LEGEND_ABILITY_ACTIVATED`、`EXPERIENCE_SPENT`、`LEGEND_EXHAUSTED`、`CARD_DRAWN`，最终 snapshot 显示 P1 经验 0、Poppy 横置、手牌 +1，后续 prompt 收敛为 `END_TURN`。
 - Computer Use smoke 第七片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用 Computer Use。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-battle-3`；通过 Development-only `SeedScenario(battle-declare)` 准备公开攻防单位；P1 点击己方战场《大力仙灵》后详情抽屉展示服务端驱动的 `DECLARE_BATTLE` 组合器、战场“己方主战场”、防守者 `P2-BATTLE-DEFENDER-001` 与必需费用“战斗分配”；确认后事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`，最终 snapshot 显示防守者进入废牌堆，后续 prompt 收敛为 `END_TURN`。
+- Computer Use smoke 第八片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用 Computer Use；按用户要求清理旧本地符文战场测试标签，后续 smoke 改在新的 Chrome 窗口执行。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-spell-focus-1`；通过 Development-only `SeedScenario(spell-duel-focus)` 准备 P1《海克斯射线》和 P2 战场单位。P1 连接后桌面显示 `SPELL_DUEL_OPEN`、焦点 P1、prompt `PLAY_CARD,PASS_FOCUS`；点击手牌《海克斯射线》后详情抽屉展示服务端目标槽 `P2-UNIT-HEXTECH-RAY-001`，选择目标并确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，右侧 prompt 切到 `PASS_PRIORITY`。额外 SignalR smoke 让 P2 过优先权，服务端广播 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED`，最终 snapshot 回到 `SPELL_DUEL_OPEN` 且 P2 prompt 为 `PASS_FOCUS`。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -214,7 +221,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**66%**
+估算整体进度：**68%**
 
 已经完成：
 
@@ -231,8 +238,9 @@
 - `ACTIVATE_ABILITY` 已有 Vi、Xerath 和蜕变花园授予能力代表路径的服务端每来源元数据、目标/费用/Spellshield 加税候选过滤和前端卡牌详情激活组合器；前端不再自行判断可激活来源、能力目标或横置费用。
 - `LEGEND_ACT` 已有代表性传奇行动的服务端每来源元数据、经验/资源/时点/前置条件过滤和前端卡牌详情传奇行动组合器；Poppy 抽牌路径已完成真实 UI smoke。
 - `DECLARE_BATTLE` 已有攻击者/防守者/战场/战斗分配费用候选的服务端每来源元数据和前端卡牌详情组合器；单攻击者/单防守者代表路径已完成真实 UI smoke。
+- 法术对决焦点窗口已能由服务端 prompt 暴露带目标迅捷法术出牌来源和目标槽；《海克斯射线》代表路径已完成真实 UI smoke，并验证后续优先权与 P2 `PASS_FOCUS`。
 
-预计剩余批次数：**至少 5 批**
+预计剩余批次数：**5-7 批**
 
 原因：
 

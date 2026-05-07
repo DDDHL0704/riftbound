@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 DECLARE_BATTLE 服务端候选提交
+审计基准提交：`45bb446`；本轮复审代码提交至本批 spell duel focus 服务端候选提交
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,11 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-004/P0-005 第十三批已落地：`SPELL_DUEL_OPEN` 焦点窗口的 `PLAY_CARD` 暴露已收紧到同一套服务端 `sourceRequirements`。服务端现在只有在存在可支付、合法时点、目标槽可组合的真实来源时才给焦点玩家 `PLAY_CARD`，否则只给 `PASS_FOCUS` 或其它真实可用候选；前端不会再看到空的法术对决出牌入口。
+- P0-004/P0-005 第十三批补充：Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 迅捷带目标法术、P2 合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的前端 smoke 场景。该 seed 只用于 Development，本批不把它记为生产匹配能力。
+- 已补测试：新增 `ActionPromptSpellDuelFocusOnlyExposesPlayCardWhenSourceIsComposable`，覆盖空焦点窗口不会暴露 `PLAY_CARD`、存在《海克斯射线》与合法战场目标时才暴露 `PLAY_CARD,PASS_FOCUS`；新增 `P6SpellDuelFocusSeedExposesPlayableSwiftCardPrompt`，覆盖 GameHub seed 后 P1 snapshot/prompt 能拿到公开手牌、目标单位、`sourceRequirements`、目标槽和提交后 `PASS_PRIORITY`。
+- 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6SpellDuel"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActionPromptSpellDuelFocusOnlyExposesPlayCardWhenSourceIsComposable"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 86/86；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 通过 45/45；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6SwiftKeywordAllowsHextechRayInSpellDuelFocusWindow"` 通过 1/1；`source ../../scripts/dev-env.sh && npm run build` 通过。Browser Use 当前无可用 IAB backend，按用户授权降级使用 Computer Use smoke：房间 `smoke-spell-focus-1` 覆盖 Development-only `spell-duel-focus` seed、P1 点击手牌《海克斯射线》打开详情抽屉、选择服务端目标槽 `P2-UNIT-HEXTECH-RAY-001` 并确认，事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 为 `PASS_PRIORITY`；额外 SignalR smoke 让 P2 过优先权，服务端广播 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED`，最终回到 `SPELL_DUEL_OPEN` 且 P2 prompt 为 `PASS_FOCUS`。最近完整回归记录仍为 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2852/2852。
+- 复审结论补充：本批关闭的是“法术对决焦点窗口中带目标迅捷法术不能由前端从服务端候选安全组合提交”的产品级服务端候选缺口；整体结论仍为 **NOT READY**。剩余阻断仍集中在完整 battlefield/standby/control task 状态机、central cleanup task queue、完整 spell duel/battle lifecycle、PaymentEngine、LayerEngine 和全官方卡牌证据。
 - P0-004/P0-005 第十二批已落地：`DECLARE_BATTLE` prompt 从泛化来源/目标/战场升级为每攻击者 `sourceRequirements` 元数据。服务端现在按当前时点、攻击者是否正面/受控/未参战、防守者是否合法、战场候选和必需 `COMBAT_ASSIGNMENT` 费用过滤候选；前端详情抽屉只读取这些服务端候选渲染战斗声明组合器，不从卡面文本、关键词、客户端战场状态或 UI 位置自行裁决。
 - P0-004/P0-005 第十二批补充收紧：`DECLARE_BATTLE.sources`、`targets`、`destinations`、`optionalCosts` 都由同一组服务端 source requirements 汇总生成；当前只开放服务端已支持的单攻击者/单防守者 direct/minimal 代表路径。多防守者、战场任务驱动的完整战斗生命周期和战斗中响应窗口仍明确留在 P0-004 后续，不把本批误记为官方完整 battle task。
 - 已补测试：新增 `ActionPromptDeclareBattleMetadataFiltersSourcesDefendersBattlefieldsAndCosts`，覆盖基地/面朝下/已参战/装备对象不会作为战斗来源或防守者暴露，并断言战场候选、必需 `COMBAT_ASSIGNMENT` 和 per-source `targetChoicesByIndex`。Development `battle-declare` seed 补齐攻防单位 cardNo、owner/controller 和单位标签，避免 prompt 来源可见但玩家 snapshot 仍给卡背。
