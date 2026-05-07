@@ -28,6 +28,87 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public void LegacyPromptActionsAllowAdditionalServerPromptActions()
+    {
+        var fixture = BuildPromptComparisonFixture(
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                ["P1"] = ["END_TURN"],
+                ["P2"] = ["WAIT"]
+            });
+        var result = BuildPromptComparisonResult(["PLAY_CARD", "ACTIVATE_ABILITY", "END_TURN"]);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public void LegacyPromptActionsStillFailWhenExpectedActionIsMissing()
+    {
+        var fixture = BuildPromptComparisonFixture(
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                ["P1"] = ["END_TURN"],
+                ["P2"] = ["WAIT"]
+            });
+        var result = BuildPromptComparisonResult(["PLAY_CARD"]);
+
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+
+        Assert.Contains(mismatches, mismatch => mismatch.Contains("promptActions.P1", StringComparison.Ordinal));
+        Assert.Contains(mismatches, mismatch => mismatch.Contains("missing expected action END_TURN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void LegacyPromptActionsKeepWaitPromptsExact()
+    {
+        var fixture = BuildPromptComparisonFixture(
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                ["P2"] = ["WAIT"]
+            });
+        var result = BuildPromptComparisonResult(
+            ["END_TURN"],
+            ["WAIT", "END_TURN"]);
+
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+
+        Assert.Contains(mismatches, mismatch => mismatch.Contains("promptActions.P2", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ExpectedPromptsCanRequireExactActionsWhenOptedIn()
+    {
+        var fixture = BuildPromptComparisonFixture(
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                ["P1"] = ["END_TURN"]
+            },
+            new Dictionary<string, ConformanceExpectedPrompt>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(Actionable: true, Actions: ["END_TURN"], ExactActions: true)
+            });
+        var result = BuildPromptComparisonResult(["PLAY_CARD", "END_TURN"]);
+
+        var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
+
+        Assert.Contains(mismatches, mismatch => mismatch.Contains("prompts.P1.actions", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ExpectedPromptsDefaultToRequiredActionsForLegacyFixtures()
+    {
+        var fixture = BuildPromptComparisonFixture(
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal),
+            new Dictionary<string, ConformanceExpectedPrompt>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(Actionable: true, Actions: ["END_TURN"])
+            });
+        var result = BuildPromptComparisonResult(["PLAY_CARD", "END_TURN"]);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
     public async Task LoadsLegacyJavaFixtureMetadataBeforeRulesAreAudited()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -267,7 +348,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             new[] { "P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003" },
             result.FinalState.PlayerZones["P2"].Base);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P2"].Actions);
+        Assert.Contains("END_TURN", result.Prompts["P2"].Actions);
         Assert.False(result.Prompts["P1"].Actionable);
     }
 
@@ -30835,7 +30916,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, result.State.RunePools["P1"].TotalPower);
         Assert.True(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
         Assert.Empty(result.State.StackItems);
     }
@@ -30894,7 +30978,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+        Assert.Equal(0, result.State.RunePools["P1"].Power);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, result.State.RunePools["P1"].TotalPower);
         Assert.False(result.State.CardObjects["P1-UNIT-XERATH"].IsExhausted);
         Assert.Empty(result.State.StackItems);
     }
@@ -37736,13 +37823,17 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("P1", destroyedEvent.Payload["destroyedByPlayerId"]);
                 Assert.Equal("GRAVEYARD", destroyedEvent.Payload["destinationZone"]);
                 Assert.Equal("LETHAL_DAMAGE", destroyedEvent.Payload["reason"]);
+            },
+            closedEvent =>
+            {
+                Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
             });
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
@@ -37855,6 +37946,10 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("UNL-100/219", experienceEvent.Payload["cardNo"]);
                 Assert.Equal(3, experienceEvent.Payload["amount"]);
                 Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
+            },
+            closedEvent =>
+            {
+                Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
             });
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(3, result.State.PlayerExperience["P1"]);
@@ -37862,7 +37957,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
         Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Power);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
@@ -39034,7 +39129,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
-        Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
+        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
@@ -39083,7 +39178,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
-        Assert.True(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
+        Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
@@ -43903,6 +43998,53 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2"] = 0
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal));
+    }
+
+    private static ConformanceFixture BuildPromptComparisonFixture(
+        IReadOnlyDictionary<string, IReadOnlyList<string>> promptActions,
+        IReadOnlyDictionary<string, ConformanceExpectedPrompt>? prompts = null)
+    {
+        return new ConformanceFixture(
+            2,
+            "prompt-comparison",
+            "Prompt comparison harness semantics check.",
+            "manual-test",
+            "prompt-comparison-room",
+            ["P1", "P2"],
+            [],
+            new ConformanceExpected(
+                0,
+                [],
+                promptActions,
+                Prompts: prompts));
+    }
+
+    private static ConformanceRunResult BuildPromptComparisonResult(
+        IReadOnlyList<string> p1Actions,
+        IReadOnlyList<string>? p2Actions = null)
+    {
+        var state = new MatchState(
+            "prompt-comparison-room",
+            0,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            });
+        var prompts = new Dictionary<string, ActionPromptDto>(StringComparer.Ordinal)
+        {
+            ["P1"] = new("P1", true, "test", p1Actions),
+            ["P2"] = new("P2", false, "test", p2Actions ?? ["WAIT"])
+        };
+
+        return new ConformanceRunResult(
+            0,
+            [],
+            [],
+            prompts,
+            state);
     }
 
     private sealed class CapturingRuleEngine : IRuleEngine

@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / basic rune recycle / recovery action-log audit / multi-defender declare battle prompt / haste payment resource evidence / typed spend power prompt 补丁
+审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / basic rune recycle / recovery action-log audit / multi-defender declare battle prompt / haste payment resource evidence / typed spend power prompt / legacy prompt fixture gate cleanup 补丁
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,9 @@
 
 ## 2026-05-07 开发进度更新
 
+- 测试门禁第三十五批补充：`ConformanceFixtureRunner` 的旧 `promptActions` 与未标记精确的 `expected.prompts.actions` 现在按“必需动作子序列”比较，解决旧 fixture 只声明 `END_TURN` 但当前服务端合法公开更多 ActionPrompt 候选时的历史误报；`WAIT` 仍保持精确匹配，避免把非行动玩家误判为可行动。需要精确动作列表的新 fixture 可设置 `exactActions: true`，并已补 helper 级测试覆盖缺失动作仍失败、`WAIT` 精确、默认 required-actions 和 opt-in exact 四类语义。
+- 同步校正旧测试断言：战斗代表路径现在把 `BATTLE_CLOSED` 作为结算事件并在战后清理攻防标记，相关直接断言已与 fixture 中的权威期望对齐；Xerath 拒绝路径改为断言 typed 红色符能池不被拒绝命令消耗。验证结果：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureRunnerTests"` 通过 2680/2680；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2889/2889。
+- 复审结论补充：本批关闭的是“完整 ConformanceFixtureRunnerTests 被旧 prompt 精确清单口径阻塞”的测试门禁问题，让当前后端 full test 恢复全绿。整体仍 **NOT READY**，因为该批没有实现新的官方规则面，剩余阻断仍集中在完整 battlefield/standby/control task 状态机、central cleanup task queue、完整法术对决/战斗生命周期、统一 PaymentEngine、LayerEngine 和全官方卡牌证据；本批无前端源码改动，未新增 browser smoke。
 - P0-005 第三十四批补充：`PLAY_CARD.sourceRequirements[].optionalCostChoices` 现在会公开 1 点 typed 符能支付候选，例如 `SPEND_POWER:red:1`。候选来源来自当前 `runePool.powerByTrait` 以及同一出牌支付步骤中服务端公开的 `RECYCLE_RUNE:<objectId>` 支付资源动作，避免前端为了提交 typed 支付而猜测服务端 token。泛化 `SPEND_POWER:1` 仍保留，用于当前代表性 X 符能法术 UI。
 - 已补测试：扩展 `P7PlayCardRecyclesRuneAsPaymentResourceAction`，断言 prompt 在只有可回收红色符文、当前无符能的状态下同时公开 `SPEND_POWER:1`、`SPEND_POWER:red:1` 和 `RECYCLE_RUNE:<objectId>`；同一命令提交 `RECYCLE_RUNE:<objectId>` + `SPEND_POWER:red:1` 后继续验证 typed power 先获得再扣空。`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P7PlayCardRecyclesRuneAsPaymentResourceAction|FullyQualifiedName~P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait|FullyQualifiedName~P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing|FullyQualifiedName~ActionPromptPlayCardMetadataFiltersTargetsBySourceRequirement"` 通过 4/4。
 - 复审结论补充：本批关闭的是“提交侧支持 typed `SPEND_POWER:<trait>:n`，但前端候选只公开泛化 `SPEND_POWER:1`”的服务端候选缺口。整体仍 **NOT READY**，因为当前 UI 候选仍只覆盖 1 点代表性符能支付，任意数量选择、typed/泛化组合、资源动作组合策略和所有支付窗口仍需要统一 PaymentEngine。

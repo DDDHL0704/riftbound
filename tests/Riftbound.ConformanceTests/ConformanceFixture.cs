@@ -169,7 +169,8 @@ public sealed record ConformanceExpectedEvent(
 
 public sealed record ConformanceExpectedPrompt(
     bool? Actionable = null,
-    IReadOnlyList<string>? Actions = null);
+    IReadOnlyList<string>? Actions = null,
+    bool? ExactActions = null);
 
 public sealed record ConformanceRunResult(
     long FinalTick,
@@ -497,7 +498,59 @@ public static class ConformanceFixtureRunner
                 continue;
             }
 
-            CompareSequence(mismatches, $"promptActions.{playerId}", actions, prompt.Actions);
+            ComparePromptActionList(mismatches, $"promptActions.{playerId}", actions, prompt.Actions, exactActions: false);
+        }
+    }
+
+    private static void ComparePromptActionList(
+        List<string> mismatches,
+        string path,
+        IReadOnlyList<string>? expected,
+        IReadOnlyList<string> actual,
+        bool exactActions)
+    {
+        if (expected is null)
+        {
+            return;
+        }
+
+        if (exactActions || expected.Any(action => string.Equals(action, "WAIT", StringComparison.Ordinal)))
+        {
+            CompareSequence(mismatches, path, expected, actual);
+            return;
+        }
+
+        CompareRequiredActionSubsequence(mismatches, path, expected, actual);
+    }
+
+    private static void CompareRequiredActionSubsequence(
+        List<string> mismatches,
+        string path,
+        IReadOnlyList<string> expected,
+        IReadOnlyList<string> actual)
+    {
+        var actualIndex = 0;
+        foreach (var expectedAction in expected)
+        {
+            var found = false;
+            while (actualIndex < actual.Count)
+            {
+                if (string.Equals(actual[actualIndex], expectedAction, StringComparison.Ordinal))
+                {
+                    actualIndex++;
+                    found = true;
+                    break;
+                }
+
+                actualIndex++;
+            }
+
+            if (!found)
+            {
+                mismatches.Add(
+                    $"{path}: missing expected action {expectedAction}; expected required [{string.Join(", ", expected)}], actual [{string.Join(", ", actual)}]");
+                return;
+            }
         }
     }
 
@@ -520,7 +573,12 @@ public static class ConformanceFixtureRunner
             }
 
             AddMismatch(mismatches, $"prompts.{playerId}.actionable", expectedPrompt.Actionable, actualPrompt.Actionable);
-            CompareSequence(mismatches, $"prompts.{playerId}.actions", expectedPrompt.Actions, actualPrompt.Actions);
+            ComparePromptActionList(
+                mismatches,
+                $"prompts.{playerId}.actions",
+                expectedPrompt.Actions,
+                actualPrompt.Actions,
+                expectedPrompt.ExactActions == true);
         }
     }
 

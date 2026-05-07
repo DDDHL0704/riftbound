@@ -251,11 +251,11 @@
 
 每个服务端批次必须先补测试，再补实现，最后更新 `CURRENT_SERVER_RULE_AUDIT.md` 和本文。
 
-本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。recovery frame 现在还会携带已裁剪的 spectator replay frame。随后补充 P0-003 0 战力与非法待命清理证据：代表性法术栈项目会把战场单位修正到 0，服务端在同一栈结算后的状态性 cleanup loop 中以 `ZERO_POWER` 入墓；非法待命也会在栈结算后的 cleanup loop 中自动翻面入墓并清空 pending task。P0-005 也补了代表性支付资源动作：当前符能不足以支付本次 power cost 时，`PLAY_CARD.sourceRequirements` 会暴露 `RECYCLE_RUNE:<objectId>`，同一出牌命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界、前端只能等待/展示的 cleanup 规则边界，以及前端只能提交服务端候选支付资源动作的费用边界。
+本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。recovery frame 现在还会携带已裁剪的 spectator replay frame。随后补充 P0-003 0 战力与非法待命清理证据：代表性法术栈项目会把战场单位修正到 0，服务端在同一栈结算后的状态性 cleanup loop 中以 `ZERO_POWER` 入墓；非法待命也会在栈结算后的 cleanup loop 中自动翻面入墓并清空 pending task。P0-005 也补了代表性支付资源动作：当前符能不足以支付本次 power cost 时，`PLAY_CARD.sourceRequirements` 会暴露 `RECYCLE_RUNE:<objectId>`，同一出牌命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付。当前又清理了旧 conformance fixture prompt 比较口径：旧 `promptActions` / 未 opt-in exact 的 `expected.prompts.actions` 只要求服务端继续公开必需动作，`WAIT` 仍精确，新 fixture 可用 `exactActions: true` 精确锁定动作列表；完整 `ConformanceFixtureRunnerTests` 和后端 full test 已恢复全绿。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界、前端只能等待/展示的 cleanup 规则边界、前端只能提交服务端候选支付资源动作的费用边界，以及服务端 full-test 门禁。
 
 ## 6. 当前总体进度
 
-估算整体进度：**95%**
+估算整体进度：**96%**
 
 已经完成：
 
@@ -290,6 +290,7 @@
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。
 - P0-003 补齐代表性栈结算后的非法待命自动清理：服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`、同步墓地和对象位置，并清空 `REMOVE_ILLEGAL_STANDBY` pending task；前端继续只读事件/snapshot。
 - P0-005 补齐代表性出牌支付步骤资源动作：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付；前端不得自行构造未出现在候选中的资源动作。
+- 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；后端 full test 当前通过 2889/2889。
 
 预计剩余批次数：**2-3 批左右**
 
