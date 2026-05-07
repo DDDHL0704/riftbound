@@ -763,10 +763,22 @@ public sealed class GameHubJoinTests
         Assert.Empty(declareBattleClients.CallerClient.Errors);
         var declareBattleEvents = EventsFor(declareBattleClients);
         Assert.Contains(declareBattleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(declareBattleEvents, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(declareBattleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P2", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["resolution"] as string, "CONTROL_CHANGED", StringComparison.Ordinal));
         Assert.Contains(declareBattleEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
         var battleResolvedP1Snapshot = SnapshotFor(declareBattleClients, "P1");
         var battleResolvedTaskQueue = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Snapshot.Timing["pendingTaskQueue"]);
         Assert.Equal("IDLE", Assert.IsType<string>(battleResolvedTaskQueue["phase"]));
+        var battleResolvedBattle = Assert.IsType<Dictionary<string, object?>>(battleResolvedP1Snapshot.Timing["battle"]);
+        Assert.False(Assert.IsType<bool>(battleResolvedBattle["isActive"]));
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(battleResolvedP1Snapshot.Lanes["battlefields"]);
+        var contestBattlefield = Assert.Single(
+            battlefields,
+            item => string.Equals(item["battlefieldObjectId"] as string, "P1-BATTLEFIELD-CONTEST-001", StringComparison.Ordinal));
+        Assert.Equal("P2", contestBattlefield["controllerId"]);
     }
 
     [Fact]

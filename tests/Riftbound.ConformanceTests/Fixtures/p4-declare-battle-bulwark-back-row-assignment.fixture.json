@@ -107,7 +107,8 @@
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED",
       "UNIT_DESTROYED",
-      "UNIT_DESTROYED"
+      "UNIT_DESTROYED",
+      "BATTLE_CLOSED"
     ],
     "events": [
       {
@@ -215,6 +216,11 @@
           "destinationZone": "GRAVEYARD",
           "reason": "LETHAL_DAMAGE"
         }
+      },
+      {
+        "kind": "BATTLE_CLOSED",
+        "tick": 1,
+        "sequence": 8
       }
     ],
     "promptActions": {
@@ -250,7 +256,7 @@
           "cardNo": "OGN·158/298",
           "damage": 7,
           "power": 10,
-          "isAttacking": true,
+          "isAttacking": false,
           "isDefending": false,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT", "坚守3", "壁垒"]

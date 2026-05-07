@@ -96,7 +96,8 @@
       "BATTLE_DECLARED",
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED",
-      "UNIT_DESTROYED"
+      "UNIT_DESTROYED",
+      "BATTLE_CLOSED"
     ],
     "events": [
       {
@@ -155,6 +156,11 @@
           "destinationZone": "GRAVEYARD",
           "reason": "LETHAL_DAMAGE"
         }
+      },
+      {
+        "kind": "BATTLE_CLOSED",
+        "tick": 1,
+        "sequence": 5
       }
     ],
     "promptActions": {
@@ -190,7 +196,7 @@
           "cardNo": "OGS·007/024",
           "damage": 3,
           "power": 5,
-          "isAttacking": true,
+          "isAttacking": false,
           "isDefending": false,
           "isExhausted": false,
           "tags": ["CARD_TYPE:UNIT", "坚守2", "强攻2", "精锐"]

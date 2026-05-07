@@ -4640,6 +4640,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerExperience = state.PlayerExperience;
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
+        string? resolvedBattleWinnerPlayerId = null;
         if (huntAmount > 0
             && defenderObjectIds.All(defenderObjectId => lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
             && cardObjects.TryGetValue(attackerObjectId, out var survivingAttackerState)
@@ -4913,6 +4914,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent.PlayerId,
                 out var battleWinnerPlayerId))
         {
+            resolvedBattleWinnerPlayerId = battleWinnerPlayerId;
             if (!string.IsNullOrWhiteSpace(defendingPlayerId)
                 && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal))
             {
@@ -5357,6 +5359,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        CloseResolvedBattle(cardObjects, battlefieldId, attackerObjectId, defenderObjectIds, combatEvents);
+        combatEvents.AddRange(ResolveBattlefieldControlAfterBattle(
+            playerZones,
+            cardObjects,
+            objectLocations,
+            battlefieldId,
+            resolvedBattleWinnerPlayerId));
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -5405,6 +5414,122 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static void CloseResolvedBattle(
+        Dictionary<string, CardObjectState> cardObjects,
+        string battlefieldId,
+        string attackerObjectId,
+        IReadOnlyList<string> defenderObjectIds,
+        List<GameEvent> events)
+    {
+        var participantObjectIds = new[] { attackerObjectId }
+            .Concat(defenderObjectIds)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var clearedObjectIds = new List<string>();
+        foreach (var objectId in participantObjectIds)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || (!cardObject.IsAttacking && !cardObject.IsDefending))
+            {
+                continue;
+            }
+
+            cardObjects[objectId] = cardObject with
+            {
+                IsAttacking = false,
+                IsDefending = false
+            };
+            clearedObjectIds.Add(objectId);
+        }
+
+        if (clearedObjectIds.Count == 0)
+        {
+            return;
+        }
+
+        events.Add(new GameEvent(
+            "BATTLE_CLOSED",
+            "战斗结算完成",
+            new Dictionary<string, object?>
+            {
+                ["battlefieldId"] = battlefieldId,
+                ["participantObjectIds"] = participantObjectIds,
+                ["clearedObjectIds"] = clearedObjectIds.ToArray()
+            }));
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveBattlefieldControlAfterBattle(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string battlefieldId,
+        string? battleWinnerPlayerId)
+    {
+        if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState))
+        {
+            return [];
+        }
+
+        var occupantControllerIds = objectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && cardObjects.TryGetValue(entry.Key, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && !string.IsNullOrWhiteSpace(cardObject.ControllerId))
+            .Select(entry => cardObjects[entry.Key].ControllerId!)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
+            .ToArray();
+        if (occupantControllerIds.Length > 1)
+        {
+            return [];
+        }
+
+        var previousControllerId = battlefieldState.ControllerId;
+        var nextControllerId = occupantControllerIds.Length == 1 ? occupantControllerIds[0] : null;
+        var changed = !string.Equals(previousControllerId, nextControllerId, StringComparison.Ordinal);
+        if (changed)
+        {
+            cardObjects[battlefieldObjectId] = battlefieldState with
+            {
+                ControllerId = nextControllerId
+            };
+        }
+
+        var resolution = nextControllerId is null
+            ? "UNCONTROLLED"
+            : changed ? "CONTROL_CHANGED" : "CONTROL_CONFIRMED";
+        var description = nextControllerId is null
+            ? "战场变为未受控制"
+            : changed
+                ? $"{nextControllerId} 确立战场控制"
+                : $"{nextControllerId} 保持战场控制";
+
+        return
+        [
+            new GameEvent(
+                "BATTLEFIELD_CONTROL_RESOLVED",
+                description,
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = nextControllerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["battlefieldObjectId"] = battlefieldObjectId,
+                    ["previousControllerId"] = previousControllerId,
+                    ["controllerId"] = nextControllerId,
+                    ["changed"] = changed,
+                    ["resolution"] = resolution,
+                    ["battleWinnerPlayerId"] = battleWinnerPlayerId,
+                    ["occupantControllerIds"] = occupantControllerIds
+                })
+        ];
     }
 
     private static bool TryBuildMinimalDeclareBattle(

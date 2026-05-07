@@ -94,7 +94,7 @@
     "finalTick": 0,
     "eventKinds": [],
     "promptActions": {
-      "P1": ["END_TURN"],
+      "P1": ["DECLARE_BATTLE", "END_TURN"],
       "P2": ["WAIT"]
     },
     "finalState": {

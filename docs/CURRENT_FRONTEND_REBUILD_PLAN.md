@@ -145,7 +145,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第十一片。
+状态：完成第十二片。
 
 交付：
 
@@ -192,6 +192,11 @@
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角在 `SPELL_DUEL_OPEN` 点击服务端给出的“让过焦点”，Node 让 P1 继续 `PASS_FOCUS` 后事件日志出现 `SPELL_DUEL_CLOSED`，最终 snapshot 为 `NEUTRAL_OPEN`、规则队列 `BATTLE_TASKS`、active task `task:start-battle:P1-BATTLEFIELD-CONTEST-001`，prompt 为服务端 blocking `WAIT`。
 - `START_BATTLE` active task 现在会由服务端 prompt 暴露当前行动玩家的 `DECLARE_BATTLE`，并把攻击者、防守者和目的战场候选限制在 active battlefield task 上；blocking queue 期间只有匹配该任务的 `DECLARE_BATTLE` 能穿过服务端命令 guard。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角在 `BATTLE_TASKS` 点击己方战场单位打开详情抽屉，抽屉只展示服务端给出的战场 `P1-BATTLEFIELD-CONTEST-001` 与防守者 `P2-UNIT-CONTEST-001`；确认后事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`，最终 pending queue 回到 `IDLE`，prompt 回到 `END_TURN`。
+- `DECLARE_BATTLE` 代表路径结算后，服务端现在会广播 `BATTLE_CLOSED`，清理幸存单位的攻防状态并关闭 `BattleState`；前端只展示该权威 snapshot，不再自行判断战斗是否结束。
+- 当战斗发生在真实战场对象上时，服务端会基于战后占据单位结算战场控制方并广播 `BATTLEFIELD_CONTROL_RESOLVED`；中央战场卡面和战场区控制提示都来自服务端 `controllerId`。
+- 事件日志新增中文事件标签：本批关键路径中的 `BATTLE_CLOSED` 显示为“战斗结束”，`BATTLEFIELD_CONTROL_RESOLVED` 显示为“战场控制结算”；未知事件仍显示“服务端事件”，避免把未专门翻译的服务端 kind 当成前端裁决语义。
+- 本批 smoke 发现 Vite 自动切到 `5175` 时 API CORS 仍只放行旧端口；已补服务端 Development-only loopback Vite 端口 fallback，并加测试，保证新窗口/新端口前端仍能连上 SignalR。Production 不放行该 fallback。
+- 当前已通过新的 Chrome 窗口真实 UI/SignalR 混合 smoke：API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-battlefield-control-1`。P2 连接后，Node 加入 P1 并 seed `battlefield-contest-stack`，P1 过优先权、P2/P1 依次让过焦点后进入 `BATTLE_TASKS`；P2 点击己方《大力仙灵》打开详情抽屉，按服务端候选选择战场和防守者确认战斗；事件日志显示“战斗结束”“战场控制结算”，最终中央战场显示 `控制：P1`，pending queue 为 `IDLE`，刷新后 P2 重新连接可恢复同一 snapshot。
 - 仍待后续批次补：当前只是 `START_BATTLE` 的 direct/minimal 代表路径；完整 control/held/conquer task 生命周期、多参与者战斗、战斗响应窗口、复杂可选费用/费用目标、完整法术对决/战斗 task lifecycle UI 仍未完成；部分双目标依赖型传奇行动仍需 PaymentEngine/目标依赖模型后再开放提交。
 
 验收：
@@ -204,6 +209,10 @@
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PendingTaskQueueUsesStartBattleTaskAfterContestSpellDuelCloses"`：通过 1/1。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineMarksContestSpellDuelCompletedWhenAllPlayersPassFocus"`：通过 1/1。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask"`：通过 1/1。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask|FullyQualifiedName~CoreRuleEngineChangesBattlefieldControllerAfterBattle"`：通过 2/2。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass"`：通过 1/1。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"`：通过 30/30。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ApiDevUiCorsPolicyTests"`：通过 3/3。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6SpellDuel"`：通过 2/2。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6SwiftKeywordAllowsHextechRayInSpellDuelFocusWindow"`：通过 1/1。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~AssembleEquipment"`：通过 29/29。
@@ -218,6 +227,7 @@
 - Computer Use smoke 第九片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-battlefield-contest-1`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 构造争夺战场与待结算栈项目。P2 浏览器视角显示 `NEUTRAL_CLOSED`、规则队列 `BATTLEFIELD_TASKS`、活动任务 `cleanup:battlefield-contested:P1-BATTLEFIELD-CONTEST-001` 且自己只能等待；Node/SignalR 让 P1 提交 `PASS_PRIORITY` 后，页面事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，snapshot 切到 `SPELL_DUEL_OPEN`，P2 prompt 只显示服务端给出的“让过焦点”。P2 点击“让过焦点”后事件日志出现 `FOCUS_PASSED`，Node 让 P1 继续 `PASS_FOCUS` 后出现 `SPELL_DUEL_CLOSED`；最终回到 `BATTLEFIELD_CONTESTED` blocking queue，记录为下一批 battle/control task 缺口。
 - Computer Use smoke 第十片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-battlefield-contest-2`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 构造争夺战场与待结算栈项目。P2 浏览器视角显示 `SPELL_DUEL_OPEN`、规则队列 `SPELL_DUEL_TASKS`、active task `task:start-spell-duel:P1-BATTLEFIELD-CONTEST-001` 和服务端 prompt “让过焦点”；P2 点击后事件日志出现 `FOCUS_PASSED`，Node/SignalR 让 P1 继续 `PASS_FOCUS` 后出现 `SPELL_DUEL_CLOSED`；最终页面显示 `NEUTRAL_OPEN`、规则队列 `BATTLE_TASKS`、active task `task:start-battle:P1-BATTLEFIELD-CONTEST-001`，当前行动为服务端 blocking `WAIT`。
 - Computer Use smoke 第十一片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5174` 下打开房间 `smoke-battlefield-contest-3`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 推进到 `BATTLE_TASKS` 后，P2 浏览器视角获得服务端 `DECLARE_BATTLE` prompt；点击己方《大力仙灵》打开详情抽屉，抽屉展示服务端限定的 `DECLARE_BATTLE` 组合器、当前争夺战场和唯一防守者，确认后事件日志出现 `BATTLE_DECLARED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED`，最终 pending queue `IDLE`、prompt 回到 `END_TURN`。
+- Computer Use smoke 第十二片：Browser Use 当前仍无可用 IAB backend，按用户授权继续使用新的 Chrome 窗口。API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5175` 下打开房间 `smoke-battlefield-control-1`；通过 Development-only `SeedScenario(battlefield-contest-stack)` 推进到 `BATTLE_TASKS` 后，P2 浏览器视角按服务端 `DECLARE_BATTLE` 候选从详情抽屉确认战斗；事件日志显示中文“战斗结束”“战场控制结算”，最终中央战场显示 `控制：P1`、pending queue `IDLE`、prompt 回到普通开环。刷新页面后 P2 点击“连接/重连”能恢复该权威 snapshot。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -235,7 +245,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**74%**
+估算整体进度：**76%**
 
 已经完成：
 
@@ -256,8 +266,9 @@
 - 争夺战场 task queue 已能在状态变化后由服务端自动进入 `SPELL_DUEL_OPEN`，并通过事件与 prompt 驱动前端显示；前端不再需要本地启动法术对决入口。
 - 争夺战场法术对决在双方让过焦点后已能由服务端切到 `BATTLE_TASKS` / `START_BATTLE` active task；前端只显示服务端 blocking prompt，不自行推进战斗或控制权。
 - `START_BATTLE` active task 已能通过服务端 `DECLARE_BATTLE` prompt 推进代表性战斗结算，并在真实 UI 中从卡牌详情提交后回到 `IDLE`。
+- 战斗代表路径结算后已能关闭 battle state、清理攻防标记，并按战后占据单位更新真实战场对象控制方；前端事件日志和战场控制提示均来自服务端事件/snapshot。
 
-预计剩余批次数：**4-5 批**
+预计剩余批次数：**4 批**
 
 原因：
 

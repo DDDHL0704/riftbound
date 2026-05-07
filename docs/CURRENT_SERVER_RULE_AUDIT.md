@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 spell duel focus 服务端候选提交
+审计基准提交：`45bb446`；本轮复审代码提交至本批 battle close/control resolution 与 Dev UI CORS 补丁
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,13 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-002/P0-004 第十七批已落地：`DECLARE_BATTLE` 代表路径结算后现在会清除参战单位 `IsAttacking` / `IsDefending` 标记、关闭 `BattleState`，并广播 `BATTLE_CLOSED`。前端 snapshot 不再在战斗完成后把幸存单位误显示为仍在攻击/防守中。
+- P0-002/P0-004 第十七批补充：当战斗发生在真实 battlefield object id 上时，服务端会基于战后仍在该战场、正面、非待命的占据单位控制者结算战场控制方；控制权改变或确认都会广播 `BATTLEFIELD_CONTROL_RESOLVED`，并把 `CardObjectState.ControllerId` 写回权威状态。该路径覆盖当前 direct/minimal 代表战斗后的控制方结算，但仍不等同于完整官方 held/conquer/control task 生命周期。
+- 前端/集成补充：事件日志新增中文事件标签，`BATTLE_CLOSED` 显示为“战斗结束”，`BATTLEFIELD_CONTROL_RESOLVED` 显示为“战场控制结算”，未知事件仍以“服务端事件”兜底并保留原始 kind title。API Development CORS 策略补齐 loopback Vite 端口段 `5173-5179`，解决本批新窗口 `5175` smoke 时 SignalR negotiate 被旧白名单拒绝的问题；生产环境仍不启用该 fallback。
+- 已补测试：扩展 `CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask` 覆盖 battle close、战斗状态关闭、攻击标记清理和战场控制确认；新增 `CoreRuleEngineChangesBattlefieldControllerAfterBattle` 覆盖战后控制方从 P2 改为 P1；扩展 `P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass` 覆盖 Hub seed 战后广播 `BATTLE_CLOSED` / `BATTLEFIELD_CONTROL_RESOLVED`、battle inactive、中央战场 controllerId 写回；新增 `ApiDevUiCorsPolicyTests` 覆盖 Development 允许 `127.0.0.1:5175`、Production 不放行 fallback、非 loopback 来源拒绝。同步更新 P4 declare battle fixture 期望，反映战斗关闭事件和战后攻防状态。
+- 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask|FullyQualifiedName~CoreRuleEngineChangesBattlefieldControllerAfterBattle"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4CombatKeywordProfilesKeepExistingKeywordUnitFixturesGreen"` 通过 30/30；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 通过 46/46；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 87/87；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ApiDevUiCorsPolicyTests"` 通过 3/3；`source ../../scripts/dev-env.sh && npm run build` 通过。
+- Computer Use smoke：按用户要求继续使用新的 Chrome 窗口，API `http://127.0.0.1:5092` 与 Vite `http://127.0.0.1:5175` 打开房间 `smoke-battlefield-control-1`。P2 浏览器视角连接后，Node/SignalR 加入 P1 并 seed `battlefield-contest-stack`，P1 过优先权触发 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED`，P2 在 UI 点击服务端 `PASS_FOCUS`，P1 再 `PASS_FOCUS` 后进入 `BATTLE_TASKS`。P2 点击己方《大力仙灵》打开卡牌详情，按服务端给出的战场和唯一防守者确认 `DECLARE_BATTLE`；事件日志显示中文“声明战斗”“造成伤害”“单位摧毁”“战斗结束”“战场控制结算”，最终 snapshot 显示中央战场 `控制：P1`、pending queue `IDLE`、prompt 回到普通开环。刷新页面后重新点击“连接/重连”，P2 成功恢复同一权威 snapshot。
+- 复审结论补充：本批关闭的是“战斗代表路径结算后仍残留战斗状态/攻防标记，且真实战场对象控制方不随战后占据单位结算”的 P0 代表路径缺口；整体结论仍为 **NOT READY**。剩余阻断继续集中在完整每战场 held/conquer/control task、待命移除、多参与者战斗与战斗响应窗口、central cleanup task queue、PaymentEngine、LayerEngine 和全官方卡牌证据。
 - P0-003/P0-004 第十六批已落地：`START_BATTLE` active task 现在能由服务端权威 prompt 推进到代表性 `DECLARE_BATTLE`。当 pending queue active task 为 `START_BATTLE` 时，服务端只给当前行动玩家暴露 `DECLARE_BATTLE`，并把来源、防守者和战场候选收紧到该 active battlefield task；非行动玩家仍只能 `WAIT`。
 - P0-003/P0-004 第十六批补充：blocking queue 期间只允许匹配 active `START_BATTLE` 的 `DECLARE_BATTLE` 穿过命令 guard；提交侧会校验 `battlefieldId`、攻击者和防守者都位于当前 active task 的战场，否则以 `PHASE_NOT_ALLOWED` 拒绝。该能力仍复用现有 direct/minimal 战斗结算路径，不代表完整官方 battle task lifecycle 已完成。
 - 已补测试：`PendingTaskQueueUsesStartBattleTaskAfterContestSpellDuelCloses` 改为断言 `START_BATTLE` 阶段 prompt 暴露 `DECLARE_BATTLE` 及当前战场限定来源/目标/目的地/战斗分配费用；新增 `CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask` 覆盖 blocking `START_BATTLE` 期间允许匹配的 `DECLARE_BATTLE` 结算并清空任务队列；扩展 `P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass` 覆盖 GameHub seed 从 `START_BATTLE` prompt 提交 `DECLARE_BATTLE` 后广播 `BATTLE_DECLARED` / `UNIT_DESTROYED` 并回到 `IDLE`。

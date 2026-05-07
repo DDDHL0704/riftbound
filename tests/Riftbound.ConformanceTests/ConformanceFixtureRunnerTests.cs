@@ -22294,11 +22294,108 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(10, result.State.Tick);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["controllerId"] as string, "P1", StringComparison.Ordinal));
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
         Assert.DoesNotContain("P2-UNIT-1", result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.False(result.State.BattleState.IsActive);
+        Assert.False(result.State.CardObjects["P1-UNIT-1"].IsAttacking);
+        Assert.Equal("P1", result.State.CardObjects["BF-1"].ControllerId);
         Assert.DoesNotContain("START_BATTLE", result.State.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
         Assert.Contains("P2-UNIT-1", result.State.PlayerZones["P2"].Graveyard);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineChangesBattlefieldControllerAfterBattle()
+    {
+        var state = new MatchState(
+            "battlefield-control-resolution-room",
+            12,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-2", "P2-DEFENDER"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-2"] = new(
+                    "BF-2",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-ATTACKER"] = new(
+                    "P1-ATTACKER",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-2")],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-2"] = new("P2", "BATTLEFIELD", "BF-2"),
+                ["P1-ATTACKER"] = new("P1", "BATTLEFIELD", "BF-2"),
+                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "BF-2")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-battlefield-control-resolution", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BF-2",
+                ["P1-ATTACKER"],
+                ["P2-DEFENDER"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P1", result.State.CardObjects["BF-2"].ControllerId);
+        Assert.False(result.State.BattleState.IsActive);
+        var controlEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONTROL_RESOLVED", StringComparison.Ordinal));
+        Assert.Equal("P2", controlEvent.Payload["previousControllerId"]);
+        Assert.Equal("P1", controlEvent.Payload["controllerId"]);
+        Assert.Equal("CONTROL_CHANGED", controlEvent.Payload["resolution"]);
+        Assert.True(Assert.IsType<bool>(controlEvent.Payload["changed"]));
     }
 
     [Fact]
