@@ -1706,6 +1706,95 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesPlayCardSourceWhenSpellshieldTaxLeavesNoLegalTargetSelection()
+    {
+        var insufficientState = new MatchState(
+            "prompt-play-spellshield-tax-room",
+            20,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-INCINERATE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-SPELLSHIELD-TAX-TARGET-001"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-INCINERATE"] = new(
+                    "P1-SPELL-INCINERATE",
+                    cardNo: "OGS·003/024",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 2,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SPELLSHIELD-TAX-TARGET-001"] = new(
+                    "P2-SPELLSHIELD-TAX-TARGET-001",
+                    cardNo: "OGN·013/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var insufficientPrompt = ResolutionResult.BuildPrompts(insufficientState)["P1"];
+        var insufficientPlayCandidate = Assert.Single(
+            insufficientPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.False(insufficientPlayCandidate.Enabled);
+        Assert.Empty(insufficientPlayCandidate.Sources ?? []);
+        var insufficientMetadata = Assert.IsType<Dictionary<string, object?>>(insufficientPlayCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            insufficientMetadata["sourceRequirements"]));
+
+        var payableState = insufficientState with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            }
+        };
+        var payablePrompt = ResolutionResult.BuildPrompts(payableState)["P1"];
+        var payablePlayCandidate = Assert.Single(
+            payablePrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.True(payablePlayCandidate.Enabled);
+        Assert.Equal(["P1-SPELL-INCINERATE"], (payablePlayCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+
+        var payableMetadata = Assert.IsType<Dictionary<string, object?>>(payablePlayCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            payableMetadata["sourceRequirements"]));
+        Assert.Equal("P1-SPELL-INCINERATE", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("OGS·003/024", Assert.IsType<string>(sourceRequirement["cardNo"]));
+        var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
+                sourceRequirement["legalTargetSelections"])
+            .Select(selection => selection.ToArray())
+            .ToArray();
+        Assert.Contains(legalTargetSelections, selection => selection.SequenceEqual(["P2-SPELLSHIELD-TAX-TARGET-001"]));
+    }
+
+    [Fact]
     public void ActionPromptSpellDuelFocusOnlyExposesPlayCardWhenSourceIsComposable()
     {
         var emptyFocusState = new MatchState(
