@@ -1699,6 +1699,57 @@ public sealed class CardCatalogBaselineTests
         Assert.Equal(1, thousandTailedWatcherProfile.HasteReadyPowerCost);
     }
 
+    [Theory]
+    [InlineData("OGN·001/298", RuneTrait.Red)]
+    [InlineData("OGN·010/298", RuneTrait.Red)]
+    [InlineData("UNL-006/219", RuneTrait.Red)]
+    [InlineData("SFD·029/221", RuneTrait.Red)]
+    [InlineData("SFD·029a/221", RuneTrait.Red)]
+    [InlineData("OGN·039/298", RuneTrait.Red)]
+    [InlineData("OGN·039a/298", RuneTrait.Red)]
+    [InlineData("UNL-024/219", RuneTrait.Red)]
+    [InlineData("UNL-024a/219", RuneTrait.Red)]
+    [InlineData("UNL-115/219", RuneTrait.Orange)]
+    [InlineData("OGN·162/298", RuneTrait.Orange)]
+    [InlineData("OGN·162a/298", RuneTrait.Orange)]
+    [InlineData("SFD·143/221", RuneTrait.Purple)]
+    [InlineData("SFD·143a/221", RuneTrait.Purple)]
+    [InlineData("UNL-082/219", RuneTrait.Blue)]
+    [InlineData("UNL-082a/219", RuneTrait.Blue)]
+    [InlineData("SFD·177/221", RuneTrait.Yellow)]
+    [InlineData("SFD·177a/221", RuneTrait.Yellow)]
+    [InlineData("UNL-127/219", RuneTrait.Purple)]
+    [InlineData("SFD·068/221", RuneTrait.Blue)]
+    [InlineData("SFD·103/221", RuneTrait.Orange)]
+    [InlineData("SFD·179/221", RuneTrait.Yellow)]
+    [InlineData("UNL-029/219", RuneTrait.Red)]
+    [InlineData("UNL-029a/219", RuneTrait.Red)]
+    [InlineData("OGN·075/298", RuneTrait.Green)]
+    [InlineData("OGN·110/298", RuneTrait.Blue)]
+    [InlineData("SFD·002/221", RuneTrait.Red)]
+    [InlineData("SFD·131/221", RuneTrait.Purple)]
+    [InlineData("OGN·150/298", RuneTrait.Orange)]
+    [InlineData("OGN·151/298", RuneTrait.Orange)]
+    [InlineData("OGN·151a/298", RuneTrait.Orange)]
+    [InlineData("OGN·116/298", RuneTrait.Blue)]
+    [InlineData("OGN·030/298", RuneTrait.Red)]
+    [InlineData("OGN·030a/298", RuneTrait.Red)]
+    public void P4HasteReadyProfilesCarryOfficialColoredPowerTrait(
+        string cardNo,
+        string expectedTrait)
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var definition));
+
+        var profile = CardPermissionKeywordRules.BuildProfile(definition);
+
+        Assert.True(profile.HasHaste);
+        Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
+        Assert.Equal(1, profile.HasteReadyManaCost);
+        Assert.Equal(1, profile.HasteReadyPowerCost);
+        Assert.Equal(expectedTrait, profile.HasteReadyPowerTrait);
+        Assert.Equal(expectedTrait, definition.HasteReadyPowerTrait);
+    }
+
     [Fact]
     public async Task P4PermissionKeywordProfileIncludesJinxHasteReadyDiscardBranch()
     {

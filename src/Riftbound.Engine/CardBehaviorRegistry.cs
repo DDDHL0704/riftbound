@@ -2313,7 +2313,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "龙|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "OGN·010/298",
             "军团后卫",
@@ -2325,7 +2326,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 2,
             SourceUnitTags: "崔法利|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "UNL-006/219",
             "小鲨鱼",
@@ -2337,7 +2339,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 1,
             SourceUnitTags: "急速|强攻4",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "SFD·029/221",
             "雷克塞",
@@ -2349,7 +2352,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 3,
             SourceUnitTags: "急速|强攻",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "SFD·029a/221",
             "雷克塞",
@@ -2361,7 +2365,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 3,
             SourceUnitTags: "急速|强攻",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "OGN·039/298",
             "卡莎",
@@ -2373,7 +2378,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "OGN·039a/298",
             "卡莎",
@@ -2385,7 +2391,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "UNL-024/219",
             "雷恩加尔",
@@ -2397,7 +2404,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "猫科|急速|强攻2|法盾|游走",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "UNL-024a/219",
             "雷恩加尔",
@@ -2409,7 +2417,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "猫科|急速|强攻2|法盾|游走",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "UNL-115/219",
             "尼菈",
@@ -2421,7 +2430,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "恶魔|急速|游走",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "OGN·162/298",
             "厄运小姐",
@@ -2433,7 +2443,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "海盗|急速|游走",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "OGN·162a/298",
             "厄运小姐",
@@ -2445,7 +2456,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "海盗|急速|游走",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "SFD·143/221",
             "希维尔",
@@ -2483,7 +2495,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 3,
             SourceUnitTags: "仙灵|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Blue),
         new(
             "UNL-082a/219",
             "莉莉娅",
@@ -2495,7 +2508,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 3,
             SourceUnitTags: "仙灵|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Blue),
         new(
             "SFD·177/221",
             "阿兹尔",
@@ -2507,7 +2521,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "鸟类|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Yellow),
         new(
             "SFD·177a/221",
             "阿兹尔",
@@ -2519,7 +2534,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "鸟类|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Yellow),
         new(
             "UNL-127/219",
             "树根先生",
@@ -2531,7 +2547,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 1,
             SourceUnitTags: "仙灵|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Purple),
         new(
             "SFD·068/221",
             "机械迷",
@@ -2543,7 +2560,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 3,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Blue),
         new(
             "SFD·103/221",
             "琢珥鱼",
@@ -2555,7 +2573,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 6,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "SFD·179/221",
             "卡银娜·薇蕊泽",
@@ -2567,7 +2586,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 6,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Yellow),
         new(
             "UNL-029/219",
             "绯红印记树怪",
@@ -2579,7 +2599,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "UNL-029a/219",
             "绯红印记树怪",
@@ -2591,7 +2612,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "OGN·075/298",
             "美味仙灵",
@@ -2603,7 +2625,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 6,
             SourceUnitTags: "仙灵|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Green),
         new(
             "OGN·110/298",
             "艾克",
@@ -2615,7 +2638,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Blue),
         new(
             "SFD·002/221",
             "武装强袭者",
@@ -2627,7 +2651,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 6,
             SourceUnitTags: "急速|百炼",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "SFD·131/221",
             "远古战狂",
@@ -2639,7 +2664,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "灵体|急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Purple),
         new(
             "OGN·150/298",
             "海妖猎手",
@@ -2651,7 +2677,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 5,
             SourceUnitTags: "海盗|急速|强攻",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "OGN·151/298",
             "李青",
@@ -2663,7 +2690,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 6,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "OGN·151a/298",
             "李青",
@@ -2675,7 +2703,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 6,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Orange),
         new(
             "OGN·116/298",
             "千尾监视者",
@@ -2690,6 +2719,7 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Blue,
             ModifiesAllEnemyUnits: true),
         new(
             "OGN·013/298",
@@ -6207,7 +6237,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速|强攻2",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "OGN·030a/298",
             "金克丝",
@@ -6221,7 +6252,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速|强攻2",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Red),
         new(
             "OGN·175/298",
             "船坞潜伏者",

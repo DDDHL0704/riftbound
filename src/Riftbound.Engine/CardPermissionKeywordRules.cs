@@ -28,7 +28,8 @@ public sealed record CardPermissionKeywordProfile(
     string HasteOptionalReadyBranchStatus,
     string HasteOptionalReadyBranchReason,
     int HasteReadyManaCost,
-    int HasteReadyPowerCost);
+    int HasteReadyPowerCost,
+    string HasteReadyPowerTrait);
 
 public sealed record CardPlayTimingDecision(
     bool IsAllowed,
@@ -44,6 +45,10 @@ public static class CardPermissionKeywordRules
         var hasHaste = HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste);
         var hasImplementedHasteReadyBranch = hasHaste
             && (behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0);
+        var hasteReadyPowerTrait = hasImplementedHasteReadyBranch
+            ? RuneTrait.Normalize(behavior.HasteReadyPowerTrait)
+            : string.Empty;
+
         return new CardPermissionKeywordProfile(
             behavior.CanPlayDuringSpellDuel,
             behavior.CanPlayDuringPriority || HasSourceKeyword(behavior, CardPermissionKeywordNames.Reaction),
@@ -59,7 +64,8 @@ public static class CardPermissionKeywordRules
                     : "P4.2 recognizes Haste in source unit tags and keeps the verified no-optional entry path; the extra-pay ready-entry branch is deferred until colored resource and ready-entry cost modeling."
                 : "Card does not expose the Haste keyword through the P2 source unit tag path.",
             hasImplementedHasteReadyBranch ? behavior.HasteReadyManaCost : 0,
-            hasImplementedHasteReadyBranch ? behavior.HasteReadyPowerCost : 0);
+            hasImplementedHasteReadyBranch ? behavior.HasteReadyPowerCost : 0,
+            hasteReadyPowerTrait);
     }
 
     public static CardPlayTimingDecision EvaluatePlayTiming(

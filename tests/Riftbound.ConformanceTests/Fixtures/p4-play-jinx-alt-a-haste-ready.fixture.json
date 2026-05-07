@@ -34,7 +34,7 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 4, "power": 1 },
+      "P1": { "mana": 4, "power": 0, "powerByTrait": { "red": 1 } },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
