@@ -60,6 +60,7 @@
     },
     "cardObjects": {
       "P1-FACEDOWN-OGN-TEEMO": {
+        "cardNo": "OGN·121/298",
         "power": 2,
         "isFaceDown": true,
         "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"],

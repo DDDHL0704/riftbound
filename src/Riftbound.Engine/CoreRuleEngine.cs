@@ -3713,11 +3713,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             extraStandbyBattlefieldState = resolvedBattlefieldState;
         }
 
-        var existingState = state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
-            ? sourceState
-            : new CardObjectState(command.SourceObjectId);
-        if (!string.IsNullOrWhiteSpace(existingState.CardNo)
-            && !string.Equals(existingState.CardNo, behavior.CardNo, StringComparison.Ordinal))
+        if (!state.CardObjects.TryGetValue(command.SourceObjectId, out var existingState)
+            || string.IsNullOrWhiteSpace(existingState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card identity is unknown for HIDE_CARD.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(existingState.CardNo, behavior.CardNo, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,
@@ -11277,8 +11282,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!string.IsNullOrWhiteSpace(sourceState.CardNo)
-            && !string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(sourceState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card identity is unknown for REVEAL_CARD.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!string.Equals(sourceState.CardNo, behavior.CardNo, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
                 state,

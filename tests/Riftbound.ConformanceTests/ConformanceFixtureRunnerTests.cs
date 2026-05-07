@@ -32441,6 +32441,7 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-HAND-OGN-TEEMO"] = new(
                     "P1-HAND-OGN-TEEMO",
+                    cardNo: "OGN·121/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"])
             }
@@ -32613,6 +32614,14 @@ public sealed class ConformanceFixtureRunnerTests
                     Hand = ["P1-HAND-OGN-TEEMO"]
                 },
                 ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OGN-TEEMO"] = new(
+                    "P1-HAND-OGN-TEEMO",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"])
             }
         };
 
@@ -33286,6 +33295,52 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandRejectsSourceWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNKNOWN-STANDBY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNKNOWN-STANDBY"] = new(
+                    "P1-HAND-UNKNOWN-STANDBY",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby])
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-unknown-cardno", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-UNKNOWN-STANDBY",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("Source card identity is unknown for HIDE_CARD.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-UNKNOWN-STANDBY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Null(result.State.CardObjects["P1-HAND-UNKNOWN-STANDBY"].CardNo);
+        Assert.False(result.State.CardObjects["P1-HAND-UNKNOWN-STANDBY"].IsFaceDown);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], result.State.CardObjects["P1-HAND-UNKNOWN-STANDBY"].Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4HideCardCommandSourceCardNoMismatchRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -33321,6 +33376,14 @@ public sealed class ConformanceFixtureRunnerTests
                     Hand = ["P1-HAND-OGN-TEEMO"]
                 },
                 ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OGN-TEEMO"] = new(
+                    "P1-HAND-OGN-TEEMO",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"])
             },
             UntilEndOfTurnEffects = ["FREE_STANDBY_HIDE:P1"]
         };
@@ -33362,6 +33425,14 @@ public sealed class ConformanceFixtureRunnerTests
                     Hand = ["P1-HAND-OGN-TEEMO"]
                 },
                 ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OGN-TEEMO"] = new(
+                    "P1-HAND-OGN-TEEMO",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"])
             }
         };
 
@@ -33425,6 +33496,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P1-FACEDOWN-OGN-TEEMO"] = new(
                     "P1-FACEDOWN-OGN-TEEMO",
                     isFaceDown: true,
+                    cardNo: "OGN·121/298",
                     power: 2,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"]),
                 ["P2-BATTLEFIELD-UNIT-001"] = new(
@@ -33526,6 +33598,58 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, source.Power);
         Assert.Equal(2, source.ManaCost);
         Assert.Equal("OGN·199/298", source.CardNo);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], source.Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandRejectsSourceWithoutCardNo()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-UNKNOWN-STANDBY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-UNKNOWN-STANDBY"] = new(
+                    "P1-FACEDOWN-UNKNOWN-STANDBY",
+                    isFaceDown: true,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    manaCost: 2)
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-unknown-cardno", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-UNKNOWN-STANDBY",
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REVEAL",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "BASE"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("Source card identity is unknown for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-UNKNOWN-STANDBY"], result.State.PlayerZones["P1"].Base);
+        var source = result.State.CardObjects["P1-FACEDOWN-UNKNOWN-STANDBY"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal(2, source.Power);
+        Assert.Equal(2, source.ManaCost);
+        Assert.Null(source.CardNo);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], source.Tags);
         Assert.Empty(result.State.StackItems);
     }

@@ -63,7 +63,13 @@
         "championZone": []
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-HAND-OGN-TEEMO": {
+        "cardNo": "OGN·121/298",
+        "power": 2,
+        "tags": ["CARD_TYPE:UNIT", "待命", "约德尔人"]
+      }
+    }
   },
   "commands": [
     {

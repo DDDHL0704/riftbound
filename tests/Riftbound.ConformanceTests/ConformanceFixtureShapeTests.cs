@@ -1371,7 +1371,7 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Hand = ["P1-STANDBY-TEEMO"],
+                    Hand = ["P1-STANDBY-TEEMO", "P1-STANDBY-UNKNOWN"],
                     Battlefields = ["P1-BATTLEFIELD-BANDLE-TREE"]
                 },
                 ["P2"] = PlayerZones.Empty
@@ -1382,6 +1382,11 @@ public sealed class ConformanceFixtureShapeTests
                     "P1-STANDBY-TEEMO",
                     cardNo: "OGN·121/298",
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-STANDBY-UNKNOWN"] = new(
+                    "P1-STANDBY-UNKNOWN",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
@@ -1499,6 +1504,7 @@ public sealed class ConformanceFixtureShapeTests
                 {
                     Base = [
                         "P1-FACE-DOWN-STANDBY",
+                        "P1-FACE-DOWN-UNKNOWN-STANDBY",
                         "P1-FACE-UP-STANDBY",
                         "P1-FACE-DOWN-NON-STANDBY"
                     ]
@@ -1512,6 +1518,13 @@ public sealed class ConformanceFixtureShapeTests
                     isFaceDown: true,
                     power: 1,
                     cardNo: "OGN·197/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FACE-DOWN-UNKNOWN-STANDBY"] = new(
+                    "P1-FACE-DOWN-UNKNOWN-STANDBY",
+                    isFaceDown: true,
+                    power: 1,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),

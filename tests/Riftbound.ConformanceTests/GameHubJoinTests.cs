@@ -1311,6 +1311,95 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownHideCardSourceSeedHidesStandbyWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-hide-card-source-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-hide-card-source-prompt",
+                "seed-p7-9-unknown-hide-card-source-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var hideCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.False(hideCandidate.Enabled);
+        Assert.Empty(hideCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(hideCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-HAND-UNKNOWN-HIDE-SOURCE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownStandby = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-HAND-UNKNOWN-HIDE-SOURCE"]);
+        Assert.Null(unknownStandby["cardNo"]);
+    }
+
+    [Fact]
+    public async Task P79UnknownRevealCardSourceSeedHidesFaceDownStandbyWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-reveal-card-source-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-reveal-card-source-prompt",
+                "seed-p7-9-unknown-reveal-card-source-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var revealCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
+        Assert.False(revealCandidate.Enabled);
+        Assert.Empty(revealCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(revealCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(
+            ["P1-FACEDOWN-UNKNOWN-REVEAL-SOURCE"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownStandby = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-FACEDOWN-UNKNOWN-REVEAL-SOURCE"]);
+        Assert.Null(unknownStandby["cardNo"]);
+        Assert.True(Assert.IsType<bool>(unknownStandby["isFaceDown"]));
+    }
+
+    [Fact]
     public async Task P79UnknownAssembleSourceSeedHidesEquipmentWithoutCardNoThroughHub()
     {
         const string roomId = "p7-9-unknown-assemble-source-prompt-core";

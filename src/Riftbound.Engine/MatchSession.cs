@@ -7967,6 +7967,8 @@ public sealed class MatchSession : IMatchSession
             "spellshield-multiple-tax" => BuildSpellshieldMultipleTaxScenario(current, seed),
             "spellshield-tax-insufficient-prompt" => BuildSpellshieldTaxInsufficientPromptScenario(current, seed),
             "unknown-play-source-prompt" => BuildUnknownPlaySourcePromptScenario(current, seed),
+            "unknown-hide-card-source-prompt" => BuildUnknownHideCardSourcePromptScenario(current, seed),
+            "unknown-reveal-card-source-prompt" => BuildUnknownRevealCardSourcePromptScenario(current, seed),
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
             "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
@@ -8748,6 +8750,80 @@ public sealed class MatchSession : IMatchSession
                 ["P1-HAND-UNKNOWN-PLAY-SOURCE"] = new(
                     "P1-HAND-UNKNOWN-PLAY-SOURCE",
                     tags: [CardObjectTags.SpellCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownHideCardSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304169,
+            4169,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    hand: ["P1-HAND-UNKNOWN-HIDE-SOURCE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNKNOWN-HIDE-SOURCE"] = new(
+                    "P1-HAND-UNKNOWN-HIDE-SOURCE",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownRevealCardSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304170,
+            4170,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone: ["P1-FACEDOWN-UNKNOWN-REVEAL-SOURCE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-UNKNOWN-REVEAL-SOURCE"] = new(
+                    "P1-FACEDOWN-UNKNOWN-REVEAL-SOURCE",
+                    isFaceDown: true,
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });
