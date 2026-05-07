@@ -506,7 +506,7 @@ function PlayCardComposer({
             <ChoiceButton
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
-              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
               title={choice.reason ?? undefined}
             >
               {choice.label}
@@ -669,7 +669,7 @@ function MoveUnitComposer({
             <ChoiceButton
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
-              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
               title={choice.reason ?? undefined}
             >
               {choice.label}
@@ -797,7 +797,7 @@ function AssembleEquipmentComposer({
             <ChoiceButton
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
-              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
               title={choice.reason ?? undefined}
             >
               {choice.label}
@@ -989,7 +989,7 @@ function ActivateAbilityComposer({
             <ChoiceButton
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
-              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
+              onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
               title={choice.reason ?? undefined}
             >
               {choice.label}
@@ -1800,6 +1800,16 @@ function toggleValue(values: string[], value: string): string[] {
   return values.includes(value)
     ? values.filter((current) => current !== value)
     : [...values, value];
+}
+
+function toggleOptionalCost(values: string[], value: string): string[] {
+  if (!value.startsWith("SPEND_POWER:")) {
+    return toggleValue(values, value);
+  }
+
+  return values.includes(value)
+    ? values.filter((current) => current !== value)
+    : [...values.filter((current) => !current.startsWith("SPEND_POWER:")), value];
 }
 
 function uniqueStrings(values: string[]): string[] {

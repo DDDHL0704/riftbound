@@ -4649,12 +4649,21 @@ internal static class ActionPromptBuilder
 
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
-            choices.Add(new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 符能"));
-            foreach (var trait in PlayCardAvailablePowerTraits(runePool, paymentResourcePowerByTrait))
+            for (var amount = 1; amount <= effectivePowerWithRecycle; amount++)
             {
                 choices.Add(new ActionPromptChoiceDto(
-                    $"SPEND_POWER:{trait}:1",
-                    $"支付 1 {RuneTraitLabel(trait)}符能"));
+                    $"SPEND_POWER:{amount}",
+                    $"支付 {amount} 符能"));
+            }
+
+            foreach (var entry in PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait))
+            {
+                for (var amount = 1; amount <= entry.Value; amount++)
+                {
+                    choices.Add(new ActionPromptChoiceDto(
+                        $"SPEND_POWER:{entry.Key}:{amount}",
+                        $"支付 {amount} {RuneTraitLabel(entry.Key)}符能"));
+                }
             }
         }
 
@@ -4736,17 +4745,20 @@ internal static class ActionPromptBuilder
                 StringComparer.Ordinal);
     }
 
-    private static IEnumerable<string> PlayCardAvailablePowerTraits(
+    private static IReadOnlyDictionary<string, int> PlayCardAvailablePowerByTrait(
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait)
     {
         return runePool.PowerByTrait
             .Concat(paymentResourcePowerByTrait)
             .Where(entry => entry.Value > 0)
-            .Select(entry => RuneTrait.Normalize(entry.Key))
-            .Where(trait => !string.IsNullOrWhiteSpace(trait))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(trait => trait, StringComparer.Ordinal);
+            .GroupBy(entry => RuneTrait.Normalize(entry.Key), StringComparer.Ordinal)
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key))
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Sum(entry => entry.Value),
+                StringComparer.Ordinal);
     }
 
     private static bool TryGetRuneTrait(CardObjectState runeState, out string runeTrait)
@@ -7060,6 +7072,7 @@ public sealed class MatchSession : IMatchSession
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
             "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
             "battlefield-illegal-standby" => BuildBattlefieldIllegalStandbyScenario(current, seed),
+            "typed-power-payment" => BuildTypedPowerPaymentScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -7227,6 +7240,58 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "SFD·125/221",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildTypedPowerPaymentScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302692,
+            692,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(
+                    1,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 2
+                    }),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    hand: ["P1-SPELL-BULLET-TIME"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BULLET-TIME"] = new(
+                    "P1-SPELL-BULLET-TIME",
+                    cardNo: "OGN·268/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BULLET-TIME-UNIT-001"] = new(
+                    "P2-BULLET-TIME-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

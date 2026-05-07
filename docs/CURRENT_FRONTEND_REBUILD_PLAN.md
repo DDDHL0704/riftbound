@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **83%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
+当前完成度：约 **84%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -188,9 +188,12 @@
 - Development `battle-declare` seed 已补齐攻防单位的 cardNo、owner/controller 和单位标签，避免 smoke 场景出现 prompt 来源可见但 snapshot 仍显示卡背的断裂。
 - 当前已通过真实 UI 点击己方战场《大力仙灵》，详情抽屉展示 `DECLARE_BATTLE` 组合器、战场“己方主战场”、防守者 `P2-BATTLE-DEFENDER-001` 和必需费用“战斗分配”；确认后事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`，后续 prompt 收敛为 `END_TURN`。
 - `SPELL_DUEL_OPEN` 焦点窗口的 `PLAY_CARD` 暴露已收紧到同一套服务端 `sourceRequirements`：只有存在可支付、合法时点、目标槽可组合的服务端来源时才显示 `PLAY_CARD`，避免前端出现空的响应窗口操作。
+- X 符能 `PLAY_CARD` 可选费用继续收紧：服务端现在按当前可支付上限公开 `SPEND_POWER:<amount>` 与 typed `SPEND_POWER:<trait>:<amount>` 候选，例如有 2 点红色符能时公开 `SPEND_POWER:2` 与 `SPEND_POWER:red:2`，不公开超过上限的金额。前端详情抽屉把所有 `SPEND_POWER:*` 费用视为同一组单选，避免用户同时勾选多个金额并组合出服务端会拒绝的费用列表。
+- 新增 Development-only `typed-power-payment` seed，用于 smoke《弹幕时间》按服务端候选选择 2 点红色符能支付，前端只提交服务端给出的 `SPEND_POWER:red:2`。
 - Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
 - 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
 - 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
+- 当前已通过后台 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-typed-power-jvf0djpz`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `typed-power-payment`；P1 打开《弹幕时间》详情抽屉，先点 `支付 1 符能` 再点 `支付 2 红色符能` 并确认。事件日志显示“打出卡牌 / 支付费用 / 加入结算链”，authoritative snapshot 中 stack item `damageAmount = 2`，P1 `runePool.powerByTrait` 已无 red；reload/reconnect 后仍恢复该 stack snapshot。
 - 争夺战场的服务端任务队列新增权威推进入口：状态变化后若留下争夺战场且无致命/0 战力清理优先项，服务端会广播 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` 并进入 `SPELL_DUEL_OPEN`，前端只展示 resulting snapshot/prompt，不提供自定义“启动法术对决”按钮。
 - 新增 Development-only `battlefield-contest-stack` seed，专门用于 smoke“优先权栈项目结算后留下争夺战场 -> 服务端自动启动法术对决”的链路。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角看到 `BATTLEFIELD_TASKS`、争夺战场与阻塞队列；Node 让 P1 过优先权后，事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，状态切到 `SPELL_DUEL_OPEN`，P2 只获得服务端给出的 `PASS_FOCUS`。
@@ -210,7 +213,9 @@
 
 - `source ../../scripts/dev-env.sh && npm run build`：通过。
 - `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`：通过，0 warning/0 error。
-- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 87/87。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P7PlayCardPromptOffersSpendPowerAmountsByAvailableTraitPower|FullyQualifiedName~P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait|FullyQualifiedName~P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing|FullyQualifiedName~P7PlayCardRecyclesRuneAsPaymentResourceAction|FullyQualifiedName~P79TypedPowerPaymentSeedOffersAmountChoicesAndPlaysThroughHub"`：通过 5/5。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"`：通过 93/93。
+- `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore`：通过 2899/2899。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"`：通过 46/46。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineStartsBattlefieldSpellDuelAfterStackResolutionLeavesContestedBattlefield"`：通过 1/1。
 - `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PendingTaskQueueUsesStartBattleTaskAfterContestSpellDuelCloses"`：通过 1/1。
@@ -257,11 +262,11 @@
 
 每个服务端批次必须先补测试，再补实现，最后更新 `CURRENT_SERVER_RULE_AUDIT.md` 和本文。
 
-本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。recovery frame 现在还会携带已裁剪的 spectator replay frame。随后补充 P0-003 0 战力与非法待命清理证据：代表性法术栈项目会把战场单位修正到 0，服务端在同一栈结算后的状态性 cleanup loop 中以 `ZERO_POWER` 入墓；非法待命也会在栈结算后的 cleanup loop 中自动翻面入墓并清空 pending task。P0-005 也补了代表性支付资源动作：当前符能不足以支付本次 power cost 时，`PLAY_CARD.sourceRequirements` 会暴露 `RECYCLE_RUNE:<objectId>`，同一出牌命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付。当前又清理了旧 conformance fixture prompt 比较口径：旧 `promptActions` / 未 opt-in exact 的 `expected.prompts.actions` 只要求服务端继续公开必需动作，`WAIT` 仍精确，新 fixture 可用 `exactActions: true` 精确锁定动作列表；完整 `ConformanceFixtureRunnerTests` 和后端 full test 已恢复全绿。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界、前端只能等待/展示的 cleanup 规则边界、前端只能提交服务端候选支付资源动作的费用边界，以及服务端 full-test 门禁。
+本批新增恢复前 action-log final hash audit：Postgres recovery frame 会从 `match_players` 构造 replay 初始状态，registry 在 `Restore` 前用当前 `IRuleEngine` 重放 recovered commands 并拒绝 final state hash 不一致的恢复帧。随后补充真实 Postgres store smoke，覆盖迁移、journal、state snapshot、recovery frame、replay audit 和 registry 恢复，并修复 `MatchState` authoritative snapshot 反序列化问题。recovery frame 现在还会携带已裁剪的 spectator replay frame。随后补充 P0-003 0 战力与非法待命清理证据：代表性法术栈项目会把战场单位修正到 0，服务端在同一栈结算后的状态性 cleanup loop 中以 `ZERO_POWER` 入墓；非法待命也会在栈结算后的 cleanup loop 中自动翻面入墓并清空 pending task。P0-005 也补了代表性支付资源动作与 X 符能金额候选：当前符能不足以支付本次 power cost 时，`PLAY_CARD.sourceRequirements` 会暴露 `RECYCLE_RUNE:<objectId>`，同一出牌命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付；X 符能法术 prompt 会按服务端当前可支付上限公开金额选项，前端把 `SPEND_POWER:*` 作为同组单选提交。当前又清理了旧 conformance fixture prompt 比较口径：旧 `promptActions` / 未 opt-in exact 的 `expected.prompts.actions` 只要求服务端继续公开必需动作，`WAIT` 仍精确，新 fixture 可用 `exactActions: true` 精确锁定动作列表；完整 `ConformanceFixtureRunnerTests` 和后端 full test 已恢复全绿。该批不改变前端交互，但收紧了 reload/reconnect 背后的服务端权威恢复边界、前端只能等待/展示的 cleanup 规则边界、前端只能提交服务端候选支付资源动作和金额的费用边界，以及服务端 full-test 门禁。
 
 ## 6. 当前总体进度
 
-估算整体进度：**83%**
+估算整体进度：**84%**
 
 已经完成：
 
@@ -296,7 +301,7 @@
 - P0-003 补齐战力修正降到 0 的 pending task 证据：服务端会公开 `DESTROY_ZERO_POWER_UNIT` / `STATE_BASED_CLEANUP`，前端只能显示 WAIT，不自行继续开放普通操作。
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。
 - P0-003 补齐代表性栈结算后的非法待命自动清理：服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`、同步墓地和对象位置，并清空 `REMOVE_ILLEGAL_STANDBY` pending task；前端继续只读事件/snapshot。
-- P0-005 补齐代表性出牌支付步骤资源动作：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付；前端不得自行构造未出现在候选中的资源动作。
+- P0-005 补齐代表性出牌支付步骤资源动作与 X 符能金额候选：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付；X 符能法术 prompt 会按当前可支付上限公开金额选项，前端不得自行构造未出现在候选中的资源动作或金额。
 - 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；该批后端 full test 验证为 2889/2889。
 - P0-004 补齐同优先级壁垒防守者顺序选择的代表性证据：`DECLARE_BATTLE` metadata 记录同级顺序策略，Development-only `battle-same-priority-bulwark` seed 和后台 smoke 均验证前端只按服务端候选提交顺序；后端 full test 当前通过 2893/2893。
 - P0-004 补齐无胜者战斗状态代表性证据：服务端广播 `BATTLE_NO_RESULT`，前端事件日志中文显示“战斗无结果”，Development-only `battle-no-result` seed 与后台 smoke 验证双方同归于尽后 battle inactive、双方单位入墓；后端 full test 当前通过 2895/2895。
