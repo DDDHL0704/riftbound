@@ -21,6 +21,10 @@ type MatchSocketHandlers = {
 
 export class MatchSocket {
   private connection?: signalR.HubConnection;
+  private pendingJoin?: {
+    resolve: (session: PlayerSessionDto) => void;
+    reject: (error: ErrorDto) => void;
+  };
 
   constructor(
     private readonly serverUrl: string,
@@ -41,11 +45,19 @@ export class MatchSocket {
     connection.onreconnecting(() => this.handlers.onStatus("reconnecting"));
     connection.onreconnected(() => this.handlers.onStatus("connected"));
     connection.onclose(() => this.handlers.onStatus("disconnected"));
-    connection.on("Joined", this.handlers.onJoined);
+    connection.on("Joined", (message: WsServerMessage<PlayerSessionDto>) => {
+      this.pendingJoin?.resolve(message.payload);
+      this.pendingJoin = undefined;
+      this.handlers.onJoined(message);
+    });
     connection.on("Snapshot", this.handlers.onSnapshot);
     connection.on("Prompt", this.handlers.onPrompt);
     connection.on("Events", this.handlers.onEvents);
-    connection.on("Error", this.handlers.onError);
+    connection.on("Error", (message: WsServerMessage<ErrorDto>) => {
+      this.pendingJoin?.reject(message.payload);
+      this.pendingJoin = undefined;
+      this.handlers.onError(message);
+    });
 
     this.connection = connection;
     try {
@@ -57,12 +69,12 @@ export class MatchSocket {
     }
   }
 
-  async joinRoom(roomId: string, playerId: string, reconnectToken?: string): Promise<void> {
-    await this.invoke("JoinRoom", roomId, playerId, reconnectToken ?? null);
+  async joinRoom(roomId: string, playerId: string, reconnectToken?: string): Promise<PlayerSessionDto> {
+    return this.invokeExpectJoined("JoinRoom", roomId, playerId, reconnectToken ?? null);
   }
 
-  async reconnect(roomId: string, playerId: string, reconnectToken: string): Promise<void> {
-    await this.invoke("Reconnect", roomId, playerId, reconnectToken);
+  async reconnect(roomId: string, playerId: string, reconnectToken: string): Promise<PlayerSessionDto> {
+    return this.invokeExpectJoined("Reconnect", roomId, playerId, reconnectToken);
   }
 
   async requestSnapshot(roomId: string, playerId: string): Promise<void> {
@@ -90,5 +102,35 @@ export class MatchSocket {
     }
 
     await this.connection!.invoke(method, ...args);
+  }
+
+  private async invokeExpectJoined(method: "JoinRoom" | "Reconnect", ...args: unknown[]): Promise<PlayerSessionDto> {
+    if (!this.connection || this.connection.state !== signalR.HubConnectionState.Connected) {
+      await this.connect();
+    }
+
+    const joined = new Promise<PlayerSessionDto>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        this.pendingJoin = undefined;
+        reject(new Error("Timed out waiting for Joined."));
+      }, 5000);
+      this.pendingJoin = {
+        resolve: (session) => {
+          window.clearTimeout(timeout);
+          resolve(session);
+        },
+        reject: (error) => {
+          window.clearTimeout(timeout);
+          reject(error);
+        }
+      };
+    });
+    try {
+      await this.connection!.invoke(method, ...args);
+      return await joined;
+    } catch (error) {
+      this.pendingJoin = undefined;
+      throw error;
+    }
   }
 }

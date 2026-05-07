@@ -77,10 +77,19 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
     const stored = loadSession(roomId, playerId);
     await socket.connect();
     if (stored?.reconnectToken) {
-      await socket.reconnect(roomId, playerId, stored.reconnectToken);
-    } else {
-      await socket.joinRoom(roomId, playerId);
+      try {
+        await socket.reconnect(roomId, playerId, stored.reconnectToken);
+        return;
+      } catch {
+        forgetSession(roomId, playerId);
+        setState((current) => ({
+          ...current,
+          lastSystemMessage: "重连凭据已过期，正在重新入座"
+        }));
+      }
     }
+
+    await socket.joinRoom(roomId, playerId);
   }, [playerId, roomId, socket]);
 
   const requestSnapshot = useCallback(async () => {
@@ -124,6 +133,10 @@ function intentId(playerId: string, commandType: string): string {
 
 function sessionKey(roomId: string, playerId: string): string {
   return `riftbound.session.${roomId}.${playerId}`;
+}
+
+function forgetSession(roomId: string, playerId: string): void {
+  localStorage.removeItem(sessionKey(roomId, playerId));
 }
 
 function loadSession(roomId: string, playerId: string): PlayerSessionDto | undefined {
