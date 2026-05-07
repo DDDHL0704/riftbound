@@ -25814,6 +25814,40 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActYasuoRejectsTargetWithoutCardNo()
+    {
+        var state = LegendActiveAbilityState("FND-259/298", "P1-LEGEND-YASUO", mana: 2);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-BATTLEFIELD-UNIT"] = cardObjects["P1-LEGEND-BATTLEFIELD-UNIT"] with
+        {
+            CardNo = null
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-yasuo-legend-act-unknown-target", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-YASUO",
+                "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:2"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(2, result.State.RunePools["P1"].Mana);
+        Assert.False(result.State.CardObjects["P1-LEGEND-YASUO"].IsExhausted);
+        Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
     public async Task P79LegendActAcceptsYasuoReprintFunctionalUnit()
     {
         var state = LegendActiveAbilityState("OGN·305/298", "P1-LEGEND-YASUO-REPRINT", mana: 2);
@@ -44887,12 +44921,14 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P1"),
                 ["P1-LEGEND-BASE-UNIT"] = new(
                     "P1-LEGEND-BASE-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-LEGEND-BATTLEFIELD-UNIT"] = new(
                     "P1-LEGEND-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",

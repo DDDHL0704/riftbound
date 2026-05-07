@@ -3590,6 +3590,12 @@ internal static class ActionPromptBuilder
             return false;
         }
 
+        if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || string.IsNullOrWhiteSpace(targetState.CardNo))
+        {
+            return false;
+        }
+
         if (ability.RequiresBattlefieldTarget
             && (!TryFindLegendActionFieldObjectLocation(state.PlayerZones, targetObjectId, out var location)
                 || !string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)))
@@ -3598,7 +3604,7 @@ internal static class ActionPromptBuilder
         }
 
         return !ability.RequiresExhaustedTarget
-            || (state.CardObjects.TryGetValue(targetObjectId, out var targetState) && targetState.IsExhausted);
+            || targetState.IsExhausted;
     }
 
     private static bool LegendActionIsValidArmamentSecondTarget(
@@ -3612,6 +3618,7 @@ internal static class ActionPromptBuilder
             || string.Equals(unitObjectId, equipmentObjectId, StringComparison.Ordinal)
             || !LegendActionIsControlledFieldObjectWithTag(state, playerId, equipmentObjectId, CardObjectTags.EquipmentCard)
             || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            || string.IsNullOrWhiteSpace(equipmentState.CardNo)
             || equipmentState.IsFaceDown
             || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal))
         {
@@ -3660,6 +3667,8 @@ internal static class ActionPromptBuilder
         string targetObjectId)
     {
         return LegendActionIsControlledFieldObjectWithTag(state, playerId, targetObjectId, CardObjectTags.UnitCard)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !string.IsNullOrWhiteSpace(targetState.CardNo)
             && state.StackItems.Any(stackItem =>
                 string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
                 && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
@@ -7980,6 +7989,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-assemble-source-prompt" => BuildUnknownAssembleSourcePromptScenario(current, seed),
             "unknown-assemble-target-prompt" => BuildUnknownAssembleTargetPromptScenario(current, seed),
             "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
+            "unknown-legend-action-target-prompt" => BuildUnknownLegendActionTargetPromptScenario(current, seed),
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
             "unknown-rune-source-prompt" => BuildUnknownRuneSourcePromptScenario(current, seed),
@@ -9025,6 +9035,48 @@ public sealed class MatchSession : IMatchSession
                     "P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT",
                     cardNo: "SFD·022/221",
                     tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownLegendActionTargetPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304172,
+            4172,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(2, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET"],
+                    legendZone: ["P1-LEGEND-YASUO-TARGET-FILTER"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-YASUO-TARGET-FILTER"] = new(
+                    "P1-LEGEND-YASUO-TARGET-FILTER",
+                    cardNo: "FND-259/298",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET"] = new(
+                    "P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });

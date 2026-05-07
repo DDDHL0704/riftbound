@@ -1594,6 +1594,57 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownLegendActionTargetSeedHidesUnitWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-legend-action-target-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-legend-action-target-prompt",
+                "seed-p7-9-unknown-legend-action-target-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var legendCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+        Assert.False(legendCandidate.Enabled);
+        Assert.Empty(legendCandidate.Sources ?? []);
+        Assert.Empty(legendCandidate.Targets ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(legendCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains(
+            "P1-LEGEND-YASUO-TARGET-FILTER",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["legendZone"]));
+        Assert.Contains(
+            "P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var legend = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-LEGEND-YASUO-TARGET-FILTER"]);
+        Assert.Equal("FND-259/298", Assert.IsType<string>(legend["cardNo"]));
+        var unknownTarget = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET"]);
+        Assert.Null(unknownTarget["cardNo"]);
+    }
+
+    [Fact]
     public async Task P79UnknownActivateAbilitySourceSeedHidesGrantedUnitWithoutCardNoThroughHub()
     {
         const string roomId = "p7-9-unknown-activate-ability-source-prompt-core";

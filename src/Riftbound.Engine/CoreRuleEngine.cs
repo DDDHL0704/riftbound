@@ -2653,6 +2653,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            || string.IsNullOrWhiteSpace(targetState.CardNo))
+        {
+            return false;
+        }
+
         var location = FindFieldObjectLocation(state.PlayerZones, targetObjectId);
         if (ability.RequiresBattlefieldTarget
             && (location is null || !string.Equals(location.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)))
@@ -2661,7 +2667,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return !ability.RequiresExhaustedTarget
-            || (state.CardObjects.TryGetValue(targetObjectId, out var targetState) && targetState.IsExhausted);
+            || targetState.IsExhausted;
     }
 
     private static bool IsPendingFriendlyUnitTarget(
@@ -2671,6 +2677,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return IsControlledFieldObject(state, playerId, targetObjectId)
             && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
+            && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+            && !string.IsNullOrWhiteSpace(targetState.CardNo)
             && state.StackItems.Any(stackItem =>
                 string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
                 && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
@@ -2686,6 +2694,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.Equals(unitObjectId, equipmentObjectId, StringComparison.Ordinal)
             || !IsControlledFieldObject(state, playerId, equipmentObjectId)
             || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
+            || string.IsNullOrWhiteSpace(equipmentState.CardNo)
             || equipmentState.IsFaceDown
             || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal))

@@ -2595,6 +2595,66 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesLegendActionTargetWhenUnitHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-legend-unknown-target-room",
+            23,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET"],
+                    LegendZone = ["P1-LEGEND-YASUO-TARGET-FILTER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-YASUO-TARGET-FILTER"] = new(
+                    "P1-LEGEND-YASUO-TARGET-FILTER",
+                    cardNo: "FND-259/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET"] = new(
+                    "P1-UNIT-UNKNOWN-LEGEND-ACTION-TARGET",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var legendCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+
+        Assert.False(legendCandidate.Enabled);
+        Assert.Empty(legendCandidate.Sources ?? []);
+        Assert.Empty(legendCandidate.Targets ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(legendCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+    }
+
+    [Fact]
     public void ActionPromptHidesActivateAbilitySourceWhenGrantedUnitHasNoCardNo()
     {
         var state = new MatchState(
@@ -2856,18 +2916,21 @@ public sealed class ConformanceFixtureShapeTests
                     controllerId: "P1"),
                 ["P1-BASE-UNIT"] = new(
                     "P1-BASE-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-BATTLEFIELD-UNIT"] = new(
                     "P1-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
                 ["P1-ARMAMENT"] = new(
                     "P1-ARMAMENT",
+                    cardNo: "SFD·022/221",
                     tags: [CardObjectTags.EquipmentCard, "武装"],
                     ownerId: "P1",
                     controllerId: "P1")
