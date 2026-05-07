@@ -827,6 +827,102 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task PendingTaskQueueExposesIllegalStandbyCleanupAsStateBasedTask()
+    {
+        var state = new MatchState(
+            "illegal-standby-task-room",
+            12,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            turnPlayerId: "alice",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "A-STANDBY-1"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "alice",
+                    controllerId: "bob"),
+                ["A-STANDBY-1"] = new(
+                    "A-STANDBY-1",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "alice",
+                    controllerId: "alice")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["A-STANDBY-1"] = new("alice", "BATTLEFIELD", "BF-1")
+            });
+
+        var battlefield = Assert.Single(state.BattlefieldStates.Values);
+        Assert.Equal("bob", battlefield.ControllerId);
+        Assert.Empty(battlefield.OccupantObjectIds);
+        Assert.Equal(["A-STANDBY-1"], battlefield.StandbyObjectIds);
+        Assert.Equal(1, battlefield.FaceDownStandbyCount);
+
+        var cleanupTask = Assert.Single(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal));
+        Assert.Equal("cleanup:illegal-standby:BF-1:A-STANDBY-1", cleanupTask.TaskId);
+        Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", cleanupTask.Reason);
+        Assert.Equal("alice", cleanupTask.PlayerId);
+        Assert.Equal("A-STANDBY-1", cleanupTask.ObjectId);
+        Assert.Equal("BF-1", cleanupTask.BattlefieldObjectId);
+
+        Assert.True(state.PendingTaskQueue.HasTasks);
+        Assert.True(state.PendingTaskQueue.IsBlocking);
+        Assert.Equal("STATE_BASED_CLEANUP", state.PendingTaskQueue.Phase);
+        Assert.Equal("cleanup:illegal-standby:BF-1:A-STANDBY-1", state.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["REMOVE_ILLEGAL_STANDBY"],
+            state.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.Equal("cleanup:illegal-standby:BF-1:A-STANDBY-1", Assert.IsType<string>(taskQueue["activeTaskId"]));
+        var taskQueueItems = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        var taskQueueItem = Assert.Single(taskQueueItems);
+        Assert.Equal("REMOVE_ILLEGAL_STANDBY", Assert.IsType<string>(taskQueueItem["kind"]));
+        Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", Assert.IsType<string>(taskQueueItem["reason"]));
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        Assert.False(prompts["alice"].Actionable);
+        Assert.Equal(["WAIT"], prompts["alice"].Actions);
+        Assert.Contains("REMOVE_ILLEGAL_STANDBY", prompts["alice"].Reason, StringComparison.Ordinal);
+
+        var blocked = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("blocked-illegal-standby-end-turn", "alice", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+        Assert.False(blocked.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
+        Assert.Contains("REMOVE_ILLEGAL_STANDBY", blocked.ErrorMessage, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PendingTaskQueueUsesSpellDuelTaskAsActiveWhileContestDuelIsOpen()
     {
         var state = new MatchState(

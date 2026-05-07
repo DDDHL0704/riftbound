@@ -928,6 +928,27 @@ public sealed record MatchState
                     : null));
         }
 
+        foreach (var battlefield in state.BattlefieldStates.Values
+            .OrderBy(battlefield => battlefield.BattlefieldObjectId, StringComparer.Ordinal))
+        {
+            foreach (var standbyObjectId in battlefield.StandbyObjectIds
+                .OrderBy(objectId => objectId, StringComparer.Ordinal))
+            {
+                if (!IsIllegalBattlefieldStandby(state, battlefield, standbyObjectId, out var location))
+                {
+                    continue;
+                }
+
+                tasks.Add(new CleanupTaskState(
+                    $"cleanup:illegal-standby:{battlefield.BattlefieldObjectId}:{standbyObjectId}",
+                    "REMOVE_ILLEGAL_STANDBY",
+                    "BATTLEFIELD_CONTROL_CLEANUP",
+                    location.PlayerId,
+                    standbyObjectId,
+                    battlefield.BattlefieldObjectId));
+            }
+        }
+
         foreach (var battlefield in state.BattlefieldStates.Values.Where(battlefield => battlefield.Contested))
         {
             tasks.Add(new CleanupTaskState(
@@ -1113,6 +1134,7 @@ public sealed record MatchState
         {
             "DESTROY_LETHAL_UNIT" => 0,
             "DESTROY_ZERO_POWER_UNIT" => 1,
+            "REMOVE_ILLEGAL_STANDBY" => 2,
             "BATTLEFIELD_CONTESTED" => 10,
             "START_SPELL_DUEL" => 20,
             "START_BATTLE" => 30,
@@ -1123,7 +1145,30 @@ public sealed record MatchState
     private static bool IsStateBasedCleanupTask(string kind)
     {
         return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
-            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal);
+            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
+            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal);
+    }
+
+    private static bool IsIllegalBattlefieldStandby(
+        MatchState state,
+        BattlefieldState battlefield,
+        string objectId,
+        out ObjectLocationState location)
+    {
+        if (!state.ObjectLocations.TryGetValue(objectId, out var objectLocation))
+        {
+            location = new ObjectLocationState(string.Empty, string.Empty);
+            return false;
+        }
+
+        location = objectLocation;
+        return string.Equals(objectLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && string.Equals(location.BattlefieldObjectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
+            && !string.Equals(objectId, battlefield.BattlefieldObjectId, StringComparison.Ordinal)
+            && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            && !string.Equals(cardObject.ControllerId, battlefield.ControllerId, StringComparison.Ordinal);
     }
 
     private static bool HasBattlefieldSpellDuelCompleted(MatchState state, string battlefieldObjectId)
@@ -6651,6 +6696,7 @@ public sealed class MatchSession : IMatchSession
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
             "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
+            "battlefield-illegal-standby" => BuildBattlefieldIllegalStandbyScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -6725,6 +6771,56 @@ public sealed class MatchSession : IMatchSession
             _ => throw new MatchSessionException(
                 ErrorCodes.UnsupportedCommand,
                 $"Unsupported dev scenario: {scenarioId}")
+        };
+    }
+
+    private static MatchState BuildBattlefieldIllegalStandbyScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303071,
+            71,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLEFIELD-ILLEGAL-STANDBY-001", "P1-STANDBY-ILLEGAL-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ILLEGAL-STANDBY-001"] = new(
+                    "P1-BATTLEFIELD-ILLEGAL-STANDBY-001",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P2),
+                ["P1-STANDBY-ILLEGAL-001"] = new(
+                    "P1-STANDBY-ILLEGAL-001",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+
+        return state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ILLEGAL-STANDBY-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ILLEGAL-STANDBY-001"),
+                ["P1-STANDBY-ILLEGAL-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ILLEGAL-STANDBY-001")
+            }
         };
     }
 

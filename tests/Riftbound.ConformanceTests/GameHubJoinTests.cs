@@ -491,6 +491,58 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SeedScenarioBroadcastsIllegalStandbyCleanupTask()
+    {
+        const string roomId = "illegal-standby-cleanup-task-room";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-illegal-standby", "seed-illegal-standby-cleanup-task");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var battlefieldStates = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(p1Snapshot.Lanes["battlefields"]);
+        var battlefield = Assert.Single(battlefieldStates);
+        Assert.Equal("P2", Assert.IsType<string>(battlefield["controllerId"]));
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(battlefield["occupantObjectIds"]));
+        Assert.Equal(
+            ["P1-STANDBY-ILLEGAL-001"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(battlefield["standbyObjectIds"]));
+        Assert.Equal(1, Assert.IsType<int>(battlefield["faceDownStandbyCount"]));
+        Assert.Equal(
+            ["REMOVE_ILLEGAL_STANDBY"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(battlefield["pendingTaskKinds"]));
+
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(taskQueue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        Assert.Equal(
+            "cleanup:illegal-standby:P1-BATTLEFIELD-ILLEGAL-STANDBY-001:P1-STANDBY-ILLEGAL-001",
+            Assert.IsType<string>(taskQueue["activeTaskId"]));
+        var tasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        var task = Assert.Single(tasks);
+        Assert.Equal("REMOVE_ILLEGAL_STANDBY", Assert.IsType<string>(task["kind"]));
+        Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", Assert.IsType<string>(task["reason"]));
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var p2Prompt = PromptFor(seedClients, "P2");
+        Assert.Equal(["WAIT"], p1Prompt.Actions);
+        Assert.Equal(["WAIT"], p2Prompt.Actions);
+        Assert.Contains("REMOVE_ILLEGAL_STANDBY", p1Prompt.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

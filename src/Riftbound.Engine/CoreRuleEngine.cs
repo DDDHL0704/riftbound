@@ -11264,7 +11264,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsPendingStateBasedCleanupTask(string kind)
     {
         return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
-            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal);
+            || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
+            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)
