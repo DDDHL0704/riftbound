@@ -4425,11 +4425,23 @@ internal static class ActionPromptBuilder
 
         var activeStartBattleTask = ResolutionResult.ActiveStartBattleTask(state);
         var activeBattlefieldObjectId = activeStartBattleTask?.BattlefieldObjectId ?? string.Empty;
-        var defenderChoices = OpposingBattlefieldObjects(state, playerId)
+        var defenderCandidates = OpposingBattlefieldObjects(state, playerId)
             .Where(entry => string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
                 || IsObjectLocatedAtBattlefield(state, entry.ObjectId, activeBattlefieldObjectId))
             .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
-            .Select(entry => ObjectChoice(state, entry.ObjectId, "服务端合法防守单位"))
+            .Select(entry => new
+            {
+                entry.ObjectId,
+                Choice = ObjectChoice(state, entry.ObjectId, "服务端合法防守单位"),
+                SupportsMultiDefenderAssignment = HasBattleDamageAssignmentKeyword(state.CardObjects[entry.ObjectId].Tags)
+            })
+            .ToArray();
+        var defenderChoices = defenderCandidates
+            .Select(entry => entry.Choice)
+            .ToArray();
+        var assignmentDefenderChoices = defenderCandidates
+            .Where(entry => entry.SupportsMultiDefenderAssignment)
+            .Select(entry => entry.Choice)
             .ToArray();
         var battlefieldChoices = string.IsNullOrWhiteSpace(activeBattlefieldObjectId)
             ? DeclareBattleDestinationChoices(state, playerId)?.ToArray() ?? []
@@ -4448,17 +4460,24 @@ internal static class ActionPromptBuilder
             {
                 var attackerState = state.CardObjects[objectId];
                 var attackerChoice = ObjectChoice(state, objectId, "服务端合法攻击单位");
+                var maxDefenderCount = defenderChoices.Length > 1 && assignmentDefenderChoices.Length > 0 ? 2 : 1;
+                var targetChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+                {
+                    ["0"] = defenderChoices
+                };
+                if (maxDefenderCount > 1)
+                {
+                    targetChoicesByIndex["1"] = assignmentDefenderChoices;
+                }
+
                 return new DeclareBattlePromptRequirement(
                     objectId,
                     attackerState.CardNo ?? string.Empty,
                     attackerChoice.Label,
                     1,
-                    1,
-                    "1 个防守单位",
-                    new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
-                    {
-                        ["0"] = defenderChoices
-                    },
+                    maxDefenderCount,
+                    maxDefenderCount > 1 ? "1 个，或含壁垒/后排的 2 个" : "1 个防守单位",
+                    targetChoicesByIndex,
                     battlefieldChoices,
                     [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")],
                     ["COMBAT_ASSIGNMENT"],
@@ -4944,6 +4963,12 @@ internal static class ActionPromptBuilder
             && !cardObject.IsAttacking
             && !cardObject.IsDefending
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
+    }
+
+    private static bool HasBattleDamageAssignmentKeyword(IReadOnlyList<string> tags)
+    {
+        return tags.Contains(CardCombatKeywordNames.Bulwark, StringComparer.Ordinal)
+            || tags.Contains(CardCombatKeywordNames.BackRow, StringComparer.Ordinal);
     }
 
     private static IEnumerable<string> ControlledBattlefieldExtraStandbyObjects(MatchState state, string playerId)

@@ -182,6 +182,7 @@
 - 当前已通过真实 UI 点击 Poppy 传奇《圣锤之毅》，详情抽屉展示 `LEGEND_ACT` 组合器、经验费用 3、目标 0、横置来源和立即结算；确认后事件日志出现 `LEGEND_ABILITY_ACTIVATED`、`EXPERIENCE_SPENT`、`LEGEND_EXHAUSTED`、`CARD_DRAWN`，最终 snapshot 显示 P1 经验变为 0、传奇横置、手牌 +1。
 - `DECLARE_BATTLE` prompt 从泛化来源/目标/战场升级为每攻击者 `sourceRequirements` 元数据。服务端现在按当前时点、攻击者是否正面/受控/未参战、防守者是否合法、战场候选和必需 `COMBAT_ASSIGNMENT` 费用过滤候选。
 - 卡牌详情抽屉新增战斗声明组合器：只读取服务端 `sourceRequirements` 渲染攻击者、战场、防守槽、必需费用和确认按钮，确认命令只提交服务端提供的 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds`、`optionalCosts`，不从卡面文本、关键词或客户端战场状态自行裁决。
+- `DECLARE_BATTLE.sourceRequirements` 已与服务端代表性 1-2 防守者结算能力对齐：当服务端检测到至少两个合法防守者且其中包含壁垒/后排伤害分配关键词时，会公开第二个可选防守槽；第二槽候选只来自服务端给出的壁垒/后排防守者，前端不自行推断多防守者合法性。
 - Development `battle-declare` seed 已补齐攻防单位的 cardNo、owner/controller 和单位标签，避免 smoke 场景出现 prompt 来源可见但 snapshot 仍显示卡背的断裂。
 - 当前已通过真实 UI 点击己方战场《大力仙灵》，详情抽屉展示 `DECLARE_BATTLE` 组合器、战场“己方主战场”、防守者 `P2-BATTLE-DEFENDER-001` 和必需费用“战斗分配”；确认后事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`，后续 prompt 收敛为 `END_TURN`。
 - `SPELL_DUEL_OPEN` 焦点窗口的 `PLAY_CARD` 暴露已收紧到同一套服务端 `sourceRequirements`：只有存在可支付、合法时点、目标槽可组合的服务端来源时才显示 `PLAY_CARD`，避免前端出现空的响应窗口操作。
@@ -254,7 +255,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**92%**
+估算整体进度：**93%**
 
 已经完成：
 
@@ -271,7 +272,7 @@
 - `ASSEMBLE_EQUIPMENT` 已有长剑代表路径的服务端每来源元数据、红色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
 - `ACTIVATE_ABILITY` 已有 Vi、Xerath 和蜕变花园授予能力代表路径的服务端每来源元数据、目标/费用/Spellshield 加税候选过滤和前端卡牌详情激活组合器；前端不再自行判断可激活来源、能力目标或横置费用。
 - `LEGEND_ACT` 已有代表性传奇行动的服务端每来源元数据、经验/资源/时点/前置条件过滤和前端卡牌详情传奇行动组合器；Poppy 抽牌路径已完成真实 UI smoke。
-- `DECLARE_BATTLE` 已有攻击者/防守者/战场/战斗分配费用候选的服务端每来源元数据和前端卡牌详情组合器；单攻击者/单防守者代表路径已完成真实 UI smoke。
+- `DECLARE_BATTLE` 已有攻击者/防守者/战场/战斗分配费用候选的服务端每来源元数据和前端卡牌详情组合器；单攻击者/单防守者代表路径已完成真实 UI smoke，1-2 防守者代表候选已由服务端 prompt/test 覆盖，双防守槽真实 UI smoke 仍留给后续长链路批次。
 - 法术对决焦点窗口已能由服务端 prompt 暴露带目标迅捷法术出牌来源和目标槽；《海克斯射线》代表路径已完成真实 UI smoke，并验证后续优先权与 P2 `PASS_FOCUS`。
 - 争夺战场 task queue 已能在状态变化后由服务端自动进入 `SPELL_DUEL_OPEN`，并通过事件与 prompt 驱动前端显示；前端不再需要本地启动法术对决入口。
 - 争夺战场法术对决在双方让过焦点后已能由服务端切到 `BATTLE_TASKS` / `START_BATTLE` active task；前端只显示服务端 blocking prompt，不自行推进战斗或控制权。
@@ -295,7 +296,7 @@
 原因：
 
 - 前端仍需补齐法术对决/响应窗口、带目标法术和复杂费用选择等产品级操作流。
-- 服务端仍需补齐完整 control/held/conquer task 生命周期、多参与者战斗和战斗响应窗口。
+- 服务端仍需补齐完整 control/held/conquer task 生命周期、多攻击者战斗、战斗响应窗口和官方级 battle task 状态机。
 - Browser/Computer smoke 仍需继续覆盖响应窗口、断线重连和最终长链路。
 - 服务端仍有多个架构级 P0/P1 规则缺口，不是单个 UI 批次可以关闭。
 

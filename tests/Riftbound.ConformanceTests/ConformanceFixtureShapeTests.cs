@@ -470,7 +470,7 @@ public sealed class ConformanceFixtureShapeTests
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
-                    Battlefields = ["P2-BATTLEFIELD-CARD", "P2-DEFENDER", "P2-FACEDOWN", "P2-EQUIPMENT"]
+                    Battlefields = ["P2-BATTLEFIELD-CARD", "P2-DEFENDER", "P2-BULWARK-DEFENDER", "P2-FACEDOWN", "P2-EQUIPMENT"]
                 }
             },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
@@ -516,6 +516,13 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
+                ["P2-BULWARK-DEFENDER"] = new(
+                    "P2-BULWARK-DEFENDER",
+                    cardNo: "UNL-036/219",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.Bulwark],
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P2-FACEDOWN"] = new(
                     "P2-FACEDOWN",
                     isFaceDown: true,
@@ -538,7 +545,7 @@ public sealed class ConformanceFixtureShapeTests
 
         Assert.True(battleCandidate.Enabled);
         Assert.Equal(["P1-ATTACKER"], (battleCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
-        Assert.Equal(["P2-DEFENDER"], (battleCandidate.Targets ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P2-DEFENDER", "P2-BULWARK-DEFENDER"], (battleCandidate.Targets ?? []).Select(choice => choice.Id).ToArray());
         Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));
         Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-CARD", StringComparison.Ordinal));
         Assert.DoesNotContain(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P2-MAIN", StringComparison.Ordinal));
@@ -551,11 +558,13 @@ public sealed class ConformanceFixtureShapeTests
         var sourceRequirement = Assert.Single(sourceRequirements);
         Assert.Equal("P1-ATTACKER", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minDefenderCount"]));
-        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxDefenderCount"]));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxDefenderCount"]));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             sourceRequirement["targetChoicesByIndex"]);
         var firstDefenderChoices = targetChoicesByIndex["0"];
-        Assert.Equal(["P2-DEFENDER"], firstDefenderChoices.Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P2-DEFENDER", "P2-BULWARK-DEFENDER"], firstDefenderChoices.Select(choice => choice.Id).ToArray());
+        var secondDefenderChoices = targetChoicesByIndex["1"];
+        Assert.Equal(["P2-BULWARK-DEFENDER"], secondDefenderChoices.Select(choice => choice.Id).ToArray());
         var battlefieldChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["battlefieldChoices"]);
         Assert.Contains(battlefieldChoices, choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));

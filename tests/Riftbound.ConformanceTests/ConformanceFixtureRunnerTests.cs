@@ -37884,13 +37884,25 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("P1", mutantKittenDestroyedEvent.Payload["destroyedByPlayerId"]);
                 Assert.Equal("GRAVEYARD", mutantKittenDestroyedEvent.Payload["destinationZone"]);
                 Assert.Equal("LETHAL_DAMAGE", mutantKittenDestroyedEvent.Payload["reason"]);
+            },
+            closedEvent =>
+            {
+                Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", closedEvent.Payload["battlefieldId"]);
+                Assert.Equal(
+                    ["P1-BATTLEFIELD-VOLIBEAR", "P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"],
+                    Assert.IsType<string[]>(closedEvent.Payload["participantObjectIds"]));
+                Assert.Equal(
+                    ["P1-BATTLEFIELD-VOLIBEAR"],
+                    Assert.IsType<string[]>(closedEvent.Payload["clearedObjectIds"]));
             });
         Assert.Equal(1, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
-        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
+        Assert.False(result.State.BattleState.IsActive);
         Assert.Equal(7, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));

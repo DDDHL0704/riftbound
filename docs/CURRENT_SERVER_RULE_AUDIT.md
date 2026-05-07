@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / basic rune recycle / recovery action-log audit 补丁
+审计基准提交：`45bb446`；本轮复审代码提交至本批 battlefield standby cleanup/control lifecycle / illegal standby task visibility / battlefield resolution snapshot / basic rune recycle / recovery action-log audit / multi-defender declare battle prompt 补丁
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,9 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-004 第三十二批补充：`DECLARE_BATTLE.sourceRequirements` 现在与 `TryBuildMinimalDeclareBattle` 的代表路径能力对齐。服务端在每个攻击者 requirement 中继续要求 1 个防守者；当存在至少两个合法防守者且其中包含 `壁垒` / `后排` 这类伤害分配关键词防守者时，额外公开第二个可选防守槽。第二槽只列出带伤害分配关键词的防守者，避免前端组合出“两名普通防守者”这类服务端会拒绝的非法命令；重复选择仍由前端禁用并由服务端兜底拒绝。
+- 已补测试：扩展 `ActionPromptDeclareBattleMetadataFiltersSourcesDefendersBattlefieldsAndCosts`，覆盖 `DECLARE_BATTLE` candidate targets、每来源 `maxDefenderCount = 2`、slot 0 的完整防守者候选和 slot 1 的壁垒/后排限定候选；同步校正 `P4DeclareBattleCommandAssignsDamageToBulwarkBeforeBackRowForRepresentativePath`，断言多防守者代表结算后的 `BATTLE_CLOSED` 与战斗状态清理。`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActionPromptDeclareBattleMetadataFiltersSourcesDefendersBattlefieldsAndCosts|FullyQualifiedName~P4DeclareBattleCommandAssignsDamageToBulwarkBeforeBackRowForRepresentativePath"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests|FullyQualifiedName~GameHubJoinTests"` 通过 136/136；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
+- 复审结论补充：本批关闭的是“服务端已能代表性结算 1-2 防守者，但 ActionPrompt 每来源候选仍只公开 1 个防守槽”的产品级候选缺口。整体仍 **NOT READY**，因为这仍不是完整官方 battle task：多攻击者、战斗响应窗口、无结果战斗状态、完整 control/held/conquer task 生命周期和官方级法术对决/战斗状态机仍未完成。本批没有前端源码改动，未新增 browser smoke；现有前端战斗组合器继续只消费服务端 `sourceRequirements`，后续长链路/前端批次仍需 smoke 覆盖双防守槽 UI。
 - P0-005 第三十一批补充：`PLAY_CARD` 支付步骤新增代表性资源动作 token `RECYCLE_RUNE:<objectId>`。服务端会先从 `optionalCosts` 中拆出这些支付资源动作，验证目标是当前玩家基地中正面、受控、带 `COLOR:*` 的基础符文，且当前符能本来不足以支付本次 power cost，再在扣本次出牌费用前把符文回收到符文牌堆底部、获得同特性 typed power，并广播带 `paymentWindow = PLAY_CARD` 的 `RUNE_RECYCLED` / `POWER_GAINED`；随后 `PayRuneCosts` 继续按原有 `SPEND_POWER:*` 扣费。`ActionPrompt` 的 `PLAY_CARD.sourceRequirements` 也新增 `paymentResourceChoices`，并把同一 token 放进 `optionalCostChoices`，让前端只能提交服务端显式给出的资源动作。
 - 已补测试：新增 `P7PlayCardRecyclesRuneAsPaymentResourceAction`，覆盖 prompt 暴露 `RECYCLE_RUNE:<objectId>`、出牌命令同时携带回收符文资源动作和 `SPEND_POWER:red:1`、符文入 rune deck、位置同步、typed power 先获得再被扣空、stack damage 按支付符能为 1、`COST_PAID` 记录 `paymentResourceActions` / `recycledRuneObjectIds`。`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P7PlayCardRecyclesRuneAsPaymentResourceAction|FullyQualifiedName~P7TypedPowerPaymentAcceptsMatchingTraitAndDebitsOnlyThatTrait|FullyQualifiedName~P7TypedPowerPaymentRejectsWhenRequiredTraitIsMissing|FullyQualifiedName~CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower|FullyQualifiedName~ActionPromptFiltersPlayCardSourcesByImplementedTimingAndBaseCost|FullyQualifiedName~ActionPromptPlayCardMetadataFiltersTargetsBySourceRequirement"` 通过 6/6；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
 - 复审结论补充：本批把基础符文回收从“只能作为普通开环 `RECYCLE_RUNE` 命令”推进到“代表性 `PLAY_CARD` 支付步骤可通过服务端候选 token 使用 `[C]` 资源动作”。整体仍 **NOT READY**，因为这还不是统一 PaymentEngine：多资源动作组合策略、所有非出牌支付窗口、同阵营/多阵营费用、Haste/Echo/Spellshield/Encourage 的全路径费用模型仍未全部收敛。
@@ -260,7 +263,7 @@
 
 ### P0-004 法术对决与战斗不是完整官方状态机
 
-当前状态：**PARTIALLY RESOLVED / 法术对决焦点恢复、显式 SpellDuel/Battle 状态和 BattlefieldTask 视图已落地，完整任务状态机仍缺失**
+当前状态：**PARTIALLY RESOLVED / 法术对决焦点恢复、显式 SpellDuel/Battle 状态、BattlefieldTask 视图和 1-2 防守者代表候选已落地，完整任务状态机仍缺失**
 
 规则依据：自查文档 11、12；核心规则关于 FEPR、法术对决焦点、初始栈、双方行动、战斗 pending、攻击/防守单位声明、战斗清理、无战斗结果的要求。
 
@@ -272,9 +275,10 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 的 `ResolvePassPriority` 现在能在法术对决栈清空时恢复 `SPELL_DUEL_OPEN` 并转移焦点。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:4174` 的 `ResolveDeclareBattle` 直接执行战斗。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:5185` 的 `TryBuildMinimalDeclareBattle` 只支持 1 个攻击者、1 到 2 个防守者，且条件被命名为 minimal。
+- `src/Riftbound.Engine/MatchSession.cs` 的 `DeclareBattleSourceRequirements` 现在按同一代表路径公开 1 个必选防守槽；只有在存在壁垒/后排伤害分配关键词防守者时才公开第二个可选防守槽。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:4275` 到 `src/Riftbound.Engine/CoreRuleEngine.cs:4382` 直接计算并应用伤害。
 
-现象：当前战斗仍是显式 `DECLARE_BATTLE` 命令驱动的“立即结算战斗片段”，不是由清理任务在争夺战场时启动的完整 battle task。法术对决已修复几个关键窗口问题：迅捷牌结算后不会提前关闭法术对决；反应/反制链会继承并保留法术对决 timing context；core prompt 在法术对决焦点窗口也会暴露可支付、合法时点的迅捷出牌来源。现在服务端也能显式表达四类窗口、当前法术对决、战斗参与者和争夺战场任务视图，但仍缺少围绕某个 battle/trigger/card 的完整 pending/focus/initial-stack 生命周期。
+现象：当前战斗仍是显式 `DECLARE_BATTLE` 命令驱动的“立即结算战斗片段”，不是由清理任务在争夺战场时启动的完整 battle task。法术对决已修复几个关键窗口问题：迅捷牌结算后不会提前关闭法术对决；反应/反制链会继承并保留法术对决 timing context；core prompt 在法术对决焦点窗口也会暴露可支付、合法时点的迅捷出牌来源。现在服务端也能显式表达四类窗口、当前法术对决、战斗参与者、争夺战场任务视图，以及 1-2 防守者 direct/minimal 代表路径的服务端候选；但仍缺少围绕某个 battle/trigger/card 的完整 pending/focus/initial-stack 生命周期。
 
 最小复现场景：迅捷牌在 `SPELL_DUEL_OPEN` 焦点窗口打出并结算后，当前会回到 `SPELL_DUEL_OPEN` 且焦点移交下一名玩家。单位移动到敌方控制战场时，按官方规则应进入争夺并触发法术对决/战斗流程；这一部分仍没有完整 battle task。
 
