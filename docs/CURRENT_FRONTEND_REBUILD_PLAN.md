@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **84%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
+当前完成度：约 **85%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -190,10 +190,13 @@
 - `SPELL_DUEL_OPEN` 焦点窗口的 `PLAY_CARD` 暴露已收紧到同一套服务端 `sourceRequirements`：只有存在可支付、合法时点、目标槽可组合的服务端来源时才显示 `PLAY_CARD`，避免前端出现空的响应窗口操作。
 - X 符能 `PLAY_CARD` 可选费用继续收紧：服务端现在按当前可支付上限公开 `SPEND_POWER:<amount>` 与 typed `SPEND_POWER:<trait>:<amount>` 候选，例如有 2 点红色符能时公开 `SPEND_POWER:2` 与 `SPEND_POWER:red:2`，不公开超过上限的金额。前端详情抽屉把所有 `SPEND_POWER:*` 费用视为同一组单选，避免用户同时勾选多个金额并组合出服务端会拒绝的费用列表。
 - 新增 Development-only `typed-power-payment` seed，用于 smoke《弹幕时间》按服务端候选选择 2 点红色符能支付，前端只提交服务端给出的 `SPEND_POWER:red:2`。
+- X 符能支付资源组合继续收紧：服务端 `PLAY_CARD.sourceRequirements` 新增 `availablePower`、`availablePowerByTrait`、`availablePowerWithPaymentResources`、`availablePowerByTraitWithPaymentResources`、`paymentResourceChoices` 和 `hasteReadyPowerCost`，用于表达“当前符能是否足够、回收符文后是否足够”。当前只有 1 点红色符能但基地有红色符文时，服务端会同时公开 `SPEND_POWER:red:2` 与 `RECYCLE_RUNE:<objectId>`；前端把支付资源从普通可选费用中分离，只有当所选 `SPEND_POWER:*` / 代表性 `HASTE_READY` 确实需要补足时才把 `RECYCLE_RUNE:*` 放进命令，避免提交服务端会拒绝的多余资源动作。
+- 新增 Development-only `typed-power-payment-recycle` seed，用于 smoke《弹幕时间》选择 `支付 2 红色符能` 后必须再选择服务端给出的 `回收符文支付`，前端不自行推断可回收符文，也不构造未出现在 prompt 中的支付资源 token。
 - Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
 - 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
 - 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
 - 当前已通过后台 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-typed-power-jvf0djpz`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `typed-power-payment`；P1 打开《弹幕时间》详情抽屉，先点 `支付 1 符能` 再点 `支付 2 红色符能` 并确认。事件日志显示“打出卡牌 / 支付费用 / 加入结算链”，authoritative snapshot 中 stack item `damageAmount = 2`，P1 `runePool.powerByTrait` 已无 red；reload/reconnect 后仍恢复该 stack snapshot。
+- 当前已通过后台 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-typed-power-recycle-1uj64kjn`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `typed-power-payment-recycle`；P1 打开《弹幕时间》详情抽屉，选择 `支付 2 红色符能` 时“确认打出”仍禁用，继续选择 `回收符文支付：P1-RUNE-RED-PARTIAL-PAYMENT-001` 后才启用。确认后事件日志显示“回收符文 / 支付费用 / 加入结算链”，authoritative snapshot 中 stack item `damageAmount = 2`，P1 基地为空、符文牌堆计数为 2、`runePool.powerByTrait` 已无 red；reload/reconnect 后仍恢复包含 `P1-SPELL-BULLET-TIME` 与 `damageAmount` 的 stack snapshot。
 - 争夺战场的服务端任务队列新增权威推进入口：状态变化后若留下争夺战场且无致命/0 战力清理优先项，服务端会广播 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` 并进入 `SPELL_DUEL_OPEN`，前端只展示 resulting snapshot/prompt，不提供自定义“启动法术对决”按钮。
 - 新增 Development-only `battlefield-contest-stack` seed，专门用于 smoke“优先权栈项目结算后留下争夺战场 -> 服务端自动启动法术对决”的链路。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角看到 `BATTLEFIELD_TASKS`、争夺战场与阻塞队列；Node 让 P1 过优先权后，事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，状态切到 `SPELL_DUEL_OPEN`，P2 只获得服务端给出的 `PASS_FOCUS`。

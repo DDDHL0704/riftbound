@@ -4685,7 +4685,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost && runePool.TotalPower <= 0
+        var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
             || behavior.HasteReadyPowerCost > runePool.TotalPower;
         if (!needsPaymentResource)
         {
@@ -4725,7 +4725,7 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost && runePool.TotalPower <= 0
+        var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
             || behavior.HasteReadyPowerCost > runePool.TotalPower;
         if (!needsPaymentResource
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
@@ -5086,6 +5086,17 @@ internal static class ActionPromptBuilder
                 targetIndex => (object?)PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex),
                 StringComparer.Ordinal);
         var unsupportedReason = UnsupportedPlayCardCompositionReason(behavior);
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior);
+        var availablePowerByTrait = PlayCardAvailablePowerByTrait(
+            runePool,
+            new Dictionary<string, int>(StringComparer.Ordinal));
+        var availablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(
+            runePool,
+            paymentResourcePowerByTrait);
 
         return new Dictionary<string, object?>
         {
@@ -5107,7 +5118,12 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(playerId, behavior),
             ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior),
-            ["paymentResourceChoices"] = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior),
+            ["paymentResourceChoices"] = paymentResourceChoices,
+            ["availablePower"] = runePool.TotalPower,
+            ["availablePowerByTrait"] = availablePowerByTrait,
+            ["availablePowerWithPaymentResources"] = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
+            ["availablePowerByTraitWithPaymentResources"] = availablePowerByTraitWithPaymentResources,
+            ["hasteReadyPowerCost"] = behavior.HasteReadyPowerCost,
             ["composable"] = string.IsNullOrWhiteSpace(unsupportedReason),
             ["unsupportedReason"] = unsupportedReason
         };
@@ -7073,6 +7089,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
             "battlefield-illegal-standby" => BuildBattlefieldIllegalStandbyScenario(current, seed),
             "typed-power-payment" => BuildTypedPowerPaymentScenario(current, seed),
+            "typed-power-payment-recycle" => BuildTypedPowerPaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -7283,6 +7300,72 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "OGN·268/298",
                     tags: [CardObjectTags.SpellCard],
                     manaCost: 1,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BULLET-TIME-UNIT-001"] = new(
+                    "P2-BULLET-TIME-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildTypedPowerPaymentRecycleScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302693,
+            693,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(
+                    1,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: ["P1-RUNE-BOTTOM-001"],
+                    hand: ["P1-SPELL-BULLET-TIME"],
+                    baseZone: ["P1-RUNE-RED-PARTIAL-PAYMENT-001"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BULLET-TIME"] = new(
+                    "P1-SPELL-BULLET-TIME",
+                    cardNo: "OGN·268/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 1,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-RED-PARTIAL-PAYMENT-001"] = new(
+                    "P1-RUNE-RED-PARTIAL-PAYMENT-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P2-BULLET-TIME-UNIT-001"] = new(

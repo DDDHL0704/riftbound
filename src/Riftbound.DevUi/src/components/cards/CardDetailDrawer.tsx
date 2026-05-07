@@ -248,6 +248,12 @@ type PlayCardSourceRequirement = {
   targetChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
   destinationChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
+  paymentResourceChoices: ActionPromptChoiceDto[];
+  availablePower: number;
+  availablePowerByTrait: Record<string, number>;
+  availablePowerWithPaymentResources: number;
+  availablePowerByTraitWithPaymentResources: Record<string, number>;
+  hasteReadyPowerCost: number;
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -420,10 +426,20 @@ function PlayCardComposer({
     && !hasTargetGap
     && !hasDuplicateTarget
     && !missingRequiredTargetChoice;
+  const paymentResourceChoiceIds = new Set(selectedRequirement.paymentResourceChoices.map((choice) => choice.id));
+  const behaviorOptionalCosts = optionalCosts.filter((optionalCost) => !paymentResourceChoiceIds.has(optionalCost));
+  const paymentResourceCosts = optionalCosts.filter((optionalCost) => paymentResourceChoiceIds.has(optionalCost));
+  const optionalCostChoices = selectedRequirement.optionalCostChoices.filter((choice) => !paymentResourceChoiceIds.has(choice.id));
+  const paymentResourceRequired = playCardPaymentResourceRequired(behaviorOptionalCosts, selectedRequirement);
+  const commandOptionalCosts = uniqueStrings([
+    ...behaviorOptionalCosts,
+    ...(paymentResourceRequired ? paymentResourceCosts : [])
+  ]);
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
     && targetCountValid
+    && (!paymentResourceRequired || paymentResourceCosts.length > 0)
     && onCommand
   );
 
@@ -500,13 +516,27 @@ function PlayCardComposer({
           </ChoiceGroup>
         );
       })}
-      {selectedRequirement.optionalCostChoices.length > 0 && (
+      {optionalCostChoices.length > 0 && (
         <ChoiceGroup label="可选费用">
-          {selectedRequirement.optionalCostChoices.map((choice) => (
+          {optionalCostChoices.map((choice) => (
             <ChoiceButton
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
+              title={choice.reason ?? undefined}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </ChoiceGroup>
+      )}
+      {selectedRequirement.paymentResourceChoices.length > 0 && (
+        <ChoiceGroup label="支付资源">
+          {selectedRequirement.paymentResourceChoices.map((choice) => (
+            <ChoiceButton
+              active={optionalCosts.includes(choice.id)}
+              key={choice.id}
+              onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
               title={choice.reason ?? undefined}
             >
               {choice.label}
@@ -519,6 +549,9 @@ function PlayCardComposer({
       )}
       {!targetCountValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
+      )}
+      {paymentResourceRequired && paymentResourceCosts.length === 0 && selectedRequirement.composable && (
+        <p className="composer-warning">所选费用需要服务端支付资源。</p>
       )}
       <Button
         disabled={!canSubmit}
@@ -535,7 +568,7 @@ function PlayCardComposer({
             targetObjectIds: orderedTargets,
             mode: selectedRequirement.mode || undefined,
             destination: destination || undefined,
-            optionalCosts: optionalCosts.length > 0 ? optionalCosts : undefined
+            optionalCosts: commandOptionalCosts.length > 0 ? commandOptionalCosts : undefined
           });
           onClose();
         }}
@@ -1747,6 +1780,12 @@ function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | u
     targetChoicesByIndex: choiceRecord(record.targetChoicesByIndex),
     destinationChoices: choiceList(record.destinationChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
+    paymentResourceChoices: choiceList(record.paymentResourceChoices),
+    availablePower: numberField(record, "availablePower"),
+    availablePowerByTrait: numberRecord(record.availablePowerByTrait),
+    availablePowerWithPaymentResources: numberField(record, "availablePowerWithPaymentResources"),
+    availablePowerByTraitWithPaymentResources: numberRecord(record.availablePowerByTraitWithPaymentResources),
+    hasteReadyPowerCost: numberField(record, "hasteReadyPowerCost"),
     composable: booleanField(record, "composable", true),
     unsupportedReason: nullableStringField(record, "unsupportedReason")
   };
@@ -1760,6 +1799,18 @@ function choiceRecord(value: unknown): Record<string, ActionPromptChoiceDto[]> {
 
   return Object.fromEntries(
     Object.entries(record).map(([key, choices]) => [key, choiceList(choices)])
+  );
+}
+
+function numberRecord(value: unknown): Record<string, number> {
+  const record = asRecord(value);
+  if (!record) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
   );
 }
 
@@ -1810,6 +1861,54 @@ function toggleOptionalCost(values: string[], value: string): string[] {
   return values.includes(value)
     ? values.filter((current) => current !== value)
     : [...values.filter((current) => !current.startsWith("SPEND_POWER:")), value];
+}
+
+function playCardPaymentResourceRequired(optionalCosts: string[], requirement: PlayCardSourceRequirement): boolean {
+  const spendPowerCost = optionalCosts.find((optionalCost) => optionalCost.startsWith("SPEND_POWER:"));
+  if (spendPowerCost) {
+    const parsed = parseSpendPowerCost(spendPowerCost);
+    if (!parsed) {
+      return false;
+    }
+
+    const availablePower = parsed.trait
+      ? requirement.availablePowerByTrait[parsed.trait] ?? 0
+      : requirement.availablePower;
+    return parsed.amount > availablePower;
+  }
+
+  return optionalCosts.includes("HASTE_READY")
+    && requirement.hasteReadyPowerCost > requirement.availablePower;
+}
+
+function parseSpendPowerCost(value: string): { amount: number; trait?: string } | undefined {
+  if (!value.startsWith("SPEND_POWER:")) {
+    return undefined;
+  }
+
+  const parts = value
+    .slice("SPEND_POWER:".length)
+    .split(":")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length === 1) {
+    const amount = Number.parseInt(parts[0], 10);
+    return Number.isFinite(amount) && amount >= 0 ? { amount } : undefined;
+  }
+
+  if (parts.length !== 2) {
+    return undefined;
+  }
+
+  const firstAmount = Number.parseInt(parts[0], 10);
+  if (Number.isFinite(firstAmount) && firstAmount >= 0) {
+    return { amount: firstAmount, trait: parts[1] };
+  }
+
+  const secondAmount = Number.parseInt(parts[1], 10);
+  return Number.isFinite(secondAmount) && secondAmount >= 0
+    ? { amount: secondAmount, trait: parts[0] }
+    : undefined;
 }
 
 function uniqueStrings(values: string[]): string[] {
