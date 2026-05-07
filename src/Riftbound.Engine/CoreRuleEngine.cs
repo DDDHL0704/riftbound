@@ -1587,6 +1587,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ACTIVATE_ABILITY source must be controlled by the acting player.",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (!string.Equals(sourceState.CardNo, ability.SourceCardNo, StringComparison.Ordinal))
         {
             return RejectWithCorePrompts(
@@ -3521,6 +3529,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return RejectWithCorePrompts(
                 state,
                 "Xerath's P4 damage ability source must be a controlled battlefield unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "ACTIVATE_ABILITY source must be controlled by the acting player.",
                 ErrorCodes.InvalidTarget);
         }
 

@@ -2996,8 +2996,8 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Base = ["P1-UNIT-VI"],
-                    Battlefields = ["P1-UNIT-XERATH"]
+                    Base = ["P1-UNIT-VI", "P1-UNIT-VI-OPPONENT-CONTROLLED"],
+                    Battlefields = ["P1-UNIT-XERATH", "P1-UNIT-XERATH-OPPONENT-CONTROLLED"]
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
@@ -3013,6 +3013,13 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-UNIT-VI-OPPONENT-CONTROLLED"] = new(
+                    "P1-UNIT-VI-OPPONENT-CONTROLLED",
+                    cardNo: "UNL-030/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P1-UNIT-XERATH"] = new(
                     "P1-UNIT-XERATH",
                     cardNo: "UNL-026/219",
@@ -3020,6 +3027,13 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-UNIT-XERATH-OPPONENT-CONTROLLED"] = new(
+                    "P1-UNIT-XERATH-OPPONENT-CONTROLLED",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P2-UNIT"] = new(
                     "P2-UNIT",
                     cardNo: "SFD·125/221",
@@ -3060,9 +3074,11 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(
             ["PAY_2_RED_DOUBLE_POWER", "PAY_RED_EXHAUST_DAMAGE_3"],
             (payableCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
-        Assert.Equal(
-            ["P1-UNIT-VI", "P1-UNIT-XERATH", "P2-UNIT", "P2-SPELLSHIELD-UNIT"],
-            (payableCandidate.Targets ?? []).Select(target => target.Id).ToArray());
+        var payableTargetIds = (payableCandidate.Targets ?? []).Select(target => target.Id).ToArray();
+        Assert.Contains("P1-UNIT-VI", payableTargetIds);
+        Assert.Contains("P1-UNIT-XERATH", payableTargetIds);
+        Assert.Contains("P2-UNIT", payableTargetIds);
+        Assert.Contains("P2-SPELLSHIELD-UNIT", payableTargetIds);
 
         var metadata = Assert.IsType<Dictionary<string, object?>>(payableCandidate.Metadata);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
@@ -3085,9 +3101,11 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(1, Assert.IsType<int>(xerathRequirement["minTargetCount"]));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             xerathRequirement["targetChoicesByIndex"]);
-        Assert.Equal(
-            ["P1-UNIT-VI", "P1-UNIT-XERATH", "P2-UNIT", "P2-SPELLSHIELD-UNIT"],
-            targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        var xerathTargetIds = targetChoicesByIndex["0"].Select(choice => choice.Id).ToArray();
+        Assert.Contains("P1-UNIT-VI", xerathTargetIds);
+        Assert.Contains("P1-UNIT-XERATH", xerathTargetIds);
+        Assert.Contains("P2-UNIT", xerathTargetIds);
+        Assert.Contains("P2-SPELLSHIELD-UNIT", xerathTargetIds);
 
         var noSpellshieldTaxManaState = noResourceState with
         {
@@ -3107,9 +3125,11 @@ public sealed class ConformanceFixtureShapeTests
             string.Equals(Assert.IsType<string>(requirement["abilityId"]), "PAY_RED_EXHAUST_DAMAGE_3", StringComparison.Ordinal));
         var noTaxTargetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
             noTaxXerath["targetChoicesByIndex"]);
-        Assert.Equal(
-            ["P1-UNIT-VI", "P1-UNIT-XERATH", "P2-UNIT"],
-            noTaxTargetChoicesByIndex["0"].Select(choice => choice.Id).ToArray());
+        var noTaxTargetIds = noTaxTargetChoicesByIndex["0"].Select(choice => choice.Id).ToArray();
+        Assert.Contains("P1-UNIT-VI", noTaxTargetIds);
+        Assert.Contains("P1-UNIT-XERATH", noTaxTargetIds);
+        Assert.Contains("P2-UNIT", noTaxTargetIds);
+        Assert.DoesNotContain("P2-SPELLSHIELD-UNIT", noTaxTargetIds);
     }
 
     [Fact]

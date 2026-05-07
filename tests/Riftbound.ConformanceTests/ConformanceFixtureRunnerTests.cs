@@ -32014,6 +32014,56 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViOpponentControlledSourceInPlayerZone()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI-OPPONENT-CONTROLLED"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI-OPPONENT-CONTROLLED"] = new(
+                    "P1-UNIT-VI-OPPONENT-CONTROLLED",
+                    cardNo: "UNL-030/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-vi-opponent-controlled-player-zone", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI-OPPONENT-CONTROLLED",
+                "PAY_2_RED_DOUBLE_POWER",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("ACTIVATE_ABILITY source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-VI-OPPONENT-CONTROLLED"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(3, result.State.CardObjects["P1-UNIT-VI-OPPONENT-CONTROLLED"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillWhenSourceIsNotField()
     {
         var state = PunishmentState(mana: 2) with
@@ -32934,6 +32984,66 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
         Assert.False(result.State.CardObjects["P2-UNIT-XERATH"].IsExhausted);
+        Assert.Equal(0, result.State.CardObjects["P2-UNIT-001"].Damage);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathOpponentControlledSourceInPlayerZone()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-XERATH-OPPONENT-CONTROLLED"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH-OPPONENT-CONTROLLED"] = new(
+                    "P1-UNIT-XERATH-OPPONENT-CONTROLLED",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-xerath-opponent-controlled-player-zone", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH-OPPONENT-CONTROLLED",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("ACTIVATE_ABILITY source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
+        Assert.False(result.State.CardObjects["P1-UNIT-XERATH-OPPONENT-CONTROLLED"].IsExhausted);
         Assert.Equal(0, result.State.CardObjects["P2-UNIT-001"].Damage);
         Assert.Empty(result.State.StackItems);
     }
