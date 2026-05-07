@@ -1,5 +1,5 @@
 import { RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppRoute } from "../app/router";
 import { CardDetailDrawer } from "../components/cards/CardDetailDrawer";
 import { InspectedCard } from "../components/cards/CardFace";
@@ -14,7 +14,7 @@ import { useCatalog } from "../stores/catalogStore";
 import { useMatchController } from "../stores/useMatchController";
 import { useSettings } from "../stores/settingsStore";
 
-export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: AppRoute) => void }) {
+export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
   const { specByNo } = useCatalog();
   const controller = useMatchController(settings.serverUrl, matchId, settings.playerId);
@@ -23,6 +23,13 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
   const self = players.find(([playerId]) => playerId === settings.playerId);
   const opponents = players.filter(([playerId]) => playerId !== settings.playerId);
   const [inspectedCard, setInspectedCard] = useState<InspectedCard | undefined>();
+  const roomStatus = typeof snapshot?.timing?.roomStatus === "string" ? snapshot.timing.roomStatus : "";
+
+  useEffect(() => {
+    if (roomStatus === "FINISHED") {
+      onNavigate({ name: "result", matchId });
+    }
+  }, [matchId, onNavigate, roomStatus]);
 
   return (
     <div className="match-page">

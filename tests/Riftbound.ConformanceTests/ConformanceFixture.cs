@@ -514,13 +514,23 @@ public static class ConformanceFixtureRunner
             return;
         }
 
-        if (exactActions || expected.Any(action => string.Equals(action, "WAIT", StringComparison.Ordinal)))
+        var comparableExpected = WithoutGlobalConcessionAction(expected);
+        var comparableActual = WithoutGlobalConcessionAction(actual);
+
+        if (exactActions || comparableExpected.Any(action => string.Equals(action, "WAIT", StringComparison.Ordinal)))
         {
-            CompareSequence(mismatches, path, expected, actual);
+            CompareSequence(mismatches, path, comparableExpected, comparableActual);
             return;
         }
 
-        CompareRequiredActionSubsequence(mismatches, path, expected, actual);
+        CompareRequiredActionSubsequence(mismatches, path, comparableExpected, comparableActual);
+    }
+
+    private static IReadOnlyList<string> WithoutGlobalConcessionAction(IReadOnlyList<string> actions)
+    {
+        return actions
+            .Where(action => !string.Equals(action, "SURRENDER", StringComparison.Ordinal))
+            .ToArray();
     }
 
     private static void CompareRequiredActionSubsequence(

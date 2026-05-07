@@ -29,6 +29,7 @@ public static class GameCommandJsonMapper
             "PASS_FOCUS" => new PassFocusCommand(),
             "PASS" => new PassCommand(),
             "END_TURN" => new EndTurnCommand(),
+            "SURRENDER" => new SurrenderCommand(),
             "PLAY_CARD" => new PlayCardCommand(
                 Text(cmd, "sourceObjectId"),
                 Text(cmd, "cardNo"),

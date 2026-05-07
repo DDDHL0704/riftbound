@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
 import { useSettings } from "../stores/settingsStore";
@@ -13,6 +14,10 @@ export function ResultPage({ matchId }: { matchId: string; onNavigate: unknown }
   const roomStatus = asString(timing.roomStatus, "未知");
   const winnerPlayerId = asString(timing.winnerPlayerId, "");
   const players = Object.entries(snapshot?.players ?? {});
+
+  useEffect(() => {
+    void controller.join();
+  }, [controller.join]);
 
   return (
     <div className="page-grid">

@@ -104,6 +104,7 @@ export function actionLabel(action: string): string {
     PASS_FOCUS: "让过焦点",
     PASS: "让过",
     END_TURN: "结束回合",
+    SURRENDER: "投降",
     PLAY_CARD: "打出卡牌",
     REVEAL_CARD: "翻开待命",
     TAP_RUNE: "横置符文",

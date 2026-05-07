@@ -258,6 +258,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
         }
 
+        if (command is SurrenderCommand)
+        {
+            return ValueTask.FromResult(ResolveSurrender(state, intent));
+        }
+
         if (command is DeclareBattleCommand activeTaskDeclareBattleCommand
             && ResolutionResult.ActiveStartBattleTask(state) is not null
             && string.Equals(intent.PlayerId, state.ActivePlayerId, StringComparison.Ordinal))
@@ -13513,6 +13518,48 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
+    private static ResolutionResult ResolveSurrender(MatchState state, PlayerIntent intent)
+    {
+        var winnerPlayerId = state.Seats.Keys.FirstOrDefault(playerId =>
+            !string.Equals(playerId, intent.PlayerId, StringComparison.Ordinal));
+        if (string.IsNullOrWhiteSpace(winnerPlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "SURRENDER requires an opponent.",
+                ErrorCodes.PhaseNotAllowed);
+        }
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            Status = MatchStatuses.Finished,
+            WinnerPlayerId = winnerPlayerId
+        };
+        var winningScore = EffectiveWinningScore(state);
+        var events = new[]
+        {
+            new GameEvent(
+                "MATCH_WON",
+                $"{winnerPlayerId} 因 {intent.PlayerId} 投降获胜",
+                new Dictionary<string, object?>
+                {
+                    ["winnerPlayerId"] = winnerPlayerId,
+                    ["surrenderedPlayerId"] = intent.PlayerId,
+                    ["winningScore"] = winningScore,
+                    ["reason"] = "SURRENDER"
+                })
+        };
+
+        return new ResolutionResult(
+            true,
+            null,
+            nextState,
+            events,
+            ResolutionResult.BuildSnapshots(nextState),
+            ResolutionResult.BuildPrompts(nextState));
+    }
+
     private static bool IsAmbushPlayMode(string? mode)
     {
         return string.Equals(mode?.Trim(), AmbushPlayMode, StringComparison.Ordinal);
@@ -22221,8 +22268,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? "当前玩家可让过优先行动权"
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.StackPriorityActions(state, playerId)
-                    : ["WAIT"]));
+                    ? WithSurrender(ActionPromptBuilder.StackPriorityActions(state, playerId))
+                    : WithSurrender("WAIT")));
         }
 
         if (string.Equals(state.TimingState, TimingStates.SpellDuelOpen, StringComparison.Ordinal)
@@ -22236,8 +22283,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? "当前玩家可让过焦点"
                     : "等待对手焦点行动",
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.SpellDuelFocusActions(state, playerId)
-                    : ["WAIT"]));
+                    ? WithSurrender(ActionPromptBuilder.SpellDuelFocusActions(state, playerId))
+                    : WithSurrender("WAIT")));
         }
 
         if (ResolutionResult.ActiveStartBattleTask(state) is not null)
@@ -22253,7 +22300,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     canDeclareBattle
                         ? "请为争夺战场声明战斗"
                         : "等待对手处理争夺战场战斗任务",
-                    canDeclareBattle ? ["DECLARE_BATTLE"] : ["WAIT"]);
+                    canDeclareBattle ? WithSurrender("DECLARE_BATTLE") : WithSurrender("WAIT"));
             });
         }
 
@@ -22265,7 +22312,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerId,
                 false,
                 reason,
-                ["WAIT"]));
+                WithSurrender("WAIT")));
         }
 
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
@@ -22273,7 +22320,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerId,
             playerId == state.ActivePlayerId,
             playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
-            playerId == state.ActivePlayerId ? ImplementedMainOpenActions(state, playerId) : ["WAIT"]));
+            playerId == state.ActivePlayerId ? WithSurrender(ImplementedMainOpenActions(state, playerId)) : WithSurrender("WAIT")));
+    }
+
+    private static IReadOnlyList<string> WithSurrender(params string[] actions)
+    {
+        return WithSurrender((IReadOnlyList<string>)actions);
+    }
+
+    private static IReadOnlyList<string> WithSurrender(IReadOnlyList<string> actions)
+    {
+        return actions.Contains("SURRENDER", StringComparer.Ordinal)
+            ? actions
+            : actions.Concat(["SURRENDER"]).ToArray();
     }
 
     private static IReadOnlyList<string> ImplementedMainOpenActions(MatchState state, string playerId)

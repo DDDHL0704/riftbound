@@ -97,6 +97,8 @@ public sealed record PassCommand() : GameCommand("PASS");
 
 public sealed record EndTurnCommand() : GameCommand("END_TURN");
 
+public sealed record SurrenderCommand() : GameCommand("SURRENDER");
+
 public sealed record PlayCardCommand(
     string SourceObjectId,
     string CardNo,

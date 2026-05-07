@@ -1,4 +1,4 @@
-import { Check, Hourglass, Play, Send } from "lucide-react";
+import { Check, Flag, Hourglass, Play, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { actionLabel, promptActionLabel } from "../../utils/formatters";
@@ -177,11 +177,14 @@ function CandidateButton({
         if (directAction) {
           directAction();
         } else if (command) {
+          if (candidate.action === "SURRENDER" && !window.confirm("确认投降？对手将获得本局胜利。")) {
+            return;
+          }
           onCommand(command);
         }
       }}
       title={disabledByConnection ? "连接恢复前不能提交行动" : candidate.reason}
-      variant={candidate.enabled ? "primary" : "ghost"}
+      variant={candidate.action === "SURRENDER" && candidate.enabled ? "danger" : candidate.enabled ? "primary" : "ghost"}
     >
       {promptActionLabel(candidate)}
       {!command && !directAction && candidate.action !== "WAIT" ? `（需选择）` : ""}
@@ -225,6 +228,9 @@ function candidateIcon(candidate: ActionPromptCandidateDto, executable: unknown)
   if (candidate.action === "READY") {
     return <Check size={16} />;
   }
+  if (candidate.action === "SURRENDER") {
+    return <Flag size={16} />;
+  }
   return executable ? <Play size={16} /> : <Hourglass size={16} />;
 }
 
@@ -238,6 +244,8 @@ function simpleCommand(candidate: ActionPromptCandidateDto, snapshot?: SnapshotD
       return { cmdType: "PASS" };
     case "END_TURN":
       return { cmdType: "END_TURN" };
+    case "SURRENDER":
+      return { cmdType: "SURRENDER" };
     case "WAIT":
       return undefined;
     default:

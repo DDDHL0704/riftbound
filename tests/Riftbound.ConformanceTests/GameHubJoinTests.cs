@@ -576,8 +576,8 @@ public sealed class GameHubJoinTests
 
         var p1Prompt = PromptFor(seedClients, "P1");
         var p2Prompt = PromptFor(seedClients, "P2");
-        Assert.Equal(["WAIT"], p1Prompt.Actions);
-        Assert.Equal(["WAIT"], p2Prompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], p2Prompt.Actions);
         Assert.Contains("REMOVE_ILLEGAL_STANDBY", p1Prompt.Reason, StringComparison.Ordinal);
     }
 
@@ -2214,7 +2214,7 @@ public sealed class GameHubJoinTests
 
         var p1Prompt = PromptFor(seedClients, "P1");
         Assert.True(p1Prompt.Actionable);
-        Assert.Equal(["PLAY_CARD", "PASS_FOCUS"], p1Prompt.Actions);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], p1Prompt.Actions);
         var playCandidate = Assert.Single(
             p1Prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
@@ -2288,7 +2288,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(seedClients.CallerClient.Errors);
         var p2Prompt = PromptFor(seedClients, "P2");
         Assert.True(p2Prompt.Actionable);
-        Assert.Equal(["PASS_PRIORITY"], p2Prompt.Actions);
+        Assert.Equal(["PASS_PRIORITY", "SURRENDER"], p2Prompt.Actions);
         var seededP1Snapshot = SnapshotFor(seedClients, "P1");
         Assert.Equal("NEUTRAL_CLOSED", seededP1Snapshot.Timing["timingState"]);
         Assert.Equal("P2", seededP1Snapshot.Timing["priorityPlayerId"]);
@@ -2315,7 +2315,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("task:start-spell-duel:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(taskQueue["activeTaskId"]));
         var p1Prompt = PromptFor(passClients, "P1");
         Assert.True(p1Prompt.Actionable);
-        Assert.Equal(["PASS_FOCUS"], p1Prompt.Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], p1Prompt.Actions);
 
         var p1FocusPassClients = new RecordingHubClients();
         await CreateHub(p1FocusPassClients, new RecordingGroupManager(), "connection-1", registry)
@@ -2327,7 +2327,7 @@ public sealed class GameHubJoinTests
         Assert.Empty(p1FocusPassClients.CallerClient.Errors);
         var p2FocusPrompt = PromptFor(p1FocusPassClients, "P2");
         Assert.True(p2FocusPrompt.Actionable);
-        Assert.Equal(["PASS_FOCUS"], p2FocusPrompt.Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], p2FocusPrompt.Actions);
 
         var p2FocusPassClients = new RecordingHubClients();
         await CreateHub(p2FocusPassClients, new RecordingGroupManager(), "connection-2", registry)
@@ -2348,7 +2348,7 @@ public sealed class GameHubJoinTests
         Assert.Equal("task:start-battle:P1-BATTLEFIELD-CONTEST-001", Assert.IsType<string>(finalTaskQueue["activeTaskId"]));
         var finalP1Prompt = PromptFor(p2FocusPassClients, "P1");
         Assert.True(finalP1Prompt.Actionable);
-        Assert.Equal(["DECLARE_BATTLE"], finalP1Prompt.Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], finalP1Prompt.Actions);
         var declareBattleCandidate = Assert.Single(
             finalP1Prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));

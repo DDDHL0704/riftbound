@@ -2092,8 +2092,8 @@ public sealed record ResolutionResult(
                     ? "请选择 0 到 2 张起手牌进行调度"
                     : "等待对手完成起手调度",
                 string.Equals(playerId, mulliganPlayerId, StringComparison.Ordinal)
-                    ? ["MULLIGAN"]
-                    : ["WAIT"]));
+                    ? WithSurrender("MULLIGAN")
+                    : WithSurrender("WAIT")));
         }
 
         if (HasOpenStackPriority(state))
@@ -2106,8 +2106,8 @@ public sealed record ResolutionResult(
                     ? "当前玩家可让过优先行动权"
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.StackPriorityActions(state, playerId)
-                    : ["WAIT"]));
+                    ? WithSurrender(ActionPromptBuilder.StackPriorityActions(state, playerId))
+                    : WithSurrender("WAIT")));
         }
 
         if (HasOpenSpellDuelFocus(state))
@@ -2120,8 +2120,8 @@ public sealed record ResolutionResult(
                     ? "当前玩家可让过焦点"
                     : "等待对手焦点行动",
                 string.Equals(playerId, state.FocusPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.SpellDuelFocusActions(state, playerId)
-                    : ["WAIT"]));
+                    ? WithSurrender(ActionPromptBuilder.SpellDuelFocusActions(state, playerId))
+                    : WithSurrender("WAIT")));
         }
 
         if (ActiveStartBattleTask(state) is not null)
@@ -2137,7 +2137,7 @@ public sealed record ResolutionResult(
                     canDeclareBattle
                         ? "请为争夺战场声明战斗"
                         : "等待对手处理争夺战场战斗任务",
-                    canDeclareBattle ? ["DECLARE_BATTLE"] : ["WAIT"]);
+                    canDeclareBattle ? WithSurrender("DECLARE_BATTLE") : WithSurrender("WAIT"));
             });
         }
 
@@ -2149,7 +2149,7 @@ public sealed record ResolutionResult(
                 playerId,
                 false,
                 reason,
-                ["WAIT"]));
+                WithSurrender("WAIT")));
         }
 
         return state.Seats.Keys.ToDictionary(playerId => playerId, playerId => ActionPromptBuilder.Build(
@@ -2158,7 +2158,7 @@ public sealed record ResolutionResult(
             playerId == state.ActivePlayerId,
             playerId == state.ActivePlayerId ? "当前玩家普通开环行动" : "等待对手行动",
             playerId == state.ActivePlayerId
-                ? [
+                ? WithSurrender(
                     "PLAY_CARD",
                     "ACTIVATE_ABILITY",
                     "ASSEMBLE_EQUIPMENT",
@@ -2171,8 +2171,20 @@ public sealed record ResolutionResult(
                     "LEGEND_ACT",
                     "PASS",
                     "END_TURN"
-                ]
-                : ["WAIT"]));
+                )
+                : WithSurrender("WAIT")));
+    }
+
+    private static IReadOnlyList<string> WithSurrender(params string[] actions)
+    {
+        return WithSurrender((IReadOnlyList<string>)actions);
+    }
+
+    private static IReadOnlyList<string> WithSurrender(IReadOnlyList<string> actions)
+    {
+        return actions.Contains("SURRENDER", StringComparer.Ordinal)
+            ? actions
+            : actions.Concat(["SURRENDER"]).ToArray();
     }
 
     private static bool HasOpenStackPriority(MatchState state)
@@ -2596,7 +2608,11 @@ internal static class ActionPromptBuilder
             || sources?.Count > 0;
         hasRequiredChoices = hasRequiredChoices
             && (!requiresTargetChoices || targets?.Count > 0);
-        var enabled = promptActionable
+        var isSurrender = string.Equals(action, "SURRENDER", StringComparison.Ordinal);
+        var enabled = (promptActionable
+                || (isSurrender
+                    && string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal)
+                    && state.Seats.ContainsKey(playerId)))
             && !string.Equals(action, "WAIT", StringComparison.Ordinal)
             && hasRequiredChoices;
         return new ActionPromptCandidateDto(
@@ -6337,6 +6353,7 @@ internal static class ActionPromptBuilder
             "PASS_PRIORITY" => "让过优先权",
             "PASS_FOCUS" => "让过焦点",
             "END_TURN" => "结束回合",
+            "SURRENDER" => "投降",
             _ => action
         };
     }
@@ -6398,6 +6415,16 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
                 TurnPlayerId = nextPlayerId,
                 Phase = MatchPhases.Main,
                 TimingState = TimingStates.NeutralOpen
+            };
+        }
+
+        if (command is SurrenderCommand)
+        {
+            return state with
+            {
+                Tick = state.Tick + 1,
+                Status = MatchStatuses.Finished,
+                WinnerPlayerId = NextPlayerId(state)
             };
         }
 
@@ -6470,6 +6497,22 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
                     "CARD_DRAWN",
                     $"{nextState.ActivePlayerId} 抽 1 张牌",
                     new Dictionary<string, object?>())
+            ];
+        }
+
+        if (command is SurrenderCommand)
+        {
+            return
+            [
+                new GameEvent(
+                    "MATCH_WON",
+                    $"{nextState.WinnerPlayerId} 因 {intent.PlayerId} 投降获胜",
+                    new Dictionary<string, object?>
+                    {
+                        ["winnerPlayerId"] = nextState.WinnerPlayerId,
+                        ["surrenderedPlayerId"] = intent.PlayerId,
+                        ["reason"] = "SURRENDER"
+                    })
             ];
         }
 

@@ -21,10 +21,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
         Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
-        foreach (var (playerId, actions) in fixture.Expected.PromptActions)
-        {
-            Assert.Equal(actions, result.Prompts[playerId].Actions);
-        }
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
     }
 
     [Fact]
@@ -73,6 +70,21 @@ public sealed class ConformanceFixtureRunnerTests
         var mismatches = ConformanceFixtureRunner.CompareExpected(fixture, result);
 
         Assert.Contains(mismatches, mismatch => mismatch.Contains("promptActions.P2", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void LegacyPromptActionsIgnoreGlobalSurrenderOnWaitPrompts()
+    {
+        var fixture = BuildPromptComparisonFixture(
+            new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+            {
+                ["P2"] = ["WAIT"]
+            });
+        var result = BuildPromptComparisonResult(
+            ["END_TURN"],
+            ["WAIT", "SURRENDER"]);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
     }
 
     [Fact]
@@ -297,6 +309,36 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(MatchPhases.Main, result.State.Phase);
         Assert.Equal(["P1-SPELL-PUNISHMENT"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P2-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineSurrenderFinishesMatchAndOpponentWins()
+    {
+        var state = PunishmentState(mana: 0);
+        var prompts = ResolutionResult.BuildPrompts(state);
+        Assert.Contains("SURRENDER", prompts["P1"].Actions);
+        Assert.Contains("SURRENDER", prompts["P2"].Actions);
+        Assert.Contains(prompts["P2"].Candidates ?? [], candidate =>
+            string.Equals(candidate.Action, "SURRENDER", StringComparison.Ordinal)
+            && candidate.Enabled);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-surrender", "P1", "SURRENDER"),
+            new SurrenderCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        Assert.Equal("P2", result.State.WinnerPlayerId);
+        var winEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal("P2", winEvent.Payload["winnerPlayerId"]);
+        Assert.Equal("P1", winEvent.Payload["surrenderedPlayerId"]);
+        Assert.Equal("SURRENDER", winEvent.Payload["reason"]);
+        Assert.Equal("P2", result.Snapshots["P1"].Timing["winnerPlayerId"]);
+        Assert.Equal("P2", result.Snapshots["P2"].Timing["winnerPlayerId"]);
+        Assert.All(result.Prompts.Values, prompt => Assert.Equal(["WAIT"], prompt.Actions));
     }
 
     [Fact]
@@ -23432,7 +23474,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P1", result.State.TurnPlayerId);
         Assert.Equal("MAIN", result.State.Phase);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
     }
 
     [Fact]
@@ -23486,8 +23528,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", result.State.PriorityPlayerId);
         Assert.Equal(new[] { "P1" }, result.State.PassedPriorityPlayerIds);
         Assert.Single(result.State.StackItems);
-        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].Actions);
-        Assert.Equal(new[] { "PASS_PRIORITY" }, result.Prompts["P2"].Actions);
+        Assert.Equal(new[] { "WAIT", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "PASS_PRIORITY", "SURRENDER" }, result.Prompts["P2"].Actions);
     }
 
     [Fact]
@@ -23508,7 +23550,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1", result.FinalState.TurnPlayerId);
         Assert.Equal("MAIN", result.FinalState.Phase);
         Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -23534,7 +23576,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(result.FinalState.PriorityPlayerId);
         Assert.Empty(result.FinalState.PassedPriorityPlayerIds);
         Assert.Empty(result.FinalState.StackItems);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -23561,7 +23603,7 @@ public sealed class ConformanceFixtureRunnerTests
         var remaining = Assert.Single(result.FinalState.StackItems);
         Assert.Equal("STACK-OLDER", remaining.StackItemId);
         Assert.Equal("P1", remaining.ControllerId);
-        Assert.Equal(new[] { "PASS_PRIORITY" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "PASS_PRIORITY", "SURRENDER" }, result.Prompts["P1"].Actions);
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -23609,7 +23651,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
     }
 
     [Fact]
@@ -23664,8 +23706,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", result.State.ActivePlayerId);
         Assert.Equal("P2", result.State.FocusPlayerId);
         Assert.Equal(new[] { "P1" }, result.State.PassedFocusPlayerIds);
-        Assert.Equal(new[] { "WAIT" }, result.Prompts["P1"].Actions);
-        Assert.Equal(new[] { "PASS_FOCUS" }, result.Prompts["P2"].Actions);
+        Assert.Equal(new[] { "WAIT", "SURRENDER" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "PASS_FOCUS", "SURRENDER" }, result.Prompts["P2"].Actions);
     }
 
     [Fact]
@@ -23727,7 +23769,7 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(["PLAY_CARD", "PASS_FOCUS"], result.Prompts["P1"].Actions);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], result.Prompts["P1"].Actions);
         var playCandidate = Assert.Single(
             result.Prompts["P1"].Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
@@ -23757,7 +23799,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("NEUTRAL_OPEN", result.FinalState.TimingState);
         Assert.Null(result.FinalState.FocusPlayerId);
         Assert.Empty(result.FinalState.PassedFocusPlayerIds);
-        Assert.Equal(new[] { "END_TURN" }, result.Prompts["P1"].Actions);
+        Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);
         Assert.False(result.Prompts["P2"].Actionable);
     }
 
@@ -23874,8 +23916,8 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("SPELL_DUEL_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-spell-duel:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["PASS_FOCUS"], result.Prompts["P1"].Actions);
-        Assert.Equal(["WAIT"], result.Prompts["P2"].Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].Actions);
 
         var startedEvent = Assert.Single(
             result.Events,
@@ -23984,7 +24026,7 @@ public sealed class ConformanceFixtureRunnerTests
             });
         Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
         Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
-        Assert.Equal(["DECLARE_BATTLE"], result.Prompts["P1"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
         Assert.True(result.Prompts["P1"].Actionable);
         Assert.Contains("争夺战场", result.Prompts["P1"].Reason, StringComparison.Ordinal);
 
@@ -24065,7 +24107,7 @@ public sealed class ConformanceFixtureRunnerTests
             });
 
         Assert.Equal("BATTLE_TASKS", state.PendingTaskQueue.Phase);
-        Assert.Equal(["DECLARE_BATTLE"], ResolutionResult.BuildPrompts(state)["P1"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], ResolutionResult.BuildPrompts(state)["P1"].Actions);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -26817,7 +26859,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var state = LegendSpellDuelFocusState("UNL-197/219", "P1-LEGEND-DIANA");
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        Assert.Equal(["LEGEND_ACT", "PASS_FOCUS"], prompt.Actions);
+        Assert.Equal(["LEGEND_ACT", "PASS_FOCUS", "SURRENDER"], prompt.Actions);
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
             && candidate.Enabled);
@@ -26868,7 +26910,7 @@ public sealed class ConformanceFixtureRunnerTests
     {
         var state = LegendPriorityWindowState("OGN·247/298", "P1-LEGEND-KAISA", CardObjectTags.SpellCard);
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
-        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY"], prompt.Actions);
+        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY", "SURRENDER"], prompt.Actions);
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
             && candidate.Enabled);
@@ -27424,7 +27466,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(playResult.Accepted);
         Assert.Contains("EZREAL_ENEMY_TARGETS_THIS_TURN:P1:2", playResult.State.UntilEndOfTurnEffects);
         var prompt = ResolutionResult.BuildPrompts(playResult.State)["P1"];
-        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY"], prompt.Actions);
+        Assert.Equal(["LEGEND_ACT", "PASS_PRIORITY", "SURRENDER"], prompt.Actions);
         Assert.Contains(prompt.Candidates ?? [], candidate =>
             string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal)
             && candidate.Enabled
@@ -42692,10 +42734,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.Equal(fixture.Expected.FinalTick, result.FinalTick);
         Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
-        foreach (var (playerId, actions) in fixture.Expected.PromptActions)
-        {
-            Assert.Equal(actions, result.Prompts[playerId].Actions);
-        }
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
 
         Assert.True(fixture.RequiresRuleAudit);
         Assert.NotEmpty(fixture.RulesEvidence ?? []);

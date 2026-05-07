@@ -957,7 +957,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.False(prompts["alice"].Actionable);
-        Assert.Equal(["WAIT"], prompts["alice"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], prompts["alice"].Actions);
         Assert.Contains("DESTROY_LETHAL_UNIT", prompts["alice"].Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("PLAY_CARD", prompts["alice"].Actions);
 
@@ -1039,7 +1039,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var prompt = ResolutionResult.BuildPrompts(state)["alice"];
         Assert.False(prompt.Actionable);
-        Assert.Equal(["WAIT"], prompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], prompt.Actions);
         Assert.Contains("DESTROY_ZERO_POWER_UNIT", prompt.Reason, StringComparison.Ordinal);
 
         var blocked = await new CoreRuleEngine().ResolveAsync(
@@ -1135,7 +1135,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.False(prompts["alice"].Actionable);
-        Assert.Equal(["WAIT"], prompts["alice"].Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], prompts["alice"].Actions);
         Assert.Contains("REMOVE_ILLEGAL_STANDBY", prompts["alice"].Reason, StringComparison.Ordinal);
 
         var blocked = await new CoreRuleEngine().ResolveAsync(
@@ -1331,9 +1331,11 @@ public sealed class ConformanceFixtureShapeTests
 
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.True(prompts["alice"].Actionable);
-        Assert.Equal(["DECLARE_BATTLE"], prompts["alice"].Actions);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], prompts["alice"].Actions);
         Assert.Contains("争夺战场", prompts["alice"].Reason, StringComparison.Ordinal);
-        var candidate = Assert.Single(prompts["alice"].Candidates ?? []);
+        var candidate = Assert.Single(
+            prompts["alice"].Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
         Assert.Equal("DECLARE_BATTLE", candidate.Action);
         Assert.True(candidate.Enabled);
         Assert.Equal(["A-UNIT-1"], (candidate.Sources ?? []).Select(source => source.Id).ToArray());
@@ -1693,7 +1695,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["STACK"], (reactionRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
 
         var opponentPrompt = ResolutionResult.BuildPrompts(reactionState)["P2"];
-        Assert.Equal(["WAIT"], opponentPrompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], opponentPrompt.Actions);
     }
 
     [Fact]
@@ -1757,7 +1759,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var prompt = ResolutionResult.BuildPrompts(state)["P2"];
 
-        Assert.Equal(["PLAY_CARD", "PASS_PRIORITY"], prompt.Actions);
+        Assert.Equal(["PLAY_CARD", "PASS_PRIORITY", "SURRENDER"], prompt.Actions);
         var playCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
@@ -1781,7 +1783,7 @@ public sealed class ConformanceFixtureShapeTests
         Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], firstTargetChoices.Select(choice => choice.Id).ToArray());
 
         var opponentPrompt = ResolutionResult.BuildPrompts(state)["P1"];
-        Assert.Equal(["WAIT"], opponentPrompt.Actions);
+        Assert.Equal(["WAIT", "SURRENDER"], opponentPrompt.Actions);
     }
 
     [Fact]
@@ -2093,7 +2095,7 @@ public sealed class ConformanceFixtureShapeTests
             focusPlayerId: "P1");
 
         var emptyPrompt = ResolutionResult.BuildPrompts(emptyFocusState)["P1"];
-        Assert.Equal(["PASS_FOCUS"], emptyPrompt.Actions);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], emptyPrompt.Actions);
         Assert.DoesNotContain(
             emptyPrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
@@ -2135,7 +2137,7 @@ public sealed class ConformanceFixtureShapeTests
         };
 
         var playablePrompt = ResolutionResult.BuildPrompts(playableFocusState)["P1"];
-        Assert.Equal(["PLAY_CARD", "PASS_FOCUS"], playablePrompt.Actions);
+        Assert.Equal(["PLAY_CARD", "PASS_FOCUS", "SURRENDER"], playablePrompt.Actions);
         var playCandidate = Assert.Single(
             playablePrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));

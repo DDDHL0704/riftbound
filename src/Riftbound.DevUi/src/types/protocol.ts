@@ -140,6 +140,7 @@ export type GameCommand =
   | { cmdType: "PASS_FOCUS" }
   | { cmdType: "PASS" }
   | { cmdType: "END_TURN" }
+  | { cmdType: "SURRENDER" }
   | { cmdType: "PLAY_CARD"; sourceObjectId: string; cardNo: string; targetObjectIds: string[]; mode?: string; optionalCosts?: string[]; destination?: string }
   | { cmdType: "HIDE_CARD"; sourceObjectId: string; cardNo: string; destination?: string; optionalCosts?: string[] }
   | { cmdType: "REVEAL_CARD"; sourceObjectId: string; cardNo: string; mode?: string; destination?: string; optionalCosts?: string[]; targetObjectIds?: string[] }
