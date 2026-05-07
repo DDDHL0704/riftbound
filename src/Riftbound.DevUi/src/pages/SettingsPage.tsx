@@ -85,6 +85,14 @@ export function SettingsPage() {
             <option value="off">关闭</option>
           </select>
         </label>
+        <label>
+          <span>日志密度</span>
+          <select value={settings.logDensity} onChange={(event) => updateSettings({ logDensity: event.target.value as typeof settings.logDensity })}>
+            <option value="compact">简洁</option>
+            <option value="standard">标准</option>
+            <option value="detailed">详细</option>
+          </select>
+        </label>
       </section>
       <section className="diagnostics-header">
         <div>
@@ -172,6 +180,10 @@ export function SettingsPage() {
               <dd>{animationLabel(settings.animationLevel)}</dd>
             </div>
             <div>
+              <dt>日志</dt>
+              <dd>{logDensityLabel(settings.logDensity)}</dd>
+            </div>
+            <div>
               <dt>API</dt>
               <dd>{settings.serverUrl}</dd>
             </div>
@@ -190,5 +202,16 @@ function animationLabel(level: "full" | "reduced" | "off"): string {
       return "简化";
     case "off":
       return "关闭";
+  }
+}
+
+function logDensityLabel(density: "compact" | "standard" | "detailed"): string {
+  switch (density) {
+    case "compact":
+      return "简洁";
+    case "standard":
+      return "标准";
+    case "detailed":
+      return "详细";
   }
 }

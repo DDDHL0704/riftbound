@@ -4,6 +4,7 @@ export type AppSettings = {
   serverUrl: string;
   playerId: string;
   animationLevel: "full" | "reduced" | "off";
+  logDensity: "compact" | "standard" | "detailed";
 };
 
 type SettingsContextValue = {
@@ -27,6 +28,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
           localStorage.setItem("riftbound.serverUrl", next.serverUrl);
           localStorage.setItem("riftbound.playerId", next.playerId);
           localStorage.setItem("riftbound.animationLevel", next.animationLevel);
+          localStorage.setItem("riftbound.logDensity", next.logDensity);
           return next;
         });
       }
@@ -50,7 +52,8 @@ function readInitialSettings(): AppSettings {
   const serverUrl = localStorage.getItem("riftbound.serverUrl") ?? "http://127.0.0.1:5088";
   const storedPlayerId = localStorage.getItem("riftbound.playerId");
   const playerId = storedPlayerId ?? `玩家${Math.floor(Math.random() * 900 + 100)}`;
-  const animationLevel = (localStorage.getItem("riftbound.animationLevel") as AppSettings["animationLevel"] | null) ?? "full";
+  const animationLevel = readEnum("riftbound.animationLevel", ["full", "reduced", "off"], "full");
+  const logDensity = readEnum("riftbound.logDensity", ["compact", "standard", "detailed"], "standard");
 
   if (!storedPlayerId) {
     localStorage.setItem("riftbound.playerId", playerId);
@@ -59,6 +62,12 @@ function readInitialSettings(): AppSettings {
   return {
     serverUrl,
     playerId,
-    animationLevel
+    animationLevel,
+    logDensity
   };
+}
+
+function readEnum<const T extends string>(key: string, values: readonly T[], fallback: T): T {
+  const value = localStorage.getItem(key);
+  return values.includes(value as T) ? (value as T) : fallback;
 }

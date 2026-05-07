@@ -1,5 +1,7 @@
 import { ErrorDto, GameEvent } from "../../types/protocol";
 
+export type LogDensity = "compact" | "standard" | "detailed";
+
 const eventKindLabels: Record<string, string> = {
   ABILITY_ACTIVATED: "激活能力",
   BATTLE_CLOSED: "战斗结束",
@@ -117,13 +119,17 @@ function eventKindLabel(kind: string) {
   return eventKindLabels[kind] ?? "服务端事件";
 }
 
-export function EventLog({ events, errors }: { events: GameEvent[]; errors: ErrorDto[] }) {
+export function EventLog({ density = "standard", events, errors }: { density?: LogDensity; events: GameEvent[]; errors: ErrorDto[] }) {
+  const visibleEvents = density === "compact" ? events.slice(-12) : events;
+  const hiddenEventCount = events.length - visibleEvents.length;
+
   return (
-    <section className="side-panel event-log">
+    <section className={`side-panel event-log event-log-${density}`}>
       <header>
         <span className="eyebrow">服务端日志</span>
         <h2>事件 / 错误</h2>
       </header>
+      {hiddenEventCount > 0 && <span className="empty-hint">简洁模式显示最近 {visibleEvents.length} 条服务端事件。</span>}
       {errors.map((error, index) => (
         <article className="log-row log-error" key={`error-${index}`}>
           <strong>{error.code}</strong>
@@ -131,9 +137,10 @@ export function EventLog({ events, errors }: { events: GameEvent[]; errors: Erro
         </article>
       ))}
       {events.length === 0 && errors.length === 0 && <span className="empty-hint">暂无服务端事件。</span>}
-      {events.map((event, index) => (
+      {visibleEvents.map((event, index) => (
         <article className="log-row" key={`${event.kind}-${index}`}>
           <strong title={event.kind}>{eventKindLabel(event.kind)}</strong>
+          {density === "detailed" && <code>{event.kind}</code>}
           <span>{event.description}</span>
         </article>
       ))}

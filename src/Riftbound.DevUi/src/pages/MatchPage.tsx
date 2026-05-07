@@ -35,7 +35,7 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
       </section>
       <div className="match-layout">
         <aside className="left-rail">
-          <EventLog errors={controller.state.errors} events={controller.state.events} />
+          <EventLog density={settings.logDensity} errors={controller.state.errors} events={controller.state.events} />
         </aside>
         <main className="play-surface">
           {opponents.map(([playerId, player]) => (
