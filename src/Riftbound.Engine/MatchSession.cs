@@ -3061,6 +3061,7 @@ internal static class ActionPromptBuilder
         return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
             && !cardObject.IsExhausted;
@@ -3071,6 +3072,7 @@ internal static class ActionPromptBuilder
         return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             && cardObject.Tags.Any(tag => tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))
             && !cardObject.IsFaceDown;
@@ -7968,6 +7970,7 @@ public sealed class MatchSession : IMatchSession
             "unknown-legend-action-source-prompt" => BuildUnknownLegendActionSourcePromptScenario(current, seed),
             "unknown-activate-ability-source-prompt" => BuildUnknownActivateAbilitySourcePromptScenario(current, seed),
             "unknown-move-unit-source-prompt" => BuildUnknownMoveUnitSourcePromptScenario(current, seed),
+            "unknown-rune-source-prompt" => BuildUnknownRuneSourcePromptScenario(current, seed),
             "assemble-payment-recycle" => BuildAssemblePaymentRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "priority-reaction-counter" => BuildPriorityReactionCounterScenario(current, seed),
@@ -8924,6 +8927,42 @@ public sealed class MatchSession : IMatchSession
                     "P1-UNIT-UNKNOWN-MOVE-SOURCE",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildUnknownRuneSourcePromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304167,
+            4167,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    baseZone: ["P1-RUNE-UNKNOWN-SOURCE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RUNE-UNKNOWN-SOURCE"] = new(
+                    "P1-RUNE-UNKNOWN-SOURCE",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
             });

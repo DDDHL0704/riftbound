@@ -2602,6 +2602,93 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsTapRuneSourceWithoutCardNo()
+    {
+        const string runeObjectId = "P1-RUNE-UNKNOWN-TAP";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-tap-unknown", "P1", "TAP_RUNE"),
+            new TapRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("TAP_RUNE source must expose a known rune card number.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.Equal(0, result.State.RunePools["P1"].Mana);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsRecycleRuneSourceWithoutCardNo()
+    {
+        const string runeObjectId = "P1-RUNE-UNKNOWN-RECYCLE";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    cardNo: "UNL-R03",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-recycle-unknown", "P1", "RECYCLE_RUNE"),
+            new RecycleRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("RECYCLE_RUNE source must expose a known rune card number.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-001"], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRecyclesBasicRuneForMatchingTraitPower()
     {
         const string runeObjectId = "P1-RUNE-RED-001";

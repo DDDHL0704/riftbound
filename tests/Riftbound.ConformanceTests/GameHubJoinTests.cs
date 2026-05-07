@@ -1497,6 +1497,53 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownRuneSourceSeedHidesRuneWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-rune-source-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-rune-source-prompt",
+                "seed-p7-9-unknown-rune-source-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var tapCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        Assert.False(tapCandidate.Enabled);
+        Assert.Empty(tapCandidate.Sources ?? []);
+        var recycleCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.False(recycleCandidate.Enabled);
+        Assert.Empty(recycleCandidate.Sources ?? []);
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Contains(
+            "P1-RUNE-UNKNOWN-SOURCE",
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownRune = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-RUNE-UNKNOWN-SOURCE"]);
+        Assert.Null(unknownRune["cardNo"]);
+    }
+
+    [Fact]
     public async Task P79AssemblePaymentRecycleSeedOffersResourceAndAttachesThroughHub()
     {
         const string roomId = "p7-9-assemble-payment-recycle-core";

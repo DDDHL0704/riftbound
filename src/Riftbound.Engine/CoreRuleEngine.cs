@@ -3910,6 +3910,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (string.IsNullOrWhiteSpace(runeState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "TAP_RUNE source must expose a known rune card number.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = runeState with
         {
@@ -3989,8 +3997,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var runeState)
             || !runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             || !string.Equals(runeState.ControllerId, intent.PlayerId, StringComparison.Ordinal)
-            || runeState.IsFaceDown
-            || !TryGetRuneTrait(runeState, out var runeTrait))
+            || runeState.IsFaceDown)
+        {
+            return RejectWithCorePrompts(
+                state,
+                "RECYCLE_RUNE requires a face-up controlled trait rune in the player's base.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (string.IsNullOrWhiteSpace(runeState.CardNo))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "RECYCLE_RUNE source must expose a known rune card number.",
+                ErrorCodes.UnsupportedCardBehavior);
+        }
+
+        if (!TryGetRuneTrait(runeState, out var runeTrait))
         {
             return RejectWithCorePrompts(
                 state,

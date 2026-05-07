@@ -2051,6 +2051,57 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesRuneSourcesWhenRuneHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-rune-unknown-source-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNKNOWN-RUNE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNKNOWN-RUNE"] = new(
+                    "P1-UNKNOWN-RUNE",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var tapCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        Assert.False(tapCandidate.Enabled);
+        Assert.Empty(tapCandidate.Sources ?? []);
+        Assert.Equal("TAP_RUNE 当前没有服务端可执行候选", tapCandidate.Reason);
+
+        var recycleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.False(recycleCandidate.Enabled);
+        Assert.Empty(recycleCandidate.Sources ?? []);
+        Assert.Equal("RECYCLE_RUNE 当前没有服务端可执行候选", recycleCandidate.Reason);
+    }
+
+    [Fact]
     public void ActionPromptFiltersAssembleEquipmentSourcesBySupportedAttachmentAndPower()
     {
         var noPowerState = new MatchState(
@@ -2135,6 +2186,7 @@ public sealed class ConformanceFixtureShapeTests
                     "P1-RUNE-RED-ASSEMBLE-PAYMENT",
                     isExhausted: true,
                     tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
                     ownerId: "P1",
                     controllerId: "P1")
             }
