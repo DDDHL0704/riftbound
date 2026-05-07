@@ -19,7 +19,7 @@
     "eventKinds" : [ "TURN_ENDED" ],
     "finalTick" : 1,
     "promptActions" : {
-      "P1" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
+      "P1" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
       "P2" : [ "WAIT" ]
     }
   },
@@ -36,7 +36,7 @@
       "P1" : {
         "playerId" : "P1",
         "actionable" : true,
-        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
+        "actions" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
         "availableActions" : [ {
           "id" : "PASS",
           "type" : "PASS",

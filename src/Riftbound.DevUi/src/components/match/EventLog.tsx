@@ -12,6 +12,7 @@ const eventKindLabels: Record<string, string> = {
   CARD_DRAWN: "抽牌",
   CARD_HIDDEN: "布置待命",
   CARD_PLAYED: "打出卡牌",
+  CARD_REVEALED: "翻开待命",
   COST_PAID: "支付费用",
   DAMAGE_APPLIED: "造成伤害",
   FOCUS_PASSED: "让过焦点",

@@ -142,6 +142,7 @@ export type GameCommand =
   | { cmdType: "END_TURN" }
   | { cmdType: "PLAY_CARD"; sourceObjectId: string; cardNo: string; targetObjectIds: string[]; mode?: string; optionalCosts?: string[]; destination?: string }
   | { cmdType: "HIDE_CARD"; sourceObjectId: string; cardNo: string; destination?: string; optionalCosts?: string[] }
+  | { cmdType: "REVEAL_CARD"; sourceObjectId: string; cardNo: string; mode?: string; destination?: string; optionalCosts?: string[]; targetObjectIds?: string[] }
   | { cmdType: "TAP_RUNE"; sourceObjectId: string }
   | { cmdType: "RECYCLE_RUNE"; sourceObjectId: string }
   | { cmdType: "MOVE_UNIT"; sourceObjectId: string; origin?: string; destination?: string; optionalCosts?: string[] }

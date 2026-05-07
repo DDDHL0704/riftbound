@@ -21945,7 +21945,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ? "当前玩家可让过优先行动权"
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_PRIORITY")
+                    ? ActionPromptBuilder.StackPriorityActions(state, playerId)
                     : ["WAIT"]));
         }
 
@@ -22011,6 +22011,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             "MOVE_UNIT",
             "DECLARE_BATTLE",
             "HIDE_CARD",
+            "REVEAL_CARD",
             "TAP_RUNE",
             "RECYCLE_RUNE",
             "LEGEND_ACT"

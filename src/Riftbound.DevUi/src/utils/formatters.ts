@@ -90,6 +90,7 @@ export function actionLabel(action: string): string {
     PASS: "让过",
     END_TURN: "结束回合",
     PLAY_CARD: "打出卡牌",
+    REVEAL_CARD: "翻开待命",
     TAP_RUNE: "横置符文",
     RECYCLE_RUNE: "回收符文",
     MOVE_UNIT: "移动单位",

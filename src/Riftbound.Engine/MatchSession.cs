@@ -2106,7 +2106,7 @@ public sealed record ResolutionResult(
                     ? "当前玩家可让过优先行动权"
                     : "等待对手优先行动",
                 string.Equals(playerId, state.PriorityPlayerId, StringComparison.Ordinal)
-                    ? ActionPromptBuilder.ActionsWithLegendActIfAvailable(state, playerId, "PASS_PRIORITY")
+                    ? ActionPromptBuilder.StackPriorityActions(state, playerId)
                     : ["WAIT"]));
         }
 
@@ -2165,6 +2165,7 @@ public sealed record ResolutionResult(
                     "MOVE_UNIT",
                     "DECLARE_BATTLE",
                     "HIDE_CARD",
+                    "REVEAL_CARD",
                     "TAP_RUNE",
                     "RECYCLE_RUNE",
                     "LEGEND_ACT",
@@ -2226,6 +2227,13 @@ internal static class ActionPromptBuilder
     private const string StandbyHideTeemoOptionalCost = "STANDBY_TEEMO_MANA";
     private const int StandbyHideManaCost = 1;
     private const string FreeStandbyHideEffectPrefix = "FREE_STANDBY_HIDE:";
+    private const string StandbyRevealMode = "STANDBY_REVEAL";
+    private const string StandbyRevealModeLabel = "翻开待命";
+    private const string StandbyRevealDestination = "BASE";
+    private const string StandbyRevealOptionalCost = "STANDBY_REVEAL_0";
+    private const string StandbyReactionMode = "STANDBY_REACTION";
+    private const string StandbyReactionModeLabel = "作为反应打出";
+    private const string StandbyReactionDestination = "STACK";
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
@@ -2304,6 +2312,18 @@ internal static class ActionPromptBuilder
         IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
         IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
         int ManaCost,
+        bool Composable,
+        string? UnsupportedReason);
+
+    private sealed record RevealCardPromptRequirement(
+        string SourceObjectId,
+        string CardNo,
+        string DisplayName,
+        string Mode,
+        string ModeLabel,
+        IReadOnlyList<ActionPromptChoiceDto> DestinationChoices,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<string> RequiredOptionalCosts,
         bool Composable,
         string? UnsupportedReason);
 
@@ -2473,6 +2493,23 @@ internal static class ActionPromptBuilder
             : [primaryAction];
     }
 
+    public static IReadOnlyList<string> StackPriorityActions(MatchState state, string playerId)
+    {
+        var actions = new List<string>();
+        if (SourcesFor(state, playerId, "REVEAL_CARD")?.Count > 0)
+        {
+            actions.Add("REVEAL_CARD");
+        }
+
+        if (SourcesFor(state, playerId, "LEGEND_ACT")?.Count > 0)
+        {
+            actions.Add("LEGEND_ACT");
+        }
+
+        actions.Add("PASS_PRIORITY");
+        return actions;
+    }
+
     public static IReadOnlyList<string> SpellDuelFocusActions(MatchState state, string playerId)
     {
         var actions = new List<string>();
@@ -2540,6 +2577,7 @@ internal static class ActionPromptBuilder
             || string.Equals(action, "LEGEND_ACT", StringComparison.Ordinal)
             || string.Equals(action, "ACTIVATE_ABILITY", StringComparison.Ordinal)
             || string.Equals(action, "HIDE_CARD", StringComparison.Ordinal)
+            || string.Equals(action, "REVEAL_CARD", StringComparison.Ordinal)
             || string.Equals(action, "TAP_RUNE", StringComparison.Ordinal)
             || string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal)
             || string.Equals(action, "DECLARE_BATTLE", StringComparison.Ordinal);
@@ -2585,6 +2623,11 @@ internal static class ActionPromptBuilder
                 .Select(requirement => requirement.SourceObjectId)
                 .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented standby source"))
+                .ToArray(),
+            "REVEAL_CARD" => RevealCardSourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
+                .Select(objectId => ObjectChoice(state, objectId, "face-down standby source"))
                 .ToArray(),
             "TAP_RUNE" => zones.Base
                 .Where(objectId => IsTapRuneSource(state, playerId, objectId))
@@ -2661,6 +2704,91 @@ internal static class ActionPromptBuilder
         }
 
         return requirements;
+    }
+
+    private static IReadOnlyList<RevealCardPromptRequirement> RevealCardSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        var canRevealInBase = CanRevealStandbyInBase(state, playerId);
+        var canPlayReaction = CanRevealStandbyReactionToStack(state, playerId);
+        if (!canRevealInBase && !canPlayReaction)
+        {
+            return [];
+        }
+
+        var mode = canPlayReaction ? StandbyReactionMode : StandbyRevealMode;
+        var modeLabel = canPlayReaction ? StandbyReactionModeLabel : StandbyRevealModeLabel;
+        var destination = canPlayReaction ? StandbyReactionDestination : StandbyRevealDestination;
+        var destinationLabel = canPlayReaction ? "结算链" : "基地";
+        var optionalCostLabel = canPlayReaction ? "支付 0 作为反应打出" : "支付 0 翻开待命";
+        var destinationChoices = new[]
+        {
+            new ActionPromptChoiceDto(destination, destinationLabel, "服务端待命翻开目的地")
+        };
+        var optionalCostChoices = new[]
+        {
+            new ActionPromptChoiceDto(StandbyRevealOptionalCost, optionalCostLabel)
+        };
+        var requirements = new List<RevealCardPromptRequirement>();
+        foreach (var objectId in zones.Base.Where(objectId => IsImplementedStandbyRevealSource(state, objectId)))
+        {
+            if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                || string.IsNullOrWhiteSpace(cardObject.CardNo)
+                || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior))
+            {
+                continue;
+            }
+
+            requirements.Add(new RevealCardPromptRequirement(
+                objectId,
+                behavior.CardNo,
+                behavior.DisplayName,
+                mode,
+                modeLabel,
+                destinationChoices,
+                optionalCostChoices,
+                [StandbyRevealOptionalCost],
+                true,
+                null));
+        }
+
+        return requirements;
+    }
+
+    private static bool CanRevealStandbyInBase(MatchState state, string playerId)
+    {
+        return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            && string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+            && state.StackItems.Count == 0;
+    }
+
+    private static bool CanRevealStandbyReactionToStack(MatchState state, string playerId)
+    {
+        return string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            && string.Equals(state.TimingState, TimingStates.NeutralClosed, StringComparison.Ordinal)
+            && state.StackItems.Count > 0
+            && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
+    }
+
+    private static bool IsImplementedStandbyRevealSource(MatchState state, string objectId)
+    {
+        if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || !cardObject.IsFaceDown
+            || string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior))
+        {
+            return false;
+        }
+
+        return cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || HasDelimitedTag(behavior.SourceUnitTags, CardObjectTags.Standby);
     }
 
     private static ActionPromptChoiceDto[] HideCardOptionalCostChoicesForState(
@@ -4595,6 +4723,12 @@ internal static class ActionPromptBuilder
                     .GroupBy(choice => choice.Id, StringComparer.Ordinal)
                     .Select(group => group.First())
             ],
+            "REVEAL_CARD" => [
+                .. RevealCardSourceRequirements(state, playerId)
+                    .SelectMany(requirement => requirement.DestinationChoices)
+                    .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                    .Select(group => group.First())
+            ],
             "MOVE_UNIT" => MoveUnitDestinationChoices(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleDestinationChoices(state, playerId),
             _ => null
@@ -4650,6 +4784,7 @@ internal static class ActionPromptBuilder
         return action switch
         {
             "PLAY_CARD" => PlayCardModeChoices(state, playerId),
+            "REVEAL_CARD" => RevealCardModeChoices(state, playerId),
             "ACTIVATE_ABILITY" => ActivateAbilityModeChoices(state, playerId),
             "LEGEND_ACT" => LegendActionModeChoices(state, playerId),
             _ => null
@@ -4663,6 +4798,18 @@ internal static class ActionPromptBuilder
             .Where(mode => !string.IsNullOrWhiteSpace(mode))
             .Distinct(StringComparer.Ordinal)
             .Select(mode => new ActionPromptChoiceDto(mode, PlayCardModeLabel(mode)))
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? RevealCardModeChoices(MatchState state, string playerId)
+    {
+        var choices = RevealCardSourceRequirements(state, playerId)
+            .GroupBy(requirement => requirement.Mode, StringComparer.Ordinal)
+            .Select(group => new ActionPromptChoiceDto(
+                group.Key,
+                group.First().ModeLabel,
+                "server-filtered standby reveal mode"))
             .ToArray();
         return choices.Length == 0 ? null : choices;
     }
@@ -4700,6 +4847,7 @@ internal static class ActionPromptBuilder
         {
             "PLAY_CARD" => PlayCardOptionalCostChoices(state, playerId),
             "HIDE_CARD" => HideCardOptionalCostChoices(state, playerId),
+            "REVEAL_CARD" => RevealCardOptionalCostChoices(state, playerId),
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
             "DECLARE_BATTLE" => DeclareBattleOptionalCostChoices(state, playerId),
@@ -4713,6 +4861,18 @@ internal static class ActionPromptBuilder
         string playerId)
     {
         var choices = HideCardSourceRequirements(state, playerId)
+            .SelectMany(requirement => requirement.OptionalCostChoices)
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? RevealCardOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        var choices = RevealCardSourceRequirements(state, playerId)
             .SelectMany(requirement => requirement.OptionalCostChoices)
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
@@ -5252,6 +5412,7 @@ internal static class ActionPromptBuilder
         {
             "PLAY_CARD" => PlayCardMetadataFor(state, playerId),
             "HIDE_CARD" => HideCardMetadataFor(state, playerId),
+            "REVEAL_CARD" => RevealCardMetadataFor(state, playerId),
             "TAP_RUNE" => new Dictionary<string, object?>
             {
                 ["sourcePolicy"] = "ready-controlled-base-rune",
@@ -5283,6 +5444,39 @@ internal static class ActionPromptBuilder
             ["destinationPolicy"] = "source-specific-server-filtered-standby-destinations",
             ["optionalCostPolicy"] = "source-specific-server-filtered-standby-costs",
             ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> RevealCardMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = RevealCardSourceRequirements(state, playerId)
+            .Select(RevealCardSourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "face-down-standby-card-only",
+            ["modePolicy"] = "source-specific-server-filtered-standby-reveal-mode",
+            ["destinationPolicy"] = "source-specific-server-filtered-standby-reveal-destination",
+            ["optionalCostPolicy"] = "source-specific-required-standby-reveal-cost",
+            ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> RevealCardSourceRequirementView(
+        RevealCardPromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["cardNo"] = requirement.CardNo,
+            ["displayName"] = requirement.DisplayName,
+            ["mode"] = requirement.Mode,
+            ["modeLabel"] = requirement.ModeLabel,
+            ["destinationChoices"] = requirement.DestinationChoices,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 
@@ -5953,6 +6147,7 @@ internal static class ActionPromptBuilder
             "MOVE_UNIT" => "移动单位",
             "DECLARE_BATTLE" => "声明战斗",
             "HIDE_CARD" => "布置待命",
+            "REVEAL_CARD" => "翻开待命",
             "TAP_RUNE" => "横置符文",
             "RECYCLE_RUNE" => "回收符文",
             "LEGEND_ACT" => "传奇行动",

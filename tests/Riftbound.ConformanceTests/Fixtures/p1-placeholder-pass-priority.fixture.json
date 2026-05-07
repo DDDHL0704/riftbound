@@ -25,6 +25,7 @@
         "MOVE_UNIT",
         "DECLARE_BATTLE",
         "HIDE_CARD",
+        "REVEAL_CARD",
         "TAP_RUNE",
         "RECYCLE_RUNE",
         "LEGEND_ACT",

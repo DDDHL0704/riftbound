@@ -1409,6 +1409,141 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptFiltersRevealCardSourcesByWindowAndFaceDownStandby()
+    {
+        var openState = new MatchState(
+            "prompt-reveal-card-source-room",
+            18,
+            4,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [
+                        "P1-FACE-DOWN-STANDBY",
+                        "P1-FACE-UP-STANDBY",
+                        "P1-FACE-DOWN-NON-STANDBY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACE-DOWN-STANDBY"] = new(
+                    "P1-FACE-DOWN-STANDBY",
+                    isFaceDown: true,
+                    power: 1,
+                    cardNo: "OGN·197/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FACE-UP-STANDBY"] = new(
+                    "P1-FACE-UP-STANDBY",
+                    isFaceDown: false,
+                    power: 1,
+                    cardNo: "OGN·197/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FACE-DOWN-NON-STANDBY"] = new(
+                    "P1-FACE-DOWN-NON-STANDBY",
+                    isFaceDown: true,
+                    power: 1,
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var openPrompt = ResolutionResult.BuildPrompts(openState)["P1"];
+        var openRevealCandidate = Assert.Single(
+            openPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
+        Assert.True(openRevealCandidate.Enabled);
+        Assert.Equal("翻开待命", openRevealCandidate.Label);
+        Assert.Equal(["P1-FACE-DOWN-STANDBY"], (openRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["STANDBY_REVEAL"], (openRevealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Equal(["BASE"], (openRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        Assert.Equal(["STANDBY_REVEAL_0"], (openRevealCandidate.OptionalCosts ?? []).Select(cost => cost.Id).ToArray());
+
+        var openMetadata = Assert.IsType<Dictionary<string, object?>>(openRevealCandidate.Metadata);
+        var openRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            openMetadata["sourceRequirements"]));
+        Assert.Equal("P1-FACE-DOWN-STANDBY", Assert.IsType<string>(openRequirement["sourceObjectId"]));
+        Assert.Equal("OGN·197/298", Assert.IsType<string>(openRequirement["cardNo"]));
+        Assert.Equal("STANDBY_REVEAL", Assert.IsType<string>(openRequirement["mode"]));
+        Assert.Equal("翻开待命", Assert.IsType<string>(openRequirement["modeLabel"]));
+        Assert.True(Assert.IsType<bool>(openRequirement["composable"]));
+        Assert.Equal(
+            ["BASE"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(openRequirement["destinationChoices"])
+                .Select(destination => destination.Id)
+                .ToArray());
+        Assert.Equal(
+            ["STANDBY_REVEAL_0"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(openRequirement["optionalCostChoices"])
+                .Select(cost => cost.Id)
+                .ToArray());
+        Assert.Equal(
+            ["STANDBY_REVEAL_0"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(openRequirement["requiredOptionalCosts"]).ToArray());
+
+        var closedWithoutStackState = openState with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1"
+        };
+        var closedWithoutStackPrompt = ResolutionResult.BuildPrompts(closedWithoutStackState)["P1"];
+        var closedWithoutStackRevealCandidate = Assert.Single(
+            closedWithoutStackPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
+        Assert.False(closedWithoutStackRevealCandidate.Enabled);
+        Assert.Empty(closedWithoutStackRevealCandidate.Sources ?? []);
+
+        var reactionState = openState with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P1",
+            StackItems = [
+                new StackItemState(
+                    "STACK-PENDING-001",
+                    "P2",
+                    "P2-SPELL-PENDING-001",
+                    "DRAW_1",
+                    "OGN·007/298")
+            ]
+        };
+        var reactionPrompt = ResolutionResult.BuildPrompts(reactionState)["P1"];
+        Assert.Contains("REVEAL_CARD", reactionPrompt.Actions);
+        var reactionRevealCandidate = Assert.Single(
+            reactionPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "REVEAL_CARD", StringComparison.Ordinal));
+        Assert.True(reactionRevealCandidate.Enabled);
+        Assert.Equal(["P1-FACE-DOWN-STANDBY"], (reactionRevealCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["STANDBY_REACTION"], (reactionRevealCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Equal(["STACK"], (reactionRevealCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+
+        var opponentPrompt = ResolutionResult.BuildPrompts(reactionState)["P2"];
+        Assert.Equal(["WAIT"], opponentPrompt.Actions);
+    }
+
+    [Fact]
     public void ActionPromptPlayCardMetadataFiltersTargetsBySourceRequirement()
     {
         var state = new MatchState(
