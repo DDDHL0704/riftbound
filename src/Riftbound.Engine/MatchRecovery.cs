@@ -74,6 +74,138 @@ public static class MatchReplayRedactor
     }
 }
 
+public sealed record MatchActionLogReplayResult(
+    bool IsMatch,
+    string ReplayedStateHash,
+    string ExpectedStateHash,
+    IReadOnlyList<string> Errors);
+
+public static class MatchActionLogReplayer
+{
+    private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
+
+    public static async ValueTask<MatchActionLogReplayResult> VerifyFinalStateAsync(
+        MatchState initialState,
+        IReadOnlyList<RecoveredCommand> commands,
+        MatchState expectedFinalState,
+        IRuleEngine ruleEngine,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(initialState);
+        ArgumentNullException.ThrowIfNull(commands);
+        ArgumentNullException.ThrowIfNull(expectedFinalState);
+        ArgumentNullException.ThrowIfNull(ruleEngine);
+
+        var errors = new List<string>();
+        var session = new MatchSession(initialState, ruleEngine, NoopMatchJournal.Instance);
+        var replayedState = initialState;
+        foreach (var command in commands
+            .OrderBy(command => command.StartedEventSequence)
+            .ThenBy(command => command.CompletedEventSequence)
+            .ThenBy(command => command.ClientIntentId, StringComparer.Ordinal))
+        {
+            ResolutionResult result;
+            try
+            {
+                result = await ReplayCommandAsync(session, command, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is MatchSessionException or ArgumentException or InvalidOperationException or JsonException)
+            {
+                errors.Add($"command {command.ClientIntentId} failed to replay: {ex.Message}");
+                continue;
+            }
+
+            if (result.Accepted != command.Accepted)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} accepted={result.Accepted} but recovered accepted={command.Accepted}");
+            }
+
+            if (result.State.Tick != command.CompletedTick)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} completed tick {result.State.Tick} but recovered tick {command.CompletedTick}");
+            }
+
+            var expectedEventCount = command.CompletedEventSequence - command.StartedEventSequence;
+            if (result.Events.Count != expectedEventCount)
+            {
+                errors.Add(
+                    $"command {command.ClientIntentId} replayed {result.Events.Count} event(s) but recovered span expects {expectedEventCount}");
+            }
+
+            replayedState = result.State;
+        }
+
+        var replayedHash = MatchStateHasher.Hash(replayedState);
+        var expectedHash = MatchStateHasher.Hash(expectedFinalState);
+        if (!string.Equals(replayedHash, expectedHash, StringComparison.Ordinal))
+        {
+            errors.Add($"replayed final state hash {replayedHash} does not match expected {expectedHash}");
+        }
+
+        return new MatchActionLogReplayResult(
+            errors.Count == 0,
+            replayedHash,
+            expectedHash,
+            errors);
+    }
+
+    private static async ValueTask<ResolutionResult> ReplayCommandAsync(
+        MatchSession session,
+        RecoveredCommand recovered,
+        CancellationToken cancellationToken)
+    {
+        if (recovered.CommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal))
+        {
+            return await session.SeedScenarioAsync(
+                    recovered.PlayerId,
+                    recovered.ClientIntentId,
+                    recovered.CommandType[DevSeedScenarioPrefix.Length..],
+                    RawCommandFor(recovered),
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        var rawCommand = RawCommandFor(recovered);
+        var command = GameCommandJsonMapper.Map(rawCommand);
+        return command switch
+        {
+            ReadyCommand => await session.ReadyAsync(
+                    recovered.PlayerId,
+                    recovered.ClientIntentId,
+                    rawCommand,
+                    cancellationToken)
+                .ConfigureAwait(false),
+            SubmitDeckCommand submitDeckCommand => await session.SubmitDeckAsync(
+                    recovered.PlayerId,
+                    recovered.ClientIntentId,
+                    submitDeckCommand,
+                    rawCommand,
+                    cancellationToken)
+                .ConfigureAwait(false),
+            _ => await session.SubmitAsync(
+                    recovered.PlayerId,
+                    recovered.ClientIntentId,
+                    command,
+                    rawCommand,
+                    cancellationToken)
+                .ConfigureAwait(false)
+        };
+    }
+
+    private static JsonElement RawCommandFor(RecoveredCommand recovered)
+    {
+        if (recovered.RawCommand is { } rawCommand)
+        {
+            return rawCommand.Clone();
+        }
+
+        using var document = JsonDocument.Parse($$"""{"cmdType":"{{recovered.CommandType}}"}""");
+        return document.RootElement.Clone();
+    }
+}
+
 public static class MatchStateHasher
 {
     public static string Hash(MatchState state)

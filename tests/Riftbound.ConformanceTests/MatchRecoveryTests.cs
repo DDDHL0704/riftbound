@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -414,6 +415,60 @@ public sealed class MatchRecoveryTests
     }
 
     [Fact]
+    public async Task ActionLogReplayerReplaysRecoveredCommandsToFinalStateHash()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        await liveSession.SubmitAsync(
+            "alice",
+            "intent-end-turn",
+            new EndTurnCommand(),
+            RawCommand("END_TURN"),
+            CancellationToken.None);
+        var expectedFinalState = journal.Entries[^1].AuthoritativeState;
+        var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            expectedFinalState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None);
+
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        Assert.Equal(MatchStateHasher.Hash(expectedFinalState), replay.ExpectedStateHash);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Empty(replay.Errors);
+    }
+
+    [Fact]
+    public async Task ActionLogReplayerReportsFinalStateHashMismatch()
+    {
+        var initialState = ReplayInitialState();
+        var journal = new RecordingMatchJournal();
+        var liveSession = new MatchSession(initialState, new PlaceholderRuleEngine(), journal);
+        await liveSession.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None);
+        var wrongExpectedState = journal.Entries[^1].AuthoritativeState with
+        {
+            Tick = journal.Entries[^1].AuthoritativeState.Tick + 1
+        };
+        var recoveredCommands = journal.Entries.Select(ToRecoveredCommand).ToArray();
+
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(
+            initialState,
+            recoveredCommands,
+            wrongExpectedState,
+            new PlaceholderRuleEngine(),
+            CancellationToken.None);
+
+        Assert.False(replay.IsMatch);
+        Assert.NotEqual(replay.ExpectedStateHash, replay.ReplayedStateHash);
+        Assert.Contains(replay.Errors, error => error.Contains("replayed final state hash", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void SpectatorReplayFrameRedactsPrivateZonesFaceDownObjectsAndRngState()
     {
         var state = new MatchState(
@@ -499,6 +554,39 @@ public sealed class MatchRecoveryTests
         Assert.Equal(1, Assert.IsType<int>(bobZones["handHidden"]));
     }
 
+    private static MatchState ReplayInitialState()
+    {
+        return new MatchState(
+            "room-a",
+            2,
+            1,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen);
+    }
+
+    private static RecoveredCommand ToRecoveredCommand(MatchJournalEntry entry)
+    {
+        return new RecoveredCommand(
+            entry.PlayerId,
+            entry.ClientIntentId,
+            entry.CommandType,
+            entry.RawCommand?.Clone(),
+            entry.StartedTick,
+            entry.CompletedTick,
+            entry.StartedEventSequence,
+            entry.CompletedEventSequence,
+            entry.Accepted,
+            entry.ErrorMessage);
+    }
+
     private static RecoveredEvent RecoveredEvent(long sequence, string kind)
     {
         return new RecoveredEvent(
@@ -575,6 +663,11 @@ public sealed class MatchRecoveryTests
     {
         var player = Assert.IsType<Dictionary<string, object?>>(snapshot.Players[playerId]);
         return Assert.IsType<string>(player["seat"]);
+    }
+
+    private static JsonElement RawCommand(string cmdType)
+    {
+        return JsonDocument.Parse($$"""{"cmdType":"{{cmdType}}"}""").RootElement.Clone();
     }
 
     private sealed class FixedRecoveryStore(MatchRecoveryFrame? frame) : IMatchRecoveryStore

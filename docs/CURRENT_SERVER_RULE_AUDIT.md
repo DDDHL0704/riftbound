@@ -14,6 +14,9 @@
 
 ## 2026-05-07 开发进度更新
 
+- P1-004 第二十三批补充：新增 `MatchActionLogReplayer.VerifyFinalStateAsync`，可以从给定初始权威 `MatchState`、`RecoveredCommand` 列表、目标最终 `MatchState` 和指定 `IRuleEngine` 重放命令日志，并校验每条命令的 accepted、completed tick、事件数量和最终 canonical state hash。该 helper 支持 `READY`、`SUBMIT_DECK`、普通 `GameCommand` 以及 Development seed 命令，作为后续持久化 replay audit 的服务端基础构件。
+- 已补测试：新增 `ActionLogReplayerReplaysRecoveredCommandsToFinalStateHash` 覆盖从初始 in-progress 状态重放 `PASS` / `END_TURN` recovered commands 后 final state hash 与实时 journal authoritative state 一致；新增 `ActionLogReplayerReportsFinalStateHashMismatch` 覆盖 expected final state 被篡改时报告 hash mismatch。`MatchRecoveryTests` 目标回归 18/18 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
+- 复审结论补充：本批把 P1-004 从“只有 replay frame hash”推进到“可从明确初始状态重放 action log 并比对 final hash”的可测构件；整体仍 **NOT READY**，因为尚未把生产恢复帧自动绑定到完整房间初始边界并在 recovery store 中强制执行全量 replay audit。
 - P1-004 第二十二批补充：恢复一致性校验新增 authoritative state tick guard。`PostgresMatchRecoveryStore` 现在把 `matches.current_tick` 传入 `MatchRecoveryValidator`；当持久化的 `state_snapshots.payload.Tick` 与 match metadata current tick 不一致时，恢复帧会被标记不一致，避免 `MatchSession.RestoreState` 静默覆盖 authoritative state tick 并掩盖持久化/重放边界错误。
 - 已补测试：新增 `RecoveryValidatorRejectsAuthoritativeStateTickMismatch` 覆盖 authoritative state tick 与 recovery current tick 不一致时返回明确错误；`MatchRecoveryTests` 目标回归 16/16 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
 - 复审结论补充：本批是 replay/recovery 的一致性护栏，不能等同于完成严格 action-log replay final-state hash。P1-004 仍保留，后续还需要从 command log 重放到最终 state hash，并与实时 authoritative hash 比对。
@@ -355,7 +358,7 @@
 
 ### P1-004 隐藏信息与 replay 边界仍需加固
 
-当前状态：**PARTIALLY RESOLVED / 普通 snapshot、spectator replay redaction、权威状态 hash 与 recovery tick 一致性 guard 已修，严格 action-log replay 仍待补**
+当前状态：**PARTIALLY RESOLVED / 普通 snapshot、spectator replay redaction、权威状态 hash、recovery tick 一致性 guard 和给定初始状态的 action-log final hash verifier 已修，生产全量 replay audit 仍待补**
 
 规则依据：自查文档 2、18；客户端不得得到能预测未来随机信息的私密状态；replay/观战要区分公开信息与玩家私有视角。
 
@@ -364,23 +367,26 @@
 - `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchReplayRedactor.BuildSpectatorFrame`，从权威 journal entry 生成观战/回放 frame 时不复用任一玩家私有视角。
 - `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchStateHasher`，`MatchReplayFrame.AuthoritativeStateHash` 会携带 canonical SHA-256 状态 hash，供 replay frame 与实时权威状态对账。
 - `src/Riftbound.Engine/MatchRecovery.cs` 的 `MatchRecoveryValidator` 会在调用方提供 recovery current tick 时校验 authoritative state tick；`src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs` 会传入 `matches.current_tick`，避免恢复时静默掩盖 tick 不一致。
-- `src/Riftbound.Engine/MatchSession.cs` 的 `RestoreState` 仍优先恢复 authoritative state；没有 action-log replay 到相同最终状态的独立校验路径。
+- `src/Riftbound.Engine/MatchRecovery.cs` 新增 `MatchActionLogReplayer.VerifyFinalStateAsync`，可从调用方提供的初始权威状态重放 recovered commands，并比对 final state hash。
+- `src/Riftbound.Engine/MatchSession.cs` 的 `RestoreState` 仍优先恢复 authoritative state；生产 recovery store 尚未强制执行从完整房间初始边界到最终状态的全量 replay audit。
 
-现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot，并携带稳定的权威状态 hash 用于最终状态对账。恢复路径也会拒绝 authoritative state tick 与 match metadata current tick 不一致的持久化帧。剩余风险是 replay 更像恢复快照/权威状态，不是严格的命令日志重放到最终状态的模型。
+现象：目前 opponent hand/face-down redaction 做得不错，普通玩家 snapshot 也已不再包含 `seed`/`rngCursor`；观战/回放 frame 现在也会从 authoritative state 重新生成 spectator snapshot，而不是直接拿玩家 snapshot，并携带稳定的权威状态 hash 用于最终状态对账。恢复路径也会拒绝 authoritative state tick 与 match metadata current tick 不一致的持久化帧。服务端现在具备“给定初始状态 + recovered commands -> final state hash”的可测 verifier。剩余风险是生产 recovery 仍更像恢复快照/权威状态，还没有自动从完整房间初始边界执行全量命令日志重放审计。
 
 建议修复：
 - 已完成：从普通玩家 snapshot 中移除 seed/rngCursor；如后续需要调试随机状态，应单独走 Development/debug stream，不能复用普通玩家 snapshot。
 - 已完成：从 journal entry 构建 spectator replay frame 时强制使用 spectator redaction。
 - 已完成：replay frame 携带 canonical authoritative state hash，用于最终状态一致性校验。
 - 已完成：recovery store 传入 current tick 后，validator 会拒绝 authoritative state tick 不一致的恢复帧。
-- 建立 action log replay：从初始公开/私有边界 + 命令日志重放到最终 authoritative state，并输出 spectator frame。
+- 已完成：建立给定初始权威状态的 action-log verifier，重放命令后校验 final authoritative state hash。
+- 待补：从完整房间初始公开/私有边界自动构造 replay 初始状态，在 recovery store 中强制执行全量命令日志重放，并输出 spectator frame。
 
 建议测试：
 - 已新增：玩家 snapshot 不含 seed/rngCursor。
 - 已新增：spectator replay 不泄露手牌、面朝下内容和未来随机 seed/rngCursor，并携带 64 位 hex authoritative state hash。
 - 已新增：authoritative state hash 对字典插入顺序稳定。
 - 已新增：authoritative state tick 与 recovery current tick 不一致时 recovery validator 返回明确错误。
-- 待补：真正 action log replay 后的 final state hash 等于实时 state hash。
+- 已新增：给定初始状态时，recovered command log 重放后的 final state hash 等于实时 journal authoritative state hash；篡改 expected final state 时会报告 hash mismatch。
+- 待补：生产 recovery frame 自动从完整房间初始边界重放 command log 后的 final state hash 等于实时 state hash。
 
 ## P2 问题
 
