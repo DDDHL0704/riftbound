@@ -161,6 +161,7 @@ h3 {
 .audit-banner,
 .lobby-form,
 .room-actions,
+.room-log-panel,
 .deck-summary,
 .settings-grid,
 .seat-card,
@@ -183,6 +184,7 @@ h3 {
 .audit-banner,
 .lobby-form,
 .room-actions,
+.room-log-panel,
 .deck-summary,
 .settings-grid {
   padding: 18px;
@@ -358,6 +360,48 @@ h3 {
 }
 
 .deck-card-row span {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.room-log-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.room-log-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.room-log-panel p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.room-log-list {
+  display: grid;
+  gap: 8px;
+}
+
+.room-log-entry {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) minmax(0, 1fr);
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+}
+
+.room-log-entry.is-error {
+  border-color: rgba(201, 71, 63, 0.45);
+  background: rgba(201, 71, 63, 0.12);
+}
+
+.room-log-entry span {
   color: var(--text-secondary);
   overflow-wrap: anywhere;
 }

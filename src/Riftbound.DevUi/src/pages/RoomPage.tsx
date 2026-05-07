@@ -50,6 +50,33 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         <strong>当前候选行动：</strong>
         <span>{candidateListLabel(controller.state.prompt)}</span>
       </section>
+      <section className="room-log-panel">
+        <header>
+          <div>
+            <span className="eyebrow">房间日志</span>
+            <h2>服务端消息</h2>
+          </div>
+          <StatusPill tone={controller.state.errors.length > 0 ? "bad" : "good"}>
+            {controller.state.errors.length > 0 ? `${controller.state.errors.length} 个错误` : "无错误"}
+          </StatusPill>
+        </header>
+        <p>{controller.state.lastSystemMessage ?? "等待服务端房间消息。"}</p>
+        <div className="room-log-list">
+          {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
+          {controller.state.errors.map((error, index) => (
+            <article className="room-log-entry is-error" key={`${error.code}-${index}`}>
+              <strong>{error.code}</strong>
+              <span>{error.message}</span>
+            </article>
+          ))}
+          {controller.state.events.slice(0, 8).map((event, index) => (
+            <article className="room-log-entry" key={`${event.kind}-${index}`}>
+              <strong>{event.kind}</strong>
+              <span>{event.description}</span>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
