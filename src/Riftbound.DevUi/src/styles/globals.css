@@ -658,6 +658,24 @@ button.card-face:hover {
   line-height: 1.5;
 }
 
+.detail-evidence-list {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.detail-evidence-list li {
+  line-height: 1.45;
+}
+
+.detail-evidence-list span {
+  display: block;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
 .detail-actions {
   display: grid;
   gap: 10px;

@@ -32,6 +32,8 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
   const states = objectStateLabels(card.object);
   const sourceObjectId = card.objectId ?? card.object?.objectId;
   const sourceActions = hidden ? [] : sourceCandidatesFor(prompt, sourceObjectId);
+  const evidenceTemplateIds = card.spec?.templateIds ?? [];
+  const evidenceEffects = card.spec?.effects ?? [];
 
   return (
     <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
@@ -93,6 +95,19 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                 <strong>服务端证据</strong>
                 <p>{conformanceLabel(card.spec.conformanceTier)}：{card.spec.conformanceReason}</p>
                 <p>{statusLabel(card.spec.status)}：{card.spec.reason}</p>
+                <p className="detail-muted">效果：{card.spec.implementedEffectKind ?? "未绑定具体效果"}</p>
+                {card.spec.implementedByCardNo && <p className="detail-muted">代理实现：{card.spec.implementedByCardNo}</p>}
+                {evidenceTemplateIds.length > 0 && <p className="detail-muted">模板：{evidenceTemplateIds.join("、")}</p>}
+                {evidenceEffects.length > 0 && (
+                  <ul className="detail-evidence-list">
+                    {evidenceEffects.slice(0, 4).map((effect, index) => (
+                      <li key={`${effect.templateId}-${index}`}>
+                        <strong>{effect.templateId}</strong>
+                        <span>{statusLabel(effect.status)}：{effect.reason || effect.phrase}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </section>
             )}
             <section className="detail-section">
