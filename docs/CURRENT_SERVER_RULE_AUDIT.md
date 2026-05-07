@@ -14,6 +14,9 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-003 第二十八批补充：新增 `PendingTaskQueueExposesZeroPowerFromPowerModifierAsStateBasedTask`，覆盖单位因临时战力修正降到 0 后，服务端 `PendingCleanupTasks` 立即暴露 `DESTROY_ZERO_POWER_UNIT` / `ZERO_POWER`，`PendingTaskQueue` 进入 `STATE_BASED_CLEANUP` blocking，snapshot 公开同一任务，prompt 只返回 `WAIT`，普通 `END_TURN` 被 `PhaseNotAllowed` 拒绝。
+- 已补测试：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~PendingTaskQueueExposesZeroPowerFromPowerModifierAsStateBasedTask"` 通过 1/1；`ConformanceFixtureShapeTests` 目标回归 48/48 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
+- 复审结论补充：本批把 P0-003 中“战力变化产生的 0 战力对象应立即触发持久 task queue”的代表性证据补上。整体仍 **NOT READY**，因为所有进场/离场/替代效果/控制权变化仍未全部收敛到同一个持久 cleanup task queue。
 - P1-004 第二十七批补充：新增 `SpectatorReplayFramesRedactPrivateInformationAcrossGeneratedStates`，用 16 组生成式 `MatchState` 覆盖不同手牌数量、面朝下基地对象、公开战场对象、seed/rngCursor 和 active player 组合；每组都通过 `MatchReplayRedactor.BuildSpectatorFrame` 生成 spectator frame，并断言 authoritative hash 匹配、timing 不含 `seed` / `rngCursor`、手牌 object id 不进入公开 objects、面朝下对象不暴露 `cardNo` / `tags` / `power`。
 - 已补测试：`MatchRecoveryTests` 目标回归 21/21 通过；`PostgresMatchRecoveryStoreSmokeTests` 目标 smoke 1/1 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error。
 - 复审结论补充：本批补的是随机/隐藏信息 redaction 的代表性 property coverage，降低后续改 snapshot/replay 时把私有手牌、面朝下详情或随机状态重新泄露到 spectator frame 的风险。整体仍 **NOT READY**，因为这还不是全命令、全恢复场景、全随机路径的 determinism/property 证明，且 P0 战场/Payment/LayerEngine 等核心规则阻断仍未清零。
@@ -220,7 +223,7 @@
 
 ### P0-003 通用清理检查与任务队列缺失
 
-当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害/0 战力 cleanup loop 与 blocking guard 已接入，完整统一任务队列仍缺失**
+当前状态：**PARTIALLY RESOLVED / 状态性 cleanup task、battlefield task 视图、致命伤害/0 战力 cleanup loop、战力修正到 0 的 blocking task 证据与 blocking guard 已接入，完整统一任务队列仍缺失**
 
 规则依据：自查文档 5；核心规则关于“任意状态变化后进行清理检查、重复直到稳定、触发待处理任务、清理期间不能响应”的要求。
 
@@ -232,7 +235,7 @@
 - `src/Riftbound.Engine/MatchSession.cs` 新增 `PendingTaskQueue`，按状态性清理、战场争夺、法术对决启动、战斗启动的顺序公开当前 active task 和 blocking phase。
 - `src/Riftbound.Engine/CoreRuleEngine.cs` 新增 `RunStateBasedCleanupLoop`，移动和结算链结算后会重复执行致命伤害/0 战力清理直到稳定；`ResolveAsync` 会在 blocking pending task queue 期间拒绝普通玩家命令。
 
-现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；有明确 owner/controller 的 0 战力场上单位也会在该 loop 中按 `ZERO_POWER` 清理；`PendingCleanupTasks` 已能列出待处理的致命伤害、0 战力、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行，例如行动前已处于致命伤害待清理的单位不能再移动。但由战场控制权变化、连续效果变化、替代效果等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
+现象：当前清理仍没有完全升级为官方意义上的“所有状态变化后统一检查并重复”的持久任务队列。移动、栈项目结算、战斗伤害、Xerath 技能伤害和回合开始战场群体伤害会运行状态性致命伤害 cleanup loop 并同步位置；有明确 owner/controller 的 0 战力场上单位也会在该 loop 中按 `ZERO_POWER` 清理；因临时战力修正降到 0 的场上单位也已有 pending task / blocking prompt 的代表性证据；`PendingCleanupTasks` 已能列出待处理的致命伤害、0 战力、战场争夺、`START_SPELL_DUEL` 与 `START_BATTLE` 任务；`PendingTaskQueue` 能按清理优先级公开 active task 和 blocking phase；`BattlefieldTasks` 能给这些战场任务附带状态和参与者。服务端 prompt/command guard 已阻止普通行动在 blocking queue 期间继续执行，例如行动前已处于致命伤害或 0 战力待清理的单位不能继续让玩家绕过。由战场控制权变化、替代效果、所有进出战场路径等触发的 pending duel/battle/控制权变化仍无法通过一个中央状态机保证。
 
 最小复现场景：尝试移动一个已经带致命伤害的单位，当前会因 `DESTROY_LETHAL_UNIT` blocking task 被拒绝；结算一个无行为栈项目时，如果场上已有致命伤害单位或有 owner/controller 的 0 战力现代权威单位，也会在栈结算后被状态性清理兜底摧毁。但如果移动导致战场控制权/争夺状态变化，仍没有统一 cleanup loop 能保证后续待处理任务被稳定排入并按官方顺序解决。
 
@@ -241,8 +244,8 @@
 - 所有命令、栈结算、触发结算、移动、进场/离场之后必须进入同一 cleanup loop。
 
 建议测试：
-- 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入同一 cleanup loop；0 战力现代权威单位清理进入同一 cleanup loop；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图；待清理 blocking queue 会关闭普通 prompt 并拒绝普通命令。
-- 待补：战力变化产生的 0 战力对象应立即触发持久 task queue；替代效果、所有进出战场路径都触发同一持久 cleanup task queue。
+- 已新增：移动、栈结算、战斗伤害、Xerath 技能伤害、回合开始战场伤害进入同一 cleanup loop；0 战力现代权威单位清理进入同一 cleanup loop；因临时战力修正降到 0 的单位会暴露 `DESTROY_ZERO_POWER_UNIT` blocking task；争夺战场暴露 START_SPELL_DUEL/START_BATTLE 任务及 `BattlefieldTasks` 权威任务视图；待清理 blocking queue 会关闭普通 prompt 并拒绝普通命令。
+- 待补：替代效果、所有进出战场路径都触发同一持久 cleanup task queue。
 - cleanup loop 重复直到稳定。
 - 已新增：cleanup/task queue 阻塞期间 prompt 只给 `WAIT`，普通命令被 `PhaseNotAllowed` 拒绝。
 

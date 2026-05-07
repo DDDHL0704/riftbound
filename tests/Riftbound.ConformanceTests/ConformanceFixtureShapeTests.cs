@@ -827,6 +827,87 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task PendingTaskQueueExposesZeroPowerFromPowerModifierAsStateBasedTask()
+    {
+        var state = new MatchState(
+            "zero-power-modifier-task-room",
+            14,
+            4,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            turnPlayerId: "alice",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty,
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Base = ["B-ZERO-MODIFIER-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["B-ZERO-MODIFIER-UNIT"] = new(
+                    "B-ZERO-MODIFIER-UNIT",
+                    power: 0,
+                    untilEndOfTurnPowerModifier: -4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "bob",
+                    controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["B-ZERO-MODIFIER-UNIT"] = new("bob", "BASE")
+            });
+
+        var powerEffect = Assert.Single(
+            state.ContinuousEffects,
+            effect => string.Equals(effect.TargetObjectId, "B-ZERO-MODIFIER-UNIT", StringComparison.Ordinal));
+        Assert.Equal(-4, powerEffect.PowerDelta);
+        Assert.Equal(4, powerEffect.BasePower);
+        Assert.Equal(0, powerEffect.EffectivePower);
+
+        var cleanupTask = Assert.Single(state.PendingCleanupTasks);
+        Assert.Equal("cleanup:zero-power:B-ZERO-MODIFIER-UNIT", cleanupTask.TaskId);
+        Assert.Equal("DESTROY_ZERO_POWER_UNIT", cleanupTask.Kind);
+        Assert.Equal("ZERO_POWER", cleanupTask.Reason);
+        Assert.Equal("bob", cleanupTask.PlayerId);
+        Assert.Equal("B-ZERO-MODIFIER-UNIT", cleanupTask.ObjectId);
+        Assert.True(state.PendingTaskQueue.IsBlocking);
+        Assert.Equal("STATE_BASED_CLEANUP", state.PendingTaskQueue.Phase);
+        Assert.Equal(cleanupTask.TaskId, state.PendingTaskQueue.ActiveTaskId);
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        var taskQueueItems = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        var taskView = Assert.Single(taskQueueItems);
+        Assert.Equal("DESTROY_ZERO_POWER_UNIT", Assert.IsType<string>(taskView["kind"]));
+
+        var prompt = ResolutionResult.BuildPrompts(state)["alice"];
+        Assert.False(prompt.Actionable);
+        Assert.Equal(["WAIT"], prompt.Actions);
+        Assert.Contains("DESTROY_ZERO_POWER_UNIT", prompt.Reason, StringComparison.Ordinal);
+
+        var blocked = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("blocked-zero-power-end-turn", "alice", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+        Assert.False(blocked.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
+        Assert.Contains("DESTROY_ZERO_POWER_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task PendingTaskQueueExposesIllegalStandbyCleanupAsStateBasedTask()
     {
         var state = new MatchState(

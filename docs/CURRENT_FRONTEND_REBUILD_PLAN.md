@@ -254,7 +254,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**88%**
+估算整体进度：**89%**
 
 已经完成：
 
@@ -285,6 +285,7 @@
 - 真实 Postgres recovery store smoke 已覆盖 migration/journal/state snapshot/recovery frame/registry 恢复闭环，并修复 `MatchState` seed/rngCursor 构造参数类型导致 authoritative snapshot 无法反序列化的问题。
 - recovery frame 已携带公开 spectator replay frame，使用 authoritative state hash 和 spectator redaction，Postgres smoke 覆盖 seed/rngCursor 不泄漏。
 - spectator replay redaction 新增生成式 property 覆盖，防止多组隐藏手牌、面朝下对象和随机状态重新泄漏到公开回放帧。
+- P0-003 补齐战力修正降到 0 的 pending task 证据：服务端会公开 `DESTROY_ZERO_POWER_UNIT` / `STATE_BASED_CLEANUP`，前端只能显示 WAIT，不自行继续开放普通操作。
 
 预计剩余批次数：**3 批左右**
 
