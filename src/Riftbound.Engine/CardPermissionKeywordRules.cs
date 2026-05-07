@@ -120,11 +120,27 @@ public static class CardPermissionKeywordRules
         out int extraManaCost,
         out int extraPowerCost)
     {
+        return TryBuildHasteReadyOptionalCost(
+            normalizedOptionalCosts,
+            behavior,
+            out extraManaCost,
+            out extraPowerCost,
+            out _);
+    }
+
+    public static bool TryBuildHasteReadyOptionalCost(
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out int extraManaCost,
+        out int extraPowerCost,
+        out string extraPowerTrait)
+    {
         ArgumentNullException.ThrowIfNull(normalizedOptionalCosts);
         ArgumentNullException.ThrowIfNull(behavior);
 
         extraManaCost = 0;
         extraPowerCost = 0;
+        extraPowerTrait = string.Empty;
         if (normalizedOptionalCosts.Count == 1
             && string.Equals(normalizedOptionalCosts[0], HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)
             && HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
@@ -132,6 +148,7 @@ public static class CardPermissionKeywordRules
         {
             extraManaCost = behavior.HasteReadyManaCost;
             extraPowerCost = behavior.HasteReadyPowerCost;
+            extraPowerTrait = RuneTrait.Normalize(behavior.HasteReadyPowerTrait);
             return true;
         }
 

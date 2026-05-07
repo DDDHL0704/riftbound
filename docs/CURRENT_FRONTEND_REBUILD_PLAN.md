@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **90%**，预计仍需 **2 批左右** 才能进入最终 completion audit。
+当前完成度：约 **91%**，预计仍需 **2 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -199,6 +199,7 @@
 - 新增 Development-only `typed-power-payment-mixed-recycle` seed，用于 smoke“当前 1 红 + red/blue 两张可回收符文 + 需要支付 2 红”的 UI 场景。前端选择 `SPEND_POWER:red:2` 后，blue 支付资源因 trait 不匹配禁用，red 支付资源可选并能提交；前端不从对象 tag 自行推断颜色，只消费服务端 `paymentResourcePowerByChoice`。
 - 新增 Development-only `typed-power-payment-generic-mixed-recycle` seed 入口，用于 smoke“当前 1 泛化可用符能来自 red pool + red/blue 两张可回收符文 + 需要支付通用 2 符能”的 UI 场景。前端选择 `SPEND_POWER:2` 后，red 与 blue 支付资源都可作为服务端候选补足 1 点缺口；选择任一资源后另一资源禁用，避免过量回收。服务端仍通过 `paymentResourcePowerByChoice` 和权威支付计划决定最终扣费，前端不读取符文 tag 自行裁决。
 - 新增 Development-only `haste-payment-recycle` seed，用于 smoke“当前 5 法力、0 符能、手牌《希维尔》、基地有可回收紫色符文”的急速支付场景。前端选择 `HASTE_READY` 后必须再选择服务端给出的 `RECYCLE_RUNE:*` 支付资源，确认按钮才会启用；结算后《希维尔》是否以活跃状态进入基地只读服务端事件和 snapshot。
+- 新增 Development-only `haste-payment-colored-recycle` seed，用于 smoke“《希维尔》急速要求紫色符能、基地同时有蓝/紫两张可回收符文”的颜色精确急速支付场景。服务端 `PLAY_CARD.sourceRequirements` 公开 `hasteReadyPowerTrait = purple`；前端选择 `HASTE_READY` 后按该字段禁用 blue 支付资源，只允许 purple 资源补足费用，命令侧同样拒绝 blue + `HASTE_READY`。
 - Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
 - 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
 - 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
@@ -209,6 +210,7 @@
 - 当前已通过独立 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-mixed-recycle-ui-nieihg25`。P1 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `typed-power-payment-mixed-recycle`；P1 选择 `支付 2 红色符能` 后，blue 支付资源禁用且点击不生效，red 支付资源可选。选中 red 后确认启用并提交，事件日志显示“回收符文 / 支付费用 / 加入结算链”；authoritative snapshot 中 red 符文离开基地、blue 符文仍在基地、`runeDeckCount = 2`、stack `damageAmount = 2`；reload/reconnect 后仍恢复该 stack snapshot。
 - 当前已通过独立 Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，Computer Use 控制独立 Chrome 时返回 `cgWindowNotFound`，因此使用同一独立 Chrome 的 CDP 端口完成断言。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-generic-mixed-recycle-ui-l9qe3xqc`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `typed-power-payment-generic-mixed-recycle`；P1 选择 `支付 2 符能` 后 red/blue 两张支付资源都可选且确认禁用，选择 blue 后 red 禁用、确认启用。提交后事件日志显示“回收符文 / 支付费用 / 加入结算链”；authoritative snapshot 中 blue 符文离开基地、red 符文仍在基地、`runeDeckCount = 2`、stack `damageAmount = 2`、red/blue typed power 均为空；reload/reconnect 后仍恢复该最终 stack snapshot。
 - 当前已通过独立 Chrome/CDP 真实 UI smoke：API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-haste-payment-recycle-ui-k9ghd440`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `haste-payment-recycle`；P1 打开《希维尔》详情抽屉，选择“急速活跃：额外支付 1 法力 / 1 符能”后确认禁用，选择 `P1-RUNE-PURPLE-HASTE-PAYMENT-001` 支付资源后确认启用并提交。P1 通过 UI 让过优先权，后台 P2 让过后，authoritative snapshot 中《希维尔》在 P1 基地且未横置，紫色符文离开基地、`runeDeckCount = 2`、purple typed power 已花掉；reload/reconnect 后仍恢复该最终 snapshot。
+- 当前已通过后台 Chrome/CDP 真实 UI smoke：本批工具上下文未提供可调用 Browser Use，且前序 Computer Use 获取独立 Chrome 窗口失败；为避免抢用户前台，使用后台 Chrome/CDP。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-haste-colored-nflnfbtp`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `haste-payment-colored-recycle`；P1 打开《希维尔》详情抽屉，选择“急速活跃：额外支付 1 法力 / 1 紫色符能”后，blue `翠意符文` 支付资源禁用且点击不会选中，purple `摧破符文` 可选。选中 purple 后确认启用并提交，事件日志显示“回收符文 / 获得符能 / 支付费用 / 加入结算链”；P1 通过 UI 让过优先权，后台 P2 让过后 authoritative snapshot 中《希维尔》在 P1 基地且未横置，blue 符文仍在基地、purple 符文进入符文牌堆、`runeDeckCount = 2`、stack 为空；reload/reconnect 后仍恢复该最终 snapshot。
 - 争夺战场的服务端任务队列新增权威推进入口：状态变化后若留下争夺战场且无致命/0 战力清理优先项，服务端会广播 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` 并进入 `SPELL_DUEL_OPEN`，前端只展示 resulting snapshot/prompt，不提供自定义“启动法术对决”按钮。
 - 新增 Development-only `battlefield-contest-stack` seed，专门用于 smoke“优先权栈项目结算后留下争夺战场 -> 服务端自动启动法术对决”的链路。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角看到 `BATTLEFIELD_TASKS`、争夺战场与阻塞队列；Node 让 P1 过优先权后，事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，状态切到 `SPELL_DUEL_OPEN`，P2 只获得服务端给出的 `PASS_FOCUS`。

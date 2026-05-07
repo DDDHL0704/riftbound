@@ -1041,6 +1041,91 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79HasteColoredPaymentRecycleSeedRequiresMatchingTraitThroughHub()
+    {
+        const string roomId = "p7-9-haste-colored-payment-recycle-core";
+        const string bluePaymentRuneObjectId = "P1-RUNE-BLUE-HASTE-PAYMENT-001";
+        const string purplePaymentRuneObjectId = "P1-RUNE-PURPLE-HASTE-PAYMENT-001";
+        var bluePaymentResourceAction = $"RECYCLE_RUNE:{bluePaymentRuneObjectId}";
+        var purplePaymentResourceAction = $"RECYCLE_RUNE:{purplePaymentRuneObjectId}";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "haste-payment-colored-recycle", "seed-p7-9-haste-colored-payment-recycle");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(sourceRequirement["hasteReadyPowerTrait"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["hasteReadyPowerCost"]));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        Assert.Contains(bluePaymentResourceAction, paymentResourceChoices);
+        Assert.Contains(purplePaymentResourceAction, paymentResourceChoices);
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+        Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(paymentResourcePowerByChoice[bluePaymentResourceAction]["trait"]));
+        Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(paymentResourcePowerByChoice[purplePaymentResourceAction]["trait"]));
+
+        var rejectedClients = new RecordingHubClients();
+        await CreateHub(rejectedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-haste-colored-blue-reject", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-UNIT-SIVIR",
+                cardNo = "SFD·143/221",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { bluePaymentResourceAction, HasteOptionalCostNames.HasteReady }
+            }));
+
+        var rejectedError = Assert.Single(rejectedClients.CallerClient.Errors);
+        var rejectedPayload = Assert.IsType<ErrorDto>(rejectedError.Payload);
+        Assert.Equal(ErrorCodes.InsufficientCost, rejectedPayload.Code);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-haste-colored-purple-sivir", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-UNIT-SIVIR",
+                cardNo = "SFD·143/221",
+                targetObjectIds = Array.Empty<string>(),
+                optionalCosts = new[] { purplePaymentResourceAction, HasteOptionalCostNames.HasteReady }
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([HasteOptionalCostNames.HasteReady], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal([purplePaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        var playSnapshot = SnapshotFor(playClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(playSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        var baseZone = Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]);
+        Assert.Contains(bluePaymentRuneObjectId, baseZone);
+        Assert.DoesNotContain(purplePaymentRuneObjectId, baseZone);
+        Assert.Equal(2, Assert.IsType<int>(p1Zones["runeDeckCount"]));
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

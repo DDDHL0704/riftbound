@@ -162,6 +162,7 @@ public sealed record CardBehaviorDefinition(
     int ManaReductionIfExperiencePaid = 0,
     int HasteReadyManaCost = 0,
     int HasteReadyPowerCost = 0,
+    string HasteReadyPowerTrait = "",
     int LevelExperienceThreshold = 0,
     int LevelSourceUnitPowerBonus = 0,
     string LevelSourceUnitTags = "",
@@ -2456,7 +2457,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Purple),
         new(
             "SFD·143a/221",
             "希维尔",
@@ -2468,7 +2470,8 @@ public static class CardBehaviorRegistry
             SourceUnitPower: 4,
             SourceUnitTags: "急速",
             HasteReadyManaCost: 1,
-            HasteReadyPowerCost: 1),
+            HasteReadyPowerCost: 1,
+            HasteReadyPowerTrait: RuneTrait.Purple),
         new(
             "UNL-082/219",
             "莉莉娅",

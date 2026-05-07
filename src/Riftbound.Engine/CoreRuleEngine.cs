@@ -14431,10 +14431,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             normalizedOptionalCosts,
             behavior,
             out var hasteExtraManaCost,
-            out var hasteExtraPowerCost))
+            out var hasteExtraPowerCost,
+            out var hasteExtraPowerTrait))
         {
             extraManaCost = hasteExtraManaCost;
-            extraPowerCost = hasteExtraPowerCost;
+            if (string.IsNullOrWhiteSpace(hasteExtraPowerTrait))
+            {
+                extraPowerCost = hasteExtraPowerCost;
+            }
+            else
+            {
+                extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [hasteExtraPowerTrait] = hasteExtraPowerCost
+                };
+            }
+
             return true;
         }
 

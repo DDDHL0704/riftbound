@@ -4618,6 +4618,7 @@ internal static class ActionPromptBuilder
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
         var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior);
         var effectivePowerWithRecycle = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum();
+        var hasteReadyPowerTrait = HasteReadyPowerTrait(behavior);
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -4631,11 +4632,14 @@ internal static class ActionPromptBuilder
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
             && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + behavior.HasteReadyManaCost
-            && effectivePowerWithRecycle >= behavior.HasteReadyPowerCost)
+            && CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait, behavior))
         {
+            var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
+                ? $"{behavior.HasteReadyPowerCost} 符能"
+                : $"{behavior.HasteReadyPowerCost} {RuneTraitLabel(hasteReadyPowerTrait)}符能";
             choices.Add(new ActionPromptChoiceDto(
                 HasteOptionalCostNames.HasteReady,
-                $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {behavior.HasteReadyPowerCost} 符能"));
+                $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {powerLabel}"));
         }
 
         if (behavior.OptionalExperienceCost > 0
@@ -4686,7 +4690,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
-            || behavior.HasteReadyPowerCost > runePool.TotalPower;
+            || NeedsHasteReadyPaymentResource(runePool, behavior);
         if (!needsPaymentResource)
         {
             return [];
@@ -4726,7 +4730,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
-            || behavior.HasteReadyPowerCost > runePool.TotalPower;
+            || NeedsHasteReadyPaymentResource(runePool, behavior);
         if (!needsPaymentResource
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
@@ -4759,6 +4763,43 @@ internal static class ActionPromptBuilder
                 group => group.Key,
                 group => group.Sum(entry => entry.Value),
                 StringComparer.Ordinal);
+    }
+
+    private static bool NeedsHasteReadyPaymentResource(
+        RunePool runePool,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.HasteReadyPowerCost > 0
+            && !CanPayHasteReadyPowerCost(
+                runePool,
+                new Dictionary<string, int>(StringComparer.Ordinal),
+                behavior);
+    }
+
+    private static bool CanPayHasteReadyPowerCost(
+        RunePool runePool,
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.HasteReadyPowerCost <= 0)
+        {
+            return true;
+        }
+
+        var hasteReadyPowerTrait = HasteReadyPowerTrait(behavior);
+        if (string.IsNullOrWhiteSpace(hasteReadyPowerTrait))
+        {
+            return runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum() >= behavior.HasteReadyPowerCost;
+        }
+
+        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
+        return availablePowerByTrait.TryGetValue(hasteReadyPowerTrait, out var availablePower)
+            && availablePower >= behavior.HasteReadyPowerCost;
+    }
+
+    private static string HasteReadyPowerTrait(CardBehaviorDefinition behavior)
+    {
+        return RuneTrait.Normalize(behavior.HasteReadyPowerTrait);
     }
 
     private static bool TryGetRuneTrait(CardObjectState runeState, out string runeTrait)
@@ -5126,6 +5167,7 @@ internal static class ActionPromptBuilder
             ["availablePowerWithPaymentResources"] = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum(),
             ["availablePowerByTraitWithPaymentResources"] = availablePowerByTraitWithPaymentResources,
             ["hasteReadyPowerCost"] = behavior.HasteReadyPowerCost,
+            ["hasteReadyPowerTrait"] = HasteReadyPowerTrait(behavior),
             ["composable"] = string.IsNullOrWhiteSpace(unsupportedReason),
             ["unsupportedReason"] = unsupportedReason
         };
@@ -5146,7 +5188,7 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
-            || behavior.HasteReadyPowerCost > runePool.TotalPower;
+            || NeedsHasteReadyPaymentResource(runePool, behavior);
         if (!needsPaymentResource
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
@@ -7138,6 +7180,7 @@ public sealed class MatchSession : IMatchSession
             "typed-power-payment-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
             "typed-power-payment-generic-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
             "haste-payment-recycle" => BuildHastePaymentRecycleScenario(current, seed),
+            "haste-payment-colored-recycle" => BuildHastePaymentColoredRecycleScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -7686,6 +7729,70 @@ public sealed class MatchSession : IMatchSession
                     tags: [CardObjectTags.UnitCard, CardPermissionKeywordNames.Haste],
                     manaCost: 4,
                     power: 4,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-PURPLE-HASTE-PAYMENT-001"] = new(
+                    "P1-RUNE-PURPLE-HASTE-PAYMENT-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:purple"],
+                    cardNo: "UNL-R04",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-BOTTOM-001"] = new(
+                    "P1-RUNE-BOTTOM-001",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildHastePaymentColoredRecycleScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603302698,
+            698,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(5, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: [],
+                    runeDeck: ["P1-RUNE-BOTTOM-001"],
+                    hand: ["P1-UNIT-SIVIR"],
+                    baseZone:
+                    [
+                        "P1-RUNE-BLUE-HASTE-PAYMENT-001",
+                        "P1-RUNE-PURPLE-HASTE-PAYMENT-001"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: [],
+                    runeDeck: [],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-SIVIR"] = new(
+                    "P1-UNIT-SIVIR",
+                    cardNo: "SFD·143/221",
+                    tags: [CardObjectTags.UnitCard, CardPermissionKeywordNames.Haste],
+                    manaCost: 4,
+                    power: 4,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-RUNE-BLUE-HASTE-PAYMENT-001"] = new(
+                    "P1-RUNE-BLUE-HASTE-PAYMENT-001",
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
                 ["P1-RUNE-PURPLE-HASTE-PAYMENT-001"] = new(

@@ -255,6 +255,7 @@ type PlayCardSourceRequirement = {
   availablePowerWithPaymentResources: number;
   availablePowerByTraitWithPaymentResources: Record<string, number>;
   hasteReadyPowerCost: number;
+  hasteReadyPowerTrait?: string;
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -1814,6 +1815,7 @@ function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | u
     availablePowerWithPaymentResources: numberField(record, "availablePowerWithPaymentResources"),
     availablePowerByTraitWithPaymentResources: numberRecord(record.availablePowerByTraitWithPaymentResources),
     hasteReadyPowerCost: numberField(record, "hasteReadyPowerCost"),
+    hasteReadyPowerTrait: nullableStringField(record, "hasteReadyPowerTrait"),
     composable: booleanField(record, "composable", true),
     unsupportedReason: nullableStringField(record, "unsupportedReason")
   };
@@ -1948,10 +1950,15 @@ function playCardPaymentResourceRequirement(
     return { required: false, missingPower: 0 };
   }
 
-  const missingPower = Math.max(0, requirement.hasteReadyPowerCost - requirement.availablePower);
+  const hasteReadyPowerTrait = normalizeTrait(requirement.hasteReadyPowerTrait);
+  const availablePower = hasteReadyPowerTrait
+    ? requirement.availablePowerByTrait[hasteReadyPowerTrait] ?? 0
+    : requirement.availablePower;
+  const missingPower = Math.max(0, requirement.hasteReadyPowerCost - availablePower);
   return {
     required: missingPower > 0,
-    missingPower
+    missingPower,
+    trait: hasteReadyPowerTrait || undefined
   };
 }
 

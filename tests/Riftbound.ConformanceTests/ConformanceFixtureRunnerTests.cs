@@ -23896,6 +23896,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, profile.HasteReadyManaCost);
         Assert.Equal(1, profile.HasteReadyPowerCost);
+        Assert.Equal(RuneTrait.Purple, hasteDefinition.HasteReadyPowerTrait);
 
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-sivir-haste-ready.fixture.json"),
@@ -23918,6 +23919,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(HasteOptionalReadyBranchStatuses.ImplementedRepresentative, profile.HasteOptionalReadyBranchStatus);
         Assert.Equal(1, profile.HasteReadyManaCost);
         Assert.Equal(1, profile.HasteReadyPowerCost);
+        Assert.Equal(RuneTrait.Purple, hasteDefinition.HasteReadyPowerTrait);
 
         var fixture = await ConformanceFixture.LoadAsync(
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "p4-play-sivir-alt-a-haste-ready.fixture.json"),
@@ -23929,6 +23931,51 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+    }
+
+    [Fact]
+    public async Task P4HasteOptionalReadyBranchRejectsSivirWrongTraitPower()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SIVIR"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    5,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Blue] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-sivir-haste-wrong-trait", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SIVIR",
+                "SFD·143/221",
+                [],
+                OptionalCosts: [HasteOptionalCostNames.HasteReady]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(["P1-UNIT-SIVIR"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(5, result.State.RunePools["P1"].Mana);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.DoesNotContain(RuneTrait.Purple, result.State.RunePools["P1"].PowerByTrait.Keys);
     }
 
     [Fact]
