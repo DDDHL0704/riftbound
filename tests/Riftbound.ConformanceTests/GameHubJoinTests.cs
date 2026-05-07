@@ -5888,6 +5888,25 @@ public sealed class GameHubJoinTests
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
         Assert.Equal("match already finished", payload.Message);
         Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
+
+        var submitDeckAfterFinishedClients = new RecordingHubClients();
+        var submitDeck = JsonSerializer.SerializeToElement(new
+        {
+            cmdType = "SUBMIT_DECK",
+            legendCardNo = "UNL-237/219",
+            championCardNo = "UNL-055/219",
+            mainDeck = Array.Empty<string>(),
+            runeDeck = Array.Empty<string>(),
+            battlefields = Array.Empty<string>()
+        });
+        await CreateHub(submitDeckAfterFinishedClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-after-finished-submit-deck", submitDeck);
+
+        var submitDeckError = Assert.Single(submitDeckAfterFinishedClients.CallerClient.Errors);
+        var submitDeckPayload = Assert.IsType<ErrorDto>(submitDeckError.Payload);
+        Assert.Equal(ErrorCodes.MatchFinished, submitDeckPayload.Code);
+        Assert.Equal("match already finished", submitDeckPayload.Message);
+        Assert.Empty(submitDeckAfterFinishedClients.GroupClient.EventMessages);
     }
 
     [Fact]

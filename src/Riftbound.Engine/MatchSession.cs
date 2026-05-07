@@ -7114,7 +7114,14 @@ public sealed class MatchSession : IMatchSession
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
             ResolutionResult result;
-            if (state.Status == MatchStatuses.InProgress || state.Status == MatchStatuses.Finished)
+            if (state.Status == MatchStatuses.Finished)
+            {
+                result = ResolutionResult.Rejected(
+                    state,
+                    "match already finished",
+                    ErrorCodes.MatchFinished);
+            }
+            else if (state.Status == MatchStatuses.InProgress)
             {
                 result = ResolutionResult.Rejected(
                     state,
