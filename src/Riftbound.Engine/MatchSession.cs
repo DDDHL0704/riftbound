@@ -3921,7 +3921,8 @@ internal static class ActionPromptBuilder
         }
         reduction += PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
 
-        return Math.Max(0, behavior.ManaCost - reduction);
+        return Math.Max(0, behavior.ManaCost - reduction)
+            + PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
     }
 
     private static IReadOnlyList<CardBehaviorDefinition> PlayCardPromptBehaviorsForSource(
@@ -4910,6 +4911,24 @@ internal static class ActionPromptBuilder
         return Math.Min(1, behavior.ManaCost);
     }
 
+    private static int PromptBattlefieldHeldUnitCostIncreaseMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!behavior.PlaysSourceToBaseAsUnit
+            || behavior.ManaCost <= 0
+            || P6TokenFactoryCatalog.TryGetByCardNo(behavior.CardNo, out _)
+            || !state.UntilEndOfTurnEffects.Contains(
+                $"{BattlefieldHeldUnitCostIncreaseEffectPrefix}{playerId}",
+                StringComparer.Ordinal))
+        {
+            return 0;
+        }
+
+        return 1;
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(
         MatchState state,
         string playerId,
@@ -5385,6 +5404,7 @@ internal static class ActionPromptBuilder
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior),
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
+            ["battlefieldHeldUnitCostIncreaseMana"] = PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior),
             ["minTargetCount"] = minTargetCount,
             ["maxTargetCount"] = maxTargetCount,
             ["targetCountLabel"] = minTargetCount == maxTargetCount
