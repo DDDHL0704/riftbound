@@ -4027,6 +4027,159 @@ internal static class ActionPromptBuilder
             .ToArray();
     }
 
+    private static IReadOnlyList<IReadOnlyList<string>> PlayCardLegalTargetSelections(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
+        var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
+        if (maxTargetCount == 0)
+        {
+            return [];
+        }
+
+        var choicesByIndex = Enumerable.Range(0, maxTargetCount)
+            .Select(targetIndex => PromptTargetChoicesForIndex(state, playerId, behavior, targetIndex)
+                .Select(choice => choice.Id)
+                .Distinct(StringComparer.Ordinal)
+                .ToArray())
+            .ToArray();
+        var hasServerSelectionConstraint = behavior.MaxTotalTargetPower > 0
+            || choicesByIndex
+                .SelectMany(choiceIds => choiceIds)
+                .Distinct(StringComparer.Ordinal)
+                .Any(objectId => SpellshieldTaxManaForTarget(state, playerId, objectId) > 0);
+        if (!hasServerSelectionConstraint)
+        {
+            return [];
+        }
+
+        var legalSelections = new List<IReadOnlyList<string>>();
+        for (var targetCount = minTargetCount; targetCount <= maxTargetCount; targetCount++)
+        {
+            if (targetCount == 0)
+            {
+                var emptySelection = Array.Empty<string>();
+                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, emptySelection))
+                {
+                    legalSelections.Add(emptySelection);
+                }
+
+                continue;
+            }
+
+            if (choicesByIndex.Take(targetCount).Any(choices => choices.Length == 0))
+            {
+                continue;
+            }
+
+            BuildTargetSelections(0, targetCount, []);
+        }
+
+        return legalSelections;
+
+        void BuildTargetSelections(int targetIndex, int targetCount, List<string> currentSelection)
+        {
+            if (targetIndex >= targetCount)
+            {
+                var selection = currentSelection.ToArray();
+                if (IsLegalPlayCardTargetSelection(state, playerId, behavior, selection))
+                {
+                    legalSelections.Add(selection);
+                }
+
+                return;
+            }
+
+            foreach (var choiceId in choicesByIndex[targetIndex])
+            {
+                if (!behavior.AllowsRepeatedTargets
+                    && currentSelection.Contains(choiceId, StringComparer.Ordinal))
+                {
+                    continue;
+                }
+
+                currentSelection.Add(choiceId);
+                BuildTargetSelections(targetIndex + 1, targetCount, currentSelection);
+                currentSelection.RemoveAt(currentSelection.Count - 1);
+            }
+        }
+    }
+
+    private static bool IsLegalPlayCardTargetSelection(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        var targetCountConditionApplies = PromptTargetCountConditionApplies(state, playerId, behavior);
+        var minTargetCount = PromptMinTargetCount(behavior, targetCountConditionApplies);
+        var maxTargetCount = PromptMaxTargetCount(state, playerId, behavior, targetCountConditionApplies);
+        if (targetObjectIds.Count < minTargetCount
+            || targetObjectIds.Count > maxTargetCount)
+        {
+            return false;
+        }
+
+        if (!behavior.AllowsRepeatedTargets
+            && targetObjectIds.Distinct(StringComparer.Ordinal).Count() != targetObjectIds.Count)
+        {
+            return false;
+        }
+
+        for (var targetIndex = 0; targetIndex < targetObjectIds.Count; targetIndex++)
+        {
+            if (!IsPromptTargetObjectInScope(
+                    state,
+                    playerId,
+                    targetObjectIds[targetIndex],
+                    behavior.TargetScope,
+                    targetIndex))
+            {
+                return false;
+            }
+        }
+
+        if (behavior.MaxTotalTargetPower > 0
+            && !HasValidPromptTotalTargetPower(state, behavior, targetObjectIds))
+        {
+            return false;
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var manaRequired = PromptMinimumManaCost(state, playerId, behavior)
+            + targetObjectIds.Sum(targetObjectId => SpellshieldTaxManaForTarget(state, playerId, targetObjectId));
+        return runePool.Mana >= manaRequired;
+    }
+
+    private static bool HasValidPromptTotalTargetPower(
+        MatchState state,
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds)
+    {
+        var totalPower = 0;
+        foreach (var targetObjectId in targetObjectIds)
+        {
+            if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
+                || targetState.Power <= 0)
+            {
+                return false;
+            }
+
+            totalPower += targetState.Power;
+            if (totalPower > behavior.MaxTotalTargetPower)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static IEnumerable<string> PromptTargetCandidateIds(
         MatchState state,
         string playerId,
@@ -5158,6 +5311,7 @@ internal static class ActionPromptBuilder
             ["targetScopeLabel"] = PromptTargetScopeLabel(behavior.TargetScope),
             ["allowsRepeatedTargets"] = behavior.AllowsRepeatedTargets,
             ["targetChoicesByIndex"] = targetChoicesByIndex,
+            ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(playerId, behavior),
             ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior),
             ["paymentResourceChoices"] = paymentResourceChoices,
@@ -7181,6 +7335,7 @@ public sealed class MatchSession : IMatchSession
             "typed-power-payment-generic-mixed-recycle" => BuildTypedPowerPaymentMixedRecycleScenario(current, seed),
             "haste-payment-recycle" => BuildHastePaymentRecycleScenario(current, seed),
             "haste-payment-colored-recycle" => BuildHastePaymentColoredRecycleScenario(current, seed),
+            "spellshield-multiple-tax" => BuildSpellshieldMultipleTaxScenario(current, seed),
             "echo-stack" => BuildEchoStackScenario(current, seed),
             "standby-reaction" => BuildStandbyReactionScenario(current, seed),
             "ambush-reaction" => BuildAmbushReactionScenario(current, seed),
@@ -7808,6 +7963,71 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildSpellshieldMultipleTaxScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603304159,
+            4159,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(6, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001"],
+                    hand: ["P1-SPELL-SPIRIT-FIRE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001"],
+                    battlefields:
+                    [
+                        "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+                        "P2-SPIRIT-FIRE-SPELLSHIELD2-001",
+                        "P2-SPIRIT-FIRE-KEEPER-001"
+                    ],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-SPIRIT-FIRE"] = new(
+                    "P1-SPELL-SPIRIT-FIRE",
+                    cardNo: "OGN·256/298",
+                    tags: [CardObjectTags.SpellCard],
+                    manaCost: 3,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-SPIRIT-FIRE-SPELLSHIELD-001"] = new(
+                    "P2-SPIRIT-FIRE-SPELLSHIELD-001",
+                    cardNo: "OGN·013/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-SPIRIT-FIRE-SPELLSHIELD2-001"] = new(
+                    "P2-SPIRIT-FIRE-SPELLSHIELD2-001",
+                    cardNo: "SFD·085/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "法盾2"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-SPIRIT-FIRE-KEEPER-001"] = new(
+                    "P2-SPIRIT-FIRE-KEEPER-001",
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

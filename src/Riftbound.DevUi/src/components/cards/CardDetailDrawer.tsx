@@ -246,6 +246,7 @@ type PlayCardSourceRequirement = {
   targetScopeLabel: string;
   allowsRepeatedTargets: boolean;
   targetChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
+  legalTargetSelections: string[][];
   destinationChoices: ActionPromptChoiceDto[];
   optionalCostChoices: ActionPromptChoiceDto[];
   paymentResourceChoices: ActionPromptChoiceDto[];
@@ -434,11 +435,13 @@ function PlayCardComposer({
   const missingRequiredTargetChoice = targetSlots
     .slice(0, selectedRequirement.minTargetCount)
     .some((targetIndex) => (selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? []).length === 0);
-  const targetCountValid = orderedTargets.length >= selectedRequirement.minTargetCount
+  const serverTargetSelectionValid = playCardServerTargetSelectionValid(orderedTargets, selectedRequirement);
+  const targetShapeValid = orderedTargets.length >= selectedRequirement.minTargetCount
     && orderedTargets.length <= selectedRequirement.maxTargetCount
     && !hasTargetGap
     && !hasDuplicateTarget
     && !missingRequiredTargetChoice;
+  const targetCountValid = targetShapeValid && serverTargetSelectionValid;
   const paymentResourceChoiceIds = new Set(selectedRequirement.paymentResourceChoices.map((choice) => choice.id));
   const behaviorOptionalCosts = optionalCosts.filter((optionalCost) => !paymentResourceChoiceIds.has(optionalCost));
   const paymentResourceCosts = optionalCosts.filter((optionalCost) => paymentResourceChoiceIds.has(optionalCost));
@@ -575,8 +578,11 @@ function PlayCardComposer({
       {!selectedRequirement.composable && (
         <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该操作当前不能由前端组合提交。"}</p>
       )}
-      {!targetCountValid && selectedRequirement.composable && (
+      {!targetShapeValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
+      )}
+      {!serverTargetSelectionValid && selectedRequirement.composable && (
+        <p className="composer-warning">当前目标组合不在服务端合法组合中。</p>
       )}
       {paymentResourceRequirement.required && !paymentResourceSelectionValid && selectedRequirement.composable && (
         <p className="composer-warning">请选择刚好足以支付所选费用的服务端支付资源。</p>
@@ -1806,6 +1812,7 @@ function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | u
     targetScopeLabel: stringField(record, "targetScopeLabel") || "服务端目标",
     allowsRepeatedTargets: booleanField(record, "allowsRepeatedTargets"),
     targetChoicesByIndex: choiceRecord(record.targetChoicesByIndex),
+    legalTargetSelections: stringMatrix(record.legalTargetSelections),
     destinationChoices: choiceList(record.destinationChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
     paymentResourceChoices: choiceList(record.paymentResourceChoices),
@@ -1906,6 +1913,19 @@ function withoutTargetAt(current: Record<number, string>, targetIndex: number): 
   const next = { ...current };
   delete next[targetIndex];
   return next;
+}
+
+function playCardServerTargetSelectionValid(
+  orderedTargets: string[],
+  requirement: PlayCardSourceRequirement
+): boolean {
+  if (requirement.legalTargetSelections.length === 0) {
+    return true;
+  }
+
+  return requirement.legalTargetSelections.some((selection) =>
+    selection.length === orderedTargets.length
+    && selection.every((targetId, index) => targetId === orderedTargets[index]));
 }
 
 function toggleValue(values: string[], value: string): string[] {
@@ -2106,4 +2126,14 @@ function stringList(value: unknown): string[] {
   }
 
   return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+function stringMatrix(value: unknown): string[][] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((entry): entry is unknown[] => Array.isArray(entry))
+    .map((entry) => stringList(entry));
 }

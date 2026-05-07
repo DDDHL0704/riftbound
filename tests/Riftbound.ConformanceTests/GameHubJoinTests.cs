@@ -1126,6 +1126,106 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79SpellshieldMultipleTaxSeedEnumeratesLegalTargetsAndPaysThroughHub()
+    {
+        const string roomId = "p7-9-spellshield-multiple-tax-core";
+        const string firstShieldTarget = "P2-SPIRIT-FIRE-SPELLSHIELD-001";
+        const string secondShieldTarget = "P2-SPIRIT-FIRE-SPELLSHIELD2-001";
+        const string keeperTarget = "P2-SPIRIT-FIRE-KEEPER-001";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "spellshield-multiple-tax", "seed-p7-9-spellshield-multiple-tax");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("P1-SPELL-SPIRIT-FIRE", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal("OGN·256/298", Assert.IsType<string>(sourceRequirement["cardNo"]));
+        Assert.Equal(3, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["minTargetCount"]));
+        Assert.Equal(4, Assert.IsType<int>(sourceRequirement["maxTargetCount"]));
+        var legalTargetSelections = Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(
+                sourceRequirement["legalTargetSelections"])
+            .Select(selection => selection.ToArray())
+            .ToArray();
+        Assert.Contains(legalTargetSelections, selection => selection.SequenceEqual([firstShieldTarget, secondShieldTarget]));
+        Assert.DoesNotContain(legalTargetSelections, selection => selection.Contains(keeperTarget, StringComparer.Ordinal));
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-spellshield-multiple-tax-play", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-SPIRIT-FIRE",
+                cardNo = "OGN·256/298",
+                targetObjectIds = new[] { firstShieldTarget, secondShieldTarget }
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        var costEvent = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(6, costEvent.Payload["mana"]);
+        Assert.Equal(3, costEvent.Payload["baseMana"]);
+        Assert.Equal(3, costEvent.Payload["spellshieldTaxMana"]);
+        Assert.Equal([firstShieldTarget, secondShieldTarget], Assert.IsType<string[]>(costEvent.Payload["spellshieldTaxTargetObjectIds"]));
+        var stackAdded = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_ADDED", StringComparison.Ordinal));
+        Assert.Equal(
+            [firstShieldTarget, secondShieldTarget],
+            Assert.IsType<string[]>(stackAdded.Payload["targetObjectIds"]));
+        var playSnapshot = SnapshotFor(playClients, "P1");
+        Assert.Single(playSnapshot.Stack);
+
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-spellshield-multiple-tax-p1-pass", passPriority);
+
+        var resolveClients = new RecordingHubClients();
+        await CreateHub(resolveClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-spellshield-multiple-tax-p2-pass", passPriority);
+
+        Assert.Empty(resolveClients.CallerClient.Errors);
+        var resolveEvents = EventsFor(resolveClients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "STACK_ITEM_RESOLVED", StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, firstShieldTarget, StringComparison.Ordinal));
+        Assert.Contains(resolveEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, secondShieldTarget, StringComparison.Ordinal));
+
+        var finalSnapshot = SnapshotFor(resolveClients, "P1");
+        Assert.Empty(finalSnapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-SPELL-SPIRIT-FIRE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        var p1RunePool = Assert.IsType<Dictionary<string, object?>>(p1["runePool"]);
+        Assert.Equal(0, Assert.IsType<int>(p1RunePool["mana"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Equal([keeperTarget], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(
+            [firstShieldTarget, secondShieldTarget],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+        Assert.Contains("END_TURN", PromptFor(resolveClients, "P1").Actions);
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";
