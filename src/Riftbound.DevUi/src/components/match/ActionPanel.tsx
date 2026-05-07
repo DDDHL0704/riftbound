@@ -1,6 +1,6 @@
 import { Check, Hourglass, Play, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, GameCommand, SnapshotDto } from "../../types/protocol";
+import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { actionLabel, promptActionLabel } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
@@ -8,15 +8,17 @@ import { StatusPill } from "../ui/StatusPill";
 type ActionPanelProps = {
   prompt?: ActionPromptDto;
   snapshot?: SnapshotDto;
+  connectionStatus: ConnectionStatus;
   playerId: string;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
   onCommand: (command: GameCommand) => void;
 };
 
-export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
+export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
   const candidates = prompt?.candidates ?? [];
-  const canAct = prompt?.actionable && prompt.playerId === playerId;
+  const connected = connectionStatus === "connected";
+  const canAct = connected && prompt?.actionable && prompt.playerId === playerId;
 
   return (
     <section className="side-panel action-panel">
@@ -28,12 +30,14 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
         <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
         <span>Prompt：{prompt?.promptId ?? "无"}</span>
         <span>原因：{prompt?.reason ?? "尚未收到 prompt"}</span>
+        {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
       </div>
       <div className="action-buttons">
         {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可执行候选。</span>}
         {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
           <MulliganCandidate
             candidate={candidate}
+            disabledByConnection={!connected}
             key={`${candidate.action}-${candidate.label}`}
             onCommand={onCommand}
           />
@@ -44,6 +48,7 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
             onCommand={onCommand}
             onReady={onReady}
             onSubmitStarterDeck={onSubmitStarterDeck}
+            disabledByConnection={!connected}
             snapshot={snapshot}
           />
         ))}
@@ -54,9 +59,11 @@ export function ActionPanel({ prompt, snapshot, playerId, onReady, onSubmitStart
 
 function MulliganCandidate({
   candidate,
+  disabledByConnection,
   onCommand
 }: {
   candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
 }) {
   const choices = useMemo(() => candidate.sources ?? [], [candidate.sources]);
@@ -73,7 +80,7 @@ function MulliganCandidate({
   }, [maxSelectionCount, sourceKey, choices]);
 
   const hasServerLimit = maxSelectionCount != null;
-  const canSubmit = candidate.enabled && hasServerLimit && selectedObjectIds.length <= maxSelectionCount;
+  const canSubmit = !disabledByConnection && candidate.enabled && hasServerLimit && selectedObjectIds.length <= maxSelectionCount;
 
   return (
     <div className="mulligan-selector">
@@ -86,7 +93,7 @@ function MulliganCandidate({
         {choices.map((choice) => (
           <MulliganChoiceButton
             choice={choice}
-            disabled={!candidate.enabled || !hasServerLimit}
+            disabled={disabledByConnection || !candidate.enabled || !hasServerLimit}
             key={choice.id}
             maxSelectionCount={maxSelectionCount ?? 0}
             selected={selectedObjectIds.includes(choice.id)}
@@ -105,7 +112,7 @@ function MulliganCandidate({
         disabled={!canSubmit}
         icon={<Check size={16} />}
         onClick={() => onCommand({ cmdType: "MULLIGAN", handObjectIds: selectedObjectIds })}
-        title={candidate.reason}
+        title={disabledByConnection ? "连接恢复前不能提交起手调整" : candidate.reason}
         variant={candidate.enabled ? "primary" : "ghost"}
       >
         确认起手调整
@@ -146,12 +153,14 @@ function MulliganChoiceButton({
 
 function CandidateButton({
   candidate,
+  disabledByConnection,
   onCommand,
   onReady,
   onSubmitStarterDeck,
   snapshot
 }: {
   candidate: ActionPromptCandidateDto;
+  disabledByConnection: boolean;
   onCommand: (command: GameCommand) => void;
   onReady: () => void;
   onSubmitStarterDeck: () => void;
@@ -159,7 +168,7 @@ function CandidateButton({
 }) {
   const command = simpleCommand(candidate, snapshot);
   const directAction = directCandidateAction(candidate, onReady, onSubmitStarterDeck);
-  const disabled = !candidate.enabled || (!command && !directAction);
+  const disabled = disabledByConnection || !candidate.enabled || (!command && !directAction);
   return (
     <Button
       disabled={disabled}
@@ -171,13 +180,32 @@ function CandidateButton({
           onCommand(command);
         }
       }}
-      title={candidate.reason}
+      title={disabledByConnection ? "连接恢复前不能提交行动" : candidate.reason}
       variant={candidate.enabled ? "primary" : "ghost"}
     >
       {promptActionLabel(candidate)}
       {!command && !directAction && candidate.action !== "WAIT" ? `（需选择）` : ""}
     </Button>
   );
+}
+
+function connectionStatusLabel(status: ConnectionStatus): string {
+  switch (status) {
+    case "idle":
+      return "未连接";
+    case "connecting":
+      return "连接中";
+    case "connected":
+      return "已连接";
+    case "reconnecting":
+      return "重连中";
+    case "resyncing":
+      return "重新同步中";
+    case "disconnected":
+      return "已断开";
+    case "error":
+      return "连接错误";
+  }
 }
 
 function directCandidateAction(candidate: ActionPromptCandidateDto, onReady: () => void, onSubmitStarterDeck: () => void): (() => void) | undefined {

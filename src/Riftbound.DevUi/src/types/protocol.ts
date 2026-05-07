@@ -1,4 +1,4 @@
-export type ConnectionStatus = "idle" | "connecting" | "connected" | "reconnecting" | "disconnected" | "error";
+export type ConnectionStatus = "idle" | "connecting" | "connected" | "reconnecting" | "resyncing" | "disconnected" | "error";
 
 export type WsServerMessage<T = unknown> = {
   type: string;

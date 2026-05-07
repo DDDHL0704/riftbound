@@ -93,7 +93,18 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
   }, [playerId, roomId, socket]);
 
   const requestSnapshot = useCallback(async () => {
-    await socket.requestSnapshot(roomId, playerId);
+    setState((current) => ({ ...current, status: "resyncing" }));
+    try {
+      await socket.requestSnapshot(roomId, playerId);
+      setState((current) => ({ ...current, status: "connected" }));
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        status: "error",
+        lastSystemMessage: error instanceof Error ? error.message : "重新同步失败"
+      }));
+      throw error;
+    }
   }, [playerId, roomId, socket]);
 
   const ready = useCallback(async () => {

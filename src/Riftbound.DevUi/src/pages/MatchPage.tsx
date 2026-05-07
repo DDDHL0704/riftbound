@@ -51,6 +51,7 @@ export function MatchPage({ matchId }: { matchId: string; onNavigate: (route: Ap
         <aside className="right-rail">
           <StackPanel snapshot={snapshot} />
           <ActionPanel
+            connectionStatus={controller.state.status}
             onCommand={(command) => void controller.submitCommand(command)}
             onReady={() => void controller.ready()}
             onSubmitStarterDeck={() => void controller.submitStarterDeck()}
