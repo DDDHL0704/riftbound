@@ -300,6 +300,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsMulliganAfterMatchFinished()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            Status = MatchStatuses.Finished,
+            WinnerPlayerId = "P1",
+            Phase = MatchPhases.Mulligan,
+            TimingState = TimingStates.Mulligan
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-mulligan-after-finished", "P1", "MULLIGAN"),
+            new MulliganCommand([]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("Match is not in progress.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        Assert.Equal("P1", result.State.WinnerPlayerId);
+        Assert.Equal(MatchPhases.Mulligan, result.State.Phase);
+        Assert.Equal(TimingStates.Mulligan, result.State.TimingState);
+        Assert.Empty(result.State.MulliganCompletedPlayerIds);
+        Assert.Equal(["P1-SPELL-PUNISHMENT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-UNIT-001"], result.State.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
     public async Task P4EphemeralKeywordDestroysControlledObjectsAtTurnStart()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -245,17 +245,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         GameCommand command,
         CancellationToken cancellationToken)
     {
-        if (command is MulliganCommand mulliganCommand)
-        {
-            return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
-        }
-
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
         {
             return ValueTask.FromResult(RejectWithCorePrompts(
                 state,
                 "Match is not in progress.",
                 ErrorCodes.PhaseNotAllowed));
+        }
+
+        if (command is MulliganCommand mulliganCommand)
+        {
+            return ValueTask.FromResult(ResolveMulligan(state, intent, mulliganCommand));
         }
 
         if (command is DeclareBattleCommand activeTaskDeclareBattleCommand

@@ -160,7 +160,7 @@
 - 全局行动面板只在服务端候选可直接提交时启用按钮；`PLAY_CARD` 等仍需目标/模式/费用/目的地选择的动作会显示“需选择”并保持禁用，避免前端提交不完整命令。
 - `END_TURN` 也补齐服务端命令侧窗口 guard：即使客户端绕过前端直接提交，Core 也只允许当前行动玩家在 `MAIN` / `NEUTRAL_OPEN` 且结算链为空时结束回合。前端继续只按服务端 prompt 展示“结束回合”，不自行判断或推进回合。
 - `TURN_START` 自动流程也补齐服务端命令侧玩家 guard：只有当前 `TurnPlayerId` 能触发服务端回合开始自动处理；非回合玩家绕过前端提交占位命令不会召符文、抽牌或推进 tick。前端仍只展示服务端 snapshot/prompt，不本地推进回合开始。
-- 已结束比赛也补齐服务端全局命令 guard：`Status != IN_PROGRESS` 后，Core 会统一拒绝后续游戏命令且保留胜者、tick 和区域不变；前端只展示结束状态，不允许通过客户端按钮或重连后残留操作继续推进比赛。
+- 已结束比赛也补齐服务端全局命令 guard：`Status != IN_PROGRESS` 后，Core 会统一拒绝后续游戏命令且保留胜者、tick 和区域不变；`MULLIGAN` 这条早于普通命令分发的特殊路径也已纳入同一状态 guard。前端只展示结束状态，不允许通过客户端按钮或重连后残留操作继续推进比赛或起手调度。
 - `PLAY_CARD` prompt 现在增加每来源 `sourceRequirements` 元数据，由服务端按具体手牌暴露最小/最大目标数、目标范围中文标签、逐目标槽候选、可选模式、可选费用、目的地候选和当前是否可由前端组合提交。
 - `PLAY_CARD` 来源进一步收紧：需要目标的牌必须有服务端过滤后的必需目标槽候选才会作为可执行来源暴露，避免前端出现“可点但必然被服务端拒绝”的假入口。
 - 卡牌详情抽屉新增出牌组合器：从服务端 `sourceRequirements` 渲染模式、目标槽、目的地、可选费用和确认按钮；确认命令只提交这些服务端候选组合，不从卡面文本或客户端规则推断。
@@ -408,6 +408,7 @@
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。
 - P0-003 补齐代表性栈结算后的非法待命自动清理：服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`、同步墓地和对象位置，并清空 `REMOVE_ILLEGAL_STANDBY` pending task；前端继续只读事件/snapshot。
 - P0-003 补齐回合结束特殊清理后的状态性清理证据：临时战力修正过期导致单位变为 0 战力时，服务端会在下一回合开始前立即广播 `UNIT_DESTROYED` / `ZERO_POWER` 并同步墓地和对象位置；事件顺序保持为清理完成后再 `TURN_PLAYER_ADVANCED` / `TURN_START_BEGAN`，前端只展示事件日志与最终 snapshot。
+- P0-003/P1-004 继续补齐胜负后命令侧状态 guard：普通游戏命令和 `MULLIGAN` 特殊分发路径都会在 `Status != IN_PROGRESS` 时由 Core 统一拒绝，已结束比赛不会因残留 prompt、手写命令或异常 phase 状态继续改变起手完成列表、tick、胜者或区域。后端 full test 当前通过 3005/3005，前端 build 已通过；本批没有前端 UI 代码变更，未启动新的 browser/API/Vite/Chrome smoke 进程。
 - P0-005 补齐代表性出牌支付步骤资源动作与 X 符能金额候选：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付；X 符能法术 prompt 会按当前可支付上限公开金额选项，前端不得自行构造未出现在候选中的资源动作或金额。
 - P0-005 进一步补齐逐支付资源贡献元数据和 UI 精确选择：`paymentResourcePowerByChoice` 让前端能只按服务端数据判断“还缺多少、哪类资源能补足”，当前 1 红 + 两张可回收红符文的场景已通过 smoke 验证只能选择一张并提交，另一张保持在基地；后端 full test 当前通过 2902/2902，前端 build 已通过。
 - P0-005 补齐真实需要两张支付资源的代表性证据：当前没有红色符能、两张红色符文都必须回收时，前端会在第一张选中后保持确认禁用并允许第二张继续选择，两张都选中后才启用确认；后端 full test 当前通过 2904/2904，真实 UI smoke 已通过。
