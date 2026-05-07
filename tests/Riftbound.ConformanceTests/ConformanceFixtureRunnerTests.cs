@@ -38120,6 +38120,92 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandPreservesSubmittedOrderForSamePriorityBulwarkDefenders()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-VOLIBEAR"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-BULWARK-A", "P2-BATTLEFIELD-BULWARK-B"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-VOLIBEAR"] = new(
+                    "P1-BATTLEFIELD-VOLIBEAR",
+                    power: 10,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    cardNo: "OGN·158/298"),
+                ["P2-BATTLEFIELD-BULWARK-A"] = new(
+                    "P2-BATTLEFIELD-BULWARK-A",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    cardNo: "UNL-036/219"),
+                ["P2-BATTLEFIELD-BULWARK-B"] = new(
+                    "P2-BATTLEFIELD-BULWARK-B",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    cardNo: "UNL-036/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-same-priority-bulwark", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-VOLIBEAR"],
+                ["P2-BATTLEFIELD-BULWARK-B", "P2-BATTLEFIELD-BULWARK-A"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var attackerDamageEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-VOLIBEAR", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(
+            ["P2-BATTLEFIELD-BULWARK-B", "P2-BATTLEFIELD-BULWARK-A"],
+            attackerDamageEvents.Select(gameEvent => (string)gameEvent.Payload["targetObjectId"]!).ToArray());
+        Assert.Collection(
+            attackerDamageEvents,
+            firstBulwarkDamageEvent =>
+            {
+                Assert.Equal("P2-BATTLEFIELD-BULWARK-B", firstBulwarkDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("BULWARK_FIRST", firstBulwarkDamageEvent.Payload["assignmentRole"]);
+                Assert.Equal(1, firstBulwarkDamageEvent.Payload["assignmentIndex"]);
+                Assert.Equal(4, firstBulwarkDamageEvent.Payload["damage"]);
+            },
+            secondBulwarkDamageEvent =>
+            {
+                Assert.Equal("P2-BATTLEFIELD-BULWARK-A", secondBulwarkDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("BULWARK_FIRST", secondBulwarkDamageEvent.Payload["assignmentRole"]);
+                Assert.Equal(2, secondBulwarkDamageEvent.Payload["assignmentIndex"]);
+                Assert.Equal(6, secondBulwarkDamageEvent.Payload["damage"]);
+            });
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-BATTLEFIELD-BULWARK-A", result.State.PlayerZones["P2"].Graveyard);
+        Assert.Contains("P2-BATTLEFIELD-BULWARK-B", result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(8, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK-A"));
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK-B"));
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandAssignsDamageFromMultipleAttackersForRepresentativePath()
     {
         var state = PunishmentState(mana: 0) with

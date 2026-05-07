@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **78%**，预计仍需 **4 批左右** 才能进入最终 completion audit。
+当前完成度：约 **79%**，预计仍需 **4 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -60,7 +60,7 @@
 
 - 完整 battlefield/standby/control task 状态机未完成：前端只能展示服务端 `battlefieldTasks` / `pendingTaskQueue`，不能自行推进战场控制、待命移除、征服/据守或争夺结论。
 - Central cleanup task queue 未完成：前端只能展示清理结果和阻塞 `WAIT` prompt，不能本地继续开放普通行动。
-- Spell duel/battle lifecycle 未完整官方化：前端可以显示 `spellDuel`、`battle`、`PASS_FOCUS`、`DECLARE_BATTLE` 等候选；当前只开放服务端支持的单攻击者/多防守者代表路径与多攻击者/单防守者代表路径，不能用客户端 UI 计算“法术对决结束”“战斗伤害结算”“控制权改变”。
+- Spell duel/battle lifecycle 未完整官方化：前端可以显示 `spellDuel`、`battle`、`PASS_FOCUS`、`DECLARE_BATTLE` 等候选；当前只开放服务端支持的单攻击者/多防守者代表路径、多攻击者/单防守者代表路径，以及同优先级壁垒防守者顺序选择的代表性证据，不能用客户端 UI 计算“法术对决结束”“战斗伤害结算”“控制权改变”。
 - PaymentEngine 未统一：前端只能提交服务端候选中暴露的 `optionalCosts` / 支付 token；未暴露的费用分支不得做成可选项。
 - LayerEngine 未完整：前端展示 `basePower` / `effectivePower` / `continuousEffects`，不得从卡面和装备自行重算战力或关键词。
 - 全官方卡牌证据仍不足：图鉴必须明确展示 `representative-rule-pass` / deferred family 状态，不能显示“官方完整通过”。
@@ -184,6 +184,7 @@
 - `DECLARE_BATTLE` prompt 从泛化来源/目标/战场升级为每攻击者 `sourceRequirements` 元数据。服务端现在按当前时点、攻击者是否正面/受控/未参战、防守者是否合法、战场候选和必需 `COMBAT_ASSIGNMENT` 费用过滤候选。
 - 卡牌详情抽屉新增战斗声明组合器：只读取服务端 `sourceRequirements` 渲染攻击者、战场、防守槽、必需费用和确认按钮，确认命令只提交服务端提供的 `battlefieldId`、`attackerObjectIds`、`defenderObjectIds`、`optionalCosts`，不从卡面文本、关键词或客户端战场状态自行裁决。
 - `DECLARE_BATTLE.sourceRequirements` 已与服务端代表性 1-2 防守者结算能力对齐：当服务端检测到至少两个合法防守者且其中包含壁垒/后排伤害分配关键词时，会公开第二个可选防守槽；第二槽候选只来自服务端给出的壁垒/后排防守者，前端不自行推断多防守者合法性。
+- 同优先级防守者顺序已补代表性证据：服务端 metadata 公开 `samePriorityAssignmentPolicy`，两个同为 `壁垒` 的防守者会在相同优先级内保留玩家通过服务端候选提交的对象顺序；前端仍只渲染 `targetChoicesByIndex` 槽位，不自行判断壁垒优先级或伤害分配合法性。
 - Development `battle-declare` seed 已补齐攻防单位的 cardNo、owner/controller 和单位标签，避免 smoke 场景出现 prompt 来源可见但 snapshot 仍显示卡背的断裂。
 - 当前已通过真实 UI 点击己方战场《大力仙灵》，详情抽屉展示 `DECLARE_BATTLE` 组合器、战场“己方主战场”、防守者 `P2-BATTLE-DEFENDER-001` 和必需费用“战斗分配”；确认后事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`，后续 prompt 收敛为 `END_TURN`。
 - `SPELL_DUEL_OPEN` 焦点窗口的 `PLAY_CARD` 暴露已收紧到同一套服务端 `sourceRequirements`：只有存在可支付、合法时点、目标槽可组合的服务端来源时才显示 `PLAY_CARD`，避免前端出现空的响应窗口操作。
@@ -238,6 +239,7 @@
 - 后台 Chrome/CDP smoke 第十六片：Browser Use IAB backend 本次不可用，继续使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-reconnect-fallback-1`；后台先让 P1/P2 入座并 seed `battlefield-held-draw`，随后浏览器本地故意写入过期 `riftbound.session.{room}.P1` reconnect token。P1 在 Web UI 点击“连接/重连”后，前端先收到服务端 reconnect 拒绝，再自动清理旧 token 并 fallback 到 `JoinRoom`，最终恢复含“帝柳之林”的权威 snapshot，localStorage 写回新的 `rt_` token。该补丁只处理连接恢复，不改变任何游戏命令候选或规则裁决。
 - 后台 Chrome/CDP smoke 第十七片：Browser Use IAB backend 本次不可用，按不抢前台原则使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-recycle-rune-browser-mov6ieuw-1`；后台 SignalR 将正式房间推进到 P2 主阶段并横置一张基础符文后，P2 Web UI 连接房间、进入对战桌面、点击基地符文详情中的“回收符文”。页面事件日志显示“回收符文”“获得符能”，额外 SignalR 观察者确认 authoritative snapshot 中 `P2-RUNE-SFD-R03-10` 已从基地移到符文牌堆底部、`runeDeckCount 10 -> 11`、`runePool.powerByTrait.blue = 1`；reload 后点击“连接/重连”仍恢复该最终 snapshot。
 - 后台 Chrome/CDP smoke 第十八片：本轮工具上下文未提供可调用 Browser Use，按不抢前台原则使用后台 headless Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-multi-defender-mova8kc6`；P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battle-multi-defender`。P1 点击《沃利贝尔》打开 `DECLARE_BATTLE` 组合器，抽屉显示“防守单位 1”“防守单位 2”和第二槽“不选择”；按服务端候选选择 `P2-BATTLE-MULTI-LEBLANC` 与 `P2-BATTLE-MULTI-KITTEN` 后确认。页面事件日志显示“造成伤害”“战斗结束”，后台 SignalR 验证 `DAMAGE_APPLIED.assignmentRole` 包含 `BULWARK_FIRST` / `BACK_ROW_LAST`，P2 graveyard 为 `P2-BATTLE-MULTI-KITTEN`、`P2-BATTLE-MULTI-LEBLANC`；reload/reconnect 后页面恢复 `废牌堆 2` 与 P1《沃利贝尔》的最终 snapshot。
+- 后台 Chrome/CDP smoke 第十九片：本轮工具上下文未提供可调用 Browser Use，按不抢前台原则使用后台 headless Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-same-priority-bulwark-orikd055`；P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battle-same-priority-bulwark`。P1 点击《沃利贝尔》打开 `DECLARE_BATTLE` 组合器，按服务端候选在“防守单位 1”选择 `P2-BATTLE-SAME-BULWARK-B`，在“防守单位 2”选择 `P2-BATTLE-SAME-BULWARK-A` 并确认。页面事件日志显示“造成伤害”“战斗结束”；后台 SignalR 校验攻击者伤害顺序为 B `assignmentIndex = 1 / damage = 4`，A `assignmentIndex = 2 / damage = 6`，最终 snapshot 中 P1《沃利贝尔》保留 8 伤害，P2 两个壁垒单位进入 graveyard；reload/reconnect 后页面恢复 `废牌堆 2` 与同一最终 snapshot。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -293,14 +295,15 @@
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。
 - P0-003 补齐代表性栈结算后的非法待命自动清理：服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`、同步墓地和对象位置，并清空 `REMOVE_ILLEGAL_STANDBY` pending task；前端继续只读事件/snapshot。
 - P0-005 补齐代表性出牌支付步骤资源动作：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:1` 或代表性 `HASTE_READY` 急速额外费用支付；前端不得自行构造未出现在候选中的资源动作。
-- 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；后端 full test 当前通过 2889/2889。
+- 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；该批后端 full test 验证为 2889/2889。
+- P0-004 补齐同优先级壁垒防守者顺序选择的代表性证据：`DECLARE_BATTLE` metadata 记录同级顺序策略，Development-only `battle-same-priority-bulwark` seed 和后台 smoke 均验证前端只按服务端候选提交顺序；后端 full test 当前通过 2893/2893。
 
 预计剩余批次数：**4 批左右**
 
 原因：
 
 - 前端仍需补齐法术对决/响应窗口、带目标法术和复杂费用选择等产品级操作流。
-- 服务端仍需补齐完整 control/held/conquer task 生命周期、多攻击者 + 多防守者组合战斗、战斗响应窗口和官方级 battle task 状态机。
+- 服务端仍需补齐完整 control/held/conquer task 生命周期、多攻击者 + 多防守者组合战斗、独立战斗伤害分配 prompt、战斗响应窗口和官方级 battle task 状态机。
 - Browser/Computer smoke 仍需继续覆盖响应窗口、断线重连和最终长链路。
 - 服务端仍有多个架构级 P0/P1 规则缺口，不是单个 UI 批次可以关闭。
 

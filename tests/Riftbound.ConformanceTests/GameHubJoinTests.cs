@@ -1136,6 +1136,98 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79CombatSamePriorityBulwarkSeedPreservesSubmittedDefenderOrder()
+    {
+        const string roomId = "p7-9-combat-same-priority-bulwark";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battle-same-priority-bulwark", "seed-p7-9-combat-same-priority-bulwark");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-SAME-VOLIBEAR", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-SAME-BULWARK-A", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-SAME-BULWARK-B", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
+        Assert.Equal(
+            "preserve-player-submitted-object-order-within-same-priority",
+            Assert.IsType<string>(metadata["samePriorityAssignmentPolicy"]));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-BATTLE-SAME-VOLIBEAR", StringComparison.Ordinal));
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["maxDefenderCount"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-BATTLE-SAME-BULWARK-A", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-BATTLE-SAME-BULWARK-B", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["1"], choice => string.Equals(choice.Id, "P2-BATTLE-SAME-BULWARK-A", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["1"], choice => string.Equals(choice.Id, "P2-BATTLE-SAME-BULWARK-B", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-SAME-VOLIBEAR"],
+              "defenderObjectIds": ["P2-BATTLE-SAME-BULWARK-B", "P2-BATTLE-SAME-BULWARK-A"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-combat-same-priority-bulwark", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        var attackerDamageEvents = battleEvents
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLE-SAME-VOLIBEAR", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(
+            ["P2-BATTLE-SAME-BULWARK-B", "P2-BATTLE-SAME-BULWARK-A"],
+            attackerDamageEvents.Select(gameEvent => (string)gameEvent.Payload["targetObjectId"]!).ToArray());
+        Assert.Collection(
+            attackerDamageEvents,
+            firstBulwarkDamageEvent =>
+            {
+                Assert.Equal("P2-BATTLE-SAME-BULWARK-B", firstBulwarkDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("BULWARK_FIRST", firstBulwarkDamageEvent.Payload["assignmentRole"]);
+                Assert.Equal(1, firstBulwarkDamageEvent.Payload["assignmentIndex"]);
+                Assert.Equal(4, firstBulwarkDamageEvent.Payload["damage"]);
+            },
+            secondBulwarkDamageEvent =>
+            {
+                Assert.Equal("P2-BATTLE-SAME-BULWARK-A", secondBulwarkDamageEvent.Payload["targetObjectId"]);
+                Assert.Equal("BULWARK_FIRST", secondBulwarkDamageEvent.Payload["assignmentRole"]);
+                Assert.Equal(2, secondBulwarkDamageEvent.Payload["assignmentIndex"]);
+                Assert.Equal(6, secondBulwarkDamageEvent.Payload["damage"]);
+            });
+
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-BATTLE-SAME-VOLIBEAR"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        var p2Graveyard = Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]);
+        Assert.Contains("P2-BATTLE-SAME-BULWARK-A", p2Graveyard);
+        Assert.Contains("P2-BATTLE-SAME-BULWARK-B", p2Graveyard);
+    }
+
+    [Fact]
     public async Task P79CombatMultiAttackerSeedOffersSecondAttackerAndAssignsDamage()
     {
         const string roomId = "p7-9-combat-multi-attacker";

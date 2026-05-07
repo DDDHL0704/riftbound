@@ -4783,6 +4783,7 @@ internal static class ActionPromptBuilder
             ["defenderCountMax"] = 2,
             ["multiAttackerPolicy"] = "up-to-two-attackers-only-against-one-defender",
             ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
+            ["samePriorityAssignmentPolicy"] = "preserve-player-submitted-object-order-within-same-priority",
             ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat",
             ["sourceRequirements"] = sourceRequirements
         };
@@ -7007,6 +7008,7 @@ public sealed class MatchSession : IMatchSession
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
             "battle-prompt-filter" => BuildBattlePromptFilterScenario(current, seed),
             "battle-multi-defender" => BuildBattleMultiDefenderScenario(current, seed),
+            "battle-same-priority-bulwark" => BuildBattleSamePriorityBulwarkScenario(current, seed),
             "battle-multi-attacker" => BuildBattleMultiAttackerScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
@@ -8103,6 +8105,55 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "UNL-036/219",
                     power: 1,
                     tags: [CardObjectTags.UnitCard, "坚守2", "壁垒", "猫科"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattleSamePriorityBulwarkScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303074,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLE-SAME-VOLIBEAR"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    battlefields: ["P2-BATTLE-SAME-BULWARK-A", "P2-BATTLE-SAME-BULWARK-B"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-SAME-VOLIBEAR"] = new(
+                    "P1-BATTLE-SAME-VOLIBEAR",
+                    cardNo: "OGN·158/298",
+                    power: 10,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-SAME-BULWARK-A"] = new(
+                    "P2-BATTLE-SAME-BULWARK-A",
+                    cardNo: "UNL-036/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-SAME-BULWARK-B"] = new(
+                    "P2-BATTLE-SAME-BULWARK-B",
+                    cardNo: "UNL-036/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
