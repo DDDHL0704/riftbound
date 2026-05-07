@@ -3768,6 +3768,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(existingState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card is not controlled by the player for HIDE_CARD.",
+                ErrorCodes.InvalidTarget);
+        }
+
         var hiddenTags = existingState.Tags
             .Concat([CardObjectTags.UnitCard])
             .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
@@ -4411,6 +4419,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             FreeStandbyHideEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+        }
+
+        return string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool TryGetBattlefieldExtraStandbyObject(
@@ -11345,6 +11364,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return RejectWithCorePrompts(
                 state,
                 "Source card identity does not match REVEAL_CARD cardNo.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "Source card is not controlled by the player for REVEAL_CARD.",
                 ErrorCodes.InvalidTarget);
         }
 

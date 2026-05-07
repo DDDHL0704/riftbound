@@ -1451,7 +1451,7 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Hand = ["P1-STANDBY-TEEMO", "P1-STANDBY-UNKNOWN"],
+                    Hand = ["P1-STANDBY-TEEMO", "P1-STANDBY-UNKNOWN", "P1-STANDBY-OPPONENT-CONTROLLED"],
                     Battlefields = ["P1-BATTLEFIELD-BANDLE-TREE"]
                 },
                 ["P2"] = PlayerZones.Empty
@@ -1469,6 +1469,12 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-STANDBY-OPPONENT-CONTROLLED"] = new(
+                    "P1-STANDBY-OPPONENT-CONTROLLED",
+                    cardNo: "OGN·121/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P1-BATTLEFIELD-BANDLE-TREE"] = new(
                     "P1-BATTLEFIELD-BANDLE-TREE",
                     cardNo: "OGN·278/298",
@@ -1585,6 +1591,7 @@ public sealed class ConformanceFixtureShapeTests
                     Base = [
                         "P1-FACE-DOWN-STANDBY",
                         "P1-FACE-DOWN-UNKNOWN-STANDBY",
+                        "P1-FACE-DOWN-OPPONENT-CONTROLLED",
                         "P1-FACE-UP-STANDBY",
                         "P1-FACE-DOWN-NON-STANDBY"
                     ]
@@ -1608,6 +1615,14 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-FACE-DOWN-OPPONENT-CONTROLLED"] = new(
+                    "P1-FACE-DOWN-OPPONENT-CONTROLLED",
+                    isFaceDown: true,
+                    power: 1,
+                    cardNo: "OGN·197/298",
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2"),
                 ["P1-FACE-UP-STANDBY"] = new(
                     "P1-FACE-UP-STANDBY",
                     isFaceDown: false,

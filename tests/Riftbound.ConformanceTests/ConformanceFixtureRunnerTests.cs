@@ -34128,6 +34128,53 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4HideCardCommandRejectsOpponentControlledSourceInPlayerHand()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OPPONENT-CONTROLLED-STANDBY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OPPONENT-CONTROLLED-STANDBY"] = new(
+                    "P1-HAND-OPPONENT-CONTROLLED-STANDBY",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-hide-card-opponent-controlled-source", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OPPONENT-CONTROLLED-STANDBY",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("Source card is not controlled by the player for HIDE_CARD.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-HAND-OPPONENT-CONTROLLED-STANDBY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.False(result.State.CardObjects["P1-HAND-OPPONENT-CONTROLLED-STANDBY"].IsFaceDown);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4HideCardCommandSourceCardNoMismatchRejectionFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -34438,6 +34485,58 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, source.ManaCost);
         Assert.Null(source.CardNo);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby], source.Tags);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4RevealCardCommandRejectsOpponentControlledSourceInPlayerBase()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-FACEDOWN-OPPONENT-CONTROLLED-STANDBY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-FACEDOWN-OPPONENT-CONTROLLED-STANDBY"] = new(
+                    "P1-FACEDOWN-OPPONENT-CONTROLLED-STANDBY",
+                    isFaceDown: true,
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    manaCost: 2,
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-reveal-card-opponent-controlled-source", "P1", "REVEAL_CARD"),
+            new RevealCardCommand(
+                "P1-FACEDOWN-OPPONENT-CONTROLLED-STANDBY",
+                "OGN·121/298",
+                [],
+                Mode: "STANDBY_REVEAL",
+                OptionalCosts: ["STANDBY_REVEAL_0"],
+                Destination: "BASE"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("Source card is not controlled by the player for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-FACEDOWN-OPPONENT-CONTROLLED-STANDBY"], result.State.PlayerZones["P1"].Base);
+        var source = result.State.CardObjects["P1-FACEDOWN-OPPONENT-CONTROLLED-STANDBY"];
+        Assert.True(source.IsFaceDown);
+        Assert.Equal("OGN·121/298", source.CardNo);
         Assert.Empty(result.State.StackItems);
     }
 

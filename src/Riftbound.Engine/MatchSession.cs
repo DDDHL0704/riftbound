@@ -2711,7 +2711,7 @@ internal static class ActionPromptBuilder
 
         var destinationChoices = HideCardDestinationChoicesForState(state, playerId);
         var requirements = new List<HideCardPromptRequirement>();
-        foreach (var objectId in zones.Hand.Where(objectId => IsImplementedStandbyHideSource(state, objectId)))
+        foreach (var objectId in zones.Hand.Where(objectId => IsImplementedStandbyHideSource(state, playerId, objectId)))
         {
             if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
                 || string.IsNullOrWhiteSpace(cardObject.CardNo)
@@ -2764,7 +2764,7 @@ internal static class ActionPromptBuilder
             new ActionPromptChoiceDto(StandbyRevealOptionalCost, optionalCostLabel)
         };
         var requirements = new List<RevealCardPromptRequirement>();
-        foreach (var objectId in zones.Base.Where(objectId => IsImplementedStandbyRevealSource(state, objectId)))
+        foreach (var objectId in zones.Base.Where(objectId => IsImplementedStandbyRevealSource(state, playerId, objectId)))
         {
             if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
                 || string.IsNullOrWhiteSpace(cardObject.CardNo)
@@ -2805,11 +2805,12 @@ internal static class ActionPromptBuilder
             && string.Equals(state.PriorityPlayerId, playerId, StringComparison.Ordinal);
     }
 
-    private static bool IsImplementedStandbyRevealSource(MatchState state, string objectId)
+    private static bool IsImplementedStandbyRevealSource(MatchState state, string playerId, string objectId)
     {
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
             || !cardObject.IsFaceDown
             || string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             || !CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior))
         {
             return false;
@@ -6130,12 +6131,24 @@ internal static class ActionPromptBuilder
             : [];
     }
 
-    private static bool IsImplementedStandbyHideSource(MatchState state, string objectId)
+    private static bool IsImplementedStandbyHideSource(MatchState state, string playerId, string objectId)
     {
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             && CardBehaviorRegistry.TryGetByCardNo(cardObject.CardNo, out var behavior)
             && HasDelimitedTag(behavior.SourceUnitTags, CardObjectTags.Standby);
+    }
+
+    private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+        }
+
+        return string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool HasDelimitedTag(string values, string tag)
