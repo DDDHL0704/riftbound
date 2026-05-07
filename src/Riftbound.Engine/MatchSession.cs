@@ -2111,6 +2111,20 @@ internal static class ActionPromptBuilder
         bool Composable,
         string? UnsupportedReason);
 
+    private sealed record DeclareBattlePromptRequirement(
+        string SourceObjectId,
+        string CardNo,
+        string DisplayName,
+        int MinDefenderCount,
+        int MaxDefenderCount,
+        string DefenderCountLabel,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>> TargetChoicesByIndex,
+        IReadOnlyList<ActionPromptChoiceDto> BattlefieldChoices,
+        IReadOnlyList<ActionPromptChoiceDto> OptionalCostChoices,
+        IReadOnlyList<string> RequiredOptionalCosts,
+        bool Composable,
+        string? UnsupportedReason);
+
     private sealed record LegendActionAbilityDefinition(
         string AbilityId,
         IReadOnlyList<string> SourceCardNos,
@@ -2358,9 +2372,10 @@ internal static class ActionPromptBuilder
                 .Distinct(StringComparer.Ordinal)
                 .Select(objectId => ObjectChoice(state, objectId, "implemented assemble equipment source"))
                 .ToArray(),
-            "DECLARE_BATTLE" => zones.Battlefields
-                .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
-                .Select(objectId => ObjectChoice(state, objectId, "legal battlefield attacker candidate"))
+            "DECLARE_BATTLE" => DeclareBattleSourceRequirements(state, playerId)
+                .Select(requirement => requirement.SourceObjectId)
+                .Distinct(StringComparer.Ordinal)
+                .Select(objectId => ObjectChoice(state, objectId, "implemented declare battle attacker source"))
                 .ToArray(),
             "LEGEND_ACT" => LegendActionSourceRequirements(state, playerId)
                 .Select(requirement => requirement.SourceObjectId)
@@ -4019,9 +4034,11 @@ internal static class ActionPromptBuilder
                 .GroupBy(choice => choice.Id, StringComparer.Ordinal)
                 .Select(group => group.First())
                 .ToArray(),
-            "DECLARE_BATTLE" => OpposingBattlefieldObjects(state, playerId)
-                .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
-                .Select(entry => ObjectChoice(state, entry.ObjectId, "legal opposing battlefield defender candidate"))
+            "DECLARE_BATTLE" => DeclareBattleSourceRequirements(state, playerId)
+                .SelectMany(requirement => requirement.TargetChoicesByIndex.Values)
+                .SelectMany(choices => choices)
+                .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+                .Select(group => group.First())
                 .ToArray(),
             "LEGEND_ACT" => LegendActionSourceRequirements(state, playerId)
                 .SelectMany(requirement => requirement.TargetChoicesByIndex.Values)
@@ -4063,11 +4080,7 @@ internal static class ActionPromptBuilder
                     .Select(objectId => BattlefieldDestinationChoice(state, objectId, "班德尔树额外待命目的地"))
             ],
             "MOVE_UNIT" => MoveUnitDestinationChoices(state, playerId),
-            "DECLARE_BATTLE" => state.Seats.Keys
-                .Select(seatPlayerId => new ActionPromptChoiceDto($"BATTLEFIELD:{seatPlayerId}-MAIN", $"{seatPlayerId} 主战场"))
-                .Concat(PublicBattlefieldCardObjects(state)
-                    .Select(objectId => ObjectChoice(state, objectId, "battlefield card")))
-                .ToArray(),
+            "DECLARE_BATTLE" => DeclareBattleDestinationChoices(state, playerId),
             _ => null
         };
     }
@@ -4092,6 +4105,20 @@ internal static class ActionPromptBuilder
                 new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
             ]
             : null;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto>? DeclareBattleDestinationChoices(MatchState state, string playerId)
+    {
+        var choices = new[]
+            {
+                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场", "默认战斗战场")
+            }
+            .Concat(PublicBattlefieldCardObjects(state)
+                .Select(objectId => ObjectChoice(state, objectId, "公开战场牌")))
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? ModesFor(
@@ -4158,7 +4185,7 @@ internal static class ActionPromptBuilder
             ],
             "MOVE_UNIT" => MoveUnitOptionalCostChoices(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentOptionalCostChoices(state, playerId),
-            "DECLARE_BATTLE" => [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配")],
+            "DECLARE_BATTLE" => DeclareBattleOptionalCostChoices(state, playerId),
             "LEGEND_ACT" => LegendActionOptionalCostChoices(state, playerId),
             _ => null
         };
@@ -4188,6 +4215,15 @@ internal static class ActionPromptBuilder
         return choices.Length == 0 ? null : choices;
     }
 
+    private static IReadOnlyList<ActionPromptChoiceDto>? DeclareBattleOptionalCostChoices(
+        MatchState state,
+        string playerId)
+    {
+        return DeclareBattleSourceRequirements(state, playerId).Count > 0
+            ? [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")]
+            : null;
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto>? LegendActionOptionalCostChoices(
         MatchState state,
         string playerId)
@@ -4208,6 +4244,56 @@ internal static class ActionPromptBuilder
             .Select(group => group.First())
             .ToArray();
         return choices.Length == 0 ? null : choices;
+    }
+
+    private static IReadOnlyList<DeclareBattlePromptRequirement> DeclareBattleSourceRequirements(
+        MatchState state,
+        string playerId)
+    {
+        if (!string.Equals(state.Phase, MatchPhases.Main, StringComparison.Ordinal)
+            || !string.Equals(state.TimingState, TimingStates.NeutralOpen, StringComparison.Ordinal)
+            || !string.Equals(state.ActivePlayerId, playerId, StringComparison.Ordinal)
+            || state.StackItems.Count > 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        var defenderChoices = OpposingBattlefieldObjects(state, playerId)
+            .Where(entry => IsReadyFaceUpBattlefieldUnitForBattle(state, entry.PlayerId, entry.ObjectId))
+            .Select(entry => ObjectChoice(state, entry.ObjectId, "服务端合法防守单位"))
+            .ToArray();
+        var battlefieldChoices = DeclareBattleDestinationChoices(state, playerId)?.ToArray() ?? [];
+        if (defenderChoices.Length == 0 || battlefieldChoices.Length == 0)
+        {
+            return [];
+        }
+
+        return zones.Battlefields
+            .Where(objectId => IsReadyFaceUpBattlefieldUnitForBattle(state, playerId, objectId))
+            .Where(objectId => state.CardObjects.ContainsKey(objectId))
+            .Select(objectId =>
+            {
+                var attackerState = state.CardObjects[objectId];
+                var attackerChoice = ObjectChoice(state, objectId, "服务端合法攻击单位");
+                return new DeclareBattlePromptRequirement(
+                    objectId,
+                    attackerState.CardNo ?? string.Empty,
+                    attackerChoice.Label,
+                    1,
+                    1,
+                    "1 个防守单位",
+                    new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
+                    {
+                        ["0"] = defenderChoices
+                    },
+                    battlefieldChoices,
+                    [new ActionPromptChoiceDto("COMBAT_ASSIGNMENT", "战斗分配", "服务端当前代表路径必需")],
+                    ["COMBAT_ASSIGNMENT"],
+                    true,
+                    null);
+            })
+            .ToArray();
     }
 
     private static IEnumerable<CardBehaviorDefinition> PlayablePlayCardBehaviors(MatchState state, string playerId)
@@ -4301,19 +4387,29 @@ internal static class ActionPromptBuilder
             "ACTIVATE_ABILITY" => ActivateAbilityMetadataFor(state, playerId),
             "MOVE_UNIT" => MoveUnitMetadataFor(state, playerId),
             "ASSEMBLE_EQUIPMENT" => AssembleEquipmentMetadataFor(state, playerId),
-            "DECLARE_BATTLE" => new Dictionary<string, object?>
-            {
-                ["sourcePolicy"] = "controlled-battlefield-unit",
-                ["targetPolicy"] = "opposing-battlefield-unit",
-                ["battlefieldTargetPolicy"] = "server-validates-battlefield-effect-targets-on-submit",
-                ["attackerCount"] = 1,
-                ["defenderCountMin"] = 1,
-                ["defenderCountMax"] = 2,
-                ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
-                ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat"
-            },
+            "DECLARE_BATTLE" => DeclareBattleMetadataFor(state, playerId),
             "LEGEND_ACT" => LegendActionMetadataFor(state, playerId),
             _ => null
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> DeclareBattleMetadataFor(MatchState state, string playerId)
+    {
+        var sourceRequirements = DeclareBattleSourceRequirements(state, playerId)
+            .Select(DeclareBattleSourceRequirementView)
+            .ToArray();
+        return new Dictionary<string, object?>
+        {
+            ["sourcePolicy"] = "implemented-declare-battle-attacker-only",
+            ["targetPolicy"] = "source-specific-server-filtered-defenders",
+            ["battlefieldPolicy"] = "source-specific-server-filtered-battlefields",
+            ["optionalCostPolicy"] = "source-specific-required-combat-assignment",
+            ["attackerCount"] = 1,
+            ["defenderCountMin"] = 1,
+            ["defenderCountMax"] = 2,
+            ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
+            ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat",
+            ["sourceRequirements"] = sourceRequirements
         };
     }
 
@@ -4344,6 +4440,26 @@ internal static class ActionPromptBuilder
             ["targetPolicy"] = "source-specific-server-filtered-targets",
             ["optionalCostPolicy"] = "source-specific-server-filtered-costs",
             ["sourceRequirements"] = sourceRequirements
+        };
+    }
+
+    private static IReadOnlyDictionary<string, object?> DeclareBattleSourceRequirementView(
+        DeclareBattlePromptRequirement requirement)
+    {
+        return new Dictionary<string, object?>
+        {
+            ["sourceObjectId"] = requirement.SourceObjectId,
+            ["cardNo"] = requirement.CardNo,
+            ["displayName"] = requirement.DisplayName,
+            ["minDefenderCount"] = requirement.MinDefenderCount,
+            ["maxDefenderCount"] = requirement.MaxDefenderCount,
+            ["defenderCountLabel"] = requirement.DefenderCountLabel,
+            ["targetChoicesByIndex"] = requirement.TargetChoicesByIndex,
+            ["battlefieldChoices"] = requirement.BattlefieldChoices,
+            ["optionalCostChoices"] = requirement.OptionalCostChoices,
+            ["requiredOptionalCosts"] = requirement.RequiredOptionalCosts,
+            ["composable"] = requirement.Composable,
+            ["unsupportedReason"] = requirement.UnsupportedReason
         };
     }
 
@@ -7220,8 +7336,20 @@ public sealed class MatchSession : IMatchSession
             },
             new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P1-BATTLE-ATTACKER-001"] = new(power: 3, tags: ["CARD_TYPE:UNIT"]),
-                ["P2-BATTLE-DEFENDER-001"] = new(power: 2, tags: ["CARD_TYPE:UNIT"])
+                ["P1-BATTLE-ATTACKER-001"] = new(
+                    "P1-BATTLE-ATTACKER-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-DEFENDER-001"] = new(
+                    "P2-BATTLE-DEFENDER-001",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

@@ -444,6 +444,128 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptDeclareBattleMetadataFiltersSourcesDefendersBattlefieldsAndCosts()
+    {
+        var state = new MatchState(
+            "prompt-declare-battle-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BASE-UNIT"],
+                    Battlefields = ["P1-ATTACKER", "P1-FACEDOWN", "P1-ALREADY-ATTACKING"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-CARD", "P2-DEFENDER", "P2-FACEDOWN", "P2-EQUIPMENT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BASE-UNIT"] = new(
+                    "P1-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ATTACKER"] = new(
+                    "P1-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FACEDOWN"] = new(
+                    "P1-FACEDOWN",
+                    isFaceDown: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ALREADY-ATTACKING"] = new(
+                    "P1-ALREADY-ATTACKING",
+                    isAttacking: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-CARD"] = new(
+                    "P2-BATTLEFIELD-CARD",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-FACEDOWN"] = new(
+                    "P2-FACEDOWN",
+                    isFaceDown: true,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-EQUIPMENT"] = new(
+                    "P2-EQUIPMENT",
+                    cardNo: "SFD·011/221",
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var battleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        Assert.True(battleCandidate.Enabled);
+        Assert.Equal(["P1-ATTACKER"], (battleCandidate.Sources ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P2-DEFENDER"], (battleCandidate.Targets ?? []).Select(choice => choice.Id).ToArray());
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-CARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "BATTLEFIELD:P2-MAIN", StringComparison.Ordinal));
+        Assert.Equal(["COMBAT_ASSIGNMENT"], (battleCandidate.OptionalCosts ?? []).Select(choice => choice.Id).ToArray());
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("P1-ATTACKER", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minDefenderCount"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["maxDefenderCount"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstDefenderChoices = targetChoicesByIndex["0"];
+        Assert.Equal(["P2-DEFENDER"], firstDefenderChoices.Select(choice => choice.Id).ToArray());
+        var battlefieldChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["battlefieldChoices"]);
+        Assert.Contains(battlefieldChoices, choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));
+        Assert.Equal(
+            ["COMBAT_ASSIGNMENT"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(sourceRequirement["requiredOptionalCosts"]).ToArray());
+        Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
+    }
+
+    [Fact]
     public void SnapshotsExposeDevUiZonesWithoutLeakingOpponentHand()
     {
         var state = new MatchState(

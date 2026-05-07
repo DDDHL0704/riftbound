@@ -154,6 +154,18 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                       );
                     }
 
+                    if (candidate.action === "DECLARE_BATTLE") {
+                      return (
+                        <DeclareBattleComposer
+                          candidate={candidate}
+                          key={candidate.action}
+                          onClose={onClose}
+                          onCommand={onCommand}
+                          sourceObjectId={sourceObjectId}
+                        />
+                      );
+                    }
+
                     return (
                       <Button
                         disabled={!candidate.enabled || !command || !onCommand}
@@ -300,6 +312,21 @@ type LegendActionSourceRequirement = {
   timingLabel: string;
   exhaustsSource: boolean;
   resolvesImmediately: boolean;
+  composable: boolean;
+  unsupportedReason?: string;
+};
+
+type DeclareBattleSourceRequirement = {
+  sourceObjectId: string;
+  cardNo: string;
+  displayName: string;
+  minDefenderCount: number;
+  maxDefenderCount: number;
+  defenderCountLabel: string;
+  targetChoicesByIndex: Record<string, ActionPromptChoiceDto[]>;
+  battlefieldChoices: ActionPromptChoiceDto[];
+  optionalCostChoices: ActionPromptChoiceDto[];
+  requiredOptionalCosts: string[];
   composable: boolean;
   unsupportedReason?: string;
 };
@@ -1172,6 +1199,168 @@ function LegendActionComposer({
   );
 }
 
+function DeclareBattleComposer({
+  candidate,
+  onClose,
+  onCommand,
+  sourceObjectId
+}: {
+  candidate: ActionPromptCandidateDto;
+  onClose: () => void;
+  onCommand?: (command: GameCommand) => void;
+  sourceObjectId?: string;
+}) {
+  const requirements = useMemo(
+    () => declareBattleRequirementsFor(candidate, sourceObjectId),
+    [candidate, sourceObjectId]
+  );
+  const selectedRequirement = requirements[0];
+  const [defenderSelections, setDefenderSelections] = useState<Record<number, string>>({});
+  const [battlefieldId, setBattlefieldId] = useState<string>("");
+  const requirementKey = selectedRequirement?.sourceObjectId ?? "";
+
+  useEffect(() => {
+    setDefenderSelections({});
+    setBattlefieldId(selectedRequirement?.battlefieldChoices[0]?.id ?? "");
+  }, [requirementKey, selectedRequirement]);
+
+  if (!sourceObjectId) {
+    return (
+      <article className="play-card-composer">
+        <p className="detail-muted">服务端 snapshot 未公开攻击来源的对象 ID，前端不会构造战斗声明命令。</p>
+      </article>
+    );
+  }
+
+  if (requirements.length === 0 || !selectedRequirement) {
+    return (
+      <article className="play-card-composer">
+        <div className="composer-heading">
+          <strong>{promptActionLabel(candidate)}</strong>
+          <span>{candidate.reason}</span>
+        </div>
+        <p className="detail-muted">服务端尚未为这张牌提供可提交的战斗声明约束。</p>
+      </article>
+    );
+  }
+
+  const defenderSlots = Array.from({ length: selectedRequirement.maxDefenderCount }, (_, index) => index);
+  const orderedDefenders = defenderSlots
+    .map((targetIndex) => defenderSelections[targetIndex])
+    .filter((targetId): targetId is string => Boolean(targetId));
+  const hasTargetGap = defenderSlots.some((targetIndex) =>
+    !defenderSelections[targetIndex] && defenderSlots.slice(targetIndex + 1).some((laterIndex) => Boolean(defenderSelections[laterIndex])));
+  const missingRequiredDefenderChoice = defenderSlots
+    .slice(0, selectedRequirement.minDefenderCount)
+    .some((targetIndex) => (selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? []).length === 0);
+  const defenderCountValid = orderedDefenders.length >= selectedRequirement.minDefenderCount
+    && orderedDefenders.length <= selectedRequirement.maxDefenderCount
+    && !hasTargetGap
+    && !missingRequiredDefenderChoice;
+  const requiredCosts = selectedRequirement.requiredOptionalCosts;
+  const requiredCostLabels = requiredCosts.map((cost) =>
+    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+  const canSubmit = Boolean(
+    candidate.enabled
+    && selectedRequirement.composable
+    && defenderCountValid
+    && battlefieldId
+    && onCommand
+  );
+
+  return (
+    <article className="play-card-composer">
+      <div className="composer-heading">
+        <strong>{promptActionLabel(candidate)}</strong>
+        <span>{candidate.reason}</span>
+      </div>
+      <div className="composer-meta">
+        <span>{selectedRequirement.displayName}</span>
+        <span>攻击者 1</span>
+        <span>防守者 {selectedRequirement.defenderCountLabel}</span>
+      </div>
+      <ChoiceGroup label="战场">
+        {selectedRequirement.battlefieldChoices.map((choice) => (
+          <ChoiceButton
+            active={battlefieldId === choice.id}
+            key={choice.id}
+            onClick={() => setBattlefieldId(choice.id)}
+            title={choice.reason ?? undefined}
+          >
+            {choice.label}
+          </ChoiceButton>
+        ))}
+      </ChoiceGroup>
+      {defenderSlots.map((targetIndex) => {
+        const choices = selectedRequirement.targetChoicesByIndex[String(targetIndex)] ?? [];
+        const required = targetIndex < selectedRequirement.minDefenderCount;
+        return (
+          <ChoiceGroup key={targetIndex} label={`防守单位 ${targetIndex + 1}${required ? "" : "（可选）"}`}>
+            {!required && (
+              <ChoiceButton
+                active={!defenderSelections[targetIndex]}
+                onClick={() => setDefenderSelections((current) => withoutTargetAt(current, targetIndex))}
+              >
+                不选择
+              </ChoiceButton>
+            )}
+            {choices.length === 0 && <span className="composer-warning">服务端没有给出该防守槽候选。</span>}
+            {choices.map((choice) => {
+              const alreadySelected = orderedDefenders.includes(choice.id)
+                && defenderSelections[targetIndex] !== choice.id;
+              return (
+                <ChoiceButton
+                  active={defenderSelections[targetIndex] === choice.id}
+                  disabled={alreadySelected}
+                  key={choice.id}
+                  onClick={() => setDefenderSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
+                  title={choice.reason ?? undefined}
+                >
+                  {choice.label}
+                </ChoiceButton>
+              );
+            })}
+          </ChoiceGroup>
+        );
+      })}
+      {requiredCosts.length > 0 && (
+        <div className="composer-meta">
+          {requiredCostLabels.map((costLabel) => (
+            <span key={costLabel}>费用 {costLabel}</span>
+          ))}
+        </div>
+      )}
+      {!selectedRequirement.composable && (
+        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该战斗声明当前不能由前端组合提交。"}</p>
+      )}
+      {!defenderCountValid && selectedRequirement.composable && (
+        <p className="composer-warning">请按服务端防守槽候选完成防守单位选择。</p>
+      )}
+      <Button
+        disabled={!canSubmit}
+        icon={<Check size={16} />}
+        onClick={() => {
+          if (!canSubmit || !onCommand) {
+            return;
+          }
+
+          onCommand({
+            cmdType: "DECLARE_BATTLE",
+            battlefieldId,
+            attackerObjectIds: [sourceObjectId],
+            defenderObjectIds: orderedDefenders,
+            optionalCosts: requiredCosts.length > 0 ? requiredCosts : undefined
+          });
+          onClose();
+        }}
+        variant={canSubmit ? "primary" : "ghost"}
+      >
+        确认声明战斗
+      </Button>
+    </article>
+  );
+}
+
 function ChoiceGroup({ children, label }: { children: ReactNode; label: string }) {
   return (
     <div className="composer-choice-group">
@@ -1294,6 +1483,52 @@ function legendActionRequirementsFor(
     .map(parseLegendActionRequirement)
     .filter((requirement): requirement is LegendActionSourceRequirement =>
       Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function declareBattleRequirementsFor(
+  candidate: ActionPromptCandidateDto,
+  sourceObjectId?: string
+): DeclareBattleSourceRequirement[] {
+  if (!sourceObjectId) {
+    return [];
+  }
+
+  const rawRequirements = candidate.metadata?.sourceRequirements;
+  if (!Array.isArray(rawRequirements)) {
+    return [];
+  }
+
+  return rawRequirements
+    .map(parseDeclareBattleRequirement)
+    .filter((requirement): requirement is DeclareBattleSourceRequirement =>
+      Boolean(requirement && requirement.sourceObjectId === sourceObjectId));
+}
+
+function parseDeclareBattleRequirement(value: unknown): DeclareBattleSourceRequirement | undefined {
+  const record = asRecord(value);
+  if (!record) {
+    return undefined;
+  }
+
+  const sourceObjectId = stringField(record, "sourceObjectId");
+  if (!sourceObjectId) {
+    return undefined;
+  }
+
+  return {
+    sourceObjectId,
+    cardNo: stringField(record, "cardNo"),
+    displayName: stringField(record, "displayName") || sourceObjectId,
+    minDefenderCount: numberField(record, "minDefenderCount"),
+    maxDefenderCount: numberField(record, "maxDefenderCount"),
+    defenderCountLabel: stringField(record, "defenderCountLabel") || "1 个防守单位",
+    targetChoicesByIndex: choiceRecord(record.targetChoicesByIndex),
+    battlefieldChoices: choiceList(record.battlefieldChoices),
+    optionalCostChoices: choiceList(record.optionalCostChoices),
+    requiredOptionalCosts: stringList(record.requiredOptionalCosts),
+    composable: booleanField(record, "composable", true),
+    unsupportedReason: nullableStringField(record, "unsupportedReason")
+  };
 }
 
 function parseLegendActionRequirement(value: unknown): LegendActionSourceRequirement | undefined {

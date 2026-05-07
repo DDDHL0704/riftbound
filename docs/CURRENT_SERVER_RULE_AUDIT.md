@@ -1,7 +1,7 @@
 # 符文战场服务端核心规则自查报告
 
 自查日期：2026-05-07
-审计基准提交：`45bb446`；本轮复审代码提交至本批 LEGEND_ACT 服务端候选提交
+审计基准提交：`45bb446`；本轮复审代码提交至本批 DECLARE_BATTLE 服务端候选提交
 自查依据：`docs/符文战场_服务端核心规则自查文档.md`、仓库内五个官方规则 PDF 对应的核心规则/FAQ/勘误要求，以及当前 `src/Riftbound.Engine`、`src/Riftbound.Api`、`tests/Riftbound.ConformanceTests` 实现。
 
 ## 总结论
@@ -14,6 +14,11 @@
 
 ## 2026-05-07 开发进度更新
 
+- P0-004/P0-005 第十二批已落地：`DECLARE_BATTLE` prompt 从泛化来源/目标/战场升级为每攻击者 `sourceRequirements` 元数据。服务端现在按当前时点、攻击者是否正面/受控/未参战、防守者是否合法、战场候选和必需 `COMBAT_ASSIGNMENT` 费用过滤候选；前端详情抽屉只读取这些服务端候选渲染战斗声明组合器，不从卡面文本、关键词、客户端战场状态或 UI 位置自行裁决。
+- P0-004/P0-005 第十二批补充收紧：`DECLARE_BATTLE.sources`、`targets`、`destinations`、`optionalCosts` 都由同一组服务端 source requirements 汇总生成；当前只开放服务端已支持的单攻击者/单防守者 direct/minimal 代表路径。多防守者、战场任务驱动的完整战斗生命周期和战斗中响应窗口仍明确留在 P0-004 后续，不把本批误记为官方完整 battle task。
+- 已补测试：新增 `ActionPromptDeclareBattleMetadataFiltersSourcesDefendersBattlefieldsAndCosts`，覆盖基地/面朝下/已参战/装备对象不会作为战斗来源或防守者暴露，并断言战场候选、必需 `COMBAT_ASSIGNMENT` 和 per-source `targetChoicesByIndex`。Development `battle-declare` seed 补齐攻防单位 cardNo、owner/controller 和单位标签，避免 prompt 来源可见但玩家 snapshot 仍给卡背。
+- 复审验证记录：本批 `source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 通过 44/44；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 通过 85/85；`source ../../scripts/dev-env.sh && npm run build` 通过。Browser Use 当前无可用 IAB backend，按用户授权降级使用 Computer Use smoke：房间 `smoke-battle-3` 覆盖 Development-only `battle-declare` seed、P1 点击己方战场《大力仙灵》打开卡牌详情 `DECLARE_BATTLE` 组合器、选择服务端防守者并确认，事件日志出现 `BATTLE_DECLARED`、两条 `DAMAGE_APPLIED`、`UNIT_DESTROYED`；最终 snapshot 显示防守者进入废牌堆，后续 prompt 为 `END_TURN`。最近完整回归记录仍为 `source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 通过 2852/2852。
+- 复审结论补充：本批关闭的是“前端可声明代表性战斗但不能自行判断攻击者、防守者、战场和战斗分配费用”的产品级服务端候选缺口；整体结论仍为 **NOT READY**。剩余阻断仍集中在完整 battlefield/standby/control task 状态机、central cleanup task queue、spell duel/battle lifecycle、PaymentEngine、LayerEngine 和全官方卡牌证据。
 - P0-005 第十一批已落地：`LEGEND_ACT` prompt 从泛化模式/费用升级为每来源 `sourceRequirements` 元数据。服务端现在按具体传奇或授予来源公开能力、目标槽、必需费用、时点、横置来源、立即结算和 `composable` 状态；前端详情抽屉只读取这些服务端候选渲染传奇行动组合器，不从卡面文本、关键词、资源或经验自行裁决。
 - P0-005 第十一批补充收紧：`LEGEND_ACT` 来源会按当前时点、来源是否横置、资源/经验是否可支付、卡牌前置条件、目标槽候选和代表路径支持状态过滤候选。Poppy、Yasuo 等简单目标结构可组合提交；依赖第一目标再决定第二目标的武装类传奇行动会以 `composable=false` 和服务端原因明确禁用前端提交。
 - 已补测试：新增 `ActionPromptLegendActMetadataFiltersSourcesAbilitiesTargetsAndCosts`，覆盖无资源/经验时不暴露传奇行动来源，有资源/经验时暴露 Poppy/Yasuo/Jax 来源、模式、目标槽、必需费用和不可组合双目标依赖原因。前端 smoke 覆盖了 Poppy 传奇行动的零目标经验支付立即结算路径。
@@ -361,7 +366,7 @@
 | 通用清理检查 | RISKY | 已有 `PendingCleanupTasks`、`PendingTaskQueue` 与移动/栈结算后的致命伤害/0 战力 cleanup loop；仍缺覆盖全部状态变化的统一任务队列。 |
 | 移动/战场控制 | RISKY | 精确移动可写回 object location，战场状态可表达争夺；完整控制权改变/征服/据守仍待状态机化。 |
 | 法术对决 | RISKY | 已有显式 `SpellDuelState`、`BattlefieldTasks` 与焦点恢复；仍缺完整 spell duel lifecycle。 |
-| 战斗 | RISKY | 已有显式 `BattleState` 参与者视图和 `START_BATTLE` 任务视图；当前仍是 direct/minimal declare battle，不是官方 battle task。 |
+| 战斗 | RISKY | 已有显式 `BattleState` 参与者视图、`START_BATTLE` 任务视图和 `DECLARE_BATTLE.sourceRequirements`；当前仍是 direct/minimal declare battle，不是官方 battle task。 |
 | 计分/胜负 | RISKY | 有部分得分/胜负实现；依赖战场控制与 cleanup 的完整性不足。 |
 | 连续效果层 | RISKY | 已有 `ContinuousEffectState`、`basePower`、`effectivePower` 视图；仍缺完整 LayerEngine/timestamp/dependency 重算。 |
 | 关键词 | RISKY | 已有 `KeywordCoverageReporter` 暴露 implemented/delegated/deferred 边界；多个关键词族仍需真实执行矩阵。 |
