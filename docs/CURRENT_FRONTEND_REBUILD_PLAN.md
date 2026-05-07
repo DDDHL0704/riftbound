@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **98%**，预计仍需 **1 批左右** 才能进入最终 completion audit。
+当前完成度：约 **99%**，预计仍需 completion audit 与少量收口修复。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -146,7 +146,7 @@
 
 ### Batch 5：卡牌驱动操作
 
-状态：完成第二十二片。
+状态：完成第二十三片。
 
 交付：
 
@@ -208,6 +208,7 @@
 - 战场据守授予下一个法术 Echo 也进入同一服务端候选口径。新增 `battlefield-held-next-spell-echo-prompt` seed，把 P2 已获得 `BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:P2`、手牌《台前作秀》、4 法力且轮到 P2 的场景直接暴露给 UI；前端详情抽屉会看到“回响：额外支付 2 法力”，提交时仍只发送服务端给出的 `ECHO` token。
 - 战场装备减费现在进入 `PLAY_CARD.sourceRequirements.minimumManaCost` 的服务端候选口径，并通过 `battlefieldEquipmentCostReductionMana` 告知前端展示减费。`battlefield-static-equipment-cost-reduction` seed 中 P1 只有 1 法力、手牌《长剑》基础费用 2 且控制《奥恩的锻炉》；前端详情抽屉会看到“费用 1 / 战场减费 -1”，并只提交服务端给出的《长剑》出牌候选。
 - 战场据守非衍生物单位加费现在也进入 `PLAY_CARD.sourceRequirements.minimumManaCost` 的服务端候选口径，并通过 `battlefieldHeldUnitCostIncreaseMana` 告知前端展示加费。`battlefield-held-unit-cost-increase` seed 中 P1 只有 4 法力、手牌《忠实的工坊主》基础费用 3 且受到据守加费；前端详情抽屉会看到“费用 4 / 战场加费 +1”，并只提交服务端给出的出牌候选。
+- `PLAY_CARD.destinationChoices` 现在按服务端同源战场静态效果过滤单位进场目的地。`battlefield-static-prevent-play-units` seed 中伏击《阴森药剂师》只能打到战场，但该战场禁止单位进场，因此服务端不再向 P1 prompt 暴露该 `PLAY_CARD` 来源；前端行动面板和卡牌详情抽屉自然不会出现可提交入口。
 - Development `spell-duel` seed 补齐《海克斯射线》和目标单位的公开 cardNo、owner/controller 与标签；新增 `spell-duel-focus` seed，直接构造 P1 拥有迅捷带目标法术、P2 拥有合法战场单位、窗口为 `SPELL_DUEL_OPEN` 且焦点在 P1 的 smoke 场景。
 - 现有卡牌详情 `PLAY_CARD` 组合器已能在法术对决焦点窗口读取服务端目标槽候选，选择 P2 战场单位并提交《海克斯射线》；确认命令只提交服务端给出的 `sourceObjectId`、`cardNo` 与 `targetObjectIds`。
 - 当前已通过真实 UI 在 `SPELL_DUEL_OPEN` 打出《海克斯射线》：详情抽屉展示目标槽 `P2-UNIT-HEXTECH-RAY-001`，确认后事件日志出现 `CARD_PLAYED`、`COST_PAID`、`STACK_ITEM_ADDED`，后续 prompt 切到 `PASS_PRIORITY`；P2 让过优先权后服务端结算 `STACK_ITEM_RESOLVED`、`DAMAGE_APPLIED`、`UNIT_DESTROYED` 并回到 P2 `PASS_FOCUS`。
@@ -224,6 +225,7 @@
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，继续避免抢用户前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-held-echo-prompt-3ak2nocn`。P2 Web UI 连接后，后台 SignalR 让 P1/P2 入座并 seed `battlefield-held-next-spell-echo-prompt`；P2 打开《台前作秀》详情抽屉，页面显示“回响：额外支付 2 法力”，选择后确认启用并提交。事件日志显示“支付费用 / 加入结算链”，后台事件含 `BATTLEFIELD_TRIGGER_RESOLVED`；P2 通过 UI 让过优先权、后台 P1 让过后 authoritative snapshot 中 P2 抽到两张牌、`P2-SPELL-CENTER-STAGE` 入墓、P2 法力为 0、stack 为空；reload/reconnect 后仍恢复 `废牌堆 1` 与空结算链。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，继续避免抢用户前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-equipment-reduction-qelxo0mo`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battlefield-static-equipment-cost-reduction`；P1 打开《长剑》详情抽屉，页面显示“费用 1 / 战场减费 -1”，点击“确认打出”后事件日志显示“支付费用”。P1 通过 UI 让过优先权、后台 P2 让过后 authoritative snapshot 中 `P1-EQUIPMENT-LONG-SWORD` 位于 P1 基地、P1 法力为 0、stack 为空；reload/reconnect 后仍恢复该最终 snapshot。
 - 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，继续避免抢用户前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-held-unit-cost-fhth3xdd`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battlefield-held-unit-cost-increase`；P1 打开《忠实的工坊主》详情抽屉，页面显示“费用 4 / 战场加费 +1”，点击“确认打出”后事件日志显示“支付费用”。P1 通过 UI 让过优先权、后台 P2 让过后 authoritative snapshot 中 `P1-UNIT-CRAFTSMAN` 与 `P1-UNIT-CRAFTSMAN-TOKEN-001` 位于 P1 基地、P1 法力为 0、stack 为空；reload/reconnect 后仍恢复该最终 snapshot。
+- 当前已通过后台 headless Chrome/CDP 真实 UI smoke：Browser Use IAB 仍不可用，继续避免抢用户前台。API `http://127.0.0.1:5093` 与 Vite `http://127.0.0.1:5175`，房间 `smoke-prevent-unit-play-rnfcoybs`。P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battlefield-static-prevent-play-units`；页面行动面板只显示“让过优先权”，没有全局“打出卡牌”；打开《阴森药剂师》详情抽屉也不渲染“确认打出”组合器。
 - 争夺战场的服务端任务队列新增权威推进入口：状态变化后若留下争夺战场且无致命/0 战力清理优先项，服务端会广播 `BATTLEFIELD_CONTESTED` / `SPELL_DUEL_STARTED` 并进入 `SPELL_DUEL_OPEN`，前端只展示 resulting snapshot/prompt，不提供自定义“启动法术对决”按钮。
 - 新增 Development-only `battlefield-contest-stack` seed，专门用于 smoke“优先权栈项目结算后留下争夺战场 -> 服务端自动启动法术对决”的链路。
 - 当前已通过真实 UI/SignalR 混合 smoke：P2 浏览器视角看到 `BATTLEFIELD_TASKS`、争夺战场与阻塞队列；Node 让 P1 过优先权后，事件日志出现 `PRIORITY_PASSED`、`STACK_ITEM_RESOLVED`、`BATTLEFIELD_CONTESTED`、`SPELL_DUEL_STARTED`，状态切到 `SPELL_DUEL_OPEN`，P2 只获得服务端给出的 `PASS_FOCUS`。

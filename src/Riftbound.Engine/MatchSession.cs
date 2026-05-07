@@ -3943,7 +3943,17 @@ internal static class ActionPromptBuilder
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Where(behavior => runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior))
+            .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
+    }
+
+    private static bool PromptHasRequiredDestinationChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return !behavior.PlaysSourceToBaseAsUnit
+            || (PlayCardDestinationChoicesForBehavior(state, playerId, behavior)?.Count ?? 0) > 0;
     }
 
     private static bool PromptHasRequiredTargetChoices(
@@ -4484,12 +4494,12 @@ internal static class ActionPromptBuilder
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardDestinationChoices(MatchState state, string playerId)
     {
-        return PlayablePlayCardBehaviors(state, playerId).Any(behavior => behavior.PlaysSourceToBaseAsUnit)
-            ? [
-                new ActionPromptChoiceDto("BASE", "基地"),
-                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
-            ]
-            : null;
+        var choices = PlayablePlayCardBehaviors(state, playerId)
+            .SelectMany(behavior => PlayCardDestinationChoicesForBehavior(state, playerId, behavior) ?? [])
+            .GroupBy(choice => choice.Id, StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+        return choices.Length == 0 ? null : choices;
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? DeclareBattleDestinationChoices(MatchState state, string playerId)
@@ -5415,7 +5425,7 @@ internal static class ActionPromptBuilder
             ["allowsRepeatedTargets"] = behavior.AllowsRepeatedTargets,
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
-            ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(playerId, behavior),
+            ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
             ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
@@ -5472,15 +5482,40 @@ internal static class ActionPromptBuilder
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardDestinationChoicesForBehavior(
+        MatchState state,
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        return behavior.PlaysSourceToBaseAsUnit
-            ? [
-                new ActionPromptChoiceDto("BASE", "基地"),
-                new ActionPromptChoiceDto($"BATTLEFIELD:{playerId}-MAIN", "己方主战场")
-            ]
-            : null;
+        if (!behavior.PlaysSourceToBaseAsUnit)
+        {
+            return null;
+        }
+
+        var choices = new List<ActionPromptChoiceDto>();
+        if (!string.Equals(behavior.Mode, "AMBUSH", StringComparison.Ordinal))
+        {
+            choices.Add(new ActionPromptChoiceDto("BASE", "基地"));
+        }
+
+        var battlefieldDestination = $"BATTLEFIELD:{playerId}-MAIN";
+        if (!PromptBattlefieldStaticPreventsUnitPlayToBattlefield(state, playerId, battlefieldDestination))
+        {
+            choices.Add(new ActionPromptChoiceDto(battlefieldDestination, "己方主战场"));
+        }
+
+        return choices.Count == 0 ? null : choices;
+    }
+
+    private static bool PromptBattlefieldStaticPreventsUnitPlayToBattlefield(
+        MatchState state,
+        string playerId,
+        string destination)
+    {
+        return string.Equals(destination, $"BATTLEFIELD:{playerId}-MAIN", StringComparison.Ordinal)
+            && state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, BattlefieldPreventUnitPlayCardNo, StringComparison.Ordinal));
     }
 
     private static string UnsupportedPlayCardCompositionReason(CardBehaviorDefinition behavior)

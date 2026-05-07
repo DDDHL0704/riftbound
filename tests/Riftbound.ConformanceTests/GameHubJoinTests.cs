@@ -3519,6 +3519,12 @@ public sealed class GameHubJoinTests
                 new TestHostEnvironment(Environments.Development))
             .SeedScenario(roomId, "P1", "battlefield-static-prevent-play-units", "seed-p7-9-battlefield-static-prevent-play-units");
 
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        Assert.DoesNotContain(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
         var playClients = new RecordingHubClients();
         var ambushPlay = JsonDocument.Parse("""
             {
