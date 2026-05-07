@@ -4475,7 +4475,7 @@ internal static class ActionPromptBuilder
                     .Where(candidate => !string.Equals(candidate.ObjectId, attacker.ObjectId, StringComparison.Ordinal))
                     .Select(candidate => candidate.Choice)
                     .ToArray();
-                var maxAttackerCount = defenderChoices.Length == 1 && alternateAttackerChoices.Length > 0 ? 2 : 1;
+                var maxAttackerCount = alternateAttackerChoices.Length > 0 ? 2 : 1;
                 var attackerChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
                 {
                     ["0"] = [attacker.Choice]
@@ -4485,18 +4485,17 @@ internal static class ActionPromptBuilder
                     attackerChoicesByIndex["1"] = alternateAttackerChoices;
                 }
 
-                var maxDefenderCount = maxAttackerCount > 1
-                    ? 1
-                    : defenderChoices.Length > 1 && assignmentDefenderChoices.Length > 0
-                        ? 2
-                        : 1;
+                var maxDefenderCount = defenderChoices.Length > 1 && assignmentDefenderChoices.Length > 0 ? 2 : 1;
+                var secondDefenderChoices = defenderChoices.Length == 2 && assignmentDefenderChoices.Length == 1
+                    ? defenderChoices
+                    : assignmentDefenderChoices;
                 var targetChoicesByIndex = new Dictionary<string, IReadOnlyList<ActionPromptChoiceDto>>(StringComparer.Ordinal)
                 {
                     ["0"] = defenderChoices
                 };
                 if (maxDefenderCount > 1)
                 {
-                    targetChoicesByIndex["1"] = assignmentDefenderChoices;
+                    targetChoicesByIndex["1"] = secondDefenderChoices;
                 }
 
                 return new DeclareBattlePromptRequirement(
@@ -4781,8 +4780,9 @@ internal static class ActionPromptBuilder
             ["attackerCountMax"] = 2,
             ["defenderCountMin"] = 1,
             ["defenderCountMax"] = 2,
-            ["multiAttackerPolicy"] = "up-to-two-attackers-only-against-one-defender",
-            ["multiDefenderPolicy"] = "requires-bulwark-or-back-row-assignment-keyword",
+            ["multiAttackerPolicy"] = "up-to-two-attackers-representative-path",
+            ["multiDefenderPolicy"] = "up-to-two-defenders-requires-assignment-keyword-representative-path",
+            ["multiParticipantBattlePolicy"] = "up-to-two-attackers-and-defenders-without-independent-assignment-prompt",
             ["samePriorityAssignmentPolicy"] = "preserve-player-submitted-object-order-within-same-priority",
             ["candidateFiltering"] = "battlefield-zone-face-up-units-not-already-in-combat",
             ["sourceRequirements"] = sourceRequirements
@@ -7010,6 +7010,7 @@ public sealed class MatchSession : IMatchSession
             "battle-multi-defender" => BuildBattleMultiDefenderScenario(current, seed),
             "battle-same-priority-bulwark" => BuildBattleSamePriorityBulwarkScenario(current, seed),
             "battle-multi-attacker" => BuildBattleMultiAttackerScenario(current, seed),
+            "battle-multi-participant" => BuildBattleMultiParticipantScenario(current, seed),
             "battle-no-result" => BuildBattleNoResultScenario(current, seed),
             "battlefield-ephemeral-steadfast" => BuildBattlefieldEphemeralSteadfastScenario(current, seed),
             "battlefield-held-move-to-base" => BuildBattlefieldHeldMoveToBaseScenario(current, seed),
@@ -8203,6 +8204,62 @@ public sealed class MatchSession : IMatchSession
                     "P2-BATTLE-MULTI-DEFENDER",
                     cardNo: "UNL-036/219",
                     power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+    }
+
+    private static MatchState BuildBattleMultiParticipantScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303076,
+            1,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields: ["P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P1-BATTLE-MULTI-PARTICIPANT-YI"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    battlefields: ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLE-MULTI-PARTICIPANT-GAREN"] = new(
+                    "P1-BATTLE-MULTI-PARTICIPANT-GAREN",
+                    cardNo: "OGS·007/024",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-BATTLE-MULTI-PARTICIPANT-YI"] = new(
+                    "P1-BATTLE-MULTI-PARTICIPANT-YI",
+                    cardNo: "UNL-059/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK"] = new(
+                    "P2-BATTLE-MULTI-PARTICIPANT-BULWARK",
+                    cardNo: "UNL-036/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"] = new(
+                    "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER",
+                    cardNo: "UNL-036/219",
+                    power: 3,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
                     controllerId: seed.P2)

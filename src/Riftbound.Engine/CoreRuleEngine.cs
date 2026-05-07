@@ -6206,7 +6206,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         var normalizedDefenderObjectIds = NormalizeTargetObjectIds(command.DefenderObjectIds ?? []);
         if (normalizedAttackerObjectIds.Count is < 1 or > 2
             || normalizedDefenderObjectIds.Count is < 1 or > 2
-            || normalizedAttackerObjectIds.Count > 1 && normalizedDefenderObjectIds.Count > 1
             || HasDuplicateObjectIds(normalizedAttackerObjectIds)
             || HasDuplicateObjectIds(normalizedDefenderObjectIds)
             || normalizedAttackerObjectIds.Any(attackingObjectId =>

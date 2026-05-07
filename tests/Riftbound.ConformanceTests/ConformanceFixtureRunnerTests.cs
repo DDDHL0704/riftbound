@@ -38294,6 +38294,128 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandAssignsDamageForMultiAttackerMultiDefenderRepresentativePath()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GAREN", "P1-BATTLEFIELD-YI"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-GAREN"] = new(
+                    "P1-BATTLEFIELD-GAREN",
+                    power: 6,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "OGS·007/024"),
+                ["P1-BATTLEFIELD-YI"] = new(
+                    "P1-BATTLEFIELD-YI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-059/219"),
+                ["P2-BATTLEFIELD-BULWARK"] = new(
+                    "P2-BATTLEFIELD-BULWARK",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "壁垒"],
+                    cardNo: "UNL-036/219"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-036/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-multi-participant", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-GAREN", "P1-BATTLEFIELD-YI"],
+                ["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var battleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-GAREN", "P1-BATTLEFIELD-YI"],
+            Assert.IsType<string[]>(battleEvent.Payload["attackerObjectIds"]));
+        Assert.Equal(
+            ["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"],
+            Assert.IsType<string[]>(battleEvent.Payload["defenderObjectIds"]));
+
+        var damageEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BULWARK", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "BULWARK_FIRST", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 1)
+            && Equals(gameEvent.Payload["damage"], 4));
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "NORMAL", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 2)
+            && Equals(gameEvent.Payload["damage"], 2));
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-YI", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "NORMAL", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 2)
+            && Equals(gameEvent.Payload["damage"], 3));
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-BULWARK", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "NORMAL", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 1)
+            && Equals(gameEvent.Payload["damage"], 4));
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "NORMAL", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 1)
+            && Equals(gameEvent.Payload["damage"], 2));
+        Assert.Contains(damageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-YI", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["assignmentRole"] as string, "NORMAL", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["assignmentIndex"], 2)
+            && Equals(gameEvent.Payload["damage"], 1));
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(["P1-BATTLEFIELD-YI"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-GAREN"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-BULWARK", "P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-GAREN"));
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK"));
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
+        Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
+        Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandEmitsNoResultWhenAllParticipantsAreDestroyed()
     {
         var state = PunishmentState(mana: 0) with

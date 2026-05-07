@@ -564,7 +564,7 @@ public sealed class ConformanceFixtureShapeTests
         var firstDefenderChoices = targetChoicesByIndex["0"];
         Assert.Equal(["P2-DEFENDER", "P2-BULWARK-DEFENDER"], firstDefenderChoices.Select(choice => choice.Id).ToArray());
         var secondDefenderChoices = targetChoicesByIndex["1"];
-        Assert.Equal(["P2-BULWARK-DEFENDER"], secondDefenderChoices.Select(choice => choice.Id).ToArray());
+        Assert.Equal(["P2-DEFENDER", "P2-BULWARK-DEFENDER"], secondDefenderChoices.Select(choice => choice.Id).ToArray());
         var battlefieldChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["battlefieldChoices"]);
         Assert.Contains(battlefieldChoices, choice => string.Equals(choice.Id, "BATTLEFIELD:P1-MAIN", StringComparison.Ordinal));

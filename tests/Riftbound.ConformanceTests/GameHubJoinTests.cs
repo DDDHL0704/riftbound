@@ -1099,7 +1099,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-KITTEN", StringComparison.Ordinal));
         var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
         Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
-        Assert.Equal("requires-bulwark-or-back-row-assignment-keyword", metadata["multiDefenderPolicy"]);
+        Assert.Equal("up-to-two-defenders-requires-assignment-keyword-representative-path", metadata["multiDefenderPolicy"]);
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonDocument.Parse("""
@@ -1252,7 +1252,7 @@ public sealed class GameHubJoinTests
         Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-DEFENDER", StringComparison.Ordinal));
         var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
         Assert.Equal(2, Assert.IsType<int>(metadata["attackerCountMax"]));
-        Assert.Equal("up-to-two-attackers-only-against-one-defender", metadata["multiAttackerPolicy"]);
+        Assert.Equal("up-to-two-attackers-representative-path", metadata["multiAttackerPolicy"]);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]).ToArray();
         var garenRequirement = Assert.Single(
@@ -1310,6 +1310,99 @@ public sealed class GameHubJoinTests
         var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
         Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
         Assert.Equal(["P2-BATTLE-MULTI-DEFENDER"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+    }
+
+    [Fact]
+    public async Task P79CombatMultiParticipantSeedOffersSecondAttackerAndSecondDefender()
+    {
+        const string roomId = "p7-9-combat-multi-participant";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battle-multi-participant", "seed-p7-9-combat-multi-participant");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-MULTI-PARTICIPANT-GAREN", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Sources ?? [], choice => string.Equals(choice.Id, "P1-BATTLE-MULTI-PARTICIPANT-YI", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-PARTICIPANT-BULWARK", StringComparison.Ordinal));
+        Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
+        Assert.Equal(2, Assert.IsType<int>(metadata["attackerCountMax"]));
+        Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
+        Assert.Equal("up-to-two-attackers-representative-path", metadata["multiAttackerPolicy"]);
+        Assert.Equal("up-to-two-defenders-requires-assignment-keyword-representative-path", metadata["multiDefenderPolicy"]);
+        Assert.Equal(
+            "up-to-two-attackers-and-defenders-without-independent-assignment-prompt",
+            metadata["multiParticipantBattlePolicy"]);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        var garenRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-BATTLE-MULTI-PARTICIPANT-GAREN", StringComparison.Ordinal));
+        Assert.Equal(2, Assert.IsType<int>(garenRequirement["maxAttackerCount"]));
+        Assert.Equal(2, Assert.IsType<int>(garenRequirement["maxDefenderCount"]));
+        var attackerChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            garenRequirement["attackerChoicesByIndex"]);
+        Assert.Contains(attackerChoicesByIndex["1"], choice => string.Equals(choice.Id, "P1-BATTLE-MULTI-PARTICIPANT-YI", StringComparison.Ordinal));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyList<ActionPromptChoiceDto>>>(
+            garenRequirement["targetChoicesByIndex"]);
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-PARTICIPANT-BULWARK", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["0"], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["1"], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-PARTICIPANT-BULWARK", StringComparison.Ordinal));
+        Assert.Contains(targetChoicesByIndex["1"], choice => string.Equals(choice.Id, "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", StringComparison.Ordinal));
+
+        var battleClients = new RecordingHubClients();
+        var declareBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "BATTLEFIELD:P1-MAIN",
+              "attackerObjectIds": ["P1-BATTLE-MULTI-PARTICIPANT-GAREN", "P1-BATTLE-MULTI-PARTICIPANT-YI"],
+              "defenderObjectIds": ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(battleClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-combat-multi-participant", declareBattle);
+
+        Assert.Empty(battleClients.CallerClient.Errors);
+        var battleEvents = EventsFor(battleClients);
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLE-MULTI-PARTICIPANT-GAREN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLE-MULTI-PARTICIPANT-BULWARK", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 4));
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLE-MULTI-PARTICIPANT-YI", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 3));
+        Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLE-MULTI-PARTICIPANT-YI", StringComparison.Ordinal)
+            && Equals(gameEvent.Payload["damage"], 1));
+
+        var battleSnapshot = SnapshotFor(battleClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-YI"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["battlefields"]));
+        Assert.Equal(["P1-BATTLE-MULTI-PARTICIPANT-GAREN"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["graveyard"]));
+        var p2 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]));
+        Assert.Equal(
+            ["P2-BATTLE-MULTI-PARTICIPANT-BULWARK", "P2-BATTLE-MULTI-PARTICIPANT-DEFENDER"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
     }
 
     [Fact]

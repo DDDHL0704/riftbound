@@ -2,7 +2,7 @@
 
 更新日期：2026-05-07
 当前结论：**NOT READY**
-当前完成度：约 **80%**，预计仍需 **3-4 批左右** 才能进入最终 completion audit。
+当前完成度：约 **82%**，预计仍需 **3 批左右** 才能进入最终 completion audit。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 ## 1. 已读取并确认的资料
@@ -60,7 +60,7 @@
 
 - 完整 battlefield/standby/control task 状态机未完成：前端只能展示服务端 `battlefieldTasks` / `pendingTaskQueue`，不能自行推进战场控制、待命移除、征服/据守或争夺结论。
 - Central cleanup task queue 未完成：前端只能展示清理结果和阻塞 `WAIT` prompt，不能本地继续开放普通行动。
-- Spell duel/battle lifecycle 未完整官方化：前端可以显示 `spellDuel`、`battle`、`PASS_FOCUS`、`DECLARE_BATTLE` 等候选；当前只开放服务端支持的单攻击者/多防守者代表路径、多攻击者/单防守者代表路径、同优先级壁垒防守者顺序选择，以及无胜者战斗事件的代表性证据，不能用客户端 UI 计算“法术对决结束”“战斗伤害结算”“控制权改变”。
+- Spell duel/battle lifecycle 未完整官方化：前端可以显示 `spellDuel`、`battle`、`PASS_FOCUS`、`DECLARE_BATTLE` 等候选；当前只开放服务端支持的单攻击者/多防守者代表路径、多攻击者/单防守者代表路径、最多 2 攻击者 + 最多 2 防守者代表路径、同优先级壁垒防守者顺序选择，以及无胜者战斗事件的代表性证据，不能用客户端 UI 计算“法术对决结束”“战斗伤害结算”“控制权改变”。
 - PaymentEngine 未统一：前端只能提交服务端候选中暴露的 `optionalCosts` / 支付 token；未暴露的费用分支不得做成可选项。
 - LayerEngine 未完整：前端展示 `basePower` / `effectivePower` / `continuousEffects`，不得从卡面和装备自行重算战力或关键词。
 - 全官方卡牌证据仍不足：图鉴必须明确展示 `representative-rule-pass` / deferred family 状态，不能显示“官方完整通过”。
@@ -261,7 +261,7 @@
 
 ## 6. 当前总体进度
 
-估算整体进度：**96%**
+估算整体进度：**82%**
 
 已经完成：
 
@@ -300,13 +300,14 @@
 - 完整 `ConformanceFixtureRunnerTests` 已恢复全绿：旧 fixture 的 prompt 动作期望现在作为服务端必需动作门禁，不再因服务端公开更多合法候选而误报；该批后端 full test 验证为 2889/2889。
 - P0-004 补齐同优先级壁垒防守者顺序选择的代表性证据：`DECLARE_BATTLE` metadata 记录同级顺序策略，Development-only `battle-same-priority-bulwark` seed 和后台 smoke 均验证前端只按服务端候选提交顺序；后端 full test 当前通过 2893/2893。
 - P0-004 补齐无胜者战斗状态代表性证据：服务端广播 `BATTLE_NO_RESULT`，前端事件日志中文显示“战斗无结果”，Development-only `battle-no-result` seed 与后台 smoke 验证双方同归于尽后 battle inactive、双方单位入墓；后端 full test 当前通过 2895/2895。
+- P0-004 补齐 2 攻击者 + 2 防守者组合代表路径：服务端 `DECLARE_BATTLE.sourceRequirements` 可同时暴露第二攻击者槽和第二防守者槽，metadata 明确 `multiParticipantBattlePolicy = up-to-two-attackers-and-defenders-without-independent-assignment-prompt`；Development-only `battle-multi-participant` seed 与后台 Chrome/CDP smoke 覆盖 P1 点击《盖伦》、选择《易》作为第二攻击者、选择壁垒与普通防守者后确认，事件日志显示“造成伤害”“战斗结束”，最终 snapshot 显示易留场 1 伤害、盖伦和 P2 两个防守者入墓，reload/reconnect 后恢复同一结果；后端 full test 当前通过 2897/2897。
 
-预计剩余批次数：**3-4 批左右**
+预计剩余批次数：**3 批左右**
 
 原因：
 
 - 前端仍需补齐法术对决/响应窗口、带目标法术和复杂费用选择等产品级操作流。
-- 服务端仍需补齐完整 control/held/conquer task 生命周期、多攻击者 + 多防守者组合战斗、独立战斗伤害分配 prompt、战斗响应窗口和官方级 battle task 状态机。
+- 服务端仍需补齐完整 control/held/conquer task 生命周期、独立战斗伤害分配 prompt、战斗响应窗口和官方级 battle task 状态机。
 - Browser/Computer smoke 仍需继续覆盖响应窗口、断线重连和最终长链路。
 - 服务端仍有多个架构级 P0/P1 规则缺口，不是单个 UI 批次可以关闭。
 
