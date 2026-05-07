@@ -236,6 +236,7 @@
 - 后台 Chrome/CDP smoke 第十五片：Browser Use IAB backend 本次不可用，按不抢前台的 smoke 原则使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-battlefield-resolutions-4`；P1 由 Web UI 连接，P2 后台 SignalR 入座，后台开发连接 seed `battlefield-held-draw` 并提交 P1 `DECLARE_BATTLE`。页面事件日志显示“据守战场”“战场控制结算”，规则队列从服务端 `timing.battlefieldResolutions` 只读显示 `据守：P2` 与 `控制结算：无控制者`；reload 后 P1 点击“连接/重连”恢复同一权威结果。
 - 后台 Chrome/CDP smoke 第十六片：Browser Use IAB backend 本次不可用，继续使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-reconnect-fallback-1`；后台先让 P1/P2 入座并 seed `battlefield-held-draw`，随后浏览器本地故意写入过期 `riftbound.session.{room}.P1` reconnect token。P1 在 Web UI 点击“连接/重连”后，前端先收到服务端 reconnect 拒绝，再自动清理旧 token 并 fallback 到 `JoinRoom`，最终恢复含“帝柳之林”的权威 snapshot，localStorage 写回新的 `rt_` token。该补丁只处理连接恢复，不改变任何游戏命令候选或规则裁决。
 - 后台 Chrome/CDP smoke 第十七片：Browser Use IAB backend 本次不可用，按不抢前台原则使用后台 Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-recycle-rune-browser-mov6ieuw-1`；后台 SignalR 将正式房间推进到 P2 主阶段并横置一张基础符文后，P2 Web UI 连接房间、进入对战桌面、点击基地符文详情中的“回收符文”。页面事件日志显示“回收符文”“获得符能”，额外 SignalR 观察者确认 authoritative snapshot 中 `P2-RUNE-SFD-R03-10` 已从基地移到符文牌堆底部、`runeDeckCount 10 -> 11`、`runePool.powerByTrait.blue = 1`；reload 后点击“连接/重连”仍恢复该最终 snapshot。
+- 后台 Chrome/CDP smoke 第十八片：本轮工具上下文未提供可调用 Browser Use，按不抢前台原则使用后台 headless Chrome/CDP。Vite `http://127.0.0.1:5175`，API `http://127.0.0.1:5093`，房间 `smoke-multi-defender-mova8kc6`；P1 Web UI 连接后，后台 SignalR 让 P2 入座并 seed `battle-multi-defender`。P1 点击《沃利贝尔》打开 `DECLARE_BATTLE` 组合器，抽屉显示“防守单位 1”“防守单位 2”和第二槽“不选择”；按服务端候选选择 `P2-BATTLE-MULTI-LEBLANC` 与 `P2-BATTLE-MULTI-KITTEN` 后确认。页面事件日志显示“造成伤害”“战斗结束”，后台 SignalR 验证 `DAMAGE_APPLIED.assignmentRole` 包含 `BULWARK_FIRST` / `BACK_ROW_LAST`，P2 graveyard 为 `P2-BATTLE-MULTI-KITTEN`、`P2-BATTLE-MULTI-LEBLANC`；reload/reconnect 后页面恢复 `废牌堆 2` 与 P1《沃利贝尔》的最终 snapshot。
 - Browser dev logs 中仍有本地 API 重启时产生的历史 SignalR 断线/协商失败记录；重启后本批功能 smoke 正常完成。
 
 ### Batch 6+：服务端 P0/P1 补齐
@@ -272,7 +273,7 @@
 - `ASSEMBLE_EQUIPMENT` 已有长剑代表路径的服务端每来源元数据、红色符能候选收紧和前端卡牌详情装配组合器，可真实打出装备并装配到服务端给出的单位目标。
 - `ACTIVATE_ABILITY` 已有 Vi、Xerath 和蜕变花园授予能力代表路径的服务端每来源元数据、目标/费用/Spellshield 加税候选过滤和前端卡牌详情激活组合器；前端不再自行判断可激活来源、能力目标或横置费用。
 - `LEGEND_ACT` 已有代表性传奇行动的服务端每来源元数据、经验/资源/时点/前置条件过滤和前端卡牌详情传奇行动组合器；Poppy 抽牌路径已完成真实 UI smoke。
-- `DECLARE_BATTLE` 已有攻击者/防守者/战场/战斗分配费用候选的服务端每来源元数据和前端卡牌详情组合器；单攻击者/单防守者代表路径已完成真实 UI smoke，1-2 防守者代表候选已由服务端 prompt/test 覆盖，双防守槽真实 UI smoke 仍留给后续长链路批次。
+- `DECLARE_BATTLE` 已有攻击者/防守者/战场/战斗分配费用候选的服务端每来源元数据和前端卡牌详情组合器；单攻击者/单防守者代表路径已完成真实 UI smoke，1-2 防守者代表候选已由服务端 prompt/test 覆盖，双防守槽真实 UI smoke 也已覆盖。
 - 法术对决焦点窗口已能由服务端 prompt 暴露带目标迅捷法术出牌来源和目标槽；《海克斯射线》代表路径已完成真实 UI smoke，并验证后续优先权与 P2 `PASS_FOCUS`。
 - 争夺战场 task queue 已能在状态变化后由服务端自动进入 `SPELL_DUEL_OPEN`，并通过事件与 prompt 驱动前端显示；前端不再需要本地启动法术对决入口。
 - 争夺战场法术对决在双方让过焦点后已能由服务端切到 `BATTLE_TASKS` / `START_BATTLE` active task；前端只显示服务端 blocking prompt，不自行推进战斗或控制权。
