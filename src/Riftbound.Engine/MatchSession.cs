@@ -2152,6 +2152,8 @@ public sealed record ResolutionResult(
 
 internal static class ActionPromptBuilder
 {
+    private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
+    private const int BasicRuneRecyclePowerGain = 1;
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
@@ -4496,6 +4498,8 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
+        var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior);
+        var effectivePowerWithRecycle = runePool.TotalPower + paymentResourceChoices.Count * BasicRuneRecyclePowerGain;
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -4509,7 +4513,7 @@ internal static class ActionPromptBuilder
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
             && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + behavior.HasteReadyManaCost
-            && runePool.TotalPower >= behavior.HasteReadyPowerCost)
+            && effectivePowerWithRecycle >= behavior.HasteReadyPowerCost)
         {
             choices.Add(new ActionPromptChoiceDto(
                 HasteOptionalCostNames.HasteReady,
@@ -4525,12 +4529,53 @@ internal static class ActionPromptBuilder
                 $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
         }
 
-        if (behavior.DamageAmountFromOptionalPowerCost && runePool.TotalPower > 0)
+        if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
             choices.Add(new ActionPromptChoiceDto("SPEND_POWER:1", "支付 1 符能"));
         }
 
+        choices.AddRange(paymentResourceChoices);
         return choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (!behavior.DamageAmountFromOptionalPowerCost
+            && behavior.HasteReadyPowerCost <= 0)
+        {
+            return [];
+        }
+
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost && runePool.TotalPower <= 0
+            || behavior.HasteReadyPowerCost > runePool.TotalPower;
+        if (!needsPaymentResource)
+        {
+            return [];
+        }
+
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Base
+            .Where(objectId => IsRecycleRuneSource(state, playerId, objectId))
+            .OrderBy(objectId => objectId, StringComparer.Ordinal)
+            .Select(objectId =>
+            {
+                var choice = ObjectChoice(state, objectId, "payment resource action: recycle rune for trait power");
+                return new ActionPromptChoiceDto(
+                    $"{RecycleRunePaymentOptionalCostPrefix}{objectId}",
+                    $"回收符文支付：{choice.Label}",
+                    choice.Reason);
+            })
+            .ToArray();
     }
 
     private static string PlayCardModeLabel(string mode)
@@ -4835,6 +4880,7 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(playerId, behavior),
             ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior),
+            ["paymentResourceChoices"] = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior),
             ["composable"] = string.IsNullOrWhiteSpace(unsupportedReason),
             ["unsupportedReason"] = unsupportedReason
         };

@@ -16,6 +16,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BasicRuneTapAbilityId = "BASIC_RUNE_EXHAUST_GAIN_1_MANA";
     private const int BasicRuneTapManaGain = 1;
     private const string BasicRuneRecycleAbilityId = "BASIC_RUNE_RECYCLE_GAIN_TRAIT_POWER";
+    private const string RecycleRunePaymentOptionalCostPrefix = "RECYCLE_RUNE:";
     private const int BasicRuneRecyclePowerGain = 1;
     private const string StandbyRevealMode = "STANDBY_REVEAL";
     private const string StandbyRevealDestination = "BASE";
@@ -395,16 +396,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        var runePools = PayRuneCosts(
-            state,
+        var paymentEvents = new List<GameEvent>();
+        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var runePools = ApplyRecycleRunePaymentResourceActions(
+            state.RunePools,
+            playerZones,
+            cardObjects,
+            objectLocations,
+            intent.PlayerId,
+            plan.RecycledPaymentRuneObjectIds,
+            paymentEvents);
+        runePools = PayRuneCosts(
+            runePools,
             intent.PlayerId,
             plan.TotalManaCost,
             plan.AnyPowerCost,
             plan.PowerCostByTrait);
         var playerExperience = PayExperienceCosts(state, intent.PlayerId, plan.TotalExperienceCost);
-        var playerZones = RemoveSourceCardFromHand(state, intent.PlayerId, plan.SourceZones, command.SourceObjectId);
-        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         objectLocations[command.SourceObjectId] = new ObjectLocationState(intent.PlayerId, "STACK");
 
         var stackItem = new StackItemState(
@@ -501,7 +511,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["sourceObjectId"] = command.SourceObjectId,
                     ["cardNo"] = command.CardNo,
                     ["mode"] = command.Mode
-                }),
+                })
+        };
+        events.AddRange(paymentEvents);
+        events.Add(
             new GameEvent(
                 "COST_PAID",
                 $"{intent.PlayerId} 支付 {plan.TotalManaCost} 点费用",
@@ -520,9 +533,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldHeldUnitCostIncreaseMana"] = plan.BattlefieldHeldUnitCostIncreaseMana,
                     ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
-                    ["optionalCosts"] = plan.OptionalCosts.ToArray()
-                })
-        };
+                    ["optionalCosts"] = plan.OptionalCosts.ToArray(),
+                    ["paymentResourceActions"] = plan.PaymentResourceActions.ToArray(),
+                    ["recycledRuneObjectIds"] = plan.RecycledPaymentRuneObjectIds.ToArray()
+                }));
         if (battlefieldNextSpellEchoConsumed)
         {
             events.Add(new GameEvent(
@@ -4032,6 +4046,193 @@ public sealed class CoreRuleEngine : IRuleEngine
             RuneTrait.Purple => "紫色",
             _ => trait
         };
+    }
+
+    private static bool TryExtractRecycleRunePaymentResourceActions(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        out IReadOnlyList<string> behaviorOptionalCosts,
+        out IReadOnlyList<string> paymentResourceActions,
+        out IReadOnlyList<string> recycledRuneObjectIds)
+    {
+        var behaviorCosts = new List<string>();
+        var paymentActions = new List<string>();
+        var runeObjectIds = new List<string>();
+        var seenRuneObjectIds = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var optionalCost in normalizedOptionalCosts)
+        {
+            if (TryParseRecycleRunePaymentOptionalCost(optionalCost, out var runeObjectId))
+            {
+                if (!seenRuneObjectIds.Add(runeObjectId)
+                    || !CanRecycleRuneForPayment(state, playerId, runeObjectId))
+                {
+                    behaviorOptionalCosts = [];
+                    paymentResourceActions = [];
+                    recycledRuneObjectIds = [];
+                    return false;
+                }
+
+                paymentActions.Add(optionalCost);
+                runeObjectIds.Add(runeObjectId);
+                continue;
+            }
+
+            if (optionalCost.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+            {
+                behaviorOptionalCosts = [];
+                paymentResourceActions = [];
+                recycledRuneObjectIds = [];
+                return false;
+            }
+
+            behaviorCosts.Add(optionalCost);
+        }
+
+        behaviorOptionalCosts = behaviorCosts;
+        paymentResourceActions = paymentActions;
+        recycledRuneObjectIds = runeObjectIds;
+        return true;
+    }
+
+    private static bool TryParseRecycleRunePaymentOptionalCost(
+        string optionalCost,
+        out string runeObjectId)
+    {
+        runeObjectId = string.Empty;
+        if (string.IsNullOrWhiteSpace(optionalCost)
+            || !optionalCost.StartsWith(RecycleRunePaymentOptionalCostPrefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        runeObjectId = optionalCost[RecycleRunePaymentOptionalCostPrefix.Length..].Trim();
+        return !string.IsNullOrWhiteSpace(runeObjectId);
+    }
+
+    private static bool CanRecycleRuneForPayment(
+        MatchState state,
+        string playerId,
+        string runeObjectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Base.Contains(runeObjectId, StringComparer.Ordinal)
+            && state.CardObjects.TryGetValue(runeObjectId, out var runeState)
+            && runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
+            && string.Equals(runeState.ControllerId, playerId, StringComparison.Ordinal)
+            && !runeState.IsFaceDown
+            && TryGetRuneTrait(runeState, out _);
+    }
+
+    private static RunePool ApplyRecycleRunePaymentToPool(
+        RunePool currentPool,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<string> recycledRuneObjectIds)
+    {
+        var powerByTrait = currentPool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        foreach (var runeObjectId in recycledRuneObjectIds)
+        {
+            if (!cardObjects.TryGetValue(runeObjectId, out var runeState)
+                || !TryGetRuneTrait(runeState, out var runeTrait))
+            {
+                continue;
+            }
+
+            powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var currentTraitPower)
+                ? currentTraitPower + BasicRuneRecyclePowerGain
+                : BasicRuneRecyclePowerGain;
+        }
+
+        return currentPool with
+        {
+            PowerByTrait = powerByTrait
+        };
+    }
+
+    private static Dictionary<string, RunePool> ApplyRecycleRunePaymentResourceActions(
+        IReadOnlyDictionary<string, RunePool> currentRunePools,
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations,
+        string playerId,
+        IReadOnlyList<string> recycledRuneObjectIds,
+        List<GameEvent> events)
+    {
+        var runePools = currentRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        if (recycledRuneObjectIds.Count == 0)
+        {
+            return runePools;
+        }
+
+        var currentPool = runePools.TryGetValue(playerId, out var existingPool) ? existingPool : RunePool.Empty;
+        foreach (var runeObjectId in recycledRuneObjectIds)
+        {
+            if (!playerZones.TryGetValue(playerId, out var zones)
+                || !zones.Base.Contains(runeObjectId, StringComparer.Ordinal)
+                || !cardObjects.TryGetValue(runeObjectId, out var runeState)
+                || !TryGetRuneTrait(runeState, out var runeTrait))
+            {
+                continue;
+            }
+
+            playerZones[playerId] = zones with
+            {
+                Base = zones.Base
+                    .Where(objectId => !string.Equals(objectId, runeObjectId, StringComparison.Ordinal))
+                    .ToArray(),
+                RuneDeck = zones.RuneDeck
+                    .Concat([runeObjectId])
+                    .ToArray()
+            };
+            cardObjects[runeObjectId] = runeState with
+            {
+                IsFaceDown = false,
+                IsExhausted = false
+            };
+            objectLocations[runeObjectId] = new ObjectLocationState(playerId, "RUNE_DECK");
+
+            var powerByTrait = currentPool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+            powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var currentTraitPower)
+                ? currentTraitPower + BasicRuneRecyclePowerGain
+                : BasicRuneRecyclePowerGain;
+            currentPool = currentPool with
+            {
+                PowerByTrait = powerByTrait
+            };
+            runePools[playerId] = currentPool;
+
+            events.Add(new GameEvent(
+                "RUNE_RECYCLED",
+                $"{playerId} 在支付费用时回收符文获得 1 点{RuneTraitLabel(runeTrait)}符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = runeObjectId,
+                    ["cardNo"] = runeState.CardNo,
+                    ["abilityId"] = BasicRuneRecycleAbilityId,
+                    ["trait"] = runeTrait,
+                    ["power"] = BasicRuneRecyclePowerGain,
+                    ["paymentWindow"] = "PLAY_CARD",
+                    ["runeDeckCountAfter"] = playerZones[playerId].RuneDeck.Count
+                }));
+            events.Add(new GameEvent(
+                "POWER_GAINED",
+                $"{playerId} 通过支付资源动作获得 1 点{RuneTraitLabel(runeTrait)}符能",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = runeObjectId,
+                    ["abilityId"] = BasicRuneRecycleAbilityId,
+                    ["trait"] = runeTrait,
+                    ["power"] = BasicRuneRecyclePowerGain,
+                    ["paymentWindow"] = "PLAY_CARD",
+                    ["powerAfter"] = currentPool.TotalPower,
+                    ["traitPowerAfter"] = powerByTrait[runeTrait]
+                }));
+        }
+
+        return runePools;
     }
 
     private static bool HasFreeStandbyHidePermission(MatchState state, string playerId)
@@ -10995,10 +11196,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (!TryExtractRecycleRunePaymentResourceActions(
+                state,
+                intent.PlayerId,
+                normalizedCommandOptionalCosts,
+                out var behaviorOptionalCosts,
+                out var paymentResourceActions,
+                out var recycledPaymentRuneObjectIds))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Unsupported payment resource action for {behavior.DisplayName}.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (!TryBuildOptionalCostPlan(
                 state,
                 intent.PlayerId,
-                command.OptionalCosts,
+                behaviorOptionalCosts,
                 behavior,
                 out var optionalCosts,
                 out var extraManaCost,
@@ -11168,6 +11385,20 @@ public sealed class CoreRuleEngine : IRuleEngine
         var totalPowerCost = extraPowerCost + extraPowerCostByTrait.Values.Sum();
         var totalExperienceCost = experienceCost;
         var currentPool = state.RunePools.TryGetValue(intent.PlayerId, out var runePool) ? runePool : RunePool.Empty;
+        var paymentAdjustedPool = ApplyRecycleRunePaymentToPool(
+            currentPool,
+            state.CardObjects,
+            recycledPaymentRuneObjectIds);
+        if (recycledPaymentRuneObjectIds.Count > 0
+            && CanPayPowerCost(currentPool, extraPowerCost, extraPowerCostByTrait))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"Payment resource actions are not required to play {behavior.DisplayName}.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (currentPool.Mana < totalManaCost)
         {
             rejection = RejectWithCorePrompts(
@@ -11177,7 +11408,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!CanPayPowerCost(currentPool, extraPowerCost, extraPowerCostByTrait))
+        if (!CanPayPowerCost(paymentAdjustedPool, extraPowerCost, extraPowerCostByTrait))
         {
             rejection = RejectWithCorePrompts(
                 state,
@@ -11220,6 +11451,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             destroyedAdditionalCostTargetObjectIds,
             returnedAdditionalCostTargetObjectIds,
             discardedOptionalCostTargetObjectIds,
+            paymentResourceActions,
+            recycledPaymentRuneObjectIds,
             rengarUnitPlayedTargetObjectId,
             leonaStunBoonTargetObjectId);
         return true;
@@ -21868,6 +22101,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> DestroyedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> ReturnedAdditionalCostTargetObjectIds,
         IReadOnlyList<string> DiscardedOptionalCostTargetObjectIds,
+        IReadOnlyList<string> PaymentResourceActions,
+        IReadOnlyList<string> RecycledPaymentRuneObjectIds,
         string RengarUnitPlayedTargetObjectId,
         string LeonaStunBoonTargetObjectId);
 
