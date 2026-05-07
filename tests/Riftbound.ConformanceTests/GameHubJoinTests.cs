@@ -3612,8 +3612,9 @@ public sealed class GameHubJoinTests
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
             .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
         await CreateHub(
-                new RecordingHubClients(),
+                seedClients,
                 new RecordingGroupManager(),
                 "connection-1",
                 registry,
@@ -3623,6 +3624,19 @@ public sealed class GameHubJoinTests
                 "P1",
                 "battlefield-static-equipment-cost-reduction",
                 "seed-p7-9-battlefield-static-equipment-cost-reduction");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("P1-EQUIPMENT-LONG-SWORD", sourceRequirement["sourceObjectId"]);
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["battlefieldEquipmentCostReductionMana"]));
 
         var playClients = new RecordingHubClients();
         var longSword = JsonDocument.Parse("""

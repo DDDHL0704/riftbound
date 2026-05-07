@@ -2429,6 +2429,7 @@ internal static class ActionPromptBuilder
     private const string LilliaLegendCardNo = "UNL-189/219";
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
+    private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
     private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
     private const int EzrealEnemyTargetThreshold = 2;
     private const int LilliaLegendBaseManaCost = 4;
@@ -3918,6 +3919,7 @@ internal static class ActionPromptBuilder
         {
             reduction += behavior.ManaReductionIfExperiencePaid;
         }
+        reduction += PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
 
         return Math.Max(0, behavior.ManaCost - reduction);
     }
@@ -4889,6 +4891,25 @@ internal static class ActionPromptBuilder
         return Math.Min(1, echoManaCost);
     }
 
+    private static int PromptBattlefieldEquipmentCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.ManaCost <= 0
+            || !behavior.PlaysSourceToBaseAsEquipment
+            || state.UntilEndOfTurnEffects.Contains($"{PlayedEquipmentThisTurnEffectPrefix}{playerId}", StringComparer.Ordinal)
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)))
+        {
+            return 0;
+        }
+
+        return Math.Min(1, behavior.ManaCost);
+    }
+
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardPaymentResourceChoicesForBehavior(
         MatchState state,
         string playerId,
@@ -5363,6 +5384,7 @@ internal static class ActionPromptBuilder
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior),
+            ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
             ["minTargetCount"] = minTargetCount,
             ["maxTargetCount"] = maxTargetCount,
             ["targetCountLabel"] = minTargetCount == maxTargetCount

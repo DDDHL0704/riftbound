@@ -239,7 +239,9 @@ type PlayCardSourceRequirement = {
   displayName: string;
   mode?: string;
   modeLabel: string;
+  manaCost: number;
   minimumManaCost: number;
+  battlefieldEquipmentCostReductionMana: number;
   minTargetCount: number;
   maxTargetCount: number;
   targetCountLabel: string;
@@ -472,6 +474,9 @@ function PlayCardComposer({
       </div>
       <div className="composer-meta">
         <span>费用 {selectedRequirement.minimumManaCost}</span>
+        {selectedRequirement.battlefieldEquipmentCostReductionMana > 0 && (
+          <span>战场减费 -{selectedRequirement.battlefieldEquipmentCostReductionMana}</span>
+        )}
         <span>目标 {selectedRequirement.targetCountLabel} 个</span>
         <span>{selectedRequirement.targetScopeLabel}</span>
       </div>
@@ -1805,7 +1810,9 @@ function parsePlayCardRequirement(value: unknown): PlayCardSourceRequirement | u
     displayName: stringField(record, "displayName") || cardNo,
     mode: nullableStringField(record, "mode"),
     modeLabel: stringField(record, "modeLabel") || "默认",
+    manaCost: numberField(record, "manaCost"),
     minimumManaCost: numberField(record, "minimumManaCost"),
+    battlefieldEquipmentCostReductionMana: numberField(record, "battlefieldEquipmentCostReductionMana"),
     minTargetCount: numberField(record, "minTargetCount"),
     maxTargetCount: numberField(record, "maxTargetCount"),
     targetCountLabel: stringField(record, "targetCountLabel") || "0",
