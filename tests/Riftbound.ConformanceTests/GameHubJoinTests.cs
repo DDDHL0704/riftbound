@@ -1268,6 +1268,49 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79UnknownPlaySourceSeedHidesHandObjectWithoutCardNoThroughHub()
+    {
+        const string roomId = "p7-9-unknown-play-source-prompt-core";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "unknown-play-source-prompt",
+                "seed-p7-9-unknown-play-source-prompt");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.False(playCandidate.Enabled);
+        Assert.Empty(playCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var p1 = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-HAND-UNKNOWN-PLAY-SOURCE"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["hand"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var unknownObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-HAND-UNKNOWN-PLAY-SOURCE"]);
+        Assert.Null(unknownObject["cardNo"]);
+    }
+
+    [Fact]
     public async Task P6SpellDuelSeedTransfersOnlinePriorityAfterSpellIsPlayed()
     {
         const string roomId = "p6-3a-response-window";

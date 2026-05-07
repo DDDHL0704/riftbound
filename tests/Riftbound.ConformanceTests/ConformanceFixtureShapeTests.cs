@@ -1795,6 +1795,58 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesPlayCardSourceWhenHandObjectHasNoCardNo()
+    {
+        var state = new MatchState(
+            "prompt-play-unknown-source-room",
+            21,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-UNKNOWN-PLAY-SOURCE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-UNKNOWN-PLAY-SOURCE"] = new(
+                    "P1-HAND-UNKNOWN-PLAY-SOURCE",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.False(playCandidate.Enabled);
+        Assert.Empty(playCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+    }
+
+    [Fact]
     public void ActionPromptSpellDuelFocusOnlyExposesPlayCardWhenSourceIsComposable()
     {
         var emptyFocusState = new MatchState(
