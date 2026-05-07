@@ -446,6 +446,98 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRunsStateBasedCleanupAfterTurnEndPowerExpires()
+    {
+        var state = new MatchState(
+            "p7-turn-end-zero-power-cleanup-room",
+            0,
+            7,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-TURN-END-ZERO-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-TURN-END-ZERO-UNIT"] = new(
+                    "P1-TURN-END-ZERO-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1",
+                    untilEndOfTurnPowerModifier: 1),
+                ["P2-MAIN-001"] = new(
+                    "P2-MAIN-001",
+                    cardNo: "SFD·125/221",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUNE-001"] = new(
+                    "P2-RUNE-001",
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUNE-002"] = new(
+                    "P2-RUNE-002",
+                    cardNo: "UNL-R02",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-TURN-END-ZERO-UNIT"] = new("P1", "BASE"),
+                ["P2-MAIN-001"] = new("P2", "MAIN_DECK"),
+                ["P2-RUNE-001"] = new("P2", "RUNE_DECK"),
+                ["P2-RUNE-002"] = new("P2", "RUNE_DECK")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-end-turn-zero-power-cleanup", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Equal(MatchPhases.Main, result.State.Phase);
+        Assert.DoesNotContain("P1-TURN-END-ZERO-UNIT", result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-TURN-END-ZERO-UNIT"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P1-TURN-END-ZERO-UNIT"].Zone);
+        Assert.DoesNotContain("P1-TURN-END-ZERO-UNIT", result.State.CardObjects.Keys);
+        var destroyedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TURN-END-ZERO-UNIT", StringComparison.Ordinal));
+        Assert.Equal("ZERO_POWER", destroyedEvent.Payload["reason"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIER_EXPIRED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRepeatsCleanupUntilStable()
     {
         var fixture = await ConformanceFixture.LoadAsync(

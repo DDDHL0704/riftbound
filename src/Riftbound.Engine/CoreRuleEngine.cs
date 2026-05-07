@@ -12206,9 +12206,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardObjects = turnEndCardObjectsBeforeCleanup
         };
         var cleanupResult = ApplyTurnEndCleanup(cleanupState);
+        var turnEndPlayerZones = controlReturnResult.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var turnEndCardObjects = cleanupResult.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, turnEndPlayerZones);
+        var stateBasedCleanup = RunStateBasedCleanupLoop(
+            turnEndPlayerZones,
+            turnEndCardObjects,
+            new StackItemState(
+                $"turn-end-cleanup-{state.Tick + 1}",
+                state.TurnPlayerId,
+                "TURN_END_CLEANUP",
+                "TURN_END_CLEANUP"),
+            cleanupState.RunePools,
+            objectLocations: objectLocations);
+        objectLocations = ReconcileObjectLocations(objectLocations, turnEndPlayerZones);
         var annieTurnEndEvents = ReadyRunesForAnnieAtTurnEnd(
-            controlReturnResult.PlayerZones,
+            turnEndPlayerZones,
             turnEndCardObjects,
             state.TurnPlayerId);
         var nextTurnState = cleanupState with
@@ -12219,8 +12232,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             Phase = MatchPhases.TurnStart,
             TimingState = TimingStates.NeutralClosed,
             RunePools = ClearRunePools(state),
-            PlayerZones = controlReturnResult.PlayerZones,
+            PlayerZones = turnEndPlayerZones,
             CardObjects = turnEndCardObjects,
+            ObjectLocations = objectLocations,
             UntilEndOfTurnEffects = cleanupResult.UntilEndOfTurnEffects,
             DestroyedUnitOwnerIdsThisTurn = [],
             PlayerCardsPlayedThisTurn = new Dictionary<string, int>(StringComparer.Ordinal),
@@ -12233,6 +12247,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 nextPlayerId,
                 cleanupResult,
                 controlReturnResult.Events.Concat(battlefieldEndTurnRuneEvents).ToArray())
+            .Concat(stateBasedCleanup.Events)
             .Concat(annieTurnEndEvents)
             .Concat(turnStartResult.Events)
             .ToArray();

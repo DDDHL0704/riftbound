@@ -405,6 +405,7 @@
 - P0-003 补齐战力修正降到 0 的 pending task 证据：服务端会公开 `DESTROY_ZERO_POWER_UNIT` / `STATE_BASED_CLEANUP`，前端只能显示 WAIT，不自行继续开放普通操作。
 - P0-003 补齐代表性法术栈结算触发 0 战力清理证据：`PERFECT_FINALE_BATTLEFIELD_POWER_MINUS_4` 把战场单位修正到 0 后，服务端立即以 `ZERO_POWER` 摧毁并移入墓地，前端只消费事件和 authoritative snapshot。
 - P0-003 补齐代表性栈结算后的非法待命自动清理：服务端会广播 `BATTLEFIELD_STANDBY_REMOVED`、同步墓地和对象位置，并清空 `REMOVE_ILLEGAL_STANDBY` pending task；前端继续只读事件/snapshot。
+- P0-003 补齐回合结束特殊清理后的状态性清理证据：临时战力修正过期导致单位变为 0 战力时，服务端会在下一回合开始前立即广播 `UNIT_DESTROYED` / `ZERO_POWER` 并同步墓地和对象位置；前端只展示事件日志与最终 snapshot。
 - P0-005 补齐代表性出牌支付步骤资源动作与 X 符能金额候选：当前符能不足以支付本次 power cost 时，服务端 prompt 暴露 `RECYCLE_RUNE:<objectId>`，`PLAY_CARD` 命令可先回收基础符文获得 typed power，再用 `SPEND_POWER:*`、typed `SPEND_POWER:<trait>:<amount>` 或代表性 `HASTE_READY` 急速额外费用支付；X 符能法术 prompt 会按当前可支付上限公开金额选项，前端不得自行构造未出现在候选中的资源动作或金额。
 - P0-005 进一步补齐逐支付资源贡献元数据和 UI 精确选择：`paymentResourcePowerByChoice` 让前端能只按服务端数据判断“还缺多少、哪类资源能补足”，当前 1 红 + 两张可回收红符文的场景已通过 smoke 验证只能选择一张并提交，另一张保持在基地；后端 full test 当前通过 2902/2902，前端 build 已通过。
 - P0-005 补齐真实需要两张支付资源的代表性证据：当前没有红色符能、两张红色符文都必须回收时，前端会在第一张选中后保持确认禁用并允许第二张继续选择，两张都选中后才启用确认；后端 full test 当前通过 2904/2904，真实 UI smoke 已通过。
