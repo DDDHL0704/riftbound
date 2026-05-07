@@ -212,6 +212,65 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsTurnStartAdvanceFromNonTurnPlayer()
+    {
+        var state = new MatchState(
+            "p2-turn-start-guard-room",
+            0,
+            4,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            MatchStatuses.InProgress,
+            ["P1", "P2"],
+            "P2",
+            MatchPhases.TurnStart,
+            TimingStates.NeutralClosed,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 1)
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002"]
+                }
+            },
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-turn-start-advance-rejected", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("TURN_START can only be advanced by the turn player.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal("P2", result.State.ActivePlayerId);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal(MatchPhases.TurnStart, result.State.Phase);
+        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        Assert.Equal(new RunePool(1, 1), result.State.RunePools["P2"]);
+        Assert.Equal(["P2-RUNE-001", "P2-RUNE-002"], result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Empty(result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+    }
+
+    [Fact]
     public async Task P4EphemeralKeywordDestroysControlledObjectsAtTurnStart()
     {
         var fixture = await ConformanceFixture.LoadAsync(

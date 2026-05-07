@@ -272,6 +272,14 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (string.Equals(state.Phase, MatchPhases.TurnStart, StringComparison.Ordinal))
         {
+            if (!string.Equals(state.TurnPlayerId, intent.PlayerId, StringComparison.Ordinal))
+            {
+                return ValueTask.FromResult(RejectWithCorePrompts(
+                    state,
+                    "TURN_START can only be advanced by the turn player.",
+                    ErrorCodes.PhaseNotAllowed));
+            }
+
             return ValueTask.FromResult(ResolveTurnStart(state));
         }
 
