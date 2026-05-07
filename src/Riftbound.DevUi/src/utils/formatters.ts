@@ -53,7 +53,7 @@ export function conformanceLabel(tier?: string): string {
     case "representative-rule-pass":
       return "代表性规则通过";
     case "full-official-rule-pass":
-      return "官方完整通过（待复审）";
+      return "完整规则证据（待最终复审）";
     case "manual-boundary":
       return "人工边界";
     case "blocked":
