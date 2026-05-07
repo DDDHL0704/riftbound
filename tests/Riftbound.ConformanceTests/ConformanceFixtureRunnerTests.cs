@@ -29920,6 +29920,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Equal(1, result.State.PlayerExperience["P1"]);
         Assert.True(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations["P1-BATTLEFIELD-MUTATION-GARDEN"].Zone);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations["P1-BATTLEFIELD-EXPERIENCE-UNIT"].Zone);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "ABILITY_ACTIVATED", StringComparison.Ordinal));
         var trigger = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)

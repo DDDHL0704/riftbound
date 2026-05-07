@@ -1803,6 +1803,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             Tick = state.Tick + 1,
             ActivePlayerId = intent.PlayerId,
             CardObjects = cardObjects,
+            ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones),
             PlayerExperience = playerExperience
         };
 
