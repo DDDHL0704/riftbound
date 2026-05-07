@@ -309,6 +309,59 @@ h3 {
   gap: 12px;
 }
 
+.deck-legality-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.deck-list {
+  display: grid;
+  gap: 14px;
+}
+
+.deck-section {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: rgba(33, 38, 35, 0.76);
+  padding: 16px;
+}
+
+.deck-card-list {
+  display: grid;
+  gap: 8px;
+}
+
+.deck-card-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.2fr) minmax(110px, 0.7fr) 64px minmax(90px, 0.7fr) minmax(128px, 1fr) minmax(116px, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-primary);
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deck-card-row:hover {
+  border-color: rgba(215, 173, 85, 0.46);
+  background: rgba(215, 173, 85, 0.1);
+}
+
+.deck-card-row span {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
 .card-face {
   display: grid;
   gap: 9px;
@@ -779,5 +832,9 @@ button.card-face:hover {
   .seat-grid,
   .deck-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .deck-card-row {
+    grid-template-columns: minmax(130px, 1fr) minmax(92px, 0.7fr) 58px;
   }
 }
