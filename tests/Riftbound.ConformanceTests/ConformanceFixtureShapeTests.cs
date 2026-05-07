@@ -2187,7 +2187,7 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Base = ["P1-READY-UNIT", "P1-FACEDOWN-UNIT", "P1-ATTACKING-UNIT"]
+                    Base = ["P1-READY-UNIT", "P1-FACEDOWN-UNIT", "P1-ATTACKING-UNIT", "P1-OPPONENT-CONTROLLED-UNIT"]
                 },
                 ["P2"] = PlayerZones.Empty
             },
@@ -2213,7 +2213,14 @@ public sealed class ConformanceFixtureShapeTests
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
-                    controllerId: "P1")
+                    controllerId: "P1"),
+                ["P1-OPPONENT-CONTROLLED-UNIT"] = new(
+                    "P1-OPPONENT-CONTROLLED-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
             });
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];

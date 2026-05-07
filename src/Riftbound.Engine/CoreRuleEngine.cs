@@ -4563,6 +4563,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must be controlled by the acting player.",
+                ErrorCodes.InvalidTarget);
+        }
+
         if (string.IsNullOrWhiteSpace(sourceState.CardNo))
         {
             return RejectWithCorePrompts(
@@ -4852,6 +4860,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             return RejectWithCorePrompts(
                 state,
                 "MOVE_UNIT source must be a face-up unit.",
+                ErrorCodes.InvalidTarget);
+        }
+
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MOVE_UNIT source must be controlled by the acting player.",
                 ErrorCodes.InvalidTarget);
         }
 

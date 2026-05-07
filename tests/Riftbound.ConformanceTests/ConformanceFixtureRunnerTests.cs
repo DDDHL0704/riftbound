@@ -37180,6 +37180,52 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4MoveUnitCommandRejectsOpponentControlledSourceInPlayerZone()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-MOVE-UNIT-OPPONENT-CONTROLLED-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MOVE-UNIT-OPPONENT-CONTROLLED-001"] = new(
+                    "P1-MOVE-UNIT-OPPONENT-CONTROLLED-001",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-opponent-controlled-player-zone", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-MOVE-UNIT-OPPONENT-CONTROLLED-001",
+                "BASE",
+                "BATTLEFIELD",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-MOVE-UNIT-OPPONENT-CONTROLLED-001"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(3, result.State.CardObjects["P1-MOVE-UNIT-OPPONENT-CONTROLLED-001"].Power);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4MoveUnitCommandRejectsFaceDownSource()
     {
         var state = PunishmentState(mana: 0) with
@@ -37907,6 +37953,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-SFD-YASUO"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].Power);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-SFD-YASUO"].IsExhausted);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4MoveUnitCommandRejectsOpponentControlledPreciseRoamSourceInPlayerZone()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM"] = new(
+                    "P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM",
+                    cardNo: "SFD·235/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "游走"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-move-unit-precise-opponent-controlled-player-zone", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM",
+                "BATTLEFIELD:P1-LEFT",
+                "BATTLEFIELD:P1-RIGHT",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("MOVE_UNIT source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.False(result.State.ObjectLocations.ContainsKey("P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM"));
         Assert.Empty(result.State.StackItems);
     }
 
