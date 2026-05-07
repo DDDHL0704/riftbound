@@ -12241,13 +12241,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             ExtraTurnPlayerId = null
         };
         var turnStartResult = ResolveTurnStart(nextTurnState);
-        var events = BuildTurnEndEvents(
+        var turnEndEvents = BuildTurnEndEvents(
                 state,
                 intent.PlayerId,
                 nextPlayerId,
                 cleanupResult,
                 controlReturnResult.Events.Concat(battlefieldEndTurnRuneEvents).ToArray())
-            .Concat(stateBasedCleanup.Events)
+            .ToList();
+        InsertTurnEndStateBasedCleanupEvents(turnEndEvents, stateBasedCleanup.Events);
+        var events = turnEndEvents
             .Concat(annieTurnEndEvents)
             .Concat(turnStartResult.Events)
             .ToArray();
@@ -12256,6 +12258,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             Events = events
         };
+    }
+
+    private static void InsertTurnEndStateBasedCleanupEvents(
+        List<GameEvent> turnEndEvents,
+        IReadOnlyList<GameEvent> stateBasedCleanupEvents)
+    {
+        if (stateBasedCleanupEvents.Count == 0)
+        {
+            return;
+        }
+
+        var turnPlayerAdvancedIndex = turnEndEvents.FindIndex(gameEvent =>
+            string.Equals(gameEvent.Kind, "TURN_PLAYER_ADVANCED", StringComparison.Ordinal));
+        if (turnPlayerAdvancedIndex < 0)
+        {
+            turnEndEvents.AddRange(stateBasedCleanupEvents);
+            return;
+        }
+
+        turnEndEvents.InsertRange(turnPlayerAdvancedIndex, stateBasedCleanupEvents);
     }
 
     private static ResolutionResult ResolveMulligan(

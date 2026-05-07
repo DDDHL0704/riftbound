@@ -535,6 +535,21 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-TURN-END-ZERO-UNIT", StringComparison.Ordinal));
         Assert.Equal("ZERO_POWER", destroyedEvent.Payload["reason"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "POWER_MODIFIER_EXPIRED", StringComparison.Ordinal));
+        var powerModifierExpiredIndex = EventIndex("POWER_MODIFIER_EXPIRED");
+        var unitDestroyedIndex = EventIndex("UNIT_DESTROYED");
+        var turnPlayerAdvancedIndex = EventIndex("TURN_PLAYER_ADVANCED");
+        var turnStartBeganIndex = EventIndex("TURN_START_BEGAN");
+        Assert.True(powerModifierExpiredIndex < unitDestroyedIndex);
+        Assert.True(unitDestroyedIndex < turnPlayerAdvancedIndex);
+        Assert.True(turnPlayerAdvancedIndex < turnStartBeganIndex);
+
+        int EventIndex(string kind)
+        {
+            return result.Events
+                .Select((gameEvent, index) => (gameEvent, index))
+                .First(item => string.Equals(item.gameEvent.Kind, kind, StringComparison.Ordinal))
+                .index;
+        }
     }
 
     [Fact]
