@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百六十八批仍为服务端战场防守触发收口，没有前端 UI 文件变更。防守战场后“将友方防守单位移回基地”的最终结算检查现在复用 source-control/legacy-owned 判断；owner=P2/controller 空的旧恢复防守单位仍能由服务端权威触发 `UNIT_MOVED_TO_BASE`，前端继续只读事件和 snapshot。
+- 本批验证：`dotnet build` 通过；`P79BattlefieldDefendMovesChosenSurvivingDefenderToBase|BattlefieldDefend|DeclareBattle` 相关回归 67/67、`GameHubJoinTests` 118/118、后端 full test 3120/3120 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百六十七批仍为服务端战场待命清理收口，没有前端 UI 文件变更。battle 后 `BATTLEFIELD_STANDBY_REMOVED` 现在按服务端 effective controller 判断待命是否合法；前端看到的待命清理事件和最终墓地/战场区 snapshot 保持服务端权威。
 - 本批验证：`dotnet build` 通过；目标回归 4/4、`Standby|BattlefieldControl|DeclareBattle` 相关回归 104/104、`GameHubJoinTests` 118/118、后端 full test 3120/3120 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

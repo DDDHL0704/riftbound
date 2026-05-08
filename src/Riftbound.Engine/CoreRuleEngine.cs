@@ -9498,8 +9498,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || (!string.IsNullOrWhiteSpace(targetState.ControllerId)
-                && !string.Equals(targetState.ControllerId, playerId, StringComparison.Ordinal)))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
         {
             return false;
         }

@@ -48658,8 +48658,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·125/221",
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
+                    ownerId: "P2")
             }
         };
     }
