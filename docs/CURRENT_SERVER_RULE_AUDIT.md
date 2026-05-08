@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百一十七批补充：pending cleanup task 的阻塞 prompt/error 继续去内部任务名。服务端 `BlockingPendingTaskQueueReason` 现在覆盖 `RECALL_UNATTACHED_EQUIPMENT`，玩家可见文本显示“装备清理”；致命伤害、0 战力、待命和未贴附装备清理的 prompt/error 回归均改为断言中文原因，并禁止 `DESTROY_LETHAL_UNIT`、`DESTROY_ZERO_POWER_UNIT`、`REMOVE_ILLEGAL_STANDBY`、`RECALL_UNATTACHED_EQUIPMENT` 出现在玩家可见阻塞文案中。authoritative snapshot 仍保留 task kind/id 作为结构化状态来源，前端只读展示。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore --no-incremental` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 75/75 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~OfficialOpeningTests"` 9/9 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过。本批没有前端 UI 交互变更，没有启动新的 API/Vite/Chrome smoke 进程；5092/5093/5094/5175/5176/9223/9224 保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百一十六批补充：前端开发场景事件日志继续去 fixture/debug 文本。`DEV_SCENARIO_SEEDED` 的玩家可见标题改为“载入测试状态”，描述固定为“测试状态已载入”，不再把 `basic-play`、`battlefield-*` 等 development-only seed 名称显示给玩家；事件本体仍来自服务端，不改变 seed、snapshot 或规则裁决。
 - 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-scenario-redaction-1778238780476`，P1 连接页面、P2 后台 SignalR seed `basic-play` 后，事件日志显示“载入测试状态 / 测试状态已载入”，页面正文不含 `basic-play`、`DEV_SCENARIO_SEEDED`、`开发测试场景已载入`、`SeedScenario` 或 `scenarioId`，应用自身 runtime error 0。随后只读确认 Codex Chrome Extension 可通信，并已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

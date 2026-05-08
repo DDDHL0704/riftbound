@@ -526,7 +526,8 @@ public sealed class OfficialOpeningTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Contains("DESTROY_LETHAL_UNIT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("致命伤害清理", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("DESTROY_LETHAL_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(["P1-DAMAGED-UNIT"], result.State.PlayerZones["P1"].Base);
         Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);

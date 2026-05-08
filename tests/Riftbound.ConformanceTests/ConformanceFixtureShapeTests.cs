@@ -1048,7 +1048,8 @@ public sealed class ConformanceFixtureShapeTests
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.False(prompts["alice"].Actionable);
         Assert.Equal(["WAIT", "SURRENDER"], prompts["alice"].Actions);
-        Assert.Contains("DESTROY_LETHAL_UNIT", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.Contains("致命伤害清理", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("DESTROY_LETHAL_UNIT", prompts["alice"].Reason, StringComparison.Ordinal);
         Assert.DoesNotContain("PLAY_CARD", prompts["alice"].Actions);
 
         var blocked = await new CoreRuleEngine().ResolveAsync(
@@ -1058,7 +1059,8 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
         Assert.False(blocked.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
-        Assert.Contains("DESTROY_LETHAL_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("致命伤害清理", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("DESTROY_LETHAL_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1215,7 +1217,8 @@ public sealed class ConformanceFixtureShapeTests
         var prompt = ResolutionResult.BuildPrompts(state)["alice"];
         Assert.False(prompt.Actionable);
         Assert.Equal(["WAIT", "SURRENDER"], prompt.Actions);
-        Assert.Contains("DESTROY_ZERO_POWER_UNIT", prompt.Reason, StringComparison.Ordinal);
+        Assert.Contains("0 战力清理", prompt.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("DESTROY_ZERO_POWER_UNIT", prompt.Reason, StringComparison.Ordinal);
 
         var blocked = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -1224,7 +1227,8 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
         Assert.False(blocked.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
-        Assert.Contains("DESTROY_ZERO_POWER_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("0 战力清理", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("DESTROY_ZERO_POWER_UNIT", blocked.ErrorMessage, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1311,7 +1315,8 @@ public sealed class ConformanceFixtureShapeTests
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.False(prompts["alice"].Actionable);
         Assert.Equal(["WAIT", "SURRENDER"], prompts["alice"].Actions);
-        Assert.Contains("REMOVE_ILLEGAL_STANDBY", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.Contains("待命清理", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("REMOVE_ILLEGAL_STANDBY", prompts["alice"].Reason, StringComparison.Ordinal);
 
         var blocked = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -1320,7 +1325,8 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
         Assert.False(blocked.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
-        Assert.Contains("REMOVE_ILLEGAL_STANDBY", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("待命清理", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("REMOVE_ILLEGAL_STANDBY", blocked.ErrorMessage, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1398,7 +1404,8 @@ public sealed class ConformanceFixtureShapeTests
         var prompts = ResolutionResult.BuildPrompts(state);
         Assert.False(prompts["alice"].Actionable);
         Assert.Equal(["WAIT", "SURRENDER"], prompts["alice"].Actions);
-        Assert.Contains("RECALL_UNATTACHED_EQUIPMENT", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.Contains("装备清理", prompts["alice"].Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("RECALL_UNATTACHED_EQUIPMENT", prompts["alice"].Reason, StringComparison.Ordinal);
 
         var blocked = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -1407,7 +1414,8 @@ public sealed class ConformanceFixtureShapeTests
             CancellationToken.None);
         Assert.False(blocked.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
-        Assert.Contains("RECALL_UNATTACHED_EQUIPMENT", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("装备清理", blocked.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("RECALL_UNATTACHED_EQUIPMENT", blocked.ErrorMessage, StringComparison.Ordinal);
     }
 
     [Fact]
