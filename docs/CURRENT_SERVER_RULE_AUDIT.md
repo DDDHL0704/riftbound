@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-002/P1-003 第一百七十九批补充：狩猎关键词的证据口径与上一批服务端能力对齐。`CardResourceKeywordRules` 的 resource keyword profile reason 不再只写 “Hunt conquest experience”，而是明确为 “Hunt conquest/held battle experience”；`p2-preflight-play-spring-messenger-experience-static` 与 `p4-declare-battle-hunt-conquest-experience` 的 fixture 证据说明同步改为征服/据守代表路径已由 `DECLARE_BATTLE` 命令级回归覆盖，完整得分、任务状态机、多攻防选择和其他狩猎触发仍暂缓。`docs/conformance-fixture-format.md` 与 `docs/rules-evidence-index.md` 也同步修正，避免图鉴/审计继续把已覆盖的狩猎据守经验误列为暂缓。
+- 已补测试与验证：扩展 `P4ResourceKeywordProfilesMapOfficialTextToRegistryTags` 断言 profile reason 包含 `Hunt conquest/held battle experience`。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；resource keyword/profile 精确回归 2/2、经验/关键词 fixture 相关回归 45/45、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百七十八批补充：狩猎关键词的据守路径补齐到服务端权威战斗结算。`DECLARE_BATTLE` 中防守方赢得战斗并据守时，现在会枚举仍在场上的幸存防守单位，合计其中 `狩猎` / `狩猎N` 的经验，并用实际幸存狩猎防守单位作为 `EXPERIENCE_GAINED` 来源；这与上一批征服路径一致，避免防守狩猎单位据守战场却漏给经验。本批未引入新的前端裁决，前端仍只展示服务端 `BATTLEFIELD_HELD`、`EXPERIENCE_GAINED` 与最终 snapshot。
 - 已补测试与验证：新增 `P4DeclareBattleCommandGrantsHuntExperienceWhenDefenderHoldsBattlefield`，覆盖攻击者战死、防守狩猎单位幸存并据守时，服务端给 P2 2 点经验且事件来源为幸存防守猎手。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；狩猎征服/据守精确回归 3/3、`DeclareBattleCommand|Hunt|BattlefieldHeld` 相邻回归 104/104、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
 
@@ -820,7 +823,7 @@
 - `src/Riftbound.Engine/CardEquipmentKeywordRules.cs:89` 到 `src/Riftbound.Engine/CardEquipmentKeywordRules.cs:93` 说明只有代表性 Take Up，assemble/agile/tempered/static modifier 等仍 deferred。
 - `src/Riftbound.Engine/CardInteractionKeywordRules.cs:72` 到 `src/Riftbound.Engine/CardInteractionKeywordRules.cs:75` 说明 Standby/Ambush/Echo 仍有宽泛 deferred 分支。
 - `src/Riftbound.Engine/CardCombatKeywordRules.cs:55` 到 `src/Riftbound.Engine/CardCombatKeywordRules.cs:60` 说明 combat damage、assignment order、roam movement execution remain deferred。
-- `src/Riftbound.Engine/CardResourceKeywordRules.cs:76` 到 `src/Riftbound.Engine/CardResourceKeywordRules.cs:80` 说明 broader experience/level/encourage/spellshield branches remain deferred。
+- `src/Riftbound.Engine/CardResourceKeywordRules.cs:76` 到 `src/Riftbound.Engine/CardResourceKeywordRules.cs:80` 说明狩猎征服/据守战斗经验已有代表路径，但 broader experience/level/encourage/spellshield branches 仍 remain deferred。
 - `src/Riftbound.Engine/KeywordCoverageReporter.cs` 会把各关键词族 profile 汇总成 `KeywordCoverageReport`，API `/catalog/keyword-coverage`、`/catalog/summary`、`/catalog/p3-status` 会公开这些 deferred 状态。
 
 现象：这些 profile 与“所有卡牌功能完整实现”存在冲突。即便某些代表性路径已有实现，关键词族整体不能判定完整。现在 deferred 状态不再只是测试/内部 profile 里的事实，而是正式服务端报告和 API 输出；前端、图鉴和本地测试入口可以按 family/status 禁用或明确提示。

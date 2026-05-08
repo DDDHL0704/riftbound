@@ -17,7 +17,7 @@
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31-p35 rules 318-340; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "核心规则定义战斗声明、战斗伤害与关键词；P4.385 只把已接受 DECLARE_BATTLE 中的清场结果映射为狩猎征服经验，不处理完整战场占领、据守、得分或多攻防选择。"
+      "note": "核心规则定义战斗声明、战斗伤害与关键词；P4.385 把已接受 DECLARE_BATTLE 中的清场结果映射为狩猎征服经验，后续命令级回归也覆盖防守方赢得战斗并据守时的狩猎经验；完整得分、任务状态机和多攻防选择仍暂缓。"
     }
   ],
   "roomId": "p4-declare-battle-hunt-conquest-experience-room",

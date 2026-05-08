@@ -1933,6 +1933,7 @@ public sealed class CardCatalogBaselineTests
         Assert.True(gluttonousToadfrog.HasHunt);
         Assert.Equal(3, gluttonousToadfrog.HuntAmount);
         Assert.Equal(ResourceKeywordProfileStatuses.RecognizedDeferred, gluttonousToadfrog.Status);
+        Assert.Contains("Hunt conquest/held battle experience", gluttonousToadfrog.Reason, StringComparison.Ordinal);
 
         var mossStepper = BuildResourceProfile(specs, "UNL-047/219", CardResourceKeywordNames.Hunt, CardResourceKeywordNames.Level);
         Assert.True(mossStepper.HasHunt);
