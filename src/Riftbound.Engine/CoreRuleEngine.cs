@@ -5617,6 +5617,36 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && string.Equals(battleWinnerPlayerId, defendingPlayerId, StringComparison.Ordinal))
             {
                 var battlefieldHeldEventEmitted = false;
+                var huntHeldSources = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds)
+                    .Select(objectId => new
+                    {
+                        ObjectId = objectId,
+                        CardObject = cardObjects[objectId],
+                        HuntAmount = CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags)
+                    })
+                    .Where(source => source.HuntAmount > 0)
+                    .ToArray();
+                var heldHuntAmount = huntHeldSources.Sum(source => source.HuntAmount);
+                if (heldHuntAmount > 0)
+                {
+                    var huntSource = huntHeldSources[0];
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    playerExperience = GainExperience(
+                        playerExperience.Count == 0 ? NormalizeExperienceForSeats(state) : playerExperience,
+                        battleWinnerPlayerId,
+                        heldHuntAmount,
+                        combatStackItem,
+                        combatEvents,
+                        huntSource.ObjectId,
+                        huntSource.CardObject.CardNo);
+                }
+
                 var battlefieldTriggerEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldDrawTrigger(
                         state,

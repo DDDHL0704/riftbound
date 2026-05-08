@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百七十八批补充：狩猎关键词的据守路径补齐到服务端权威战斗结算。`DECLARE_BATTLE` 中防守方赢得战斗并据守时，现在会枚举仍在场上的幸存防守单位，合计其中 `狩猎` / `狩猎N` 的经验，并用实际幸存狩猎防守单位作为 `EXPERIENCE_GAINED` 来源；这与上一批征服路径一致，避免防守狩猎单位据守战场却漏给经验。本批未引入新的前端裁决，前端仍只展示服务端 `BATTLEFIELD_HELD`、`EXPERIENCE_GAINED` 与最终 snapshot。
+- 已补测试与验证：新增 `P4DeclareBattleCommandGrantsHuntExperienceWhenDefenderHoldsBattlefield`，覆盖攻击者战死、防守狩猎单位幸存并据守时，服务端给 P2 2 点经验且事件来源为幸存防守猎手。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；狩猎征服/据守精确回归 3/3、`DeclareBattleCommand|Hunt|BattlefieldHeld` 相邻回归 104/104、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百七十七批补充：多攻击者代表路径中的狩猎征服经验不再只读取第一个攻击者。`DECLARE_BATTLE` 战斗结算后会枚举所有仍在场上的幸存攻击单位，合计其中带 `狩猎` / `狩猎N` 的来源经验；`BATTLEFIELD_CONQUERED` 与 `EXPERIENCE_GAINED` 的来源会指向首个幸存狩猎单位，并额外记录 `huntSourceObjectIds` 与 `huntAmountsBySource`，避免第二个幸存攻击者带狩猎时服务端漏给经验。完整多参与者征服触发排序仍未官方化，本批只收口狩猎经验代表路径。
 - 已补测试与验证：新增 `P4DeclareBattleCommandGrantsHuntExperienceFromSurvivingSecondAttacker`，覆盖第一个普通攻击者战死、第二个狩猎攻击者幸存并征服时，服务端给 P1 2 点经验且事件来源为幸存猎手。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；目标/代表路径精确回归 3/3、`DeclareBattleCommand|DeclareBattle|Hunt|Conquer` 相邻回归 122/122、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3130/3130 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
 

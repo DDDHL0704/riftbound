@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百七十八批仍为服务端战斗规则收口，没有前端 UI 文件变更。狩猎关键词现在覆盖“征服或据守”两条战斗结果路径：防守方赢得战斗并据守时，服务端会从幸存防守单位中统计 `狩猎` / `狩猎N` 经验，并以实际狩猎防守单位作为 `EXPERIENCE_GAINED` 来源；前端继续只展示服务端 `BATTLEFIELD_HELD`、经验事件和 authoritative snapshot。
+- 本批验证：`dotnet build` 通过；狩猎征服/据守精确回归 3/3、`DeclareBattleCommand|Hunt|BattlefieldHeld` 相邻回归 104/104、`GameHubJoinTests` 118/118、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百七十七批仍为服务端战斗规则收口，没有前端 UI 文件变更。多攻击者代表路径中，幸存的第二个/后续狩猎攻击者现在也会由服务端权威计入征服经验；`BATTLEFIELD_CONQUERED` / `EXPERIENCE_GAINED` 事件会指向实际幸存狩猎来源并公开 `huntSourceObjectIds`，前端继续只展示服务端事件和 snapshot。
 - 本批验证：`dotnet build` 通过；目标/代表路径精确回归 3/3、`DeclareBattleCommand|DeclareBattle|Hunt|Conquer` 相邻回归 122/122、`GameHubJoinTests` 118/118、后端 full test 3130/3130 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
