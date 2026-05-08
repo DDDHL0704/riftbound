@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十六批仍为服务端规则收口，没有前端 UI 文件变更。单位返回手牌后支付 1 召符文的 Ghost Bay 触发改用统一 source-control/legacy-owned 判断；对手拥有但 `controllerId` 为空的脏战场牌不会再在结算时扣费、额外召符文或发战场触发事件。前端继续只展示服务端 authoritative events/snapshot。
+- 本批验证：`dotnet build` 通过；`BattlefieldReturnedUnit|BattlefieldReturnCallRune` 回归 4/4、`GameHubJoinTests` 118/118、后端 full test 3103/3103 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十五批仍为服务端规则收口，没有前端 UI 文件变更。Poro Forge 这类战场牌授予传奇行动的 required battlefield source 已统一按 source-control/legacy-owned 过滤；对手拥有但 `controllerId` 为空的脏战场牌不会再让前端看到 `LEGEND_ACT` 候选，也不能被手写命令触发贴附武装。前端继续只消费服务端候选。
 - 本批验证：`dotnet build` 通过；Poro Forge 精确回归 5/5、`LegendAct` 相关回归 38/38、`GameHubJoinTests` 118/118、后端 full test 3102/3102 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

@@ -8427,8 +8427,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var battlefieldObjectId = zones.Battlefields.FirstOrDefault(objectId =>
             cardObjects.TryGetValue(objectId, out var candidate)
             && IsBattlefieldUnitReturnedCallRuneCardNo(candidate.CardNo)
-            && (string.IsNullOrWhiteSpace(candidate.ControllerId)
-                || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)));
+            && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId));
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState))
         {

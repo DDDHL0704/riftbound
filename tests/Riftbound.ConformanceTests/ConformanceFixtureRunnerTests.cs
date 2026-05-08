@@ -33561,6 +33561,57 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldReturnedUnitDoesNotPayWhenGhostBayIsOpponentOwned()
+    {
+        var baseState = BattlefieldReturnCallRuneState();
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-GHOST-BAY"] = cardObjects["P1-BATTLEFIELD-GHOST-BAY"] with
+        {
+            OwnerId = "P2",
+            ControllerId = ""
+        };
+        var state = baseState with
+        {
+            CardObjects = cardObjects
+        };
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-return-call-rune-dirty-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-RECONSIDER",
+                "OGN·104/298",
+                ["P1-BATTLEFIELD-RETURN-UNIT"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-return-call-rune-dirty-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-return-call-rune-dirty-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(new RunePool(1, 0), p2Pass.State.RunePools["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-RETURN-UNIT"], p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GHOST-BAY-RUNE-001"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GHOST-BAY-RUNE-002"], p2Pass.State.PlayerZones["P1"].RuneDeck);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("reason", out var reason)
+            && string.Equals(reason as string, "BATTLEFIELD_UNIT_RETURNED_PAY_1_CALL_RUNE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldTargetDamageBonusAddsOneToSpellDamage()
     {
         var state = BattlefieldTargetDamageBonusState();
