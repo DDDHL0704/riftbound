@@ -5919,6 +5919,7 @@ internal static class ActionPromptBuilder
             "HASTE_READY" => "急速活跃",
             "BATTLEFIELD_UNIT_POWER_MINUS_4" => "战场单位战力 -4",
             "DRAW_1" => "抽 1 张",
+            "SELF_BOON" => "给予我增益",
             "DAMAGE_2" => "造成 2 点伤害",
             _ => string.IsNullOrWhiteSpace(mode) ? "默认" : mode
         };

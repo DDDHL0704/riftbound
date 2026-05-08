@@ -6227,6 +6227,17 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3),
         new(
+            "SFD·091/221",
+            "芭茹队长",
+            3,
+            "BUHRU_CAPTAIN_PLAY_UNIT_SELF_BOON_MODE",
+            0,
+            0,
+            Mode: "SELF_BOON",
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 3,
+            GrantsBoonToSourceUnit: true),
+        new(
             "OGN·003/298",
             "炼金太保",
             2,

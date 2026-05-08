@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十七批补齐《芭茹队长》（SFD·091/221）“抽 1 或给予自身增益”的完整服务端模式。CardBehavior 现在同时公开 `DRAW_1` 与 `SELF_BOON`，`SELF_BOON` 由服务端结算源单位入场后授予 `增益` 与 +1 战力；ActionPrompt mode 中文标签显示“抽 1 张 / 给予我增益”。前端仍不读取卡面或本地构造模式，只展示并提交服务端候选。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`FullyQualifiedName~BuhruCaptain` 过滤测试 4/4 通过，覆盖抽牌、自身增益、缺失 mode 拒绝和 prompt 双模式公开；后端 full test 3224/3224 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十六批补齐《自适应机器人》（OGN·056/298）征服效果摧毁装备并自增益的服务端测试证据。现有 Core 代表路径在《清算人竞技场》据守触发 `BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS` 时激活单位征服效果：有场上装备则摧毁装备、移动到拥有者废牌堆并给予自身增益；无装备时不增益。前端仍不新增本地装备选择或增益裁决，只展示服务端事件与 authoritative snapshot。
 - 本批验证：`P79BattlefieldHeldActivateConquestEffectsAdaptiveRobot` 定向 2/2 通过；`P79BattlefieldHeldActivateConquest` 相邻聚合 6/6 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

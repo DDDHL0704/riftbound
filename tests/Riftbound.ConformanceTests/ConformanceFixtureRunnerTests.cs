@@ -14882,6 +14882,57 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBuhruCaptainSelfBoonMode()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-buhru-captain-self-boon-mode.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Power);
+        Assert.Contains(CardObjectTags.Boon, result.FinalState.CardObjects["P1-UNIT-BUHRU-CAPTAIN"].Tags);
+    }
+
+    [Fact]
+    public void CoreRuleEngineBuhruCaptainPromptExposesModalChoices()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-BUHRU-CAPTAIN"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-BUHRU-CAPTAIN"] = new(
+                    "P1-UNIT-BUHRU-CAPTAIN",
+                    cardNo: "SFD·091/221",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.Equal(["P1-UNIT-BUHRU-CAPTAIN"], (playCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["DRAW_1", "SELF_BOON"], (playCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Equal(["抽 1 张", "给予我增益"], (playCandidate.Modes ?? []).Select(mode => mode.Label).ToArray());
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsBuhruCaptainWhenModeIsMissing()
     {
         var state = PunishmentState(mana: 3) with

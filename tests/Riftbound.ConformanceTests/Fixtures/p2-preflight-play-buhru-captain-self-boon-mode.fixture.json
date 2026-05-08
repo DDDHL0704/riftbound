@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-buhru-captain-draw-mode",
-  "description": "Buhru Captain enters as a unit object and uses the draw-one modal choice.",
+  "fixtureId": "p2-preflight-play-buhru-captain-self-boon-mode",
+  "description": "Buhru Captain enters as a unit object and uses the self-boon modal choice.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302341,
+  "seed": 2603302342,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·091/221 芭茹队长",
-      "note": "官方卡面：费用 3；单位；战力 3；当你打出我时，可选择抽一张牌或给我增益。本 fixture 覆盖抽一张牌模式；自身增益模式由 p2-preflight-play-buhru-captain-self-boon-mode 覆盖。"
+      "note": "官方卡面：费用 3；单位；战力 3；当你打出我时，可选择抽一张牌或给我增益。本 fixture 覆盖给予自身增益模式。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；抽牌按标准抽牌路径处理。"
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；增益由服务端授予标签并永久提高战力。"
     }
   ],
-  "roomId": "p2-preflight-buhru-captain-room",
+  "roomId": "p2-preflight-buhru-captain-self-boon-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302341,
+    "seed": 2603302342,
     "turnNumber": 340,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
@@ -39,7 +39,7 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-BUHRU-CAPTAIN-DRAW-001"],
+        "mainDeck": ["P1-MAIN-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-UNIT-BUHRU-CAPTAIN"],
         "base": [],
@@ -66,25 +66,25 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-buhru-captain-play",
+      "clientIntentId": "intent-p2-preflight-buhru-captain-self-boon-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
         "cardNo": "SFD·091/221",
-        "mode": "DRAW_1",
+        "mode": "SELF_BOON",
         "targetObjectIds": []
       }
     },
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-buhru-captain-p1-pass",
+      "clientIntentId": "intent-p2-preflight-buhru-captain-self-boon-p1-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
     },
     {
       "playerId": "P2",
-      "clientIntentId": "intent-p2-preflight-buhru-captain-p2-pass",
+      "clientIntentId": "intent-p2-preflight-buhru-captain-self-boon-p2-pass",
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
@@ -100,7 +100,8 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "UNIT_PLAYED_TO_BASE",
-      "CARD_DRAWN"
+      "OBJECT_TAG_ADDED",
+      "BOON_GRANTED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -118,9 +119,9 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
           "cardNo": "SFD·091/221",
-          "mode": "DRAW_1",
+          "mode": "SELF_BOON",
           "targetObjectIds": [],
-          "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT_DRAW_MODE"
+          "effectKind": "BUHRU_CAPTAIN_PLAY_UNIT_SELF_BOON_MODE"
         }
       },
       { "kind": "PRIORITY_PASSED" },
@@ -139,10 +140,20 @@
         }
       },
       {
-        "kind": "CARD_DRAWN",
+        "kind": "OBJECT_TAG_ADDED",
         "payload": {
-          "playerId": "P1",
-          "count": 1
+          "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
+          "targetObjectId": "P1-UNIT-BUHRU-CAPTAIN",
+          "tag": "增益"
+        }
+      },
+      {
+        "kind": "BOON_GRANTED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-BUHRU-CAPTAIN",
+          "targetObjectId": "P1-UNIT-BUHRU-CAPTAIN",
+          "powerDelta": 1,
+          "resultingPower": 4
         }
       }
     ],
@@ -166,8 +177,8 @@
       },
       "players": {
         "P1": {
-          "mainDeck": [],
-          "hand": ["P1-BUHRU-CAPTAIN-DRAW-001"],
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
           "base": ["P1-UNIT-BUHRU-CAPTAIN"],
           "graveyard": []
         }
@@ -175,8 +186,8 @@
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-BUHRU-CAPTAIN": {
-          "power": 3,
-          "tags": ["CARD_TYPE:UNIT"],
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "增益"],
           "isExhausted": false
         }
       }
