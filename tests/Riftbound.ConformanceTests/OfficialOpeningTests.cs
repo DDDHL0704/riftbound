@@ -462,8 +462,9 @@ public sealed class OfficialOpeningTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Equal(
-            "MOVE_UNIT source precise battlefield location does not match the authoritative location.",
+            "移动单位的精确战场起点与服务端权威位置不一致。",
             result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal("P1-BATTLEFIELD-A", result.State.ObjectLocations["P1-UNIT-ROAM"].BattlefieldObjectId);
     }
 

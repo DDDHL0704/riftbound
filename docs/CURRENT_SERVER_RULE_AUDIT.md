@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百四十一批补充：`MOVE_UNIT` 运行时拒绝文案继续去内部协议名。此前移动单位在错误窗口、非法区域、暂未开放额外费用、目的地相同、来源位置/控制权/正面单位/已知牌号/战斗状态不合法、战场静态禁止回基地、贴附装备移动或精确游走代表路径不合法时会被服务端拒绝并保持状态不变，但错误消息仍含 raw `MOVE_UNIT`、英文内部说明或 `P4` 阶段口径。现在这些拒绝路径返回中文玩家文案，核心、official opening 与 Hub seed 回归测试同步断言错误消息不含 raw action kind；结构化 prompt action/command kind 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommandRejects|FullyQualifiedName~P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit|FullyQualifiedName~PreciseRoamMoveRejectsOriginThatDoesNotMatchAuthoritativeLocation|FullyQualifiedName~P79BattlefieldStaticPreventMoveBaseSeedRejectsMoveToBase"` 通过 22/22；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百四十批补充：`REVEAL_CARD` 运行时拒绝文案继续去内部协议名。此前待命翻开/反应在来源不在基地、非法模式、窗口不合法、无优先权、来源非面朝下、身份未知/不匹配、来源不受控或来源无待命关键词等路径会被服务端拒绝并保持状态不变，但错误消息仍含 raw `REVEAL_CARD` 或英文内部说明。现在这些拒绝路径返回中文玩家文案，常规翻开与反应回归测试同步断言错误消息不含 raw action kind；结构化 prompt action/command kind 仍保留协议枚举供前端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4RevealCardCommandRejects"` 通过 20/20；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -4528,7 +4528,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT is only available during the active player's open main window.",
+                "移动单位只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -4537,7 +4537,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT requires BASE or BATTLEFIELD origin and destination zones.",
+                "移动单位需要以基地或战场作为起点和终点。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4559,7 +4559,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT optional costs are not implemented in P4 yet.",
+                "移动单位的额外费用暂未开放。",
                 ErrorCodes.UnsupportedCommand);
         }
 
@@ -4567,7 +4567,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT requires a different destination zone.",
+                "移动单位需要选择不同的目的地。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4578,7 +4578,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source unit is not controlled by the player in the requested origin zone.",
+                "移动单位来源不在提交的起点，或不由该玩家控制。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4588,7 +4588,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must be a face-up unit.",
+                "移动单位需要选择正面单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4596,7 +4596,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must be controlled by the acting player.",
+                "移动单位只能选择当前玩家控制的单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4604,7 +4604,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must expose a known unit card number.",
+                "移动单位需要服务端已确认的单位牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -4612,7 +4612,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must not be in combat.",
+                "战斗中的单位不能移动。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4622,7 +4622,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT blocked by battlefield static: units cannot move from this battlefield to base.",
+                "该战场效果禁止单位从此战场移动回基地。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4637,7 +4637,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT attached equipment movement is not implemented in P4 yet.",
+                "带有贴附装备的单位移动暂未开放。",
                 ErrorCodes.UnsupportedCommand);
         }
 
@@ -4831,7 +4831,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT precise battlefield locations are not implemented in P4 yet.",
+                "精确战场移动路径暂未开放。",
                 ErrorCodes.UnsupportedCommand);
         }
 
@@ -4843,7 +4843,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT precise roam requires two different friendly battlefields.",
+                "精确战场游走需要两个不同的友方战场。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4852,7 +4852,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT precise battlefield card locations must expose a known battlefield card number.",
+                "精确战场移动需要服务端已确认的战场牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -4863,7 +4863,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source unit is not controlled by the player in the requested origin zone.",
+                "移动单位来源不在提交的起点，或不由该玩家控制。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4878,7 +4878,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source precise battlefield location does not match the authoritative location.",
+                "移动单位的精确战场起点与服务端权威位置不一致。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4888,7 +4888,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must be a face-up unit.",
+                "移动单位需要选择正面单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4896,7 +4896,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must be controlled by the acting player.",
+                "移动单位只能选择当前玩家控制的单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4904,7 +4904,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must expose a known unit card number.",
+                "移动单位需要服务端已确认的单位牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -4912,7 +4912,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT precise battlefield movement requires roam permission.",
+                "精确战场移动需要游走许可。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4920,7 +4920,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT source must not be in combat.",
+                "战斗中的单位不能移动。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4931,7 +4931,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MOVE_UNIT attached equipment movement is not implemented in P4 yet.",
+                "带有贴附装备的单位移动暂未开放。",
                 ErrorCodes.UnsupportedCommand);
         }
 

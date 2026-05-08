@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百四十一批继续收口移动单位服务端错误文案。`CoreRuleEngine` 在错误窗口、非法粗粒度区域、暂未开放额外费用、目的地相同、来源不在提交起点、来源非正面单位、来源不受控、缺少已知单位牌号、战斗中、战场静态禁止回基地、贴附装备移动、精确战场路径/战场身份/起点权威位置/游走许可等路径拒绝 `MOVE_UNIT` 时，错误消息改为中文移动单位说明；核心、official opening 与 Hub seed 回归断言不含 raw `MOVE_UNIT`。前端仍只展示服务端 `MOVE_UNIT` prompt/sourceRequirements/destinationChoices，不自行裁决移动合法性。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommandRejects|FullyQualifiedName~P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit|FullyQualifiedName~PreciseRoamMoveRejectsOriginThatDoesNotMatchAuthoritativeLocation|FullyQualifiedName~P79BattlefieldStaticPreventMoveBaseSeedRejectsMoveToBase"` 通过 22/22；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百四十批继续收口待命翻开/反应服务端错误文案。`CoreRuleEngine` 在未知待命翻开行为、来源不在自己基地、非法翻开/反应模式、普通翻开窗口不合法、待命反应无优先权、来源非面朝下、身份未知/不匹配、来源不受控或来源没有待命关键词等路径拒绝 `REVEAL_CARD` 时，错误消息改为中文待命翻开说明；常规翻开与反应拒绝回归断言不含 raw `REVEAL_CARD`。前端仍只显示服务端 `REVEAL_CARD` prompt/sourceRequirements 与候选，不自行判断待命翻开或反应合法性。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4RevealCardCommandRejects"` 通过 20/20；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

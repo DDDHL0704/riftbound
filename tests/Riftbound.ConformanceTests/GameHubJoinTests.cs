@@ -4520,8 +4520,9 @@ public sealed class GameHubJoinTests
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.InvalidTarget, payload.Code);
         Assert.Equal(
-            "MOVE_UNIT blocked by battlefield static: units cannot move from this battlefield to base.",
+            "该战场效果禁止单位从此战场移动回基地。",
             payload.Message);
+        Assert.DoesNotContain("MOVE_UNIT", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]

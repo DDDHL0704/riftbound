@@ -33970,8 +33970,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Equal(
-            "MOVE_UNIT blocked by battlefield static: units cannot move from this battlefield to base.",
+            "该战场效果禁止单位从此战场移动回基地。",
             result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(["P1-BATTLEFIELD-VILEMAW-LAIR", "P1-BATTLEFIELD-TRAPPED-UNIT"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
     }
@@ -42430,7 +42431,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT source must expose a known unit card number.", result.ErrorMessage);
+        Assert.Equal("移动单位需要服务端已确认的单位牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-UNKNOWN-MOVE-UNIT-001"], result.State.PlayerZones["P1"].Base);
@@ -42473,7 +42475,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source unit is not controlled by the player in the requested origin zone.", result.ErrorMessage);
+        Assert.Equal("移动单位来源不在提交的起点，或不由该玩家控制。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
@@ -42519,7 +42522,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Equal("移动单位只能选择当前玩家控制的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-MOVE-UNIT-OPPONENT-CONTROLLED-001"], result.State.PlayerZones["P1"].Base);
@@ -42563,7 +42567,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT source must be a face-up unit.", result.ErrorMessage);
+        Assert.Equal("移动单位需要选择正面单位。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-FACEDOWN-STANDBY-MOVE-001"], result.State.PlayerZones["P1"].Base);
@@ -42609,7 +42614,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT source must be a face-up unit.", result.ErrorMessage);
+        Assert.Equal("移动单位需要选择正面单位。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-EQUIPMENT-MOVE-SOURCE-001"], result.State.PlayerZones["P1"].Base);
@@ -42655,7 +42661,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT requires a different destination zone.", result.ErrorMessage);
+        Assert.Equal("移动单位需要选择不同的目的地。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-MOVE-UNIT-SAME-ZONE-001"], result.State.PlayerZones["P1"].Base);
@@ -42699,7 +42706,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT is only available during the active player's open main window.", result.ErrorMessage);
+        Assert.Equal("移动单位只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P2", result.State.ActivePlayerId);
@@ -42755,7 +42763,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT is only available during the active player's open main window.", result.ErrorMessage);
+        Assert.Equal("移动单位只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
@@ -42803,7 +42812,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT optional costs are not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("移动单位的额外费用暂未开放。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
@@ -42847,7 +42857,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT requires BASE or BATTLEFIELD origin and destination zones.", result.ErrorMessage);
+        Assert.Equal("移动单位需要以基地或战场作为起点和终点。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-MOVE-UNIT-ZONE-001"], result.State.PlayerZones["P1"].Base);
@@ -42890,7 +42901,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source unit is not controlled by the player in the requested origin zone.", result.ErrorMessage);
+        Assert.Equal("移动单位来源不在提交的起点，或不由该玩家控制。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-MOVE-UNIT-ORIGIN-001"], result.State.PlayerZones["P1"].Base);
@@ -42934,7 +42946,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source unit is not controlled by the player in the requested origin zone.", result.ErrorMessage);
+        Assert.Equal("移动单位来源不在提交的起点，或不由该玩家控制。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-MOVE-UNIT-HAND-001"], result.State.PlayerZones["P1"].Hand);
@@ -42990,7 +43003,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT source must not be in combat.", result.ErrorMessage);
+        Assert.Equal("战斗中的单位不能移动。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
@@ -43043,7 +43057,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT attached equipment movement is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("带有贴附装备的单位移动暂未开放。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(
@@ -43205,7 +43220,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT precise battlefield locations are not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("精确战场移动路径暂未开放。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -43296,7 +43312,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Equal("移动单位只能选择当前玩家控制的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-BATTLEFIELD-OPPONENT-CONTROLLED-ROAM"], result.State.PlayerZones["P1"].Battlefields);
@@ -43364,8 +43381,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
         Assert.Equal(
-            "MOVE_UNIT precise battlefield card locations must expose a known battlefield card number.",
+            "精确战场移动需要服务端已确认的战场牌信息。",
             result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P1-BATTLEFIELD-KNOWN-MOVE-ORIGIN", result.State.ObjectLocations["P1-UNIT-ROAM-MOVE-DESTINATION-FILTER"].BattlefieldObjectId);
         Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-UNKNOWN-MOVE-DESTINATION"].CardNo);
@@ -43411,7 +43429,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT precise battlefield locations are not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("精确战场移动路径暂未开放。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -43462,7 +43481,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("MOVE_UNIT precise battlefield locations are not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("精确战场移动路径暂未开放。", result.ErrorMessage);
+        Assert.DoesNotContain("MOVE_UNIT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
