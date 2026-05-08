@@ -16511,7 +16511,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.DestroysAllUnits)
         {
-            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
+            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones, cardObjects))
             {
                 if (!TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                 {
@@ -16554,7 +16554,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.ReturnsAllUnitsToHand)
         {
-            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
+            foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones, cardObjects))
             {
                 var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
                     playerZones,
@@ -16592,7 +16592,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
         else if (behavior.ReturnsAllFieldObjectsToHand)
         {
-            foreach (var targetObjectId in GetFieldObjectIds(playerZones))
+            foreach (var targetObjectId in GetFieldObjectIds(playerZones, cardObjects))
             {
                 var canResolveBattlefieldReturnTrigger = TryGetBattlefieldUnitReturnContext(
                     playerZones,
@@ -18394,7 +18394,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static void ApplyStatusEffectsToFieldUnits(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
-        IDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         ICollection<GameEvent> events)
@@ -18405,7 +18405,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones))
+        foreach (var targetObjectId in GetFieldUnitObjectIds(playerZones, cardObjects))
         {
             var targetState = cardObjects.TryGetValue(targetObjectId, out var existingTarget)
                 ? existingTarget
@@ -18468,12 +18468,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     }
 
     private static IReadOnlyList<string> GetBattlefieldObjectIds(
-        IReadOnlyDictionary<string, PlayerZones> playerZones)
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         return playerZones
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -18487,6 +18489,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(entry => !string.Equals(entry.Key, controllerId, StringComparison.Ordinal))
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Battlefields)
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
                 && (objectState.IsAttacking || objectState.IsDefending))
             .Distinct(StringComparer.Ordinal)
@@ -18495,6 +18498,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyList<string> GetEnemyBattlefieldObjectIds(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string controllerId)
     {
         return playerZones
@@ -18502,28 +18506,33 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
 
     private static IReadOnlyList<string> GetFieldUnitObjectIds(
-        IReadOnlyDictionary<string, PlayerZones> playerZones)
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         return playerZones
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
 
     private static IReadOnlyList<string> GetFieldObjectIds(
-        IReadOnlyDictionary<string, PlayerZones> playerZones)
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
         return playerZones
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -18536,6 +18545,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -18554,6 +18564,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return zones.Base
             .Concat(zones.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
             .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -18573,7 +18584,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Concat(zones.Battlefields)
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
             .Distinct(StringComparer.Ordinal)
-            .Count(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
+            .Count(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
+                && CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
     }
 
     private static IReadOnlyList<string> GetEnemyFieldUnitObjectIds(
@@ -18586,6 +18598,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(entry => entry.Key, StringComparer.Ordinal)
             .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, objectId))
             .Where(objectId => !CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
@@ -18593,6 +18606,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyList<string> GetControlledBattlefieldUnitObjectIds(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId)
     {
         if (!playerZones.TryGetValue(playerId, out var zones))
@@ -18602,6 +18616,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields
             .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
     }
@@ -18763,7 +18778,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        foreach (var targetObjectId in GetBattlefieldObjectIds(playerZones))
+        foreach (var targetObjectId in GetBattlefieldObjectIds(playerZones, cardObjects))
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
@@ -18791,7 +18806,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (behavior.ModifiesAllFriendlyBattlefieldUnits
                 && behavior.PowerModifierAmount != 0)
             {
-                foreach (var targetObjectId in GetControlledBattlefieldUnitObjectIds(playerZones, stackItem.ControllerId))
+                foreach (var targetObjectId in GetControlledBattlefieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
                     {
@@ -18815,7 +18830,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (behavior.ModifiesAllEnemyBattlefieldUnits
                 && enemyPowerModifierAmount != 0)
             {
-                foreach (var targetObjectId in GetEnemyBattlefieldObjectIds(playerZones, stackItem.ControllerId))
+                foreach (var targetObjectId in GetEnemyBattlefieldObjectIds(playerZones, cardObjects, stackItem.ControllerId))
                 {
                     if (!cardObjects.TryGetValue(targetObjectId, out var targetState))
                     {
@@ -18883,7 +18898,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        foreach (var targetObjectId in GetEnemyBattlefieldObjectIds(playerZones, stackItem.ControllerId))
+        foreach (var targetObjectId in GetEnemyBattlefieldObjectIds(playerZones, cardObjects, stackItem.ControllerId))
         {
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
@@ -18916,7 +18931,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return;
         }
 
-        foreach (var targetObjectId in GetEnemyBattlefieldObjectIds(playerZones, stackItem.ControllerId))
+        foreach (var targetObjectId in GetEnemyBattlefieldObjectIds(playerZones, cardObjects, stackItem.ControllerId))
         {
             if (excludedObjectIds.Contains(targetObjectId, StringComparer.Ordinal))
             {

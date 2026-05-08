@@ -2098,6 +2098,86 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineTibbersResolutionSkipsOpponentControlledBattlefieldObject()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-TIBBERS-DIRTY-BATTLEFIELD-DAMAGE",
+                    "P1",
+                    "P1-UNIT-TIBBERS",
+                    "TIBBERS_PLAY_UNIT_DAMAGE_ALL_BATTLEFIELD_UNITS_3",
+                    "OGS·018/024",
+                    [])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P2-TIBBERS-VALID-BATTLEFIELD-UNIT",
+                        "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-TIBBERS-VALID-BATTLEFIELD-UNIT"] = new(
+                    "P2-TIBBERS-VALID-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-tibbers-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-tibbers-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(3, p2Pass.State.CardObjects["P2-TIBBERS-VALID-BATTLEFIELD-UNIT"].Damage);
+        Assert.Equal(0, p2Pass.State.CardObjects["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"].Damage);
+        Assert.Equal(["P1-UNIT-TIBBERS"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(
+            1,
+            p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)));
+        Assert.DoesNotContain(
+            p2Pass.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(
+                    gameEvent.Payload["targetObjectId"] as string,
+                    "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                    StringComparison.Ordinal));
+    }
+
+    [Fact]
     public Task CoreRuleEngineRejectsTibbersWhenTargetsAreProvided() =>
         AssertSourceUnitWithTargetRejectedAsync(
             8,
