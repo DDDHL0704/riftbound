@@ -4487,12 +4487,22 @@ internal static class ActionPromptBuilder
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
             : RunePool.Empty;
-        return CardBehaviorRegistry.GetAll()
+        var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Where(behavior => runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
+        if (string.Equals(cardObject.CardNo, "SFD·039/221", StringComparison.Ordinal)
+            && behaviors.Any(behavior => !string.IsNullOrWhiteSpace(behavior.Mode)
+                && PromptHasRequiredTargetChoices(state, playerId, behavior)))
+        {
+            return behaviors
+                .Where(behavior => !string.IsNullOrWhiteSpace(behavior.Mode))
+                .ToArray();
+        }
+
+        return behaviors;
     }
 
     private static bool PromptHasRequiredDestinationChoices(
@@ -4810,6 +4820,11 @@ internal static class ActionPromptBuilder
                 .SelectMany(entry => entry.Value.Graveyard);
         }
 
+        if (string.Equals(targetScope, CardTargetScopes.Legend, StringComparison.Ordinal))
+        {
+            return state.PlayerZones.Values.SelectMany(zones => zones.LegendZone);
+        }
+
         if (string.Equals(targetScope, CardTargetScopes.FriendlyMainDeckCard, StringComparison.Ordinal)
             || string.Equals(targetScope, CardTargetScopes.OpponentHandCard, StringComparison.Ordinal)
             || string.Equals(targetScope, CardTargetScopes.OpponentMainDeckTopCard, StringComparison.Ordinal)
@@ -4878,6 +4893,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.OpponentMainDeckTopCard => false,
             CardTargetScopes.AnyMainDeckTopFiveCard => false,
             CardTargetScopes.Equipment => IsPromptEquipmentObject(state, objectId),
+            CardTargetScopes.Legend => IsPromptLegendObject(state, objectId),
             CardTargetScopes.StackSpell => IsPromptStackSpellItem(state, objectId),
             CardTargetScopes.SacredJudgmentKeepCard => false,
             _ => IsPromptBattlefieldObject(state, objectId)
@@ -4945,6 +4961,15 @@ internal static class ActionPromptBuilder
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown;
+    }
+
+    private static bool IsPromptLegendObject(MatchState state, string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && IsPromptKnownCardObject(state, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && state.PlayerZones.Any(entry => entry.Value.LegendZone.Contains(objectId, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key));
     }
 
     private static bool IsPromptFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
@@ -6142,6 +6167,8 @@ internal static class ActionPromptBuilder
         {
             "AMBUSH" => "伏击",
             "HASTE_READY" => "急速活跃",
+            "READY_LEGEND" => "活跃传奇",
+            "EXHAUST_LEGEND" => "休眠传奇",
             "BATTLEFIELD_UNIT_POWER_MINUS_4" => "战场单位战力 -4",
             "DRAW_1" => "抽 1 张",
             "SELF_BOON" => "给予我增益",
@@ -6926,6 +6953,7 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AnyMainDeckTopFiveCard => "主牌堆顶五张",
             CardTargetScopes.FriendlyBaseUnit => "友方基地单位",
             CardTargetScopes.Equipment => "装备",
+            CardTargetScopes.Legend => "传奇",
             CardTargetScopes.StackSpell => "结算链法术",
             CardTargetScopes.SacredJudgmentKeepCard => "审判日保留牌",
             _ => "战场单位"
@@ -8670,6 +8698,7 @@ public sealed class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),
             "movement" => BuildMovementScenario(current, seed),
             "spell-duel" => BuildSpellDuelScenario(current, seed),
             "spell-duel-focus" => BuildSpellDuelFocusScenario(current, seed),
@@ -8928,6 +8957,56 @@ public sealed class MatchSession : IMatchSession
                     cardNo: "SFD·125/221",
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildRoyalAttendantLegendModeScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303072,
+            172,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(3, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-UNIT-ROYAL-ATTENDANT"],
+                    legendZone: ["P1-LEGEND-ROYAL-TARGET"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    legendZone: ["P2-LEGEND-ROYAL-TARGET"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ROYAL-ATTENDANT"] = new(
+                    "P1-UNIT-ROYAL-ATTENDANT",
+                    cardNo: "SFD·039/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    manaCost: 3,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-LEGEND-ROYAL-TARGET"] = new(
+                    "P1-LEGEND-ROYAL-TARGET",
+                    cardNo: "FND-259/298",
+                    isExhausted: true,
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-LEGEND-ROYAL-TARGET"] = new(
+                    "P2-LEGEND-ROYAL-TARGET",
+                    cardNo: "OGN·257/298",
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

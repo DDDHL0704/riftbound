@@ -5854,6 +5854,92 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79RoyalAttendantSeedOffersLegendModesAndReadiesTarget()
+    {
+        const string roomId = "p7-9-royal-attendant-legend-mode";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "royal-attendant-legend-mode", "seed-p7-9-royal-attendant-legend-mode");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        Assert.Equal(["EXHAUST_LEGEND", "READY_LEGEND"], sourceRequirements
+            .Select(requirement => Assert.IsType<string>(requirement["mode"]))
+            .Order(StringComparer.Ordinal)
+            .ToArray());
+        foreach (var requirement in sourceRequirements)
+        {
+            Assert.Equal("P1-UNIT-ROYAL-ATTENDANT", Assert.IsType<string>(requirement["sourceObjectId"]));
+            Assert.Equal("传奇", Assert.IsType<string>(requirement["targetScopeLabel"]));
+            Assert.Equal(1, Assert.IsType<int>(requirement["minTargetCount"]));
+            Assert.Equal(1, Assert.IsType<int>(requirement["maxTargetCount"]));
+            var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                requirement["targetChoicesByIndex"]);
+            var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+                .Select(choice => choice.Id)
+                .Order(StringComparer.Ordinal)
+                .ToArray();
+            Assert.Equal(["P1-LEGEND-ROYAL-TARGET", "P2-LEGEND-ROYAL-TARGET"], choices);
+        }
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-royal-attendant-play", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-UNIT-ROYAL-ATTENDANT",
+                cardNo = "SFD·039/221",
+                targetObjectIds = new[] { "P1-LEGEND-ROYAL-TARGET" },
+                mode = "READY_LEGEND",
+                optionalCosts = Array.Empty<string>()
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var passPriority = JsonDocument.Parse("""{"cmdType":"PASS_PRIORITY"}""").RootElement.Clone();
+        var passP1Clients = new RecordingHubClients();
+        await CreateHub(passP1Clients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-royal-attendant-p1-pass", passPriority);
+        Assert.Empty(passP1Clients.CallerClient.Errors);
+
+        var passP2Clients = new RecordingHubClients();
+        await CreateHub(passP2Clients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p7-9-royal-attendant-p2-pass", passPriority);
+        Assert.Empty(passP2Clients.CallerClient.Errors);
+        var resolveEvents = EventsFor(passP2Clients);
+        Assert.Contains(resolveEvents, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        var readiedEvent = Assert.Single(resolveEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEGEND-ROYAL-TARGET", StringComparison.Ordinal));
+        Assert.Equal(true, readiedEvent.Payload["wasExhausted"]);
+        Assert.Equal(false, readiedEvent.Payload["isExhausted"]);
+
+        var finalSnapshot = SnapshotFor(passP2Clients, "P1");
+        Assert.Empty(finalSnapshot.Stack);
+        var p1 = Assert.IsType<Dictionary<string, object?>>(finalSnapshot.Players["P1"]);
+        var p1Zones = Assert.IsType<Dictionary<string, object?>>(p1["zones"]);
+        Assert.Equal(["P1-UNIT-ROYAL-ATTENDANT"], Assert.IsAssignableFrom<IReadOnlyList<string>>(p1Zones["base"]));
+        var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
+        var legendObject = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-LEGEND-ROYAL-TARGET"]);
+        Assert.Equal(false, legendObject["isExhausted"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldBattleDestroyedRecallSeedOffersBattlefieldDestinationAndRecalls()
     {
         const string roomId = "p7-9-battlefield-battle-destroyed-recall";

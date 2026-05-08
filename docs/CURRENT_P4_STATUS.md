@@ -4007,7 +4007,7 @@ Prompt-to-artifact checklist：
 
 - `PLAY_CARD sourceObjectId=P1-UNIT-ROYAL-ATTENDANT cardNo=SFD·039/221 targetObjectIds=["P1-BASE-ROYAL-ATTENDANT-TARGET-001"]` 为 SFD·039《皇家随从》的当前 0 目标单位入场路径提供显式单位目标，不满足目标数量要求；命令返回 `INVALID_TARGET`，不推进 tick、不写事件、不支付 3 点费用、不移动手牌、不入场单位，也不创建 stack item。
 - 新增 fixture `p4-play-royal-attendant-target-rejected.fixture.json` 和回放测试 `P4RoyalAttendantTargetRejectedFixture`，把 SFD·039《皇家随从》普通手牌打出带目标拒绝边界纳入 conformance 证据。
-- `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 0 目标单位打出拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，传奇目标选择和活跃/休眠状态选择路径仍 deferred。
+- `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 0 目标单位打出拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现。后续第三百零五批已补合法传奇目标选择和 READY/EXHAUST mode 代表路径。
 
 ## P4.286 SFD 049 Aphelios Target Rejection Fixture Slice
 

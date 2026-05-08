@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-royal-attendant-legend-ready-static",
-  "description": "SFD 039 Royal Attendant enters as a unit while its legend ready/exhaust trigger is deferred.",
+  "description": "SFD 039 Royal Attendant enters as a unit and readies a targeted legend via its implemented on-play mode.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·039/221 皇家随从",
-      "note": "官方卡面：费用 3；单位；战力 4；当控制者打出其时，让一名传奇变为活跃或休眠状态。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；打出触发、传奇目标和活跃/休眠选择路径暂缓。"
+      "note": "官方卡面：费用 3；单位；战力 4；当控制者打出其时，让一名传奇变为活跃或休眠状态。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，并通过 READY_LEGEND 模式让目标传奇变为活跃。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -58,7 +58,20 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-LEGEND-001": {
+        "cardNo": "FND-259/298",
+        "isExhausted": true,
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "P2-LEGEND-001": {
+        "cardNo": "OGN·257/298",
+        "isExhausted": false,
+        "ownerId": "P2",
+        "controllerId": "P2"
+      }
+    }
   },
   "commands": [
     {
@@ -68,7 +81,8 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-ROYAL-ATTENDANT",
         "cardNo": "SFD·039/221",
-        "targetObjectIds": []
+        "targetObjectIds": ["P1-LEGEND-001"],
+        "mode": "READY_LEGEND"
       }
     },
     { "playerId": "P1", "clientIntentId": "intent-p2-preflight-royal-attendant-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
@@ -83,7 +97,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "UNIT_READIED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
@@ -110,6 +125,9 @@
         "P1-UNIT-ROYAL-ATTENDANT": {
           "power": 4,
           "tags": ["CARD_TYPE:UNIT"],
+          "isExhausted": false
+        },
+        "P1-LEGEND-001": {
           "isExhausted": false
         }
       }

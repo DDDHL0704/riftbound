@@ -181,7 +181,8 @@ public sealed record CardBehaviorDefinition(
     int SourceReadyPowerModifierAmount = 0,
     int TargetEffectAdditionalManaCost = 0,
     int TargetEffectAdditionalPowerCost = 0,
-    string TargetEffectAdditionalPowerTrait = "");
+    string TargetEffectAdditionalPowerTrait = "",
+    bool ExhaustsTarget = false);
 
 public static class CardDamageConditionKinds
 {
@@ -222,6 +223,7 @@ public static class CardTargetScopes
     public const string AnyMainDeckTopFiveCard = "ANY_MAIN_DECK_TOP_FIVE_CARD";
     public const string FriendlyBaseUnit = "FRIENDLY_BASE_UNIT";
     public const string Equipment = "EQUIPMENT";
+    public const string Legend = "LEGEND";
     public const string StackSpell = "STACK_SPELL";
     public const string SacredJudgmentKeepCard = "SACRED_JUDGMENT_KEEP_CARD";
 }
@@ -5342,6 +5344,30 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4),
+        new(
+            "SFD·039/221",
+            "皇家随从",
+            3,
+            "ROYAL_ATTENDANT_READY_LEGEND_PLAY_UNIT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.Legend,
+            Mode: "READY_LEGEND",
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4,
+            ReadiesTarget: true),
+        new(
+            "SFD·039/221",
+            "皇家随从",
+            3,
+            "ROYAL_ATTENDANT_EXHAUST_LEGEND_PLAY_UNIT",
+            0,
+            1,
+            TargetScope: CardTargetScopes.Legend,
+            Mode: "EXHAUST_LEGEND",
+            PlaysSourceToBaseAsUnit: true,
+            SourceUnitPower: 4,
+            ExhaustsTarget: true),
         new(
             "SFD·049/221",
             "厄斐琉斯",

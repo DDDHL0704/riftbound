@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第三百零五批补齐《皇家随从》（SFD·039/221）打出后选择一名传奇并令其活跃或休眠的服务端代表路径。服务端新增 `LEGEND` 目标域与 `READY_LEGEND` / `EXHAUST_LEGEND` 两个显式 mode；ActionPrompt 只在存在服务端可选传奇目标时公开这两个模式和目标槽，前端详情抽屉显示“活跃传奇 / 休眠传奇”和服务端目标候选，提交时只携带服务端公开的 `mode`、目标和目的地，不读取卡面自行裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Royal Attendant / paired fixture / 目标拒绝过滤 5/5 通过；Royal / PoroHerder / MountainApe / Dunehorn / PlayCardPrompt 相关聚合过滤 14/14 通过；后端 full test 3242/3242 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-royal-attendant-1778282369491`，P1 前端设置 `serverUrl=http://127.0.0.1:5093` 后连接对战页，后台 P2 join 并 seed `royal-attendant-legend-mode`；P1 打开《皇家随从》详情看到“活跃传奇 / 休眠传奇”和 `FND-259/298`、`OGN·257/298` 目标，前端选择 READY_LEGEND 与 P1 传奇并确认打出，P1 前端让过、P2 后台让过后事件日志显示单位进入基地与单位重置，authoritative snapshot 显示 `P1-UNIT-ROYAL-ATTENDANT` 在 P1 基地、`P1-LEGEND-ROYAL-TARGET.isExhausted=false`、结算链为空；reload/reconnect 恢复最终 snapshot，Chrome runtime error 0，API/Vite/SignalR/Chrome 测试资源已清理，目标端口无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第三百零四批补齐《穿沙角兽》（SFD·027/221）据守抽两张的服务端代表路径。服务端现在在 `DECLARE_BATTLE` 结算出防守方据守后，若幸存防守单位中存在当前据守玩家控制的《穿沙角兽》，广播 `TRIGGER_RESOLVED.effectKind=DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2`，并由权威抽牌路径将主牌堆顶两张移入手牌；未幸存或不受据守玩家控制时不触发。前端仍不根据卡面或本地战斗结果判断抽牌，只展示服务端事件、战场据守结果和 snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Dunehorn / BattlefieldHeld 聚合过滤 37/37 通过；后端 full test 3238/3238 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持清理。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

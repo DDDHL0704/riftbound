@@ -15826,6 +15826,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             CardTargetScopes.OpponentMainDeckTopCard => IsOpponentMainDeckTopCard(state, playerId, objectId),
             CardTargetScopes.AnyMainDeckTopFiveCard => IsAnyMainDeckTopCards(state, objectId, 5),
             CardTargetScopes.Equipment => IsEquipmentObject(state, objectId),
+            CardTargetScopes.Legend => IsLegendObject(state, objectId),
             CardTargetScopes.StackSpell => IsStackSpellItem(state, objectId),
             CardTargetScopes.SacredJudgmentKeepCard => IsSacredJudgmentKeepCandidate(state, objectId),
             _ => IsBattlefieldObject(state, objectId)
@@ -15869,6 +15870,23 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Base.Contains(objectId, StringComparer.Ordinal);
+    }
+
+    private static bool IsLegendObject(MatchState state, string objectId)
+    {
+        return IsLegendObject(state.PlayerZones, state.CardObjects, objectId);
+    }
+
+    private static bool IsLegendObject(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && cardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && playerZones.Any(entry => entry.Value.LegendZone.Contains(objectId, StringComparer.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key));
     }
 
     private static bool IsPlayerControlledBaseObject(MatchState state, string playerId, string objectId)
@@ -18215,13 +18233,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                                                                                                         ? "main deck top five card"
                                                                                                         : string.Equals(targetScope, CardTargetScopes.Equipment, StringComparison.Ordinal)
                                                                                                             ? "equipment"
-                                                                                                            : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
-                                                                                                                ? "spell on the stack"
-                                                                                                                : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
-                                                                                                                    ? "unit and its controller's weapon"
-                                                                                                                    : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
-                                                                                                                        ? "cards kept for Judgment Day"
-                                                                                                                        : "battlefield unit";
+                                                                                                            : string.Equals(targetScope, CardTargetScopes.Legend, StringComparison.Ordinal)
+                                                                                                                ? "legend"
+                                                                                                                : string.Equals(targetScope, CardTargetScopes.StackSpell, StringComparison.Ordinal)
+                                                                                                                    ? "spell on the stack"
+                                                                                                                    : string.Equals(targetScope, CardTargetScopes.UnitThenItsControllersWeapon, StringComparison.Ordinal)
+                                                                                                                        ? "unit and its controller's weapon"
+                                                                                                                        : string.Equals(targetScope, CardTargetScopes.SacredJudgmentKeepCard, StringComparison.Ordinal)
+                                                                                                                            ? "cards kept for Judgment Day"
+                                                                                                                            : "battlefield unit";
     }
 
     private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState stackItem)
@@ -19834,7 +19854,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
                     var targetObjectId = stackItem.TargetObjectIds[targetIndex];
-                    if (!IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))
+                    var targetIsLegend = string.Equals(behavior.TargetScope, CardTargetScopes.Legend, StringComparison.Ordinal)
+                        && IsLegendObject(playerZones, cardObjects, targetObjectId);
+                    if (!targetIsLegend
+                        && !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))
                     {
                         continue;
                     }
@@ -20015,6 +20038,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                             targetObjectId,
                             out var readyEvent);
                         events.Add(readyEvent);
+                    }
+
+                    if (behavior.ExhaustsTarget)
+                    {
+                        targetState = ApplyExhaustState(
+                            targetState,
+                            behavior,
+                            stackItem,
+                            targetObjectId,
+                            out var exhaustedEvent);
+                        events.Add(exhaustedEvent);
                     }
 
                     cardObjects[targetObjectId] = targetState;

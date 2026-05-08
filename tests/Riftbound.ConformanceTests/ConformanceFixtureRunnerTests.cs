@@ -37055,6 +37055,85 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["reason"] as string, "MOUNTAIN_APE_ELDER_BOON_READY", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("READY_LEGEND", true, false, "UNIT_READIED")]
+    [InlineData("EXHAUST_LEGEND", false, true, "UNIT_EXHAUSTED")]
+    public async Task P79RoyalAttendantReadiesOrExhaustsTargetLegend(
+        string mode,
+        bool initialLegendExhausted,
+        bool expectedLegendExhausted,
+        string expectedEventKind)
+    {
+        var state = RoyalAttendantLegendModeState(initialLegendExhausted);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-royal-attendant-{mode}-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-ROYAL-ATTENDANT",
+                "SFD·039/221",
+                ["P1-LEGEND-001"],
+                Mode: mode),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent($"intent-royal-attendant-{mode}-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent($"intent-royal-attendant-{mode}-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(["P1-UNIT-ROYAL-ATTENDANT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.False(p2Pass.State.CardObjects["P1-UNIT-ROYAL-ATTENDANT"].IsExhausted);
+        Assert.Equal(4, p2Pass.State.CardObjects["P1-UNIT-ROYAL-ATTENDANT"].Power);
+        Assert.Equal(expectedLegendExhausted, p2Pass.State.CardObjects["P1-LEGEND-001"].IsExhausted);
+        var legendStateEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, expectedEventKind, StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEGEND-001", StringComparison.Ordinal));
+        Assert.Equal(initialLegendExhausted, legendStateEvent.Payload["wasExhausted"]);
+        Assert.Equal(expectedLegendExhausted, legendStateEvent.Payload["isExhausted"]);
+    }
+
+    [Fact]
+    public void P79RoyalAttendantPromptExposesLegendModesAndTargets()
+    {
+        var state = RoyalAttendantLegendModeState(initialLegendExhausted: true);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+
+        Assert.Equal(["EXHAUST_LEGEND", "READY_LEGEND"], sourceRequirements
+            .Select(requirement => Assert.IsType<string>(requirement["mode"]))
+            .Order(StringComparer.Ordinal)
+            .ToArray());
+        foreach (var requirement in sourceRequirements)
+        {
+            Assert.Equal("SFD·039/221", Assert.IsType<string>(requirement["cardNo"]));
+            Assert.Equal("传奇", Assert.IsType<string>(requirement["targetScopeLabel"]));
+            Assert.Equal(1, Assert.IsType<int>(requirement["minTargetCount"]));
+            Assert.Equal(1, Assert.IsType<int>(requirement["maxTargetCount"]));
+            var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                requirement["targetChoicesByIndex"]);
+            var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(choicesByIndex["0"])
+                .Select(choice => choice.Id)
+                .Order(StringComparer.Ordinal)
+                .ToArray();
+            Assert.Equal(["P1-LEGEND-001", "P2-LEGEND-001"], choices);
+        }
+    }
+
     [Fact]
     public async Task P79EclipseVanguardReadiesAndGainsPowerWhenControllerStunsEnemyUnit()
     {
@@ -55112,6 +55191,46 @@ public sealed class ConformanceFixtureRunnerTests
                     isExhausted: true,
                     ownerId: "P1",
                     controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState RoyalAttendantLegendModeState(bool initialLegendExhausted)
+    {
+        return PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-ROYAL-ATTENDANT"],
+                    LegendZone = ["P1-LEGEND-001"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    LegendZone = ["P2-LEGEND-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ROYAL-ATTENDANT"] = new(
+                    "P1-UNIT-ROYAL-ATTENDANT",
+                    cardNo: "SFD·039/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-LEGEND-001"] = new(
+                    "P1-LEGEND-001",
+                    cardNo: "FND-259/298",
+                    isExhausted: initialLegendExhausted,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-LEGEND-001"] = new(
+                    "P2-LEGEND-001",
+                    cardNo: "OGN·257/298",
+                    ownerId: "P2",
+                    controllerId: "P2")
             }
         };
     }
