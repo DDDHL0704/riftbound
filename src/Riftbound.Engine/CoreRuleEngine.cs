@@ -1548,7 +1548,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ACTIVATE_ABILITY is not implemented in P4 yet.",
+                "当前启动技能路径尚未由服务端开放。",
                 ErrorCodes.UnsupportedCommand);
         }
 

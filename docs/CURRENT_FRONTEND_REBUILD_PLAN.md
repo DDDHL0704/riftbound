@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百五十批继续收口启动技能未开放路径服务端错误文案。`CoreRuleEngine` 在 `ACTIVATE_ABILITY` 的 ability id 尚未进入服务端已开放技能目录时，不再返回英文 raw “ACTIVATE_ABILITY is not implemented in P4 yet.”，改为中文“当前启动技能路径尚未由服务端开放。”；P6 legend/battlefield/token deferred surfaces 的回归继续锁住拒绝、不改变资源/经验/区域/横置/伤害/结算链，并断言错误消息不含 raw `ACTIVATE_ABILITY`。前端仍只展示服务端 `ACTIVATE_ABILITY` prompt/sourceRequirements 中已开放的候选，deferred/manual 能力不假装可玩。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6ActivateAbilityCommandRejects|FullyQualifiedName~P6BattlefieldEffectCommandRejectsDeferredActivatedSurfaces"` 通过 8/8；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百四十九批继续收口回合开始推进服务端错误文案。`CoreRuleEngine.ResolveAsync` 在 `TURN_START` 阶段拒绝非当前回合玩家推进时，错误消息从英文 raw “TURN_START can only be advanced by the turn player.” 改为中文“回合开始只能由当前回合玩家推进。”；核心回归断言不含 raw `TURN_START`，并继续锁住失败不改变 tick、阶段、资源、牌堆和手牌。前端仍只展示服务端回合开始/等待状态，不自行推进回合开始流程。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsTurnStartAdvanceFromNonTurnPlayer"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
