@@ -4463,8 +4463,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Battlefields.Contains(battlefieldObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(battlefieldObjectId, out var candidate)
             || !IsBattlefieldExtraStandbyCardNo(candidate.CardNo)
-            || (!string.IsNullOrWhiteSpace(candidate.ControllerId)
-                && !string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
         {
             return false;
         }

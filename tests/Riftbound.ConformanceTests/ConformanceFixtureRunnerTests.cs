@@ -37163,8 +37163,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-BATTLEFIELD-BANDLE-TREE", hiddenEvent.Payload["battlefieldObjectId"]);
     }
 
-    [Fact]
-    public async Task P79BattlefieldBandleTreeRejectsExtraStandbyWithoutControlledTree()
+    [Theory]
+    [InlineData("P1", "P2")]
+    [InlineData("P2", "")]
+    public async Task P79BattlefieldBandleTreeRejectsExtraStandbyWithoutControlledTree(
+        string battlefieldOwnerId,
+        string battlefieldControllerId)
     {
         var state = PunishmentState(mana: 1) with
         {
@@ -37190,8 +37194,8 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-BATTLEFIELD-BANDLE-TREE",
                     cardNo: "OGN·278/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P1",
-                    controllerId: "P2")
+                    ownerId: battlefieldOwnerId,
+                    controllerId: battlefieldControllerId)
             }
         };
 

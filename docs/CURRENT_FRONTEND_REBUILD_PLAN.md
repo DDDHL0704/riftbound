@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十三批仍为服务端规则收口，没有前端 UI 文件变更。服务端 `HIDE_CARD` 命令侧的 Bandle Tree 额外待命目的地与 prompt 层统一：`controllerId` 为空但 `ownerId` 已明确属于对手的战场牌，不再能被手写命令绕过前端用作额外待命目的地。前端继续只消费服务端候选，不新增本地规则判断。
+- 本批验证：`dotnet build` 通过；`P79BattlefieldBandleTree|HideCard` 相关回归 33/33、`GameHubJoinTests` 118/118、后端 full test 3098/3098 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十二批仍为服务端规则收口，没有前端 UI 文件变更。服务端 `HIDE_CARD` 的额外待命目的地继续按战场来源控制权过滤：Bandle Tree 已明确由对手控制时，不再作为 `BATTLEFIELD:<objectId>` 待命目的地进入 P1 的 `ActionPrompt.destinationChoices`。前端收益是只渲染服务端 `sourceRequirements` 时，不会把恢复脏战场牌显示成可用的额外待命位置。
 - 本批验证：`dotnet build` 通过；`ActionPromptBuildsHideCardSourceRequirements|P79BattlefieldExtraStandbySeedOffersBandleDestinationAndHides|HideCard|Standby` 相关回归 58/58、`GameHubJoinTests` 118/118、后端 full test 3097/3097 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
