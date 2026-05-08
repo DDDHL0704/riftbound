@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-003/P1-004 第一百九十二批补充：继续收紧前端“可提交操作”展示面。`ActionPanel` 现在只渲染服务端 `candidates[].enabled == true` 的候选，避免把 disabled 的 `PLAY_CARD`、`DECLARE_BATTLE` 等宽泛候选显示成“需选择”的操作按钮；卡牌详情抽屉也改为“服务端可提交操作”，并只列出 enabled source candidate。前端仍不从卡面、`prompt.actions` 或 disabled candidate 自行裁决可玩入口。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-actions-1778230564156`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接对战页，主操作面板只显示“移动单位、结束回合、投降”，不显示 disabled 的“打出卡牌（需选择）”或“声明战斗（需选择）”；点击 P1 战场单位后，详情抽屉显示“服务端可提交操作”和“移动单位”，不再显示旧标题“可执行操作”，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P0-003/P1-004 第一百九十一批补充：收紧 JoinRoom/RequestSnapshot 的普通开环 prompt 口径，移除旧占位 `PASS`。此前实时 Core prompt 已只公开产品支持的 `MOVE_UNIT`、`END_TURN`、`SURRENDER` 等动作，但重连/房间页从 `ResolutionResult.BuildPrompts` 取 prompt 时仍会把旧 `PASS` 作为 enabled candidate 暴露；现在服务端重连 prompt 与实时 prompt 对齐，避免前端在恢复/刷新后出现“让过”这种非当前产品路径的可提交入口。
 - 已补验证：同步更新 legacy Java/placeholder fixture 的 `expected.promptActions`，保留历史 oracle 原文但让当前 expected 契约不再要求普通开环 `PASS`；`RequestSnapshot|GameHubJoinTests|CoreRuleEngineSkipsStartBattleWhenSpellDuelCleanupRemovesParticipant` 相关回归 120/120 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3139/3139 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-room-candidate-label-1778230235113`，P1 重连房间页显示“当前可提交行动：移动单位、结束回合、投降”，不再出现“让过”或“声明战斗”，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

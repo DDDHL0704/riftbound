@@ -117,7 +117,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
               {(card.object?.untilEndOfTurnEffects?.length ?? 0) > 0 && <p className="detail-muted">本回合效果：{card.object?.untilEndOfTurnEffects?.join("、")}</p>}
             </section>
             <section className="detail-section detail-actions">
-              <strong>可执行操作</strong>
+              <strong>服务端可提交操作</strong>
               {sourceActions.length === 0 ? (
                 <p className="detail-muted">当前服务端 prompt 没有给这张牌可提交的操作。</p>
               ) : (
@@ -255,7 +255,7 @@ function sourceCandidatesFor(prompt: ActionPromptDto | undefined, sourceObjectId
   }
 
   return (prompt.candidates ?? []).filter((candidate) =>
-    (candidate.sources ?? []).some((source) => source.id === sourceObjectId));
+    candidate.enabled && (candidate.sources ?? []).some((source) => source.id === sourceObjectId));
 }
 
 function commandForSourceCandidate(

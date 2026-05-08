@@ -16,7 +16,7 @@ type ActionPanelProps = {
 };
 
 export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onReady, onSubmitStarterDeck, onCommand }: ActionPanelProps) {
-  const candidates = prompt?.candidates ?? [];
+  const candidates = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled);
   const connected = connectionStatus === "connected";
   const canAct = connected && prompt?.actionable && prompt.playerId === playerId;
 
@@ -33,7 +33,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
         {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
       </div>
       <div className="action-buttons">
-        {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可执行候选。</span>}
+        {candidates.length === 0 && <span className="empty-hint">服务端暂未提供可提交候选。</span>}
         {candidates.map((candidate) => candidate.action === "MULLIGAN" ? (
           <MulliganCandidate
             candidate={candidate}

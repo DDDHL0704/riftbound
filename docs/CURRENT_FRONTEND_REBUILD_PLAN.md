@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十二批继续收口服务端权威候选展示。对战页右侧 `ActionPanel` 现在只展示服务端 `candidates[].enabled == true` 的候选，卡牌详情抽屉标题改为“服务端可提交操作”，并只显示 enabled source candidate；因此 disabled 的 `PLAY_CARD`、`DECLARE_BATTLE` 等不会再以“需选择”按钮形式误导玩家。前端仍只提交服务端当前 prompt 允许的动作，不从卡面、`prompt.actions` 或 disabled candidate 自行推导规则。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-actions-1778230564156`，P1 在设置页写入 `serverUrl=http://127.0.0.1:5093` 后连接对战页，主操作面板只显示“移动单位、结束回合、投降”，不显示“打出卡牌（需选择）/声明战斗（需选择）”；点击 P1 战场单位后详情抽屉显示“服务端可提交操作”和“移动单位”，不再显示旧文案“可执行操作”，app runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十一批收紧前端房间页的候选展示和重连 prompt 口径。房间页底部汇总从“当前候选行动”改为“当前可提交行动”，并只汇总服务端 `candidates[].enabled == true` 的候选；服务端 `JoinRoom/RequestSnapshot` 的普通开环 prompt 同步移除旧占位 `PASS`，避免 reload/reconnect 后前端看到一个实时 Core prompt 不再使用的“让过”入口。前端仍不从 `prompt.actions` 自行判断可玩操作。
 - 本批验证：`RequestSnapshot|GameHubJoinTests|CoreRuleEngineSkipsStartBattleWhenSpellDuelCleanupRemovesParticipant` 相关回归 120/120、后端 full test 3139/3139、`dotnet build` 0 warning/0 error、`source ../../scripts/dev-env.sh && npm run build` 均通过。Chrome 插件 smoke 使用房间 `smoke-room-candidate-label-1778230235113`，P1 重连房间页显示“当前可提交行动：移动单位、结束回合、投降”，不显示旧文案“当前候选行动”，也不显示“让过”或“声明战斗”，app runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
