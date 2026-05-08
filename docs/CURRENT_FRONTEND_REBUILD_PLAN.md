@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百一十四批继续收口服务端错误展示。房间页与对战日志不再把 `ROOM_FULL`、`PHASE_NOT_ALLOWED` 等 raw error code 作为正文，改为中文错误标题和说明；原始 code 仅保留在 title 供开发排查。`useMatchController.join()` 也会把预期服务端拒绝收敛为中文系统消息，`MatchSocket` 给 Join/Reconnect 等待 Promise 立即挂接 rejection handler，避免预期 ErrorDto 在浏览器 console 中变成未处理 `Object`。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-error-redaction-1778238256298`，后台 SignalR 先让 P1/P2 入座占满房间，再用 P3 通过房间页点击“连接/重连并入座”；页面房间日志显示“房间已满 / 该房间已经有两名玩家。”，正文不含 `ROOM_FULL`、`room already has two players`、`UNSUPPORTED_COMMAND` 或 `PHASE_NOT_ALLOWED`，应用自身 runtime error 0。smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百一十三批继续收口任务队列内部标识展示。服务端 `BlockingPendingTaskQueueReason` 不再把 raw task kind/taskId 拼进 `ActionPrompt.reason`，改为中文任务名；前端 `StackPanel` 不再正文显示 `activeTaskId`，任务 reason 映射为中文，事件日志和任务队列共用内部 ID 脱敏工具。协议里的任务 ID 仍保留在 authoritative snapshot 供客户端状态使用，前端不据此自行裁决规则。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`SeedScenarioBroadcastsIllegalStandbyCleanupTask|P6BattlefieldContestStackSeedAdvancesToSpellDuelAfterPriorityPass` 精确回归 2/2 通过；`GameHubJoinTests` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-task-redaction-1778237723284`，P1 页面连接对战页，P2 后台 SignalR 加入并 seed `battlefield-illegal-standby`；规则队列显示“阶段：状态清理 / 活动任务：处理中 / 待命清理：战场控制清理”，行动提示原因显示“等待服务端处理任务队列：待命清理”，页面正文不含 `cleanup:illegal-standby`、`task:start`、`P1-BATTLEFIELD-ILLEGAL-STANDBY-001`、`P1-STANDBY-ILLEGAL-001`、`REMOVE_ILLEGAL_STANDBY` 或 `BATTLEFIELD_CONTROL_CLEANUP`，应用自身 runtime error 0。smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 

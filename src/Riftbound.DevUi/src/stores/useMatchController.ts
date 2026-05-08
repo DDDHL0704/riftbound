@@ -11,6 +11,7 @@ import {
   SnapshotDto,
   WsServerMessage
 } from "../types/protocol";
+import { errorMessageLabel } from "../utils/errors";
 
 export type MatchControllerState = {
   status: ConnectionStatus;
@@ -64,7 +65,7 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
         setState((current) => ({
           ...current,
           errors: [message.payload, ...current.errors].slice(0, 20),
-          lastSystemMessage: message.payload.message
+          lastSystemMessage: errorMessageLabel(message.payload)
         }));
       },
       onStatus: (status) => setState((current) => ({ ...current, status }))
@@ -94,7 +95,14 @@ export function useMatchController(serverUrl: string, roomId: string, playerId: 
       }
     }
 
-    await socket.joinRoom(roomId, playerId);
+    try {
+      await socket.joinRoom(roomId, playerId);
+    } catch (error) {
+      setState((current) => ({
+        ...current,
+        lastSystemMessage: isErrorDto(error) ? errorMessageLabel(error) : "入座失败，请稍后重试。"
+      }));
+    }
   }, [playerId, roomId, socket]);
 
   const requestSnapshot = useCallback(async () => {
@@ -166,4 +174,13 @@ function loadSession(roomId: string, playerId: string): PlayerSessionDto | undef
   } catch {
     return undefined;
   }
+}
+
+function isErrorDto(value: unknown): value is ErrorDto {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && "code" in value
+    && "message" in value
+  );
 }

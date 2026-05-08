@@ -1,4 +1,5 @@
 import { ErrorDto, GameEvent } from "../../types/protocol";
+import { errorCodeLabel, errorMessageLabel } from "../../utils/errors";
 import { redactInternalText } from "../../utils/redaction";
 
 export type LogDensity = "compact" | "standard" | "detailed";
@@ -139,8 +140,8 @@ export function EventLog({ density = "standard", events, errors }: { density?: L
       {hiddenEventCount > 0 && <span className="empty-hint">简洁模式显示最近 {visibleEvents.length} 条服务端事件。</span>}
       {errors.map((error, index) => (
         <article className="log-row log-error" key={`error-${index}`}>
-          <strong>{error.code}</strong>
-          <span>{error.message}</span>
+          <strong title={error.code}>{errorCodeLabel(error.code)}</strong>
+          <span>{errorMessageLabel(error)}</span>
         </article>
       ))}
       {events.length === 0 && errors.length === 0 && <span className="empty-hint">暂无服务端事件。</span>}

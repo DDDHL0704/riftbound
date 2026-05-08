@@ -7,6 +7,7 @@ import { useSettings } from "../stores/settingsStore";
 import { candidateListLabel } from "../components/match/ActionPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { ActionPromptCandidateDto } from "../types/protocol";
+import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
 import { connectionStatusLabel, connectionStatusTone, promptActionLabel } from "../utils/formatters";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
@@ -68,8 +69,8 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
           {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
           {controller.state.errors.map((error, index) => (
             <article className="room-log-entry is-error" key={`${error.code}-${index}`}>
-              <strong>{error.code}</strong>
-              <span>{error.message}</span>
+              <strong title={error.code}>{errorCodeLabel(error.code)}</strong>
+              <span>{errorMessageLabel(error)}</span>
             </article>
           ))}
           {controller.state.events.slice(0, 8).map((event, index) => (

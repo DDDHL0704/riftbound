@@ -125,6 +125,7 @@ export class MatchSocket {
         }
       };
     });
+    joined.catch(() => undefined);
     try {
       await this.connection!.invoke(method, ...args);
       return await joined;
