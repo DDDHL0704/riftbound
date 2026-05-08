@@ -696,6 +696,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("起手调整只能选择自己起手手牌中的牌。", result.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.MulliganCompletedPlayerIds);
@@ -751,6 +753,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("起手调整只能从自己的主牌堆抽取替换牌。", result.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Empty(result.State.MulliganCompletedPlayerIds);

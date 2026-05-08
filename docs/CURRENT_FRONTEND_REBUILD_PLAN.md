@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百三十八批继续收口正式起手调整服务端错误文案。`CoreRuleEngine` 在错误阶段、错误玩家、选择超过 2 张、重复选择、玩家区域缺失、选择非自己起手手牌或替换抽牌来源异常时拒绝 `MULLIGAN`，错误消息改为中文“起手调整只能在开局调度阶段提交。”、“现在不是该玩家的起手调整时机。”、“起手调整最多可选择 2 张牌。”、“起手调整不能重复选择同一张牌。”、“起手调整玩家没有可用区域。”、“起手调整只能选择自己起手手牌中的牌。”和“起手调整只能从自己的主牌堆抽取替换牌。”；正式 opening 与核心控制权回归测试断言不含 raw `MULLIGAN`。前端仍只显示服务端起手候选并提交服务端候选支持的对象 ID。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~OfficialMulliganRejectsInvalidSelectionsAndWrongPlayer|FullyQualifiedName~CoreRuleEngineRejectsMulliganWhenSelectedHandCardIsNotControlledByPlayer|FullyQualifiedName~CoreRuleEngineRejectsMulliganWhenReplacementDrawIsNotControlledByPlayer"` 通过 3/3；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百三十七批继续收口结束回合服务端错误文案。`CoreRuleEngine` 在非当前玩家、非开放主阶段或结算链未清空时拒绝 `END_TURN`，错误消息从英文 raw 协议句改为中文“结束回合只能由当前玩家在开放主阶段提交。”；测试断言非当前玩家和关闭窗口两条拒绝路径都不含 raw `END_TURN`。前端无需新增本地回合/窗口裁决，仍只在服务端 prompt 暴露结束回合候选时显示提交入口。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsEndTurnFromNonActivePlayer|FullyQualifiedName~CoreRuleEngineRejectsEndTurnDuringClosedPriorityWindow"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

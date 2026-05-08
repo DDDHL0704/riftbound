@@ -243,7 +243,8 @@ public sealed class OfficialOpeningTests
             RawCommand("MULLIGAN"),
             CancellationToken.None);
         Assert.False(wrongPlayer.Accepted);
-        Assert.Contains("not this player's mulligan turn", wrongPlayer.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal("现在不是该玩家的起手调整时机。", wrongPlayer.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", wrongPlayer.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(startedTick, wrongPlayer.State.Tick);
 
         var tooMany = await session.SubmitAsync(
@@ -253,7 +254,8 @@ public sealed class OfficialOpeningTests
             RawCommand("MULLIGAN"),
             CancellationToken.None);
         Assert.False(tooMany.Accepted);
-        Assert.Contains("at most 2 cards", tooMany.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal("起手调整最多可选择 2 张牌。", tooMany.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", tooMany.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(startedTick, tooMany.State.Tick);
 
         var duplicate = await session.SubmitAsync(
@@ -263,7 +265,8 @@ public sealed class OfficialOpeningTests
             RawCommand("MULLIGAN"),
             CancellationToken.None);
         Assert.False(duplicate.Accepted);
-        Assert.Contains("must be unique", duplicate.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal("起手调整不能重复选择同一张牌。", duplicate.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", duplicate.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(startedTick, duplicate.State.Tick);
 
         var nonHand = await session.SubmitAsync(
@@ -273,7 +276,8 @@ public sealed class OfficialOpeningTests
             RawCommand("MULLIGAN"),
             CancellationToken.None);
         Assert.False(nonHand.Accepted);
-        Assert.Contains("opening hand", nonHand.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal("起手调整只能选择自己起手手牌中的牌。", nonHand.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", nonHand.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(startedTick, nonHand.State.Tick);
     }
 

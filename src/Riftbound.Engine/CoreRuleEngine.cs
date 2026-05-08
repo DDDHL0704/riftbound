@@ -12717,7 +12717,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MULLIGAN is only allowed during the opening mulligan phase.",
+                "起手调整只能在开局调度阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -12726,7 +12726,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "It is not this player's mulligan turn.",
+                "现在不是该玩家的起手调整时机。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -12735,7 +12735,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"MULLIGAN can set aside at most {OfficialDeckValidator.MaximumMulliganCount} cards.",
+                $"起手调整最多可选择 {OfficialDeckValidator.MaximumMulliganCount} 张牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -12743,7 +12743,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MULLIGAN selected cards must be unique.",
+                "起手调整不能重复选择同一张牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -12752,7 +12752,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MULLIGAN player has no zones.",
+                "起手调整玩家没有可用区域。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -12762,7 +12762,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MULLIGAN can only select cards from the player's opening hand.",
+                "起手调整只能选择自己起手手牌中的牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -12773,7 +12773,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "MULLIGAN can only draw replacement cards from the player's main deck.",
+                "起手调整只能从自己的主牌堆抽取替换牌。",
                 ErrorCodes.InvalidTarget);
         }
 
