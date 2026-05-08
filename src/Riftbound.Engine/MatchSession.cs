@@ -839,10 +839,10 @@ public sealed record MatchState
             .ToArray();
         var participantControllerIds = participantObjectIds
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && !string.IsNullOrWhiteSpace(cardObject.ControllerId))
+                && !string.IsNullOrWhiteSpace(EffectiveFieldControllerId(state, objectId, cardObject)))
             .ToDictionary(
                 objectId => objectId,
-                objectId => state.CardObjects[objectId].ControllerId!,
+                objectId => EffectiveFieldControllerId(state, objectId, state.CardObjects[objectId]),
                 StringComparer.Ordinal);
         var battlefieldObjectIds = participantObjectIds
             .Select(objectId => state.ObjectLocations.TryGetValue(objectId, out var location)
@@ -900,7 +900,7 @@ public sealed record MatchState
                     .ToArray();
                 var occupantControllerIds = occupantObjectIds
                     .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                        ? cardObject.ControllerId ?? string.Empty
+                        ? EffectiveFieldControllerId(state, objectId, cardObject)
                         : string.Empty)
                     .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
                     .Distinct(StringComparer.Ordinal)
@@ -1030,7 +1030,7 @@ public sealed record MatchState
                 .ToArray();
             var participantControllerIds = participantObjectIds
                 .Select(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? cardObject.ControllerId ?? string.Empty
+                    ? EffectiveFieldControllerId(state, objectId, cardObject)
                     : string.Empty)
                 .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
                 .Distinct(StringComparer.Ordinal)
@@ -1073,6 +1073,26 @@ public sealed record MatchState
         }
 
         return tasks;
+    }
+
+    private static string EffectiveFieldControllerId(
+        MatchState state,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        return TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            ? location.PlayerId
+            : string.Empty;
     }
 
     private static PendingTaskQueueState BuildPendingTaskQueue(MatchState state)

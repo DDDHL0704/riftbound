@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百六十三批仍为服务端 snapshot/规则契约收口，没有前端 UI 文件变更。`BattleState`、`BattlefieldState` 和 `BattlefieldTaskState` 的参与者/占据者 controller 视图现在由服务端按 `controllerId -> ownerId -> 所在场区玩家` fallback 生成；前端继续只读 authoritative snapshot，不需要在浏览器侧为旧恢复状态猜测战斗或战场争夺参与玩家。
+- 本批验证：`dotnet build` 通过；新增/相邻目标回归 4/4、`BattlefieldTask|BattleState|BattlefieldState` 相关回归 2/2、`GameHubJoinTests` 118/118、后端 full test 3118/3118 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。已只读确认 Chrome 插件连接可用；没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百六十二批仍为服务端 prompt/规则收口，没有前端 UI 文件变更。`MOVE_UNIT` 候选来源改为和 Core 命令侧一致的 source-control/legacy-owned 语义；owner=P1/controller 空的旧恢复单位可继续展示为可移动来源，owner=P2/controller 空的脏单位不会进入候选。前端继续只渲染服务端候选。
 - 本批验证：`dotnet build` 通过；`MoveUnit` 相关回归 51/51、`GameHubJoinTests` 118/118、后端 full test 3116/3116 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
