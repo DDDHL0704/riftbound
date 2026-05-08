@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十九批补充：入口文档继续降低历史 READY 口径误导。`README.md` 和 `docs/START_HERE.md` 现在把 P7/P7.9 明确标为历史阶段记录，并把当前验收入口指向 `CURRENT_FRONTEND_REBUILD_PLAN`、`CURRENT_SERVER_RULE_AUDIT`、`CURRENT_COMPLETION_AUDIT` 与 `docs/任务补充.md`；Browser/Chrome smoke 原则也更新为优先插件、必要时后台 headless，不使用 Computer Use 抢前台。该批无服务端代码变更。
+- 已补验证：文档-only 变更，`git diff --check` 通过；未启动 API/Vite/Chrome smoke，目标端口无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百二十八批补充：前端卡牌详情不可组合警告继续去内部 reason 直显。`CardDetailDrawer` 的所有 composer `unsupportedReason` 显示现在统一走 `promptReasonLabel`，中文服务端原因保留，内部英文说明、协议 token、对象 ID 或未来裸 metadata 会降级为中文兜底；该批只影响前端展示，不改变服务端候选、`composable=false` 语义或命令提交。
 - 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件本批可用，房间 `smoke-unsupported-check`，P1/P2 通过真实 Chrome 页面入座，后台 development seed `battlefield-legend-attach-armament`；P1 打开《圣锤之毅》详情后显示服务端 LEGEND_ACT 元数据与中文不可组合警告，`确认传奇行动` disabled，正文/title 不含 raw ability id、对象 id、`unsupportedReason`、`composable`、`targetChoicesByIndex` 或 `sourceRequirements`，应用 error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

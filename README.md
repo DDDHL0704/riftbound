@@ -11,10 +11,9 @@
 - Java 项目 `/Users/dinghaolin/MyProjects/riftbound-server` 只作为旧实现行为参考、fixture 导出工具和回归对照，不再作为最终规则裁判。
 - 迁移验收以 PDF/FAQ 规则依据 + command log -> events -> player snapshots 的 conformance tests 为准。
 - P1-P7 已完成：联机底座、核心规则、开发期测试 UI、卡牌数据/BehaviorSpec、高频关键词、装备/控制/触发/替换代表范围、全卡 P6 状态矩阵，以及产品级 Web 对战体验均已落地。
-- P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
-- P7.9 本地产品版全卡可玩已完成：`1009/1009` 官方条目为 `CONFORMANCE_PASS`，`811/811` 功能单元实现，manual deferred 剩余 `0/811`；最终验证通过后端 full test `2817/2817`、`ConformanceFixtureRunnerTests 2653/2653`、`CardCatalogBaselineTests 38/38`、`GameHubJoinTests 84/84`、前端 build 和 Browser smoke。详见 `docs/CURRENT_P7_9_STATUS.md`。
-- 2026-05-06 已追加新的默认产品级对战页：顶部 HUD、木质外框青绿色牌垫、上下数字资源轨、P2/P1 上下席位、双战场、传奇/英雄/基地/手牌区、卡牌旁动作菜单、精简右侧操作/席位/日志/图鉴面板，以及中文化卡牌名、费用、符能费用、战力、规则、候选操作、事件日志和战报；当前代码前端 build 和浏览器 smoke 已通过。
-- 2026-05-08 最新复审结论仍为 **NOT READY**。当前工作入口是 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 与 `docs/CURRENT_SERVER_RULE_AUDIT.md`；P7/P7.9 文档保留历史阶段完成记录，不代表当前已经满足“完整官方规则 + 产品级前端”最终验收。
+- P7 / P7.9 文档保留历史阶段验证记录，但不代表当前已经满足“完整官方规则 + 产品级前端”最终验收；不要把旧 `CONFORMANCE_PASS` 口径当作本轮完成状态。
+- 当前 Web UI 已重建为 React + Vite 产品界面，覆盖首页、图鉴、卡组、设置、房间、对战、卡牌详情、行动提示、事件日志、规则队列、结果页和大量服务端候选驱动交互；前端只显示和提交服务端快照、服务端行动提示、事件、错误与合法候选支持的能力。
+- 2026-05-08 最新复审结论仍为 **NOT READY**。当前工作入口是 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`、`docs/CURRENT_SERVER_RULE_AUDIT.md`、`docs/CURRENT_COMPLETION_AUDIT.md` 与 `docs/任务补充.md`；完成前不得把 active goal 标记 complete。
 
 ## 新窗口接手
 
@@ -47,13 +46,14 @@ dotnet test Riftbound.slnx --no-build
 本地服务验证：
 
 ```bash
+source scripts/dev-env.sh
 ASPNETCORE_URLS=http://127.0.0.1:5088 dotnet run --project src/Riftbound.Api/Riftbound.Api.csproj
 curl http://127.0.0.1:5088/health
 curl http://127.0.0.1:5088/catalog/summary
 curl http://127.0.0.1:5088/catalog/p3-status
 ```
 
-P2.5 开发期测试 UI：
+本地 Web UI：
 
 ```bash
 source scripts/dev-env.sh
@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-访问 `http://127.0.0.1:5173` 后，使用默认服务端地址 `http://127.0.0.1:5088`。当前 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、默认产品级对战桌面、服务端行动提示驱动的点击操作、卡牌优先的出牌/目标/费用/战斗/传奇/战场能力、中文化卡牌名/费用/符能费用/战力/规则/候选操作/事件日志、战报/回放边界、右侧精简席位/日志/图鉴、全卡图鉴弹窗和卡牌详情。UI 只显示和转发服务端快照、服务端行动提示、事件、错误和命令日志，不做规则裁定。需要给 P1/P2 直接准备测试牌组时，在右侧 `操作` 面板点击 `载入双人测试牌组`。
+访问 `http://127.0.0.1:5173` 后，使用默认服务端地址 `http://127.0.0.1:5088`。如果本机 smoke 临时改用 `5093` 等端口，请在设置页写入对应服务端地址。当前 Web UI 只显示和转发服务端快照、服务端行动提示、事件、错误和命令日志，不做规则裁定；development-only seed 仅用于测试与 Browser/Chrome smoke，不是正式产品操作入口。
 
 ## 项目结构
 
@@ -80,7 +80,7 @@ npm run dev
 | `src/Riftbound.Persistence` | PostgreSQL P1 event store schema 与 `IMatchJournal` 实现。 |
 | `src/Riftbound.CardCatalog` | 官网卡牌快照加载、schema 校验、功能逻辑单元分组、规则文本解析和 BehaviorSpec 生成。 |
 | `src/Riftbound.Api` | ASP.NET Core + SignalR `GameHub`。 |
-| `src/Riftbound.DevUi` | P2.5 React + Vite 开发期 GameHub 测试 UI。 |
+| `src/Riftbound.DevUi` | React + Vite Web UI，覆盖房间、对战、图鉴、卡组、设置、行动提示和卡牌详情。 |
 | `tests/Riftbound.ConformanceTests` | PDF/FAQ 规则依据、Java legacy oracle fixture 与 C# 回放结果对比。 |
 | `data/official` | 官网卡牌快照，当前 1009 条官方图鉴条目。 |
 | `scripts/dev-env.sh` | 本机开发 shell 环境入口。 |

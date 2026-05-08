@@ -7,12 +7,13 @@
 
 ## 1. 修改文件列表
 
-当前第二百二十八批修改：
+当前第二百二十九批修改：
 
-- `src/Riftbound.DevUi/src/components/cards/CardDetailDrawer.tsx`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
+- `docs/START_HERE.md`
+- `README.md`
 
 本轮 active goal 的累计源码、测试和文档变更以 `git log`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 的批次记录为准。
 
@@ -81,7 +82,7 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百二十八批是卡牌详情不可组合 warning 展示收口批：`CardDetailDrawer` 的全部 composer `unsupportedReason` 不再直接渲染潜在内部说明，统一通过 `promptReasonLabel` 保留中文服务端原因并过滤 raw token。验证已通过：`source ../../scripts/dev-env.sh && npm run build`。
+当前第二百二十九批是入口文档收口批：`README.md` 与 `docs/START_HERE.md` 不再把 P7/P7.9 历史完成记录写成当前 READY 口径，并同步当前 Browser/Chrome smoke 与进程清理原则。验证已通过：`git diff --check`。
 
 ## 9. Browser smoke / E2E 结果
 
