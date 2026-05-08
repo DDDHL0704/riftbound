@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百四十九批继续收口回合开始推进服务端错误文案。`CoreRuleEngine.ResolveAsync` 在 `TURN_START` 阶段拒绝非当前回合玩家推进时，错误消息从英文 raw “TURN_START can only be advanced by the turn player.” 改为中文“回合开始只能由当前回合玩家推进。”；核心回归断言不含 raw `TURN_START`，并继续锁住失败不改变 tick、阶段、资源、牌堆和手牌。前端仍只展示服务端回合开始/等待状态，不自行推进回合开始流程。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsTurnStartAdvanceFromNonTurnPlayer"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百四十八批继续收口伏击出牌服务端错误文案。`CoreRuleEngine` 的 `AmbushUnsupportedMessage` 不再返回英文 raw “PLAY_CARD mode AMBUSH is not implemented in P4 yet.”，改为中文“当前伏击出牌路径尚未由服务端开放。”；既有伏击出牌负例回归继续锁住普通/优先权窗口、BASE 目的地、目标、来源离开手牌、未知来源、对手手牌来源、非伏击来源、牌号不匹配和额外费用等路径拒绝且不改变 authoritative state。前端仍只提交服务端 `PLAY_CARD` prompt/sourceRequirements 支持的合法伏击/待命能力，未开放路径不假装可玩。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AmbushPlayCardMode"` 通过 21/21；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

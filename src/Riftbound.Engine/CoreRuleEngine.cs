@@ -289,7 +289,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 return ValueTask.FromResult(RejectWithCorePrompts(
                     state,
-                    "TURN_START can only be advanced by the turn player.",
+                    "回合开始只能由当前回合玩家推进。",
                     ErrorCodes.PhaseNotAllowed));
             }
 

@@ -534,7 +534,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("TURN_START can only be advanced by the turn player.", result.ErrorMessage);
+        Assert.Equal("回合开始只能由当前回合玩家推进。", result.ErrorMessage);
+        Assert.DoesNotContain("TURN_START", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P2", result.State.ActivePlayerId);
