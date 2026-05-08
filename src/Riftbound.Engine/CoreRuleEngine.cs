@@ -84,6 +84,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseEquipmentTokenName: "金币",
         CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
         CreatedBaseEquipmentTokenIsExhausted: true);
+    private const string UnsungHeroCardNo = "SFD·167/221";
+    private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -1610,6 +1612,27 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !string.Equals(destroyedState.CardNo, HonestBrokerCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveUnsungHeroLastBreathDrawPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, UnsungHeroCardNo, StringComparison.Ordinal)
+            || destroyedState.Power < PowerfulUnitPowerThreshold
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -18575,6 +18598,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     HonestBrokerLastBreathCreateGoldBehavior,
                                     tokenStackItem,
                                     events);
+                            }
+
+                            var unsungHeroDrawPlayerId = ResolveUnsungHeroLastBreathDrawPlayerId(
+                                targetState,
+                                removalResult);
+                            if (unsungHeroDrawPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    unsungHeroDrawPlayerId,
+                                    UnsungHeroLastBreathPowerfulDrawEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+
+                                var drawApplication = ApplyDrawToPlayer(
+                                    state,
+                                    playerZones,
+                                    playerScores,
+                                    unsungHeroDrawPlayerId,
+                                    2,
+                                    rngCursor,
+                                    events);
+                                playerScores = drawApplication.PlayerScores;
+                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                                rngCursor = drawApplication.RngCursor;
                             }
 
                             if (sadPoroLastBreathDrawPlayerId is not null)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-unsung-hero-last-breath-static",
-  "description": "SFD 167 Unsung Hero enters as an elite unit while its powerful last breath draw trigger is deferred.",
+  "description": "SFD 167 Unsung Hero enters as an elite unit; stack destruction powerful last breath draw is covered by focused engine regressions.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·167/221 无名英雄",
-      "note": "官方卡面：费用 2；单位；战力 2；精锐属性；绝念时若其为强力单位则抽两张牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，并记录精锐属性标签；强力阈值、绝念触发和抽牌路径暂缓。"
+      "note": "官方卡面：费用 2；单位；战力 2；精锐属性；绝念时若其为强力单位则抽两张牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，并记录精锐属性标签；栈摧毁时强力绝念抽牌和低于强力不触发由 P79UnsungHeroDrawsTwoWhenDestroyedWhilePowerful / P79UnsungHeroSkipsDrawWhenDestroyedBelowPowerful 覆盖，非栈摧毁时机暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
