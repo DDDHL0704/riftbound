@@ -3765,6 +3765,60 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsBoneSkewerWhenOpponentHandTargetIsNotControlledByOpponent()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BONE-SKEWER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-DIRTY-P1-OWNED-HAND-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BONE-SKEWER"] = new(
+                    "P1-SPELL-BONE-SKEWER",
+                    cardNo: "UNL-139/219",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DIRTY-P1-OWNED-HAND-UNIT"] = new(
+                    "P2-DIRTY-P1-OWNED-HAND-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bone-skewer-dirty-opponent-hand-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BONE-SKEWER",
+                "UNL-139/219",
+                ["P2-DIRTY-P1-OWNED-HAND-UNIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-BONE-SKEWER"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-DIRTY-P1-OWNED-HAND-UNIT"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysHelpArrivesFriendlyHandUnitForFree()
     {
         var fixture = await ConformanceFixture.LoadAsync(

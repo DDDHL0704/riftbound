@@ -4824,8 +4824,8 @@ internal static class ActionPromptBuilder
     {
         return state.PlayerZones
             .Where(entry => !string.Equals(entry.Key, playerId, StringComparison.Ordinal))
-            .Any(entry => entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal))
-            && IsPromptKnownCardObject(state, objectId);
+            .Any(entry => entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal)
+                && IsPromptKnownCardObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId));
     }
 
     private static bool IsPromptKnownCardObject(MatchState state, string objectId)

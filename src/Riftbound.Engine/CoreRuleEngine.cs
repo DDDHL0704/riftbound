@@ -14113,7 +14113,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(objectId)
             && state.PlayerZones.Any(entry =>
                 !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
-                && entry.Value.Hand.Contains(objectId, StringComparer.Ordinal));
+                && entry.Value.Hand.Contains(objectId, StringComparer.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId));
     }
 
     private static bool IsAnyHandCard(MatchState state, string objectId)
@@ -14145,7 +14146,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.Any(entry =>
                 !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
                 && entry.Value.MainDeck.Count > 0
-                && string.Equals(entry.Value.MainDeck[0], objectId, StringComparison.Ordinal));
+                && string.Equals(entry.Value.MainDeck[0], objectId, StringComparison.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId));
     }
 
     private static bool IsAnyMainDeckTopCards(MatchState state, string objectId, int lookCount)
@@ -14641,7 +14643,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(objectId)
             && state.PlayerZones.Any(entry =>
                 !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
-                && entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal));
+                && entry.Value.Graveyard.Contains(objectId, StringComparer.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId));
     }
 
     private static bool IsBaseObject(MatchState state, string objectId)
