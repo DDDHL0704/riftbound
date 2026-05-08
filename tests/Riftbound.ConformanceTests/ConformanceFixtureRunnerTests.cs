@@ -32261,6 +32261,36 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield()
+    {
+        var baseState = BattlefieldDefendMoveToBaseState();
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-BATTLEFIELD-PLUNDER-ALLEY"] = cardObjects["P2-BATTLEFIELD-PLUNDER-ALLEY"] with
+        {
+            ControllerId = "P1"
+        };
+        var state = baseState with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-defend-move-dirty-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-PLUNDER-ALLEY",
+                ["P1-BATTLEFIELD-PLUNDER-ATTACKER"],
+                ["P2-BATTLEFIELD-PLUNDER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"],
+                ["P2-BATTLEFIELD-PLUNDER-DEFENDER"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal(["P2-BATTLEFIELD-PLUNDER-ALLEY", "P2-BATTLEFIELD-PLUNDER-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerConsumesBoonAndDraws()
     {
         var state = BattlefieldConquerBoonDrawState();
@@ -32671,6 +32701,41 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
         Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P2-DIRTY-REVEAL-P1-OWNED"].Zone);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldDefendRevealSpellSkipsAttackerControlledBattlefield()
+    {
+        var baseState = BattlefieldDefendRevealSpellState(topCardIsSpell: true);
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-BATTLEFIELD-RAVENBLOOM"] = cardObjects["P2-BATTLEFIELD-RAVENBLOOM"] with
+        {
+            ControllerId = "P1"
+        };
+        var state = baseState with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-defend-reveal-dirty-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RAVENBLOOM",
+                ["P1-BATTLEFIELD-REVEAL-ATTACKER"],
+                ["P2-BATTLEFIELD-REVEAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-REVEAL-SPELL", "P2-MAIN-001"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
     }
 
     [Fact]

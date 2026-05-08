@@ -5081,6 +5081,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryResolveBattlefieldDefenderSteadfastChoice(
                 state,
                 playerZones,
+                defendingPlayerId ?? string.Empty,
                 battlefieldId,
                 command.BattlefieldTargetObjectIds,
                 defenderObjectIds,
@@ -5094,6 +5095,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!TryResolveBattlefieldDefenderMoveToBaseChoice(
                 state,
                 playerZones,
+                defendingPlayerId ?? string.Empty,
                 battlefieldId,
                 command.BattlefieldTargetObjectIds,
                 defenderObjectIds,
@@ -9402,6 +9404,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattlefieldDefenderSteadfastChoice(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string defendingPlayerId,
         string battlefieldId,
         IReadOnlyList<string>? battlefieldTargetObjectIds,
         IReadOnlyList<string> defenderObjectIds,
@@ -9417,11 +9420,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var requestedTargetObjectIds = NormalizeTargetObjectIds(battlefieldTargetObjectIds ?? []);
         var hasBattlefieldObject = TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState);
-        if (!hasBattlefieldObject
-            || !IsBattlefieldDefenderSteadfastTwoCardNo(battlefieldState.CardNo))
+        var sourceControlledByDefender = hasBattlefieldObject
+            && !string.IsNullOrWhiteSpace(defendingPlayerId)
+            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId);
+        var isSteadfastBattlefield = sourceControlledByDefender
+            && IsBattlefieldDefenderSteadfastTwoCardNo(battlefieldState.CardNo);
+        var isMoveToBaseBattlefield = sourceControlledByDefender
+            && IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo);
+        if (!isSteadfastBattlefield)
         {
-            if (requestedTargetObjectIds.Count > 0
-                && (!hasBattlefieldObject || !IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo)))
+            if (requestedTargetObjectIds.Count > 0 && !isMoveToBaseBattlefield)
             {
                 rejection = RejectWithCorePrompts(
                     state,
@@ -9456,6 +9464,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattlefieldDefenderMoveToBaseChoice(
         MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string defendingPlayerId,
         string battlefieldId,
         IReadOnlyList<string>? battlefieldTargetObjectIds,
         IReadOnlyList<string> defenderObjectIds,
@@ -9470,6 +9479,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         rejection = default!;
 
         if (!TryGetBattlefieldCardObject(playerZones, state.CardObjects, battlefieldId, out battlefieldObjectId, out var battlefieldState)
+            || string.IsNullOrWhiteSpace(defendingPlayerId)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, defendingPlayerId)
             || !IsBattlefieldDefendMoveFriendlyUnitToBaseCardNo(battlefieldState.CardNo))
         {
             return true;
@@ -9510,6 +9521,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (string.IsNullOrWhiteSpace(playerId)
             || !playerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+            || string.IsNullOrWhiteSpace(battlefieldObjectId)
+            || !cardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
@@ -9664,6 +9678,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var events = new List<GameEvent>();
         if (string.IsNullOrWhiteSpace(playerId)
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldDefendRevealSpellCardNo(battlefieldState.CardNo)
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.MainDeck.Count == 0)

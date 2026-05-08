@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百七十四批仍为服务端防守战场触发来源收口，没有前端 UI 文件变更。防守 reveal 抽牌、给防守单位坚守 +2、选择防守单位移回基地等分支现在都要求战场牌仍由防守方控制/legacy-owned；攻击方已控制的战场牌不会让前端通过服务端事件看到错误防守收益。
+- 本批验证：`dotnet build` 通过；精确回归 5/5、相邻战斗/防守声明回归 71/71、`GameHubJoinTests` 118/118、后端 full test 3125/3125 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百七十三批仍为服务端基础据守触发来源收口，没有前端 UI 文件变更。抽牌、造随从、召符文、赐福、移动、得分、特殊胜利、费用增加、Echo 与激活征服等 held 分支现在都要求战场牌仍由据守玩家控制/legacy-owned；前端继续只展示服务端事件与 snapshot。
 - 本批验证：`dotnet build` 通过；基础 held 相关回归 18/18、`GameHubJoinTests` 118/118、后端 full test 3123/3123 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
