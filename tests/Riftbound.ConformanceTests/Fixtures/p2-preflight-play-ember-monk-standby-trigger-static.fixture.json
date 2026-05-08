@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ember-monk-standby-trigger-static",
-  "description": "Ember Monk enters as a unit while face-down standby trigger text is deferred.",
+  "description": "Ember Monk enters as a unit; face-down standby trigger is covered by focused regression.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·167/298 余火修士",
-      "note": "官方卡面：费用 4；单位；战力 4；当控制者打出一张牌面朝下的待命牌时，本回合内自身战力 +2。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；牌面朝下待命牌打出触发本回合战力修正路径暂缓。"
+      "note": "官方卡面：费用 4；单位；战力 4；当控制者打出一张牌面朝下的待命牌时，本回合内自身战力 +2。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；成功 HIDE_CARD 暗置己方待命牌后自身本回合 +2 的代表路径由 P79EmberMonkGainsPowerWhenFriendlyStandbyCardIsHidden 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

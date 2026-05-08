@@ -38,6 +38,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
+    private const string EmberMonkCardNo = "OGN·167/298";
+    private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
     private const string SadPoroOriginalCardNo = "SFD·036/221";
     private const string SadPoroUnleashedCardNo = "UNL-221/219";
     private const string SadPoroLastBreathDrawEffectKind = "SAD_PORO_LAST_BREATH_DRAW_1";
@@ -4113,15 +4115,6 @@ public sealed class CoreRuleEngine : IRuleEngine
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         cardObjects[command.SourceObjectId] = hiddenState;
 
-        var nextState = state with
-        {
-            Tick = state.Tick + 1,
-            RunePools = runePools,
-            PlayerZones = playerZones,
-            CardObjects = cardObjects,
-            PriorityPlayerId = null,
-            PassedPriorityPlayerIds = []
-        };
         var costPaidPayload = new Dictionary<string, object?>
         {
             ["playerId"] = intent.PlayerId,
@@ -4181,6 +4174,22 @@ public sealed class CoreRuleEngine : IRuleEngine
                 $"{intent.PlayerId} 正面朝下放置一张待命牌",
                 hiddenPayload));
 
+        events.AddRange(ResolveEmberMonkStandbyHiddenPowerTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            command.SourceObjectId,
+            destination));
+
+        var nextState = state with
+        {
+            Tick = state.Tick + 1,
+            RunePools = runePools,
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            PriorityPlayerId = null,
+            PassedPriorityPlayerIds = []
+        };
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         if (usesBattlefieldExtraStandby)
         {
@@ -4198,6 +4207,71 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextStateWithLocations),
             BuildCorePrompts(nextStateWithLocations));
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveEmberMonkStandbyHiddenPowerTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string hiddenObjectId,
+        string destination)
+    {
+        const int powerDelta = 2;
+        var triggerSourceObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(sourceObjectId => !string.Equals(sourceObjectId, hiddenObjectId, StringComparison.Ordinal))
+            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, EmberMonkCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, sourceObjectId)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    playerId,
+                    StringComparison.Ordinal))
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+            .ToArray();
+
+        var events = new List<GameEvent>();
+        foreach (var sourceObjectId in triggerSourceObjectIds)
+        {
+            var sourceState = cardObjects[sourceObjectId];
+            var nextSourceState = sourceState with
+            {
+                Power = sourceState.Power + powerDelta,
+                UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + powerDelta
+            };
+            cardObjects[sourceObjectId] = nextSourceState;
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{playerId} 的余火修士因布置待命牌而触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["effectKind"] = EmberMonkStandbyHiddenPowerEffectKind,
+                    ["triggeredByEventKind"] = "CARD_HIDDEN",
+                    ["hiddenObjectId"] = hiddenObjectId,
+                    ["destination"] = destination
+                }));
+            events.Add(new GameEvent(
+                "POWER_MODIFIED_UNTIL_END_OF_TURN",
+                $"{sourceObjectId} 本回合战力 +2",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = sourceObjectId,
+                    ["powerDelta"] = powerDelta,
+                    ["appliedPowerDelta"] = powerDelta,
+                    ["minimumPower"] = 0,
+                    ["resultingPower"] = nextSourceState.Power,
+                    ["reason"] = EmberMonkStandbyHiddenPowerEffectKind
+                }));
+        }
+
+        return events;
     }
 
     private static ResolutionResult ResolveTapRune(

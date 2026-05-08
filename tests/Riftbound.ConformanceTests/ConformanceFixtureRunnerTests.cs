@@ -41647,6 +41647,110 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79EmberMonkGainsPowerWhenFriendlyStandbyCardIsHidden()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OGN-TEEMO"],
+                    Base =
+                    [
+                        "P1-EMBER-MONK",
+                        "P1-EMBER-MONK-FACEDOWN",
+                        "P1-EMBER-MONK-STANDBY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-EMBER-MONK"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OGN-TEEMO"] = new(
+                    "P1-HAND-OGN-TEEMO",
+                    cardNo: "OGN·121/298",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EMBER-MONK"] = new(
+                    "P1-EMBER-MONK",
+                    cardNo: "OGN·167/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EMBER-MONK-FACEDOWN"] = new(
+                    "P1-EMBER-MONK-FACEDOWN",
+                    cardNo: "OGN·167/298",
+                    isFaceDown: true,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EMBER-MONK-STANDBY"] = new(
+                    "P1-EMBER-MONK-STANDBY",
+                    cardNo: "OGN·167/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-EMBER-MONK"] = new(
+                    "P2-EMBER-MONK",
+                    cardNo: "OGN·167/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ember-monk-standby-hidden", "P1", "HIDE_CARD"),
+            new HideCardCommand(
+                "P1-HAND-OGN-TEEMO",
+                "OGN·121/298",
+                "STANDBY",
+                ["STANDBY_A"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["COST_PAID", "CARD_HIDDEN", "TRIGGER_RESOLVED", "POWER_MODIFIED_UNTIL_END_OF_TURN"], result.Events.Select(evt => evt.Kind));
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Contains("P1-HAND-OGN-TEEMO", result.State.PlayerZones["P1"].Base);
+        Assert.True(result.State.CardObjects["P1-HAND-OGN-TEEMO"].IsFaceDown);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal("P1-EMBER-MONK", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-HAND-OGN-TEEMO", triggerEvent.Payload["hiddenObjectId"]);
+
+        var powerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Equal("P1-EMBER-MONK", powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-EMBER-MONK", powerEvent.Payload["targetObjectId"]);
+        Assert.Equal(2, powerEvent.Payload["powerDelta"]);
+        Assert.Equal(2, powerEvent.Payload["appliedPowerDelta"]);
+        Assert.Equal(6, powerEvent.Payload["resultingPower"]);
+        Assert.Equal(6, result.State.CardObjects["P1-EMBER-MONK"].Power);
+        Assert.Equal(2, result.State.CardObjects["P1-EMBER-MONK"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(4, result.State.CardObjects["P1-EMBER-MONK-FACEDOWN"].Power);
+        Assert.Equal(0, result.State.CardObjects["P1-EMBER-MONK-FACEDOWN"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(4, result.State.CardObjects["P1-EMBER-MONK-STANDBY"].Power);
+        Assert.Equal(0, result.State.CardObjects["P1-EMBER-MONK-STANDBY"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(4, result.State.CardObjects["P2-EMBER-MONK"].Power);
+        Assert.Equal(0, result.State.CardObjects["P2-EMBER-MONK"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
     public async Task P4HideCardCommandRejectsFreeStandbyWithoutGuerrillaWarfarePermission()
     {
         var state = PunishmentState(mana: 0) with
