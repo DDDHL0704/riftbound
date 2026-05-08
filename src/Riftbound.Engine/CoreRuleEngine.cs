@@ -14104,7 +14104,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Hand.Contains(objectId, StringComparer.Ordinal);
+            && zones.Hand.Contains(objectId, StringComparer.Ordinal)
+            && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId);
     }
 
     private static bool IsOpponentHandCard(MatchState state, string playerId, string objectId)
@@ -14125,7 +14126,17 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.MainDeck.Contains(objectId, StringComparer.Ordinal);
+            && zones.MainDeck.Contains(objectId, StringComparer.Ordinal)
+            && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId);
+    }
+
+    private static bool IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        return !state.CardObjects.TryGetValue(objectId, out var cardObject)
+            || SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static bool IsOpponentMainDeckTopCard(MatchState state, string playerId, string objectId)
@@ -14602,7 +14613,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Graveyard.Contains(objectId, StringComparer.Ordinal);
+            && zones.Graveyard.Contains(objectId, StringComparer.Ordinal)
+            && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId);
     }
 
     private static bool IsEnemyFieldObject(MatchState state, string playerId, string objectId)
@@ -15175,8 +15187,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string targetObjectId)
     {
         return !string.Equals(sourceObjectId, targetObjectId, StringComparison.Ordinal)
-            && state.PlayerZones.TryGetValue(playerId, out var zones)
-            && zones.Hand.Contains(targetObjectId, StringComparer.Ordinal);
+            && IsFriendlyHandCard(state, playerId, targetObjectId);
     }
 
     private static int ResolveCostReductionMana(

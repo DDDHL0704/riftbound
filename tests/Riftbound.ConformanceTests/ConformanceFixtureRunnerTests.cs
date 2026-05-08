@@ -3831,6 +3831,63 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsHelpArrivesWhenFriendlyHandTargetIsOpponentControlled()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand =
+                    [
+                        "P1-SPELL-HELP-ARRIVES",
+                        "P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HELP-ARRIVES"] = new(
+                    "P1-SPELL-HELP-ARRIVES",
+                    cardNo: "SFD·111/221",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT"] = new(
+                    "P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-help-arrives-opponent-controlled-friendly-hand-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-HELP-ARRIVES",
+                "SFD·111/221",
+                ["P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P1-SPELL-HELP-ARRIVES", "P1-DIRTY-OPPONENT-CONTROLLED-HAND-UNIT"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysHostileTakeoverGainControlReadyBattlefieldUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(

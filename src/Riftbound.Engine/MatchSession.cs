@@ -4804,14 +4804,14 @@ internal static class ActionPromptBuilder
     {
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Hand.Contains(objectId, StringComparer.Ordinal)
-            && IsPromptKnownCardObject(state, objectId);
+            && IsPromptKnownCardObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId);
     }
 
     private static bool IsPromptFriendlyGraveyardCard(MatchState state, string playerId, string objectId)
     {
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Graveyard.Contains(objectId, StringComparer.Ordinal)
-            && IsPromptKnownCardObject(state, objectId);
+            && IsPromptKnownCardObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId);
     }
 
     private static bool IsPromptOpponentGraveyardCard(MatchState state, string playerId, string objectId)
@@ -4826,6 +4826,16 @@ internal static class ActionPromptBuilder
     {
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo);
+    }
+
+    private static bool IsPromptKnownCardObjectControlledByPlayerOrLegacyOwned(
+        MatchState state,
+        string playerId,
+        string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static bool IsPromptAttackingBattlefieldObject(MatchState state, string objectId)
