@@ -43,6 +43,7 @@ const eventKindLabels: Record<string, string> = {
   EQUIPMENT_MOVED_WITH_UNIT: "装备随单位移动",
   EQUIPMENT_PLAYED_TO_BASE: "装备进入基地",
   EQUIPMENT_READIED: "装备重置",
+  EQUIPMENT_RECALLED_TO_BASE: "装备召回基地",
   EQUIPMENT_RETURNED_TO_HAND: "装备回手",
   EQUIPMENT_TOKEN_CREATED: "装备指示物",
   EXPERIENCE_GAINED: "获得经验",

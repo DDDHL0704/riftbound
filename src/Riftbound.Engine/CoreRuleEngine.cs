@@ -12558,7 +12558,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
             || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
-            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal);
+            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+            || string.Equals(kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolveEndTurn(MatchState state, PlayerIntent intent)
@@ -21763,16 +21764,22 @@ public sealed class CoreRuleEngine : IRuleEngine
             var illegalStandbyCleanup = objectLocations is null
                 ? IllegalStandbyCleanupResult.Empty
                 : ApplyIllegalStandbyCleanup(playerZones, cardObjects, objectLocations);
+            var unattachedEquipmentCleanup = objectLocations is null
+                ? RecalledEquipmentCleanupResult.Empty
+                : ApplyUnattachedEquipmentCleanup(playerZones, cardObjects, objectLocations);
             if (cleanup.Events.Count == 0
                 && cleanup.DestroyedObjectIds.Count == 0
                 && illegalStandbyCleanup.Events.Count == 0
-                && illegalStandbyCleanup.RemovedObjectIds.Count == 0)
+                && illegalStandbyCleanup.RemovedObjectIds.Count == 0
+                && unattachedEquipmentCleanup.Events.Count == 0
+                && unattachedEquipmentCleanup.RecalledObjectIds.Count == 0)
             {
                 break;
             }
 
             events.AddRange(cleanup.Events);
             events.AddRange(illegalStandbyCleanup.Events);
+            events.AddRange(unattachedEquipmentCleanup.Events);
             destroyedObjectIds.AddRange(cleanup.DestroyedObjectIds);
             destroyedUnitOwnerIds.AddRange(cleanup.DestroyedUnitOwnerIds);
             nextRunePools = cleanup.RunePools;
@@ -21911,6 +21918,84 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .ToArray());
     }
 
+    private static RecalledEquipmentCleanupResult ApplyUnattachedEquipmentCleanup(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, ObjectLocationState> objectLocations)
+    {
+        var recalledObjectIds = new List<string>();
+        var events = new List<GameEvent>();
+        var equipmentObjectIds = objectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(entry.Value.BattlefieldObjectId)
+                && !string.Equals(entry.Key, entry.Value.BattlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && cardObjects.TryGetValue(entry.Key, out var cardObject)
+                && IsUnattachedBattlefieldEquipmentCleanupCandidate(cardObject))
+            .OrderBy(entry => entry.Value.BattlefieldObjectId, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry => entry.Key)
+            .ToArray();
+
+        foreach (var objectId in equipmentObjectIds)
+        {
+            if (!cardObjects.TryGetValue(objectId, out var cardObject)
+                || !objectLocations.TryGetValue(objectId, out var location)
+                || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+            {
+                continue;
+            }
+
+            var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+            if (string.IsNullOrWhiteSpace(controllerId)
+                || !playerZones.ContainsKey(controllerId))
+            {
+                continue;
+            }
+
+            foreach (var playerId in playerZones.Keys.ToArray())
+            {
+                var zones = playerZones[playerId];
+                playerZones[playerId] = zones with
+                {
+                    Base = RemoveFromZone(zones.Base, objectId),
+                    Battlefields = RemoveFromZone(zones.Battlefields, objectId)
+                };
+            }
+
+            var controllerZones = playerZones[controllerId];
+            playerZones[controllerId] = controllerZones with
+            {
+                Base = controllerZones.Base.Contains(objectId, StringComparer.Ordinal)
+                    ? controllerZones.Base
+                    : controllerZones.Base.Concat([objectId]).ToArray()
+            };
+            objectLocations[objectId] = new ObjectLocationState(controllerId, MoveUnitBaseZone);
+            recalledObjectIds.Add(objectId);
+            events.Add(new GameEvent(
+                "EQUIPMENT_RECALLED_TO_BASE",
+                "状态清理召回未贴附装备",
+                new Dictionary<string, object?>
+                {
+                    ["equipmentObjectId"] = objectId,
+                    ["targetObjectId"] = objectId,
+                    ["ownerPlayerId"] = cardObject.OwnerId,
+                    ["controllerId"] = controllerId,
+                    ["battlefieldObjectId"] = location.BattlefieldObjectId,
+                    ["originZone"] = MoveUnitBattlefieldZone,
+                    ["destinationZone"] = MoveUnitBaseZone,
+                    ["reason"] = "UNATTACHED_EQUIPMENT_CLEANUP"
+                }));
+        }
+
+        return new RecalledEquipmentCleanupResult(
+            events,
+            recalledObjectIds
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(objectId => objectId, StringComparer.Ordinal)
+                .ToArray());
+    }
+
     private static LethalDamageCleanupResult ApplyLethalDamageCleanup(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -22022,6 +22107,14 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !cardObject.IsFaceDown
             && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
             && HasOwnerOrControllerIdentity(cardObject);
+    }
+
+    private static bool IsUnattachedBattlefieldEquipmentCleanupCandidate(CardObjectState cardObject)
+    {
+        return cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+            && string.IsNullOrWhiteSpace(cardObject.AttachedToObjectId)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal);
     }
 
     private static bool IsObjectOnField(
@@ -23496,6 +23589,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyList<string> RemovedObjectIds)
     {
         public static IllegalStandbyCleanupResult Empty { get; } = new([], []);
+    }
+
+    private sealed record RecalledEquipmentCleanupResult(
+        IReadOnlyList<GameEvent> Events,
+        IReadOnlyList<string> RecalledObjectIds)
+    {
+        public static RecalledEquipmentCleanupResult Empty { get; } = new([], []);
     }
 
     private sealed record StateBasedCleanupResult(

@@ -936,6 +936,24 @@ public sealed record MatchState
         foreach (var (objectId, cardObject) in state.CardObjects
             .OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
+            if (cardObject.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                && string.IsNullOrWhiteSpace(cardObject.AttachedToObjectId)
+                && state.ObjectLocations.TryGetValue(objectId, out var equipmentLocation)
+                && string.Equals(equipmentLocation.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(equipmentLocation.BattlefieldObjectId)
+                && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _)
+                && !cardObject.IsFaceDown
+                && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+            {
+                tasks.Add(new CleanupTaskState(
+                    $"cleanup:unattached-equipment:{equipmentLocation.BattlefieldObjectId}:{objectId}",
+                    "RECALL_UNATTACHED_EQUIPMENT",
+                    "UNATTACHED_EQUIPMENT_CLEANUP",
+                    EffectiveFieldControllerId(state, objectId, cardObject),
+                    objectId,
+                    equipmentLocation.BattlefieldObjectId));
+            }
+
             if (!cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 || !TryFindFieldObjectLocation(state.PlayerZones, objectId, out var location))
             {
@@ -1215,6 +1233,7 @@ public sealed record MatchState
             "DESTROY_LETHAL_UNIT" => 0,
             "DESTROY_ZERO_POWER_UNIT" => 1,
             "REMOVE_ILLEGAL_STANDBY" => 2,
+            "RECALL_UNATTACHED_EQUIPMENT" => 3,
             "BATTLEFIELD_CONTESTED" => 10,
             "START_SPELL_DUEL" => 20,
             "START_BATTLE" => 30,
@@ -1226,7 +1245,8 @@ public sealed record MatchState
     {
         return string.Equals(kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
             || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
-            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal);
+            || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+            || string.Equals(kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal);
     }
 
     private static bool IsIllegalBattlefieldStandby(

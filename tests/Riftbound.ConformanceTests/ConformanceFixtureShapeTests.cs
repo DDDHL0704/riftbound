@@ -1324,6 +1324,93 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public async Task PendingTaskQueueExposesUnattachedBattlefieldEquipmentCleanupAsStateBasedTask()
+    {
+        var state = new MatchState(
+            "unattached-equipment-task-room",
+            12,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            turnPlayerId: "alice",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "A-UNATTACHED-EQUIPMENT"]
+                },
+                ["bob"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "alice",
+                    controllerId: "alice"),
+                ["A-UNATTACHED-EQUIPMENT"] = new(
+                    "A-UNATTACHED-EQUIPMENT",
+                    cardNo: "SFD·135/221",
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: "alice",
+                    controllerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("alice", "BATTLEFIELD", "BF-1"),
+                ["A-UNATTACHED-EQUIPMENT"] = new("alice", "BATTLEFIELD", "BF-1")
+            });
+
+        var cleanupTask = Assert.Single(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal));
+        Assert.Equal("cleanup:unattached-equipment:BF-1:A-UNATTACHED-EQUIPMENT", cleanupTask.TaskId);
+        Assert.Equal("UNATTACHED_EQUIPMENT_CLEANUP", cleanupTask.Reason);
+        Assert.Equal("bob", cleanupTask.PlayerId);
+        Assert.Equal("A-UNATTACHED-EQUIPMENT", cleanupTask.ObjectId);
+        Assert.Equal("BF-1", cleanupTask.BattlefieldObjectId);
+
+        Assert.True(state.PendingTaskQueue.HasTasks);
+        Assert.True(state.PendingTaskQueue.IsBlocking);
+        Assert.Equal("STATE_BASED_CLEANUP", state.PendingTaskQueue.Phase);
+        Assert.Equal(cleanupTask.TaskId, state.PendingTaskQueue.ActiveTaskId);
+        Assert.Equal(
+            ["RECALL_UNATTACHED_EQUIPMENT"],
+            state.PendingTaskQueue.Tasks.Select(task => task.Kind).ToArray());
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        var taskQueueItems = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        var taskQueueItem = Assert.Single(taskQueueItems);
+        Assert.Equal("RECALL_UNATTACHED_EQUIPMENT", Assert.IsType<string>(taskQueueItem["kind"]));
+        Assert.Equal("UNATTACHED_EQUIPMENT_CLEANUP", Assert.IsType<string>(taskQueueItem["reason"]));
+
+        var prompts = ResolutionResult.BuildPrompts(state);
+        Assert.False(prompts["alice"].Actionable);
+        Assert.Equal(["WAIT", "SURRENDER"], prompts["alice"].Actions);
+        Assert.Contains("RECALL_UNATTACHED_EQUIPMENT", prompts["alice"].Reason, StringComparison.Ordinal);
+
+        var blocked = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("blocked-unattached-equipment-end-turn", "alice", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+        Assert.False(blocked.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, blocked.ErrorCode);
+        Assert.Contains("RECALL_UNATTACHED_EQUIPMENT", blocked.ErrorMessage, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PendingTaskQueueUsesSpellDuelTaskAsActiveWhileContestDuelIsOpen()
     {
         var state = new MatchState(

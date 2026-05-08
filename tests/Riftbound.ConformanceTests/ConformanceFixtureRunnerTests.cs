@@ -1428,6 +1428,97 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PostStackCleanupRecallsUnattachedBattlefieldEquipmentToControllerBase()
+    {
+        var state = new MatchState(
+            "p7-post-stack-unattached-equipment-cleanup-room",
+            1,
+            1,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralClosed,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-UNATTACHED-EQUIPMENT", "P1-UNATTACHED-EQUIPMENT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-UNATTACHED-EQUIPMENT"] = new(
+                    "BF-UNATTACHED-EQUIPMENT",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNATTACHED-EQUIPMENT"] = new(
+                    "P1-UNATTACHED-EQUIPMENT",
+                    cardNo: "SFD·135/221",
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: "P1",
+                    controllerId: "P2")
+            },
+            priorityPlayerId: "P2",
+            passedPriorityPlayerIds: ["P1"],
+            stackItems:
+            [
+                new StackItemState(
+                    "STACK-NOOP-UNATTACHED-EQUIPMENT-CLEANUP",
+                    "P1",
+                    "P1-SPELL-NOOP",
+                    "UNKNOWN_NOOP_EFFECT")
+            ],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-UNATTACHED-EQUIPMENT"] = new("P1", "BATTLEFIELD", "BF-UNATTACHED-EQUIPMENT"),
+                ["P1-UNATTACHED-EQUIPMENT"] = new("P1", "BATTLEFIELD", "BF-UNATTACHED-EQUIPMENT")
+            });
+
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "P1-UNATTACHED-EQUIPMENT", StringComparison.Ordinal)
+                && string.Equals(task.PlayerId, "P2", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-pass-unattached-equipment-cleanup", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain("P1-UNATTACHED-EQUIPMENT", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-UNATTACHED-EQUIPMENT"], result.State.PlayerZones["P2"].Base);
+        Assert.Equal("P1", result.State.CardObjects["P1-UNATTACHED-EQUIPMENT"].OwnerId);
+        Assert.Equal("P2", result.State.CardObjects["P1-UNATTACHED-EQUIPMENT"].ControllerId);
+        Assert.Equal("BASE", result.State.ObjectLocations["P1-UNATTACHED-EQUIPMENT"].Zone);
+        Assert.Equal("P2", result.State.ObjectLocations["P1-UNATTACHED-EQUIPMENT"].PlayerId);
+        Assert.Null(result.State.ObjectLocations["P1-UNATTACHED-EQUIPMENT"].BattlefieldObjectId);
+        Assert.DoesNotContain(
+            result.State.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal));
+        var recalledEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_RECALLED_TO_BASE", StringComparison.Ordinal));
+        Assert.Equal("P1-UNATTACHED-EQUIPMENT", recalledEvent.Payload["equipmentObjectId"]);
+        Assert.Equal("P1", recalledEvent.Payload["ownerPlayerId"]);
+        Assert.Equal("P2", recalledEvent.Payload["controllerId"]);
+        Assert.Equal("BF-UNATTACHED-EQUIPMENT", recalledEvent.Payload["battlefieldObjectId"]);
+        Assert.Equal("UNATTACHED_EQUIPMENT_CLEANUP", recalledEvent.Payload["reason"]);
+    }
+
+    [Fact]
     public async Task P7BattleCleanupReconcilesAuthoritativeObjectLocations()
     {
         var state = new MatchState(

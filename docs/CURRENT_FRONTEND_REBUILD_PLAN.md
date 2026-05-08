@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十五批仍为服务端状态性清理规则收口，仅新增一个前端事件日志中文标签。未贴附、非待命、正面装备若出现在战场，服务端会以 `RECALL_UNATTACHED_EQUIPMENT` pending task 阻塞普通操作，并在下一次状态性清理时把装备召回 effective controller 基地、广播 `EQUIPMENT_RECALLED_TO_BASE`；前端继续只显示服务端任务、事件与 authoritative snapshot，不自行裁决装备合法性。
+- 本批验证：`dotnet build` 通过；`UnattachedBattlefieldEquipment|UnattachedEquipment` 精确回归 2/2、后端 full test 3134/3134 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签覆盖 110 个后端 event kind。没有启动 API/Vite/业务 Browser/Chrome smoke，因为本批没有新增交互流程，只补事件标签与服务端规则；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十四批仍为服务端战斗规则测试证据收口，没有前端 UI 文件变更。新增临时受控进攻单位的战斗清理召回回归：服务端会把单位召回 owner 基地，并保留 controller，不让前端或回放从对象名/所在区自行猜测召回归属。
 - 本批验证：目标回归 1/1、后端 full test 3132/3132 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
