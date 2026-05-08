@@ -16875,7 +16875,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryReturnGraveyardCardToHand(playerZones, stackItem.ControllerId, targetObjectId))
+                if (!TryReturnGraveyardCardToHand(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
                 {
                     continue;
                 }
@@ -20722,11 +20722,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryReturnGraveyardCardToHand(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string targetObjectId)
     {
         if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal))
+            || !zones.Graveyard.Contains(targetObjectId, StringComparer.Ordinal)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
         {
             return false;
         }
