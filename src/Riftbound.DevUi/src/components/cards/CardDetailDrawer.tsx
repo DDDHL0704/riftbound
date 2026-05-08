@@ -593,7 +593,7 @@ function PlayCardComposer({
               active={destination === choice.id}
               key={choice.id}
               onClick={() => setDestination(choice.id)}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -626,7 +626,7 @@ function PlayCardComposer({
                   onClick={() => {
                     setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }));
                   }}
-                  title={choice.reason ?? undefined}
+                  title={choiceTitle(choice)}
                 >
                   {choice.label}
                 </ChoiceButton>
@@ -642,7 +642,7 @@ function PlayCardComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -665,7 +665,7 @@ function PlayCardComposer({
                 disabled={disabled}
                 key={choice.id}
                 onClick={() => setOptionalCosts((current) => toggleValue(current, choice.id))}
-                title={choice.reason ?? undefined}
+                title={choiceTitle(choice)}
               >
                 {choice.label}
               </ChoiceButton>
@@ -784,7 +784,7 @@ function HideCardComposer({
               active={destination === choice.id}
               key={choice.id}
               onClick={() => setDestination(choice.id)}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -798,7 +798,7 @@ function HideCardComposer({
               active={optionalCost === choice.id}
               key={choice.id}
               onClick={() => setOptionalCost(choice.id)}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -911,7 +911,7 @@ function RevealCardComposer({
               active={destination === choice.id}
               key={choice.id}
               onClick={() => setDestination(choice.id)}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -925,7 +925,7 @@ function RevealCardComposer({
               active={optionalCost === choice.id}
               key={choice.id}
               onClick={() => setOptionalCost(choice.id)}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -1068,7 +1068,7 @@ function MoveUnitComposer({
             active={destination === choice.id}
             key={choice.id}
             onClick={() => setDestination(choice.id)}
-            title={choice.reason ?? undefined}
+            title={choiceTitle(choice)}
           >
             {choice.label}
           </ChoiceButton>
@@ -1088,7 +1088,7 @@ function MoveUnitComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -1203,7 +1203,7 @@ function AssembleEquipmentComposer({
             active={targetObjectId === choice.id}
             key={choice.id}
             onClick={() => setTargetObjectId(choice.id)}
-            title={choice.reason ?? undefined}
+            title={choiceTitle(choice)}
           >
             {choice.label}
           </ChoiceButton>
@@ -1223,7 +1223,7 @@ function AssembleEquipmentComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -1240,7 +1240,7 @@ function AssembleEquipmentComposer({
                 disabled={!active && paymentResourceCosts.length >= 1}
                 key={choice.id}
                 onClick={() => setPaymentResourceCosts((current) => active ? [] : [choice.id])}
-                title={choice.reason ?? undefined}
+                title={choiceTitle(choice)}
               >
                 {choice.label}
               </ChoiceButton>
@@ -1414,7 +1414,7 @@ function ActivateAbilityComposer({
                 active={targetSelections[targetIndex] === choice.id}
                 key={choice.id}
                 onClick={() => setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
-                title={choice.reason ?? undefined}
+                title={choiceTitle(choice)}
               >
                 {choice.label}
               </ChoiceButton>
@@ -1436,7 +1436,7 @@ function ActivateAbilityComposer({
               active={optionalCosts.includes(choice.id)}
               key={choice.id}
               onClick={() => setOptionalCosts((current) => toggleOptionalCost(current, choice.id))}
-              title={choice.reason ?? undefined}
+              title={choiceTitle(choice)}
             >
               {choice.label}
             </ChoiceButton>
@@ -1607,7 +1607,7 @@ function LegendActionComposer({
                 active={targetSelections[targetIndex] === choice.id}
                 key={choice.id}
                 onClick={() => setTargetSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
-                title={choice.reason ?? undefined}
+                title={choiceTitle(choice)}
               >
                 {choice.label}
               </ChoiceButton>
@@ -1760,7 +1760,7 @@ function DeclareBattleComposer({
             active={battlefieldId === choice.id}
             key={choice.id}
             onClick={() => setBattlefieldId(choice.id)}
-            title={choice.reason ?? undefined}
+            title={choiceTitle(choice)}
           >
             {choice.label}
           </ChoiceButton>
@@ -1789,7 +1789,7 @@ function DeclareBattleComposer({
                   disabled={alreadySelected}
                   key={choice.id}
                   onClick={() => setAttackerSelections((current) => ({ ...current, [attackerIndex]: choice.id }))}
-                  title={choice.reason ?? undefined}
+                  title={choiceTitle(choice)}
                 >
                   {choice.label}
                 </ChoiceButton>
@@ -1821,7 +1821,7 @@ function DeclareBattleComposer({
                   disabled={alreadySelected}
                   key={choice.id}
                   onClick={() => setDefenderSelections((current) => ({ ...current, [targetIndex]: choice.id }))}
-                  title={choice.reason ?? undefined}
+                  title={choiceTitle(choice)}
                 >
                   {choice.label}
                 </ChoiceButton>
@@ -1904,6 +1904,19 @@ function ChoiceButton({
       {children}
     </button>
   );
+}
+
+function choiceTitle(choice: ActionPromptChoiceDto): string | undefined {
+  const reason = choice.reason?.trim();
+  if (!reason) {
+    return undefined;
+  }
+
+  return playerFacingChoiceReason(reason) ? reason : "服务端候选";
+}
+
+function playerFacingChoiceReason(reason: string): boolean {
+  return /[\u3400-\u9fff]/.test(reason) && !/[A-Z0-9]{2,}[_:-]/.test(reason);
 }
 
 function playCardRequirementsFor(candidate: ActionPromptCandidateDto, sourceObjectId?: string): PlayCardSourceRequirement[] {

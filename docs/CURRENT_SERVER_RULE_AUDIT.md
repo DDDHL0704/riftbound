@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十五批补充：卡牌详情操作选择 tooltip 继续过滤内部英文/协议 reason。`CardDetailDrawer` 现在统一通过 `choiceTitle` 生成选择按钮 title：中文服务端原因保留，明显内部英文说明或协议 token 降级为“服务端候选”，避免 `implemented payable PLAY_CARD source`、`required for precise battlefield movement` 这类历史 reason 进入玩家 hover 文案；提交参数仍使用服务端候选 id，不新增前端规则裁决。
+- 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过，静态扫描确认卡牌详情中不再有 `title={choice.reason ?? undefined}` 或已知内部 reason 文案直连。Chrome 插件 smoke 使用房间 `smoke-choice-title-1778242626275`，P1 页面连接、后台 P2 入座并 seed `basic-play`，打开卡牌详情后页面和 title 不含 `implemented payable PLAY_CARD source`、`implemented coarse battlefield destination`、`required for precise battlefield movement`、`P1-HAND` 或 `P1-MAIN`，过滤非应用扩展噪声后应用 error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百二十四批补充：事件/错误日志标题 tooltip 继续去 raw enum/code。`EventLog` 与 `RoomPage` 房间日志不再把 `event.kind` 或 `error.code` 放入 `<strong title=...>`，玩家 hover 也只能看到中文标题与中文描述；日志正文仍来自服务端事件/错误并通过既有中文 formatter 展示，不改变事件协议或规则裁决。
 - 已补验证：静态扫描确认 `title={event.kind}` / `title={error.code}` 已清零；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-log-title-1778242330553`，P1 页面连接、后台 P2 入座并 seed `basic-play`，事件日志显示“载入测试状态”，`.event-log strong[title]` / `.room-log-list strong[title]` 数量为 0，正文不含 `DEV_SCENARIO_SEEDED`、`MATCH_STARTED`、`ROOM_FULL` 或 `UNSUPPORTED_COMMAND`，过滤非应用扩展噪声后应用 error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
