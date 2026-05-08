@@ -34304,9 +34304,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal(
-            "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
-            result.ErrorMessage);
+        Assert.Equal("战场效果禁止将单位打出到该战场。", result.ErrorMessage);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);

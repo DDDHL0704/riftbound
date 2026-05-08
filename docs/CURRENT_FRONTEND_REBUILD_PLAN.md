@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百五十一批继续收口战场静态禁止出牌的服务端错误文案。`CoreRuleEngine` 在战场静态效果禁止单位打出到目标战场时，不再返回英文 raw “PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.”，改为中文“战场效果禁止将单位打出到该战场。”；Core 与 Hub 回归都断言错误消息不含 raw `PLAY_CARD`，并继续锁住失败不改变 authoritative state。前端仍只展示服务端 `PLAY_CARD` prompt/destinationChoices 支持的目的地，不自行绕过战场静态限制。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventsUnitPlayToBattlefield"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventPlayUnitsSeedRejectsAmbushToBattlefield"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百五十批继续收口启动技能未开放路径服务端错误文案。`CoreRuleEngine` 在 `ACTIVATE_ABILITY` 的 ability id 尚未进入服务端已开放技能目录时，不再返回英文 raw “ACTIVATE_ABILITY is not implemented in P4 yet.”，改为中文“当前启动技能路径尚未由服务端开放。”；P6 legend/battlefield/token deferred surfaces 的回归继续锁住拒绝、不改变资源/经验/区域/横置/伤害/结算链，并断言错误消息不含 raw `ACTIVATE_ABILITY`。前端仍只展示服务端 `ACTIVATE_ABILITY` prompt/sourceRequirements 中已开放的候选，deferred/manual 能力不假装可玩。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6ActivateAbilityCommandRejects|FullyQualifiedName~P6BattlefieldEffectCommandRejectsDeferredActivatedSurfaces"` 通过 8/8；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

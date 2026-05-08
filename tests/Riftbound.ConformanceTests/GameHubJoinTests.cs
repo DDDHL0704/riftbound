@@ -4566,9 +4566,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(playClients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.InvalidTarget, payload.Code);
-        Assert.Equal(
-            "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
-            payload.Message);
+        Assert.Equal("战场效果禁止将单位打出到该战场。", payload.Message);
+        Assert.DoesNotContain("PLAY_CARD", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]

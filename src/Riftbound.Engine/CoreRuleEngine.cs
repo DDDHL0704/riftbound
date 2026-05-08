@@ -412,7 +412,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
+                "战场效果禁止将单位打出到该战场。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -783,7 +783,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.",
+                "战场效果禁止将单位打出到该战场。",
                 ErrorCodes.InvalidTarget);
         }
 

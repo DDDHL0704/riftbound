@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百五十一批补充：战场静态效果禁止 `PLAY_CARD` 目的地的拒绝文案继续去内部协议名。此前服务端在战场静态效果禁止单位打出到该战场时会正确拒绝并保持状态不变，但错误消息包含 raw `PLAY_CARD` 和英文内部说明。现在服务端返回中文“战场效果禁止将单位打出到该战场。”，Core 与 Hub 回归同步断言错误消息不含 raw action kind；结构化 command kind/destination 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventsUnitPlayToBattlefield"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventPlayUnitsSeedRejectsAmbushToBattlefield"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百五十批补充：`ACTIVATE_ABILITY` 未开放路径拒绝文案继续去内部协议名。此前 deferred legend/battlefield/token activated surfaces 未进入 `P4ActivatedAbilityCatalog` 时会正确拒绝并保持状态不变，但错误消息包含 raw `ACTIVATE_ABILITY` 和 P4 阶段英文说明。现在服务端返回中文“当前启动技能路径尚未由服务端开放。”，相关 deferred surface 回归同步断言错误消息不含 raw action kind；结构化 prompt action/command kind 仍保留协议枚举供前端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P6ActivateAbilityCommandRejects|FullyQualifiedName~P6BattlefieldEffectCommandRejectsDeferredActivatedSurfaces"` 通过 8/8；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
