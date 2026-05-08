@@ -3209,8 +3209,7 @@ internal static class ActionPromptBuilder
         return zones.LegendZone
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var legendObject)
                 && !legendObject.IsExhausted
-                && (string.IsNullOrWhiteSpace(legendObject.ControllerId)
-                    || string.Equals(legendObject.ControllerId, playerId, StringComparison.Ordinal)))
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendObject, playerId))
             .SelectMany(objectId => LegendActionRequirementsForSource(state, playerId, objectId))
             .ToArray();
     }
@@ -3700,7 +3699,9 @@ internal static class ActionPromptBuilder
         string objectId,
         string tag)
     {
-        return IsControlledObjectWithTag(state, playerId, objectId, tag)
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && cardObject.Tags.Contains(tag, StringComparer.Ordinal)
             && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
             && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal);
     }
@@ -3839,7 +3840,9 @@ internal static class ActionPromptBuilder
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             ? zones.Base
                 .Concat(zones.Battlefields)
-                .Count(objectId => IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.Ephemeral))
+                .Count(objectId => state.CardObjects.TryGetValue(objectId, out var objectState)
+                    && SourceObjectControlledByPlayerOrLegacyOwned(objectState, playerId)
+                    && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal))
             : 0;
     }
 

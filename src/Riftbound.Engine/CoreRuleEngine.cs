@@ -1889,8 +1889,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (!string.IsNullOrWhiteSpace(sourceState.ControllerId)
-            && !string.Equals(sourceState.ControllerId, intent.PlayerId, StringComparison.Ordinal))
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
         {
             return RejectWithCorePrompts(
                 state,
@@ -2671,6 +2670,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Concat(zones.Battlefields)
             .Count(objectId => state.CardObjects.TryGetValue(objectId, out var objectState)
                 && IsControlledFieldObject(state, playerId, objectId)
+                && SourceObjectControlledByPlayerOrLegacyOwned(objectState, playerId)
                 && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal));
     }
 
@@ -2687,7 +2687,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (!state.CardObjects.TryGetValue(targetObjectId, out var targetState)
-            || string.IsNullOrWhiteSpace(targetState.CardNo))
+            || string.IsNullOrWhiteSpace(targetState.CardNo)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId))
         {
             return false;
         }
@@ -2712,6 +2713,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && !string.IsNullOrWhiteSpace(targetState.CardNo)
+            && SourceObjectControlledByPlayerOrLegacyOwned(targetState, playerId)
             && state.StackItems.Any(stackItem =>
                 string.Equals(stackItem.ControllerId, playerId, StringComparison.Ordinal)
                 && stackItem.TargetObjectIds.Contains(targetObjectId, StringComparer.Ordinal));
@@ -2728,6 +2730,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !IsControlledFieldObject(state, playerId, equipmentObjectId)
             || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState)
             || string.IsNullOrWhiteSpace(equipmentState.CardNo)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(equipmentState, playerId)
             || equipmentState.IsFaceDown
             || !equipmentState.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
             || !equipmentState.Tags.Contains("武装", StringComparer.Ordinal))

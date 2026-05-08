@@ -3192,7 +3192,7 @@ public sealed class ConformanceFixtureShapeTests
                 {
                     Base = ["P1-BASE-UNIT", "P1-ARMAMENT"],
                     Battlefields = ["P1-BATTLEFIELD-UNIT"],
-                    LegendZone = ["P1-LEGEND-YASUO", "P1-LEGEND-POPPY", "P1-LEGEND-JAX"]
+                    LegendZone = ["P1-LEGEND-YASUO", "P1-LEGEND-POPPY", "P1-LEGEND-JAX", "P1-LEGEND-OPPONENT-OWNED"]
                 },
                 ["P2"] = PlayerZones.Empty
             },
@@ -3216,6 +3216,11 @@ public sealed class ConformanceFixtureShapeTests
                     tags: ["CARD_TYPE:LEGEND"],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-LEGEND-OPPONENT-OWNED"] = new(
+                    "P1-LEGEND-OPPONENT-OWNED",
+                    cardNo: "FND-259/298",
+                    tags: ["CARD_TYPE:LEGEND"],
+                    ownerId: "P2"),
                 ["P1-BASE-UNIT"] = new(
                     "P1-BASE-UNIT",
                     cardNo: "SFD·125/221",
