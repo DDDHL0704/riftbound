@@ -29,9 +29,23 @@ const battleResolutionKindLabels: Record<string, string> = {
   NO_RESULT: "战斗无结果"
 };
 
+const stackEffectLabels: Record<string, string> = {
+  SPELL: "法术",
+  ABILITY: "技能",
+  HEXTECH_RAY_DAMAGE_3: "海克斯射线伤害",
+  LEGEND_ABILITY: "传奇技能",
+  TRIGGER: "触发",
+  REVEAL_CARD: "翻开待命"
+};
+
 function labelFor(map: Record<string, string>, value: unknown, fallback = "无") {
   const key = asString(value, "");
   return key ? (map[key] ?? key) : fallback;
+}
+
+function stackEffectLabel(value: unknown) {
+  const key = asString(value, "");
+  return key ? (stackEffectLabels[key] ?? "服务端效果") : "效果";
 }
 
 export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
@@ -50,12 +64,7 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
       </header>
       <div className="stack-list">
         {stack.length === 0 && <span className="empty-hint">当前无结算链项目</span>}
-        {stack.map((item, index) => (
-          <article className="stack-item" key={index}>
-            <strong>项目 {stack.length - index}</strong>
-            <code>{JSON.stringify(item)}</code>
-          </article>
-        ))}
+        {stack.map((item, index) => <StackItemSummary item={item} key={index} ordinal={stack.length - index} />)}
       </div>
       <div className="task-queue">
         <strong>待处理任务</strong>
@@ -81,5 +90,23 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function StackItemSummary({ item, ordinal }: { item: unknown; ordinal: number }) {
+  const record = asRecord(item);
+  const cardNo = asString(record.cardNo, "");
+  const targets = asArray<unknown>(record.targetObjectIds).length;
+  const destination = asString(record.destination, "");
+
+  return (
+    <article className="stack-item">
+      <strong>项目 {ordinal}</strong>
+      <span>控制者：{asString(record.controllerId, "未知")}</span>
+      <span>来源：{cardNo || "服务端技能"}</span>
+      <span>类型：{stackEffectLabel(record.effectKind)}</span>
+      {targets > 0 && <span>目标：{targets} 个</span>}
+      {destination && <span>去向：{destination}</span>}
+    </article>
   );
 }

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-003/P0-005 第一百九十五批补充：前端结算链面板不再裸显 raw stack JSON。`StackPanel` 将服务端 stack item 渲染为中文摘要，只显示控制者、公开卡号/服务端技能、中文化效果类型、目标数量和公开去向；不再把 `sourceObjectId`、`targetObjectIds`、`stackItemId` 等内部字段或 raw JSON 直接暴露在产品 UI 中。当前已为 `HEXTECH_RAY_DAMAGE_3` 补中文标签，未知 effectKind 只显示通用“服务端效果”。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-stack-summary-1778231855451`，P1 连接 spell-duel 场景后，规则队列显示“项目 1 / 控制者：P1 / 来源：OGN·009/298 / 类型：海克斯射线伤害 / 目标：1 个”，不显示 raw JSON、`sourceObjectId`、`targetObjectIds` 或 `HEXTECH_RAY_DAMAGE_3`，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P0-005 第一百九十四批补充：前端隐藏信息牌面继续收紧。`CardFace` 对未公开对象不再把 `objectId` 渲染到卡背上，只显示“未公开 / 卡背 / 隐藏信息”；隐藏卡牌详情抽屉的编号状态也改为通用“未公开”，战场对象缺失占位不再回落显示原始对象 ID。服务端 snapshot 仍可携带权威对象标识供内部状态和命令使用，但产品 UI 不把这些调试标识展示给无权玩家。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-hidden-object-labels-1778231623362`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接对战页，页面可见文本不含 `P2-LEGEND-001`、`P2-CHAMPION-001` 或 `hidden-0` 这类隐藏对象标识，仍显示通用“隐藏信息”；点击对手未公开传奇后，详情抽屉显示“未公开卡牌 / 隐藏信息 / 未公开”，不显示对象 ID，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
