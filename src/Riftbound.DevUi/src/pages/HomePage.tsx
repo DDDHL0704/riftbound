@@ -3,6 +3,7 @@ import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
 import { useCatalog } from "../stores/catalogStore";
+import { readinessLabel } from "../utils/formatters";
 
 export function HomePage({ onNavigate }: { onNavigate: (route: AppRoute) => void }) {
   const catalog = useCatalog();
@@ -29,7 +30,7 @@ export function HomePage({ onNavigate }: { onNavigate: (route: AppRoute) => void
         </article>
         <article>
           <span className="eyebrow">一致性口径</span>
-          <h2>NOT READY</h2>
+          <h2>{readinessLabel("NOT_READY")}</h2>
           <p>当前仍需补齐服务端 P0/P1 规则状态机和全官方证据。</p>
         </article>
         <article>

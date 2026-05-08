@@ -123,12 +123,67 @@ export function statusLabel(status?: string): string {
   switch (status) {
     case "implemented":
       return "已实现代表路径";
+    case "implemented-representative":
+      return "已实现代表路径";
     case "manual-rule-required":
       return "需要人工规则";
     case "unimplemented":
       return "未实现";
+    case "recognized-deferred":
+      return "已识别待补";
+    case "recognized-delegated":
+      return "已识别代理";
     default:
       return status ?? "未知";
+  }
+}
+
+export function readinessLabel(status?: string): string {
+  switch (status) {
+    case "NOT_READY":
+      return "尚未就绪";
+    case "READY":
+      return "已就绪";
+    default:
+      return status ?? "未知";
+  }
+}
+
+export function serviceStatusLabel(status?: string): string {
+  switch (status?.toLowerCase()) {
+    case "ok":
+    case "healthy":
+      return "正常";
+    default:
+      return status ?? "未知";
+  }
+}
+
+export function serviceNameLabel(service?: string): string {
+  switch (service) {
+    case "Riftbound.Api":
+      return "符文战场 API";
+    case "riftbound-dotnet":
+      return "符文战场服务端";
+    default:
+      return service ?? "未知服务";
+  }
+}
+
+export function serviceRoleLabel(role?: string): string {
+  switch (role?.toLowerCase()) {
+    case "development":
+    case "dev":
+      return "开发模式";
+    case "production":
+      return "生产模式";
+    case "migration-skeleton":
+      return "规则迁移模式";
+    case "test":
+    case "testing":
+      return "测试模式";
+    default:
+      return role ?? "未知";
   }
 }
 

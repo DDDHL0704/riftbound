@@ -31,7 +31,7 @@ export function CardLibraryPage() {
         <div>
           <span className="eyebrow">卡牌图鉴</span>
           <h1>官方卡牌视图</h1>
-          <p>当前只展示服务端 BehaviorSpec 和关键词覆盖口径，完整规则结论以最终复审为准。</p>
+          <p>当前只展示服务端行为规格和关键词覆盖口径，完整规则结论以最终复审为准。</p>
         </div>
         <StatusPill tone={error ? "bad" : "good"}>{loading ? "加载中" : error ? "加载失败" : `${specs.length} 张卡`}</StatusPill>
       </section>
@@ -54,8 +54,8 @@ export function CardLibraryPage() {
         </label>
       </section>
       <section className="coverage-strip">
-        <StatusPill tone="warn">Deferred family：{keywordCoverage?.families.filter((family) => family.deferredCards.length > 0).length ?? 0}</StatusPill>
-        <span>图鉴必须暴露 deferred/representative 状态，不能隐藏服务端证据缺口。</span>
+        <StatusPill tone="warn">待补关键词族：{keywordCoverage?.families.filter((family) => family.deferredCards.length > 0).length ?? 0}</StatusPill>
+        <span>图鉴必须暴露待补与代表性状态，不能隐藏服务端证据缺口。</span>
       </section>
       <section className="card-library-grid">
         {filtered.map((spec) => <CardFace key={spec.cardNo} onInspect={setInspectedCard} spec={spec} />)}

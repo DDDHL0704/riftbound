@@ -5,6 +5,7 @@ import { StatusPill } from "../components/ui/StatusPill";
 import { ApiClient, HealthResponse } from "../services/apiClient";
 import { useCatalog } from "../stores/catalogStore";
 import { useSettings } from "../stores/settingsStore";
+import { serviceNameLabel, serviceRoleLabel, serviceStatusLabel, statusLabel } from "../utils/formatters";
 
 type HealthState = {
   loading: boolean;
@@ -112,15 +113,15 @@ export function SettingsPage() {
             <dl>
               <div>
                 <dt>状态</dt>
-                <dd>{health.result.status}</dd>
+                <dd>{serviceStatusLabel(health.result.status)}</dd>
               </div>
               <div>
                 <dt>服务</dt>
-                <dd>{health.result.service}</dd>
+                <dd>{serviceNameLabel(health.result.service)}</dd>
               </div>
               <div>
                 <dt>角色</dt>
-                <dd>{health.result.role}</dd>
+                <dd>{serviceRoleLabel(health.result.role)}</dd>
               </div>
               <div>
                 <dt>.NET</dt>
@@ -152,12 +153,12 @@ export function SettingsPage() {
                 <dd>{catalog.keywordCoverage?.families.length ?? 0}</dd>
               </div>
               <div>
-                <dt>Deferred family</dt>
+                <dt>待补关键词族</dt>
                 <dd>{deferredFamilyCount}</dd>
               </div>
               {statusCounts.map(([status, count]) => (
                 <div key={status}>
-                  <dt>{status}</dt>
+                  <dt>{statusLabel(status)}</dt>
                   <dd>{count}</dd>
                 </div>
               ))}
@@ -168,7 +169,7 @@ export function SettingsPage() {
           <header>
             <UserRound size={18} />
             <strong>本地身份</strong>
-            <StatusPill tone="neutral">localStorage</StatusPill>
+            <StatusPill tone="neutral">本地存储</StatusPill>
           </header>
           <dl>
             <div>

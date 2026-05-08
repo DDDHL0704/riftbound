@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百零四批继续收口首页、图鉴和设置诊断中文展示。首页一致性状态从 raw `NOT READY` 改为“尚未就绪”；图鉴页将 `BehaviorSpec`、`Deferred family`、`deferred/representative` 改为中文；设置页把 `/health` 的真实 `status/service/role` 和关键词覆盖 `statusCounts` 枚举映射为中文，并把 `localStorage` 胶囊改为“本地存储”。这些改动只影响展示，不改变服务端证据口径。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 单独重跑通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 依次打开首页、`/cards`、`/settings`，设置 `serverUrl=http://127.0.0.1:5093` 后可见“尚未就绪 / 待补关键词族 / 服务端行为规格 / 正常 / 符文战场服务端 / 规则迁移模式 / 本地存储”，正文不含 raw `NOT READY`、`Deferred family`、`BehaviorSpec`、`localStorage`、`riftbound-dotnet`、`migration-skeleton`、`implemented-representative`、`recognized-deferred` 或 `recognized-delegated`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第二百零三批继续收口官方规则文本展示。`CardFace` 与 `CardDetailDrawer` 共用 `rulesText` formatter，把服务端 `officialText` 中的 `{{S}}`、`{{A}}`、`{{红色}}`、`{{横置}}`、`{{反应>}}` 等模板 token 转为玩家可读中文文本，避免图鉴卡面和详情正文裸显 `{{...}}`。前端仍只展示服务端提供的规则文本，不自行解释或裁决这些能力。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 打开 `/cards` 并进入首张卡详情，图鉴正文与详情正文均不含 `{{` 或 `}}`，规则文本显示“游走（我可以向其他战场进行移动。）”“战力+1”等可读中文 token，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
