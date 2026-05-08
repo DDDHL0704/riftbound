@@ -22324,18 +22324,22 @@ public sealed class CoreRuleEngine : IRuleEngine
 
             if (graveyard.Count > 0)
             {
+                var recyclableCards = graveyard
+                    .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, playerId, objectId))
+                    .ToArray();
                 var recycledCards = RandomizeForMainDeckBottom(
-                    graveyard,
+                    recyclableCards,
                     state.Seed,
                     rngCursor,
                     $"BURNOUT:{playerId}");
-                if (graveyard.Count > 1)
+                if (recyclableCards.Length > 1)
                 {
                     rngCursor++;
                 }
 
                 mainDeck.AddRange(recycledCards);
-                graveyard.Clear();
+                var recycledCardIds = recycledCards.ToHashSet(StringComparer.Ordinal);
+                graveyard.RemoveAll(objectId => recycledCardIds.Contains(objectId));
             }
 
             playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;

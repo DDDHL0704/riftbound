@@ -400,6 +400,95 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineBurnoutRecyclesOnlyControlledGraveyardCards()
+    {
+        var state = new MatchState(
+            "p2-turn-start-dirty-graveyard-room",
+            0,
+            4,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P2",
+            phase: MatchPhases.TurnStart,
+            timingState: TimingStates.NeutralClosed,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(1, 1)
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Graveyard = ["P2-GRAVE-OWNED", "P2-DIRTY-GRAVE-P1-OWNED"],
+                    RuneDeck = ["P2-RUNE-001", "P2-RUNE-002"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-GRAVE-OWNED"] = new(
+                    "P2-GRAVE-OWNED",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DIRTY-GRAVE-P1-OWNED"] = new(
+                    "P2-DIRTY-GRAVE-P1-OWNED",
+                    cardNo: "SFD·126/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1"),
+                ["P2-RUNE-001"] = new(
+                    "P2-RUNE-001",
+                    cardNo: "RUN·001",
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-RUNE-002"] = new(
+                    "P2-RUNE-002",
+                    cardNo: "RUN·002",
+                    tags: [CardObjectTags.RuneCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-turn-start-dirty-graveyard", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(MatchPhases.Main, result.State.Phase);
+        Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
+        Assert.Equal(["P2-GRAVE-OWNED"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-DIRTY-GRAVE-P1-OWNED"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(1, result.State.PlayerScores["P1"]);
+        Assert.Equal(0, result.State.PlayerScores["P2"]);
+
+        Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "BURNOUT_APPLIED", StringComparison.Ordinal));
+        var drawEvent = Assert.Single(
+            result.Events,
+            gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(1, drawEvent.Payload["count"]);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-DIRTY-GRAVE-P1-OWNED"].Zone);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsTurnStartAdvanceFromNonTurnPlayer()
     {
         var state = new MatchState(
