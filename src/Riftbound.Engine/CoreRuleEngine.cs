@@ -11645,6 +11645,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !AreAttachDetachTargetsAllowed(state, behavior, targetObjectIds)
             || !HasValidSacredJudgmentKeepTargets(state, command.SourceObjectId, behavior, targetObjectIds)
             || !HasValidEachPlayerTopFiveUnitTargets(state, behavior, targetObjectIds)
+            || !IsMainDeckLookWindowControlledByPlayer(state, intent.PlayerId, behavior)
             || targetObjectIds.Where((targetObjectId, targetIndex) =>
                 !IsTargetObjectInScope(state, intent.PlayerId, targetObjectId, behavior.TargetScope, targetIndex)
                 || !IsMainDeckLookTargetAllowed(state, intent.PlayerId, targetObjectId, targetIndex, behavior)
@@ -14226,7 +14227,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.MainDeck
                 .Take(behavior.MainDeckLookCount)
-                .Contains(objectId, StringComparer.Ordinal);
+                .Contains(objectId, StringComparer.Ordinal)
+            && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId);
+    }
+
+    private static bool IsMainDeckLookWindowControlledByPlayer(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.MainDeckLookCount <= 0
+            || behavior.PlaysEachPlayerTopFiveUnitToBase)
+        {
+            return true;
+        }
+
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.MainDeck
+                .Take(behavior.MainDeckLookCount)
+                .All(objectId => IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, objectId));
     }
 
     private static bool IsMainDeckTargetTagAllowed(

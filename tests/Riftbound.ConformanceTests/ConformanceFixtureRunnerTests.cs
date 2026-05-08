@@ -4256,6 +4256,62 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsPredictiveOffensiveWhenLookWindowCardIsNotControlledByDeckPlayer()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-PREDICTIVE-TOP-CONTROLLED", "P1-PREDICTIVE-DIRTY-P2-OWNED"],
+                    Hand = ["P1-SPELL-PREDICTIVE-OFFENSIVE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-PREDICTIVE-OFFENSIVE"] = new(
+                    "P1-SPELL-PREDICTIVE-OFFENSIVE",
+                    cardNo: "SFD·122/221",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-PREDICTIVE-TOP-CONTROLLED"] = new(
+                    "P1-PREDICTIVE-TOP-CONTROLLED",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-PREDICTIVE-DIRTY-P2-OWNED"] = new(
+                    "P1-PREDICTIVE-DIRTY-P2-OWNED",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-predictive-offensive-dirty-look-window", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-PREDICTIVE-OFFENSIVE",
+                "SFD·122/221",
+                ["P1-PREDICTIVE-TOP-CONTROLLED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-SPELL-PREDICTIVE-OFFENSIVE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P1-PREDICTIVE-TOP-CONTROLLED", "P1-PREDICTIVE-DIRTY-P2-OWNED"],
+            result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCardTrickDrawOneRecycleRest()
     {
         var fixture = await ConformanceFixture.LoadAsync(
