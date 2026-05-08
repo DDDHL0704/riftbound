@@ -17011,88 +17011,98 @@ public sealed class CoreRuleEngine : IRuleEngine
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
 
-            if (behavior.MovesFirstTargetToSecondTargetLocation
-                && TryMoveFirstTargetToSecondTargetLocation(
+            var canResolveLocationMove = !behavior.MovesFirstTargetToSecondTargetLocation
+                || CanMoveFirstTargetToSecondTargetLocation(
                     playerZones,
+                    cardObjects,
                     firstTargetObjectId,
-                    secondTargetObjectId,
-                    out var destinationPlayerId,
-                    out var destinationZone))
+                    secondTargetObjectId);
+            if (canResolveLocationMove)
             {
-                events.Add(new GameEvent(
-                    "UNIT_MOVED_TO_UNIT_LOCATION",
-                    $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = firstTargetObjectId,
-                        ["destinationTargetObjectId"] = secondTargetObjectId,
-                        ["destinationPlayerId"] = destinationPlayerId,
-                        ["destinationZone"] = destinationZone
-                    }));
-            }
-
-            if (behavior.PowerModifierAmount != 0
-                && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
-            {
-                var modifiedFirstTargetState = ApplyPowerModifier(
-                    currentFirstTargetStateForModifier,
-                    behavior,
-                    stackItem,
-                    firstTargetObjectId,
-                    behavior.PowerModifierAmount,
-                    out var powerEvent);
-                cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
-                events.Add(powerEvent);
-            }
-
-            for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
-            {
-                var firstTargetPower = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
-                    ? Math.Max(0, firstTargetState.Power)
-                    : 0;
-                var secondTargetPower = cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState)
-                    ? Math.Max(0, secondTargetState.Power)
-                    : 0;
-
-                if (firstTargetPower > 0
-                    && cardObjects.ContainsKey(secondTargetObjectId))
-                {
-                    var damageApplication = ApplyDamageToCardObject(
-                        cardObjects,
-                        secondTargetObjectId,
-                        firstTargetPower,
-                        damageTriggeredDestroyTargetObjectIds,
-                        preventDamageFromThisStackItem,
-                        PreventSpellAndSkillDamageThisTurnEffectId);
-                    events.Add(new GameEvent(
-                        "DAMAGE_APPLIED",
-                        $"{behavior.DisplayName}造成单位互斗伤害",
-                        BuildDamagePayload(
-                            stackItem.SourceObjectId,
-                            secondTargetObjectId,
-                            damageApplication,
-                            firstTargetObjectId)));
-                }
-
-                if (secondTargetPower > 0
-                    && cardObjects.ContainsKey(firstTargetObjectId))
-                {
-                    var damageApplication = ApplyDamageToCardObject(
+                if (behavior.MovesFirstTargetToSecondTargetLocation
+                    && TryMoveFirstTargetToSecondTargetLocation(
+                        playerZones,
                         cardObjects,
                         firstTargetObjectId,
-                        secondTargetPower,
-                        damageTriggeredDestroyTargetObjectIds,
-                        preventDamageFromThisStackItem,
-                        PreventSpellAndSkillDamageThisTurnEffectId);
+                        secondTargetObjectId,
+                        out var destinationPlayerId,
+                        out var destinationZone))
+                {
                     events.Add(new GameEvent(
-                        "DAMAGE_APPLIED",
-                        $"{behavior.DisplayName}造成单位互斗伤害",
-                        BuildDamagePayload(
-                            stackItem.SourceObjectId,
+                        "UNIT_MOVED_TO_UNIT_LOCATION",
+                        $"{behavior.DisplayName}让单位移动到另一名单位所在位置",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["targetObjectId"] = firstTargetObjectId,
+                            ["destinationTargetObjectId"] = secondTargetObjectId,
+                            ["destinationPlayerId"] = destinationPlayerId,
+                            ["destinationZone"] = destinationZone
+                        }));
+                }
+
+                if (behavior.PowerModifierAmount != 0
+                    && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
+                {
+                    var modifiedFirstTargetState = ApplyPowerModifier(
+                        currentFirstTargetStateForModifier,
+                        behavior,
+                        stackItem,
+                        firstTargetObjectId,
+                        behavior.PowerModifierAmount,
+                        out var powerEvent);
+                    cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
+                    events.Add(powerEvent);
+                }
+
+                for (var repeatIndex = 0; repeatIndex < stackItem.EffectRepeatCount; repeatIndex++)
+                {
+                    var firstTargetPower = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                        ? Math.Max(0, firstTargetState.Power)
+                        : 0;
+                    var secondTargetPower = cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState)
+                        ? Math.Max(0, secondTargetState.Power)
+                        : 0;
+
+                    if (firstTargetPower > 0
+                        && cardObjects.ContainsKey(secondTargetObjectId))
+                    {
+                        var damageApplication = ApplyDamageToCardObject(
+                            cardObjects,
+                            secondTargetObjectId,
+                            firstTargetPower,
+                            damageTriggeredDestroyTargetObjectIds,
+                            preventDamageFromThisStackItem,
+                            PreventSpellAndSkillDamageThisTurnEffectId);
+                        events.Add(new GameEvent(
+                            "DAMAGE_APPLIED",
+                            $"{behavior.DisplayName}造成单位互斗伤害",
+                            BuildDamagePayload(
+                                stackItem.SourceObjectId,
+                                secondTargetObjectId,
+                                damageApplication,
+                                firstTargetObjectId)));
+                    }
+
+                    if (secondTargetPower > 0
+                        && cardObjects.ContainsKey(firstTargetObjectId))
+                    {
+                        var damageApplication = ApplyDamageToCardObject(
+                            cardObjects,
                             firstTargetObjectId,
-                            damageApplication,
-                            secondTargetObjectId)));
+                            secondTargetPower,
+                            damageTriggeredDestroyTargetObjectIds,
+                            preventDamageFromThisStackItem,
+                            PreventSpellAndSkillDamageThisTurnEffectId);
+                        events.Add(new GameEvent(
+                            "DAMAGE_APPLIED",
+                            $"{behavior.DisplayName}造成单位互斗伤害",
+                            BuildDamagePayload(
+                                stackItem.SourceObjectId,
+                                firstTargetObjectId,
+                                damageApplication,
+                                secondTargetObjectId)));
+                    }
                 }
             }
         }
@@ -17366,6 +17376,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && stackItem.TargetObjectIds.Count >= 2
             && TryMoveFirstTargetToSecondTargetLocation(
                 playerZones,
+                cardObjects,
                 stackItem.TargetObjectIds[0],
                 stackItem.TargetObjectIds[1],
                 out var destinationPlayerId,
@@ -21167,6 +21178,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryMoveFirstTargetToSecondTargetLocation(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string movedObjectId,
         string destinationObjectId,
         out string destinationPlayerId,
@@ -21175,6 +21187,31 @@ public sealed class CoreRuleEngine : IRuleEngine
         destinationPlayerId = string.Empty;
         destinationZone = string.Empty;
 
+        if (!CanMoveFirstTargetToSecondTargetLocation(
+                playerZones,
+                cardObjects,
+                movedObjectId,
+                destinationObjectId))
+        {
+            return false;
+        }
+
+        var movedLocation = FindFieldObjectLocation(playerZones, movedObjectId)!.Value;
+        var targetLocation = FindFieldObjectLocation(playerZones, destinationObjectId)!.Value;
+
+        RemoveFieldObjectFromLocation(playerZones, movedLocation.PlayerId, movedLocation.Zone, movedObjectId);
+        AddFieldObjectToLocation(playerZones, targetLocation.PlayerId, targetLocation.Zone, movedObjectId);
+        destinationPlayerId = targetLocation.PlayerId;
+        destinationZone = targetLocation.Zone;
+        return true;
+    }
+
+    private static bool CanMoveFirstTargetToSecondTargetLocation(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string movedObjectId,
+        string destinationObjectId)
+    {
         if (string.Equals(movedObjectId, destinationObjectId, StringComparison.Ordinal))
         {
             return false;
@@ -21187,17 +21224,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (string.Equals(movedLocation.Value.PlayerId, targetLocation.Value.PlayerId, StringComparison.Ordinal)
-            && string.Equals(movedLocation.Value.Zone, targetLocation.Value.Zone, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        RemoveFieldObjectFromLocation(playerZones, movedLocation.Value.PlayerId, movedLocation.Value.Zone, movedObjectId);
-        AddFieldObjectToLocation(playerZones, targetLocation.Value.PlayerId, targetLocation.Value.Zone, movedObjectId);
-        destinationPlayerId = targetLocation.Value.PlayerId;
-        destinationZone = targetLocation.Value.Zone;
-        return true;
+        return (!string.Equals(movedLocation.Value.PlayerId, targetLocation.Value.PlayerId, StringComparison.Ordinal)
+                || !string.Equals(movedLocation.Value.Zone, targetLocation.Value.Zone, StringComparison.Ordinal))
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, movedLocation.Value.PlayerId, movedObjectId)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, targetLocation.Value.PlayerId, destinationObjectId);
     }
 
     private static bool TrySwapTargetLocations(

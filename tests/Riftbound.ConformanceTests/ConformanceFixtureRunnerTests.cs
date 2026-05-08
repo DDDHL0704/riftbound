@@ -20893,6 +20893,77 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineBaitResolutionSkipsAlreadyControlledEnemyZoneTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-BAIT-DIRTY-LOCATION",
+                    "P1",
+                    "P1-SPELL-BAIT",
+                    "BAIT_MOVE_ENEMY_UNIT_TO_ANOTHER_ENEMY_UNIT_LOCATION_NO_ECHO",
+                    "SFD·129/221",
+                    [
+                        "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
+                        "P2-BAIT-VALID-DESTINATION-UNIT"
+                    ])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"],
+                    Battlefields = ["P2-BAIT-VALID-DESTINATION-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BAIT-VALID-DESTINATION-UNIT"] = new(
+                    "P2-BAIT-VALID-DESTINATION-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-bait-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-bait-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BAIT-VALID-DESTINATION-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P1-SPELL-BAIT"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDragonsRageMoveThenMutualDamage()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -20912,6 +20983,80 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             1,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineDragonsRageResolutionSkipsAlreadyControlledEnemyZoneTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-DRAGONS-RAGE-DIRTY-LOCATION",
+                    "P1",
+                    "P1-SPELL-DRAGONS-RAGE",
+                    "DRAGONS_RAGE_MOVE_ENEMY_UNIT_THEN_MUTUAL_POWER_DAMAGE",
+                    "OGN·258/298",
+                    [
+                        "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
+                        "P2-DRAGONS-RAGE-VALID-DESTINATION-UNIT"
+                    ])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"],
+                    Battlefields = ["P2-DRAGONS-RAGE-VALID-DESTINATION-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DRAGONS-RAGE-VALID-DESTINATION-UNIT"] = new(
+                    "P2-DRAGONS-RAGE-VALID-DESTINATION-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-dragons-rage-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-dragons-rage-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-DRAGONS-RAGE-VALID-DESTINATION-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P1-SPELL-DRAGONS-RAGE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(0, p2Pass.State.CardObjects["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"].Damage);
+        Assert.Equal(0, p2Pass.State.CardObjects["P2-DRAGONS-RAGE-VALID-DESTINATION-UNIT"].Damage);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_UNIT_LOCATION", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
     }
 
     [Fact]
