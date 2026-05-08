@@ -564,7 +564,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("Match is not in progress.", result.ErrorMessage);
+        Assert.Equal("对局已经结束，不能继续提交行动。", result.ErrorMessage);
+        Assert.DoesNotContain("END_TURN", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(MatchStatuses.Finished, result.State.Status);
@@ -652,7 +653,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("Match is not in progress.", result.ErrorMessage);
+        Assert.Equal("对局已经结束，不能继续提交行动。", result.ErrorMessage);
+        Assert.DoesNotContain("MULLIGAN", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(MatchStatuses.Finished, result.State.Status);

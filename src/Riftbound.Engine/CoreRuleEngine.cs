@@ -249,7 +249,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return ValueTask.FromResult(RejectWithCorePrompts(
                 state,
-                "Match is not in progress.",
+                "对局已经结束，不能继续提交行动。",
                 ErrorCodes.PhaseNotAllowed));
         }
 
