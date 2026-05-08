@@ -21578,7 +21578,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && cardObjects.TryGetValue(entry.Key, out var cardObject)
                 && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
                 && cardObjects.TryGetValue(entry.Value.BattlefieldObjectId, out var battlefieldState)
-                && !string.Equals(cardObject.ControllerId, battlefieldState.ControllerId, StringComparison.Ordinal))
+                && !string.Equals(
+                    EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
+                    EffectiveFieldControllerId(playerZones, entry.Value.BattlefieldObjectId, battlefieldState),
+                    StringComparison.Ordinal))
             .OrderBy(entry => entry.Value.BattlefieldObjectId, StringComparer.Ordinal)
             .ThenBy(entry => entry.Key, StringComparer.Ordinal)
             .Select(entry => entry.Key)
@@ -21604,6 +21607,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
+            var previousControllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
             foreach (var playerId in playerZones.Keys.ToArray())
             {
                 var zones = playerZones[playerId];
@@ -21640,7 +21644,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["objectId"] = objectId,
                 ["ownerPlayerId"] = ownerPlayerId,
-                ["previousControllerId"] = cardObject.ControllerId,
+                ["previousControllerId"] = previousControllerId,
                 ["destinationZone"] = "GRAVEYARD"
             });
         }
@@ -21657,7 +21661,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     new Dictionary<string, object?>
                     {
                         ["battlefieldObjectId"] = battlefieldObjectId,
-                        ["controllerId"] = battlefieldState?.ControllerId,
+                        ["controllerId"] = battlefieldState is null
+                            ? null
+                            : EffectiveFieldControllerId(playerZones, battlefieldObjectId, battlefieldState),
                         ["removedObjectIds"] = entry.Value.Select(item => item["objectId"]).ToArray(),
                         ["removedCards"] = entry.Value,
                         ["reason"] = "BATTLEFIELD_CONTROL_CLEANUP"

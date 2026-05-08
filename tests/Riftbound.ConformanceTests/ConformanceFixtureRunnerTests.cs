@@ -1369,16 +1369,14 @@ public sealed class ConformanceFixtureRunnerTests
                 ["BF-ILLEGAL-STANDBY"] = new(
                     "BF-ILLEGAL-STANDBY",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P1",
-                    controllerId: "P2"),
+                    ownerId: "P2"),
                 ["P1-ILLEGAL-STANDBY"] = new(
                     "P1-ILLEGAL-STANDBY",
                     cardNo: "OGN·121/298",
                     power: 2,
                     isFaceDown: true,
                     tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "约德尔人"],
-                    ownerId: "P1",
-                    controllerId: "P1")
+                    ownerId: "P1")
             },
             priorityPlayerId: "P2",
             passedPriorityPlayerIds: ["P1"],
@@ -1424,6 +1422,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P2", standbyRemovedEvent.Payload["controllerId"]);
         Assert.Equal("BATTLEFIELD_CONTROL_CLEANUP", standbyRemovedEvent.Payload["reason"]);
         Assert.Equal(["P1-ILLEGAL-STANDBY"], Assert.IsType<object[]>(standbyRemovedEvent.Payload["removedObjectIds"]));
+        var removedCards = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(standbyRemovedEvent.Payload["removedCards"]);
+        var removedCard = Assert.Single(removedCards);
+        Assert.Equal("P1", removedCard["previousControllerId"]);
     }
 
     [Fact]
