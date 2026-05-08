@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十九批仍为服务端规则收口，没有前端 UI 文件变更。战场征服触发中自动挑选增益单位、exhausted legend、待重置符文/装备，以及按其他战场抽牌的枚举，已统一按 source-control/legacy-owned 过滤；对手拥有但 `controllerId` 为空的脏对象不会再被当前玩家触发路径消耗、重置或计入抽牌。前端继续只消费服务端 events/snapshot。
+- 本批验证：`dotnet build` 通过；`BattlefieldConquer` 相关回归 34/34、`GameHubJoinTests` 118/118、后端 full test 3112/3112 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十八批仍为服务端规则收口，没有前端 UI 文件变更。Azir/Rengar/Leona/Jhin 传奇存在性判断与 Rengar/Leona/Sivir 具体传奇查找改用统一 source-control/legacy-owned 判断；对手拥有但 `controllerId` 为空的脏传奇不会再被当前玩家的传奇触发路径当作合法来源。前端继续只展示服务端 events/snapshot，不新增本地规则裁决。
 - 本批验证：`dotnet build` 通过；`LegendTriggerRengar|LegendTriggerSivir|LegendTriggerJhin` 相关回归 11/11、`GameHubJoinTests` 118/118、后端 full test 3107/3107 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

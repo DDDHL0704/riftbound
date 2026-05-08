@@ -7546,6 +7546,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
                 || !IsIreliaLegendCardNo(candidate.CardNo)
                 || !candidate.IsExhausted)
             {
@@ -7577,6 +7578,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -10002,8 +10004,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             if (cardObjects.TryGetValue(candidateObjectId, out var candidate)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && candidate.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
-                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
-                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
                 && IsObjectOnField(playerZones, candidateObjectId))
             {
                 targetObjectId = candidateObjectId;
@@ -10393,8 +10394,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (cardObjects.TryGetValue(candidateObjectId, out var candidate)
                 && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
-                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+                && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
             {
                 targetObjectId = candidateObjectId;
                 return true;
@@ -10477,7 +10477,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var candidates = zones.Base
             .Where(objectId =>
                 cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsRuneObject(objectId, cardObject))
+                && IsRuneObject(objectId, cardObject)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .Take(requiredCount)
             .ToArray();
         if (candidates.Length < requiredCount)
@@ -10675,6 +10676,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !candidate.Tags.Contains(CardObjectTags.EquipmentCard, StringComparer.Ordinal)
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
                 || !candidate.IsExhausted)
             {
                 continue;
@@ -10713,8 +10715,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId =>
                 cardObjects.TryGetValue(objectId, out var candidate)
                 && IsBattlefieldCardObject(candidate)
-                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
-                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+                && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
             .ToArray();
         if (otherBattlefieldObjectIds.Length == 0)
         {

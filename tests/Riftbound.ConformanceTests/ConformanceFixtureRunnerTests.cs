@@ -31973,6 +31973,70 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerConsumesControlledBoonWhenDirtyBoonIsOpponentOwned()
+    {
+        var baseState = BattlefieldConquerBoonDrawState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Battlefields =
+            [
+                "P1-BATTLEFIELD-SHIRANA-ATTACKER",
+                "P1-BATTLEFIELD-DIRTY-P2-BOON",
+                "P1-BATTLEFIELD-LEGAL-BOON"
+            ]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-SHIRANA-ATTACKER"] = cardObjects["P1-BATTLEFIELD-SHIRANA-ATTACKER"] with
+        {
+            Tags = [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt]
+        };
+        cardObjects["P1-BATTLEFIELD-DIRTY-P2-BOON"] = new(
+            "P1-BATTLEFIELD-DIRTY-P2-BOON",
+            cardNo: "SFD·125/221",
+            power: 7,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            ownerId: "P2",
+            controllerId: "");
+        cardObjects["P1-BATTLEFIELD-LEGAL-BOON"] = new(
+            "P1-BATTLEFIELD-LEGAL-BOON",
+            cardNo: "SFD·125/221",
+            power: 5,
+            tags: [CardObjectTags.UnitCard, CardObjectTags.Boon],
+            ownerId: "P1",
+            controllerId: "P1");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-boon-dirty-target", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-SHIRANA-MONASTERY",
+                ["P1-BATTLEFIELD-SHIRANA-ATTACKER"],
+                ["P2-BATTLEFIELD-SHIRANA-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CONSUME_BOON_DRAW", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-LEGAL-BOON", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_CONSUMED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DIRTY-P2-BOON", StringComparison.Ordinal));
+        Assert.Contains(CardObjectTags.Boon, result.State.CardObjects["P1-BATTLEFIELD-DIRTY-P2-BOON"].Tags);
+        Assert.DoesNotContain(CardObjectTags.Boon, result.State.CardObjects["P1-BATTLEFIELD-LEGAL-BOON"].Tags);
+        Assert.Equal(7, result.State.CardObjects["P1-BATTLEFIELD-DIRTY-P2-BOON"].Power);
+        Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-LEGAL-BOON"].Power);
+        Assert.Equal(["P1-BATTLEFIELD-BOON-DRAW-CARD"], result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerOverkillCreatesWarhawk()
     {
         var state = BattlefieldConquerWarhawkState();
@@ -32414,6 +32478,40 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerReadyLegendSkipsOpponentOwnedLegend()
+    {
+        var baseState = BattlefieldConquerReadyLegendState();
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-READY-TARGET"] = cardObjects["P1-LEGEND-READY-TARGET"] with
+        {
+            OwnerId = "P2",
+            ControllerId = ""
+        };
+        var state = baseState with { CardObjects = cardObjects };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-legend-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-LEGEND-HALL",
+                ["P1-BATTLEFIELD-READY-ATTACKER"],
+                ["P2-BATTLEFIELD-READY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.True(result.State.CardObjects["P1-LEGEND-READY-TARGET"].IsExhausted);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_CONQUERED_PAY_1_READY_LEGEND", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_READIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerReadyRunesAtEndSchedulesAndReadiesRunes()
     {
         var state = BattlefieldConquerReadyRunesEndState();
@@ -32462,6 +32560,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerReadyRunesAtEndSkipsOpponentOwnedRune()
+    {
+        var baseState = BattlefieldConquerReadyRunesEndState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base =
+            [
+                "P1-BATTLEFIELD-DIRTY-P2-RUNE",
+                "P1-BATTLEFIELD-READY-RUNE-001",
+                "P1-BATTLEFIELD-READY-RUNE-002"
+            ]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-DIRTY-P2-RUNE"] = new(
+            "P1-BATTLEFIELD-DIRTY-P2-RUNE",
+            isExhausted: true,
+            tags: [CardObjectTags.RuneCard],
+            ownerId: "P2",
+            controllerId: "");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+        var engine = new CoreRuleEngine();
+
+        var battleResult = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-runes-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-MOUNT-TARGON",
+                ["P1-BATTLEFIELD-RUNE-ATTACKER"],
+                ["P2-BATTLEFIELD-RUNE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(battleResult.Accepted);
+        var scheduleEvent = Assert.Single(battleResult.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_TWO_RUNES_AT_END", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-READY-RUNE-001", "P1-BATTLEFIELD-READY-RUNE-002"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(scheduleEvent.Payload["runeObjectIds"]));
+        Assert.DoesNotContain(battleResult.State.UntilEndOfTurnEffects, effectId =>
+            effectId.Contains("P1-BATTLEFIELD-DIRTY-P2-RUNE", StringComparison.Ordinal));
+
+        var endResult = await engine.ResolveAsync(
+            battleResult.State,
+            new PlayerIntent("intent-p7-9-battlefield-ready-runes-dirty-end", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(endResult.Accepted);
+        Assert.True(endResult.State.CardObjects["P1-BATTLEFIELD-DIRTY-P2-RUNE"].IsExhausted);
+        Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-001"].IsExhausted);
+        Assert.False(endResult.State.CardObjects["P1-BATTLEFIELD-READY-RUNE-002"].IsExhausted);
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerDrawsForOtherControlledBattlefields()
     {
         var state = BattlefieldConquerDrawOtherState();
@@ -32491,6 +32649,59 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && Equals(gameEvent.Payload["count"], 2));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerDrawsForOtherBattlefieldsSkipsOpponentOwnedBattlefield()
+    {
+        var baseState = BattlefieldConquerDrawOtherState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Battlefields =
+            [
+                "P1-BATTLEFIELD-THRONE-OF-POWER",
+                "P1-BATTLEFIELD-DIRTY-P2-OTHER",
+                "P1-BATTLEFIELD-OTHER-001",
+                "P1-BATTLEFIELD-OTHER-002",
+                "P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"
+            ]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-DIRTY-P2-OTHER"] = new(
+            "P1-BATTLEFIELD-DIRTY-P2-OTHER",
+            cardNo: "OGN·280/298",
+            tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+            ownerId: "P2",
+            controllerId: "");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-draw-other-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-THRONE-OF-POWER",
+                ["P1-BATTLEFIELD-DRAW-OTHER-ATTACKER"],
+                ["P2-BATTLEFIELD-DRAW-OTHER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_DRAW_FOR_OTHER_BATTLEFIELDS", StringComparison.Ordinal));
+        Assert.Equal(2, triggerEvent.Payload["drawCount"]);
+        var otherBattlefieldObjectIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["otherBattlefieldObjectIds"]);
+        Assert.Equal(["P1-BATTLEFIELD-OTHER-001", "P1-BATTLEFIELD-OTHER-002"], otherBattlefieldObjectIds);
+        Assert.DoesNotContain("P1-BATTLEFIELD-DIRTY-P2-OTHER", otherBattlefieldObjectIds);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-DRAW-OTHER-001", "P1-BATTLEFIELD-DRAW-OTHER-002"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-DRAW-OTHER-003"], result.State.PlayerZones["P1"].MainDeck);
     }
 
     [Fact]
@@ -32640,6 +32851,61 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("P1-BATTLEFIELD-EQUIPMENT-HOST", detachEvent.Payload["previousAttachedToObjectId"]);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
         Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].AttachedToObjectId);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldConquerReadyEquipmentSkipsOpponentOwnedEquipment()
+    {
+        var baseState = BattlefieldConquerReadyEquipmentState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base =
+            [
+                "P1-BATTLEFIELD-EQUIPMENT-HOST",
+                "P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT",
+                "P1-BATTLEFIELD-ARMAMENT"
+            ]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT"] = new(
+            "P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT",
+            cardNo: "SFD·022/221",
+            isExhausted: true,
+            tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+            attachedToObjectId: "P1-BATTLEFIELD-EQUIPMENT-HOST",
+            ownerId: "P2",
+            controllerId: "");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-ready-equipment-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-MOONVEIL-ALTAR",
+                ["P1-BATTLEFIELD-EQUIPMENT-ATTACKER"],
+                ["P2-BATTLEFIELD-EQUIPMENT-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_READY_EQUIPMENT", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ARMAMENT", triggerEvent.Payload["equipmentObjectId"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-ARMAMENT"].AttachedToObjectId);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT"].IsExhausted);
+        Assert.Equal(
+            "P1-BATTLEFIELD-EQUIPMENT-HOST",
+            result.State.CardObjects["P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT"].AttachedToObjectId);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-AAA-DIRTY-P2-ARMAMENT", StringComparison.Ordinal));
     }
 
     [Fact]
