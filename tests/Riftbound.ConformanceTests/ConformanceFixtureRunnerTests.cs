@@ -10771,6 +10771,46 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineCursedSarcophagusBanishesOnlyControlledGraveyardUnits()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-cursed-sarcophagus-equipment-banish-graveyard-units.fixture.json"),
+            CancellationToken.None);
+        var initial = fixture.InitialState!;
+        var players = initial.Players!.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        players["P1"] = players["P1"] with
+        {
+            Graveyard = ["P1-GRAVE-DIRTY-P2-UNIT", "P1-GRAVE-UNIT-001", "P1-GRAVE-SPELL-001", "P1-GRAVE-UNIT-002"]
+        };
+        var cardObjects = initial.CardObjects!.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-GRAVE-DIRTY-P2-UNIT"] = new ConformanceCardObjectState
+        {
+            Tags = [CardObjectTags.UnitCard],
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+        var dirtyFixture = fixture with
+        {
+            InitialState = initial with
+            {
+                Players = players,
+                CardObjects = cardObjects
+            }
+        };
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            dirtyFixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(["P1-GRAVE-DIRTY-P2-UNIT", "P1-GRAVE-SPELL-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P1-GRAVE-UNIT-001", "P1-GRAVE-UNIT-002"], result.FinalState.PlayerZones["P1"].Banished);
+        var banishedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_BANISHED", StringComparison.Ordinal));
+        Assert.Equal(["P1-GRAVE-UNIT-001", "P1-GRAVE-UNIT-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(banishedEvent.Payload["cardIds"]));
+        Assert.Equal(2, banishedEvent.Payload["count"]);
+    }
+
+    [Fact]
     public Task CoreRuleEngineRejectsCursedSarcophagusWhenTargetsAreProvided() =>
         AssertEquipmentWithTargetRejectedAsync(
             4,

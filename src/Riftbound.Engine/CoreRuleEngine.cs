@@ -19384,7 +19384,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var banishedCardIds = zones.Graveyard
-            .Where(cardId => CardObjectHasTag(cardObjects, cardId, CardObjectTags.UnitCard))
+            .Where(cardId =>
+                CardObjectHasTag(cardObjects, cardId, CardObjectTags.UnitCard)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, stackItem.ControllerId, cardId))
             .ToArray();
         if (banishedCardIds.Length == 0)
         {
