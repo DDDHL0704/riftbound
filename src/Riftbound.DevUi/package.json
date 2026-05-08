@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "check:event-labels": "node scripts/check-event-labels.mjs",
+    "check:user-facing-text": "node scripts/check-user-facing-text.mjs",
     "dev": "vite --host 127.0.0.1",
-    "build": "npm run check:event-labels && tsc -b && vite build",
+    "build": "npm run check:event-labels && npm run check:user-facing-text && tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {

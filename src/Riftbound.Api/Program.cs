@@ -113,7 +113,7 @@ app.MapGet("/catalog/behavior-specs", async (string? cardNo, CancellationToken c
 
     var spec = specs.FirstOrDefault(candidate => string.Equals(candidate.CardNo, cardNo.Trim(), StringComparison.Ordinal));
     return spec is null
-        ? Results.NotFound(new { cardNo, message = "BehaviorSpec not found." })
+        ? Results.NotFound(new { cardNo, message = "找不到该卡牌的行为规格。" })
         : Results.Ok(spec);
 });
 

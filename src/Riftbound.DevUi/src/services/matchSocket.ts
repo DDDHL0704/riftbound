@@ -112,7 +112,7 @@ export class MatchSocket {
     const joined = new Promise<PlayerSessionDto>((resolve, reject) => {
       const timeout = window.setTimeout(() => {
         this.pendingJoin = undefined;
-        reject(new Error("Timed out waiting for Joined."));
+        reject(new Error("等待房间连接确认超时。"));
       }, 5000);
       this.pendingJoin = {
         resolve: (session) => {
