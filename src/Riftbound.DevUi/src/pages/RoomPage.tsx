@@ -20,7 +20,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         <div>
           <span className="eyebrow">房间</span>
           <h1>{roomId}</h1>
-          <p>入座、提交卡组、准备和开局均通过 GameHub 服务端确认。</p>
+          <p>入座、提交卡组、准备和开局均通过服务端实时连接确认。</p>
         </div>
         <StatusPill tone={connectionStatusTone(controller.state.status)}>
           {connectionStatusLabel(controller.state.status)}
@@ -47,7 +47,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
             </div>
           </article>
         ))}
-        {!snapshot && <div className="empty-panel">尚未收到房间 snapshot，请先连接。</div>}
+        {!snapshot && <div className="empty-panel">尚未收到房间快照，请先连接。</div>}
       </section>
       <section className="audit-banner">
         <strong>当前可提交行动：</strong>

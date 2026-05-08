@@ -22,7 +22,7 @@ export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: Snapsho
       <StatusPill tone={snapshot?.activePlayerId === playerId ? "good" : "neutral"}>回合玩家：{snapshot?.activePlayerId ?? "无"}</StatusPill>
       <StatusPill tone={asString(turnWindow.actingPlayerId, "") === playerId ? "good" : "neutral"}>行动权：{asString(turnWindow.actingPlayerId, "无")}</StatusPill>
       <StatusPill tone={asString(spellDuel.focusPlayerId, "") === playerId ? "good" : "info"}>焦点：{asString(spellDuel.focusPlayerId, "无")}</StatusPill>
-      <StatusPill tone={promptPlayer === playerId ? "warn" : "neutral"}>Prompt：{promptPlayer}</StatusPill>
+      <StatusPill tone={promptPlayer === playerId ? "warn" : "neutral"}>提示：{promptPlayer}</StatusPill>
       {status === "connected" ? <Wifi size={20} aria-hidden /> : <WifiOff size={20} aria-hidden />}
     </section>
   );

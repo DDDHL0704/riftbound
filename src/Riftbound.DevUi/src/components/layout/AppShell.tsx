@@ -27,7 +27,7 @@ export function AppShell({ activeRoute, onNavigate, children }: AppShellProps) {
           <NavButton active={activeRoute === "decks"} icon={<BookOpen size={18} />} label="卡组" onClick={() => onNavigate({ name: "decks" })} />
           <NavButton active={activeRoute === "settings"} icon={<Settings size={18} />} label="设置" onClick={() => onNavigate({ name: "settings" })} />
         </nav>
-        <p className="nav-footnote">所有可玩操作只来自服务端 ActionPrompt。</p>
+        <p className="nav-footnote">所有可玩操作只来自服务端行动提示。</p>
       </aside>
       <main className="app-content">{children}</main>
     </div>

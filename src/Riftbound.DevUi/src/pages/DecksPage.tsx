@@ -32,7 +32,7 @@ export function DecksPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
         <div>
           <span className="eyebrow">卡组管理</span>
           <h1>本地测试卡组</h1>
-          <p>服务端尚未提供卡组保存 REST。本页只展示房间 `SUBMIT_DECK` 使用的本地测试牌组；正式合法性以服务端提交结果为准。</p>
+          <p>服务端尚未提供卡组保存接口。本页只展示提交卡组会使用的本地测试牌组；正式合法性以服务端提交结果为准。</p>
         </div>
         <Button onClick={() => onNavigate({ name: "lobby" })}>用此卡组进入大厅</Button>
       </section>

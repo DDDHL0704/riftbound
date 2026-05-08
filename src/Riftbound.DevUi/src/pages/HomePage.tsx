@@ -36,7 +36,7 @@ export function HomePage({ onNavigate }: { onNavigate: (route: AppRoute) => void
         <article>
           <span className="eyebrow">前端原则</span>
           <h2>不本地裁决</h2>
-          <p>按钮、目标、费用和响应窗口必须来自服务端 ActionPrompt。</p>
+          <p>按钮、目标、费用和响应窗口必须来自服务端行动提示。</p>
         </article>
         <article>
           <span className="eyebrow">本批状态</span>

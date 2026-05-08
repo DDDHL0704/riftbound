@@ -23,13 +23,13 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
   return (
     <section className="side-panel action-panel">
       <header>
-        <span className="eyebrow">服务端 Prompt</span>
+        <span className="eyebrow">服务端行动提示</span>
         <h2>当前行动</h2>
       </header>
       <div className="prompt-summary">
         <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
-        <span>Prompt：{prompt?.promptId ?? "无"}</span>
-        <span>原因：{prompt?.reason ?? "尚未收到 prompt"}</span>
+        <span>提示状态：{prompt ? "已收到" : "无"}</span>
+        <span>原因：{prompt?.reason ?? "尚未收到行动提示"}</span>
         {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
       </div>
       <div className="action-buttons">

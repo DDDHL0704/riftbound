@@ -106,7 +106,7 @@ export function SettingsPage() {
         <article className="diagnostic-card">
           <header>
             <Server size={18} />
-            <strong>API 健康</strong>
+            <strong>服务端健康</strong>
             <StatusPill tone={health.error ? "bad" : health.loading ? "info" : "good"}>{health.error ? "失败" : health.loading ? "检查中" : "在线"}</StatusPill>
           </header>
           {health.result ? (
@@ -185,7 +185,7 @@ export function SettingsPage() {
               <dd>{logDensityLabel(settings.logDensity)}</dd>
             </div>
             <div>
-              <dt>API</dt>
+              <dt>服务端</dt>
               <dd>{settings.serverUrl}</dd>
             </div>
           </dl>

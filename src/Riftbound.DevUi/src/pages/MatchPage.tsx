@@ -36,8 +36,8 @@ export function MatchPage({ matchId, onNavigate }: { matchId: string; onNavigate
       <MatchTopBar playerId={settings.playerId} snapshot={snapshot} status={controller.state.status} />
       <section className="match-command-row">
         <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
-        <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步 snapshot</Button>
-        <span>房间/Match：{matchId}</span>
+        <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>
+        <span>房间/对局：{matchId}</span>
         <span>当前玩家：{settings.playerId}</span>
       </section>
       <div className="match-layout">

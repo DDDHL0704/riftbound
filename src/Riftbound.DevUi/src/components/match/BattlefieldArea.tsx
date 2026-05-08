@@ -19,7 +19,7 @@ export function BattlefieldArea({ onInspectCard, snapshot, specs }: { onInspectC
         <StatusPill tone={battlefields.length === 2 ? "good" : "warn"}>{battlefields.length || 0} 处战场</StatusPill>
       </header>
       <div className="battlefield-grid">
-        {battlefields.length === 0 && <div className="empty-panel">等待服务端下发战场 snapshot。</div>}
+        {battlefields.length === 0 && <div className="empty-panel">等待服务端下发战场快照。</div>}
         {battlefields.map((field, index) => {
           const cardNo = asString(field.cardNo, "");
           const occupants = asArray<string>(field.occupantObjectIds);

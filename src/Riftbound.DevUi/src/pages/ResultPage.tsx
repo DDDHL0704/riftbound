@@ -26,21 +26,21 @@ export function ResultPage({ matchId }: { matchId: string; onNavigate: unknown }
         <div>
           <span className="eyebrow">结算</span>
           <h1>{winnerPlayerId ? `胜者：${winnerPlayerId}` : matchId}</h1>
-          <p>结果只读取服务端 authoritative snapshot，不根据本地分数推断胜负。</p>
+          <p>结果只读取服务端权威快照，不根据本地分数推断胜负。</p>
         </div>
         <StatusPill tone={roomStatusTone(roomStatus)}>{roomStatusLabel(roomStatus)}</StatusPill>
       </section>
       <section className="match-command-row">
         <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
-        <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步 snapshot</Button>
-        <span>房间/Match：{matchId}</span>
+        <Button onClick={() => void controller.requestSnapshot()} variant="ghost">重新同步快照</Button>
+        <span>房间/对局：{matchId}</span>
         <span>当前玩家：{settings.playerId}</span>
       </section>
       <section className="status-grid">
         <article>
           <span className="eyebrow">服务端状态</span>
           <h2>{roomStatusLabel(roomStatus)}</h2>
-          <p>Tick {snapshot?.tick ?? 0} / 第 {snapshot?.turnNumber ?? 0} 回合</p>
+          <p>服务端帧 {snapshot?.tick ?? 0} / 第 {snapshot?.turnNumber ?? 0} 回合</p>
         </article>
         <article>
           <span className="eyebrow">胜者</span>

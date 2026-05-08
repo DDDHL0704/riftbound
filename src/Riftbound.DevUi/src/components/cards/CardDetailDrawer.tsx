@@ -52,7 +52,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
           {card.spec && <StatusPill tone={card.spec.status === "implemented" ? "info" : "warn"}>{statusLabel(card.spec.status)}</StatusPill>}
         </div>
         {hidden ? (
-          <p className="detail-muted">该对象未向当前玩家公开。前端只展示服务端 snapshot 允许的信息，不读取或推断卡名、费用、类型或规则文本。</p>
+          <p className="detail-muted">该对象未向当前玩家公开。前端只展示服务端快照允许的信息，不读取或推断卡名、费用、类型或规则文本。</p>
         ) : (
           <>
             <dl className="detail-grid">
@@ -99,7 +99,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
             <section className="detail-section detail-actions">
               <strong>服务端可提交操作</strong>
               {sourceActions.length === 0 ? (
-                <p className="detail-muted">当前服务端 prompt 没有给这张牌可提交的操作。</p>
+                <p className="detail-muted">当前服务端行动提示没有给这张牌可提交的操作。</p>
               ) : (
                 <div className="detail-action-list">
                   {sourceActions.map((candidate) => {
@@ -499,7 +499,7 @@ function PlayCardComposer({
   if (!sourceObjectId || !card.object?.cardNo) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID 或卡号，前端不会构造出牌命令。</p>
+        <p className="detail-muted">服务端快照未公开该来源的对象标识或卡号，前端不会构造出牌命令。</p>
       </article>
     );
   }
@@ -740,7 +740,7 @@ function HideCardComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造待命命令。</p>
+        <p className="detail-muted">服务端快照未公开该来源的对象标识，前端不会构造待命命令。</p>
       </article>
     );
   }
@@ -864,7 +864,7 @@ function RevealCardComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造翻开待命命令。</p>
+        <p className="detail-muted">服务端快照未公开该来源的对象标识，前端不会构造翻开待命命令。</p>
       </article>
     );
   }
@@ -1009,7 +1009,7 @@ function MoveUnitComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造移动命令。</p>
+        <p className="detail-muted">服务端快照未公开该来源的对象标识，前端不会构造移动命令。</p>
       </article>
     );
   }
@@ -1152,7 +1152,7 @@ function AssembleEquipmentComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该装备来源的对象 ID，前端不会构造装配命令。</p>
+        <p className="detail-muted">服务端快照未公开该装备来源的对象标识，前端不会构造装配命令。</p>
       </article>
     );
   }
@@ -1322,7 +1322,7 @@ function ActivateAbilityComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该来源的对象 ID，前端不会构造能力命令。</p>
+        <p className="detail-muted">服务端快照未公开该来源的对象标识，前端不会构造能力命令。</p>
       </article>
     );
   }
@@ -1516,7 +1516,7 @@ function LegendActionComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开该传奇来源的对象 ID，前端不会构造传奇行动命令。</p>
+        <p className="detail-muted">服务端快照未公开该传奇来源的对象标识，前端不会构造传奇行动命令。</p>
       </article>
     );
   }
@@ -1683,7 +1683,7 @@ function DeclareBattleComposer({
   if (!sourceObjectId) {
     return (
       <article className="play-card-composer">
-        <p className="detail-muted">服务端 snapshot 未公开攻击来源的对象 ID，前端不会构造战斗声明命令。</p>
+        <p className="detail-muted">服务端快照未公开攻击来源的对象标识，前端不会构造战斗声明命令。</p>
       </article>
     );
   }
