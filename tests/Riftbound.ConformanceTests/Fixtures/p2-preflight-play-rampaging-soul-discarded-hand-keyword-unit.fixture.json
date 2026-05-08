@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-rampaging-soul-no-discard-spirit-unit",
-  "description": "Rampaging Soul enters as a Spirit unit when no card was discarded this turn.",
+  "fixtureId": "p2-preflight-play-rampaging-soul-discarded-hand-keyword-unit",
+  "description": "Rampaging Soul enters with Assault and Roam when its controller discarded a hand card this turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302532,
+  "seed": 2603302533,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·019/298 肆虐狂魂",
-      "note": "官方卡面：费用 4；单位；战力 4；灵体属性；若本回合已弃置手牌，则自身获得强攻和游走。当前 fixture 未设置本回合弃置记录，覆盖条件未满足时成为基地单位对象并只记录灵体标签；条件满足的关键词授予由 paired discarded-hand fixture 覆盖。"
+      "note": "官方卡面：费用 4；单位；战力 4；灵体属性；若本回合已弃置手牌，则自身获得强攻和游走。本 fixture 通过服务端回合效果记录弃牌记忆，覆盖条件满足时的关键词授予。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象并可记录属性/关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+      "note": "单位是游戏对象并可记录属性/关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；强攻和游走是单位关键词。"
     }
   ],
-  "roomId": "p2-preflight-ogn-019-rampaging-soul-room",
+  "roomId": "p2-preflight-ogn-019-rampaging-soul-discarded-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302532,
+    "seed": 2603302533,
     "turnNumber": 532,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
@@ -34,6 +34,7 @@
       "P1": { "mana": 4, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
+    "untilEndOfTurnEffects": ["DISCARDED_HAND_CARD_THIS_TURN:P1"],
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
@@ -41,7 +42,7 @@
         "hand": ["P1-UNIT-RAMPAGING-SOUL"],
         "base": [],
         "battlefields": [],
-        "graveyard": [],
+        "graveyard": ["P1-DISCARDED-EARLIER-001"],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
         "championZone": ["P1-CHAMPION-001"]
@@ -63,7 +64,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-ogn-019-rampaging-soul-play",
+      "clientIntentId": "intent-p2-preflight-ogn-019-rampaging-soul-discarded-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-RAMPAGING-SOUL",
@@ -71,8 +72,8 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-019-rampaging-soul-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-019-rampaging-soul-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-019-rampaging-soul-discarded-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-019-rampaging-soul-discarded-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -97,19 +98,20 @@
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
+      "untilEndOfTurnEffects": ["DISCARDED_HAND_CARD_THIS_TURN:P1"],
       "players": {
         "P1": {
           "mainDeck": ["P1-MAIN-001"],
           "hand": [],
           "base": ["P1-UNIT-RAMPAGING-SOUL"],
-          "graveyard": []
+          "graveyard": ["P1-DISCARDED-EARLIER-001"]
         }
       },
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-RAMPAGING-SOUL": {
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT", "灵体"],
+          "tags": ["CARD_TYPE:UNIT", "强攻", "游走", "灵体"],
           "isExhausted": false
         }
       }

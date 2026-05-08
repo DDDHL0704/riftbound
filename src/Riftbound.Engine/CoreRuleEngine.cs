@@ -180,6 +180,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnJinxDiscardTriggerAltCardNo = "OGN·202a/298";
     private const string ArcJinxDiscardTriggerCardNo = "ARC-005/006";
     private const string JinxDiscardedHandCardsEffectKind = "JINX_DISCARDED_HAND_CARDS_READY_POWER_1";
+    private const string RampagingSoulCardNo = "OGN·019/298";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
         "金克丝",
@@ -318,6 +319,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldDestroyedInBattleRecallEffectId = "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
+    private const string DiscardedHandCardThisTurnEffectPrefix = "DISCARDED_HAND_CARD_THIS_TURN:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -737,6 +739,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             command.SourceObjectId,
             discardedOptionalCostObjectIds,
             events);
+        untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+            untilEndOfTurnEffects,
+            intent.PlayerId,
+            discardedOptionalCostObjectIds);
 
         TryResolveBattlefieldSpellPowerBonusTrigger(
             playerZones,
@@ -835,6 +841,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             PlayerZones = playerZones,
             ObjectLocations = objectLocations,
             PlayerScores = playerScores,
+            UntilEndOfTurnEffects = untilEndOfTurnEffects,
             WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId,
             RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
@@ -1371,6 +1378,30 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static string BuildPlayedEquipmentThisTurnEffectId(string playerId)
     {
         return $"{PlayedEquipmentThisTurnEffectPrefix}{playerId}";
+    }
+
+    private static string BuildDiscardedHandCardThisTurnEffectId(string playerId)
+    {
+        return $"{DiscardedHandCardThisTurnEffectPrefix}{playerId}";
+    }
+
+    private static bool PlayerDiscardedHandCardThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId)
+    {
+        return existingEffectIds.Contains(
+            BuildDiscardedHandCardThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> MarkPlayerDiscardedHandCardsThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        IReadOnlyCollection<string> discardedObjectIds)
+    {
+        return discardedObjectIds.Count > 0
+            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildDiscardedHandCardThisTurnEffectId(playerId))
+            : existingEffectIds;
     }
 
     private static string BuildBattlefieldFriendlySpellDrawUsedEffectId(string playerId, string sourceObjectId)
@@ -5861,11 +5892,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                     attackerObjectId,
                     rngCursor,
                     combatEvents,
-                    out var battlefieldDiscardDrawApplication))
+                    out var battlefieldDiscardDrawApplication,
+                    out var battlefieldDiscardedObjectIds))
             {
                 playerScores = battlefieldDiscardDrawApplication.PlayerScores;
                 winnerPlayerId = battlefieldDiscardDrawApplication.WinnerPlayerId;
                 rngCursor = battlefieldDiscardDrawApplication.RngCursor;
+                untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                    untilEndOfTurnEffects,
+                    intent.PlayerId,
+                    battlefieldDiscardedObjectIds);
             }
             if (TryResolveBattlefieldConquerConsumeBoonDrawTrigger(
                     state,
@@ -6010,9 +6046,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                     attackerObjectId,
                     attackerObjectId,
                     "BATTLEFIELD_CONQUERED_CREATE_IMAGE",
-                    out var leblancConquerEvents))
+                    out var leblancConquerEvents,
+                    out var leblancConquerDiscardedObjectIds))
             {
                 combatEvents.AddRange(leblancConquerEvents);
+                untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                    untilEndOfTurnEffects,
+                    intent.PlayerId,
+                    leblancConquerDiscardedObjectIds);
             }
             var reksaiConquerTrigger = ResolveReksaiLegendConquerRevealTrigger(
                 state,
@@ -6398,7 +6439,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                         attackerObjectId,
                         leblancCopySourceObjectId,
                         "BATTLEFIELD_HELD_CREATE_IMAGE",
-                        out var leblancHeldEvents))
+                        out var leblancHeldEvents,
+                        out var leblancHeldDiscardedObjectIds))
                 {
                     AddBattlefieldHeldEventIfNeeded(
                         combatEvents,
@@ -6408,6 +6450,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                         attackerObjectId,
                         defenderObjectIds);
                     combatEvents.AddRange(leblancHeldEvents);
+                    untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                        untilEndOfTurnEffects,
+                        battleWinnerPlayerId,
+                        leblancHeldDiscardedObjectIds);
                 }
 
                 if (TryResolveIvernLegendBrushTrigger(
@@ -8934,9 +8980,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         string battleSourceObjectId,
         string copySourceObjectId,
         string trigger,
-        out IReadOnlyList<GameEvent> events)
+        out IReadOnlyList<GameEvent> events,
+        out IReadOnlyList<string> discardedObjectIds)
     {
         events = [];
+        discardedObjectIds = [];
         if (!TryGetActiveLeblancLegend(playerZones, cardObjects, playerId, out var legendObjectId, out var legendState)
             || string.IsNullOrWhiteSpace(copySourceObjectId)
             || !playerZones.TryGetValue(playerId, out var zones)
@@ -8960,6 +9008,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        discardedObjectIds = [discardedObjectId];
         var tokenObjectId = NextTokenObjectId(playerZones, cardObjects, legendObjectId, 1);
         var tokenTags = copySourceState.Tags
             .Concat([CardObjectTags.UnitCard, CardObjectTags.Ephemeral, "映像"])
@@ -10783,9 +10832,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         string sourceObjectId,
         long rngCursor,
         List<GameEvent> events,
-        out DrawApplicationResult drawApplication)
+        out DrawApplicationResult drawApplication,
+        out IReadOnlyList<string> discardedObjectIds)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        discardedObjectIds = [];
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
             || !IsBattlefieldConquerDiscardDrawCardNo(battlefieldState.CardNo))
         {
@@ -10832,6 +10883,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     battlefieldObjectId,
                     [discardedObjectId],
                     events);
+                discardedObjectIds = [discardedObjectId];
             }
         }
 
@@ -17359,6 +17411,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     state.PlayerExperience,
+                    untilEndOfTurnEffects,
                     events);
             }
             else
@@ -17369,6 +17422,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     behavior,
                     stackItem,
                     state.PlayerExperience,
+                    untilEndOfTurnEffects,
                     events);
             }
 
@@ -17617,6 +17671,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.SourceObjectId,
                 discardedTargetObjectIds,
                 events);
+            untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                untilEndOfTurnEffects,
+                stackItem.ControllerId,
+                discardedTargetObjectIds).ToList();
         }
 
         if (behavior.DiscardsTargetFromOwnerHand)
@@ -17659,6 +17717,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem.SourceObjectId,
                     discardedTargetObjectIds,
                     events);
+                untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                    untilEndOfTurnEffects,
+                    discardPlayerId,
+                    discardedTargetObjectIds).ToList();
             }
         }
 
@@ -18159,6 +18221,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                     stackItem.SourceObjectId,
                     discardedObjectIds,
                     events);
+                untilEndOfTurnEffects = MarkPlayerDiscardedHandCardsThisTurn(
+                    untilEndOfTurnEffects,
+                    discardPlayerId,
+                    discardedObjectIds).ToList();
             }
 
             var perPlayerDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);
@@ -20801,12 +20867,27 @@ public sealed class CoreRuleEngine : IRuleEngine
         return payload;
     }
 
+    private static IReadOnlyList<string> ResolveConditionalSourceUnitTags(
+        CardBehaviorDefinition behavior,
+        string controllerId,
+        IReadOnlyList<string> untilEndOfTurnEffects)
+    {
+        if (string.Equals(behavior.CardNo, RampagingSoulCardNo, StringComparison.Ordinal)
+            && PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId))
+        {
+            return [CardCombatKeywordNames.Assault, CardCombatKeywordNames.Roam];
+        }
+
+        return [];
+    }
+
     private static void PlaySourceUnitToBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         IReadOnlyDictionary<string, int> playerExperience,
+        IReadOnlyList<string> untilEndOfTurnEffects,
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
@@ -20852,6 +20933,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Concat([CardObjectTags.UnitCard])
                 .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
                 .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
+                .Concat(ResolveConditionalSourceUnitTags(behavior, stackItem.ControllerId, untilEndOfTurnEffects))
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
@@ -20881,6 +20963,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         IReadOnlyDictionary<string, int> playerExperience,
+        IReadOnlyList<string> untilEndOfTurnEffects,
         List<GameEvent> events)
     {
         if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
@@ -20923,6 +21006,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Concat([CardObjectTags.UnitCard])
                 .Concat(ParseDelimitedValues(behavior.SourceUnitTags))
                 .Concat(levelApplies ? ParseDelimitedValues(behavior.LevelSourceUnitTags) : [])
+                .Concat(ResolveConditionalSourceUnitTags(behavior, stackItem.ControllerId, untilEndOfTurnEffects))
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
