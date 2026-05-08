@@ -26370,6 +26370,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("让过优先权只能在优先行动窗口中提交。", result.ErrorMessage);
+        Assert.DoesNotContain("PASS_PRIORITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P1", result.State.TurnPlayerId);
@@ -26549,6 +26551,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("让过焦点只能在法术对决焦点窗口中提交。", result.ErrorMessage);
+        Assert.DoesNotContain("PASS_FOCUS", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new[] { "END_TURN", "SURRENDER" }, result.Prompts["P1"].Actions);

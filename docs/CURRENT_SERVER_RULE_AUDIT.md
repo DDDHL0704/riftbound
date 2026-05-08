@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百三十五批补充：`PASS_PRIORITY` / `PASS_FOCUS` 非法窗口错误文案去内部协议名。此前玩家或手写客户端在没有优先权窗口/法术对决焦点窗口时提交让过命令，服务端会正确拒绝并保持状态不变，但错误消息包含 raw `PASS_PRIORITY` / `PASS_FOCUS` 和英文窗口名。现在服务端分别返回“让过优先权只能在优先行动窗口中提交。”与“让过焦点只能在法术对决焦点窗口中提交。”，测试同步断言错误消息不含 raw action kind；结构化 prompt action 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsPassPriorityOutsidePriorityWindow|FullyQualifiedName~CoreRuleEngineRejectsPassFocusOutsideSpellDuel"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百三十四批补充：`DECLARE_BATTLE` 匹配 active START_BATTLE 任务失败时的运行时错误文案去内部协议名。此前当前行动玩家绕过 UI、把声明战斗命令提交到错误战场时，服务端会拒绝且保持状态不变，但错误消息为英文并包含 raw `DECLARE_BATTLE` / `START_BATTLE`。现在服务端返回中文“声明战斗必须匹配当前争夺战场的开始战斗任务。”，测试同步断言错误消息不含 raw action/task kind；结构化 pending task / prompt action 仍保留协议枚举供客户端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask|FullyQualifiedName~CoreRuleEngineRejectsDeclareBattleThatDoesNotMatchActiveStartBattleTask"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

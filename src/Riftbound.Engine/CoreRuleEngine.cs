@@ -362,7 +362,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return ValueTask.FromResult(RejectWithCorePrompts(
                 state,
-                "PASS_PRIORITY is not allowed without an open priority window.",
+                "让过优先权只能在优先行动窗口中提交。",
                 ErrorCodes.PhaseNotAllowed));
         }
 
@@ -370,7 +370,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return ValueTask.FromResult(RejectWithCorePrompts(
                 state,
-                "PASS_FOCUS is not allowed without an open spell duel focus window.",
+                "让过焦点只能在法术对决焦点窗口中提交。",
                 ErrorCodes.PhaseNotAllowed));
         }
 

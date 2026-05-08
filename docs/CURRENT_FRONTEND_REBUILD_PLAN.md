@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百三十五批继续收口核心让过动作的服务端错误文案。`CoreRuleEngine` 在没有优先行动窗口时拒绝 `PASS_PRIORITY`、没有法术对决焦点窗口时拒绝 `PASS_FOCUS`，错误消息改为中文“让过优先权只能在优先行动窗口中提交。”和“让过焦点只能在法术对决焦点窗口中提交。”；测试断言玩家可见错误不含 raw `PASS_PRIORITY` / `PASS_FOCUS`。前端无需新增本地窗口判断，仍只提交服务端 prompt 当前暴露的让过候选。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsPassPriorityOutsidePriorityWindow|FullyQualifiedName~CoreRuleEngineRejectsPassFocusOutsideSpellDuel"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百三十四批继续收口 active battle task 错误文案。`CoreRuleEngine` 在当前行动玩家手写错误战场的 `DECLARE_BATTLE` 时，仍会拒绝并保持 authoritative state 不变，但错误消息从英文 raw 协议句改为中文“声明战斗必须匹配当前争夺战场的开始战斗任务。”；测试断言玩家可见错误不含 `DECLARE_BATTLE` / `START_BATTLE`。前端无需新增本地判断，继续只提交服务端 `DECLARE_BATTLE` candidate/sourceRequirements 支持的战场、攻击者和防守者。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask|FullyQualifiedName~CoreRuleEngineRejectsDeclareBattleThatDoesNotMatchActiveStartBattleTask"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
