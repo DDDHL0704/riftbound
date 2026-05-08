@@ -99,6 +99,7 @@
       "UNIT_DESTROYED",
       "BATTLEFIELD_CONQUERED",
       "EXPERIENCE_GAINED",
+      "DAMAGE_REMOVED",
       "BATTLE_CLOSED"
     ],
     "events": [
@@ -184,9 +185,20 @@
         }
       },
       {
+        "kind": "DAMAGE_REMOVED",
+        "tick": 1,
+        "sequence": 7,
+        "payload": {
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "objectIds": ["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"],
+          "count": 1,
+          "reason": "BATTLE_CLEANUP"
+        }
+      },
+      {
         "kind": "BATTLE_CLOSED",
         "tick": 1,
-        "sequence": 7
+        "sequence": 8
       }
     ],
     "promptActions": {
@@ -224,7 +236,7 @@
       "cardObjects": {
         "P1-BATTLEFIELD-GLUTTONOUS-TOADFROG": {
           "cardNo": "UNL-100/219",
-          "damage": 3,
+          "damage": 0,
           "power": 5,
           "isAttacking": false,
           "isDefending": false,

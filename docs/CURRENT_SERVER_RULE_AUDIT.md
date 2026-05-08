@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百八十一批补充：`DECLARE_BATTLE` 代表路径补齐战斗结算中的战斗特殊清理。服务端在战斗伤害与致命清理后，会对仍存活的参战单位广播 `DAMAGE_REMOVED` 并把伤害清为 0；若防守方仍有单位留在该战场，则把仍位于该战场的进攻单位召回其基地并广播 `UNIT_RECALLED_TO_BASE`。前端继续只展示服务端事件和 authoritative snapshot，不在浏览器侧自行判断战斗清理、召回或最终伤害状态。
+- 已补测试与验证：扩展单攻单防、狩猎征服/据守、壁垒/后排、多攻击者、多攻防、眩晕进攻者、静态战斗修正、战场修正和 Hub seed 断言，fixture 期望同步加入 `DAMAGE_REMOVED` 事件与最终 0 伤害。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`DeclareBattleCommand|BattlefieldControl` 相邻回归 61/61、用户指定待命/控制目标回归 3/3、用户指定战场 seed 回归 2/2、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件只读连通性检查成功并已清理 agent 标签页；本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke。整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百八十批补充：据守狩猎的事件 payload 继续补齐回放/日志证据。`BATTLEFIELD_HELD` 在由幸存防守狩猎单位触发经验时，现在会携带 `huntAmount`、`huntSourceObjectIds` 和 `huntAmountsBySource`，与征服路径的狩猎来源证据对齐；`EXPERIENCE_GAINED` 仍以实际幸存防守狩猎单位作为来源。既有非狩猎据守事件保持原 payload，不引入新的前端裁决。
 - 已补测试与验证：扩展 `P4DeclareBattleCommandGrantsHuntExperienceWhenDefenderHoldsBattlefield`，断言 `BATTLEFIELD_HELD` payload 中的狩猎来源和数值。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；狩猎征服/据守精确回归 3/3、`DeclareBattleCommand|Hunt|BattlefieldHeld` 相邻回归 104/104、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
 
@@ -744,9 +747,9 @@
 - `src/Riftbound.Engine/CoreRuleEngine.cs:4174` 的 `ResolveDeclareBattle` 直接执行战斗。
 - `src/Riftbound.Engine/CoreRuleEngine.cs:5185` 的 `TryBuildMinimalDeclareBattle` 只支持 1 个攻击者、1 到 2 个防守者，且条件被命名为 minimal。
 - `src/Riftbound.Engine/MatchSession.cs` 的 `DeclareBattleSourceRequirements` 现在按同一代表路径公开 1 个必选防守槽；只有在存在壁垒/后排伤害分配关键词防守者时才公开第二个可选防守槽。
-- `src/Riftbound.Engine/CoreRuleEngine.cs:4275` 到 `src/Riftbound.Engine/CoreRuleEngine.cs:4382` 直接计算并应用伤害。
+- `src/Riftbound.Engine/CoreRuleEngine.cs` 的 `ResolveDeclareBattle` 直接计算并应用伤害；代表路径已在伤害与致命清理后执行 `DAMAGE_REMOVED` 战斗清理，并在防守方仍在该战场时通过 `UNIT_RECALLED_TO_BASE` 召回战场上的进攻单位。
 
-现象：当前战斗仍是显式 `DECLARE_BATTLE` 命令驱动的“立即结算战斗片段”，不是由清理任务在争夺战场时启动的完整 battle task。法术对决已修复几个关键窗口问题：迅捷牌结算后不会提前关闭法术对决；反应/反制链会继承并保留法术对决 timing context；core prompt 在法术对决焦点窗口也会暴露可支付、合法时点的迅捷出牌来源。现在服务端也能显式表达四类窗口、当前法术对决、战斗参与者、争夺战场任务视图，以及 1-2 防守者 direct/minimal 代表路径的服务端候选；但仍缺少围绕某个 battle/trigger/card 的完整 pending/focus/initial-stack 生命周期。
+现象：当前战斗仍是显式 `DECLARE_BATTLE` 命令驱动的“立即结算战斗片段”，不是由清理任务在争夺战场时启动的完整 battle task。法术对决已修复几个关键窗口问题：迅捷牌结算后不会提前关闭法术对决；反应/反制链会继承并保留法术对决 timing context；core prompt 在法术对决焦点窗口也会暴露可支付、合法时点的迅捷出牌来源。现在服务端也能显式表达四类窗口、当前法术对决、战斗参与者、争夺战场任务视图、1-2 防守者 direct/minimal 代表路径的服务端候选，以及代表路径的战斗清伤害/进攻方召回；但仍缺少围绕某个 battle/trigger/card 的完整 pending/focus/initial-stack 生命周期。
 
 最小复现场景：迅捷牌在 `SPELL_DUEL_OPEN` 焦点窗口打出并结算后，当前会回到 `SPELL_DUEL_OPEN` 且焦点移交下一名玩家。单位移动到敌方控制战场时，按官方规则应进入争夺并触发法术对决/战斗流程；这一部分仍没有完整 battle task。
 

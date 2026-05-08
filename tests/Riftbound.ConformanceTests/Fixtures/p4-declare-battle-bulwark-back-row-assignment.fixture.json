@@ -108,6 +108,7 @@
       "DAMAGE_APPLIED",
       "UNIT_DESTROYED",
       "UNIT_DESTROYED",
+      "DAMAGE_REMOVED",
       "BATTLE_CLOSED"
     ],
     "events": [
@@ -218,9 +219,20 @@
         }
       },
       {
+        "kind": "DAMAGE_REMOVED",
+        "tick": 1,
+        "sequence": 8,
+        "payload": {
+          "battlefieldId": "BATTLEFIELD:P1-MAIN",
+          "objectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
+          "count": 1,
+          "reason": "BATTLE_CLEANUP"
+        }
+      },
+      {
         "kind": "BATTLE_CLOSED",
         "tick": 1,
-        "sequence": 8
+        "sequence": 9
       }
     ],
     "promptActions": {
@@ -254,7 +266,7 @@
       "cardObjects": {
         "P1-BATTLEFIELD-VOLIBEAR": {
           "cardNo": "OGN·158/298",
-          "damage": 7,
+          "damage": 0,
           "power": 10,
           "isAttacking": false,
           "isDefending": false,

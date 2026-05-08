@@ -30881,7 +30881,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, defenderDamageEvent.Payload["damage"]);
-        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
     }
 
     [Fact]
@@ -30956,7 +30956,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, attackerDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
-        Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
     }
 
     [Fact]
@@ -31022,7 +31022,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, defenderDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(4, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(4, defenderDamageEvent.Payload["damage"]);
-        Assert.Equal(4, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
     }
 
     [Fact]
@@ -31088,7 +31088,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(-1, attackerDamageEvent.Payload["staticPowerBonus"]);
         Assert.Equal(2, attackerDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, attackerDamageEvent.Payload["damage"]);
-        Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
     }
 
     [Fact]
@@ -32764,7 +32764,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(3, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(3, defenderDamageEvent.Payload["damage"]);
-        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"].Damage);
     }
 
     [Fact]
@@ -32832,7 +32832,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(-2, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, defenderDamageEvent.Payload["damage"]);
-        Assert.Equal(2, result.State.CardObjects["P1-BATTLEFIELD-ISOLATED-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ISOLATED-ATTACKER"].Damage);
         Assert.Equal(["P2-BATTLEFIELD-ISOLATED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
     }
 
@@ -44936,6 +44936,14 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("GRAVEYARD", destroyedEvent.Payload["destinationZone"]);
                 Assert.Equal("LETHAL_DAMAGE", destroyedEvent.Payload["reason"]);
             },
+            damageRemovedEvent =>
+            {
+                Assert.Equal("DAMAGE_REMOVED", damageRemovedEvent.Kind);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", damageRemovedEvent.Payload["battlefieldId"]);
+                Assert.Equal(["P1-BATTLEFIELD-GAREN"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+                Assert.Equal(1, damageRemovedEvent.Payload["count"]);
+                Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -44947,7 +44955,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
-        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GAREN"].Power);
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
@@ -45011,11 +45019,22 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
         Assert.Equal(2, defenderDamageEvent.Payload["damage"]);
+        var noResultEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal));
+        Assert.Equal("BOTH_SIDES_RETAIN_UNITS", noResultEvent.Payload["reason"]);
+        var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+        var recalledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-STUNNED-ATTACKER", recalledEvent.Payload["targetObjectId"]);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", recalledEvent.Payload["battlefieldId"]);
+        Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", recalledEvent.Payload["reason"]);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
 
-        Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
-        Assert.Equal(2, result.State.CardObjects["P1-BATTLEFIELD-STUNNED-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-STUNNED-ATTACKER"].Damage);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-STUNNED-ATTACKER"].IsAttacking);
         Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-DEFENDER"].Damage);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
@@ -45355,6 +45374,14 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal(3, experienceEvent.Payload["amount"]);
                 Assert.Equal(3, experienceEvent.Payload["totalExperience"]);
             },
+            damageRemovedEvent =>
+            {
+                Assert.Equal("DAMAGE_REMOVED", damageRemovedEvent.Kind);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", damageRemovedEvent.Payload["battlefieldId"]);
+                Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+                Assert.Equal(1, damageRemovedEvent.Payload["count"]);
+                Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -45366,7 +45393,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
-        Assert.Equal(3, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
         Assert.Equal(5, result.State.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Power);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -45444,7 +45471,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P2"].Battlefields);
         Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-ATTACKER"));
         Assert.False(result.State.CardObjects["P2-BATTLEFIELD-HUNTER"].IsDefending);
-        Assert.Equal(1, result.State.CardObjects["P2-BATTLEFIELD-HUNTER"].Damage);
+        var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-HUNTER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-HUNTER"].Damage);
         Assert.Equal(["P1"], result.State.DestroyedUnitOwnerIdsThisTurn);
         Assert.Empty(result.State.StackItems);
     }
@@ -45578,6 +45608,14 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("GRAVEYARD", mutantKittenDestroyedEvent.Payload["destinationZone"]);
                 Assert.Equal("LETHAL_DAMAGE", mutantKittenDestroyedEvent.Payload["reason"]);
             },
+            damageRemovedEvent =>
+            {
+                Assert.Equal("DAMAGE_REMOVED", damageRemovedEvent.Kind);
+                Assert.Equal("BATTLEFIELD:P1-MAIN", damageRemovedEvent.Payload["battlefieldId"]);
+                Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+                Assert.Equal(1, damageRemovedEvent.Payload["count"]);
+                Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+            },
             closedEvent =>
             {
                 Assert.Equal("BATTLE_CLOSED", closedEvent.Kind);
@@ -45596,7 +45634,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.State.PlayerZones["P2"].Graveyard);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
         Assert.False(result.State.BattleState.IsActive);
-        Assert.Equal(7, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -45681,7 +45719,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
         Assert.Contains("P2-BATTLEFIELD-BULWARK-A", result.State.PlayerZones["P2"].Graveyard);
         Assert.Contains("P2-BATTLEFIELD-BULWARK-B", result.State.PlayerZones["P2"].Graveyard);
-        Assert.Equal(8, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
+        var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK-A"));
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK-B"));
@@ -45772,7 +45813,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-GAREN"));
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
-        Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal(result.State.Tick, battleResolution.Tick);
@@ -45992,7 +46033,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-BULWARK"));
         Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-YI"].IsAttacking);
-        Assert.Equal(1, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-YI"].Damage);
         Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
         var battleResolution = Assert.Single(result.State.BattleResolutions);
         Assert.Equal(result.State.Tick, battleResolution.Tick);
@@ -47444,7 +47485,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].IsAttacking);
-        Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-GAREN"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
     }
@@ -47467,7 +47508,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-LEBLANC", "P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
-        Assert.Equal(7, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-LEBLANC"));
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
@@ -47493,7 +47534,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(["P2-BATTLEFIELD-MUTANT-KITTEN"], result.FinalState.PlayerZones["P2"].Graveyard);
         Assert.False(result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].IsAttacking);
-        Assert.Equal(3, result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
+        Assert.Equal(0, result.FinalState.CardObjects["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"].Damage);
         Assert.False(result.FinalState.CardObjects.ContainsKey("P2-BATTLEFIELD-MUTANT-KITTEN"));
         Assert.Empty(result.FinalState.StackItems);
     }

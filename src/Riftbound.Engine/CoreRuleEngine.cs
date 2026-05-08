@@ -6108,6 +6108,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingPlayerId));
         }
 
+        ApplyBattleCleanup(
+            playerZones,
+            cardObjects,
+            battlefieldId,
+            attackerObjectIds,
+            defenderObjectIds,
+            combatEvents);
         var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
         CloseResolvedBattle(cardObjects, battlefieldId, attackerObjectIds, defenderObjectIds, combatEvents);
         combatEvents.AddRange(ResolveBattlefieldControlAfterBattle(
@@ -6183,6 +6190,104 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static void ApplyBattleCleanup(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string battlefieldId,
+        IReadOnlyList<string> attackerObjectIds,
+        IReadOnlyList<string> defenderObjectIds,
+        List<GameEvent> events)
+    {
+        var survivingAttackerObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, attackerObjectIds);
+        var survivingDefenderObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds);
+        var damagedParticipantObjectIds = survivingAttackerObjectIds
+            .Concat(survivingDefenderObjectIds)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Damage > 0)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (damagedParticipantObjectIds.Length > 0)
+        {
+            foreach (var objectId in damagedParticipantObjectIds)
+            {
+                cardObjects[objectId] = cardObjects[objectId] with { Damage = 0 };
+            }
+
+            events.Add(new GameEvent(
+                "DAMAGE_REMOVED",
+                "战斗清理移除单位伤害",
+                new Dictionary<string, object?>
+                {
+                    ["battlefieldId"] = battlefieldId,
+                    ["objectIds"] = damagedParticipantObjectIds,
+                    ["count"] = damagedParticipantObjectIds.Length,
+                    ["reason"] = "BATTLE_CLEANUP"
+                }));
+        }
+
+        if (survivingDefenderObjectIds.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var attackerObjectId in survivingAttackerObjectIds)
+        {
+            if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState))
+            {
+                continue;
+            }
+
+            var currentLocation = FindFieldObjectLocation(playerZones, attackerObjectId);
+            if (currentLocation is null
+                || !string.Equals(currentLocation.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var ownerPlayerId = !string.IsNullOrWhiteSpace(attackerState.OwnerId)
+                && playerZones.ContainsKey(attackerState.OwnerId)
+                    ? attackerState.OwnerId
+                    : currentLocation.Value.PlayerId;
+            var controllerId = !string.IsNullOrWhiteSpace(attackerState.ControllerId)
+                && playerZones.ContainsKey(attackerState.ControllerId)
+                    ? attackerState.ControllerId
+                    : currentLocation.Value.PlayerId;
+
+            RemoveFieldObjectFromLocation(
+                playerZones,
+                currentLocation.Value.PlayerId,
+                currentLocation.Value.Zone,
+                attackerObjectId);
+            AddFieldObjectToLocation(
+                playerZones,
+                ownerPlayerId,
+                MoveUnitBaseZone,
+                attackerObjectId);
+            cardObjects[attackerObjectId] = attackerState with
+            {
+                Damage = 0,
+                OwnerId = string.IsNullOrWhiteSpace(attackerState.OwnerId) ? ownerPlayerId : attackerState.OwnerId,
+                ControllerId = controllerId,
+                IsAttacking = false,
+                IsDefending = false
+            };
+            events.Add(new GameEvent(
+                "UNIT_RECALLED_TO_BASE",
+                $"{attackerObjectId} 因战斗清理召回基地",
+                new Dictionary<string, object?>
+                {
+                    ["battlefieldId"] = battlefieldId,
+                    ["targetObjectId"] = attackerObjectId,
+                    ["ownerPlayerId"] = ownerPlayerId,
+                    ["controllerId"] = controllerId,
+                    ["originZone"] = MoveUnitBattlefieldZone,
+                    ["destinationZone"] = MoveUnitBaseZone,
+                    ["reason"] = "BATTLE_CLEANUP_ATTACKER_RECALL",
+                    ["survivingDefenderObjectIds"] = survivingDefenderObjectIds
+                }));
+        }
     }
 
     private static void CloseResolvedBattle(

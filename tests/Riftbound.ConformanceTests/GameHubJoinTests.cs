@@ -3683,12 +3683,16 @@ public sealed class GameHubJoinTests
             && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
         Assert.Equal(-2, defenderDamageEvent.Payload["keywordBonus"]);
         Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
+        var damageRemovedEvent = Assert.Single(EventsFor(battleClients), gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-ISOLATED-ATTACKER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
 
         var battleSnapshot = SnapshotFor(battleClients, "P1");
         var p1 = Assert.IsType<Dictionary<string, object?>>(battleSnapshot.Players["P1"]);
         var p1Objects = Assert.IsType<Dictionary<string, object?>>(p1["objects"]);
         var attacker = Assert.IsType<Dictionary<string, object?>>(p1Objects["P1-BATTLEFIELD-ISOLATED-ATTACKER"]);
-        Assert.Equal(2, Assert.IsType<int>(attacker["damage"]));
+        Assert.Equal(0, Assert.IsType<int>(attacker["damage"]));
     }
 
     [Fact]
