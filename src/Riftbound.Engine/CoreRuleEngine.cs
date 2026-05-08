@@ -19775,8 +19775,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var recycledCardIds = targetObjectIds
                 .Where(cardId =>
-                    zones.Graveyard.Contains(cardId, StringComparer.Ordinal)
-                    || zones.Hand.Contains(cardId, StringComparer.Ordinal))
+                    (zones.Graveyard.Contains(cardId, StringComparer.Ordinal)
+                        || zones.Hand.Contains(cardId, StringComparer.Ordinal))
+                    && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, ownerPlayerId, cardId))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             if (recycledCardIds.Length == 0)

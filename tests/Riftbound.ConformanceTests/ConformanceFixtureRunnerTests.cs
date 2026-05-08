@@ -3994,6 +3994,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRecycleTargetsSkipsOpponentZoneCardNotControlledByThatPlayer()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            ActivePlayerId = "P2",
+            TimingState = TimingStates.NeutralClosed,
+            PriorityPlayerId = "P2",
+            PassedPriorityPlayerIds = ["P1"],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    Graveyard = ["P2-GRAVE-CONTROLLED", "P2-GRAVE-DIRTY-P1-OWNED"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-GRAVE-CONTROLLED"] = new(
+                    "P2-GRAVE-CONTROLLED",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-GRAVE-DIRTY-P1-OWNED"] = new(
+                    "P2-GRAVE-DIRTY-P1-OWNED",
+                    cardNo: "SFD·126/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1")
+            },
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-DISPOSAL-DIRTY-RECYCLE",
+                    "P1",
+                    "P1-SPELL-DISPOSAL-ORDER",
+                    "DISPOSAL_ORDER_RECYCLE_OPPONENT_GRAVEYARD_UP_TO_3",
+                    "UNL-103/219",
+                    ["P2-GRAVE-CONTROLLED", "P2-GRAVE-DIRTY-P1-OWNED"])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-pass-dirty-recycle-target", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.StackItems);
+        Assert.Equal(["P2-MAIN-001", "P2-GRAVE-CONTROLLED"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.Equal(["P2-GRAVE-DIRTY-P1-OWNED"], result.State.PlayerZones["P2"].Graveyard);
+
+        var recycleEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal("P2", recycleEvent.Payload["playerId"]);
+        Assert.Equal(1, recycleEvent.Payload["count"]);
+        Assert.Equal(["P2-GRAVE-CONTROLLED"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysPortalpaloozaOtherChoosesCards()
     {
         var fixture = await ConformanceFixture.LoadAsync(
