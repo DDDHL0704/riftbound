@@ -3095,7 +3095,7 @@ internal static class ActionPromptBuilder
     {
         return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             && !cardObject.IsFaceDown
@@ -3106,7 +3106,7 @@ internal static class ActionPromptBuilder
     {
         return IsObjectInPlayerZone(state, playerId, objectId, "BASE")
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && cardObject.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
             && cardObject.Tags.Any(tag => tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))

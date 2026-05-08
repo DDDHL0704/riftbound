@@ -3142,6 +3142,94 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P7PlayCardRecyclesLegacyOwnedRuneAsPaymentResourceAction()
+    {
+        const string runeObjectId = "P1-RUNE-RED-PAYMENT-LEGACY";
+        const string dirtyRuneObjectId = "P1-RUNE-RED-PAYMENT-DIRTY-P2";
+        var paymentResourceAction = $"RECYCLE_RUNE:{runeObjectId}";
+        var dirtyPaymentResourceAction = $"RECYCLE_RUNE:{dirtyRuneObjectId}";
+        var state = PunishmentState(mana: 1) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 0),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BULLET-TIME"],
+                    Base = [dirtyRuneObjectId, runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-LEGACY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BULLET-TIME-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BULLET-TIME"] = new(
+                    "P1-SPELL-BULLET-TIME",
+                    cardNo: "OGN·268/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [dirtyRuneObjectId] = new(
+                    dirtyRuneObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P2",
+                    controllerId: ""),
+                [runeObjectId] = new(
+                    runeObjectId,
+                    isExhausted: true,
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    cardNo: "UNL-R01",
+                    ownerId: "P1",
+                    controllerId: ""),
+                ["P1-RUNE-BOTTOM-LEGACY"] = new(
+                    "P1-RUNE-BOTTOM-LEGACY",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["paymentResourceChoices"]);
+        Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
+        Assert.DoesNotContain(paymentResourceChoices, choice => string.Equals(choice.Id, dirtyPaymentResourceAction, StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bullet-time-legacy-recycle-rune-payment", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BULLET-TIME",
+                "OGN·268/298",
+                [],
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal([dirtyRuneObjectId], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-LEGACY", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(1, Assert.Single(result.State.StackItems).DamageAmount);
+        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+    }
+
+    [Fact]
     public async Task P7PlayCardPromptOffersRecycleRuneForPartialSpendPowerAmount()
     {
         const string runeObjectId = "P1-RUNE-RED-PARTIAL-PAYMENT-001";
@@ -3883,6 +3971,70 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePromptsAndTapsLegacyOwnedBasicRune()
+    {
+        const string runeObjectId = "P1-RUNE-RED-TAP-LEGACY";
+        const string dirtyRuneObjectId = "P1-RUNE-RED-TAP-DIRTY-P2";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [dirtyRuneObjectId, runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-TAP-LEGACY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [dirtyRuneObjectId] = new(
+                    dirtyRuneObjectId,
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P2",
+                    controllerId: ""),
+                [runeObjectId] = new(
+                    runeObjectId,
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: ""),
+                ["P1-RUNE-BOTTOM-TAP-LEGACY"] = new(
+                    "P1-RUNE-BOTTOM-TAP-LEGACY",
+                    cardNo: "UNL-R03",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var tapCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
+        Assert.Contains(tapCandidate.Sources ?? [], source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(tapCandidate.Sources ?? [], source => string.Equals(source.Id, dirtyRuneObjectId, StringComparison.Ordinal));
+        var recycleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
+        Assert.Contains(recycleCandidate.Sources ?? [], source => string.Equals(source.Id, runeObjectId, StringComparison.Ordinal));
+        Assert.DoesNotContain(recycleCandidate.Sources ?? [], source => string.Equals(source.Id, dirtyRuneObjectId, StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-tap-legacy", "P1", "TAP_RUNE"),
+            new TapRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(1, result.State.RunePools["P1"].Mana);
+        Assert.True(result.State.CardObjects[runeObjectId].IsExhausted);
+        Assert.False(result.State.CardObjects[dirtyRuneObjectId].IsExhausted);
+        Assert.Equal("BASE", result.State.ObjectLocations[runeObjectId].Zone);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsRecycleRuneSourceWithoutCardNo()
     {
         const string runeObjectId = "P1-RUNE-UNKNOWN-RECYCLE";
@@ -3997,6 +4149,50 @@ public sealed class ConformanceFixtureRunnerTests
 
         var postPrompt = result.Prompts["P1"];
         Assert.DoesNotContain(postPrompt.Actions, action => string.Equals(action, "RECYCLE_RUNE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRecyclesLegacyOwnedBasicRune()
+    {
+        const string runeObjectId = "P1-RUNE-RED-RECYCLE-LEGACY";
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = [runeObjectId],
+                    RuneDeck = ["P1-RUNE-BOTTOM-RECYCLE-LEGACY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [runeObjectId] = new(
+                    runeObjectId,
+                    cardNo: "UNL-R01",
+                    tags: [CardObjectTags.RuneCard, "COLOR:red"],
+                    ownerId: "P1",
+                    controllerId: ""),
+                ["P1-RUNE-BOTTOM-RECYCLE-LEGACY"] = new(
+                    "P1-RUNE-BOTTOM-RECYCLE-LEGACY",
+                    tags: [CardObjectTags.RuneCard, "COLOR:blue"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-basic-rune-recycle-legacy", "P1", "RECYCLE_RUNE"),
+            new RecycleRuneCommand(runeObjectId),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-RUNE-BOTTOM-RECYCLE-LEGACY", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
+        Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal("RUNE_DECK", result.State.ObjectLocations[runeObjectId].Zone);
     }
 
     [Fact]

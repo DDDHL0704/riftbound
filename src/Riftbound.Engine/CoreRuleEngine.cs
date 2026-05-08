@@ -3954,7 +3954,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var runeState)
             || !runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            || !string.Equals(runeState.ControllerId, intent.PlayerId, StringComparison.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(runeState, intent.PlayerId)
             || runeState.IsFaceDown)
         {
             return RejectWithCorePrompts(
@@ -4059,7 +4059,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Base.Contains(command.SourceObjectId, StringComparer.Ordinal)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var runeState)
             || !runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            || !string.Equals(runeState.ControllerId, intent.PlayerId, StringComparison.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(runeState, intent.PlayerId)
             || runeState.IsFaceDown)
         {
             return RejectWithCorePrompts(
@@ -4274,7 +4274,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.Base.Contains(runeObjectId, StringComparer.Ordinal)
             && state.CardObjects.TryGetValue(runeObjectId, out var runeState)
             && runeState.Tags.Contains(CardObjectTags.RuneCard, StringComparer.Ordinal)
-            && string.Equals(runeState.ControllerId, playerId, StringComparison.Ordinal)
+            && SourceObjectControlledByPlayerOrLegacyOwned(runeState, playerId)
             && !runeState.IsFaceDown
             && TryGetRuneTrait(runeState, out _);
     }
