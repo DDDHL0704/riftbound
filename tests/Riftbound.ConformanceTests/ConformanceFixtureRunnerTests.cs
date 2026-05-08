@@ -35611,6 +35611,36 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Null(result.State.WinnerPlayerId);
     }
 
+    [Fact]
+    public async Task P79BattlefieldHeldReturnHeroSkipsOpponentOwnedTomb()
+    {
+        var state = BattlefieldHeldReturnHeroState();
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-BATTLEFIELD-HALLOWED-TOMB"] = cardObjects["P2-BATTLEFIELD-HALLOWED-TOMB"] with
+        {
+            OwnerId = "P1",
+            ControllerId = ""
+        };
+        state = state with { CardObjects = cardObjects };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-return-hero-dirty-tomb", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-HALLOWED-TOMB",
+                ["P1-BATTLEFIELD-TOMB-ATTACKER"],
+                ["P2-BATTLEFIELD-TOMB-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD", StringComparison.Ordinal));
+        Assert.Equal(["P2-HERO-TOMB-RETURN"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P2"].ChampionZone);
+    }
+
     [Theory]
     [InlineData("OGN·293/298")]
     [InlineData("OGN·293a/298")]
@@ -50740,8 +50770,7 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-HALLOWED-TOMB",
                     cardNo: "OGN·281/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2",
-                    controllerId: "P2"),
+                    ownerId: "P2"),
                 ["P2-BATTLEFIELD-TOMB-DEFENDER"] = new(
                     "P2-BATTLEFIELD-TOMB-DEFENDER",
                     cardNo: "SFD·125/221",

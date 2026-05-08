@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第一百七十二批补充：据守陵墓类 `BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD` 触发继续收口战场来源控制权。`TryResolveBattlefieldHeldReturnHeroTrigger` 现在要求陵墓战场牌仍由据守玩家控制/legacy-owned；owner=P2/controller 空的旧恢复陵墓仍能把 P2 英雄从墓地返回英雄区，owner 漂移到 P1 的脏陵墓不再触发返回。
+- 已补测试与验证：`P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone` 改为 owner=P2/controller 空的合法旧恢复陵墓；新增 `P79BattlefieldHeldReturnHeroSkipsOpponentOwnedTomb` 覆盖 owner=P1/controller 空的脏陵墓不触发 `BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD`，P2 英雄仍留在墓地。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`P79BattlefieldHeldReturnHero|BattlefieldHeldReturnsHero|BATTLEFIELD_HELD_RETURN_HERO` 相关回归 3/3、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3122/3122 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Chrome smoke；整体仍 **NOT READY**，因为完整 cleanup queue、官方级战斗/法术对决任务状态机、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第一百七十一批补充：鲜血祭坛类“战斗中被摧毁时支付 3 并召回”的战场来源继续收口控制权语义。`TryApplyBattlefieldDestroyedInBattleRecallReplacement` 现在要求触发的战场牌仍由其所在场区玩家控制/legacy-owned；owner=P2/controller 空的旧恢复鲜血祭坛仍可触发，owner 漂移到 P1 的脏战场牌不再替 P2 扣 3 法力并召回防守单位。
 - 已补测试与验证：`P79BattlefieldBattleDestroyedUnitPaysThreeAndRecalls` 改为 owner=P2/controller 空的合法旧恢复战场牌；新增 `P79BattlefieldBattleDestroyedUnitSkipsOpponentOwnedAltar` 覆盖 owner=P1/controller 空的脏鲜血祭坛不会触发替代召回，单位按普通摧毁进入墓地。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`P79BattlefieldBattleDestroyedUnit|BattlefieldBattleDestroyed|BattlefieldDestroyedInBattle` 相关回归 4/4、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3121/3121 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Chrome smoke；整体仍 **NOT READY**，因为完整 cleanup queue、官方级战斗/法术对决任务状态机、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

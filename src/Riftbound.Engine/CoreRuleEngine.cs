@@ -8626,6 +8626,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldReturnHeroCardNo(battlefieldState.CardNo)
             || !playerZones.TryGetValue(playerId, out var zones)
             || zones.ChampionZone.Count > 0)
