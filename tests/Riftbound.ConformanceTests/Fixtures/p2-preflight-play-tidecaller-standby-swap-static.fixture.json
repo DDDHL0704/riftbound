@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-tidecaller-standby-swap-static",
-  "description": "Tidecaller enters as a Standby unit while optional swap text is deferred.",
+  "description": "Tidecaller enters as a Standby unit when its optional location swap target is omitted.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·199/298 控潮者",
-      "note": "官方卡面：费用 2；单位；战力 2；待命；当控制者打出自身时，可以选择一名受控制单位并交换二者位置。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录待命标签；牌面朝下待命/反应打出和可选交换位置路径暂缓。"
+      "note": "官方卡面：费用 2；单位；战力 2；待命；当控制者打出自身时，可以选择一名受控制单位并交换二者位置。当前 fixture 覆盖普通主阶段从手牌打出且不选择交换目标时，源牌成为基地单位对象并记录待命标签；选择己方单位交换位置的分支由 p2-preflight-play-tidecaller-swap-target-location 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

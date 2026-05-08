@@ -6840,6 +6840,25 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("BASE", result.FinalState.ObjectLocations["P1-GHOST-MATRON-GRAVE-UNIT-001"].Zone);
     }
 
+    [Fact]
+    public async Task CoreRuleEnginePlaysTidecallerOptionalLocationSwap()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-tidecaller-swap-target-location.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-TIDE-CALLER-SWAP-TARGET-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-UNIT-TIDE-CALLER"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal("BATTLEFIELD", result.FinalState.ObjectLocations["P1-UNIT-TIDE-CALLER"].Zone);
+        Assert.Equal("BASE", result.FinalState.ObjectLocations["P1-TIDE-CALLER-SWAP-TARGET-001"].Zone);
+    }
+
     [Theory]
     [InlineData(4, 4)]
     [InlineData(3, 2)]
@@ -16284,11 +16303,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(new RunePool(2, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-TIDE-CALLER-MAIN-001"], result.FinalState.PlayerZones["P1"].MainDeck);
         Assert.Equal(["P1-UNIT-TIDE-CALLER"], result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-BASE-TIDE-CALLER-TARGET-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Battlefields);
-        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-TIDE-CALLER-TARGET-001"].Damage);
-        Assert.Equal(0, result.FinalState.CardObjects["P1-BASE-TIDE-CALLER-TARGET-001"].Power);
-        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-BASE-TIDE-CALLER-TARGET-001"].Tags);
+        Assert.Equal(["P2-BASE-TIDE-CALLER-TARGET-001"], result.FinalState.PlayerZones["P2"].Base);
+        Assert.Equal(0, result.FinalState.CardObjects["P2-BASE-TIDE-CALLER-TARGET-001"].Damage);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-BASE-TIDE-CALLER-TARGET-001"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P2-BASE-TIDE-CALLER-TARGET-001"].Tags);
         Assert.Empty(result.FinalState.StackItems);
     }
 
@@ -17566,7 +17586,6 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData(3, "P1-UNIT-SHARPSHOOTER-PIRATE", "OGN·130/298", "P1-BASE-SHARPSHOOTER-PIRATE-TARGET-001")]
     [InlineData(5, "P1-UNIT-DUNE-DRAKE", "OGN·131/298", "P1-BASE-DUNE-DRAKE-TARGET-001")]
     [InlineData(3, "P1-UNIT-NOXIAN-DRUMMER", "OGN·222/298", "P1-BASE-NOXIAN-DRUMMER-TARGET-001")]
-    [InlineData(2, "P1-UNIT-TIDE-CALLER", "OGN·199/298", "P1-BASE-TIDE-CALLER-TARGET-001")]
     [InlineData(5, "P1-UNIT-OGN-DARIUS-SECOND-CARD", "OGN·027/298", "P1-BASE-OGN-DARIUS-SECOND-CARD-TARGET-001")]
     [InlineData(5, "P1-UNIT-OGN-DARIUS-SECOND-CARD-A", "OGN·027a/298", "P1-BASE-OGN-DARIUS-SECOND-CARD-A-TARGET-001")]
     [InlineData(4, "P1-UNIT-OGN-VAYNE-ASSAULT3", "OGN·035/298", "P1-BASE-OGN-VAYNE-ASSAULT3-TARGET-001")]

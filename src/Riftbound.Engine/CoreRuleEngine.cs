@@ -18751,6 +18751,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["secondDestinationZone"] = secondDestinationZone
                 }));
         }
+        else if (behavior.SwapsSourceWithFirstTargetLocation
+            && stackItem.TargetObjectIds.Count >= 1
+            && TrySwapTargetLocations(
+                playerZones,
+                cardObjects,
+                stackItem.SourceObjectId,
+                stackItem.TargetObjectIds[0],
+                out var sourceDestinationPlayerId,
+                out var sourceDestinationZone,
+                out var targetDestinationPlayerId,
+                out var targetDestinationZone))
+        {
+            events.Add(new GameEvent(
+                "UNIT_LOCATIONS_SWAPPED",
+                $"{behavior.DisplayName}交换自身与目标单位位置",
+                new Dictionary<string, object?>
+                {
+                    ["sourceObjectId"] = stackItem.SourceObjectId,
+                    ["firstTargetObjectId"] = stackItem.SourceObjectId,
+                    ["secondTargetObjectId"] = stackItem.TargetObjectIds[0],
+                    ["firstDestinationPlayerId"] = sourceDestinationPlayerId,
+                    ["firstDestinationZone"] = sourceDestinationZone,
+                    ["secondDestinationPlayerId"] = targetDestinationPlayerId,
+                    ["secondDestinationZone"] = targetDestinationZone
+                }));
+        }
         else if (behavior.RequiredTargetCount > 0
             || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
