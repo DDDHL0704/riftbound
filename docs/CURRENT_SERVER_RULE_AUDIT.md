@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百八十四批补充：战斗清理召回的所有者基地边界补齐测试证据。临时受控的进攻单位在战斗无结果且防守方仍在战场时，会被 `UNIT_RECALLED_TO_BASE` 召回其 owner 的基地，并保留当前 controller；这与“召回至所属基地且召回本身不改变控制权/状态”的规则口径对齐。
+- 已补测试与验证：新增 `P4BattleCleanupRecallsTemporarilyControlledAttackerToOwnerBase`，覆盖 P2 拥有、P1 控制的眩晕进攻单位被战斗清理召回 P2 基地，同时 `ControllerId` 仍为 P1、`ObjectLocations` 同步为 P2/BASE。验证结果：目标回归 1/1 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3132/3132 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke；整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百八十三批补充：战斗清理 `DAMAGE_REMOVED` 事件继续补齐回放/日志可解释性。战斗特殊清理现在会在 payload 中写入 `previousDamageByObject` 和 `totalDamageRemoved`，让前端日志、战报和 replay 可以只读服务端事件展示“从多少伤害清到 0”，不需要浏览器侧根据旧 snapshot 反推。
 - 已补测试与验证：扩展战斗代表路径、眩晕进攻者、狩猎征服/据守、壁垒/后排、同优先级壁垒和 Hub seed 断言，并同步 fixture 的 `DAMAGE_REMOVED` payload。验证结果：`DeclareBattleCommand|GameHubJoinTests` 相邻回归 174/174 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke；整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
 

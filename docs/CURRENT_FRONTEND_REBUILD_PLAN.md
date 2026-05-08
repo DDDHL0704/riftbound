@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十四批仍为服务端战斗规则测试证据收口，没有前端 UI 文件变更。新增临时受控进攻单位的战斗清理召回回归：服务端会把单位召回 owner 基地，并保留 controller，不让前端或回放从对象名/所在区自行猜测召回归属。
+- 本批验证：目标回归 1/1、后端 full test 3132/3132 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十三批仍为服务端事件证据收口，没有前端 UI 文件变更。战斗清理 `DAMAGE_REMOVED` 事件现在附带 `previousDamageByObject` 和 `totalDamageRemoved`，前端日志/战报/replay 可以只读服务端 payload 展示清理前伤害与总清理量，不需要从客户端旧状态推断。
 - 本批验证：`DeclareBattleCommand|GameHubJoinTests` 相邻回归 174/174、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

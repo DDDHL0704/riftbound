@@ -45134,6 +45134,76 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4BattleCleanupRecallsTemporarilyControlledAttackerToOwnerBase()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-OWNED-CONTROLLED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-OWNED-CONTROLLED-ATTACKER"] = new(
+                    "P2-OWNED-CONTROLLED-ATTACKER",
+                    untilEndOfTurnEffects: ["STUNNED"],
+                    cardNo: "OGS·007/024",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-battle-cleanup-recall-owner-base", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P2-OWNED-CONTROLLED-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var recalledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal));
+        Assert.Equal("P2-OWNED-CONTROLLED-ATTACKER", recalledEvent.Payload["targetObjectId"]);
+        Assert.Equal("P2", recalledEvent.Payload["ownerPlayerId"]);
+        Assert.Equal("P1", recalledEvent.Payload["controllerId"]);
+        Assert.Equal("BATTLE_CLEANUP_ATTACKER_RECALL", recalledEvent.Payload["reason"]);
+
+        Assert.Empty(result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P2-OWNED-CONTROLLED-ATTACKER"], result.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+        var attackerState = result.State.CardObjects["P2-OWNED-CONTROLLED-ATTACKER"];
+        Assert.Equal("P2", attackerState.OwnerId);
+        Assert.Equal("P1", attackerState.ControllerId);
+        Assert.Equal(0, attackerState.Damage);
+        Assert.False(attackerState.IsAttacking);
+        var attackerLocation = result.State.ObjectLocations["P2-OWNED-CONTROLLED-ATTACKER"];
+        Assert.Equal("P2", attackerLocation.PlayerId);
+        Assert.Equal("BASE", attackerLocation.Zone);
+        Assert.Null(attackerLocation.BattlefieldObjectId);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public void ActionPromptDeclareBattleFiltersExhaustedAttackersAndDefenders()
     {
         var state = PunishmentState(mana: 0) with
