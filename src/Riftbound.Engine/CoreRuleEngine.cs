@@ -20767,7 +20767,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var (playerId, zones) in playerZones)
         {
             if (string.Equals(playerId, controllerId, StringComparison.Ordinal)
-                || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+                || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }
@@ -20962,7 +20963,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var (playerId, zones) in playerZones)
         {
             if (string.Equals(playerId, controllerId, StringComparison.Ordinal)
-                || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+                || !zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }

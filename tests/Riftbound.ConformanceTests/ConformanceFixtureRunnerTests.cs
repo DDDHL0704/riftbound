@@ -4540,6 +4540,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineHostileTakeoverResolutionSkipsAlreadyControlledEnemyZoneTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-HOSTILE-TAKEOVER-DIRTY-BATTLEFIELD",
+                    "P1",
+                    "P1-SPELL-HOSTILE-TAKEOVER",
+                    "HOSTILE_TAKEOVER_GAIN_CONTROL_READY_ENEMY_BATTLEFIELD_UNIT",
+                    "SFD·202/221",
+                    ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-hostile-takeover-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-hostile-takeover-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-SPELL-HOSTILE-TAKEOVER"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("P1", p2Pass.State.CardObjects["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"].ControllerId);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_CONTROL_GAINED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P5HostileTakeoverReturnsControlAndRecallsAtEndTurn()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -11369,6 +11429,66 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-SPELL-FORCED-CONSCRIPTION"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P2-FORCED-CONSCRIPTION-LARGE-001"], result.State.PlayerZones["P2"].Battlefields);
         Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineForcedConscriptionResolutionSkipsAlreadyControlledEnemyZoneTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-FORCED-CONSCRIPTION-DIRTY-BATTLEFIELD",
+                    "P1",
+                    "P1-SPELL-FORCED-CONSCRIPTION",
+                    "FORCED_CONSCRIPTION_CONTROL_SMALL_ENEMY_RECALL",
+                    "UNL-140/219",
+                    ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-forced-conscription-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-forced-conscription-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-SPELL-FORCED-CONSCRIPTION"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal("P1", p2Pass.State.CardObjects["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"].ControllerId);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_CONTROL_GAINED", StringComparison.Ordinal));
     }
 
     [Fact]
