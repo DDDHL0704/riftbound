@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十二批仍为服务端规则收口，没有前端 UI 文件变更。服务端 `HIDE_CARD` 的额外待命目的地继续按战场来源控制权过滤：Bandle Tree 已明确由对手控制时，不再作为 `BATTLEFIELD:<objectId>` 待命目的地进入 P1 的 `ActionPrompt.destinationChoices`。前端收益是只渲染服务端 `sourceRequirements` 时，不会把恢复脏战场牌显示成可用的额外待命位置。
+- 本批验证：`dotnet build` 通过；`ActionPromptBuildsHideCardSourceRequirements|P79BattlefieldExtraStandbySeedOffersBandleDestinationAndHides|HideCard|Standby` 相关回归 58/58、`GameHubJoinTests` 118/118、后端 full test 3097/3097 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十一批仍为服务端规则收口，没有前端 UI 文件变更。服务端 `ActionPrompt` 构造层同步收紧战场来源控制权：移动单位候选的游走/禁止移回基地、出牌候选的 Echo/武装减费和禁止单位打到战场，都与 Core 裁决一样忽略恢复脏战场牌。前端收益是只按 `ActionPrompt.sourceRequirements` 展示时不会出现错误游走、错误折扣或错误阻止入口。
 - 本批验证：`dotnet build` 通过；prompt/命令精确回归 9/9、`BattlefieldStatic|Prompt|sourceRequirements` 相关回归 73/73、`GameHubJoinTests` 118/118、后端 full test 3097/3097 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
 

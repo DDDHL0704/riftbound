@@ -1569,6 +1569,31 @@ public sealed class ConformanceFixtureShapeTests
                 .Select(destination => destination.Id)
                 .ToArray());
 
+        var dirtyDestinationState = payableState with
+        {
+            CardObjects = new Dictionary<string, CardObjectState>(payableState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-BANDLE-TREE"] = payableState.CardObjects["P1-BATTLEFIELD-BANDLE-TREE"] with
+                {
+                    ControllerId = "P2"
+                }
+            }
+        };
+        var dirtyPrompt = ResolutionResult.BuildPrompts(dirtyDestinationState)["P1"];
+        var dirtyHideCandidate = Assert.Single(
+            dirtyPrompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "HIDE_CARD", StringComparison.Ordinal));
+        Assert.True(dirtyHideCandidate.Enabled);
+        Assert.Equal(["STANDBY"], (dirtyHideCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
+        var dirtyMetadata = Assert.IsType<Dictionary<string, object?>>(dirtyHideCandidate.Metadata);
+        var dirtyRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            dirtyMetadata["sourceRequirements"]));
+        Assert.Equal(
+            ["STANDBY"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(dirtyRequirement["destinationChoices"])
+                .Select(destination => destination.Id)
+                .ToArray());
+
         var freeState = noManaState with
         {
             UntilEndOfTurnEffects = ["FREE_STANDBY_HIDE:P1"]

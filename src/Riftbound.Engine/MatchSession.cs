@@ -6180,8 +6180,7 @@ internal static class ActionPromptBuilder
             ? zones.Battlefields.Where(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldExtraStandbyCardNo(cardObject.CardNo)
-                && (string.IsNullOrWhiteSpace(cardObject.ControllerId)
-                    || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)))
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             : [];
     }
 
