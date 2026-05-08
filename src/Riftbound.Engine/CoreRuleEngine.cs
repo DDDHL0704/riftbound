@@ -124,6 +124,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string PetalPixieCardNo = "UNL-076/219";
     private const string SoulShepherdCardNo = "UNL-077/219";
+    private const string SavageJawfishCardNo = "UNL-129/219";
     private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -11554,6 +11555,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return string.Equals(cardNo, SoulShepherdCardNo, StringComparison.Ordinal);
     }
 
+    private static bool IsSavageJawfishCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, SavageJawfishCardNo, StringComparison.Ordinal);
+    }
+
     private static bool IsScarletPigeonCardNo(string? cardNo)
     {
         return string.Equals(cardNo, ScarletPigeonCardNo, StringComparison.Ordinal);
@@ -13689,6 +13695,74 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return events;
+    }
+
+    private static Dictionary<string, int> ResolveSavageJawfishFriendlyDestroyedUnitExperience(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> currentExperience,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        var destroyedUnits = events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                && TryGetPayloadString(gameEvent, "targetObjectId", out _)
+                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _))
+            .Select(gameEvent =>
+            {
+                _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
+                _ = TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId);
+                return (DestroyedObjectId: destroyedObjectId, OwnerPlayerId: ownerPlayerId);
+            })
+            .ToArray();
+        if (destroyedUnits.Length == 0)
+        {
+            return currentExperience.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value,
+                StringComparer.Ordinal);
+        }
+
+        var playerExperience = currentExperience.ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+        foreach (var destroyedUnit in destroyedUnits)
+        {
+            var triggerSources = playerZones
+                .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+                .Distinct(StringComparer.Ordinal)
+                .Where(sourceObjectId => !string.Equals(
+                    sourceObjectId,
+                    destroyedUnit.DestroyedObjectId,
+                    StringComparison.Ordinal))
+                .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                    && IsSavageJawfishCardNo(sourceState.CardNo)
+                    && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !sourceState.IsFaceDown
+                    && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    && IsObjectOnField(playerZones, sourceObjectId)
+                    && string.Equals(
+                        EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                        destroyedUnit.OwnerPlayerId,
+                        StringComparison.Ordinal))
+                .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+                .ToArray();
+
+            foreach (var sourceObjectId in triggerSources)
+            {
+                playerExperience = GainExperience(
+                    playerExperience,
+                    destroyedUnit.OwnerPlayerId,
+                    1,
+                    stackItem,
+                    events,
+                    sourceObjectId,
+                    SavageJawfishCardNo);
+            }
+        }
+
+        return playerExperience;
     }
 
     private static bool StackEventsRecycledControllerRune(
@@ -18545,6 +18619,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             destroyedUnitOwnerIds));
+        playerExperience = ResolveSavageJawfishFriendlyDestroyedUnitExperience(
+            playerZones,
+            cardObjects,
+            playerExperience,
+            stackItem,
+            events);
         var jhinTrigger = ResolveJhinHighCostSpellTrigger(
             state,
             playerZones,

@@ -34482,6 +34482,110 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79SavageJawfishGainsExperienceWhenAnotherFriendlyUnitDestroyed()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-VENGEANCE"],
+                    Base =
+                    [
+                        "P1-SAVAGE-JAWFISH",
+                        "P1-SAVAGE-JAWFISH-FACEDOWN",
+                        "P1-SAVAGE-JAWFISH-STANDBY",
+                        "P1-FRIENDLY-TARGET"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-SAVAGE-JAWFISH"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SAVAGE-JAWFISH"] = new(
+                    "P1-SAVAGE-JAWFISH",
+                    cardNo: "UNL-129/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SAVAGE-JAWFISH-FACEDOWN"] = new(
+                    "P1-SAVAGE-JAWFISH-FACEDOWN",
+                    cardNo: "UNL-129/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    isFaceDown: true,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SAVAGE-JAWFISH-STANDBY"] = new(
+                    "P1-SAVAGE-JAWFISH-STANDBY",
+                    cardNo: "UNL-129/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FRIENDLY-TARGET"] = new(
+                    "P1-FRIENDLY-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SAVAGE-JAWFISH"] = new(
+                    "P2-SAVAGE-JAWFISH",
+                    cardNo: "UNL-129/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-savage-jawfish-play-vengeance", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", ["P1-FRIENDLY-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-savage-jawfish-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-savage-jawfish-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var destroyedEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal("P1-FRIENDLY-TARGET", destroyedEvent.Payload["targetObjectId"]);
+        Assert.Equal("P1", destroyedEvent.Payload["ownerPlayerId"]);
+
+        var experienceEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P1", experienceEvent.Payload["playerId"]);
+        Assert.Equal("P1-SAVAGE-JAWFISH", experienceEvent.Payload["sourceObjectId"]);
+        Assert.Equal("UNL-129/219", experienceEvent.Payload["cardNo"]);
+        Assert.Equal(1, experienceEvent.Payload["amount"]);
+        Assert.Equal(1, experienceEvent.Payload["totalExperience"]);
+        Assert.Equal(1, p2Pass.State.PlayerExperience["P1"]);
+        Assert.Equal(0, p2Pass.State.PlayerExperience["P2"]);
+        Assert.Contains("P1-SAVAGE-JAWFISH", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains("P1-FRIENDLY-TARGET", p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-SPELL-VENGEANCE", p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
+    }
+
+    [Fact]
     public async Task P79ScarletPigeonGainsPowerWhenAttackingWithAnotherUnit()
     {
         var state = PunishmentState(mana: 0) with

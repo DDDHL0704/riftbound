@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百六十四批补齐《凶残颚鱼》（UNL-129/219）“另一名友方单位被摧毁时获得 1 经验”的服务端代表路径。栈结算中的 `UNIT_DESTROYED` 现在会触发同控制者场上正面、非待命《凶残颚鱼》获得经验，`EXPERIENCE_GAINED` 事件携带颚鱼来源、官方牌号、获得数量和最新经验总量；面朝下、待命或对手控制的颚鱼不会误触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地摧毁触发裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；颚鱼经验 / 牧魂人 token 静态 / 花瓣仙子静态 / 猩红飞鸽静态精确回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3163/3163；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。Chrome 插件通道可用；本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为战斗/状态清理等非栈摧毁时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百六十三批补齐《牧魂人》（UNL-077/219）“你的指示物单位获得战力 +1”的服务端代表性战斗静态规则。`ResolveBattleCombatPower` 现在只按官方 token catalog 的 `cardNo` 识别指示物单位，并在同控制者场上正面、非待命《牧魂人》存在时把 +1 写入 token 单位的 `staticPowerBonus`；面朝下/待命来源、对手来源和普通非 token 单位不会生效。前端仍只展示服务端 `DAMAGE_APPLIED` 事件和 authoritative snapshot，不新增本地 token 身份或战力裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79SoulShepherdAddsPowerToControlledTokenUnits` / 花瓣仙子静态 / 猩红飞鸽静态精确回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3162/3162；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。Chrome 插件通道已轻量确认可用；本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
