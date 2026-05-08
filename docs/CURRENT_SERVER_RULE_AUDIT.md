@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- 第二百零八批补充：项目入口文档口径与当前复审状态对齐。`README.md` 与 `docs/START_HERE.md` 现在把当前入口指向 `CURRENT_FRONTEND_REBUILD_PLAN`、`CURRENT_SERVER_RULE_AUDIT` 和 `任务补充.md`，明确 P7/P7.9 文档只是历史阶段基线；同时把玩家可见协议词改为“服务端行动提示 / 服务端快照 / 事件”等中文口径，避免新窗口把历史 `CONFORMANCE_PASS` 当作最终 READY。
+- 已补验证：本批仅修改文档，无源码或规则实现变更；`git diff --check` 将在提交前执行。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百零七批补充：卡面与卡牌详情继续收口内部对象标识 fallback。`CardFace` 与 `CardDetailDrawer` 在公开卡缺少 `cardNo/spec` 的异常恢复状态下不再把 `objectId` 当作标题或编号展示，而是显示“未知卡牌 / 无编号”；隐藏卡仍显示“未公开卡牌 / 隐藏信息”。该批只改展示 fallback，不改变 authoritative snapshot、prompt 候选或命令提交。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-object-redaction-1778235759932`，P1 连接对战页、P2 后台连接并 seed `basic-play`，页面和隐藏卡详情均显示“未公开卡牌 / 隐藏信息”，正文不含 `P1-...`、`P2-...`、`STACK-...`、`hidden-...`、`task-...` 或 `cleanup-...` 内部标识，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

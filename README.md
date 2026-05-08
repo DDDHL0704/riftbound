@@ -14,21 +14,23 @@
 - P7 最终验证通过：后端 full test `2613/2613`，`ConformanceFixtureRunnerTests 2507/2507`，`CardCatalogBaselineTests 37/37`，`GameHubJoinTests 27/27`，前端 build 和 Browser smoke 均通过；详见 `docs/CURRENT_P7_STATUS.md`。
 - P7.9 本地产品版全卡可玩已完成：`1009/1009` 官方条目为 `CONFORMANCE_PASS`，`811/811` 功能单元实现，manual deferred 剩余 `0/811`；最终验证通过后端 full test `2817/2817`、`ConformanceFixtureRunnerTests 2653/2653`、`CardCatalogBaselineTests 38/38`、`GameHubJoinTests 84/84`、前端 build 和 Browser smoke。详见 `docs/CURRENT_P7_9_STATUS.md`。
 - 2026-05-06 已追加新的默认产品级对战页：顶部 HUD、木质外框青绿色牌垫、上下数字资源轨、P2/P1 上下席位、双战场、传奇/英雄/基地/手牌区、卡牌旁动作菜单、精简右侧操作/席位/日志/图鉴面板，以及中文化卡牌名、费用、符能费用、战力、规则、候选操作、事件日志和战报；当前代码前端 build 和浏览器 smoke 已通过。
+- 2026-05-08 最新复审结论仍为 **NOT READY**。当前工作入口是 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 与 `docs/CURRENT_SERVER_RULE_AUDIT.md`；P7/P7.9 文档保留历史阶段完成记录，不代表当前已经满足“完整官方规则 + 产品级前端”最终验收。
 
 ## 新窗口接手
 
 如果在新的 Codex 窗口继续开发，先读：
 
-1. `docs/CURRENT_P7_9_STATUS.md`
-2. `docs/CURRENT_P7_STATUS.md`
-3. `docs/CURRENT_P6_STATUS.md`
-4. `docs/CURRENT_P5_STATUS.md`
-5. `docs/CURRENT_P4_STATUS.md`
-6. 本 `README.md`（如果不是从这里进入）
-7. `docs/rules-evidence-index.md` 中目标卡牌对应行
-8. `docs/conformance-fixture-format.md` 中 fixture schema 规则
+1. `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
+2. `docs/CURRENT_SERVER_RULE_AUDIT.md`
+3. `docs/任务补充.md`
+4. 本 `README.md`（如果不是从这里进入）
+5. `docs/START_HERE.md`
+6. `docs/CURRENT_P7_9_STATUS.md`
+7. `docs/CURRENT_P7_STATUS.md`
+8. `docs/rules-evidence-index.md` 中目标卡牌对应行
+9. `docs/conformance-fixture-format.md` 中 fixture schema 规则
 
-`docs/CURRENT_P7_9_STATUS.md` 是当前短交接入口；`docs/CURRENT_P7_STATUS.md` 和 `docs/CURRENT_P6_STATUS.md` 是 P7.9 的直接基线。更早的 `CURRENT_*_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级和验收门禁，默认按需读取。
+`docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 和 `docs/CURRENT_SERVER_RULE_AUDIT.md` 是当前短交接入口。P7/P7.9 文档是历史阶段基线，更早的 `CURRENT_*_STATUS.md` 保留上一阶段完成状态。`docs/START_HERE.md` 保留项目边界、资料优先级和验收门禁，默认按需读取。
 
 ## 推荐本地准备
 
@@ -67,7 +69,7 @@ npm install
 npm run dev
 ```
 
-访问 `http://127.0.0.1:5173` 后，使用默认 `server URL = http://127.0.0.1:5088`。P7/P7.9 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、默认产品级对战桌面、结构化 ActionPrompt 操作、卡牌优先的出牌/目标/费用/战斗/传奇/战场能力、中文化卡牌名/费用/符能费用/战力/规则/候选操作/事件日志、战报/回放边界、右侧精简席位/日志/图鉴、全卡图鉴弹窗和卡牌详情。UI 只显示和转发服务端 `Snapshot`、`Prompt`、`Events`、错误和命令日志，不做规则裁定。需要给 P1/P2 直接准备测试牌组时，在右侧 `操作` 面板点击 `载入双人测试牌组`。
+访问 `http://127.0.0.1:5173` 后，使用默认服务端地址 `http://127.0.0.1:5088`。当前 Web UI 已支持产品级房间入口、双玩家 ready、断线重连、默认产品级对战桌面、服务端行动提示驱动的点击操作、卡牌优先的出牌/目标/费用/战斗/传奇/战场能力、中文化卡牌名/费用/符能费用/战力/规则/候选操作/事件日志、战报/回放边界、右侧精简席位/日志/图鉴、全卡图鉴弹窗和卡牌详情。UI 只显示和转发服务端快照、服务端行动提示、事件、错误和命令日志，不做规则裁定。需要给 P1/P2 直接准备测试牌组时，在右侧 `操作` 面板点击 `载入双人测试牌组`。
 
 ## 项目结构
 
@@ -86,6 +88,8 @@ npm run dev
 
 核心计划文档：
 
+- `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`：当前产品级 Web 前端重建、Browser smoke 和剩余验收入口。
+- `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端核心规则复审、P0/P1 剩余缺口和 NOT READY 结论。
 - `docs/CURRENT_P7_9_STATUS.md`：P7.9 本地产品版全卡可玩完成状态、最终验证和 Browser smoke。
 - `docs/CURRENT_P7_STATUS.md`：P7 产品级 Web 对战完成状态、Browser smoke 和最终验证。
 - `docs/CURRENT_P6_STATUS.md`：P6 全卡状态矩阵，保留 P6 final 的 `713/811` implemented 与 `98/811` manual deferred 边界；P7.9 当前数字以 `docs/CURRENT_P7_9_STATUS.md` 为准。
@@ -94,6 +98,7 @@ npm run dev
 - `docs/CURRENT_P2_STATUS.md`：新窗口短交接，记录 P2 功能基线提交、测试状态、P2 进度和下一步。
 - `docs/CURRENT_P2_5_STATUS.md`：P2.5 开发期测试 UI 状态、运行方式和浏览器 smoke 记录。
 - `docs/START_HERE.md`：项目边界、资料优先级、开发顺序和验收门禁。
+- `docs/任务补充.md`：本轮 active goal 的补充规则、验收门槛和 Browser smoke 最低流程。
 - `docs/rules-authority-and-audit.md`：五份 PDF 的规则权威、冲突裁决和已开发部分重审协议。
 - `docs/development-audit-status.md`：当前已开发内容的保留、修改和重审状态。
 - `docs/rules-evidence-index.md`：五份 PDF/FAQ 到规则域、fixture 和实现状态的证据索引。
