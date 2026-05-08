@@ -11597,7 +11597,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Unsupported standby reveal card behavior: {command.CardNo}",
+                $"暂不支持该牌的待命翻开行为：{command.CardNo}",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -11606,7 +11606,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card is not in the player's base.",
+                "待命翻开只能选择自己基地中的待命牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -11630,7 +11630,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Unsupported standby reveal mode for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 不能以该模式进行待命翻开。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -11642,7 +11642,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "REVEAL_CARD is only available during the active player's open main window.",
+                "待命翻开只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -11654,7 +11654,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "REVEAL_CARD standby reactions require that player to hold priority on a pending stack.",
+                "待命反应需要该玩家在结算链待处理时拥有优先权。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -11663,7 +11663,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card is not face down.",
+                "待命翻开只能选择面朝下的待命牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -11671,7 +11671,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card identity is unknown for REVEAL_CARD.",
+                "待命翻开需要服务端已确认的待命牌信息。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -11679,7 +11679,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card identity does not match REVEAL_CARD cardNo.",
+                "待命翻开的牌信息与提交的牌不匹配。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -11687,7 +11687,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card is not controlled by the player for REVEAL_CARD.",
+                "待命翻开只能选择自己控制的待命牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -11701,7 +11701,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{behavior.DisplayName} does not expose the Standby keyword for REVEAL_CARD.",
+                $"{behavior.DisplayName} 没有待命关键词，不能进行待命翻开。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 

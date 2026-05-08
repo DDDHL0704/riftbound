@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百四十批继续收口待命翻开/反应服务端错误文案。`CoreRuleEngine` 在未知待命翻开行为、来源不在自己基地、非法翻开/反应模式、普通翻开窗口不合法、待命反应无优先权、来源非面朝下、身份未知/不匹配、来源不受控或来源没有待命关键词等路径拒绝 `REVEAL_CARD` 时，错误消息改为中文待命翻开说明；常规翻开与反应拒绝回归断言不含 raw `REVEAL_CARD`。前端仍只显示服务端 `REVEAL_CARD` prompt/sourceRequirements 与候选，不自行判断待命翻开或反应合法性。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4RevealCardCommandRejects"` 通过 20/20；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百三十九批继续收口待命埋伏服务端错误文案。`CoreRuleEngine` 在错误窗口、未知待命行为、来源不在自己手牌、非法去向/费用、战场待命缺少对应班德尔树、手牌身份未知/不匹配、来源不受控、来源没有待命关键词或法力不足等路径拒绝 `HIDE_CARD` 时，错误消息改为中文待命埋伏说明；关键回归断言不含 raw `HIDE_CARD`。前端仍只展示服务端 `HIDE_CARD` prompt/sourceRequirements 与候选，不自行判断待命埋伏合法性。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4HideCardCommandRejectsSourceOutsideHand|FullyQualifiedName~P4HideCardCommandRejectsOpponentHandSource|FullyQualifiedName~P4HideCardCommandRejectsKnownNonStandbyCard|FullyQualifiedName~P4HideCardCommandRejectsUnsupportedDestination|FullyQualifiedName~P4HideCardCommandRejectsUnsupportedOptionalCost|FullyQualifiedName~P4HideCardCommandRejectsMissingStandbyCost|FullyQualifiedName~P4HideCardCommandRejectsOutsideActivePlayerOpenMainWindow|FullyQualifiedName~P4HideCardCommandRejectsPendingStackWindow|FullyQualifiedName~P4HideCardCommandRejectsSourceCardNoMismatch|FullyQualifiedName~P4HideCardCommandRejectsSourceWithoutCardNo|FullyQualifiedName~P4HideCardCommandRejectsOpponentControlledSourceInPlayerHand"` 通过 11/11；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

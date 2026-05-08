@@ -39707,7 +39707,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card identity does not match REVEAL_CARD cardNo.", result.ErrorMessage);
+        Assert.Equal("待命翻开的牌信息与提交的牌不匹配。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -39759,7 +39760,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card identity is unknown for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Equal("待命翻开需要服务端已确认的待命牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -39814,7 +39816,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card is not controlled by the player for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择自己控制的待命牌。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -39889,7 +39892,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card is not in the player's base.", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择自己基地中的待命牌。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -39968,7 +39972,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card is not face down.", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择面朝下的待命牌。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40052,7 +40057,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40123,7 +40129,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40176,7 +40183,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40229,7 +40237,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("竞技场理事 does not expose the Standby keyword for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Equal("竞技场理事 没有待命关键词，不能进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40369,7 +40378,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("竞技场理事 does not expose the Standby keyword for REVEAL_CARD.", result.ErrorMessage);
+        Assert.Equal("竞技场理事 没有待命关键词，不能进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40459,7 +40469,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40549,7 +40560,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40639,7 +40651,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card identity does not match REVEAL_CARD cardNo.", result.ErrorMessage);
+        Assert.Equal("待命翻开的牌信息与提交的牌不匹配。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40729,7 +40742,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40819,7 +40833,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card is not in the player's base.", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择自己基地中的待命牌。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40911,7 +40926,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card is not face down.", result.ErrorMessage);
+        Assert.Equal("待命翻开只能选择面朝下的待命牌。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -40989,7 +41005,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -41088,7 +41105,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby reveal mode for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该模式进行待命翻开。", result.ErrorMessage);
+        Assert.DoesNotContain("REVEAL_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
