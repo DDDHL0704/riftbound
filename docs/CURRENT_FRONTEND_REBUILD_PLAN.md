@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百六十二批补齐《猩红飞鸽》（UNL-154/219）“和另一名单位一起进攻一处战场时获得战力 +2”的服务端代表性战斗静态规则。`ResolveBattleCombatPower` 现在接收本次战斗的进攻单位数量，并在《猩红飞鸽》作为进攻单位且至少两名单位共同进攻时把 +2 写入 `staticPowerBonus`；前端仍只展示服务端 `DAMAGE_APPLIED` 事件和 authoritative snapshot，不新增本地共同进攻裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79ScarletPigeonGainsPowerWhenAttackingWithAnotherUnit` / 多进攻者伤害分配 / 花瓣仙子静态精确回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3161/3161；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百六十一批补齐《花瓣仙子》（UNL-076/219）“所处战场每有一名己方瞬息单位便获得战力 +1”的服务端代表性战斗静态规则。`ResolveBattleCombatPower` 现在按权威 `ObjectLocations` 只统计与《花瓣仙子》同一战场、同控制者、正面、非待命的瞬息单位，并把数量作为 `staticPowerBonus` 写入战斗伤害事件；其他战场瞬息、对手瞬息和待命瞬息不会被计入。前端仍只展示服务端事件/snapshot，不新增本地战力裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower` / 战场静态战力 / 瞬息坚守 / 乐芙兰瞬息静态精确回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3160/3160；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-154/219 猩红飞鸽",
-      "note": "官方卡面：费用 3；单位；战力 3；鸟类属性；如果和另一名单位一起进攻一处战场则获得战力+2。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录属性标签；共同进攻检测和战斗内战力修正路径暂缓。"
+      "note": "官方卡面：费用 3；单位；战力 3；鸟类属性；如果和另一名单位一起进攻一处战场则获得战力+2。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录属性标签；共同进攻检测和战斗内战力修正由 P79ScarletPigeonGainsPowerWhenAttackingWithAnotherUnit 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

@@ -34368,6 +34368,70 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79ScarletPigeonGainsPowerWhenAttackingWithAnotherUnit()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-SCARLET-PIGEON", "P1-ALLY-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SCARLET-PIGEON"] = new(
+                    "P1-SCARLET-PIGEON",
+                    cardNo: "UNL-154/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, "鸟类"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-ALLY-ATTACKER"] = new(
+                    "P1-ALLY-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 8,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-scarlet-pigeon-static-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SCARLET-PIGEON", "P1-ALLY-ATTACKER"],
+                ["P2-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var pigeonDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SCARLET-PIGEON", StringComparison.Ordinal));
+        Assert.Equal("P2-DEFENDER", pigeonDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(3, pigeonDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, pigeonDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, pigeonDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(5, pigeonDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, pigeonDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticRoamAllowsPreciseBattlefieldMovement()
     {
         var state = BattlefieldStaticRoamState();

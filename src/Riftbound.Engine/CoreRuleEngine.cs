@@ -123,6 +123,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string PetalPixieCardNo = "UNL-076/219";
+    private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
@@ -5151,6 +5152,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 attackingObjectId,
                 attackingState,
                 true,
+                attackerObjectIds.Count,
                 0,
                 defendingPlayerId,
                 battlefieldId,
@@ -5168,6 +5170,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     assignment.ObjectId,
                     defenderState,
                     false,
+                    attackerObjectIds.Count,
                     defendingUnitCount,
                     null,
                     battlefieldId,
@@ -5219,6 +5222,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 assignment.ObjectId,
                 defenderState,
                 false,
+                attackerObjectIds.Count,
                 defendingUnitCount,
                 null,
                 battlefieldId,
@@ -5241,6 +5245,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     attackerAssignment.ObjectId,
                     targetAttackerState,
                     true,
+                    attackerObjectIds.Count,
                     0,
                     defendingPlayerId,
                     battlefieldId,
@@ -6841,6 +6846,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string objectId,
         CardObjectState cardObject,
         bool isAttacking,
+        int attackingUnitCount,
         int defendingUnitCount,
         string? defendingPlayerId,
         string battlefieldId,
@@ -6897,6 +6903,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
         staticPowerBonus += ResolvePetalPixieFriendlyEphemeralPowerBonus(state, playerZones, objectId, cardObject);
+        staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
@@ -6956,6 +6963,19 @@ public sealed class CoreRuleEngine : IRuleEngine
                 EffectiveFieldControllerId(playerZones, entry.Key, candidate),
                 controllerId,
                 StringComparison.Ordinal));
+    }
+
+    private static int ResolveScarletPigeonMultiAttackerPowerBonus(
+        CardObjectState cardObject,
+        bool isAttacking,
+        int attackingUnitCount)
+    {
+        return isAttacking
+            && attackingUnitCount > 1
+            && IsScarletPigeonCardNo(cardObject.CardNo)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            ? 2
+            : 0;
     }
 
     private static bool HasBattlefieldEphemeralSteadfastBonus(
@@ -11477,6 +11497,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsPetalPixieCardNo(string? cardNo)
     {
         return string.Equals(cardNo, PetalPixieCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsScarletPigeonCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, ScarletPigeonCardNo, StringComparison.Ordinal);
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(
