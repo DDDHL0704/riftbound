@@ -5024,7 +5024,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "DECLARE_BATTLE is not implemented in P4 yet.",
+                "当前声明战斗路径尚未由服务端开放。",
                 ErrorCodes.UnsupportedCommand);
         }
 

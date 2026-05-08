@@ -47016,7 +47016,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
@@ -47076,7 +47076,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47132,7 +47132,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47188,7 +47188,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47244,7 +47244,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47300,7 +47300,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47356,7 +47356,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47412,7 +47412,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47468,7 +47468,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47524,7 +47524,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47577,7 +47577,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47633,7 +47633,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47689,7 +47689,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47745,7 +47745,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47801,7 +47801,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P2"]);
@@ -47859,7 +47859,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(MatchPhases.TurnEnd, result.State.Phase);
@@ -47917,7 +47917,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -47974,7 +47974,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
@@ -48034,7 +48034,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-BATTLE-UNKNOWN-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
@@ -48091,7 +48091,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-BATTLE-KNOWN-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
@@ -48158,7 +48158,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Null(result.State.CardObjects["P1-BATTLEFIELD-UNKNOWN-DECLARE-BATTLE-DESTINATION"].CardNo);
@@ -48214,7 +48214,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-BATTLE-OPPONENT-CONTROLLED-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
@@ -48272,7 +48272,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前声明战斗路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-BATTLE-KNOWN-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
