@@ -7761,7 +7761,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var revealedObjectIds = zones.MainDeck.Take(2).ToArray();
+        var revealedObjectIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 2);
+        if (revealedObjectIds.Length == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
         var playedObjectId = revealedObjectIds.FirstOrDefault(objectId =>
             cardObjects.TryGetValue(objectId, out var cardObject)
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)) ?? string.Empty;
@@ -9566,7 +9571,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var movedCardIds = zones.MainDeck.Take(2).ToArray();
+        var movedCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 2);
+        if (movedCardIds.Length == 0)
+        {
+            return false;
+        }
+
         playerZones[playerId] = zones with
         {
             MainDeck = zones.MainDeck.Skip(movedCardIds.Length).ToArray(),
@@ -9619,7 +9629,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var revealedObjectId = zones.MainDeck[0];
+        var revealedObjectIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 1);
+        if (revealedObjectIds.Length == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
+        var revealedObjectId = revealedObjectIds[0];
         var revealedIsSpell = cardObjects.TryGetValue(revealedObjectId, out var revealedState)
             && revealedState.Tags.Contains(CardObjectTags.SpellCard, StringComparer.Ordinal);
         events.Add(new GameEvent(
@@ -9768,7 +9784,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var revealedObjectIds = zones.MainDeck.Take(2).ToArray();
+        var revealedObjectIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 2);
+        if (revealedObjectIds.Length == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
         var recycledObjectIds = RandomizeForMainDeckBottom(
             revealedObjectIds,
             state.Seed,
@@ -15597,7 +15618,12 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new RecycleResult(events, rngCursor);
         }
 
-        var recycledCardIds = zones.MainDeck.Take(1).ToArray();
+        var recycledCardIds = TakeControlledMainDeckPrefix(cardObjects, playerId, zones.MainDeck, 1);
+        if (recycledCardIds.Length == 0)
+        {
+            return new RecycleResult(events, rngCursor);
+        }
+
         var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
             recycledCardIds,
             state.Seed,
@@ -20211,6 +20237,31 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return calledRunes.ToArray();
+    }
+
+    private static string[] TakeControlledMainDeckPrefix(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<string> mainDeck,
+        int lookCount)
+    {
+        if (lookCount <= 0)
+        {
+            return [];
+        }
+
+        var objectIds = new List<string>();
+        foreach (var objectId in mainDeck.Take(lookCount))
+        {
+            if (!IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
+            {
+                break;
+            }
+
+            objectIds.Add(objectId);
+        }
+
+        return objectIds.ToArray();
     }
 
     private static IReadOnlyList<string> RandomizeForMainDeckBottom(

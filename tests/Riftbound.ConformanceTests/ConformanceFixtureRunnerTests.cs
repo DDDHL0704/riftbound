@@ -30043,6 +30043,50 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldDefendRevealSpellSkipsOpponentControlledTopCard()
+    {
+        var baseState = BattlefieldDefendRevealSpellState(topCardIsSpell: true);
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            MainDeck = ["P2-DIRTY-REVEAL-P1-OWNED", "P2-BATTLEFIELD-REVEAL-SPELL", "P2-MAIN-001"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-DIRTY-REVEAL-P1-OWNED"] = new(
+            "P2-DIRTY-REVEAL-P1-OWNED",
+            tags: [CardObjectTags.SpellCard],
+            ownerId: "P1");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-defend-reveal-dirty-top", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RAVENBLOOM",
+                ["P1-BATTLEFIELD-REVEAL-ATTACKER"],
+                ["P2-BATTLEFIELD-REVEAL-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(
+            ["P2-DIRTY-REVEAL-P1-OWNED", "P2-BATTLEFIELD-REVEAL-SPELL", "P2-MAIN-001"],
+            result.State.PlayerZones["P2"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
+        Assert.Equal("MAIN_DECK", result.State.ObjectLocations["P2-DIRTY-REVEAL-P1-OWNED"].Zone);
+    }
+
+    [Fact]
     public async Task P79BattlefieldEphemeralDefenderGainsSteadfast()
     {
         var state = BattlefieldEphemeralSteadfastState();
