@@ -2994,7 +2994,8 @@ internal static class ActionPromptBuilder
             && zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldPreventMoveToBaseCardNo, StringComparison.Ordinal));
+                && string.Equals(cardObject.CardNo, BattlefieldPreventMoveToBaseCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static bool HasMoveUnitPromptRoamPermission(
@@ -3013,7 +3014,8 @@ internal static class ActionPromptBuilder
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal));
+                && string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static bool TryMoveUnitPreciseBattlefieldOrigin(
@@ -5407,7 +5409,8 @@ internal static class ActionPromptBuilder
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal)))
+                && string.Equals(cardObject.CardNo, BattlefieldEchoCostReductionCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
         {
             return 0;
         }
@@ -5426,7 +5429,8 @@ internal static class ActionPromptBuilder
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)))
+                && string.Equals(cardObject.CardNo, BattlefieldEquipmentCostReductionCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
         {
             return 0;
         }
@@ -6098,7 +6102,8 @@ internal static class ActionPromptBuilder
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.CardNo, BattlefieldPreventUnitPlayCardNo, StringComparison.Ordinal));
+                && string.Equals(cardObject.CardNo, BattlefieldPreventUnitPlayCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static string UnsupportedPlayCardCompositionReason(CardBehaviorDefinition behavior)

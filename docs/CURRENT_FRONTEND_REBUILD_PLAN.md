@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十一批仍为服务端规则收口，没有前端 UI 文件变更。服务端 `ActionPrompt` 构造层同步收紧战场来源控制权：移动单位候选的游走/禁止移回基地、出牌候选的 Echo/武装减费和禁止单位打到战场，都与 Core 裁决一样忽略恢复脏战场牌。前端收益是只按 `ActionPrompt.sourceRequirements` 展示时不会出现错误游走、错误折扣或错误阻止入口。
+- 本批验证：`dotnet build` 通过；prompt/命令精确回归 9/9、`BattlefieldStatic|Prompt|sourceRequirements` 相关回归 73/73、`GameHubJoinTests` 118/118、后端 full test 3097/3097 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
+
 - 第一百五十批仍为服务端规则收口，没有前端 UI 文件变更。服务端把胜利分数阈值、第一回合额外召符文、第一回合战场得分、得分延迟、回合开始全战场伤害、回合开始摧毁抽牌这组计分/回合开始战场来源接入所在场区控制权校验；同时修正 `Snapshot.timing.winningScore` 与 Core 胜负阈值一致，前端继续只展示 authoritative snapshot。
 - 本批验证：`dotnet build` 通过；新增/相邻精确回归 17/17、计分/回合开始相关回归 18/18、`GameHubJoinTests` 118/118、后端 full test 3093/3093 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
 

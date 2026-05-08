@@ -32676,6 +32676,32 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public void P79BattlefieldStaticRoamPromptSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldStaticRoamState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-WIND-HILL"] = dirtyObjects["P1-BATTLEFIELD-WIND-HILL"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state with { CardObjects = dirtyObjects })["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+
+        Assert.Contains(sourceRequirements, requirement =>
+            string.Equals(requirement["sourceObjectId"] as string, "P1-BATTLEFIELD-WIND-RUNNER", StringComparison.Ordinal)
+            && string.Equals(requirement["mode"] as string, "BATTLEFIELD_TO_BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(sourceRequirements, requirement =>
+            string.Equals(requirement["mode"] as string, "ROAM", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit()
     {
         var state = BattlefieldStaticPreventMoveBaseState();
@@ -32723,6 +32749,30 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BATTLEFIELD-VILEMAW-LAIR"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P1-BATTLEFIELD-TRAPPED-UNIT"], result.State.PlayerZones["P1"].Base);
         Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void P79BattlefieldStaticPreventMoveToBasePromptSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldStaticPreventMoveBaseState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-VILEMAW-LAIR"] = dirtyObjects["P1-BATTLEFIELD-VILEMAW-LAIR"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state with { CardObjects = dirtyObjects })["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+
+        Assert.Contains(sourceRequirements, requirement =>
+            string.Equals(requirement["sourceObjectId"] as string, "P1-BATTLEFIELD-TRAPPED-UNIT", StringComparison.Ordinal)
+            && string.Equals(requirement["mode"] as string, "BATTLEFIELD_TO_BASE", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -32902,6 +32952,30 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public void P79BattlefieldStaticEchoCostReductionPromptSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldEchoCostReductionState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-MARAI-SPIRE"] = dirtyObjects["P1-BATTLEFIELD-MARAI-SPIRE"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state with { CardObjects = dirtyObjects })["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+
+        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "ECHO", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticReducesFirstEquipmentCost()
     {
         var state = BattlefieldEquipmentCostReductionState();
@@ -32951,6 +33025,25 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-EQUIPMENT-LONG-SWORD"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void P79BattlefieldStaticEquipmentCostReductionPromptSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldEquipmentCostReductionState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-ORNN-FORGE"] = dirtyObjects["P1-BATTLEFIELD-ORNN-FORGE"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state with { CardObjects = dirtyObjects })["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        Assert.False(playCandidate.Enabled);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
     }
 
     [Fact]
