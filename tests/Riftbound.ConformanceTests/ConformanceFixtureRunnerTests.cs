@@ -20691,6 +20691,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain("P2-HOST-LEAVE-UNIT", result.FinalState.CardObjects.Keys);
         Assert.Contains("P2-HOST-LEAVE-LONG-SWORD", result.FinalState.CardObjects.Keys);
         Assert.Null(result.FinalState.CardObjects["P2-HOST-LEAVE-LONG-SWORD"].AttachedToObjectId);
+        Assert.DoesNotContain("P2-HOST-LEAVE-LONG-SWORD", result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-HOST-LEAVE-LONG-SWORD", result.FinalState.PlayerZones["P2"].Base);
+        Assert.Contains(result.Events, ev => string.Equals(ev.Kind, "EQUIPMENT_RECALLED_TO_BASE", StringComparison.Ordinal));
     }
 
     [Fact]

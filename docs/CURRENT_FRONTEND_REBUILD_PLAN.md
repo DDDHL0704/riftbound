@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十六批继续收口服务端状态性清理，没有新增前端 UI 代码。现代 `ObjectLocations` 完整的权威状态仍公开 `RECALL_UNATTACHED_EQUIPMENT` blocking task；旧 fixture/恢复态缺 object index 时，服务端 cleanup loop 会回落到 `PlayerZones.Battlefields`，在宿主被摧毁后或《圣裁之刻》保留未贴附战场装备后，将装备召回控制者基地并广播 `EQUIPMENT_RECALLED_TO_BASE`。前端继续只展示服务端事件和最终 snapshot。
+- 本批验证：精确/相邻回归 15/15、后端 full test 3134/3134 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签覆盖 110 个后端 event kind。没有启动 API/Vite/业务 Browser/Chrome smoke，因为本批没有新增交互流程；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十五批仍为服务端状态性清理规则收口，仅新增一个前端事件日志中文标签。未贴附、非待命、正面装备若出现在战场，服务端会以 `RECALL_UNATTACHED_EQUIPMENT` pending task 阻塞普通操作，并在下一次状态性清理时把装备召回 effective controller 基地、广播 `EQUIPMENT_RECALLED_TO_BASE`；前端继续只显示服务端任务、事件与 authoritative snapshot，不自行裁决装备合法性。
 - 本批验证：`dotnet build` 通过；`UnattachedBattlefieldEquipment|UnattachedEquipment` 精确回归 2/2、后端 full test 3134/3134 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签覆盖 110 个后端 event kind。没有启动 API/Vite/业务 Browser/Chrome smoke，因为本批没有新增交互流程，只补事件标签与服务端规则；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

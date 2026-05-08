@@ -21925,23 +21925,17 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         var recalledObjectIds = new List<string>();
         var events = new List<GameEvent>();
-        var equipmentObjectIds = objectLocations
-            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
-                && !string.IsNullOrWhiteSpace(entry.Value.BattlefieldObjectId)
-                && !string.Equals(entry.Key, entry.Value.BattlefieldObjectId, StringComparison.Ordinal)
-                && IsObjectOnField(playerZones, entry.Key)
-                && cardObjects.TryGetValue(entry.Key, out var cardObject)
-                && IsUnattachedBattlefieldEquipmentCleanupCandidate(cardObject))
-            .OrderBy(entry => entry.Value.BattlefieldObjectId, StringComparer.Ordinal)
-            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
-            .Select(entry => entry.Key)
+        var equipmentCandidates = FindUnattachedBattlefieldEquipmentCleanupCandidates(
+                playerZones,
+                cardObjects,
+                objectLocations)
             .ToArray();
 
-        foreach (var objectId in equipmentObjectIds)
+        foreach (var candidate in equipmentCandidates)
         {
+            var objectId = candidate.ObjectId;
             if (!cardObjects.TryGetValue(objectId, out var cardObject)
-                || !objectLocations.TryGetValue(objectId, out var location)
-                || string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+                || !TryFindBattlefieldZonePlayerId(playerZones, objectId, out _))
             {
                 continue;
             }
@@ -21981,7 +21975,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = objectId,
                     ["ownerPlayerId"] = cardObject.OwnerId,
                     ["controllerId"] = controllerId,
-                    ["battlefieldObjectId"] = location.BattlefieldObjectId,
+                    ["battlefieldObjectId"] = candidate.BattlefieldObjectId,
                     ["originZone"] = MoveUnitBattlefieldZone,
                     ["destinationZone"] = MoveUnitBaseZone,
                     ["reason"] = "UNATTACHED_EQUIPMENT_CLEANUP"
@@ -21994,6 +21988,58 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(objectId => objectId, StringComparer.Ordinal)
                 .ToArray());
+    }
+
+    private static IEnumerable<BattlefieldEquipmentCleanupCandidate> FindUnattachedBattlefieldEquipmentCleanupCandidates(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations)
+    {
+        return cardObjects
+            .Where(entry => IsUnattachedBattlefieldEquipmentCleanupCandidate(entry.Value)
+                && TryFindBattlefieldZonePlayerId(playerZones, entry.Key, out _)
+                && IsEquipmentObjectLocationOnBattlefieldOrUnknown(objectLocations, entry.Key))
+            .Select(entry => new BattlefieldEquipmentCleanupCandidate(
+                entry.Key,
+                ResolveEquipmentBattlefieldObjectId(playerZones, cardObjects, objectLocations, entry.Key)))
+            .OrderBy(candidate => candidate.BattlefieldObjectId ?? string.Empty, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.ObjectId, StringComparer.Ordinal);
+    }
+
+    private static bool IsEquipmentObjectLocationOnBattlefieldOrUnknown(
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId)
+    {
+        return !objectLocations.TryGetValue(objectId, out var location)
+            || string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal);
+    }
+
+    private static string? ResolveEquipmentBattlefieldObjectId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId)
+    {
+        if (objectLocations.TryGetValue(objectId, out var location)
+            && string.Equals(location.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && !string.IsNullOrWhiteSpace(location.BattlefieldObjectId))
+        {
+            return location.BattlefieldObjectId;
+        }
+
+        if (!TryFindBattlefieldZonePlayerId(playerZones, objectId, out var playerId)
+            || !playerZones.TryGetValue(playerId, out var zones))
+        {
+            return null;
+        }
+
+        var battlefieldObjectIds = zones.Battlefields
+            .Where(candidateObjectId => cardObjects.TryGetValue(candidateObjectId, out var cardObject)
+                && cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .Take(2)
+            .ToArray();
+        return battlefieldObjectIds.Length == 1 ? battlefieldObjectIds[0] : null;
     }
 
     private static LethalDamageCleanupResult ApplyLethalDamageCleanup(
@@ -22124,6 +22170,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         return playerZones.Values.Any(zones =>
             zones.Base.Contains(objectId, StringComparer.Ordinal)
             || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool TryFindBattlefieldZonePlayerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        out string playerId)
+    {
+        foreach (var (candidatePlayerId, zones) in playerZones)
+        {
+            if (zones.Battlefields.Contains(objectId, StringComparer.Ordinal))
+            {
+                playerId = candidatePlayerId;
+                return true;
+            }
+        }
+
+        playerId = string.Empty;
+        return false;
     }
 
     private static IReadOnlyList<string> RemoveFromZone(IReadOnlyList<string> zone, string objectId)
@@ -23597,6 +23661,10 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         public static RecalledEquipmentCleanupResult Empty { get; } = new([], []);
     }
+
+    private sealed record BattlefieldEquipmentCleanupCandidate(
+        string ObjectId,
+        string? BattlefieldObjectId);
 
     private sealed record StateBasedCleanupResult(
         IReadOnlyList<GameEvent> Events,

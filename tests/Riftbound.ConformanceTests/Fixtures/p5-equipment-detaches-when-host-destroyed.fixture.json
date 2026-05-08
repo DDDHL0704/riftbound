@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p5-equipment-detaches-when-host-destroyed",
-  "description": "P5.8 clears attachedToObjectId from explicit equipment when its host unit is destroyed.",
+  "description": "P5.8 clears attachedToObjectId from explicit equipment when its host unit is destroyed, then recalls the unattached battlefield equipment during cleanup.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -22,7 +22,7 @@
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p22-p26 rules 179,187-189; p39-p42 rules 355-356; p89 rules 718-719",
-      "note": "对象拥有者/控制者、场上对象离场和装备贴附关系必须保持一致；本 fixture 锁定宿主离场后装备不能继续指向已离场对象。"
+      "note": "对象拥有者/控制者、场上对象离场、装备贴附关系和未贴附战场装备清理必须保持一致；本 fixture 锁定宿主离场后装备不能继续指向已离场对象，并会在下一次清理召回控制者基地。"
     }
   ],
   "roomId": "p5-equipment-detaches-when-host-destroyed-room",
@@ -122,7 +122,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_DESTROYED"
+      "UNIT_DESTROYED",
+      "EQUIPMENT_RECALLED_TO_BASE"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -157,6 +158,18 @@
           "destinationZone": "GRAVEYARD",
           "detachedEquipmentObjectIds": ["P2-HOST-LEAVE-LONG-SWORD"]
         }
+      },
+      {
+        "kind": "EQUIPMENT_RECALLED_TO_BASE",
+        "payload": {
+          "equipmentObjectId": "P2-HOST-LEAVE-LONG-SWORD",
+          "targetObjectId": "P2-HOST-LEAVE-LONG-SWORD",
+          "ownerPlayerId": "P2",
+          "controllerId": "P2",
+          "originZone": "BATTLEFIELD",
+          "destinationZone": "BASE",
+          "reason": "UNATTACHED_EQUIPMENT_CLEANUP"
+        }
       }
     ],
     "promptActions": {
@@ -183,7 +196,7 @@
           "graveyard": ["P1-SPELL-VENGEANCE"]
         },
         "P2": {
-          "battlefields": ["P2-HOST-LEAVE-LONG-SWORD"],
+          "base": ["P2-HOST-LEAVE-LONG-SWORD"],
           "graveyard": ["P2-HOST-LEAVE-UNIT"]
         }
       },

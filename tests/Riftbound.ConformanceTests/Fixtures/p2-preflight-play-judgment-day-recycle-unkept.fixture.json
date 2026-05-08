@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-judgment-day-recycle-unkept",
-  "description": "Judgment Day keeps each player's selected units, equipment, runes, and hand cards, then recycles the rest.",
+  "description": "Judgment Day keeps each player's selected units, equipment, runes, and hand cards, recycles the rest, then cleanup recalls kept unattached battlefield equipment.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -17,7 +17,7 @@
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p58-p59 rule 416",
-      "note": "打出法术需要支付费用并加入结算链；双方让过后结算最新项目；回收会把指定牌以可回放随机顺序放到主牌堆底部。"
+      "note": "打出法术需要支付费用并加入结算链；双方让过后结算最新项目；回收会把指定牌以可回放随机顺序放到主牌堆底部；清理会召回仍在战场的未贴附装备。"
     }
   ],
   "roomId": "p2-preflight-judgment-day-room",
@@ -166,7 +166,9 @@
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
       "CARDS_RECYCLED",
-      "CARDS_RECYCLED"
+      "CARDS_RECYCLED",
+      "EQUIPMENT_RECALLED_TO_BASE",
+      "EQUIPMENT_RECALLED_TO_BASE"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
@@ -226,6 +228,28 @@
           ],
           "count": 4
         }
+      },
+      {
+        "kind": "EQUIPMENT_RECALLED_TO_BASE",
+        "payload": {
+          "equipmentObjectId": "P1-EQUIPMENT-KEEP-002",
+          "targetObjectId": "P1-EQUIPMENT-KEEP-002",
+          "controllerId": "P1",
+          "originZone": "BATTLEFIELD",
+          "destinationZone": "BASE",
+          "reason": "UNATTACHED_EQUIPMENT_CLEANUP"
+        }
+      },
+      {
+        "kind": "EQUIPMENT_RECALLED_TO_BASE",
+        "payload": {
+          "equipmentObjectId": "P2-EQUIPMENT-KEEP-002",
+          "targetObjectId": "P2-EQUIPMENT-KEEP-002",
+          "controllerId": "P2",
+          "originZone": "BATTLEFIELD",
+          "destinationZone": "BASE",
+          "reason": "UNATTACHED_EQUIPMENT_CLEANUP"
+        }
       }
     ],
     "promptActions": {
@@ -259,11 +283,11 @@
             "P1-UNIT-KEEP-001",
             "P1-EQUIPMENT-KEEP-001",
             "P1-RUNE-KEEP-001",
-            "P1-RUNE-KEEP-002"
+            "P1-RUNE-KEEP-002",
+            "P1-EQUIPMENT-KEEP-002"
           ],
           "battlefields": [
-            "P1-UNIT-KEEP-002",
-            "P1-EQUIPMENT-KEEP-002"
+            "P1-UNIT-KEEP-002"
           ],
           "graveyard": ["P1-SPELL-JUDGMENT"]
         },
@@ -283,11 +307,11 @@
             "P2-UNIT-KEEP-001",
             "P2-EQUIPMENT-KEEP-001",
             "P2-RUNE-KEEP-001",
-            "P2-RUNE-KEEP-002"
+            "P2-RUNE-KEEP-002",
+            "P2-EQUIPMENT-KEEP-002"
           ],
           "battlefields": [
-            "P2-UNIT-KEEP-002",
-            "P2-EQUIPMENT-KEEP-002"
+            "P2-UNIT-KEEP-002"
           ],
           "graveyard": []
         }
