@@ -32762,6 +32762,34 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticEchoCostReductionSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldEchoCostReductionState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-MARAI-SPIRE"] = dirtyObjects["P1-BATTLEFIELD-MARAI-SPIRE"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-echo-cost-reduction-dirty-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-CENTER-STAGE",
+                "UNL-061/219",
+                [],
+                OptionalCosts: ["ECHO"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-CENTER-STAGE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticReducesFirstEquipmentCost()
     {
         var state = BattlefieldEquipmentCostReductionState();
@@ -32784,6 +32812,33 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, costPaid.Payload["mana"]);
         Assert.Equal(2, costPaid.Payload["baseMana"]);
         Assert.Equal(1, costPaid.Payload["battlefieldEquipmentCostReductionMana"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldStaticEquipmentCostReductionSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldEquipmentCostReductionState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-ORNN-FORGE"] = dirtyObjects["P1-BATTLEFIELD-ORNN-FORGE"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-equipment-cost-reduction-dirty-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "SFD·022/221",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-EQUIPMENT-LONG-SWORD"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -32841,6 +32896,55 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(result.Accepted);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["P1-MAIN-DRAWN"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldFriendlySpellTargetSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldFriendlySpellDrawState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-DREAMTREE"] = dirtyObjects["P1-BATTLEFIELD-DREAMTREE"] with
+        {
+            ControllerId = "P2"
+        };
+        state = state with
+        {
+            CardObjects = dirtyObjects,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new(
+                    "STACK-intent-p7-9-battlefield-friendly-spell-draw-dirty-source-DUMMY",
+                    "P1",
+                    "P1-SPELL-DUMMY",
+                    "DUMMY_PENDING_EFFECT",
+                    "DUMMY",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-friendly-spell-draw-dirty-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-SAVAGE-STRENGTH",
+                "SFD·034/221",
+                ["P1-BATTLEFIELD-ALLY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-MAIN-DRAWN"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(
+            result.State.UntilEndOfTurnEffects,
+            effectId => string.Equals(
+                effectId,
+                "BATTLEFIELD_FRIENDLY_SPELL_DRAW_USED:P1:P1-BATTLEFIELD-DREAMTREE",
+                StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FRIENDLY_SPELL_DRAW_ONE", StringComparison.Ordinal));
@@ -32971,6 +33075,33 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-SAVAGE-STRENGTH",
                 "SFD·034/221",
+                ["P2-BATTLEFIELD-ENEMY"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-INSIGHT-RECYCLE", "P1-MAIN-KEEPER"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HIGH_COST_SPELL_INSIGHT_RECYCLE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldHighCostSpellInsightSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldHighCostSpellInsightState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-LOST-LIBRARY"] = dirtyObjects["P1-BATTLEFIELD-LOST-LIBRARY"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-high-cost-spell-insight-dirty-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-MOONFALL",
+                "UNL-066/219",
                 ["P2-BATTLEFIELD-ENEMY"]),
             CancellationToken.None);
 

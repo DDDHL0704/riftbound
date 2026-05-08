@@ -15318,7 +15318,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldEchoCostReductionCardNo(cardObject.CardNo)))
+                && IsBattlefieldEchoCostReductionCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
         {
             return 0;
         }
@@ -15337,7 +15338,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldEquipmentCostReductionCardNo(cardObject.CardNo)))
+                && IsBattlefieldEquipmentCostReductionCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)))
         {
             return 0;
         }
@@ -15382,6 +15384,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         sourceObjectId = zones.Battlefields
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsBattlefieldFriendlySpellDrawCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
                 && !BattlefieldFriendlySpellDrawUsedThisTurn(state, playerId, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault() ?? string.Empty;
@@ -15634,7 +15637,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceObjectId = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldHighCostSpellInsightCardNo(cardObject.CardNo))
+                && IsBattlefieldHighCostSpellInsightCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(sourceObjectId))

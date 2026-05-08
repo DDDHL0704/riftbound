@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百四十八批仍为服务端规则收口，没有前端 UI 文件变更。服务端把玛莱尖塔 Echo 减费、奥恩锻炉武装减费、梦树抽牌、失落书库高费法术洞察回收四个战场静态/触发来源接入所在场区控制权校验；前端收益仍是只展示服务端 `ActionPrompt` / authoritative events 时，不会把恢复脏战场牌表现成真实可用的减费或触发来源。
+- 本批验证：`dotnet build` 通过；新增/相邻精确回归 8/8、战场静态/触发相关回归 15/15、`GameHubJoinTests` 118/118、后端 full test 3082/3082 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为；Chrome 插件连通性已确认，后续显著前端批次优先用 Chrome 插件做 smoke 并在结束时清理标签页和本地进程。
+
 - 第一百四十七批仍为服务端规则收口，没有前端 UI 文件变更。服务端把废弃大厅、偶像谷、流星疗泉三个代表性战场触发的战场来源/目标选择接入所在场区控制权校验；前端收益仍是服务端 `ActionPrompt` / authoritative events 不会把恢复脏战场牌误展示成真实可发动效果。
 - 本批验证：`dotnet build` 通过；目标战场触发回归 10/10、相邻战场触发回归 17/17、`GameHubJoinTests` 118/118、后端 full test 3078/3078 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
 
