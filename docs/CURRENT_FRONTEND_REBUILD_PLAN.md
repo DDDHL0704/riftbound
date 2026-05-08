@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百五十四批继续收口启动技能已开放代表路径的服务端错误文案。`CoreRuleEngine` 在 Vi、Xerath 与战场授予经验技能的时点、目标、来源、身份、横置和资源 guard 中，不再返回英文 ability/debug 说明或 raw `ACTIVATE_ABILITY`，统一改为中文“启动技能只能在当前玩家的开放主阶段提交。”、“蔚的技能不接受目标或额外费用。”、“战场授予经验技能需要选择当前玩家控制的战场单位。”、“泽拉斯的技能需要且只能选择 1 个单位目标。”等玩家文案；新增/扩展回归断言失败不改变 authoritative state，且错误消息不含 raw action 或英文内部能力名。前端仍只展示服务端 `ACTIVATE_ABILITY` prompt/sourceRequirements/targetChoices 中已开放且可组合的候选，deferred/manual 能力不假装可玩。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActivateAbilityCommandRejects|FullyQualifiedName~BattlefieldUnitExperienceAbility"` 通过 58/58；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3153/3153；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百五十三批继续收口声明战斗未开放路径服务端错误文案。`CoreRuleEngine` 在 `DECLARE_BATTLE` 未进入当前代表性最小战斗计划时，不再返回英文 raw “DECLARE_BATTLE is not implemented in P4 yet.”，改为中文“当前声明战斗路径尚未由服务端开放。”；既有声明战斗负例回归继续锁住优先权窗口、攻防为空、战场缺失/未知、费用异常、攻防单位区域/控制权/重复/重叠/身份未知、非 active 玩家和非主阶段等路径拒绝且不改变 authoritative state。前端仍只展示服务端 `DECLARE_BATTLE` prompt/sourceRequirements 支持的战场、攻击者和防守者，不自行裁决战斗。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DeclareBattleCommand"` 通过 56/56；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3147/3147；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

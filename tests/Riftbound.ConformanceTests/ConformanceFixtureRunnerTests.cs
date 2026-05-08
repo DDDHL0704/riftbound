@@ -34827,6 +34827,92 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityRejectsOutsideOpenMainWindowWithChineseError()
+    {
+        var state = BattlefieldUnitExperienceAbilityState() with
+        {
+            TimingState = TimingStates.NeutralClosed
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-timing", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("战场授予经验技能只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("Battlefield unit", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityRejectsTargetSelectionWithChineseError()
+    {
+        var state = BattlefieldUnitExperienceAbilityState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-target", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                ["P1-BATTLEFIELD-MUTATION-GARDEN"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("战场授予经验技能不接受目标或额外费用。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("Battlefield unit", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityRejectsNonBattlefieldSourceWithChineseError()
+    {
+        var state = BattlefieldUnitExperienceAbilityState() with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-BATTLEFIELD-EXPERIENCE-UNIT"],
+                    Battlefields = ["P1-BATTLEFIELD-MUTATION-GARDEN"]
+                },
+                ["P2"] = PlayerZones.Empty
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-source-zone", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("战场授予经验技能需要选择当前玩家控制的战场单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Battlefield unit", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79BattlefieldUnitExperienceAbilityRejectsWithoutMutationGarden()
     {
         var state = BattlefieldUnitExperienceAbilityState(includeMutationGarden: false);
@@ -34842,6 +34928,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("没有可用的战场授予经验技能。", result.ErrorMessage);
+        Assert.DoesNotContain("Mutation Garden", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
         Assert.Empty(result.Events);
@@ -34873,6 +34962,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("没有可用的战场授予经验技能。", result.ErrorMessage);
+        Assert.DoesNotContain("Mutation Garden", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
         Assert.Empty(result.Events);
@@ -34903,8 +34995,44 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("战场授予经验技能需要服务端已确认的单位牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("Battlefield unit", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.PlayerExperience["P1"]);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldUnitExperienceAbilityRejectsExhaustedSourceWithChineseError()
+    {
+        var state = BattlefieldUnitExperienceAbilityState();
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"] = cardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"] with
+        {
+            IsExhausted = true
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-unit-experience-exhausted-source", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-BATTLEFIELD-EXPERIENCE-UNIT",
+                "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("战场授予经验技能需要选择未横置的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Battlefield unit", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(0, result.State.PlayerExperience["P1"]);
+        Assert.True(result.State.CardObjects["P1-BATTLEFIELD-EXPERIENCE-UNIT"].IsExhausted);
         Assert.Empty(result.Events);
     }
 
@@ -37170,6 +37298,53 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillOutsideOpenMainWindowWithChineseError()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI"] = new(
+                    "P1-UNIT-VI",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    cardNo: "UNL-030/219")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-vi-timing-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-VI",
+                "PAY_2_RED_DOUBLE_POWER",
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("启动技能只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsViDoublePowerSkillWithTargets()
     {
         var state = PunishmentState(mana: 2) with
@@ -37214,6 +37389,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("蔚的技能不接受目标或额外费用。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
@@ -37262,6 +37439,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("蔚的技能不接受目标或额外费用。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
@@ -37304,6 +37483,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal("资源不足，无法启动蔚的技能。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
@@ -37350,6 +37531,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("该来源没有服务端支持的蔚技能。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
@@ -37395,6 +37578,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("启动技能来源必须是当前玩家控制的场上单位。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
@@ -37857,6 +38042,61 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillOutsideOpenMainWindowWithChineseError()
+    {
+        var state = PunishmentState(mana: 1) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-UNIT-XERATH"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(1, 1),
+                ["P2"] = RunePool.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-XERATH"] = new(
+                    "P1-UNIT-XERATH",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-026/219"),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "SFD·125/221")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-activate-xerath-timing-rejected", "P1", "ACTIVATE_ABILITY"),
+            new ActivateAbilityCommand(
+                "P1-UNIT-XERATH",
+                "PAY_RED_EXHAUST_DAMAGE_3",
+                ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("启动技能只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4ActivateAbilityCommandRejectsXerathDamageSkillWhenSourceIsExhausted()
     {
         var state = PunishmentState(mana: 0) with
@@ -37909,6 +38149,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能来源必须未横置。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
@@ -37971,6 +38214,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能需要且只能选择 1 个单位目标。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
@@ -38033,6 +38279,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能目标必须是场上的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
@@ -38101,6 +38350,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能需要且只能选择 1 个单位目标。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);
@@ -38157,6 +38409,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能不接受额外费用。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
@@ -38211,6 +38466,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("该来源没有服务端支持的泽拉斯技能。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
@@ -38265,6 +38523,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能目标必须是场上的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
@@ -38319,6 +38580,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("泽拉斯的技能来源必须是当前玩家控制的战场单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
@@ -38486,6 +38750,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal("资源不足，无法启动泽拉斯的技能。", result.ErrorMessage);
+        Assert.DoesNotContain("Xerath", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(0, 1), result.State.RunePools["P1"]);

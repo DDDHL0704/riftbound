@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百五十四批补充：`ACTIVATE_ABILITY` 已开放代表路径的拒绝文案继续去内部协议名和英文 ability/debug 说明。此前 Vi、Xerath 与战场授予经验技能在错误时点、非法目标、非法来源、来源身份未知、来源已横置或资源不足时会正确拒绝并保持状态不变，但多条错误消息包含 raw `ACTIVATE_ABILITY`、英文技能名或 Mutation Garden 内部说明。现在服务端统一返回中文启动技能/战场授予经验/泽拉斯技能说明；结构化 prompt action、ability id、target choices 与 command kind 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActivateAbilityCommandRejects|FullyQualifiedName~BattlefieldUnitExperienceAbility"` 通过 58/58；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3153/3153；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百五十三批补充：`DECLARE_BATTLE` 未开放路径拒绝文案继续去内部协议名。此前声明战斗命令未进入当前代表性最小战斗计划时会正确拒绝并保持状态不变，但错误消息包含 raw `DECLARE_BATTLE` 和 P4 阶段英文说明。现在服务端返回中文“当前声明战斗路径尚未由服务端开放。”，既有声明战斗负例回归同步断言中文错误；结构化 command kind、战场、攻击者、防守者和费用 token 仍保留协议枚举供前端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4DeclareBattleCommand"` 通过 56/56；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3147/3147；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

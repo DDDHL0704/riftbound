@@ -1564,7 +1564,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ACTIVATE_ABILITY is only available during the active player's open main window.",
+                "启动技能只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -1573,7 +1573,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Vi's P4 double-power ability does not accept targets or optional costs.",
+                "蔚的技能不接受目标或额外费用。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1583,7 +1583,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Ability source is not a controlled field unit.",
+                "启动技能来源必须是当前玩家控制的场上单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1599,7 +1599,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Ability source does not expose Vi's P4 double-power ability.",
+                "该来源没有服务端支持的蔚技能。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -1608,7 +1608,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Not enough resources to activate Vi's double-power ability.",
+                "资源不足，无法启动蔚的技能。",
                 ErrorCodes.InsufficientCost);
         }
 
@@ -1696,7 +1696,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Battlefield unit experience ability is only available during the active player's open main window.",
+                "战场授予经验技能只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -1705,7 +1705,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Battlefield unit experience ability does not accept targets or optional costs.",
+                "战场授予经验技能不接受目标或额外费用。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1717,7 +1717,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Battlefield unit experience ability source must be a controlled battlefield unit.",
+                "战场授予经验技能需要选择当前玩家控制的战场单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1725,7 +1725,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Battlefield unit experience ability source must expose a known unit card number.",
+                "战场授予经验技能需要服务端已确认的单位牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -1733,7 +1733,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Battlefield unit experience ability source must be active.",
+                "战场授予经验技能需要选择未横置的单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1747,7 +1747,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "No implemented Mutation Garden battlefield grants that unit ability.",
+                "没有可用的战场授予经验技能。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -3496,7 +3496,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ACTIVATE_ABILITY is only available during the active player's open main window.",
+                "启动技能只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3504,7 +3504,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Xerath's P4 damage ability does not accept optional costs.",
+                "泽拉斯的技能不接受额外费用。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3512,7 +3512,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Xerath's P4 damage ability requires exactly one unit target.",
+                "泽拉斯的技能需要且只能选择 1 个单位目标。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3522,7 +3522,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Xerath's P4 damage ability source must be a controlled battlefield unit.",
+                "泽拉斯的技能来源必须是当前玩家控制的战场单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3538,7 +3538,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Ability source does not expose Xerath's P4 damage ability.",
+                "该来源没有服务端支持的泽拉斯技能。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -3546,7 +3546,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Xerath's P4 damage ability source must be active.",
+                "泽拉斯的技能来源必须未横置。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3558,7 +3558,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Xerath's P4 damage ability target must be a field unit.",
+                "泽拉斯的技能目标必须是场上的单位。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3577,7 +3577,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Not enough resources to activate Xerath's damage ability.",
+                "资源不足，无法启动泽拉斯的技能。",
                 ErrorCodes.InsufficientCost);
         }
 
