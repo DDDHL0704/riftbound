@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-003/P1-004 第一百九十六批补充：房间页服务端日志继续产品化收口。`RoomPage` 现在复用对战桌面的事件 kind 中文标签，房间日志主文案显示“载入开发场景”等服务端事件中文名，不再把 `DEV_SCENARIO_SEEDED` 这类 raw event kind 直接作为玩家可见标题。前端仍只展示服务端 events/snapshot/prompt，不新增客户端规则裁决；raw kind 仅保留在标题 tooltip 供开发排查。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-room-event-label-1778232358005`，P1 连接房间页后由 P2 外部连接并 `SeedScenario("basic-play")`，房间日志显示“载入开发场景”，页面正文不含 `DEV_SCENARIO_SEEDED`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P0-003/P0-005 第一百九十五批补充：前端结算链面板不再裸显 raw stack JSON。`StackPanel` 将服务端 stack item 渲染为中文摘要，只显示控制者、公开卡号/服务端技能、中文化效果类型、目标数量和公开去向；不再把 `sourceObjectId`、`targetObjectIds`、`stackItemId` 等内部字段或 raw JSON 直接暴露在产品 UI 中。当前已为 `HEXTECH_RAY_DAMAGE_3` 补中文标签，未知 effectKind 只显示通用“服务端效果”。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-stack-summary-1778231855451`，P1 连接 spell-duel 场景后，规则队列显示“项目 1 / 控制者：P1 / 来源：OGN·009/298 / 类型：海克斯射线伤害 / 目标：1 个”，不显示 raw JSON、`sourceObjectId`、`targetObjectIds` 或 `HEXTECH_RAY_DAMAGE_3`，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

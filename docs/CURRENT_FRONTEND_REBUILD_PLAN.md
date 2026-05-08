@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十六批继续收口房间日志展示。`RoomPage` 复用对战桌面的服务端事件 kind 中文标签，房间日志主标题显示“载入开发场景”等中文文案，不再裸显 `DEV_SCENARIO_SEEDED` 这类 raw event kind；raw kind 只保留在 `title` 供开发排查，前端仍只读服务端 events，不新增规则裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-room-event-label-1778232358005`，P1 连接房间页后由 P2 外部连接并 seed `basic-play`，房间日志显示“载入开发场景”，页面正文不含 `DEV_SCENARIO_SEEDED`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十五批继续收口结算链展示。`StackPanel` 不再 `JSON.stringify` 服务端 stack item，而是用中文摘要展示控制者、公开来源卡号/服务端技能、效果类型、目标数量和去向；内部 `sourceObjectId`、`targetObjectIds`、`stackItemId` 与未知 effectKind 不再作为产品文字裸显。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-stack-summary-1778231855451`，P1 连接 spell-duel 场景后，规则队列显示“项目 1 / 控制者：P1 / 来源：OGN·009/298 / 类型：海克斯射线伤害 / 目标：1 个”，没有 raw JSON、`sourceObjectId`、`targetObjectIds` 或 `HEXTECH_RAY_DAMAGE_3`，app runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

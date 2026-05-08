@@ -116,7 +116,7 @@ const eventKindLabels: Record<string, string> = {
   UNTIL_END_OF_TURN_EXPIRED: "回合结束效果过期"
 };
 
-function eventKindLabel(kind: string) {
+export function eventKindLabel(kind: string) {
   return eventKindLabels[kind] ?? "服务端事件";
 }
 
