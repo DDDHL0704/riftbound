@@ -129,6 +129,36 @@ export function connectionStatusTone(status: ConnectionStatus): "neutral" | "goo
   }
 }
 
+export function roomStatusLabel(status?: string): string {
+  switch (status) {
+    case "EMPTY":
+      return "空房间";
+    case "SEATING":
+      return "等待入座";
+    case "IN_PROGRESS":
+      return "对局进行中";
+    case "FINISHED":
+      return "对局已结束";
+    default:
+      return status ?? "未知";
+  }
+}
+
+export function roomStatusTone(status?: string): "neutral" | "good" | "warn" | "bad" | "info" {
+  switch (status) {
+    case "FINISHED":
+      return "good";
+    case "IN_PROGRESS":
+      return "info";
+    case "SEATING":
+      return "warn";
+    case "EMPTY":
+      return "neutral";
+    default:
+      return "warn";
+  }
+}
+
 export function promptActionLabel(candidate: ActionPromptCandidateDto): string {
   return candidate.label || actionLabel(candidate.action);
 }

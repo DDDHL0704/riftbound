@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第一百九十九批补充：结算页房间状态枚举中文化。`ResultPage` 现在通过共享 `roomStatusLabel` / `roomStatusTone` 显示 `EMPTY / SEATING / IN_PROGRESS / FINISHED`，页面主状态与详情卡片显示“空房间 / 等待入座 / 对局进行中 / 对局已结束”，不再把 `FINISHED` 等服务端 raw roomStatus 作为玩家可见主文案；“winningScore” 文案同步改为“胜利分数”。前端仍只读取 authoritative snapshot，不自行推断胜负。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~Surrender"` 121/121 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-result-status-1778233263409`，外部连接 P1/P2、seed `basic-play` 后 P1 `SURRENDER`，打开 `/matches/{roomId}/result` 可见“胜者：P2 / 对局已结束 / 胜利分数”，页面正文不含 raw `FINISHED`，应用 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第一百九十八批补充：房间页连接状态继续中文化并与对战桌面统一。`connectionStatusLabel` / `connectionStatusTone` 已抽到共享 formatter，`RoomPage`、`MatchTopBar` 和 `ActionPanel` 共用同一套连接状态文案与色调；房间页不再把 `connected` 等 raw 状态枚举作为玩家可见主文案。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-status-label-1778233017487`，房间页连接前显示“未连接”，点击“连接/重连并入座”后显示“已连接”，页面正文不含 raw `connected`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

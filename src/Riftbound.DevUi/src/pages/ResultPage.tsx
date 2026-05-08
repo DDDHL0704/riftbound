@@ -5,6 +5,7 @@ import { StatusPill } from "../components/ui/StatusPill";
 import { useSettings } from "../stores/settingsStore";
 import { useMatchController } from "../stores/useMatchController";
 import { asNumber, asRecord, asString } from "../utils/collections";
+import { roomStatusLabel, roomStatusTone } from "../utils/formatters";
 
 export function ResultPage({ matchId }: { matchId: string; onNavigate: unknown }) {
   const { settings } = useSettings();
@@ -27,7 +28,7 @@ export function ResultPage({ matchId }: { matchId: string; onNavigate: unknown }
           <h1>{winnerPlayerId ? `胜者：${winnerPlayerId}` : matchId}</h1>
           <p>结果只读取服务端 authoritative snapshot，不根据本地分数推断胜负。</p>
         </div>
-        <StatusPill tone={roomStatus === "FINISHED" ? "good" : "warn"}>{roomStatus}</StatusPill>
+        <StatusPill tone={roomStatusTone(roomStatus)}>{roomStatusLabel(roomStatus)}</StatusPill>
       </section>
       <section className="match-command-row">
         <Button icon={<RefreshCw size={16} />} onClick={() => void controller.join()} variant="secondary">连接/重连</Button>
@@ -38,13 +39,13 @@ export function ResultPage({ matchId }: { matchId: string; onNavigate: unknown }
       <section className="status-grid">
         <article>
           <span className="eyebrow">服务端状态</span>
-          <h2>{roomStatus}</h2>
+          <h2>{roomStatusLabel(roomStatus)}</h2>
           <p>Tick {snapshot?.tick ?? 0} / 第 {snapshot?.turnNumber ?? 0} 回合</p>
         </article>
         <article>
           <span className="eyebrow">胜者</span>
           <h2>{winnerPlayerId || "未决"}</h2>
-          <p>winningScore：{asNumber(timing.winningScore, 0) || "未公开"}</p>
+          <p>胜利分数：{asNumber(timing.winningScore, 0) || "未公开"}</p>
         </article>
         {players.map(([playerId, player]) => {
           const view = asRecord(player);

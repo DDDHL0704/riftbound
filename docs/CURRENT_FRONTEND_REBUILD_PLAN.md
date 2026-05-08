@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十九批继续收口结算页中文展示。`ResultPage` 现在通过共享 `roomStatusLabel` / `roomStatusTone` 把服务端 `EMPTY / SEATING / IN_PROGRESS / FINISHED` 渲染为“空房间 / 等待入座 / 对局进行中 / 对局已结束”，并把 `winningScore` 文案改为“胜利分数”；结算页仍只读 authoritative snapshot，不根据本地分数推断胜负。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~Surrender"` 121/121 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-result-status-1778233263409`，P1/P2 外部连接并 seed `basic-play` 后 P1 投降，结算页显示“胜者：P2 / 对局已结束 / 胜利分数”，页面正文不含 raw `FINISHED`，应用 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十八批继续收口房间页中文展示。连接状态文案和 tone 已抽到共享 formatter，房间页、对战顶栏、行动面板统一显示“未连接 / 连接中 / 已连接 / 重连中 / 重新同步中 / 已断开 / 连接错误”，不再在房间页主状态胶囊裸显 `connected` 等 raw 枚举。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-status-label-1778233017487`，房间页连接前显示“未连接”，连接后显示“已连接”，页面正文不含 raw `connected`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
