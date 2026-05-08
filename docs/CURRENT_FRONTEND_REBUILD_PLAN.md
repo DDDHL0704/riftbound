@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百五十二批继续收口传奇行动未开放/非法时点服务端错误文案。`CoreRuleEngine` 在 `LEGEND_ACT` ability id 尚未进入服务端开放目录时返回中文“当前传奇行动尚未由服务端开放。”，在当前时点不能使用该传奇行动时返回中文“当前时点不能使用该传奇行动。”；新增/扩展回归断言错误消息不含 raw `LEGEND_ACT`，并继续锁住失败不改变经验、资源、牌堆、手牌或来源横置状态。前端仍只展示服务端 `LEGEND_ACT` prompt/sourceRequirements 支持的可用时点和能力。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendActRejectsUnknownAbilityWithChineseError|FullyQualifiedName~P79LegendActDianaRejectsOutsideSpellDuelFocus"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3147/3147；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百五十一批继续收口战场静态禁止出牌的服务端错误文案。`CoreRuleEngine` 在战场静态效果禁止单位打出到目标战场时，不再返回英文 raw “PLAY_CARD blocked by battlefield static: units cannot be played to this battlefield.”，改为中文“战场效果禁止将单位打出到该战场。”；Core 与 Hub 回归都断言错误消息不含 raw `PLAY_CARD`，并继续锁住失败不改变 authoritative state。前端仍只展示服务端 `PLAY_CARD` prompt/destinationChoices 支持的目的地，不自行绕过战场静态限制。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventsUnitPlayToBattlefield"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldStaticPreventPlayUnitsSeedRejectsAmbushToBattlefield"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

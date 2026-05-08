@@ -29766,6 +29766,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActRejectsUnknownAbilityWithChineseError()
+    {
+        var state = LegendActState(experience: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-unknown-ability", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_UNKNOWN_ABILITY",
+                [],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("当前传奇行动尚未由服务端开放。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task P79LegendActRejectsSourceOutsideLegendZoneWithChineseError()
     {
         var state = LegendActState(experience: 3);
@@ -30501,6 +30528,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("当前时点不能使用该传奇行动。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
         Assert.False(result.State.CardObjects["P1-LEGEND-DIANA-REPRINT"].IsExhausted);
     }

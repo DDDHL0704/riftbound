@@ -1838,7 +1838,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT ability is not implemented yet.",
+                "当前传奇行动尚未由服务端开放。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -1846,7 +1846,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT is not available in the current timing window for that ability.",
+                "当前时点不能使用该传奇行动。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
