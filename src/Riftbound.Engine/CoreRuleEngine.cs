@@ -13778,7 +13778,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && IsBattlefieldStaticRoamCardNo(cardObject.CardNo));
+            && IsBattlefieldStaticRoamCardNo(cardObject.CardNo)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static bool HasBattlefieldStaticPreventMoveToBase(MatchState state, string playerId, string sourceObjectId)
@@ -13791,7 +13792,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         return zones.Battlefields.Any(objectId =>
             state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && IsBattlefieldPreventMoveToBaseCardNo(cardObject.CardNo));
+            && IsBattlefieldPreventMoveToBaseCardNo(cardObject.CardNo)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static bool HasBattlefieldStaticPreventUnitPlayToBattlefield(
@@ -13803,7 +13805,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldPreventUnitPlayCardNo(cardObject.CardNo));
+                && IsBattlefieldPreventUnitPlayCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static IReadOnlyList<GameEvent> ApplyBattlefieldMovedUnitPowerPlusOne(
@@ -13820,7 +13823,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Battlefields.Contains(sourceObjectId, StringComparer.Ordinal)
             || !zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldMovedUnitPowerPlusOneCardNo(cardObject.CardNo))
+                && IsBattlefieldMovedUnitPowerPlusOneCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             || !cardObjects.TryGetValue(sourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || sourceState.IsFaceDown)
@@ -21940,11 +21944,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             return damageAmount;
         }
 
-        var hasBattlefieldBonus = playerZones.Values.Any(zones =>
-            zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
-            && zones.Battlefields.Any(objectId =>
+        var hasBattlefieldBonus = playerZones.Any(entry =>
+            entry.Value.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, entry.Key, targetObjectId)
+            && entry.Value.Battlefields.Any(objectId =>
                 cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardObject.CardNo)));
+                && IsBattlefieldTargetSpellSkillDamageBonusCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
 
         return hasBattlefieldBonus ? damageAmount + 1 : damageAmount;
     }
