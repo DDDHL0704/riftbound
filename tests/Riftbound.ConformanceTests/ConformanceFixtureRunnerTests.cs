@@ -373,6 +373,74 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsMulliganWhenSelectedHandCardIsNotControlledByPlayer()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            Phase = MatchPhases.Mulligan,
+            TimingState = TimingStates.Mulligan,
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand =
+                    [
+                        "P1-MULLIGAN-HAND-KEEP-001",
+                        "P1-MULLIGAN-DIRTY-P2-OWNED",
+                        "P1-MULLIGAN-HAND-KEEP-002"
+                    ],
+                    MainDeck = ["P1-MULLIGAN-DRAW-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MULLIGAN-HAND-KEEP-001"] = new(
+                    "P1-MULLIGAN-HAND-KEEP-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MULLIGAN-DIRTY-P2-OWNED"] = new(
+                    "P1-MULLIGAN-DIRTY-P2-OWNED",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2"),
+                ["P1-MULLIGAN-HAND-KEEP-002"] = new(
+                    "P1-MULLIGAN-HAND-KEEP-002",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var mulliganCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MULLIGAN", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P1-MULLIGAN-HAND-KEEP-001", "P1-MULLIGAN-HAND-KEEP-002"],
+            (mulliganCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-mulligan-dirty-hand-card", "P1", "MULLIGAN"),
+            new MulliganCommand(["P1-MULLIGAN-DIRTY-P2-OWNED"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.MulliganCompletedPlayerIds);
+        Assert.Equal(
+            ["P1-MULLIGAN-HAND-KEEP-001", "P1-MULLIGAN-DIRTY-P2-OWNED", "P1-MULLIGAN-HAND-KEEP-002"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-MULLIGAN-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
     public async Task P4EphemeralKeywordDestroysControlledObjectsAtTurnStart()
     {
         var fixture = await ConformanceFixture.LoadAsync(

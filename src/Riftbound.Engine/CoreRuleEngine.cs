@@ -12437,7 +12437,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ErrorCodes.InvalidTarget);
         }
 
-        if (selectedObjectIds.Any(objectId => !zones.Hand.Contains(objectId, StringComparer.Ordinal)))
+        if (selectedObjectIds.Any(objectId =>
+            !zones.Hand.Contains(objectId, StringComparer.Ordinal)
+            || !IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, intent.PlayerId, objectId)))
         {
             return RejectWithCorePrompts(
                 state,
