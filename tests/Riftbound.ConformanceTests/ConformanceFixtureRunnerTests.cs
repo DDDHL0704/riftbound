@@ -35590,6 +35590,60 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79DuneDrakeGainsPowerWhenAttackingReadyEnemyUnit()
+    {
+        var state = DuneDrakeBattleState(duneDrakeAttacks: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-dune-drake-ready-enemy-static", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-DUNE-DRAKE"],
+                ["P2-DUNE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var duneDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-DUNE-DRAKE", StringComparison.Ordinal));
+        Assert.Equal("P2-DUNE-DEFENDER", duneDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(5, duneDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, duneDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, duneDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(7, duneDamageEvent.Payload["combatPower"]);
+        Assert.Equal(7, duneDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79DuneDrakeSkipsPowerWhenDefending()
+    {
+        var state = DuneDrakeBattleState(duneDrakeAttacks: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-dune-drake-defending-no-static", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-DUNE-ATTACKER"],
+                ["P2-DUNE-DRAKE"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var duneDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-DUNE-DRAKE", StringComparison.Ordinal));
+        Assert.Equal("P1-DUNE-ATTACKER", duneDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(5, duneDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, duneDamageEvent.Payload["keywordBonus"]);
+        Assert.False(duneDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(5, duneDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, duneDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticRoamAllowsPreciseBattlefieldMovement()
     {
         var state = BattlefieldStaticRoamState();
@@ -52936,6 +52990,67 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             }
+        };
+    }
+
+    private static MatchState DuneDrakeBattleState(bool duneDrakeAttacks)
+    {
+        var p1Battlefields = duneDrakeAttacks
+            ? new[] { "P1-DUNE-DRAKE" }
+            : new[] { "P1-DUNE-ATTACKER" };
+        var p2Battlefields = duneDrakeAttacks
+            ? new[] { "P2-DUNE-DEFENDER" }
+            : new[] { "P2-DUNE-DRAKE" };
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
+        if (duneDrakeAttacks)
+        {
+            cardObjects["P1-DUNE-DRAKE"] = new(
+                "P1-DUNE-DRAKE",
+                cardNo: "OGN·131/298",
+                power: 5,
+                tags: [CardObjectTags.UnitCard, "龙"],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-DUNE-DEFENDER"] = new(
+                "P2-DUNE-DEFENDER",
+                cardNo: "SFD·125/221",
+                power: 10,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+        else
+        {
+            cardObjects["P1-DUNE-ATTACKER"] = new(
+                "P1-DUNE-ATTACKER",
+                cardNo: "SFD·125/221",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-DUNE-DRAKE"] = new(
+                "P2-DUNE-DRAKE",
+                cardNo: "OGN·131/298",
+                power: 5,
+                tags: [CardObjectTags.UnitCard, "龙"],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = p1Battlefields
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2Battlefields
+                }
+            },
+            CardObjects = cardObjects
         };
     }
 

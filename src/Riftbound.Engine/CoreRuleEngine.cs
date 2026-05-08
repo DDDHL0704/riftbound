@@ -174,6 +174,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SoulShepherdCardNo = "UNL-077/219";
     private const string ResonantSoulCardNo = "OGN·118/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
+    private const string DuneDrakeCardNo = "OGN·131/298";
     private const string SavageJawfishCardNo = "UNL-129/219";
     private const string GhostlyCentaurCardNo = "UNL-068/219";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
@@ -5405,6 +5406,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var hasMultipleDefenders = defenderObjectIds.Count > 1;
         var defenderAssignments = BuildBattleDamageAssignmentOrder(defenderObjectIds, defenderStates);
         var defendingUnitCount = defenderAssignments.Count;
+        var attacksReadyEnemyUnit = defenderStates.Values.Any(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
         foreach (var attackingObjectId in attackerObjectIds)
         {
@@ -5420,6 +5422,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 defendingPlayerId,
                 battlefieldId,
                 battlefieldSteadfastObjectId,
+                attacksReadyEnemyUnit,
                 out var assaultBonus,
                 out var attackerStaticPowerBonus);
             var remainingAttackerDamage = attackerCombatPower;
@@ -5438,6 +5441,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     null,
                     battlefieldId,
                     battlefieldSteadfastObjectId,
+                    false,
                     out _,
                     out _);
                 var lethalDamage = Math.Max(0, defenderCombatPower - defenderState.Damage);
@@ -5490,6 +5494,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 null,
                 battlefieldId,
                 battlefieldSteadfastObjectId,
+                false,
                 out var steadfastBonus,
                 out var defenderStaticPowerBonus);
             if (defenderCombatPower <= 0)
@@ -5513,6 +5518,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     defendingPlayerId,
                     battlefieldId,
                     battlefieldSteadfastObjectId,
+                    attacksReadyEnemyUnit,
                     out _,
                     out _);
                 var lethalDamage = Math.Max(0, targetAttackerCombatPower - targetAttackerState.Damage);
@@ -7114,6 +7120,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string? defendingPlayerId,
         string battlefieldId,
         string? battlefieldSteadfastObjectId,
+        bool attacksReadyEnemyUnit,
         out int keywordBonus,
         out int staticPowerBonus)
     {
@@ -7168,9 +7175,22 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolvePetalPixieFriendlyEphemeralPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveSoulShepherdTokenUnitPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
+        staticPowerBonus += ResolveDuneDrakeReadyEnemyAttackPowerBonus(cardObject, isAttacking, attacksReadyEnemyUnit);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static int ResolveDuneDrakeReadyEnemyAttackPowerBonus(
+        CardObjectState cardObject,
+        bool isAttacking,
+        bool attacksReadyEnemyUnit)
+    {
+        return isAttacking
+            && attacksReadyEnemyUnit
+            && string.Equals(cardObject.CardNo, DuneDrakeCardNo, StringComparison.Ordinal)
+            ? 2
+            : 0;
     }
 
     private static bool IsStunnedForBattle(CardObjectState cardObject)
