@@ -14619,21 +14619,21 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsEnemyFieldObject(MatchState state, string playerId, string objectId)
     {
-        return !string.IsNullOrWhiteSpace(objectId)
-            && state.CardObjects.ContainsKey(objectId)
-            && state.PlayerZones.Any(entry =>
-                !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
-                && (entry.Value.Base.Contains(objectId, StringComparer.Ordinal)
-                    || entry.Value.Battlefields.Contains(objectId, StringComparer.Ordinal)));
+        var location = FindFieldObjectLocation(state.PlayerZones, objectId);
+        return location is not null
+            && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.Value.PlayerId);
     }
 
     private static bool IsEnemyBattlefieldObject(MatchState state, string playerId, string objectId)
     {
-        return !string.IsNullOrWhiteSpace(objectId)
-            && state.CardObjects.ContainsKey(objectId)
-            && state.PlayerZones.Any(entry =>
-                !string.Equals(entry.Key, playerId, StringComparison.Ordinal)
-                && entry.Value.Battlefields.Contains(objectId, StringComparer.Ordinal));
+        var location = FindFieldObjectLocation(state.PlayerZones, objectId);
+        return location is not null
+            && string.Equals(location.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.Value.PlayerId);
     }
 
     private static bool IsOpponentGraveyardCard(MatchState state, string playerId, string objectId)

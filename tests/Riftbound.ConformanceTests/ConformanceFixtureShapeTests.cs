@@ -1896,6 +1896,104 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptPlayCardMetadataFiltersEnemyTargetsByZoneController()
+    {
+        var state = new MatchState(
+            "prompt-play-enemy-target-control-room",
+            18,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HIGHWAY-ROBBERY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P2-ENEMY-UNIT",
+                        "P2-DIRTY-P1-OWNED-UNIT"
+                    ]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HIGHWAY-ROBBERY"] = new(
+                    "P1-SPELL-HIGHWAY-ROBBERY",
+                    cardNo: "OGN·033/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-ENEMY-UNIT"] = new(
+                    "P2-ENEMY-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DIRTY-P1-OWNED-UNIT"] = new(
+                    "P2-DIRTY-P1-OWNED-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P2-ENEMY-UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P2-DIRTY-P1-OWNED-UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        Assert.All(sourceRequirements, requirement =>
+        {
+            var choicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+                requirement["targetChoicesByIndex"]);
+            var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                choicesByIndex["0"]);
+            Assert.DoesNotContain(
+                choices,
+                choice => string.Equals(choice.Id, "P2-DIRTY-P1-OWNED-UNIT", StringComparison.Ordinal));
+        });
+        var sourceRequirement = Assert.Single(sourceRequirements, requirement => requirement["mode"] is null);
+        Assert.Equal("ENEMY_UNIT", Assert.IsType<string>(sourceRequirement["targetScope"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]).ToArray();
+        Assert.Contains(firstTargetChoices, choice => string.Equals(choice.Id, "P2-ENEMY-UNIT", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            firstTargetChoices,
+            choice => string.Equals(choice.Id, "P2-DIRTY-P1-OWNED-UNIT", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ActionPromptPlayCardMetadataFiltersFriendlyTargetsByController()
     {
         var state = new MatchState(

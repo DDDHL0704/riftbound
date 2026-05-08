@@ -4756,8 +4756,7 @@ internal static class ActionPromptBuilder
     private static bool IsPromptEnemyFieldObject(MatchState state, string playerId, string objectId)
     {
         return IsPromptFieldUnitObject(state, objectId)
-            && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+            && IsPromptOpponentControlledFieldObject(state, playerId, objectId);
     }
 
     private static bool IsPromptControlledBattlefieldObject(MatchState state, string playerId, string objectId)
@@ -4796,8 +4795,15 @@ internal static class ActionPromptBuilder
     private static bool IsPromptEnemyEquipmentObject(MatchState state, string playerId, string objectId)
     {
         return IsPromptEquipmentObject(state, objectId)
+            && IsPromptOpponentControlledFieldObject(state, playerId, objectId);
+    }
+
+    private static bool IsPromptOpponentControlledFieldObject(MatchState state, string playerId, string objectId)
+    {
+        return TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && !string.Equals(location.PlayerId, playerId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, location.PlayerId);
     }
 
     private static bool IsPromptFriendlyHandCard(MatchState state, string playerId, string objectId)

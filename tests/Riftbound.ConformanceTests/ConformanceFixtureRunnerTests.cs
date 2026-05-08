@@ -21328,6 +21328,58 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsHighwayRobberyWhenEnemyTargetIsNotControlledByOpponentZonePlayer()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-HIGHWAY-ROBBERY"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-DIRTY-P1-OWNED-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-HIGHWAY-ROBBERY"] = new(
+                    "P1-SPELL-HIGHWAY-ROBBERY",
+                    cardNo: "OGN·033/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DIRTY-P1-OWNED-UNIT"] = new(
+                    "P2-DIRTY-P1-OWNED-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-highway-robbery-dirty-opponent-zone-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-HIGHWAY-ROBBERY",
+                "OGN·033/298",
+                ["P2-DIRTY-P1-OWNED-UNIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-HIGHWAY-ROBBERY"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-DIRTY-P1-OWNED-UNIT"], result.State.PlayerZones["P2"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4HighwayRobberyOffFieldTargetRejectedFixture()
     {
         var fixture = await ConformanceFixture.LoadAsync(
