@@ -1591,7 +1591,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ACTIVATE_ABILITY source must be controlled by the acting player.",
+                "启动技能只能选择当前玩家控制的来源。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3530,7 +3530,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "ACTIVATE_ABILITY source must be controlled by the acting player.",
+                "启动技能只能选择当前玩家控制的来源。",
                 ErrorCodes.InvalidTarget);
         }
 

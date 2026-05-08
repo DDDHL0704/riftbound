@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百四十五批补充：`ACTIVATE_ABILITY` 来源控制权拒绝文案继续去内部协议名。此前 Vi / Xerath 代表性启动技能在来源位于玩家场区但实际不由当前玩家控制时，会被服务端拒绝并保持状态不变，但错误消息包含 raw `ACTIVATE_ABILITY` 和英文内部说明。现在服务端返回中文“启动技能只能选择当前玩家控制的来源。”，核心回归测试同步断言错误消息不含 raw action kind；结构化 prompt action/command kind 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4ActivateAbilityCommandRejectsViOpponentControlledSourceInPlayerZone|FullyQualifiedName~P4ActivateAbilityCommandRejectsXerathOpponentControlledSourceInPlayerZone"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3141/3141。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百四十四批补充：全局 finished-match 拒绝文案继续去英文内部说明。此前对局已结束后提交任意命令会被 `CoreRuleEngine.ResolveAsync` 拒绝并保持状态不变，但错误消息为英文 “Match is not in progress.”。现在服务端统一返回中文“对局已经结束，不能继续提交行动。”，回归测试覆盖结束后 `END_TURN` 与 `MULLIGAN` 并断言错误消息不含 raw action kind。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsGameCommandAfterMatchFinished|FullyQualifiedName~CoreRuleEngineRejectsMulliganAfterMatchFinished"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3141/3141。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

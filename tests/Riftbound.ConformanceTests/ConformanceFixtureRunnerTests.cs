@@ -37247,7 +37247,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("ACTIVATE_ABILITY source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Equal("启动技能只能选择当前玩家控制的来源。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 1), result.State.RunePools["P1"]);
@@ -38232,7 +38233,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("ACTIVATE_ABILITY source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Equal("启动技能只能选择当前玩家控制的来源。", result.ErrorMessage);
+        Assert.DoesNotContain("ACTIVATE_ABILITY", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 1), result.State.RunePools["P1"]);
