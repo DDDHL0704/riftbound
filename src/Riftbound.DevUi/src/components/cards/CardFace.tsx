@@ -92,7 +92,7 @@ export function objectStateLabels(object?: CardObjectView): string[] {
     object.isAttacking ? "攻击中" : "",
     object.isDefending ? "防守中" : "",
     object.isFaceDown ? "面朝下" : "",
-    object.attachedToObjectId ? `贴附到 ${object.attachedToObjectId}` : "",
+    object.attachedToObjectId ? "已贴附" : "",
     object.damage != null && object.damage > 0 ? `${object.damage} 伤害` : "",
     object.basePower != null && object.effectivePower != null && object.basePower !== object.effectivePower
       ? `基础 ${object.basePower} / 有效 ${object.effectivePower}`

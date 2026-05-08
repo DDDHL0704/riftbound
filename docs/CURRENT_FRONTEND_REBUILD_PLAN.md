@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百零二批继续收口卡牌详情产品展示。公开卡牌详情不再显示“对象 ID”、raw `CARD_TYPE:*` 标签、raw location zone、贴附目标对象 ID、英文 conformance reason 或 raw effect/template 标识；位置改为中文区域，服务端证据只保留中文完成度提示。前端命令组合仍只读取服务端 prompt/candidate，不新增本地规则判断。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-redaction-1778234066612`，P1 连接对战页，P2 外部连接并 seed `basic-play`，打开公开手牌详情后可见中文位置和中文服务端证据，正文不含“对象 ID”、`CARD_TYPE:`、raw `BATTLEFIELD/BASE/HAND` zone、`P1-...-001` 对象 ID 模式、raw effect id 或英文 representative reason，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第二百零一批继续收口详细事件日志展示。`EventLog` 的详细模式不再把服务端 raw `event.kind` 作为正文 `<code>` 额外显示，只展示中文事件名和脱敏后的服务端描述；内部枚举仍保留在标题 tooltip 便于开发排查，产品正文不再出现 `DEV_SCENARIO_SEEDED` / `MATCH_STARTED` 这类 raw kind。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detailed-log-1778233665607`，P1 连接对战页并切到详细日志后，由 P2 外部连接并 seed `basic-play`，页面显示“载入开发场景”等中文日志，正文不含 raw `DEV_SCENARIO_SEEDED` 或 `MATCH_STARTED`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

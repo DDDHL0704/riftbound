@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百零二批补充：卡牌详情抽屉继续去内部调试字段。公开卡牌详情不再显示“对象 ID”、raw `CARD_TYPE:*` 标签、raw location zone、贴附目标对象 ID、英文 conformance reason 或 raw effect/template 标识；位置改为中文区域（如 `P1 / 手牌`），服务端证据只保留中文完成度说明。该变更只影响展示层，不改变 prompt/candidate 组合或命令提交。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-redaction-1778234066612`，P1 连接对战页，P2 外部连接并 seed `basic-play`，打开公开手牌详情后可见中文位置和中文服务端证据，正文不含“对象 ID”、`CARD_TYPE:`、raw `BATTLEFIELD/BASE/HAND` zone、`P1-...-001` 对象 ID 模式、raw effect id 或英文 representative reason，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百零一批补充：对战事件日志详细模式继续去调试化。`EventLog` 的 detailed density 不再额外渲染 `event.kind` raw 枚举，只保留中文事件标题和经过 `eventDescriptionLabel` 脱敏后的服务端描述；raw kind 仍仅作为标题 tooltip 供开发排查，不作为产品正文展示。前端仍只读服务端 events/snapshot/prompt，不从日志文本自行裁决规则。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detailed-log-1778233665607`，P1 连接对战页并切到详细日志后，由 P2 外部连接并 seed `basic-play`，页面显示“载入开发场景”等中文日志，正文不含 raw `DEV_SCENARIO_SEEDED` 或 `MATCH_STARTED`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

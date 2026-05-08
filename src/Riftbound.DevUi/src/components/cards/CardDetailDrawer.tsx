@@ -32,8 +32,6 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
   const states = objectStateLabels(card.object);
   const sourceObjectId = card.objectId ?? card.object?.objectId;
   const sourceActions = hidden ? [] : sourceCandidatesFor(prompt, sourceObjectId);
-  const evidenceTemplateIds = card.spec?.templateIds ?? [];
-  const evidenceEffects = card.spec?.effects ?? [];
 
   return (
     <div className="detail-layer" role="dialog" aria-modal="true" aria-label="卡牌详情">
@@ -74,10 +72,6 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                 <dd>{card.object?.controllerId ?? "未知"}</dd>
               </div>
               <div>
-                <dt>对象 ID</dt>
-                <dd>{card.objectId ?? card.object?.objectId ?? "无"}</dd>
-              </div>
-              <div>
                 <dt>位置</dt>
                 <dd>{formatLocation(card.object?.location)}</dd>
               </div>
@@ -93,28 +87,13 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
             {card.spec && (
               <section className="detail-section">
                 <strong>服务端证据</strong>
-                <p>{conformanceLabel(card.spec.conformanceTier)}：{card.spec.conformanceReason}</p>
-                <p>{statusLabel(card.spec.status)}：{card.spec.reason}</p>
-                <p className="detail-muted">效果：{card.spec.implementedEffectKind ?? "未绑定具体效果"}</p>
-                {card.spec.implementedByCardNo && <p className="detail-muted">代理实现：{card.spec.implementedByCardNo}</p>}
-                {evidenceTemplateIds.length > 0 && <p className="detail-muted">模板：{evidenceTemplateIds.join("、")}</p>}
-                {evidenceEffects.length > 0 && (
-                  <ul className="detail-evidence-list">
-                    {evidenceEffects.slice(0, 4).map((effect, index) => (
-                      <li key={`${effect.templateId}-${index}`}>
-                        <strong>{effect.templateId}</strong>
-                        <span>{statusLabel(effect.status)}：{effect.reason || effect.phrase}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <p>{conformanceLabel(card.spec.conformanceTier)}：完整官方规则完成度以最终复审为准。</p>
+                <p>{statusLabel(card.spec.status)}：前端只提交服务端当前候选允许的操作。</p>
               </section>
             )}
             <section className="detail-section">
               <strong>对象状态</strong>
               <p>{states.length ? states.join("、") : "正常"}</p>
-              {(card.object?.tags?.length ?? 0) > 0 && <p className="detail-muted">标签：{card.object?.tags?.join("、")}</p>}
-              {(card.object?.untilEndOfTurnEffects?.length ?? 0) > 0 && <p className="detail-muted">本回合效果：{card.object?.untilEndOfTurnEffects?.join("、")}</p>}
             </section>
             <section className="detail-section detail-actions">
               <strong>服务端可提交操作</strong>
@@ -284,8 +263,34 @@ function formatLocation(location?: Record<string, unknown> | null): string {
 
   const playerId = typeof location.playerId === "string" ? location.playerId : "";
   const zone = typeof location.zone === "string" ? location.zone : "";
-  const battlefield = typeof location.battlefieldObjectId === "string" ? location.battlefieldObjectId : "";
-  return [playerId, zone, battlefield].filter(Boolean).join(" / ") || "服务端未公开";
+  return [playerId, zoneLabel(zone)].filter(Boolean).join(" / ") || "服务端未公开";
+}
+
+function zoneLabel(zone: string): string {
+  switch (zone) {
+    case "LEGEND":
+      return "传奇区";
+    case "CHAMPION":
+      return "英雄区";
+    case "MAIN_DECK":
+      return "主牌堆";
+    case "RUNE_DECK":
+      return "符文牌堆";
+    case "HAND":
+      return "手牌";
+    case "BASE":
+      return "基地";
+    case "BATTLEFIELD":
+      return "战场";
+    case "GRAVEYARD":
+      return "废牌堆";
+    case "BANISHED":
+      return "放逐区";
+    case "STACK":
+      return "结算链";
+    default:
+      return zone ? "服务端区域" : "";
+  }
 }
 
 type PlayCardSourceRequirement = {
