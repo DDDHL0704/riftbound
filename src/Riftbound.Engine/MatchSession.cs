@@ -7090,7 +7090,7 @@ public sealed class MatchSession : IMatchSession
 
             if (seats.Count >= 2)
             {
-                throw new MatchSessionException(ErrorCodes.RoomFull, "room already has two players");
+                throw new MatchSessionException(ErrorCodes.RoomFull, "房间已有两名玩家。");
             }
 
             seats[normalizedPlayerId] = NextOpenSeat();
@@ -7137,7 +7137,7 @@ public sealed class MatchSession : IMatchSession
             {
                 throw new MatchSessionException(
                     ErrorCodes.InvalidReconnectToken,
-                    "reconnect token required for existing player");
+                    "已有玩家重连需要提供重连令牌。");
             }
         }
 
@@ -7155,7 +7155,7 @@ public sealed class MatchSession : IMatchSession
                 || string.IsNullOrWhiteSpace(reconnectToken)
                 || !string.Equals(expectedToken, reconnectToken.Trim(), StringComparison.Ordinal))
             {
-                throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "invalid reconnect token");
+                throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "重连令牌无效。");
             }
 
             return PlayerSessionFor(normalizedPlayerId);
@@ -7171,7 +7171,7 @@ public sealed class MatchSession : IMatchSession
         var normalizedToken = reconnectToken?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(normalizedToken))
         {
-            throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "invalid reconnect token");
+            throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "重连令牌无效。");
         }
 
         bool valid;
@@ -7196,7 +7196,7 @@ public sealed class MatchSession : IMatchSession
 
         if (!valid)
         {
-            throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "invalid reconnect token");
+            throw new MatchSessionException(ErrorCodes.InvalidReconnectToken, "重连令牌无效。");
         }
 
         return await RotateReconnectTokenAsync(normalizedPlayerId, cancellationToken).ConfigureAwait(false);
@@ -8171,7 +8171,7 @@ public sealed class MatchSession : IMatchSession
         {
             if (!seats.ContainsKey(playerId))
             {
-                throw new MatchSessionException(ErrorCodes.PlayerNotInRoom, "player is not in room");
+                throw new MatchSessionException(ErrorCodes.PlayerNotInRoom, "玩家不在房间中。");
             }
         }
     }
@@ -8187,7 +8187,7 @@ public sealed class MatchSession : IMatchSession
         {
             throw new MatchSessionException(
                 ErrorCodes.ClientIntentIdRequired,
-                "clientIntentId is required");
+                "客户端行动编号不能为空。");
         }
 
         return clientIntentId.Trim();
@@ -8196,7 +8196,7 @@ public sealed class MatchSession : IMatchSession
     private static string NormalizeScenarioId(string scenarioId)
     {
         return string.IsNullOrWhiteSpace(scenarioId)
-            ? throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "scenarioId is required")
+            ? throw new MatchSessionException(ErrorCodes.UnsupportedCommand, "开发测试场景编号不能为空。")
             : scenarioId.Trim();
     }
 
@@ -8206,7 +8206,7 @@ public sealed class MatchSession : IMatchSession
         var p2 = PlayerBySeat(current, "P2");
         if (p1 is null || p2 is null)
         {
-            throw new MatchSessionException(ErrorCodes.PlayerNotInRoom, "dev scenarios require two joined players");
+            throw new MatchSessionException(ErrorCodes.PlayerNotInRoom, "开发测试场景需要两名玩家都已加入房间。");
         }
 
         var seed = new DevScenarioSeed(p1, p2);
@@ -14372,7 +14372,7 @@ public sealed class MatchSession : IMatchSession
     {
         if (string.IsNullOrWhiteSpace(playerId))
         {
-            throw new MatchSessionException(ErrorCodes.PlayerIdRequired, "playerId is required");
+            throw new MatchSessionException(ErrorCodes.PlayerIdRequired, "玩家编号不能为空。");
         }
 
         return playerId.Trim();

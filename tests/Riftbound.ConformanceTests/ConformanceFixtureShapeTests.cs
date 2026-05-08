@@ -79,7 +79,20 @@ public sealed class ConformanceFixtureShapeTests
             await session.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None));
 
         Assert.Equal(ErrorCodes.PlayerNotInRoom, error.Code);
-        Assert.Equal("player is not in room", error.Message);
+        Assert.Equal("玩家不在房间中。", error.Message);
+        Assert.DoesNotContain("player is not in room", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EnsurePlayerRequiresPlayerId()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+
+        var error = Assert.Throws<MatchSessionException>(() => session.EnsurePlayer(" "));
+
+        Assert.Equal(ErrorCodes.PlayerIdRequired, error.Code);
+        Assert.Equal("玩家编号不能为空。", error.Message);
+        Assert.DoesNotContain("playerId", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -109,7 +122,8 @@ public sealed class ConformanceFixtureShapeTests
             await session.SubmitAsync("P1", " ", new PassCommand(), RawCommand("PASS"), CancellationToken.None));
 
         Assert.Equal(ErrorCodes.ClientIntentIdRequired, error.Code);
-        Assert.Equal("clientIntentId is required", error.Message);
+        Assert.Equal("客户端行动编号不能为空。", error.Message);
+        Assert.DoesNotContain("clientIntentId", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -122,7 +136,37 @@ public sealed class ConformanceFixtureShapeTests
             await session.ReadyAsync("P1", "", RawCommand("READY"), CancellationToken.None));
 
         Assert.Equal(ErrorCodes.ClientIntentIdRequired, error.Code);
-        Assert.Equal("clientIntentId is required", error.Message);
+        Assert.Equal("客户端行动编号不能为空。", error.Message);
+        Assert.DoesNotContain("clientIntentId", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task SeedScenarioRequiresScenarioId()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+        session.EnsurePlayer("P1");
+        session.EnsurePlayer("P2");
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.SeedScenarioAsync("P1", "seed-missing-scenario", " ", RawCommand("DEV_SEED_SCENARIO"), CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.UnsupportedCommand, error.Code);
+        Assert.Equal("开发测试场景编号不能为空。", error.Message);
+        Assert.DoesNotContain("scenarioId", error.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task SeedScenarioRequiresTwoJoinedPlayers()
+    {
+        var session = new MatchSession("fixture-room", new PlaceholderRuleEngine());
+        session.EnsurePlayer("P1");
+
+        var error = await Assert.ThrowsAsync<MatchSessionException>(async () =>
+            await session.SeedScenarioAsync("P1", "seed-one-player", "basic-play", RawCommand("DEV_SEED_SCENARIO"), CancellationToken.None));
+
+        Assert.Equal(ErrorCodes.PlayerNotInRoom, error.Code);
+        Assert.Equal("开发测试场景需要两名玩家都已加入房间。", error.Message);
+        Assert.DoesNotContain("dev scenarios", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -222,7 +266,8 @@ public sealed class ConformanceFixtureShapeTests
 
         var error = Assert.Throws<MatchSessionException>(() => session.EnsurePlayer("charlie"));
         Assert.Equal(ErrorCodes.RoomFull, error.Code);
-        Assert.Equal("room already has two players", error.Message);
+        Assert.Equal("房间已有两名玩家。", error.Message);
+        Assert.DoesNotContain("room already has two players", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

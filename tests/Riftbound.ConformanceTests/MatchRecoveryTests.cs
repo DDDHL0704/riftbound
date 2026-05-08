@@ -254,7 +254,8 @@ public sealed class MatchRecoveryTests
             await session.EnsurePlayerAsync("alice", CancellationToken.None));
 
         Assert.Equal(ErrorCodes.InvalidReconnectToken, error.Code);
-        Assert.Equal("reconnect token required for existing player", error.Message);
+        Assert.Equal("已有玩家重连需要提供重连令牌。", error.Message);
+        Assert.DoesNotContain("reconnect token required", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]

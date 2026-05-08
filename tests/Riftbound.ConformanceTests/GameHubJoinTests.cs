@@ -69,7 +69,8 @@ public sealed class GameHubJoinTests
         Assert.Equal(MessageType.ERROR, error.Type);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.RoomFull, payload.Code);
-        Assert.Equal("room already has two players", payload.Message);
+        Assert.Equal("房间已有两名玩家。", payload.Message);
+        Assert.DoesNotContain("room already has two players", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -136,7 +137,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.InvalidReconnectToken, payload.Code);
-        Assert.Equal("invalid reconnect token", payload.Message);
+        Assert.Equal("重连令牌无效。", payload.Message);
+        Assert.DoesNotContain("invalid reconnect token", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -170,7 +172,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.PlayerNotInRoom, payload.Code);
-        Assert.Equal("player is not in room", payload.Message);
+        Assert.Equal("玩家不在房间中。", payload.Message);
+        Assert.DoesNotContain("player is not in room", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -185,7 +188,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.PlayerNotInRoom, payload.Code);
-        Assert.Equal("player is not in room", payload.Message);
+        Assert.Equal("玩家不在房间中。", payload.Message);
+        Assert.DoesNotContain("player is not in room", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -227,7 +231,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.ClientIntentIdRequired, payload.Code);
-        Assert.Equal("clientIntentId is required", payload.Message);
+        Assert.Equal("客户端行动编号不能为空。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
         Assert.Empty(clients.GroupClient.EventMessages);
     }
 
@@ -6776,7 +6781,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("SeedScenario is only available in Development.", payload.Message);
+        Assert.Equal("载入测试状态仅在开发环境可用。", payload.Message);
+        Assert.DoesNotContain("SeedScenario", payload.Message, StringComparison.Ordinal);
         Assert.Empty(clients.GroupClient.EventMessages);
         Assert.Empty(clients.GroupClient.Snapshots);
         Assert.Empty(clients.GroupClient.Prompts);

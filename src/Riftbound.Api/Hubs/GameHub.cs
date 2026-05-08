@@ -161,7 +161,7 @@ public sealed class GameHub(IMatchSessionRegistry sessions, IHostEnvironment? ho
                 roomId,
                 normalizedPlayerId,
                 0,
-                new ErrorDto(ErrorCodes.UnsupportedCommand, "SeedScenario is only available in Development.")));
+                new ErrorDto(ErrorCodes.UnsupportedCommand, "载入测试状态仅在开发环境可用。")));
             return;
         }
 
