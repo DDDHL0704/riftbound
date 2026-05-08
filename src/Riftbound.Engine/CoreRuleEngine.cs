@@ -22304,7 +22304,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (mainDeck.Count > 0)
             {
-                drawnCards.Add(mainDeck[0]);
+                var topCardObjectId = mainDeck[0];
+                if (!IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, playerId, topCardObjectId))
+                {
+                    break;
+                }
+
+                drawnCards.Add(topCardObjectId);
                 mainDeck.RemoveAt(0);
                 remainingDrawCount--;
                 continue;
