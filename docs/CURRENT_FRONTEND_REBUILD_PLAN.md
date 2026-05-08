@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百六十三批补齐《牧魂人》（UNL-077/219）“你的指示物单位获得战力 +1”的服务端代表性战斗静态规则。`ResolveBattleCombatPower` 现在只按官方 token catalog 的 `cardNo` 识别指示物单位，并在同控制者场上正面、非待命《牧魂人》存在时把 +1 写入 token 单位的 `staticPowerBonus`；面朝下/待命来源、对手来源和普通非 token 单位不会生效。前端仍只展示服务端 `DAMAGE_APPLIED` 事件和 authoritative snapshot，不新增本地 token 身份或战力裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79SoulShepherdAddsPowerToControlledTokenUnits` / 花瓣仙子静态 / 猩红飞鸽静态精确回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3162/3162；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。Chrome 插件通道已轻量确认可用；本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百六十二批补齐《猩红飞鸽》（UNL-154/219）“和另一名单位一起进攻一处战场时获得战力 +2”的服务端代表性战斗静态规则。`ResolveBattleCombatPower` 现在接收本次战斗的进攻单位数量，并在《猩红飞鸽》作为进攻单位且至少两名单位共同进攻时把 +2 写入 `staticPowerBonus`；前端仍只展示服务端 `DAMAGE_APPLIED` 事件和 authoritative snapshot，不新增本地共同进攻裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79ScarletPigeonGainsPowerWhenAttackingWithAnotherUnit` / 多进攻者伤害分配 / 花瓣仙子静态精确回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3161/3161；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

@@ -34368,6 +34368,120 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79SoulShepherdAddsPowerToControlledTokenUnits()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base =
+                    [
+                        "P1-SOUL-SHEPHERD",
+                        "P1-SOUL-SHEPHERD-FACEDOWN",
+                        "P1-SOUL-SHEPHERD-STANDBY"
+                    ],
+                    Battlefields =
+                    [
+                        "P1-CATALOG-WARHAWK",
+                        "P1-NORMAL-ATTACKER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-SOUL-SHEPHERD"],
+                    Battlefields = ["P2-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SOUL-SHEPHERD"] = new(
+                    "P1-SOUL-SHEPHERD",
+                    cardNo: "UNL-077/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SOUL-SHEPHERD-FACEDOWN"] = new(
+                    "P1-SOUL-SHEPHERD-FACEDOWN",
+                    cardNo: "UNL-077/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    isFaceDown: true,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SOUL-SHEPHERD-STANDBY"] = new(
+                    "P1-SOUL-SHEPHERD-STANDBY",
+                    cardNo: "UNL-077/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CATALOG-WARHAWK"] = new(
+                    "P1-CATALOG-WARHAWK",
+                    cardNo: "UNL·T02",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Spellshield],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-NORMAL-ATTACKER"] = new(
+                    "P1-NORMAL-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-SOUL-SHEPHERD"] = new(
+                    "P2-SOUL-SHEPHERD",
+                    cardNo: "UNL-077/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 30,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-soul-shepherd-token-static-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-CATALOG-WARHAWK", "P1-NORMAL-ATTACKER"],
+                ["P2-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, attackerDamageEvents.Length);
+
+        var tokenDamageEvent = Assert.Single(attackerDamageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-CATALOG-WARHAWK", StringComparison.Ordinal));
+        Assert.Equal(1, tokenDamageEvent.Payload["basePower"]);
+        Assert.Equal(1, tokenDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(2, tokenDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, tokenDamageEvent.Payload["damage"]);
+
+        var nonTokenDamageEvent = Assert.Single(attackerDamageEvents, gameEvent =>
+            string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-NORMAL-ATTACKER", StringComparison.Ordinal));
+        Assert.Equal(2, nonTokenDamageEvent.Payload["basePower"]);
+        Assert.False(nonTokenDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(2, nonTokenDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, nonTokenDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79ScarletPigeonGainsPowerWhenAttackingWithAnotherUnit()
     {
         var state = PunishmentState(mana: 0) with

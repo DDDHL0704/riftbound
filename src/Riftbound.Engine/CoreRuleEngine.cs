@@ -123,6 +123,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string PetalPixieCardNo = "UNL-076/219";
+    private const string SoulShepherdCardNo = "UNL-077/219";
     private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -6903,6 +6904,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
         staticPowerBonus += ResolvePetalPixieFriendlyEphemeralPowerBonus(state, playerZones, objectId, cardObject);
+        staticPowerBonus += ResolveSoulShepherdTokenUnitPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
@@ -6963,6 +6965,54 @@ public sealed class CoreRuleEngine : IRuleEngine
                 EffectiveFieldControllerId(playerZones, entry.Key, candidate),
                 controllerId,
                 StringComparison.Ordinal));
+    }
+
+    private static int ResolveSoulShepherdTokenUnitPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!IsUnitTokenObject(cardObject)
+            || cardObject.IsFaceDown
+            || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            || !IsObjectOnField(playerZones, objectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId)
+            || !playerZones.TryGetValue(controllerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .Count(sourceObjectId =>
+                state.CardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && IsSoulShepherdCardNo(sourceState.CardNo)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    controllerId,
+                    StringComparison.Ordinal));
+    }
+
+    private static bool IsUnitTokenObject(CardObjectState cardObject)
+    {
+        return IsUnitTokenCardNo(cardObject.CardNo);
+    }
+
+    private static bool IsUnitTokenCardNo(string? cardNo)
+    {
+        return !string.IsNullOrWhiteSpace(cardNo)
+            && P6TokenFactoryCatalog.TryGetByCardNo(cardNo, out var definition)
+            && string.Equals(definition.CategoryName, "指示物单位", StringComparison.Ordinal);
     }
 
     private static int ResolveScarletPigeonMultiAttackerPowerBonus(
@@ -11497,6 +11547,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsPetalPixieCardNo(string? cardNo)
     {
         return string.Equals(cardNo, PetalPixieCardNo, StringComparison.Ordinal);
+    }
+
+    private static bool IsSoulShepherdCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, SoulShepherdCardNo, StringComparison.Ordinal);
     }
 
     private static bool IsScarletPigeonCardNo(string? cardNo)
