@@ -12595,7 +12595,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 []);
 
         var calledRuneTarget = firstTurnScoreResult.WinnerPlayerId is null ? RuneCallCount(preStartState) : 0;
-        var calledRunes = currentZones.RuneDeck.Take(calledRuneTarget).ToArray();
+        var calledRunes = TakeControlledRuneDeckPrefix(
+            cardObjects,
+            turnPlayerId,
+            currentZones.RuneDeck,
+            calledRuneTarget);
         var remainingRuneDeck = currentZones.RuneDeck.Skip(calledRunes.Length).ToArray();
         var drawResult = firstTurnScoreResult.WinnerPlayerId is null
             ? DrawOne(
@@ -20154,7 +20158,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new RuneCallResult([]);
         }
 
-        var calledRunes = zones.RuneDeck.Take(runeCallCount).ToArray();
+        var calledRunes = TakeControlledRuneDeckPrefix(
+            cardObjects,
+            playerId,
+            zones.RuneDeck,
+            runeCallCount);
         if (calledRunes.Length == 0)
         {
             return new RuneCallResult([]);
@@ -20178,6 +20186,31 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return new RuneCallResult(calledRunes);
+    }
+
+    private static string[] TakeControlledRuneDeckPrefix(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<string> runeDeck,
+        int runeCallCount)
+    {
+        if (runeCallCount <= 0)
+        {
+            return [];
+        }
+
+        var calledRunes = new List<string>();
+        foreach (var runeObjectId in runeDeck.Take(runeCallCount))
+        {
+            if (!IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, runeObjectId))
+            {
+                break;
+            }
+
+            calledRunes.Add(runeObjectId);
+        }
+
+        return calledRunes.ToArray();
     }
 
     private static IReadOnlyList<string> RandomizeForMainDeckBottom(
