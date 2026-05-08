@@ -188,7 +188,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string RavenbloomStudentCardNo = "OGN·103/298";
     private const string EagerApprenticeCardNo = "OGN·084/298";
+    private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
+    private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
         "金克丝",
@@ -781,6 +783,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             stackItem,
             events);
         ResolveRavenbloomStudentSpellPlayedTriggers(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            behavior,
+            stackItem,
+            events);
+        ResolveArenaServiceCrewEquipmentPlayedTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -16996,6 +17005,61 @@ public sealed class CoreRuleEngine : IRuleEngine
                 RavenbloomStudentSpellPowerBehavior.PowerModifierAmount,
                 out var powerEvent);
             events.Add(powerEvent);
+        }
+    }
+
+    private static void ResolveArenaServiceCrewEquipmentPlayedTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!behavior.PlaysSourceToBaseAsEquipment)
+        {
+            return;
+        }
+
+        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, ArenaServiceCrewCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            var sourceState = cardObjects[sourceObjectId];
+            var wasExhausted = sourceState.IsExhausted;
+            cardObjects[sourceObjectId] = sourceState with
+            {
+                IsExhausted = false
+            };
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{playerId} 的竞技场勤务小队因装备打出变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["trigger"] = ArenaServiceCrewEquipmentReadyEffectKind,
+                    ["triggerSourceObjectId"] = sourceObjectId,
+                    ["playedCardNo"] = stackItem.CardNo,
+                    ["playedSourceObjectId"] = stackItem.SourceObjectId,
+                    ["wasExhausted"] = wasExhausted
+                }));
+            events.Add(new GameEvent(
+                "UNIT_READIED",
+                $"{sourceObjectId} 变为活跃状态",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["targetObjectId"] = sourceObjectId,
+                    ["wasExhausted"] = wasExhausted,
+                    ["isExhausted"] = false,
+                    ["reason"] = ArenaServiceCrewEquipmentReadyEffectKind,
+                    ["playedCardNo"] = stackItem.CardNo,
+                    ["playedSourceObjectId"] = stackItem.SourceObjectId
+                }));
         }
     }
 

@@ -23064,6 +23064,30 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineReadiesArenaServiceCrewWhenEquipmentPlayed()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-arena-service-crew-equipment-ready.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.False(result.FinalState.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.Equal("P1-UNIT-ARENA-SERVICE-CREW", triggerEvent.Payload["triggerSourceObjectId"]);
+        var readyEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.Equal("P1-UNIT-ARENA-SERVICE-CREW", readyEvent.Payload["targetObjectId"]);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineExpiresWellTrainedPowerAtEndTurn()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -36619,6 +36643,54 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-SPELL-WELL-TRAINED"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79ArenaServiceCrewReadiesWhenControllerPlaysEquipment()
+    {
+        var state = ArenaServiceCrewEquipmentReadyState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-arena-service-crew-equipment-ready", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "SFD·022/221",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ARENA-SERVICE-CREW", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79ArenaServiceCrewSkipsOpponentEquipment()
+    {
+        var state = ArenaServiceCrewEquipmentReadyState(playerId: "P2");
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-arena-service-crew-opponent-equipment", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-EQUIPMENT-LONG-SWORD",
+                "SFD·022/221",
+                []),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.True(result.State.CardObjects["P1-UNIT-ARENA-SERVICE-CREW"].IsExhausted);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "ARENA_SERVICE_CREW_EQUIPMENT_READY", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -54011,6 +54083,50 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-UNIT-001",
                     power: 3,
                     tags: [CardObjectTags.UnitCard])
+            }
+        };
+    }
+
+    private static MatchState ArenaServiceCrewEquipmentReadyState(string playerId = "P1")
+    {
+        var p1Hand = string.Equals(playerId, "P1", StringComparison.Ordinal)
+            ? new[] { "P1-EQUIPMENT-LONG-SWORD" }
+            : [];
+        var p2Hand = string.Equals(playerId, "P2", StringComparison.Ordinal)
+            ? new[] { "P2-EQUIPMENT-LONG-SWORD" }
+            : [];
+
+        return PunishmentState(mana: 2) with
+        {
+            ActivePlayerId = playerId,
+            TurnPlayerId = playerId,
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = string.Equals(playerId, "P1", StringComparison.Ordinal) ? new RunePool(2, 0) : RunePool.Empty,
+                ["P2"] = string.Equals(playerId, "P2", StringComparison.Ordinal) ? new RunePool(2, 0) : RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = p1Hand,
+                    Base = ["P1-UNIT-ARENA-SERVICE-CREW"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = p2Hand
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ARENA-SERVICE-CREW"] = new(
+                    "P1-UNIT-ARENA-SERVICE-CREW",
+                    cardNo: "OGN·091/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    isExhausted: true,
+                    ownerId: "P1",
+                    controllerId: "P1")
             }
         };
     }
