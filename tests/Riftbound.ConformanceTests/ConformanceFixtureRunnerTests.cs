@@ -35520,6 +35520,40 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldBattleDestroyedUnitSkipsOpponentOwnedAltar()
+    {
+        var state = BattlefieldBattleDestroyedRecallState(mana: 3);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-BATTLEFIELD-BLOOD-ALTAR"] = cardObjects["P2-BATTLEFIELD-BLOOD-ALTAR"] with
+        {
+            OwnerId = "P1",
+            ControllerId = ""
+        };
+        state = state with { CardObjects = cardObjects };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-battle-destroyed-recall-dirty-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-BLOOD-ALTAR",
+                ["P1-BATTLEFIELD-BLOOD-ATTACKER"],
+                ["P2-BATTLEFIELD-BLOOD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P2"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P2-BATTLEFIELD-BLOOD-DEFENDER", StringComparison.Ordinal));
+        Assert.Contains("P2-BATTLEFIELD-BLOOD-DEFENDER", result.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain("P2-BATTLEFIELD-BLOOD-DEFENDER", result.State.PlayerZones["P2"].Base);
+    }
+
+    [Fact]
     public async Task P79BattlefieldBattleDestroyedUnitFallsBackToDestroyWhenNoMana()
     {
         var state = BattlefieldBattleDestroyedRecallState(mana: 2);
@@ -50665,8 +50699,7 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-BLOOD-ALTAR",
                     cardNo: "UNL-206/219",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2",
-                    controllerId: "P2"),
+                    ownerId: "P2"),
                 ["P2-BATTLEFIELD-BLOOD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-BLOOD-DEFENDER",
                     cardNo: "SFD·125/221",

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百七十一批仍为服务端战场替代效果来源收口，没有前端 UI 文件变更。鲜血祭坛类“战斗中被摧毁时支付 3 并召回”现在要求战场牌仍由所在场区玩家控制/legacy-owned；前端继续只读服务端事件和最终 snapshot，不在浏览器侧判断替代效果是否触发。
+- 本批验证：`dotnet build` 通过；`P79BattlefieldBattleDestroyedUnit|BattlefieldBattleDestroyed|BattlefieldDestroyedInBattle` 相关回归 4/4、`GameHubJoinTests` 118/118、后端 full test 3121/3121 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百七十批仍为服务端状态性清理执行收口，没有前端 UI 文件变更。栈后非法待命 cleanup 现在和 pending task/snapshot 一样按 effective controller 判断，并在 `BATTLEFIELD_STANDBY_REMOVED` 事件中输出 effective `controllerId` 与 `previousControllerId`；前端继续只展示服务端事件与最终 snapshot。
 - 本批验证：`dotnet build` 通过；`P7PostStackCleanupRemovesIllegalStandbyFromBattlefield|IllegalStandby|Standby` 相关回归 44/44、`GameHubJoinTests` 118/118、后端 full test 3120/3120 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

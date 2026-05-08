@@ -7398,6 +7398,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || !TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !TryGetFieldControllerId(playerZones, battlefieldObjectId, out var battlefieldControllerId)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, battlefieldControllerId)
             || !IsBattlefieldDestroyedInBattleRecallCardNo(battlefieldState.CardNo))
         {
             return false;
