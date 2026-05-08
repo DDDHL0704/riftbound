@@ -907,9 +907,10 @@ public sealed record MatchState
                     .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
                     .ToArray();
                 var contested = occupantControllerIds.Length > 1;
-                var controllerId = string.IsNullOrWhiteSpace(battlefieldObject.ControllerId)
+                var effectiveBattlefieldControllerId = EffectiveOwnedControllerId(battlefieldObject);
+                var controllerId = string.IsNullOrWhiteSpace(effectiveBattlefieldControllerId)
                     ? null
-                    : battlefieldObject.ControllerId;
+                    : effectiveBattlefieldControllerId;
 
                 result[battlefieldObjectId] = new BattlefieldState(
                     battlefieldObjectId,
@@ -1095,6 +1096,16 @@ public sealed record MatchState
             : string.Empty;
     }
 
+    private static string EffectiveOwnedControllerId(CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        return cardObject.OwnerId ?? string.Empty;
+    }
+
     private static PendingTaskQueueState BuildPendingTaskQueue(MatchState state)
     {
         var tasks = state.PendingCleanupTasks
@@ -1225,7 +1236,10 @@ public sealed record MatchState
             && TryFindFieldObjectLocation(state.PlayerZones, objectId, out _)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
             && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-            && !string.Equals(cardObject.ControllerId, battlefield.ControllerId, StringComparison.Ordinal);
+            && !string.Equals(
+                EffectiveFieldControllerId(state, objectId, cardObject),
+                battlefield.ControllerId,
+                StringComparison.Ordinal);
     }
 
     private static bool HasBattlefieldSpellDuelCompleted(MatchState state, string battlefieldObjectId)

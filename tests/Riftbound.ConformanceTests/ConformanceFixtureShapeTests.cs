@@ -849,6 +849,82 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void MatchStateBattlefieldControllerAndStandbyCleanupUseLegacyOwnershipFallback()
+    {
+        var state = new MatchState(
+            "battlefield-legacy-controller-standby-room",
+            12,
+            3,
+            "alice",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["alice"] = "P1",
+                ["bob"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["alice", "bob"],
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["alice"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-LEGACY", "A-STANDBY-LEGACY"]
+                },
+                ["bob"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["B-STANDBY-LEGACY"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-LEGACY"] = new(
+                    "BF-LEGACY",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "alice"),
+                ["A-STANDBY-LEGACY"] = new(
+                    "A-STANDBY-LEGACY",
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "alice"),
+                ["B-STANDBY-LEGACY"] = new(
+                    "B-STANDBY-LEGACY",
+                    isFaceDown: true,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "bob")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-LEGACY"] = new("alice", "BATTLEFIELD", "BF-LEGACY"),
+                ["A-STANDBY-LEGACY"] = new("alice", "BATTLEFIELD", "BF-LEGACY"),
+                ["B-STANDBY-LEGACY"] = new("bob", "BATTLEFIELD", "BF-LEGACY")
+            });
+
+        var battlefield = Assert.Single(state.BattlefieldStates.Values);
+        Assert.Equal("alice", battlefield.ControllerId);
+        Assert.Equal("CONTROLLED", battlefield.Status);
+        Assert.False(battlefield.Contested);
+        Assert.Equal(["A-STANDBY-LEGACY", "B-STANDBY-LEGACY"], battlefield.StandbyObjectIds);
+
+        Assert.DoesNotContain(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "A-STANDBY-LEGACY", StringComparison.Ordinal));
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "B-STANDBY-LEGACY", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-LEGACY", StringComparison.Ordinal));
+
+        var snapshot = ResolutionResult.BuildSnapshots(state)["alice"];
+        var lanes = Assert.IsType<Dictionary<string, object?>>(snapshot.Lanes);
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(lanes["battlefields"]);
+        var battlefieldView = Assert.Single(battlefields);
+        Assert.Equal("alice", Assert.IsType<string>(battlefieldView["controllerId"]));
+        Assert.Equal("CONTROLLED", Assert.IsType<string>(battlefieldView["status"]));
+        Assert.Equal(["REMOVE_ILLEGAL_STANDBY"], StringList(battlefieldView["pendingTaskKinds"]));
+    }
+
+    [Fact]
     public async Task MatchStateExposesAuthoritativeBattlefieldAndCleanupTaskViews()
     {
         var state = new MatchState(

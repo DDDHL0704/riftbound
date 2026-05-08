@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百六十四批仍为服务端 snapshot/规则契约收口，没有前端 UI 文件变更。`BattlefieldState.ControllerId` 与非法待命清理现在使用同一套 controller fallback；前端看到的战场控制者、`CONTROLLED` 状态和 `REMOVE_ILLEGAL_STANDBY` 任务都来自服务端，不需要本地猜测 controller 为空的旧恢复对象。
+- 本批验证：`dotnet build` 通过；新增/相邻目标回归 4/4、`Standby|BattlefieldState|PendingTaskQueue` 相关回归 46/46、`GameHubJoinTests` 118/118、后端 full test 3119/3119 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百六十三批仍为服务端 snapshot/规则契约收口，没有前端 UI 文件变更。`BattleState`、`BattlefieldState` 和 `BattlefieldTaskState` 的参与者/占据者 controller 视图现在由服务端按 `controllerId -> ownerId -> 所在场区玩家` fallback 生成；前端继续只读 authoritative snapshot，不需要在浏览器侧为旧恢复状态猜测战斗或战场争夺参与玩家。
 - 本批验证：`dotnet build` 通过；新增/相邻目标回归 4/4、`BattlefieldTask|BattleState|BattlefieldState` 相关回归 2/2、`GameHubJoinTests` 118/118、后端 full test 3118/3118 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。已只读确认 Chrome 插件连接可用；没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
