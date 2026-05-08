@@ -16047,6 +16047,58 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineRejectsCharmingSpiritWhenAnyHandTargetIsNotControlledByHandPlayer()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CHARMING-SPIRIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-DIRTY-P1-OWNED-HAND-CARD"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CHARMING-SPIRIT"] = new(
+                    "P1-UNIT-CHARMING-SPIRIT",
+                    cardNo: "UNL-121/219",
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DIRTY-P1-OWNED-HAND-CARD"] = new(
+                    "P2-DIRTY-P1-OWNED-HAND-CARD",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-charming-spirit-dirty-any-hand-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CHARMING-SPIRIT",
+                "UNL-121/219",
+                ["P2-DIRTY-P1-OWNED-HAND-CARD"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-CHARMING-SPIRIT"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P2-DIRTY-P1-OWNED-HAND-CARD"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-teemo-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO")]
     [InlineData("p2-preflight-play-teemo-alt-a-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO-A")]

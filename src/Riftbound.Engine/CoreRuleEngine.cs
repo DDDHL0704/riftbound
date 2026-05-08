@@ -14120,7 +14120,9 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsAnyHandCard(MatchState state, string objectId)
     {
         return !string.IsNullOrWhiteSpace(objectId)
-            && state.PlayerZones.Values.Any(zones => zones.Hand.Contains(objectId, StringComparer.Ordinal));
+            && state.PlayerZones.Any(entry =>
+                entry.Value.Hand.Contains(objectId, StringComparer.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId));
     }
 
     private static bool IsFriendlyMainDeckCard(MatchState state, string playerId, string objectId)
