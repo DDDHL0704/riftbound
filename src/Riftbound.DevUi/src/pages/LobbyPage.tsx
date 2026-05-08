@@ -26,7 +26,7 @@ export function LobbyPage({ onNavigate }: { onNavigate: (route: AppRoute) => voi
         <div>
           <span className="eyebrow">大厅</span>
           <h1>创建或加入 1v1 房间</h1>
-          <p>房间由 SignalR `JoinRoom` 创建；正式准备前必须提交服务端可验证卡组。</p>
+          <p>房间由服务端实时连接创建；正式准备前必须提交服务端可验证卡组。</p>
         </div>
         <Button icon={<Plus size={18} />} onClick={createRoom}>创建房间</Button>
       </section>

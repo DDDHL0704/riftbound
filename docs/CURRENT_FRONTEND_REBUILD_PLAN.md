@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百一十批继续收口大厅页玩家可见协议词。`LobbyPage` 的说明文案不再显示 `SignalR` / `JoinRoom`，改为“房间由服务端实时连接创建；正式准备前必须提交服务端可验证卡组。”；这只改变展示文本，不改变房间连接、设置、服务端候选或命令提交逻辑。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过；Chrome 插件 smoke 打开 `http://127.0.0.1:5175/lobby`，页面显示“房间由服务端实时连接创建”，正文不含 `SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`NOT READY`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百零九批新增当前 completion audit 清单。`docs/CURRENT_COMPLETION_AUDIT.md` 按 `docs/任务补充.md` 要求列出修改/新增文件、关键架构、服务端规则补齐项、前端页面完成项、接口契约、隐藏信息检查、测试与 Browser smoke/E2E 门禁，并明确当前最终结论仍为 **NOT READY**，active goal 不能标记 complete。
 - 本批验证：仅文档审计变更，无源码、测试或前端行为变更；`git diff --check` 已执行通过。Chrome 插件连通性已只读确认可用，未创建业务 smoke 标签页或后台服务进程。当前完成度仍约 **99%**。
 

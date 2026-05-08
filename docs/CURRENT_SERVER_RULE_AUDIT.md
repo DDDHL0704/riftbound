@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百一十批补充：大厅页玩家可见协议词继续中文化。`LobbyPage` 不再把 `SignalR` / `JoinRoom` 暴露给玩家，改为“服务端实时连接”口径；房间创建、入座、卡组提交和准备逻辑不变，前端仍只展示并提交服务端 prompt/candidate 支持的操作。
+- 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 打开 `http://127.0.0.1:5175/lobby`，页面显示“房间由服务端实时连接创建”，正文不含 `SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`NOT READY`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百零九批补充：新增当前 completion audit 文档。`docs/CURRENT_COMPLETION_AUDIT.md` 按补充任务要求列出修改/新增文件、关键架构、服务端规则补齐项、前端页面完成项、接口契约、隐藏信息检查、测试与 Browser smoke/E2E 门禁，并明确当前仍存在 P0/P1 阻断，active goal 不可标记 complete。
 - 已补验证：本批仅修改文档，无源码或规则实现变更；`git diff --check` 已执行通过。Chrome 插件连通性已只读确认可用，未启动 API/Vite/业务 browser smoke 进程。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
