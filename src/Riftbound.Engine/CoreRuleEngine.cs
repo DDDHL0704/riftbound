@@ -8916,8 +8916,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => cardObjects.TryGetValue(objectId, out var unitState)
                 && unitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !unitState.IsFaceDown
-                && (string.IsNullOrWhiteSpace(unitState.ControllerId)
-                    || string.Equals(unitState.ControllerId, playerId, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(unitState, playerId)
                 && HasBattlefieldHeldArenaUnitConquestEffect(unitState.CardNo))
             .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)

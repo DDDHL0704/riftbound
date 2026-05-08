@@ -34645,6 +34645,55 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldActivateConquestEffectsSkipsOpponentOwnedUnits()
+    {
+        var baseState = BattlefieldHeldActivateConquestState();
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-BATTLEFIELD-KAISA"] = cardObjects["P2-BATTLEFIELD-KAISA"] with
+        {
+            OwnerId = "P1",
+            ControllerId = ""
+        };
+        var state = baseState with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-activate-conquest-dirty-unit", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-RECKONER-ARENA",
+                ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
+                ["P2-BATTLEFIELD-BAD-PORO"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P2-BATTLEFIELD-BAD-PORO"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["activatedUnitObjectIds"]));
+
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_CONQUEST_EFFECT_ACTIVATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectId"] as string, "UNIT_CONQUEST_CREATE_DORMANT_GOLD", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["unitObjectId"] as string, "P2-BATTLEFIELD-BAD-PORO", StringComparison.Ordinal));
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["abilityId"] as string, "UNIT_CONQUEST_CREATE_DORMANT_GOLD", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-RECKONER-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains(result.State.PlayerZones["P2"].Base, objectId =>
+            objectId.StartsWith("P2-BATTLEFIELD-BAD-PORO-TOKEN-", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldActivateConquestEffectsReadiesLucianAndGrantsSettBoon()
     {
         var state = BattlefieldHeldActivateConquestReadinessState();
