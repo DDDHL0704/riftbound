@@ -45039,6 +45039,17 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
         Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
         Assert.Empty(result.State.StackItems);
+        var battleResolution = Assert.Single(result.State.BattleResolutions);
+        Assert.Equal("NO_RESULT", battleResolution.Kind);
+        Assert.Equal("BOTH_SIDES_RETAIN_UNITS", battleResolution.Reason);
+        Assert.Contains("DAMAGE_REMOVED", battleResolution.RelatedEventKinds);
+        Assert.Contains("UNIT_RECALLED_TO_BASE", battleResolution.RelatedEventKinds);
+        var snapshotBattleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
+            result.Snapshots["P1"].Timing["battleResolutions"]);
+        var snapshotBattleResolution = Assert.Single(snapshotBattleResolutions);
+        var snapshotRelatedEventKinds = Assert.IsAssignableFrom<IReadOnlyList<string>>(snapshotBattleResolution["relatedEventKinds"]);
+        Assert.Contains("DAMAGE_REMOVED", snapshotRelatedEventKinds);
+        Assert.Contains("UNIT_RECALLED_TO_BASE", snapshotRelatedEventKinds);
     }
 
     [Fact]
@@ -45829,11 +45840,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(
             ["P1-BATTLEFIELD-GAREN", "P2-BATTLEFIELD-DEFENDER"],
             battleResolution.DestroyedObjectIds);
+        Assert.Contains("DAMAGE_REMOVED", battleResolution.RelatedEventKinds);
         var snapshotBattleResolutions = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(
             result.Snapshots["P1"].Timing["battleResolutions"]);
         var snapshotBattleResolution = Assert.Single(snapshotBattleResolutions);
         Assert.Equal("CLOSED", snapshotBattleResolution["kind"]);
         Assert.Equal("P1", snapshotBattleResolution["winnerPlayerId"]);
+        var snapshotRelatedEventKinds = Assert.IsAssignableFrom<IReadOnlyList<string>>(snapshotBattleResolution["relatedEventKinds"]);
+        Assert.Contains("DAMAGE_REMOVED", snapshotRelatedEventKinds);
         Assert.Empty(result.State.StackItems);
     }
 

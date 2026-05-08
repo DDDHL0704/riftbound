@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十二批仍为服务端 snapshot/回放证据收口，没有前端 UI 文件变更。最近战斗结果 `timing.battleResolutions[].relatedEventKinds` 现在会保留战斗清理事件：普通幸存者清伤害可见 `DAMAGE_REMOVED`，双方仍有单位的无结果代表路径还会保留 `UNIT_RECALLED_TO_BASE`。前端规则队列和重连后的战报视图继续只读服务端 snapshot。
+- 本批验证：目标回归 2/2、`DeclareBattleCommand|BattleResolution` 相邻回归 56/56、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十一批仍为服务端战斗规则收口，没有前端 UI 文件变更。`DECLARE_BATTLE` 的代表路径现在会在战斗伤害和致命清理后由服务端权威执行战斗特殊清理：幸存参战单位最终伤害清为 0 并广播 `DAMAGE_REMOVED`；若防守方仍在战场，仍位于该战场的进攻单位会被召回基地并广播 `UNIT_RECALLED_TO_BASE`。前端继续只消费服务端事件和 authoritative snapshot，不自行裁决战斗清理。
 - 本批验证：`dotnet build` 通过；`DeclareBattleCommand|BattlefieldControl` 相邻回归 61/61、用户指定待命/控制目标回归 3/3、用户指定战场 seed 回归 2/2、`GameHubJoinTests` 118/118、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件只读连通性检查成功并已清理 agent 标签页；没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

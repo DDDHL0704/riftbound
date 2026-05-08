@@ -6652,6 +6652,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             combatEvents
                 .Where(gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
                     || string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                    || string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal)
+                    || string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal)
                     || string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal)
                     || string.Equals(gameEvent.Kind, "BATTLE_NO_RESULT", StringComparison.Ordinal))
                 .Select(gameEvent => gameEvent.Kind)

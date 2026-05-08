@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百八十二批补充：最近战斗结果 snapshot 继续补齐战斗清理证据。`BattleResolutions.relatedEventKinds` 现在会记录 `DAMAGE_REMOVED`，并在双方仍有单位的无结果代表路径中记录 `UNIT_RECALLED_TO_BASE`；前端规则队列、战报与 reload/reconnect 后的 snapshot 不需要从即时事件流或本地状态反推战斗清理是否发生。
+- 已补测试与验证：扩展 `P4DeclareBattleCommandStunnedAttackerContributesZeroCombatPower` 和 `P4DeclareBattleCommandAssignsDamageFromMultipleAttackersForRepresentativePath`，断言权威 `BattleResolutions` 与 snapshot `timing.battleResolutions[].relatedEventKinds` 均保留战斗清理事件。验证结果：目标回归 2/2、`DeclareBattleCommand|BattleResolution` 相邻回归 56/56 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke；整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百八十一批补充：`DECLARE_BATTLE` 代表路径补齐战斗结算中的战斗特殊清理。服务端在战斗伤害与致命清理后，会对仍存活的参战单位广播 `DAMAGE_REMOVED` 并把伤害清为 0；若防守方仍有单位留在该战场，则把仍位于该战场的进攻单位召回其基地并广播 `UNIT_RECALLED_TO_BASE`。前端继续只展示服务端事件和 authoritative snapshot，不在浏览器侧自行判断战斗清理、召回或最终伤害状态。
 - 已补测试与验证：扩展单攻单防、狩猎征服/据守、壁垒/后排、多攻击者、多攻防、眩晕进攻者、静态战斗修正、战场修正和 Hub seed 断言，fixture 期望同步加入 `DAMAGE_REMOVED` 事件与最终 0 伤害。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`DeclareBattleCommand|BattlefieldControl` 相邻回归 61/61、用户指定待命/控制目标回归 3/3、用户指定战场 seed 回归 2/2、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件只读连通性检查成功并已清理 agent 标签页；本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke。整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
 
