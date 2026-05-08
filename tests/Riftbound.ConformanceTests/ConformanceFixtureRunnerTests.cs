@@ -17921,6 +17921,117 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlayCardRejectsGenericFieldTargetsWithMismatchedZoneControl()
+    {
+        var engine = new CoreRuleEngine();
+
+        async Task AssertRejected(
+            string scenarioId,
+            string sourceObjectId,
+            string cardNo,
+            int mana,
+            IReadOnlyList<string> p2Base,
+            IReadOnlyList<string> p2Battlefields,
+            string dirtyTargetObjectId,
+            CardObjectState dirtyTargetState)
+        {
+            var state = PunishmentState(mana) with
+            {
+                PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+                {
+                    ["P1"] = PlayerZones.Empty with
+                    {
+                        Hand = [sourceObjectId]
+                    },
+                    ["P2"] = PlayerZones.Empty with
+                    {
+                        Base = p2Base,
+                        Battlefields = p2Battlefields
+                    }
+                },
+                CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+                {
+                    [sourceObjectId] = new(
+                        sourceObjectId,
+                        cardNo: cardNo,
+                        tags: [CardObjectTags.SpellCard],
+                        manaCost: mana,
+                        ownerId: "P1",
+                        controllerId: "P1"),
+                    [dirtyTargetObjectId] = dirtyTargetState
+                },
+                PriorityPlayerId = "P1",
+                StackItems =
+                [
+                    new(
+                        "STACK-GENERIC-DIRTY-GUARD-DUMMY",
+                        "P1",
+                        "P1-SPELL-DUMMY",
+                        "DUMMY_PENDING_EFFECT",
+                        "DUMMY",
+                        [])
+                ]
+            };
+
+            var result = await engine.ResolveAsync(
+                state,
+                new PlayerIntent($"intent-{scenarioId}", "P1", "PLAY_CARD"),
+                new PlayCardCommand(sourceObjectId, cardNo, [dirtyTargetObjectId]),
+                CancellationToken.None);
+
+            Assert.False(result.Accepted);
+            Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+            Assert.Contains(sourceObjectId, result.State.PlayerZones["P1"].Hand);
+            Assert.Equal(["STACK-GENERIC-DIRTY-GUARD-DUMMY"], result.State.StackItems.Select(stackItem => stackItem.StackItemId).ToArray());
+        }
+
+        await AssertRejected(
+            "generic-dirty-battlefield",
+            "P1-SPELL-INCINERATE",
+            "OGS·003/024",
+            2,
+            [],
+            ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"],
+            "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+            new(
+                "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                cardNo: "SFD·125/221",
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"));
+
+        await AssertRejected(
+            "generic-dirty-base-any-unit",
+            "P1-SPELL-LOTUS-TRAP",
+            "UNL-013/219",
+            2,
+            ["P2-DIRTY-P1-CONTROLLED-BASE-UNIT"],
+            [],
+            "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
+            new(
+                "P2-DIRTY-P1-CONTROLLED-BASE-UNIT",
+                cardNo: "SFD·125/221",
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"));
+
+        await AssertRejected(
+            "generic-dirty-equipment",
+            "P1-SPELL-SIGIL-BURST",
+            "SFD·005/221",
+            1,
+            ["P2-DIRTY-P1-CONTROLLED-EQUIPMENT"],
+            [],
+            "P2-DIRTY-P1-CONTROLLED-EQUIPMENT",
+            new(
+                "P2-DIRTY-P1-CONTROLLED-EQUIPMENT",
+                cardNo: "SFD·022/221",
+                tags: [CardObjectTags.EquipmentCard],
+                ownerId: "P1",
+                controllerId: "P1"));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysLotusTrapAndDoublesNextDamage()
     {
         var fixture = await ConformanceFixture.LoadAsync(

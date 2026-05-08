@@ -14034,8 +14034,10 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsBattlefieldObject(MatchState state, string objectId)
     {
-        return !string.IsNullOrWhiteSpace(objectId)
-            && state.PlayerZones.Values.Any(zones => zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+        var location = FindFieldObjectLocation(state.PlayerZones, objectId);
+        return location is not null
+            && string.Equals(location.Value.Zone, "BATTLEFIELD", StringComparison.Ordinal)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, location.Value.PlayerId, objectId);
     }
 
     private static bool IsTargetObjectInScope(
@@ -14723,14 +14725,17 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsBaseObject(MatchState state, string objectId)
     {
-        return !string.IsNullOrWhiteSpace(objectId)
+        var location = FindFieldObjectLocation(state.PlayerZones, objectId);
+        return location is not null
+            && string.Equals(location.Value.Zone, MoveUnitBaseZone, StringComparison.Ordinal)
             && state.CardObjects.ContainsKey(objectId)
-            && state.PlayerZones.Values.Any(zones => zones.Base.Contains(objectId, StringComparer.Ordinal));
+            && IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, location.Value.PlayerId, objectId);
     }
 
     private static bool IsFieldUnitObject(MatchState state, string objectId)
     {
         return IsFieldObject(state.PlayerZones, objectId)
+            && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
             && !CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
@@ -14747,6 +14752,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool IsEquipmentObject(MatchState state, string objectId)
     {
         return IsFieldObject(state.PlayerZones, objectId)
+            && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId)
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
