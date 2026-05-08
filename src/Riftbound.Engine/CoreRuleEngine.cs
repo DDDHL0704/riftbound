@@ -14517,23 +14517,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var categorizedTargetIds = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var (_, zones) in state.PlayerZones)
+        foreach (var (playerId, zones) in state.PlayerZones)
         {
             if (!HasExactlyTwoSacredJudgmentTargets(
                     targetSet,
-                    SacredJudgmentFieldUnitIds(state.CardObjects, zones),
+                    SacredJudgmentFieldUnitIds(state.CardObjects, playerId, zones),
                     categorizedTargetIds)
                 || !HasExactlyTwoSacredJudgmentTargets(
                     targetSet,
-                    SacredJudgmentEquipmentIds(state.CardObjects, zones),
+                    SacredJudgmentEquipmentIds(state.CardObjects, playerId, zones),
                     categorizedTargetIds)
                 || !HasExactlyTwoSacredJudgmentTargets(
                     targetSet,
-                    SacredJudgmentRuneIds(state.CardObjects, zones),
+                    SacredJudgmentRuneIds(state.CardObjects, playerId, zones),
                     categorizedTargetIds)
                 || !HasExactlyTwoSacredJudgmentTargets(
                     targetSet,
-                    zones.Hand.Where(cardId => !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal)),
+                    zones.Hand.Where(cardId =>
+                        !string.Equals(cardId, sourceObjectId, StringComparison.Ordinal)
+                        && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, playerId, cardId)),
                     categorizedTargetIds))
             {
                 return false;
@@ -14667,10 +14669,12 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsSacredJudgmentKeepCandidate(MatchState state, string objectId)
     {
-        return state.PlayerZones.Values.Any(zones =>
-            zones.Hand.Contains(objectId, StringComparer.Ordinal)
-            || zones.Base.Contains(objectId, StringComparer.Ordinal)
-            || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+        return state.PlayerZones.Any(entry =>
+            entry.Value.Hand.Contains(objectId, StringComparer.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId)
+            || (entry.Value.Base.Contains(objectId, StringComparer.Ordinal)
+                    || entry.Value.Battlefields.Contains(objectId, StringComparer.Ordinal))
+                && IsCardObjectControlledByPlayerOrLegacyOwned(state.CardObjects, entry.Key, objectId));
     }
 
     private static bool IsEquipmentObject(MatchState state, string objectId)
@@ -18216,28 +18220,46 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static IEnumerable<string> SacredJudgmentFieldUnitIds(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
         PlayerZones zones)
     {
         return zones.Base
             .Concat(zones.Battlefields)
-            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
+            .Where(objectId =>
+                CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId));
     }
 
     private static IEnumerable<string> SacredJudgmentEquipmentIds(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
         PlayerZones zones)
     {
         return zones.Base
             .Concat(zones.Battlefields)
-            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard));
+            .Where(objectId =>
+                CardObjectHasTag(cardObjects, objectId, CardObjectTags.EquipmentCard)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId));
     }
 
     private static IEnumerable<string> SacredJudgmentRuneIds(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
         PlayerZones zones)
     {
         return zones.Base
-            .Where(objectId => CardObjectHasTag(cardObjects, objectId, CardObjectTags.RuneCard));
+            .Where(objectId =>
+                CardObjectHasTag(cardObjects, objectId, CardObjectTags.RuneCard)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId));
+    }
+
+    private static bool IsCardObjectControlledByPlayerOrLegacyOwned(
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string objectId)
+    {
+        return !cardObjects.TryGetValue(objectId, out var cardObject)
+            || SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static void ApplyStatusEffectsToFieldUnits(
@@ -19749,10 +19771,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         var keptSet = keptObjectIds.ToHashSet(StringComparer.Ordinal);
         foreach (var (playerId, zones) in playerZones.ToArray())
         {
-            var recycledCardIds = SacredJudgmentFieldUnitIds(cardObjects, zones)
-                .Concat(SacredJudgmentEquipmentIds(cardObjects, zones))
-                .Concat(SacredJudgmentRuneIds(cardObjects, zones))
-                .Concat(zones.Hand)
+            var recycledCardIds = SacredJudgmentFieldUnitIds(cardObjects, playerId, zones)
+                .Concat(SacredJudgmentEquipmentIds(cardObjects, playerId, zones))
+                .Concat(SacredJudgmentRuneIds(cardObjects, playerId, zones))
+                .Concat(zones.Hand.Where(cardId =>
+                    IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, cardId)))
                 .Where(cardId => !keptSet.Contains(cardId))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();

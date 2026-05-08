@@ -17255,6 +17255,49 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsJudgmentDayWhenKeepTargetIsNotControlledByZonePlayer()
+    {
+        var baseState = JudgmentDayState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Hand = ["P2-HAND-KEEP-001", "P2-HAND-DIRTY-P1-OWNED", "P2-HAND-RECYCLE-001"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-HAND-DIRTY-P1-OWNED"] = new(
+            "P2-HAND-DIRTY-P1-OWNED",
+            cardNo: "SFD·125/221",
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P1");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+        var invalidTargets = JudgmentDayKeepTargets().ToArray();
+        invalidTargets[^1] = "P2-HAND-DIRTY-P1-OWNED";
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-judgment-day-dirty-keep-selection", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-JUDGMENT",
+                "OGN·244/298",
+                invalidTargets),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(7, 0), result.State.RunePools["P1"]);
+        Assert.Equal(
+            ["P2-HAND-KEEP-001", "P2-HAND-DIRTY-P1-OWNED", "P2-HAND-RECYCLE-001"],
+            result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsWindWallAgainstUnitStackItem()
     {
         var state = PunishmentState(mana: 0) with
