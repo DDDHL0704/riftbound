@@ -40,6 +40,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
     private const string EmberMonkCardNo = "OGN·167/298";
     private const string EmberMonkStandbyHiddenPowerEffectKind = "EMBER_MONK_FACE_DOWN_STANDBY_POWER_2";
+    private const string SharpshooterPirateCardNo = "OGN·130/298";
+    private const string SharpshooterPirateAttackDamageEffectKind = "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1";
     private const string SadPoroOriginalCardNo = "SFD·036/221";
     private const string SadPoroUnleashedCardNo = "UNL-221/219";
     private const string SadPoroLastBreathDrawEffectKind = "SAD_PORO_LAST_BREATH_DRAW_1";
@@ -5482,6 +5484,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         var defendingUnitCount = defenderAssignments.Count;
         var attacksReadyEnemyUnit = defenderStates.Values.Any(defenderState => !defenderState.IsExhausted);
         var assignedOverkillDamageToEnemyUnits = 0;
+        combatEvents.AddRange(ResolveSharpshooterPirateAttackDamageTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            battlefieldId,
+            attackerObjectIds,
+            defenderAssignments,
+            damageTriggeredDestroyTargetObjectIds));
         foreach (var attackingObjectId in attackerObjectIds)
         {
             var attackingState = attackerStates[attackingObjectId];
@@ -7022,6 +7032,80 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Select(group => group.First())
             .Take(12)
             .ToArray();
+    }
+
+    private static IReadOnlyList<GameEvent> ResolveSharpshooterPirateAttackDamageTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string battlefieldId,
+        IReadOnlyList<string> attackerObjectIds,
+        IReadOnlyList<BattleDamageAssignmentTarget> defenderAssignments,
+        ISet<string> damageTriggeredDestroyTargetObjectIds)
+    {
+        if (defenderAssignments.Count == 0)
+        {
+            return [];
+        }
+
+        var events = new List<GameEvent>();
+        foreach (var attackerObjectId in attackerObjectIds)
+        {
+            if (!cardObjects.TryGetValue(attackerObjectId, out var attackerState)
+                || !string.Equals(attackerState.CardNo, SharpshooterPirateCardNo, StringComparison.Ordinal)
+                || !attackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                || attackerState.IsFaceDown
+                || attackerState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                || !IsObjectOnField(playerZones, attackerObjectId)
+                || !string.Equals(
+                    EffectiveFieldControllerId(playerZones, attackerObjectId, attackerState),
+                    playerId,
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var targetObjectId = defenderAssignments
+                .Select(assignment => assignment.ObjectId)
+                .FirstOrDefault(defenderObjectId =>
+                    cardObjects.TryGetValue(defenderObjectId, out var defenderState)
+                    && defenderState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !defenderState.IsFaceDown
+                    && IsObjectOnField(playerZones, defenderObjectId));
+            if (string.IsNullOrWhiteSpace(targetObjectId))
+            {
+                continue;
+            }
+
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{playerId} 的神射海盗进攻触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = attackerObjectId,
+                    ["targetObjectId"] = targetObjectId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["effectKind"] = SharpshooterPirateAttackDamageEffectKind,
+                    ["triggeredByEventKind"] = "BATTLE_DECLARED",
+                    ["damageAmount"] = 1
+                }));
+            var damageApplication = ApplyDamageToCardObject(
+                cardObjects,
+                targetObjectId,
+                1,
+                damageTriggeredDestroyTargetObjectIds);
+            var damagePayload = BuildDamagePayload(attackerObjectId, targetObjectId, damageApplication);
+            damagePayload["battlefieldId"] = battlefieldId;
+            damagePayload["effectKind"] = SharpshooterPirateAttackDamageEffectKind;
+            damagePayload["reason"] = "ATTACK_TRIGGER";
+            events.Add(new GameEvent(
+                "DAMAGE_APPLIED",
+                "神射海盗进攻触发造成伤害",
+                damagePayload));
+        }
+
+        return events;
     }
 
     private static string? EventPayloadString(GameEvent gameEvent, string key)

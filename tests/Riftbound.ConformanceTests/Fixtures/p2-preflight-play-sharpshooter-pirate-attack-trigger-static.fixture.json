@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-sharpshooter-pirate-attack-trigger-static",
-  "description": "Sharpshooter Pirate enters as a Pirate unit while attack damage trigger text is deferred.",
+  "description": "Sharpshooter Pirate enters as a Pirate unit; attack damage trigger is covered by focused regression.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·130/298 神射海盗",
-      "note": "官方卡面：费用 3；单位；战力 3；海盗；进攻时对同一处战场的一个敌方单位造成 1 点伤害。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；进攻触发与伤害路径暂缓。"
+      "note": "官方卡面：费用 3；单位；战力 3；海盗；进攻时对同一处战场的一个敌方单位造成 1 点伤害。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；进攻同战场首个防守敌方单位时造成 1 点伤害的代表路径由 P79SharpshooterPirateDamagesEnemyUnitWhenAttackingBattlefield 覆盖，防守时不触发由 P79SharpshooterPirateSkipsAttackDamageWhenDefending 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

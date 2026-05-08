@@ -35590,6 +35590,79 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79SharpshooterPirateDamagesEnemyUnitWhenAttackingBattlefield()
+    {
+        var state = SharpshooterPirateBattleState(sharpshooterAttacks: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sharpshooter-pirate-attack-trigger", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SHARPSHOOTER-PIRATE"],
+                ["P2-SHARPSHOOTER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
+            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
+        Assert.Equal("P1-SHARPSHOOTER-PIRATE", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-SHARPSHOOTER-DEFENDER", triggerEvent.Payload["targetObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["damageAmount"]);
+
+        var triggerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
+            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
+        Assert.Equal("P1-SHARPSHOOTER-PIRATE", triggerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-SHARPSHOOTER-DEFENDER", triggerDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(1, triggerDamageEvent.Payload["damage"]);
+        Assert.Equal("ATTACK_TRIGGER", triggerDamageEvent.Payload["reason"]);
+
+        var combatDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-SHARPSHOOTER-PIRATE", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
+            && string.Equals(combatRole as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P2-SHARPSHOOTER-DEFENDER", combatDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(3, combatDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, combatDamageEvent.Payload["damage"]);
+        var removedDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
+        var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(removedDamageEvent.Payload["previousDamageByObject"]);
+        Assert.Equal(4, previousDamageByObject["P2-SHARPSHOOTER-DEFENDER"]);
+    }
+
+    [Fact]
+    public async Task P79SharpshooterPirateSkipsAttackDamageWhenDefending()
+    {
+        var state = SharpshooterPirateBattleState(sharpshooterAttacks: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sharpshooter-pirate-defending-no-trigger", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-SHARPSHOOTER-ATTACKER"],
+                ["P2-SHARPSHOOTER-PIRATE"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
+            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && gameEvent.Payload.TryGetValue("effectKind", out var effectKind)
+            && string.Equals(effectKind as string, "SHARPSHOOTER_PIRATE_ATTACK_DAMAGE_1", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79DuneDrakeGainsPowerWhenAttackingReadyEnemyUnit()
     {
         var state = DuneDrakeBattleState(duneDrakeAttacks: true);
@@ -53094,6 +53167,67 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             }
+        };
+    }
+
+    private static MatchState SharpshooterPirateBattleState(bool sharpshooterAttacks)
+    {
+        var p1Battlefields = sharpshooterAttacks
+            ? new[] { "P1-SHARPSHOOTER-PIRATE" }
+            : new[] { "P1-SHARPSHOOTER-ATTACKER" };
+        var p2Battlefields = sharpshooterAttacks
+            ? new[] { "P2-SHARPSHOOTER-DEFENDER" }
+            : new[] { "P2-SHARPSHOOTER-PIRATE" };
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
+        if (sharpshooterAttacks)
+        {
+            cardObjects["P1-SHARPSHOOTER-PIRATE"] = new(
+                "P1-SHARPSHOOTER-PIRATE",
+                cardNo: "OGN·130/298",
+                power: 3,
+                tags: [CardObjectTags.UnitCard, "海盗"],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-SHARPSHOOTER-DEFENDER"] = new(
+                "P2-SHARPSHOOTER-DEFENDER",
+                cardNo: "SFD·125/221",
+                power: 5,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+        else
+        {
+            cardObjects["P1-SHARPSHOOTER-ATTACKER"] = new(
+                "P1-SHARPSHOOTER-ATTACKER",
+                cardNo: "SFD·125/221",
+                power: 1,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-SHARPSHOOTER-PIRATE"] = new(
+                "P2-SHARPSHOOTER-PIRATE",
+                cardNo: "OGN·130/298",
+                power: 3,
+                tags: [CardObjectTags.UnitCard, "海盗"],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = p1Battlefields
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2Battlefields
+                }
+            },
+            CardObjects = cardObjects
         };
     }
 

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百七十七批补齐《神射海盗》（OGN·130/298）“进攻时对同一处战场敌方单位造成 1 点伤害”的服务端代表路径。`DECLARE_BATTLE` 成功后、战斗伤害分配前，服务端根据 authoritative attacker/defender 列表解析《神射海盗》进攻触发，广播 `TRIGGER_RESOLVED` 与非战斗 `DAMAGE_APPLIED`，对本次同战场首个防守敌方单位造成 1 点伤害；防守时不触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地目标选择或伤害裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；神射海盗进攻/防守触发、沙丘亚龙、猩红飞鸽回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3183/3183；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端战斗触发代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整战斗触发目标选择、完整待命显露/目标伤害、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百七十六批补齐《余火修士》（OGN·167/298）“打出牌面朝下待命牌时本回合 +2”的服务端代表路径。`HIDE_CARD` 成功后由服务端根据 authoritative field state 解析《余火修士》触发，广播 `TRIGGER_RESOLVED` 与 `POWER_MODIFIED_UNTIL_END_OF_TURN`，只让当前控制的正面、非待命余火修士自身本回合战力 +2；面朝下、待命态或对手控制来源不会误触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地待命触发或战力裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；余火修士待命触发、游击战免费待命、Bandle Tree 额外待命与 HIDE_CARD prompt 回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3181/3181；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端待命触发代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整待命显露/目标伤害、完整战斗时机/触发排序、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
