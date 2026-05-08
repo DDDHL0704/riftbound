@@ -6820,6 +6820,86 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysGhostMatronOptionalGraveyardUnitToBase()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ghost-matron-graveyard-unit-base.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-GHOST-MATRON", "P1-GHOST-MATRON-GRAVE-UNIT-001"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-GRAVE-OTHER-001"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(4, result.FinalState.CardObjects["P1-UNIT-GHOST-MATRON"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-GHOST-MATRON-GRAVE-UNIT-001"].ManaCost);
+        Assert.False(result.FinalState.CardObjects["P1-GHOST-MATRON-GRAVE-UNIT-001"].IsExhausted);
+        Assert.Equal("BASE", result.FinalState.ObjectLocations["P1-GHOST-MATRON-GRAVE-UNIT-001"].Zone);
+    }
+
+    [Theory]
+    [InlineData(4, 4)]
+    [InlineData(3, 2)]
+    public async Task CoreRuleEngineRejectsGhostMatronGraveyardTargetAboveCostOrPowerLimit(
+        int targetManaCost,
+        int controllerPower)
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(4, controllerPower),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-GHOST-MATRON"],
+                    Graveyard = ["P1-GHOST-MATRON-GRAVE-UNIT-LIMIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-GHOST-MATRON"] = new(
+                    "P1-UNIT-GHOST-MATRON",
+                    cardNo: "OGN·226/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GHOST-MATRON-GRAVE-UNIT-LIMIT"] = new(
+                    "P1-GHOST-MATRON-GRAVE-UNIT-LIMIT",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    manaCost: targetManaCost,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-ghost-matron-graveyard-target-limit", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-GHOST-MATRON",
+                "OGN·226/298",
+                ["P1-GHOST-MATRON-GRAVE-UNIT-LIMIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(["P1-UNIT-GHOST-MATRON"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-GHOST-MATRON-GRAVE-UNIT-LIMIT"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P1"].Base);
+        Assert.Equal(new RunePool(4, controllerPower), result.State.RunePools["P1"]);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsHarrowingWhenTargetIsNonUnitGraveyardCard()
     {
         var state = PunishmentState(mana: 6) with

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百七十九批补齐《幽灵主母》（OGN·226/298）“打出时可以从己方废牌堆打出费用不高于 3 且不高于 A 的单位”的服务端代表路径。`PLAY_CARD` 可携带 0/1 个己方废牌堆单位目标，服务端校验单位标签、费用不高于 3 且不高于当前 A；结算后《幽灵主母》自身进入基地，所选废牌堆单位也由服务端打出到基地并重置伤害、休眠和回合临时效果。前端仍只展示服务端 prompt、事件和 authoritative snapshot，不新增本地废牌堆目标或费用/A 裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《幽灵主母》合法/非法废牌堆目标、既有废牌堆打出和 P4 非法目标回归 7/7 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3189/3189；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百七十七批补齐《神射海盗》（OGN·130/298）“进攻时对同一处战场敌方单位造成 1 点伤害”的服务端代表路径。`DECLARE_BATTLE` 成功后、战斗伤害分配前，服务端根据 authoritative attacker/defender 列表解析《神射海盗》进攻触发，广播 `TRIGGER_RESOLVED` 与非战斗 `DAMAGE_APPLIED`，对本次同战场首个防守敌方单位造成 1 点伤害；防守时不触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地目标选择或伤害裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；神射海盗进攻/防守触发、沙丘亚龙、猩红飞鸽回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3183/3183；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端战斗触发代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整战斗触发目标选择、完整待命显露/目标伤害、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

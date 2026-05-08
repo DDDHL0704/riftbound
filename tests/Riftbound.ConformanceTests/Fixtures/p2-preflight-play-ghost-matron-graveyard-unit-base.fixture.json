@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "fixtureId": "p2-preflight-play-ghost-matron-graveyard-unit-base",
+  "description": "Ghost Matron optionally plays a friendly low-cost graveyard unit to base while entering as a Spirit unit.",
+  "source": "manual-pdf-faq-preflight",
+  "auditStatus": "RULE_AUDITED",
+  "rulesVersion": "rules-260330",
+  "faqVersion": "official-pdf-faq-set-2026-04-28",
+  "catalogVersion": "official-2026-04-27",
+  "seed": 2603302781,
+  "rulesEvidence": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "locator": "OGN·226/298 幽灵主母",
+      "note": "官方卡面：费用 4；单位；战力 4；灵体；当控制者打出自身时，可以选择从控制者废牌堆中打出一名费用不高于 3 且不高于 A 的单位，无需支付打出费用。当前 fixture 覆盖选择己方废牌堆 2 费单位后，幽灵主母自身进入基地，并由服务端打出该废牌堆单位到基地。"
+    },
+    {
+      "source": "《符文战场》核心规则_260330.pdf",
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、目标合法、加入结算链并在双方让过后结算；废牌堆是玩家区域，效果可将其中单位打出到场上。"
+    }
+  ],
+  "roomId": "p2-preflight-ogn-226-ghost-matron-revive-room",
+  "players": ["P1", "P2"],
+  "initialState": {
+    "seed": 2603302781,
+    "turnNumber": 781,
+    "activePlayerId": "P1",
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "scores": { "P1": 0, "P2": 0 },
+    "runePools": {
+      "P1": { "mana": 4, "power": 2 },
+      "P2": { "mana": 0, "power": 0 }
+    },
+    "players": {
+      "P1": {
+        "mainDeck": ["P1-MAIN-001"],
+        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
+        "hand": ["P1-UNIT-GHOST-MATRON"],
+        "base": [],
+        "battlefields": [],
+        "graveyard": ["P1-GHOST-MATRON-GRAVE-UNIT-001", "P1-GRAVE-OTHER-001"],
+        "banished": [],
+        "legendZone": ["P1-LEGEND-001"],
+        "championZone": ["P1-CHAMPION-001"]
+      },
+      "P2": {
+        "mainDeck": ["P2-MAIN-001"],
+        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": ["P2-LEGEND-001"],
+        "championZone": ["P2-CHAMPION-001"]
+      }
+    },
+    "cardObjects": {
+      "P1-GHOST-MATRON-GRAVE-UNIT-001": {
+        "cardNo": "SFD·125/221",
+        "damage": 1,
+        "power": 2,
+        "manaCost": 2,
+        "tags": ["CARD_TYPE:UNIT"],
+        "untilEndOfTurnEffects": ["TEMP"],
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": true,
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    }
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-play",
+      "cmd": {
+        "cmdType": "PLAY_CARD",
+        "sourceObjectId": "P1-UNIT-GHOST-MATRON",
+        "cardNo": "OGN·226/298",
+        "targetObjectIds": ["P1-GHOST-MATRON-GRAVE-UNIT-001"]
+      }
+    },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-226-ghost-matron-revive-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+  ],
+  "expected": {
+    "finalTick": 3,
+    "eventKinds": [
+      "CARD_PLAYED",
+      "COST_PAID",
+      "STACK_ITEM_ADDED",
+      "PRIORITY_PASSED",
+      "PRIORITY_PASSED",
+      "STACK_ITEM_RESOLVED",
+      "UNIT_PLAYED_TO_BASE",
+      "UNIT_PLAYED_TO_BASE"
+    ],
+    "events": [
+      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 4,
+          "baseMana": 4,
+          "optionalCosts": []
+        }
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "payload": {
+          "controllerId": "P1",
+          "sourceObjectId": "P1-UNIT-GHOST-MATRON",
+          "cardNo": "OGN·226/298",
+          "targetObjectIds": ["P1-GHOST-MATRON-GRAVE-UNIT-001"],
+          "effectKind": "GHOST_MATRON_SPIRIT_REVIVE_PLAY_UNIT"
+        }
+      },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "PRIORITY_PASSED" },
+      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-GHOST-MATRON",
+          "unitObjectId": "P1-UNIT-GHOST-MATRON",
+          "unitName": "幽灵主母",
+          "destinationZone": "BASE",
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "灵体"]
+        }
+      },
+      {
+        "kind": "UNIT_PLAYED_TO_BASE",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-GHOST-MATRON",
+          "targetObjectId": "P1-GHOST-MATRON-GRAVE-UNIT-001",
+          "ownerPlayerId": "P1",
+          "sourceZone": "GRAVEYARD",
+          "destinationZone": "BASE"
+        }
+      }
+    ],
+    "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
+    "finalState": {
+      "turnNumber": 781,
+      "activePlayerId": "P1",
+      "turnPlayerId": "P1",
+      "phase": "MAIN",
+      "timingState": "NEUTRAL_OPEN",
+      "scores": { "P1": 0, "P2": 0 },
+      "runePools": {
+        "P1": { "mana": 0, "power": 2 },
+        "P2": { "mana": 0, "power": 0 }
+      },
+      "players": {
+        "P1": {
+          "mainDeck": ["P1-MAIN-001"],
+          "hand": [],
+          "base": ["P1-UNIT-GHOST-MATRON", "P1-GHOST-MATRON-GRAVE-UNIT-001"],
+          "graveyard": ["P1-GRAVE-OTHER-001"],
+          "banished": []
+        }
+      },
+      "stackItems": [],
+      "cardObjects": {
+        "P1-UNIT-GHOST-MATRON": {
+          "power": 4,
+          "tags": ["CARD_TYPE:UNIT", "灵体"],
+          "isExhausted": false
+        },
+        "P1-GHOST-MATRON-GRAVE-UNIT-001": {
+          "cardNo": "SFD·125/221",
+          "damage": 0,
+          "power": 2,
+          "manaCost": 2,
+          "tags": ["CARD_TYPE:UNIT"],
+          "untilEndOfTurnEffects": [],
+          "untilEndOfTurnPowerModifier": 0,
+          "isExhausted": false,
+          "ownerId": "P1",
+          "controllerId": "P1"
+        }
+      }
+    },
+    "prompts": {
+      "P1": { "actionable": true, "actions": ["END_TURN"] },
+      "P2": { "actionable": false, "actions": ["WAIT"] }
+    }
+  }
+}
