@@ -17965,6 +17965,69 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineBerserkImpulseResolutionSkipsOpponentControlledTopDeckTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-BERSERK-IMPULSE-DIRTY-MAIN-DECK",
+                    "P1",
+                    "P1-SPELL-BERSERK-IMPULSE",
+                    "BERSERK_IMPULSE_PLAY_OPPONENT_TOP_UNIT",
+                    "OGN·025/298",
+                    ["P2-DIRTY-P1-CONTROLLED-TOP-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P2-DIRTY-P1-CONTROLLED-TOP-UNIT",
+                        "P2-DECK-KEEP-001"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-TOP-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-TOP-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-berserk-impulse-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-berserk-impulse-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-TOP-UNIT", "P2-DECK-KEEP-001"], p2Pass.State.PlayerZones["P2"].MainDeck);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-SPELL-BERSERK-IMPULSE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBrightFutureEachPlayerTopFiveUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(

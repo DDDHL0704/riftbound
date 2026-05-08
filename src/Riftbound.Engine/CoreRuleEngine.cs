@@ -20904,7 +20904,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (string.Equals(playerId, controllerId, StringComparison.Ordinal)
                 || zones.MainDeck.Count == 0
-                || !string.Equals(zones.MainDeck[0], targetObjectId, StringComparison.Ordinal))
+                || !string.Equals(zones.MainDeck[0], targetObjectId, StringComparison.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }
