@@ -6210,6 +6210,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             .ToArray();
         if (damagedParticipantObjectIds.Length > 0)
         {
+            var previousDamageByObject = damagedParticipantObjectIds.ToDictionary(
+                objectId => objectId,
+                objectId => cardObjects[objectId].Damage,
+                StringComparer.Ordinal);
             foreach (var objectId in damagedParticipantObjectIds)
             {
                 cardObjects[objectId] = cardObjects[objectId] with { Damage = 0 };
@@ -6223,6 +6227,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["battlefieldId"] = battlefieldId,
                     ["objectIds"] = damagedParticipantObjectIds,
                     ["count"] = damagedParticipantObjectIds.Length,
+                    ["previousDamageByObject"] = previousDamageByObject,
+                    ["totalDamageRemoved"] = previousDamageByObject.Values.Sum(),
                     ["reason"] = "BATTLE_CLEANUP"
                 }));
         }

@@ -44942,6 +44942,9 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("BATTLEFIELD:P1-MAIN", damageRemovedEvent.Payload["battlefieldId"]);
                 Assert.Equal(["P1-BATTLEFIELD-GAREN"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
                 Assert.Equal(1, damageRemovedEvent.Payload["count"]);
+                var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+                Assert.Equal(3, previousDamageByObject["P1-BATTLEFIELD-GAREN"]);
+                Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
             closedEvent =>
@@ -45023,6 +45026,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("BOTH_SIDES_RETAIN_UNITS", noResultEvent.Payload["reason"]);
         var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+        Assert.Equal(2, previousDamageByObject["P1-BATTLEFIELD-STUNNED-ATTACKER"]);
+        Assert.Equal(2, damageRemovedEvent.Payload["totalDamageRemoved"]);
         Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
         var recalledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RECALLED_TO_BASE", StringComparison.Ordinal));
         Assert.Equal("P1-BATTLEFIELD-STUNNED-ATTACKER", recalledEvent.Payload["targetObjectId"]);
@@ -45391,6 +45397,9 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("BATTLEFIELD:P1-MAIN", damageRemovedEvent.Payload["battlefieldId"]);
                 Assert.Equal(["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
                 Assert.Equal(1, damageRemovedEvent.Payload["count"]);
+                var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+                Assert.Equal(3, previousDamageByObject["P1-BATTLEFIELD-GLUTTONOUS-TOADFROG"]);
+                Assert.Equal(3, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
             closedEvent =>
@@ -45484,6 +45493,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects["P2-BATTLEFIELD-HUNTER"].IsDefending);
         var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P2-BATTLEFIELD-HUNTER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+        Assert.Equal(1, previousDamageByObject["P2-BATTLEFIELD-HUNTER"]);
+        Assert.Equal(1, damageRemovedEvent.Payload["totalDamageRemoved"]);
         Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
         Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-HUNTER"].Damage);
         Assert.Equal(["P1"], result.State.DestroyedUnitOwnerIdsThisTurn);
@@ -45625,6 +45637,9 @@ public sealed class ConformanceFixtureRunnerTests
                 Assert.Equal("BATTLEFIELD:P1-MAIN", damageRemovedEvent.Payload["battlefieldId"]);
                 Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
                 Assert.Equal(1, damageRemovedEvent.Payload["count"]);
+                var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+                Assert.Equal(7, previousDamageByObject["P1-BATTLEFIELD-VOLIBEAR"]);
+                Assert.Equal(7, damageRemovedEvent.Payload["totalDamageRemoved"]);
                 Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
             },
             closedEvent =>
@@ -45732,6 +45747,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains("P2-BATTLEFIELD-BULWARK-B", result.State.PlayerZones["P2"].Graveyard);
         var damageRemovedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-VOLIBEAR"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+        Assert.Equal(8, previousDamageByObject["P1-BATTLEFIELD-VOLIBEAR"]);
+        Assert.Equal(8, damageRemovedEvent.Payload["totalDamageRemoved"]);
         Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
         Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].Damage);
         Assert.False(result.State.CardObjects["P1-BATTLEFIELD-VOLIBEAR"].IsAttacking);

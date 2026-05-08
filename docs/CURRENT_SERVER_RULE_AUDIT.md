@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百八十三批补充：战斗清理 `DAMAGE_REMOVED` 事件继续补齐回放/日志可解释性。战斗特殊清理现在会在 payload 中写入 `previousDamageByObject` 和 `totalDamageRemoved`，让前端日志、战报和 replay 可以只读服务端事件展示“从多少伤害清到 0”，不需要浏览器侧根据旧 snapshot 反推。
+- 已补测试与验证：扩展战斗代表路径、眩晕进攻者、狩猎征服/据守、壁垒/后排、同优先级壁垒和 Hub seed 断言，并同步 fixture 的 `DAMAGE_REMOVED` payload。验证结果：`DeclareBattleCommand|GameHubJoinTests` 相邻回归 174/174 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke；整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百八十二批补充：最近战斗结果 snapshot 继续补齐战斗清理证据。`BattleResolutions.relatedEventKinds` 现在会记录 `DAMAGE_REMOVED`，并在双方仍有单位的无结果代表路径中记录 `UNIT_RECALLED_TO_BASE`；前端规则队列、战报与 reload/reconnect 后的 snapshot 不需要从即时事件流或本地状态反推战斗清理是否发生。
 - 已补测试与验证：扩展 `P4DeclareBattleCommandStunnedAttackerContributesZeroCombatPower` 和 `P4DeclareBattleCommandAssignsDamageFromMultipleAttackersForRepresentativePath`，断言权威 `BattleResolutions` 与 snapshot `timing.battleResolutions[].relatedEventKinds` 均保留战斗清理事件。验证结果：目标回归 2/2、`DeclareBattleCommand|BattleResolution` 相邻回归 56/56 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 文件变更，没有启动 API/Vite/业务 Browser smoke；整体仍 **NOT READY**，因为完整官方 battle task、spell duel 生命周期、PaymentEngine、LayerEngine、central cleanup queue 与全官方卡牌证据仍未清零。
 

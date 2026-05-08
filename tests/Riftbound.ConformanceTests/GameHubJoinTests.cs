@@ -3686,6 +3686,9 @@ public sealed class GameHubJoinTests
         var damageRemovedEvent = Assert.Single(EventsFor(battleClients), gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_REMOVED", StringComparison.Ordinal));
         Assert.Equal(["P1-BATTLEFIELD-ISOLATED-ATTACKER"], Assert.IsType<string[]>(damageRemovedEvent.Payload["objectIds"]));
+        var previousDamageByObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(damageRemovedEvent.Payload["previousDamageByObject"]);
+        Assert.Equal(2, previousDamageByObject["P1-BATTLEFIELD-ISOLATED-ATTACKER"]);
+        Assert.Equal(2, damageRemovedEvent.Payload["totalDamageRemoved"]);
         Assert.Equal("BATTLE_CLEANUP", damageRemovedEvent.Payload["reason"]);
 
         var battleSnapshot = SnapshotFor(battleClients, "P1");

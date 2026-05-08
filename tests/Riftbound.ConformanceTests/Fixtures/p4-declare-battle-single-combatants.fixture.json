@@ -166,6 +166,10 @@
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
           "objectIds": ["P1-BATTLEFIELD-GAREN"],
           "count": 1,
+          "previousDamageByObject": {
+            "P1-BATTLEFIELD-GAREN": 3
+          },
+          "totalDamageRemoved": 3,
           "reason": "BATTLE_CLEANUP"
         }
       },

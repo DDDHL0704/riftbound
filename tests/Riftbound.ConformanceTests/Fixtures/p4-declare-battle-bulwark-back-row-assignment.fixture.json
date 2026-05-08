@@ -226,6 +226,10 @@
           "battlefieldId": "BATTLEFIELD:P1-MAIN",
           "objectIds": ["P1-BATTLEFIELD-VOLIBEAR"],
           "count": 1,
+          "previousDamageByObject": {
+            "P1-BATTLEFIELD-VOLIBEAR": 7
+          },
+          "totalDamageRemoved": 7,
           "reason": "BATTLE_CLEANUP"
         }
       },

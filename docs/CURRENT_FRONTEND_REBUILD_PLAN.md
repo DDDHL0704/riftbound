@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十三批仍为服务端事件证据收口，没有前端 UI 文件变更。战斗清理 `DAMAGE_REMOVED` 事件现在附带 `previousDamageByObject` 和 `totalDamageRemoved`，前端日志/战报/replay 可以只读服务端 payload 展示清理前伤害与总清理量，不需要从客户端旧状态推断。
+- 本批验证：`DeclareBattleCommand|GameHubJoinTests` 相邻回归 174/174、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十二批仍为服务端 snapshot/回放证据收口，没有前端 UI 文件变更。最近战斗结果 `timing.battleResolutions[].relatedEventKinds` 现在会保留战斗清理事件：普通幸存者清伤害可见 `DAMAGE_REMOVED`，双方仍有单位的无结果代表路径还会保留 `UNIT_RECALLED_TO_BASE`。前端规则队列和重连后的战报视图继续只读服务端 snapshot。
 - 本批验证：目标回归 2/2、`DeclareBattleCommand|BattleResolution` 相邻回归 56/56、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/业务 Browser smoke，因为本批不改变前端 UI 文件。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
