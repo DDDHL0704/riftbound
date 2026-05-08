@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百批补充：对战顶栏 phase/timingState 继续中文化。`MatchTopBar` 现在通过共享 `matchPhaseLabel` / `timingStateLabel` 显示服务端阶段与窗口，主 HUD 会显示“房间阶段 / 起手调整 / 回合开始 / 主阶段 / 回合结束”和“普通开环 / 普通闭环 / 法术对决开环 / 法术对决闭环”等中文文案，不再裸显 `MAIN`、`NEUTRAL_OPEN` 等服务端枚举；前端仍只读 authoritative snapshot。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-topbar-label-1778233450965`，外部连接 P1/P2 并 seed `basic-play` 后，P1 对战桌面顶栏显示“第 690 回合｜主阶段｜普通开环”，顶栏不含 raw `MAIN` 或 `NEUTRAL_OPEN`，应用 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第一百九十九批补充：结算页房间状态枚举中文化。`ResultPage` 现在通过共享 `roomStatusLabel` / `roomStatusTone` 显示 `EMPTY / SEATING / IN_PROGRESS / FINISHED`，页面主状态与详情卡片显示“空房间 / 等待入座 / 对局进行中 / 对局已结束”，不再把 `FINISHED` 等服务端 raw roomStatus 作为玩家可见主文案；“winningScore” 文案同步改为“胜利分数”。前端仍只读取 authoritative snapshot，不自行推断胜负。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests|FullyQualifiedName~Surrender"` 121/121 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-result-status-1778233263409`，外部连接 P1/P2、seed `basic-play` 后 P1 `SURRENDER`，打开 `/matches/{roomId}/result` 可见“胜者：P2 / 对局已结束 / 胜利分数”，页面正文不含 raw `FINISHED`，应用 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

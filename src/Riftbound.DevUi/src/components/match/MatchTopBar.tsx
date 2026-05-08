@@ -1,7 +1,7 @@
 import { Wifi, WifiOff } from "lucide-react";
 import { ConnectionStatus, SnapshotDto } from "../../types/protocol";
 import { asRecord, asString } from "../../utils/collections";
-import { connectionStatusLabel, connectionStatusTone } from "../../utils/formatters";
+import { connectionStatusLabel, connectionStatusTone, matchPhaseLabel, timingStateLabel } from "../../utils/formatters";
 import { StatusPill } from "../ui/StatusPill";
 
 export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: SnapshotDto; status: ConnectionStatus; playerId: string }) {
@@ -9,12 +9,14 @@ export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: Snapsho
   const turnWindow = asRecord(timing.turnWindow);
   const spellDuel = asRecord(timing.spellDuel);
   const promptPlayer = asString(timing.promptPlayerId, "无");
+  const phase = asString(timing.phase, "");
+  const windowState = asString(turnWindow.state, asString(timing.timingState, ""));
 
   return (
     <section className="match-topbar">
       <div>
         <span className="eyebrow">对战状态</span>
-        <h1>第 {snapshot?.turnNumber ?? 0} 回合｜{asString(timing.phase, "等待开局")}｜{asString(turnWindow.state, asString(timing.timingState, "未知窗口"))}</h1>
+        <h1>第 {snapshot?.turnNumber ?? 0} 回合｜{matchPhaseLabel(phase)}｜{timingStateLabel(windowState)}</h1>
       </div>
       <StatusPill tone={connectionStatusTone(status)}>{connectionStatusLabel(status)}</StatusPill>
       <StatusPill tone={snapshot?.activePlayerId === playerId ? "good" : "neutral"}>回合玩家：{snapshot?.activePlayerId ?? "无"}</StatusPill>

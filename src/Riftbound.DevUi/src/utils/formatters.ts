@@ -159,6 +159,42 @@ export function roomStatusTone(status?: string): "neutral" | "good" | "warn" | "
   }
 }
 
+export function matchPhaseLabel(phase?: string): string {
+  switch (phase) {
+    case "ROOM":
+      return "房间阶段";
+    case "MULLIGAN":
+      return "起手调整";
+    case "TURN_START":
+      return "回合开始";
+    case "MAIN":
+      return "主阶段";
+    case "TURN_END":
+      return "回合结束";
+    default:
+      return phase ?? "等待开局";
+  }
+}
+
+export function timingStateLabel(state?: string): string {
+  switch (state) {
+    case "ROOM":
+      return "房间窗口";
+    case "MULLIGAN":
+      return "起手调整";
+    case "NEUTRAL_OPEN":
+      return "普通开环";
+    case "NEUTRAL_CLOSED":
+      return "普通闭环";
+    case "SPELL_DUEL_OPEN":
+      return "法术对决开环";
+    case "SPELL_DUEL_CLOSED":
+      return "法术对决闭环";
+    default:
+      return state ?? "未知窗口";
+  }
+}
+
 export function promptActionLabel(candidate: ActionPromptCandidateDto): string {
   return candidate.label || actionLabel(candidate.action);
 }
