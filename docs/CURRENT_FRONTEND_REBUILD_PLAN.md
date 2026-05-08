@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十批继续收口服务端战场任务命令边界，没有新增前端 UI 代码。`START_BATTLE` active task 存在时，后端现在有专门回归证据锁住两类绕 UI 手写命令：非当前任务玩家提交 `DECLARE_BATTLE` 会保持等待并被 task queue 拒绝，当前任务玩家把声明战斗切到另一个战场也会被拒绝。前端仍只展示服务端 prompt/candidate，不自行裁决谁能声明或声明哪个战场。
+- 本批验证：active battle task 精确回归 3/3、后端 full test 3139/3139、`source ../../scripts/dev-env.sh && npm run build` 均通过，事件标签覆盖 110 个后端 event kind。没有前端 UI 代码变更，未启动业务 Chrome smoke；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十九批为上一批法术对决/cleanup/战斗取消规则补齐真实前端 smoke seed，没有新增浏览器侧规则裁决。新增 development-only `battlefield-contest-spell-duel-cleanup`：P2 处于法术对决焦点窗口，P1 已让过，队列仍有同一战场的 `START_BATTLE`；P2 让过焦点后服务端权威关闭法术对决、执行致命清理、移走 P2 单位，并让战场收敛为 P1 控制、非争夺、队列 `IDLE`。前端只显示服务端事件和最终 snapshot，`DECLARE_BATTLE` 不能成为 enabled candidate 或 UI 可提交动作。
 - 本批验证：`dotnet build` 0 warning/0 error、精确回归 2/2、后端 full test 3137/3137、`source ../../scripts/dev-env.sh && npm run build` 均通过。Chrome 插件 smoke 使用房间 `smoke-spell-duel-cleanup-1778228927718`，在设置页写入 `serverUrl=http://127.0.0.1:5093`、`playerId=P2`，P2 连接后由 P1 通过 SignalR JoinRoom + `SeedScenario("battlefield-contest-spell-duel-cleanup")`；P2 点击“让过焦点”后 UI 显示“法术对决关闭 / 单位摧毁”，没有“声明战斗”，最终 snapshot 为 P2 单位入墓、战场 P1 控制、`contested=false`、`standbyObjectIds=[]`、队列 `IDLE`；reload/reconnect 后恢复同一状态，app runtime error 0。smoke 完成后已清理 API/Vite/Chrome 相关临时进程；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

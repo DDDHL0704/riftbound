@@ -27225,6 +27225,144 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask()
+    {
+        var state = ActiveStartBattleTaskStateForCommandGuards();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p2-declare-active-start-battle", "P2", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BF-1",
+                ["P2-UNIT-1"],
+                ["P1-UNIT-1"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Contains("START_BATTLE", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(state.Tick, result.State.Tick);
+        Assert.Empty(result.Events);
+        Assert.False(result.Prompts["P2"].Actionable);
+        Assert.Equal(["WAIT", "SURRENDER"], result.Prompts["P2"].Actions);
+        Assert.True(result.Prompts["P1"].Actionable);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsDeclareBattleThatDoesNotMatchActiveStartBattleTask()
+    {
+        var state = ActiveStartBattleTaskStateForCommandGuards(includeOtherBattlefield: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-declare-wrong-start-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BF-2",
+                ["P1-UNIT-1"],
+                ["P2-UNIT-1"],
+                OptionalCosts: ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("DECLARE_BATTLE must match the active START_BATTLE task.", result.ErrorMessage);
+        Assert.Equal(state.Tick, result.State.Tick);
+        Assert.Empty(result.Events);
+        Assert.True(result.Prompts["P1"].Actionable);
+        Assert.Equal(["DECLARE_BATTLE", "SURRENDER"], result.Prompts["P1"].Actions);
+        Assert.Equal("BATTLE_TASKS", result.State.PendingTaskQueue.Phase);
+        Assert.Equal("task:start-battle:BF-1", result.State.PendingTaskQueue.ActiveTaskId);
+    }
+
+    private static MatchState ActiveStartBattleTaskStateForCommandGuards(bool includeOtherBattlefield = false)
+    {
+        var p2Battlefields = includeOtherBattlefield
+            ? new[] { "P2-UNIT-1", "BF-2" }
+            : ["P2-UNIT-1"];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["BF-1"] = new(
+                "BF-1",
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P1-UNIT-1"] = new(
+                "P1-UNIT-1",
+                cardNo: "SFD·125/221",
+                power: 4,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P2-UNIT-1"] = new(
+                "P2-UNIT-1",
+                cardNo: "SFD·125/221",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2")
+        };
+        var objectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+            ["P1-UNIT-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+            ["P2-UNIT-1"] = new("P2", "BATTLEFIELD", "BF-1")
+        };
+        if (includeOtherBattlefield)
+        {
+            cardObjects["BF-2"] = new(
+                "BF-2",
+                cardNo: "OGN·275/298",
+                tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                ownerId: "P2",
+                controllerId: "P2");
+            objectLocations["BF-2"] = new("P2", "BATTLEFIELD", "BF-2");
+        }
+
+        return new MatchState(
+            "battlefield-contest-start-battle-command-guard-room",
+            9,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P1-UNIT-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2Battlefields
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: cardObjects,
+            untilEndOfTurnEffects: [BattlefieldTaskMarkers.SpellDuelCompleted("BF-1")],
+            objectLocations: objectLocations);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineChangesBattlefieldControllerAfterBattle()
     {
         var state = new MatchState(
