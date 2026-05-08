@@ -18308,6 +18308,87 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEnginePlaysBlastCrewApprenticeOptionalDamage()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-blast-crew-apprentice-optional-damage.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-BLAST-CREW-APPRENTICE"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-BLAST-CREW-APPRENTICE"].Power);
+        Assert.Equal(2, result.FinalState.CardObjects["P2-BLAST-CREW-TARGET-001"].Damage);
+    }
+
+    [Fact]
+    public void CoreRuleEngineBlastCrewApprenticePromptExposesOptionalDamageCost()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-BLAST-CREW-APPRENTICE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BLAST-CREW-TARGET-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-BLAST-CREW-APPRENTICE"] = new(
+                    "P1-UNIT-BLAST-CREW-APPRENTICE",
+                    cardNo: "SFD·013/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BLAST-CREW-TARGET-001"] = new(
+                    "P2-BLAST-CREW-TARGET-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-097/219",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+
+        Assert.Equal(0, sourceRequirement["minTargetCount"]);
+        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        Assert.Contains(optionalCostChoices, choice =>
+            string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal)
+            && string.Equals(choice.Label, "额外支付 1 法力，需同时支付 1 红色符能", StringComparison.Ordinal));
+        Assert.Contains(optionalCostChoices, choice =>
+            string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal)
+            && string.Equals(choice.Label, "额外支付 1 红色符能，需同时支付 1 法力：对一名单位造成 2 点伤害", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysFrostcoatCubOptionalPowerMinusTwo()
     {
         var fixture = await ConformanceFixture.LoadAsync(

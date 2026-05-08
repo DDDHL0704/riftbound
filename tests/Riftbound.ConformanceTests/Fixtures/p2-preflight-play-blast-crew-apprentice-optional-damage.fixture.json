@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-blast-crew-apprentice-no-optional-damage",
-  "description": "Blast Crew Apprentice enters as a unit object without paying its optional damage additional cost.",
+  "fixtureId": "p2-preflight-play-blast-crew-apprentice-optional-damage",
+  "description": "Blast Crew Apprentice enters as a unit object and deals 2 damage to a battlefield unit after paying its optional mana and red additional cost.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302361,
+  "seed": 2603302371,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·013/221 爆破队学员",
-      "note": "官方卡面：费用 2；单位；战力 2；你可以选择支付 1 和红色作为打出我的额外费用；如果支付该额外费用，则对战场上的一名单位造成 2 点伤害。当前 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；支付 1 与红色后的伤害分支由 p2-preflight-play-blast-crew-apprentice-optional-damage 覆盖。"
+      "note": "官方卡面：费用 2；单位；战力 2；你可以选择支付 1 和红色作为打出我的额外费用；如果支付该额外费用，则对战场上的一名单位造成 2 点伤害。本 fixture 覆盖支付该法力与红色可选额外费用后的条件伤害分支。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果。"
+      "note": "单位是游戏对象；打出卡牌需要支付费用、支付可选额外费用、选择合法目标、加入结算链并在双方让过后结算；支付额外费用后的条件目标伤害由服务端结算。"
     }
   ],
-  "roomId": "p2-preflight-blast-crew-apprentice-room",
+  "roomId": "p2-preflight-blast-crew-apprentice-optional-damage-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302361,
-    "turnNumber": 360,
+    "seed": 2603302371,
+    "turnNumber": 370,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 3, "power": 0, "powerByTrait": { "red": 1 } },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -51,28 +51,35 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": [],
-        "battlefields": [],
+        "battlefields": ["P2-BLAST-CREW-TARGET-001"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P2-BLAST-CREW-TARGET-001": {
+        "cardNo": "UNL-097/219",
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-blast-crew-apprentice-play",
+      "clientIntentId": "intent-p2-preflight-blast-crew-apprentice-optional-damage-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-BLAST-CREW-APPRENTICE",
         "cardNo": "SFD·013/221",
-        "targetObjectIds": []
+        "targetObjectIds": ["P2-BLAST-CREW-TARGET-001"],
+        "optionalCosts": ["SPEND_MANA:1", "SPEND_POWER:red:1"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-blast-crew-apprentice-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-blast-crew-apprentice-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-blast-crew-apprentice-optional-damage-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-blast-crew-apprentice-optional-damage-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -83,18 +90,29 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "DAMAGE_APPLIED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 2, "baseMana": 2 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "power": 1,
+          "powerByTrait": { "red": 1 },
+          "baseMana": 2,
+          "optionalCosts": ["SPEND_MANA:1", "SPEND_POWER:red:1"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-BLAST-CREW-APPRENTICE",
           "cardNo": "SFD·013/221",
-          "targetObjectIds": [],
+          "targetObjectIds": ["P2-BLAST-CREW-TARGET-001"],
           "effectKind": "BLAST_CREW_APPRENTICE_PLAY_UNIT_OPTIONAL_DAMAGE"
         }
       },
@@ -112,11 +130,19 @@
           "power": 2,
           "tags": ["CARD_TYPE:UNIT"]
         }
+      },
+      {
+        "kind": "DAMAGE_APPLIED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-BLAST-CREW-APPRENTICE",
+          "targetObjectId": "P2-BLAST-CREW-TARGET-001",
+          "damage": 2
+        }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 360,
+      "turnNumber": 370,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -132,6 +158,9 @@
           "hand": [],
           "base": ["P1-UNIT-BLAST-CREW-APPRENTICE"],
           "graveyard": []
+        },
+        "P2": {
+          "battlefields": ["P2-BLAST-CREW-TARGET-001"]
         }
       },
       "stackItems": [],
@@ -140,6 +169,11 @@
           "power": 2,
           "tags": ["CARD_TYPE:UNIT"],
           "isExhausted": false
+        },
+        "P2-BLAST-CREW-TARGET-001": {
+          "damage": 2,
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT"]
         }
       }
     },

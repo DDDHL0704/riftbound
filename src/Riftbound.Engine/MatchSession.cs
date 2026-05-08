@@ -5536,10 +5536,21 @@ internal static class ActionPromptBuilder
         if (CanPromptTargetEffectAdditionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior, sourceObjectId))
         {
             var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
-            choices.Add(new ActionPromptChoiceDto(
-                $"SPEND_POWER:{targetEffectPowerTrait}:{behavior.TargetEffectAdditionalPowerCost}",
-                TargetEffectAdditionalCostLabel(behavior, targetEffectPowerTrait),
-                $"{behavior.DisplayName}的可选额外费用"));
+            if (behavior.TargetEffectAdditionalManaCost > 0)
+            {
+                choices.Add(new ActionPromptChoiceDto(
+                    $"SPEND_MANA:{behavior.TargetEffectAdditionalManaCost}",
+                    TargetEffectAdditionalManaCostLabel(behavior),
+                    $"{behavior.DisplayName}的可选额外费用"));
+            }
+
+            if (behavior.TargetEffectAdditionalPowerCost > 0)
+            {
+                choices.Add(new ActionPromptChoiceDto(
+                    $"SPEND_POWER:{targetEffectPowerTrait}:{behavior.TargetEffectAdditionalPowerCost}",
+                    TargetEffectAdditionalPowerCostLabel(behavior, targetEffectPowerTrait),
+                    $"{behavior.DisplayName}的可选额外费用"));
+            }
         }
 
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
@@ -6024,19 +6035,27 @@ internal static class ActionPromptBuilder
             && availablePower >= behavior.TargetEffectAdditionalPowerCost;
     }
 
-    private static string TargetEffectAdditionalCostLabel(
+    private static string TargetEffectAdditionalManaCostLabel(CardBehaviorDefinition behavior)
+    {
+        var companionCost = behavior.TargetEffectAdditionalPowerCost > 0
+            ? $"，需同时支付 {behavior.TargetEffectAdditionalPowerCost} {RuneTraitLabel(RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait))}符能"
+            : string.Empty;
+        return $"额外支付 {behavior.TargetEffectAdditionalManaCost} 法力{companionCost}";
+    }
+
+    private static string TargetEffectAdditionalPowerCostLabel(
         CardBehaviorDefinition behavior,
         string powerTrait)
     {
-        var costLabel = behavior.TargetEffectAdditionalManaCost > 0
-            ? $"{behavior.TargetEffectAdditionalManaCost} 法力 / {behavior.TargetEffectAdditionalPowerCost} {RuneTraitLabel(powerTrait)}符能"
-            : $"{behavior.TargetEffectAdditionalPowerCost} {RuneTraitLabel(powerTrait)}符能";
+        var companionCost = behavior.TargetEffectAdditionalManaCost > 0
+            ? $"，需同时支付 {behavior.TargetEffectAdditionalManaCost} 法力"
+            : string.Empty;
         var effectLabel = behavior.PowerModifierAmount != 0
             ? $"一名单位本回合战力 {FormatSignedNumber(behavior.PowerModifierAmount)}"
             : behavior.DamageAmount > 0
                 ? $"对一名单位造成 {behavior.DamageAmount} 点伤害"
                 : "执行目标效果";
-        return $"额外支付 {costLabel}：{effectLabel}";
+        return $"额外支付 {behavior.TargetEffectAdditionalPowerCost} {RuneTraitLabel(powerTrait)}符能{companionCost}：{effectLabel}";
     }
 
     private static string FormatSignedNumber(int value)
