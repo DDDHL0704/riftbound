@@ -19897,6 +19897,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineHurricaneSweepResolutionSkipsOpponentControlledBattlefieldTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-HURRICANE-SWEEP-DIRTY-BATTLEFIELD",
+                    "P1",
+                    "P1-SPELL-HURRICANE-SWEEP",
+                    "HURRICANE_SWEEP_EACH_PLAYER_MAY_RETURN_UNIT",
+                    "OGN·187/298",
+                    ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-hurricane-sweep-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-hurricane-sweep-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(p2Pass.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P1-SPELL-HURRICANE-SWEEP"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT", p2Pass.State.CardObjects.Keys);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_RETURNED_TO_HAND", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysCustodianJudgmentUnitToDeckTop()
     {
         var fixture = await ConformanceFixture.LoadAsync(
