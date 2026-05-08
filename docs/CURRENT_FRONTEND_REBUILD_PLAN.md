@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百六十五批仍为服务端清理规则收口，没有前端 UI 文件变更。0 战力 cleanup 现在覆盖 owner 或 controller 任一身份存在的 legacy-owned 单位，同时排除 face-down/standby，避免前端 authoritative snapshot 里待命牌同时出现 `DESTROY_ZERO_POWER_UNIT` 与 `REMOVE_ILLEGAL_STANDBY` 这类混淆任务。
+- 本批验证：`dotnet build` 通过；新增/相邻目标回归 4/4、`ZeroPower|Cleanup` 相关回归 16/16、`GameHubJoinTests` 118/118、后端 full test 3119/3119 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百六十四批仍为服务端 snapshot/规则契约收口，没有前端 UI 文件变更。`BattlefieldState.ControllerId` 与非法待命清理现在使用同一套 controller fallback；前端看到的战场控制者、`CONTROLLED` 状态和 `REMOVE_ILLEGAL_STANDBY` 任务都来自服务端，不需要本地猜测 controller 为空的旧恢复对象。
 - 本批验证：`dotnet build` 通过；新增/相邻目标回归 4/4、`Standby|BattlefieldState|PendingTaskQueue` 相关回归 46/46、`GameHubJoinTests` 118/118、后端 full test 3119/3119 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

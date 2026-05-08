@@ -1180,8 +1180,7 @@ public sealed class ConformanceFixtureShapeTests
                     power: 0,
                     untilEndOfTurnPowerModifier: -4,
                     tags: [CardObjectTags.UnitCard],
-                    ownerId: "bob",
-                    controllerId: "bob")
+                    ownerId: "bob")
             },
             objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {

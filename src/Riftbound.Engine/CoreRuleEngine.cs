@@ -21659,10 +21659,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var destroyedUnitOwnerIds = new List<string>();
         var nextRunePools = runePools;
         var stateBasedRemovalObjectIds = cardObjects
-            .Where(entry => ((entry.Value.Power <= 0
-                        && entry.Value.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-                        && !string.IsNullOrWhiteSpace(entry.Value.OwnerId)
-                        && !string.IsNullOrWhiteSpace(entry.Value.ControllerId))
+            .Where(entry => (IsZeroPowerCleanupCandidate(entry.Value)
                     || (entry.Value.Power > 0
                         && entry.Value.Damage > 0
                         && entry.Value.Damage >= entry.Value.Power)
@@ -21745,6 +21742,21 @@ public sealed class CoreRuleEngine : IRuleEngine
             destroyedObjectIds,
             destroyedUnitOwnerIds,
             nextRunePools ?? new Dictionary<string, RunePool>(StringComparer.Ordinal));
+    }
+
+    private static bool HasOwnerOrControllerIdentity(CardObjectState cardObject)
+    {
+        return !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
+    }
+
+    private static bool IsZeroPowerCleanupCandidate(CardObjectState cardObject)
+    {
+        return cardObject.Power <= 0
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && HasOwnerOrControllerIdentity(cardObject);
     }
 
     private static bool IsObjectOnField(

@@ -947,9 +947,7 @@ public sealed record MatchState
                 continue;
             }
 
-            var isZeroPower = cardObject.Power <= 0
-                && !string.IsNullOrWhiteSpace(cardObject.OwnerId)
-                && !string.IsNullOrWhiteSpace(cardObject.ControllerId);
+            var isZeroPower = IsZeroPowerCleanupCandidate(cardObject);
             if (cardObject.Power <= 0 && !isZeroPower)
             {
                 continue;
@@ -1104,6 +1102,20 @@ public sealed record MatchState
         }
 
         return cardObject.OwnerId ?? string.Empty;
+    }
+
+    private static bool HasOwnerOrControllerIdentity(CardObjectState cardObject)
+    {
+        return !string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || !string.IsNullOrWhiteSpace(cardObject.ControllerId);
+    }
+
+    private static bool IsZeroPowerCleanupCandidate(CardObjectState cardObject)
+    {
+        return cardObject.Power <= 0
+            && !cardObject.IsFaceDown
+            && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && HasOwnerOrControllerIdentity(cardObject);
     }
 
     private static PendingTaskQueueState BuildPendingTaskQueue(MatchState state)

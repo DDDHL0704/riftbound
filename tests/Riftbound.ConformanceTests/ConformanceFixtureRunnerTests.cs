@@ -1224,8 +1224,7 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-ZERO-POWER-UNIT",
                     power: 0,
                     tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1")
+                    ownerId: "P1")
             },
             priorityPlayerId: "P2",
             passedPriorityPlayerIds: ["P1"],
