@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百四十八批继续收口伏击出牌服务端错误文案。`CoreRuleEngine` 的 `AmbushUnsupportedMessage` 不再返回英文 raw “PLAY_CARD mode AMBUSH is not implemented in P4 yet.”，改为中文“当前伏击出牌路径尚未由服务端开放。”；既有伏击出牌负例回归继续锁住普通/优先权窗口、BASE 目的地、目标、来源离开手牌、未知来源、对手手牌来源、非伏击来源、牌号不匹配和额外费用等路径拒绝且不改变 authoritative state。前端仍只提交服务端 `PLAY_CARD` prompt/sourceRequirements 支持的合法伏击/待命能力，未开放路径不假装可玩。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AmbushPlayCardMode"` 通过 21/21；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百四十七批继续收口装备装配服务端错误文案。`CoreRuleEngine` 的 `AssembleEquipmentUnsupportedMessage` 不再返回英文 raw “ASSEMBLE_EQUIPMENT is not implemented in P4 yet.”，改为中文“当前装备装配路径尚未由服务端开放。”；既有装配负例回归继续锁住优先权窗口、已贴附来源、缺失/未知来源或目标、手牌/对手/非装备来源、非单位目标、费用异常等路径拒绝且不改变 authoritative state。前端仍只在服务端 `ASSEMBLE_EQUIPMENT` prompt/sourceRequirements 暴露可组合候选时提供提交入口，未开放路径不假装可玩。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AssembleEquipmentCommand"` 通过 28/28；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

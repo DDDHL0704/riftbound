@@ -41740,7 +41740,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -41816,7 +41816,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -41889,7 +41889,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -42091,7 +42091,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -42157,7 +42157,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -42234,7 +42234,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);
@@ -42309,7 +42309,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
@@ -42384,7 +42384,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
@@ -42460,7 +42460,7 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCommand, result.ErrorCode);
-        Assert.Equal("PLAY_CARD mode AMBUSH is not implemented in P4 yet.", result.ErrorMessage);
+        Assert.Equal("当前伏击出牌路径尚未由服务端开放。", result.ErrorMessage);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(3, 0), result.State.RunePools["P1"]);

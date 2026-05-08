@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百四十八批补充：`PLAY_CARD` 伏击模式未开放路径拒绝文案继续去内部协议名。此前 `PLAY_CARD` 以 `AMBUSH` 模式进入未开放/非法伏击出牌路径时会正确拒绝并保持状态不变，但错误消息包含 raw `PLAY_CARD mode AMBUSH` 和 P4 阶段英文说明。现在服务端返回中文“当前伏击出牌路径尚未由服务端开放。”，既有伏击出牌负例回归同步断言中文错误；结构化 command mode 与 prompt action 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AmbushPlayCardMode"` 通过 21/21；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百四十七批补充：`ASSEMBLE_EQUIPMENT` 未开放路径拒绝文案继续去内部协议名。此前装配在未进入当前代表性最小计划、优先权窗口、来源/目标异常或费用异常等负例路径会正确拒绝并保持状态不变，但错误消息包含 raw `ASSEMBLE_EQUIPMENT` 和 P4 阶段英文说明。现在服务端返回中文“当前装备装配路径尚未由服务端开放。”，既有装配负例回归同步断言中文错误；结构化 prompt action/command kind 仍保留协议枚举供前端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AssembleEquipmentCommand"` 通过 28/28；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
