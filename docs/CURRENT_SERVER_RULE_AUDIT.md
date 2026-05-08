@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百三十一批补充：前端投降确认从浏览器原生确认弹窗改为站内确认区，避免 Chrome/Browser smoke 卡在 `window.confirm`，也让产品交互保持在 Web UI 内。该批没有修改服务端规则；前端仍只在服务端 prompt 暴露 enabled `SURRENDER` 候选时显示投降入口，确认后提交同一个 `SURRENDER` 命令，由服务端裁决胜者。
+- 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件房间 `smoke-surrender-confirm-1778246799998` 中，P1 页面连接，后台 P2 入座并 seed `basic-play`；点击“投降”显示“确认投降 / 取消”，取消可收起，再次确认后结果页显示 `胜者：P2`。验证后已清理 Chrome 标签、API/Vite 进程，目标端口无监听。整体仍 **NOT READY**，因为同一正式 E2E 还没有覆盖战场争夺/战斗、战场得分，服务端 P0/P1 规则缺口也仍未清零。
+
 - P1-004 第二百三十批补充：正式房间主流程 E2E 探针继续验证服务端 authoritative 房间/对局链路。Chrome 插件房间 `room-vnpnxy` 覆盖页面创建/加入、P1/P2 入座、官方测试卡组提交、准备、正式开局、双方起手调整、第 1 回合主阶段、召符文、抽牌、符文横置、P1 打出《炼金太保》进结算链、P1/P2 让过优先权、单位结算进基地、移动到战场、P1 结束回合、P2 第 2 回合开始，以及 reload/reconnect 后恢复 authoritative snapshot。该批没有修改服务端规则代码；前端仍只提交服务端 prompt/candidate 支持的 TAP_RUNE、PLAY_CARD、PASS_PRIORITY、MOVE_UNIT、END_TURN 等命令。
 - 已补验证：Chrome 插件在“投降”按钮的 `window.confirm` 处卡住，未把该步记录为前端按钮通过；随后同一房间通过后台 SignalR 提交 P2 `SURRENDER`，结果页 headless 验证 `胜者：P1` 且 snapshot `winnerPlayerId=P1`。验证后已清理 Chrome 标签、API/Vite/headless 进程，目标端口无监听。整体仍 **NOT READY**，因为同一正式 E2E 还没有覆盖战场争夺/战斗、战场得分，完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据也仍未清零。
 

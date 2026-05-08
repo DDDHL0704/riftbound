@@ -7,8 +7,10 @@
 
 ## 1. 修改文件列表
 
-当前第二百三十批修改：
+当前第二百三十一批修改：
 
+- `src/Riftbound.DevUi/src/components/match/ActionPanel.tsx`
+- `src/Riftbound.DevUi/src/styles/globals.css`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -80,7 +82,7 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百三十批是正式房间主流程 E2E 探针文档收口批。Chrome 插件房间 `room-vnpnxy` 已覆盖页面创建/加入、P1/P2 入座、官方测试卡组、准备、起手调整、首回合召符文/抽牌、横置符文、出单位进结算链、双方让过优先权、单位结算、移动到战场、结束回合、P2 回合开始，以及 reload/reconnect 后恢复 authoritative snapshot。投降按钮因 Chrome 插件无法处理该次 `window.confirm` 卡住，未作为纯前端按钮通过；同一房间随后用后台 SignalR 提交 P2 `SURRENDER`，headless 结果页验证 `胜者：P1` 与 snapshot `winnerPlayerId=P1`。本批无源码变更。
+当前第二百三十一批修复投降确认 UI：前端不再使用 `window.confirm`，改为站内“确认投降 / 取消”二步确认，确认后仍提交服务端 `SURRENDER` 命令。本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。
 
 ## 9. Browser smoke / E2E 结果
 
@@ -88,7 +90,9 @@
 
 第二百三十批新增一条正式房间主流程探针证据：Chrome 插件房间 `room-vnpnxy` 完成创建/加入房间、合法卡组、准备、起手、首回合、召符文、抽牌、横置符文、出单位、结算链双方让过、单位移动到战场、结束回合、P2 回合开始和 reload/reconnect 恢复；同一房间由后台 SignalR 提交 P2 投降后，headless 结果页显示“胜者：P1”。本批结束后已 finalize Chrome 标签并清理 API/Vite/headless 进程，`5092/5093/5094/5175/5176/9223/9224` 无监听。
 
-最终仍缺一条完全覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：同一连续正式牌局还没有覆盖战场争夺/战斗、战场得分，投降也尚未由前端按钮确认弹窗完整跑通。
+第二百三十一批补齐纯前端投降确认 smoke：Chrome 插件房间 `smoke-surrender-confirm-1778246799998` 中，P1 页面连接，后台 P2 入座并 seed `basic-play`；P1 点击“投降”后显示“确认投降 / 取消”，取消可收起，再次“投降 -> 确认投降”后结果页显示“胜者：P2”。smoke 后已 finalize Chrome 标签并清理 API/Vite 进程，目标端口无监听。
+
+最终仍缺一条完全覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：同一连续正式牌局还没有覆盖战场争夺/战斗与战场得分。
 
 ## 10. 仍未完成的 P2 项
 

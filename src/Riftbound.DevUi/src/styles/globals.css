@@ -689,6 +689,26 @@ button.card-face:hover {
   padding: 10px;
 }
 
+.surrender-confirm {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(201, 71, 63, 0.34);
+  border-radius: 6px;
+  background: rgba(201, 71, 63, 0.1);
+  padding: 10px;
+}
+
+.surrender-confirm span {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.surrender-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .mulligan-summary {
   display: flex;
   align-items: center;

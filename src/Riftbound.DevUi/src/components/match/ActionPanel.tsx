@@ -1,4 +1,4 @@
-import { Check, Flag, Hourglass, Play, Send } from "lucide-react";
+import { Check, Flag, Hourglass, Play, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
 import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
@@ -166,9 +166,51 @@ function CandidateButton({
   onSubmitStarterDeck: () => void;
   snapshot?: SnapshotDto;
 }) {
+  const [confirmingSurrender, setConfirmingSurrender] = useState(false);
   const command = simpleCommand(candidate, snapshot);
   const directAction = directCandidateAction(candidate, onReady, onSubmitStarterDeck);
   const disabled = disabledByConnection || !candidate.enabled || (!command && !directAction);
+
+  useEffect(() => {
+    setConfirmingSurrender(false);
+  }, [candidate.action, candidate.enabled, candidate.label, disabledByConnection]);
+
+  if (candidate.action === "SURRENDER" && command) {
+    if (confirmingSurrender) {
+      return (
+        <div className="surrender-confirm">
+          <span>对手将获得本局胜利。</span>
+          <div className="surrender-confirm-actions">
+            <Button
+              disabled={disabled}
+              icon={<Flag size={16} />}
+              onClick={() => onCommand(command)}
+              title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
+              variant="danger"
+            >
+              确认投降
+            </Button>
+            <Button icon={<X size={16} />} onClick={() => setConfirmingSurrender(false)} variant="ghost">
+              取消
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Button
+        disabled={disabled}
+        icon={<Flag size={16} />}
+        onClick={() => setConfirmingSurrender(true)}
+        title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
+        variant="danger"
+      >
+        {promptActionLabel(candidate)}
+      </Button>
+    );
+  }
+
   return (
     <Button
       disabled={disabled}
@@ -177,9 +219,6 @@ function CandidateButton({
         if (directAction) {
           directAction();
         } else if (command) {
-          if (candidate.action === "SURRENDER" && !window.confirm("确认投降？对手将获得本局胜利。")) {
-            return;
-          }
           onCommand(command);
         }
       }}
