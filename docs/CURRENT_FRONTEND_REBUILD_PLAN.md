@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百四十七批继续收口装备装配服务端错误文案。`CoreRuleEngine` 的 `AssembleEquipmentUnsupportedMessage` 不再返回英文 raw “ASSEMBLE_EQUIPMENT is not implemented in P4 yet.”，改为中文“当前装备装配路径尚未由服务端开放。”；既有装配负例回归继续锁住优先权窗口、已贴附来源、缺失/未知来源或目标、手牌/对手/非装备来源、非单位目标、费用异常等路径拒绝且不改变 authoritative state。前端仍只在服务端 `ASSEMBLE_EQUIPMENT` prompt/sourceRequirements 暴露可组合候选时提供提交入口，未开放路径不假装可玩。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4AssembleEquipmentCommand"` 通过 28/28；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百四十六批继续收口传奇行动服务端错误文案。`CoreRuleEngine` 在手写或异常客户端提交 `LEGEND_ACT` 时，来源不在自己传奇区、来源不由当前玩家控制、来源缺少服务端确认牌号、来源不具备请求的已开放传奇行动或来源已横置，都会继续拒绝并保持 authoritative state 不变，错误消息改为中文传奇行动说明；核心回归断言不含 raw `LEGEND_ACT`。前端仍只展示服务端 `LEGEND_ACT` prompt/sourceRequirements/targetChoices，不自行裁决传奇来源、能力或费用。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79LegendActRejectsSourceOutsideLegendZoneWithChineseError|FullyQualifiedName~P79LegendActRejectsOpponentControlledSourceWithChineseError|FullyQualifiedName~P79LegendActRejectsSourceWithoutCardNoWithChineseError|FullyQualifiedName~P79LegendActRejectsSourceWithoutRequestedAbilityWithChineseError|FullyQualifiedName~P79LegendActRejectsExhaustedSourceWithChineseError"` 通过 5/5；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3146/3146；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

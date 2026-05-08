@@ -27,7 +27,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string MoveUnitBattlefieldZone = "BATTLEFIELD";
     private const string MoveUnitRoamOptionalCost = "ROAM";
     private const string MoveUnitRoamKeyword = "游走";
-    private const string AssembleEquipmentUnsupportedMessage = "ASSEMBLE_EQUIPMENT is not implemented in P4 yet.";
+    private const string AssembleEquipmentUnsupportedMessage = "当前装备装配路径尚未由服务端开放。";
     private const string LongSwordCardNo = "SFD·022/221";
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
     private const int LongSwordAssemblePowerCost = 1;
