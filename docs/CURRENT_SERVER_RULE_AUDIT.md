@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百零六批补充：对战桌面无 authoritative snapshot 时的顶栏空状态继续产品化。`MatchTopBar` 不再显示“第 0 回合｜｜”这种由缺失 snapshot 拼出的空白阶段/窗口，而是显示“等待服务端快照”；已有 snapshot 时仍只渲染服务端回合、phase 与 timingState 的中文映射，不新增前端规则裁决。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 打开 `/settings` 设置 `serverUrl=http://127.0.0.1:5093` 与 `playerId=P2` 后进入 `/matches/copy-smoke`，页面显示“等待服务端快照 / 提示状态”，不含“第 0 回合｜｜”或 raw `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match`、`API 健康`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百零五批补充：玩家可见协议文案继续中文化。首页/导航/卡组/房间/对战/结算/行动面板/卡牌详情中的 `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match`、`API 健康` 等协议词改为“服务端行动提示 / 快照 / 接口 / 提交卡组 / 房间/对局 / 服务端健康”等中文文案；行动面板不再正文显示 raw prompt id，只显示提示状态。该批只改展示文本，不改变服务端 prompt/candidate 读取或命令提交。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 串行重跑通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 依次打开首页、`/decks`、`/settings`、`/matches/copy-smoke`，正文显示“服务端行动提示 / 提示状态 / 卡组保存接口 / 房间/对局 / 重新同步快照”，不含 raw `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match` 或 `API 健康`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

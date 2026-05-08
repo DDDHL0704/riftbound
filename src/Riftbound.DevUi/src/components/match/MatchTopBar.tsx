@@ -11,12 +11,15 @@ export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: Snapsho
   const promptPlayer = asString(timing.promptPlayerId, "无");
   const phase = asString(timing.phase, "");
   const windowState = asString(turnWindow.state, asString(timing.timingState, ""));
+  const title = snapshot
+    ? `第 ${snapshot.turnNumber ?? 0} 回合｜${matchPhaseLabel(phase)}｜${timingStateLabel(windowState)}`
+    : "等待服务端快照";
 
   return (
     <section className="match-topbar">
       <div>
         <span className="eyebrow">对战状态</span>
-        <h1>第 {snapshot?.turnNumber ?? 0} 回合｜{matchPhaseLabel(phase)}｜{timingStateLabel(windowState)}</h1>
+        <h1>{title}</h1>
       </div>
       <StatusPill tone={connectionStatusTone(status)}>{connectionStatusLabel(status)}</StatusPill>
       <StatusPill tone={snapshot?.activePlayerId === playerId ? "good" : "neutral"}>回合玩家：{snapshot?.activePlayerId ?? "无"}</StatusPill>

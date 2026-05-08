@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百零六批继续收口对战桌面空状态。`MatchTopBar` 在尚未收到 authoritative snapshot 时显示“等待服务端快照”，不再拼出“第 0 回合｜｜”；已有 snapshot 时仍只读取服务端回合、阶段和窗口状态的中文映射，不在前端猜测规则状态。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P2` 后打开 `/matches/copy-smoke`，页面显示“等待服务端快照 / 提示状态”，不含“第 0 回合｜｜”或 raw `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match`、`API 健康`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第二百零五批继续收口玩家可见协议文案。首页、导航、卡组、房间、对战、结算、行动面板和卡牌详情把 `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match`、`API 健康` 等协议词替换为“服务端行动提示 / 快照 / 接口 / 提交卡组 / 房间/对局 / 服务端健康”等中文文案；行动面板不再显示 raw prompt id，只显示提示状态。前端读取和提交服务端候选的逻辑不变。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 串行重跑通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 依次打开首页、`/decks`、`/settings`、`/matches/copy-smoke`，正文显示“服务端行动提示 / 提示状态 / 卡组保存接口 / 房间/对局 / 重新同步快照”，不含 raw `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match` 或 `API 健康`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
