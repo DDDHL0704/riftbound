@@ -7,13 +7,11 @@
 
 ## 1. 修改文件列表
 
-当前第二百二十九批修改：
+当前第二百三十批修改：
 
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
-- `docs/START_HERE.md`
-- `README.md`
 
 本轮 active goal 的累计源码、测试和文档变更以 `git log`、`docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 与 `docs/CURRENT_SERVER_RULE_AUDIT.md` 的批次记录为准。
 
@@ -82,13 +80,15 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百二十九批是入口文档收口批：`README.md` 与 `docs/START_HERE.md` 不再把 P7/P7.9 历史完成记录写成当前 READY 口径，并同步当前 Browser/Chrome smoke 与进程清理原则。验证已通过：`git diff --check`。
+当前第二百三十批是正式房间主流程 E2E 探针文档收口批。Chrome 插件房间 `room-vnpnxy` 已覆盖页面创建/加入、P1/P2 入座、官方测试卡组、准备、起手调整、首回合召符文/抽牌、横置符文、出单位进结算链、双方让过优先权、单位结算、移动到战场、结束回合、P2 回合开始，以及 reload/reconnect 后恢复 authoritative snapshot。投降按钮因 Chrome 插件无法处理该次 `window.confirm` 卡住，未作为纯前端按钮通过；同一房间随后用后台 SignalR 提交 P2 `SURRENDER`，headless 结果页验证 `胜者：P1` 与 snapshot `winnerPlayerId=P1`。本批无源码变更。
 
 ## 9. Browser smoke / E2E 结果
 
 已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十六批 Chrome smoke 使用房间 `smoke-scenario-redaction-1778238780476` 覆盖 `basic-play` seed 事件日志；页面显示“载入测试状态 / 测试状态已载入”，正文不含 `basic-play`、`DEV_SCENARIO_SEEDED`、`开发测试场景已载入`、`SeedScenario` 或 `scenarioId`，应用自身 runtime error 0，并在结束后清理测试标签和临时服务进程。第二百一十八批 Chrome smoke 使用房间 `smoke-unattached-equipment-1778239965401`，P2 页面连接并由后台 P1/P2 seed `battlefield-unattached-equipment-cleanup`；规则队列显示“阶段：状态清理 / 活动任务：处理中 / 装备清理：装备脱离清理”，prompt 显示“等待服务端处理任务队列：装备清理”，正文不含 raw cleanup kind/reason 或对象 ID。第二百一十九批 Chrome smoke 使用房间 `smoke-rune-trait-label-1778240000001`，P1 页面连接并由后台 P2 seed `typed-power-payment`；资源条显示“法力 1 / 符能 2 / 红色符能 2”，正文不含 `red:2`、`red : 2` 或 `red 2`。第二百二十批 Chrome smoke 使用房间 `smoke-zone-label-field-1778240000004`，P1 打出单位到 `BATTLEFIELD:P1-MAIN` 后规则队列显示“去向：战场”，正文不含 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`。第二百二十三批 Chrome smoke 使用房间 `smoke-mulligan-title-1778242041908`，正式提交卡组/准备后在起手调整页面显示 4 个候选，title 全为“起手调整候选”，正文和 title 不含 `opening hand mulligan candidate` 或 `P1/P2-*` 手牌对象 ID，应用 error 0。第二百二十四批 Chrome smoke 使用房间 `smoke-log-title-1778242330553`，事件日志显示“载入测试状态”，`.event-log strong[title]` / `.room-log-list strong[title]` 数量为 0，正文不含 `DEV_SCENARIO_SEEDED`、`MATCH_STARTED`、`ROOM_FULL` 或 `UNSUPPORTED_COMMAND`，应用 error 0。第二百二十五批 Chrome smoke 使用房间 `smoke-choice-title-1778242626275`，打开卡牌详情后页面和 title 不含 `implemented payable PLAY_CARD source`、`implemented coarse battlefield destination`、`required for precise battlefield movement`、`P1-HAND` 或 `P1-MAIN`，应用 error 0。第二百二十六批 Chrome smoke 使用房间 `smoke-reason-filter-1778243194494`，P1 通过设置页写入 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后连接对战页，后台 P2 seed `basic-play`，打开《魔法小仙灵》详情后显示“当前玩家普通开环行动 / 服务端可提交操作”，正文和 title 不含 `implemented payable PLAY_CARD source`、`implemented coarse battlefield destination`、`required for precise battlefield movement`、`opening hand mulligan candidate`、`P1-UNIT-MIGHTY-FAERIE`、`P1-MAIN-001` 或 `BATTLEFIELD:P1-MAIN`，应用 error 0。第二百二十七批在 Chrome 插件本地导航被 `ERR_BLOCKED_BY_CLIENT` 阻断后，改用后台 Playwright + 系统 Chrome headless，房间 `smoke-stack-label-headless-1778243871233` 显示“阶段：空闲”，正文不含 `IDLE`、`BATTLE_TASKS`、`BATTLEFIELD_TASKS`、`SPELL_DUEL_TASKS`、`STATE_BASED_CLEANUP`、`CONTROL_RESOLVED`、`NO_RESULT` 或 `CLOSED`，应用 error 0。第二百二十八批 Chrome 插件 smoke 使用房间 `smoke-unsupported-check`，P1/P2 均通过真实页面入座，后台 seed `battlefield-legend-attach-armament`；P1 打开《圣锤之毅》详情后显示中文不可组合 warning 且 `确认传奇行动` disabled，正文/title 不含 raw ability id、对象 id、`unsupportedReason`、`composable`、`targetChoicesByIndex` 或 `sourceRequirements`，应用 error 0。第二百二十一批为服务端 prompt reason 文案契约修正，第二百二十二批为前端 formatter 未知协议 fallback 修正，均未启动新的 API/Vite/Chrome smoke；5092/5093/5094/5175/5176/9223/9224 保持无监听。最近几次 Chrome smoke 都只记录扩展脚本 autoplay `NotAllowedError` 或 favicon 404 这类非应用噪声，过滤后应用 runtime error 0，结束后已清理测试标签和临时服务进程。
 
-最终仍缺一条覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：创建/加入房间、合法卡组、准备、起手、首回合、召符文、抽牌、出单位、移动到战场、争夺/战斗、法术对决、双方让过、结束回合、重连恢复、战场得分和投降/胜利结算。
+第二百三十批新增一条正式房间主流程探针证据：Chrome 插件房间 `room-vnpnxy` 完成创建/加入房间、合法卡组、准备、起手、首回合、召符文、抽牌、横置符文、出单位、结算链双方让过、单位移动到战场、结束回合、P2 回合开始和 reload/reconnect 恢复；同一房间由后台 SignalR 提交 P2 投降后，headless 结果页显示“胜者：P1”。本批结束后已 finalize Chrome 标签并清理 API/Vite/headless 进程，`5092/5093/5094/5175/5176/9223/9224` 无监听。
+
+最终仍缺一条完全覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：同一连续正式牌局还没有覆盖战场争夺/战斗、战场得分，投降也尚未由前端按钮确认弹窗完整跑通。
 
 ## 10. 仍未完成的 P2 项
 

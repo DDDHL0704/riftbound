@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百三十批补充：正式房间主流程 E2E 探针继续验证服务端 authoritative 房间/对局链路。Chrome 插件房间 `room-vnpnxy` 覆盖页面创建/加入、P1/P2 入座、官方测试卡组提交、准备、正式开局、双方起手调整、第 1 回合主阶段、召符文、抽牌、符文横置、P1 打出《炼金太保》进结算链、P1/P2 让过优先权、单位结算进基地、移动到战场、P1 结束回合、P2 第 2 回合开始，以及 reload/reconnect 后恢复 authoritative snapshot。该批没有修改服务端规则代码；前端仍只提交服务端 prompt/candidate 支持的 TAP_RUNE、PLAY_CARD、PASS_PRIORITY、MOVE_UNIT、END_TURN 等命令。
+- 已补验证：Chrome 插件在“投降”按钮的 `window.confirm` 处卡住，未把该步记录为前端按钮通过；随后同一房间通过后台 SignalR 提交 P2 `SURRENDER`，结果页 headless 验证 `胜者：P1` 且 snapshot `winnerPlayerId=P1`。验证后已清理 Chrome 标签、API/Vite/headless 进程，目标端口无监听。整体仍 **NOT READY**，因为同一正式 E2E 还没有覆盖战场争夺/战斗、战场得分，完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据也仍未清零。
+
 - P1-004 第二百二十九批补充：入口文档继续降低历史 READY 口径误导。`README.md` 和 `docs/START_HERE.md` 现在把 P7/P7.9 明确标为历史阶段记录，并把当前验收入口指向 `CURRENT_FRONTEND_REBUILD_PLAN`、`CURRENT_SERVER_RULE_AUDIT`、`CURRENT_COMPLETION_AUDIT` 与 `docs/任务补充.md`；Browser/Chrome smoke 原则也更新为优先插件、必要时后台 headless，不使用 Computer Use 抢前台。该批无服务端代码变更。
 - 已补验证：文档-only 变更，`git diff --check` 通过；未启动 API/Vite/Chrome smoke，目标端口无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
