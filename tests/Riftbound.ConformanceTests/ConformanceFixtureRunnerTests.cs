@@ -36484,6 +36484,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79PoroHerderGrantsBoonAndDrawsWhenControllerHasPoro()
+    {
+        var state = PoroHerderWithPoroState();
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-poro-herder-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-PORO-HERDER", "OGN·061/298", []),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-poro-herder-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-poro-herder-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), play.State.RunePools["P1"]);
+        Assert.Equal(["P1-PORO-HERDER-DRAW"], p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-UNIT-PLUCKY-PORO", "P1-UNIT-PORO-HERDER"], p2Pass.State.PlayerZones["P1"].Base);
+
+        var herder = p2Pass.State.CardObjects["P1-UNIT-PORO-HERDER"];
+        Assert.Equal(4, herder.Power);
+        Assert.Contains(CardObjectTags.Boon, herder.Tags);
+        Assert.Contains(CardObjectTags.UnitCard, herder.Tags);
+
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "PORO_HERDER_BOON_DRAW", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-PORO-HERDER", StringComparison.Ordinal));
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P1", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79WiseElderWithBoonAddsPowerInBattle()
     {
         var state = WiseElderBoonBattleState(hasBoon: true);
@@ -54253,6 +54298,44 @@ public sealed class ConformanceFixtureRunnerTests
             [
                 "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE"
             ]
+        };
+    }
+
+    private static MatchState PoroHerderWithPoroState()
+    {
+        return PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-PORO-HERDER-DRAW"],
+                    Hand = ["P1-UNIT-PORO-HERDER"],
+                    Base = ["P1-UNIT-PLUCKY-PORO"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-PORO-HERDER"] = new(
+                    "P1-UNIT-PORO-HERDER",
+                    cardNo: "OGN·061/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-PLUCKY-PORO"] = new(
+                    "P1-UNIT-PLUCKY-PORO",
+                    cardNo: "UNL-220/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "魄罗", "法盾"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-PORO-HERDER-DRAW"] = new(
+                    "P1-PORO-HERDER-DRAW",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
         };
     }
 

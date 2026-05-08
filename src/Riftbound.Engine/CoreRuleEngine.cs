@@ -306,6 +306,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string RagingDrakeCardNo = "OGN·031/298";
     private const int RagingDrakeNextSpellCostReductionMana = 5;
+    private const string PoroHerderCardNo = "OGN·061/298";
+    private const string PoroHerderBoonDrawEffectKind = "PORO_HERDER_BOON_DRAW";
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
@@ -17432,6 +17434,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerCardsPlayedThisTurn.TryGetValue(playerId, out var count) && count > 0;
     }
 
+    private static bool ControllerControlsFaceUpPoroUnit(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId)
+    {
+        return GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
+            .Any(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && cardObject.Tags.Contains("魄罗", StringComparer.Ordinal)
+                && !cardObject.IsFaceDown);
+    }
+
     private static bool ShouldGrantBoonToSourceUnit(
         CardBehaviorDefinition behavior,
         StackItemState stackItem)
@@ -17896,6 +17910,41 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["effectId"] = effectId,
                         ["amount"] = RagingDrakeNextSpellCostReductionMana
                     }));
+            }
+
+            if (string.Equals(behavior.CardNo, PoroHerderCardNo, StringComparison.Ordinal)
+                && ControllerControlsFaceUpPoroUnit(playerZones, cardObjects, stackItem.ControllerId)
+                && cardObjects.TryGetValue(stackItem.SourceObjectId, out var poroHerderState))
+            {
+                events.Add(new GameEvent(
+                    "TRIGGER_RESOLVED",
+                    $"{stackItem.ControllerId} 的魄罗牧者因控制魄罗而触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["effectKind"] = PoroHerderBoonDrawEffectKind,
+                        ["controlledPoro"] = true
+                    }));
+                cardObjects[stackItem.SourceObjectId] = ApplyBoon(
+                    poroHerderState,
+                    behavior,
+                    stackItem,
+                    stackItem.SourceObjectId,
+                    out var poroHerderBoonEvents);
+                events.AddRange(poroHerderBoonEvents);
+
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    stackItem.ControllerId,
+                    1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
             }
 
             if (string.Equals(behavior.CardNo, BalancedDiscipleCardNo, StringComparison.Ordinal)

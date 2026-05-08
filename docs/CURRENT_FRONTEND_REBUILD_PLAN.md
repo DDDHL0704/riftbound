@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十四批补齐《魄罗牧者》（OGN·061/298）控制魄罗时增益并抽 1 的服务端代表路径。服务端在源单位结算后按 authoritative 场上对象确认当前控制者拥有正面魄罗单位，再由 Core 触发 `PORO_HERDER_BOON_DRAW`、为自身授予增益并抽牌；前端不新增本地魄罗判断，只展示服务端事件和 snapshot。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79PoroHerder` 定向 1/1 通过；后端 full test 3218/3218 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十三批补齐《狂暴龙怪》（OGN·031/298）下一张法术费用减少 5 的服务端代表路径与前端费用元数据展示。服务端在《狂暴龙怪》结算入场后写入本回合持续效果，下一张真实法术打出时由 Core 计算并消耗标记，`COST_PAID.nextSpellCostReductionMana` 与 Hub `PLAY_CARD.sourceRequirements.nextSpellCostReductionMana` 同步暴露；DevUi 详情抽屉只展示服务端给出的“下一法术减费 -N”，不做本地费用裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79RagingDrake` 定向 4/4 通过；Raging Drake 相关 keyword-only 聚合回归 236/236 通过；后端 full test 3217/3217 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 房间 `smoke-raging-drake-1778275056356` 覆盖 P1 页面显示“费用 0 / 下一法术减费 -2”、前端选择目标并确认打出、服务端支付 0 与狂暴龙怪触发、双方让过后法术结算、reload/reconnect 恢复最终 snapshot；应用 runtime error 0，测试标签与 API/Vite 已清理，目标端口无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
