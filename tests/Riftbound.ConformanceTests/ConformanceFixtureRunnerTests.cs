@@ -1701,7 +1701,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("PLAY_CARD source must expose a known card number.", result.ErrorMessage);
+        Assert.Equal("出牌需要服务端已确认的手牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-HAND-UNKNOWN-PLAY-SOURCE"], result.State.PlayerZones["P1"].Hand);
         Assert.Null(result.State.CardObjects["P1-HAND-UNKNOWN-PLAY-SOURCE"].CardNo);
@@ -1742,7 +1743,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("PLAY_CARD source card number must match the submitted card number.", result.ErrorMessage);
+        Assert.Equal("出牌的手牌信息与提交的牌不匹配。", result.ErrorMessage);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-SPELL-HEXTECH-RAY"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal("OGN·009/298", result.State.CardObjects["P1-SPELL-HEXTECH-RAY"].CardNo);
@@ -1782,7 +1784,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("PLAY_CARD source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Equal("出牌只能选择当前玩家控制的手牌。", result.ErrorMessage);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal("P2", result.State.CardObjects["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"].ControllerId);

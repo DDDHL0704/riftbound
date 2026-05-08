@@ -11866,7 +11866,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "Source card is not in the player's hand.",
+                "出牌只能选择自己手牌中的牌。",
                 ErrorCodes.CardNotInHand);
             return false;
         }
@@ -11877,7 +11877,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 rejection = RejectWithCorePrompts(
                     state,
-                    "PLAY_CARD source must expose a known card number.",
+                    "出牌需要服务端已确认的手牌信息。",
                     ErrorCodes.UnsupportedCardBehavior);
                 return false;
             }
@@ -11886,7 +11886,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 rejection = RejectWithCorePrompts(
                     state,
-                    "PLAY_CARD source card number must match the submitted card number.",
+                    "出牌的手牌信息与提交的牌不匹配。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }
@@ -11895,7 +11895,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 rejection = RejectWithCorePrompts(
                     state,
-                    "PLAY_CARD source must be controlled by the acting player.",
+                    "出牌只能选择当前玩家控制的手牌。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百四十三批补充：`PLAY_CARD` 出牌来源拒绝文案继续去内部协议名。此前出牌来源不在手牌、来源缺少服务端确认牌号、提交牌号与来源身份不匹配、来源不由当前玩家控制时会被服务端拒绝并保持状态不变，但错误消息仍含 raw `PLAY_CARD` 或英文内部说明。现在这些出牌来源拒绝路径返回中文玩家文案，核心回归测试同步断言错误消息不含 raw action kind；结构化 prompt action/command kind 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4PlayCardCommandRejectsSourceWithoutCardNo|FullyQualifiedName~P4PlayCardCommandRejectsSourceCardNoMismatch|FullyQualifiedName~P4PlayCardCommandRejectsOpponentControlledSourceInPlayerHand"` 通过 3/3；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3141/3141。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百四十二批补充：`SURRENDER` 运行时拒绝文案继续去内部协议名。此前异常单人房间或缺少对手时提交投降会被服务端拒绝并保持状态不变，但错误消息包含 raw `SURRENDER` 和英文说明。现在服务端返回中文“投降需要存在对手。”，新增回归测试断言错误消息不含 raw action kind，并保留正常双人投降胜负裁决路径。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsSurrenderWithoutOpponent|FullyQualifiedName~CoreRuleEngineSurrenderFinishesMatchAndOpponentWins"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3141/3141。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
