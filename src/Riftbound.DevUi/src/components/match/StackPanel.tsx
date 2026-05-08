@@ -51,9 +51,17 @@ const taskReasonLabels: Record<string, string> = {
   ZERO_POWER: "0 战力"
 };
 
-function labelFor(map: Record<string, string>, value: unknown, fallback = "无") {
+function labelFor(map: Record<string, string>, value: unknown, fallback = "无", protocolFallback = "服务端状态") {
   const key = asString(value, "");
-  return key ? (map[key] ?? key) : fallback;
+  if (!key) {
+    return fallback;
+  }
+
+  if (map[key]) {
+    return map[key];
+  }
+
+  return isProtocolToken(key) ? protocolFallback : redactInternalText(key);
 }
 
 function stackEffectLabel(value: unknown) {
@@ -104,6 +112,10 @@ function taskKindLabel(value: unknown) {
   return redactInternalText(raw);
 }
 
+function isProtocolToken(value: string): boolean {
+  return /^[A-Z0-9_:-]+$/.test(value) || /^[a-z0-9]+(?:[-_:][a-z0-9]+)+$/.test(value);
+}
+
 function activeTaskLabel(value: unknown) {
   return asString(value, "") ? "处理中" : "无";
 }
@@ -145,7 +157,7 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
       </div>
       <div className="task-queue">
         <strong>待处理任务</strong>
-        <span>阶段：{labelFor(phaseLabels, queue.phase)}</span>
+        <span>阶段：{labelFor(phaseLabels, queue.phase, "无", "服务端阶段")}</span>
         <span>活动任务：{activeTaskLabel(queue.activeTaskId)}</span>
         <span>{queue.isBlocking ? "阻塞普通行动" : "不阻塞"}</span>
         {tasks.slice(0, 4).map((task, index) => (
@@ -155,13 +167,13 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
         ))}
         {battleResolutions.slice(0, 3).map((resolution, index) => (
           <span key={asString(resolution.resolutionId, `battle-resolution-${index}`)}>
-            {labelFor(battleResolutionKindLabels, resolution.kind, "战斗结果")}：
+            {labelFor(battleResolutionKindLabels, resolution.kind, "战斗结果", "服务端战斗结果")}：
             {asString(resolution.winnerPlayerId, "无胜者")}
           </span>
         ))}
         {battlefieldResolutions.slice(0, 3).map((resolution, index) => (
           <span key={asString(resolution.resolutionId, `battlefield-resolution-${index}`)}>
-            {labelFor(resolutionKindLabels, resolution.kind, "战场结果")}：
+            {labelFor(resolutionKindLabels, resolution.kind, "战场结果", "服务端战场结果")}：
             {asString(resolution.playerId ?? resolution.controllerId, "无控制者")}
           </span>
         ))}

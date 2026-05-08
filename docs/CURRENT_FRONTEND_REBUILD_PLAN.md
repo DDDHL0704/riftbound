@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百二十七批继续收口规则队列 fallback 展示。`StackPanel` 的通用 `labelFor` 不再在未知 phase、battle result 或 battlefield result kind 时回显服务端枚举；未识别的协议 token 会降级为“服务端阶段 / 服务端战斗结果 / 服务端战场结果”，自然文本仍会经过内部 ID 脱敏后展示。前端仍只读 authoritative snapshot，不新增任何规则判断。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件本批两次新标签导航本地 Vite 时被 Chrome 报 `ERR_BLOCKED_BY_CLIENT`，未使用 Computer Use 抢前台；随后按后台 smoke 路径使用 bundled Playwright + 系统 Chrome headless。房间 `smoke-stack-label-headless-1778243871233`，P1 页面连接对战页，后台 SignalR 让 P2 入座并 seed `basic-play`；规则队列显示“阶段：空闲”，正文不含 `IDLE`、`BATTLE_TASKS`、`BATTLEFIELD_TASKS`、`SPELL_DUEL_TASKS`、`STATE_BASED_CLEANUP`、`CONTROL_RESOLVED`、`NO_RESULT` 或 `CLOSED`，应用 runtime error 0。smoke 后已清理后台 SignalR、headless Chrome、API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百二十六批继续收口服务端行动提示 reason 展示。`formatters.ts` 新增 `promptReasonLabel` / `promptReasonTitle`，`ActionPanel`、`RoomPage` 和 `CardDetailDrawer` 的 prompt/candidate reason 正文与 tooltip 统一经过过滤：中文服务端原因保留，明显内部英文说明、协议 token 或对象 ID 降级为“服务端候选 / 服务端行动提示”。前端仍只展示服务端 authoritative prompt/candidate，不改变候选筛选、命令构造或规则裁决。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-reason-filter-1778243194494`，P1 页面通过真实设置页写入 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后连接对战页，后台 SignalR 让 P2 入座并 seed `basic-play`；P1 打开《魔法小仙灵》卡牌详情后，页面显示“当前玩家普通开环行动 / 服务端可提交操作”，正文和 title 均不含 `implemented payable PLAY_CARD source`、`implemented coarse battlefield destination`、`required for precise battlefield movement`、`opening hand mulligan candidate`、`P1-UNIT-MIGHTY-FAERIE`、`P1-MAIN-001` 或 `BATTLEFIELD:P1-MAIN`，过滤非应用扩展噪声后应用 runtime error 0。smoke 后已 finalize Chrome 标签并清理后台 SignalR、API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 
