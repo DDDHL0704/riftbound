@@ -39,7 +39,7 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
     );
   }
 
-  const title = spec?.cardName ?? object?.cardNo ?? objectId ?? "未知卡牌";
+  const title = spec?.cardName ?? object?.cardNo ?? "未知卡牌";
   const power = object?.effectivePower ?? object?.power ?? object?.basePower;
   const states = objectStateLabels(object);
 
@@ -47,7 +47,7 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
     <Container className={`card-face ${compact ? "card-compact" : ""} ${selected ? "is-selected" : ""}`} {...containerProps}>
       <div className="card-frame-top">
         <span>{objectTypeText(object, spec)}</span>
-        <span>{spec?.cardNo ?? object?.cardNo ?? objectId}</span>
+        <span>{spec?.cardNo ?? object?.cardNo ?? "无编号"}</span>
       </div>
       <strong>{title}</strong>
       <div className="card-stat-row">

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百零七批继续收口卡面/详情内部标识 fallback。`CardFace` 与 `CardDetailDrawer` 不再把缺失 `cardNo/spec` 的对象 ID 作为玩家可见标题或编号，异常恢复状态下显示“未知卡牌 / 无编号”，隐藏卡仍显示“未公开卡牌 / 隐藏信息”；前端命令提交仍只使用服务端候选中的对象标识。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-object-redaction-1778235759932`，P1 连接对战页、P2 后台连接并 seed `basic-play`，页面和隐藏卡详情均显示“未公开卡牌 / 隐藏信息”，正文不含 `P1-...`、`P2-...`、`STACK-...`、`hidden-...`、`task-...` 或 `cleanup-...` 内部标识，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第二百零六批继续收口对战桌面空状态。`MatchTopBar` 在尚未收到 authoritative snapshot 时显示“等待服务端快照”，不再拼出“第 0 回合｜｜”；已有 snapshot 时仍只读取服务端回合、阶段和窗口状态的中文映射，不在前端猜测规则状态。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P2` 后打开 `/matches/copy-smoke`，页面显示“等待服务端快照 / 提示状态”，不含“第 0 回合｜｜”或 raw `ActionPrompt`、`snapshot`、`prompt`、`REST`、`SUBMIT_DECK`、`房间/Match`、`API 健康`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
