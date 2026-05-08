@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第三百零三批补齐《山猿老祖》（SFD·047/221）获得新增益后活跃的服务端代表路径。服务端现在在 `ApplyBoon` 成功授予 `增益` 与 +1 基础战力后，若目标是当前玩家控制的《山猿老祖》，继续由权威事件链广播 `TRIGGER_RESOLVED.effectKind=MOUNTAIN_APE_ELDER_BOON_READY` 与 `UNIT_READIED.reason=MOUNTAIN_APE_ELDER_BOON_READY`，最终 snapshot 将该单位恢复为活跃；已有增益时不会重复触发。前端仍不监听卡面或本地判断增益触发，只展示服务端事件与 snapshot。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Mountain Ape / PoroHerder / battlefield boon 聚合过滤 9/9 通过；后端 full test 3237/3237 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持清理。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第三百零二批补齐《爆破队学员》（SFD·013/221）额外 1 法力 + 红色可选费用伤害的服务端代表路径。服务端现在把该牌建模为 `BLAST_CREW_APPRENTICE_PLAY_UNIT_OPTIONAL_DAMAGE`，只有 `PLAY_CARD.optionalCosts=["SPEND_MANA:1","SPEND_POWER:red:1"]` 通过权威付费时才允许 1 个战场单位目标，并在源单位入场后由服务端造成 2 点伤害；不支付完整额外费用时仍为 0 目标、2 战力单位入场。ActionPrompt 按基础 2 + 额外 1 法力、当前/可回收红色符能和合法战场单位目标公开对应可选费用。前端仍不读取卡面或本地判断红色额外费用与目标伤害，只展示服务端候选。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Blast Crew / Frostcoat / source-unit no-optional / target-reject 聚合过滤 79/79 通过；后端 full test 3235/3235 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持清理。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
