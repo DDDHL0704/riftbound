@@ -71,6 +71,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseUnitTokenPower: 3,
         CreatedBaseUnitTokenName: "机器人",
         CreatedBaseUnitTokenTags: CardObjectTags.UnitCard + "|机械");
+    private const string HonestBrokerCardNo = "SFD·155/221";
+    private const string HonestBrokerLastBreathCreateGoldEffectKind = "HONEST_BROKER_LAST_BREATH_CREATE_GOLD";
+    private static readonly CardBehaviorDefinition HonestBrokerLastBreathCreateGoldBehavior = new(
+        HonestBrokerCardNo,
+        "诚实掮客",
+        0,
+        HonestBrokerLastBreathCreateGoldEffectKind,
+        0,
+        0,
+        CreatedBaseEquipmentTokenCount: 1,
+        CreatedBaseEquipmentTokenName: "金币",
+        CreatedBaseEquipmentTokenTags: CardObjectTags.EquipmentCard,
+        CreatedBaseEquipmentTokenIsExhausted: true);
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -1577,6 +1590,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !string.Equals(destroyedState.CardNo, IroncladVanguardCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveHonestBrokerLastBreathGoldPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, HonestBrokerCardNo, StringComparison.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -18514,6 +18547,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     playerZones,
                                     cardObjects,
                                     IroncladVanguardLastBreathCreateRobotsBehavior,
+                                    tokenStackItem,
+                                    events);
+                            }
+
+                            var honestBrokerGoldPlayerId = ResolveHonestBrokerLastBreathGoldPlayerId(
+                                targetState,
+                                removalResult);
+                            if (honestBrokerGoldPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    honestBrokerGoldPlayerId,
+                                    HonestBrokerLastBreathCreateGoldEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+                                var tokenStackItem = new StackItemState(
+                                    stackItemId: trigger.TriggerId,
+                                    controllerId: honestBrokerGoldPlayerId,
+                                    sourceObjectId: targetObjectId,
+                                    effectKind: HonestBrokerLastBreathCreateGoldEffectKind,
+                                    cardNo: HonestBrokerCardNo);
+                                CreateBaseEquipmentTokens(
+                                    playerZones,
+                                    cardObjects,
+                                    HonestBrokerLastBreathCreateGoldBehavior,
                                     tokenStackItem,
                                     events);
                             }

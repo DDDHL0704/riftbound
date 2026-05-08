@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-honest-broker-last-breath-gold-static",
-  "description": "SFD 155 Honest Broker enters as a unit while its last breath gold trigger is deferred.",
+  "description": "SFD 155 Honest Broker enters as a unit; stack destruction last breath gold is covered by a focused engine regression.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "SFD·155/221 诚实掮客",
-      "note": "官方卡面：费用 2；单位；战力 2；绝念时打出一个休眠的“金币”装备指示物。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；绝念触发和金币装备指示物路径暂缓。"
+      "note": "官方卡面：费用 2；单位；战力 2；绝念时打出一个休眠的“金币”装备指示物。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；栈摧毁时绝念金币路径由 P79HonestBrokerCreatesSleepingGoldWhenDestroyed 覆盖，非栈摧毁时机暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
