@@ -17137,6 +17137,79 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsBrightFutureWhenTopFiveTargetIsNotControlledByDeckPlayer()
+    {
+        var state = PunishmentState(mana: 5) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-BRIGHT-FUTURE"],
+                    MainDeck =
+                    [
+                        "P1-BRIGHT-FUTURE-TOP-UNIT-001",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-002",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-003",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-004",
+                        "P1-BRIGHT-FUTURE-TOP-FILLER-005"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck =
+                    [
+                        "P2-DIRTY-P1-OWNED-TOP-UNIT",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-002",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-003",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-004",
+                        "P2-BRIGHT-FUTURE-TOP-FILLER-005"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-BRIGHT-FUTURE"] = new(
+                    "P1-SPELL-BRIGHT-FUTURE",
+                    cardNo: "OGN·115/298",
+                    tags: [CardObjectTags.SpellCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BRIGHT-FUTURE-TOP-UNIT-001"] = new(
+                    "P1-BRIGHT-FUTURE-TOP-UNIT-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DIRTY-P1-OWNED-TOP-UNIT"] = new(
+                    "P2-DIRTY-P1-OWNED-TOP-UNIT",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-bright-future-dirty-top-five-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-BRIGHT-FUTURE",
+                "OGN·115/298",
+                ["P1-BRIGHT-FUTURE-TOP-UNIT-001", "P2-DIRTY-P1-OWNED-TOP-UNIT"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(5, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-BRIGHT-FUTURE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("P1-BRIGHT-FUTURE-TOP-UNIT-001", result.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.Equal("P2-DIRTY-P1-OWNED-TOP-UNIT", result.State.PlayerZones["P2"].MainDeck[0]);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysJudgmentDayRecycleUnkept()
     {
         var fixture = await ConformanceFixture.LoadAsync(

@@ -14156,11 +14156,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && lookCount > 0
-            && state.PlayerZones.Values.Any(zones =>
-                zones.MainDeck.Take(lookCount).Contains(objectId, StringComparer.Ordinal));
+            && state.PlayerZones.Any(entry =>
+                entry.Value.MainDeck.Take(lookCount).Contains(objectId, StringComparer.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, entry.Key, objectId));
     }
 
     private static bool TryGetTopMainDeckOwner(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         string objectId,
         int lookCount,
@@ -14177,7 +14179,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (zones.MainDeck
                 .Take(lookCount)
-                .Contains(objectId, StringComparer.Ordinal))
+                .Contains(objectId, StringComparer.Ordinal)
+                && IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, candidatePlayerId, objectId))
             {
                 playerId = candidatePlayerId;
                 return true;
@@ -14577,7 +14580,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var targetObjectId in targetObjectIds)
         {
             if (!CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)
-                || !TryGetTopMainDeckOwner(state.PlayerZones, targetObjectId, behavior.MainDeckLookCount, out var playerId)
+                || !TryGetTopMainDeckOwner(state, state.PlayerZones, targetObjectId, behavior.MainDeckLookCount, out var playerId)
                 || !selectedPlayerIds.Add(playerId))
             {
                 return false;
@@ -19815,7 +19818,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var selectedByPlayerId = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var selectedObjectId in selectedObjectIds)
         {
-            if (TryGetTopMainDeckOwner(playerZones, selectedObjectId, lookCount, out var playerId))
+            if (TryGetTopMainDeckOwner(state, playerZones, selectedObjectId, lookCount, out var playerId))
             {
                 selectedByPlayerId[playerId] = selectedObjectId;
             }
