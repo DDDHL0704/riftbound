@@ -11608,6 +11608,15 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ErrorCodes.InvalidTarget);
                 return false;
             }
+
+            if (!SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
+            {
+                rejection = RejectWithCorePrompts(
+                    state,
+                    "PLAY_CARD source must be controlled by the acting player.",
+                    ErrorCodes.InvalidTarget);
+                return false;
+            }
         }
 
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);

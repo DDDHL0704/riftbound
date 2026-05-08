@@ -1385,7 +1385,7 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Hand = ["P1-MIGHTY-FAERIE"]
+                    Hand = ["P1-MIGHTY-FAERIE", "P1-OPPONENT-CONTROLLED-PLAY-SOURCE"]
                 },
                 ["P2"] = PlayerZones.Empty
             },
@@ -1396,7 +1396,13 @@ public sealed class ConformanceFixtureShapeTests
                     cardNo: "SFD·125/221",
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
-                    controllerId: "P1")
+                    controllerId: "P1"),
+                ["P1-OPPONENT-CONTROLLED-PLAY-SOURCE"] = new(
+                    "P1-OPPONENT-CONTROLLED-PLAY-SOURCE",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P2")
             });
 
         var noManaPrompt = ResolutionResult.BuildPrompts(noManaState)["P1"];

@@ -1239,6 +1239,46 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4PlayCardCommandRejectsOpponentControlledSourceInPlayerHand()
+    {
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"] = new(
+                    "P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-play-card-opponent-controlled-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE", "SFD·125/221", []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("PLAY_CARD source must be controlled by the acting player.", result.ErrorMessage);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal("P2", result.State.CardObjects["P1-HAND-OPPONENT-CONTROLLED-PLAY-SOURCE"].ControllerId);
+        Assert.Empty(result.Events);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4PlayCardCommandRejectsTargetWithoutCardNo()
     {
         var state = PunishmentState(mana: 1) with

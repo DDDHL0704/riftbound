@@ -4277,7 +4277,8 @@ internal static class ActionPromptBuilder
     private static bool IsImplementedPlayableHandSource(MatchState state, string playerId, string objectId)
     {
         if (!state.CardObjects.TryGetValue(objectId, out var cardObject)
-            || string.IsNullOrWhiteSpace(cardObject.CardNo))
+            || string.IsNullOrWhiteSpace(cardObject.CardNo)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
         {
             return false;
         }
