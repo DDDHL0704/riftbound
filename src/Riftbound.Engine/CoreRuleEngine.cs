@@ -6670,10 +6670,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         out int keywordBonus,
         out int staticPowerBonus)
     {
+        keywordBonus = 0;
+        staticPowerBonus = 0;
+        if (IsStunnedForBattle(cardObject))
+        {
+            return 0;
+        }
+
         keywordBonus = CombatKeywordAmount(
             cardObject.Tags,
             isAttacking ? CardCombatKeywordNames.Assault : CardCombatKeywordNames.Steadfast);
-        staticPowerBonus = 0;
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -6715,6 +6721,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static bool IsStunnedForBattle(CardObjectState cardObject)
+    {
+        return cardObject.UntilEndOfTurnEffects.Contains("STUNNED", StringComparer.Ordinal)
+            || cardObject.Tags.Contains("眩晕", StringComparer.Ordinal);
     }
 
     private static int ResolveBattlefieldAllUnitsPowerBonus(

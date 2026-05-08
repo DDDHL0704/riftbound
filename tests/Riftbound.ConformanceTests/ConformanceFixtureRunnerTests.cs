@@ -44954,6 +44954,150 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandStunnedAttackerContributesZeroCombatPower()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-STUNNED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-STUNNED-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-STUNNED-ATTACKER",
+                    untilEndOfTurnEffects: ["STUNNED"],
+                    cardNo: "OGS·007/024",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "强攻2"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-stunned-attacker", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-STUNNED-ATTACKER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        var defenderDamageEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Equal("P2-BATTLEFIELD-DEFENDER", defenderDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-BATTLEFIELD-STUNNED-ATTACKER", defenderDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal("DEFENDER", defenderDamageEvent.Payload["combatRole"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, defenderDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, defenderDamageEvent.Payload["damage"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+
+        Assert.Equal(["P1-BATTLEFIELD-STUNNED-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(2, result.State.CardObjects["P1-BATTLEFIELD-STUNNED-ATTACKER"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-DEFENDER"].Damage);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-STUNNED-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-ATTACKER",
+                    cardNo: "OGS·007/024",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-STUNNED-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-STUNNED-DEFENDER",
+                    untilEndOfTurnEffects: ["STUNNED"],
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "坚守2"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-stunned-defender", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-ATTACKER"],
+                ["P2-BATTLEFIELD-STUNNED-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "DEFENDER", StringComparison.Ordinal));
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ATTACKER", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-STUNNED-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal("ATTACKER", attackerDamageEvent.Payload["combatRole"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(5, attackerDamageEvent.Payload["damage"]);
+        var destroyedEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-ATTACKER", destroyedEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-BATTLEFIELD-STUNNED-DEFENDER", destroyedEvent.Payload["targetObjectId"]);
+        Assert.Equal("P2", destroyedEvent.Payload["ownerPlayerId"]);
+        Assert.Equal("P1", destroyedEvent.Payload["destroyedByPlayerId"]);
+        Assert.Equal("LETHAL_DAMAGE", destroyedEvent.Payload["reason"]);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_CLOSED", StringComparison.Ordinal));
+
+        Assert.Equal(["P1-BATTLEFIELD-ATTACKER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-STUNNED-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-ATTACKER"].Damage);
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-STUNNED-DEFENDER"));
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandGrantsHuntExperienceWhenAttackerConquersBattlefield()
     {
         var state = PunishmentState(mana: 0) with

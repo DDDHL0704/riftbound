@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百七十五批补充：战斗伤害中的眩晕状态已纳入服务端权威战力计算。`ResolveBattleCombatPower` 现在会在单位带有本回合 `STUNNED` 状态或旧展示标签“眩晕”时返回 0 战斗战力，并清空强攻/坚守及静态战斗修正贡献；眩晕单位仍会承受伤害，达到致命伤害时继续由状态性清理移入墓地。
+- 已补测试与验证：新增 `P4DeclareBattleCommandStunnedAttackerContributesZeroCombatPower` 与 `P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed`，覆盖眩晕进攻者不造成攻击伤害、眩晕防守者不反击但被致命伤害摧毁。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；新增/代表路径精确回归 3/3、`DeclareBattleCommand|Stun` 相邻回归 88/88、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3127/3127 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；Chrome 插件只做了只读连通性确认并已清理 agent 标签页。整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
+
 - P1-004 第一百七十四批补充：防守战场触发继续收口战场来源控制权。`BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE`、`BATTLEFIELD_DEFENSE_GRANT_STEADFAST_TWO` 与 `BATTLEFIELD_DEFENSE_MOVE_FRIENDLY_UNIT_TO_BASE` 现在要求触发的战场牌仍由防守玩家控制/legacy-owned；如果攻击方已控制该战场牌，防守方不会获得 reveal 抽牌或移动回基地等收益，带过期 battlefield target 的手写命令会被服务端拒绝。
 - 已补测试与验证：新增 `P79BattlefieldDefendMoveToBaseRejectsAttackerControlledBattlefield` 与 `P79BattlefieldDefendRevealSpellSkipsAttackerControlledBattlefield`，覆盖攻击方控制战场牌时防守移动目标被拒绝、展示抽牌不触发且主牌堆/手牌保持不变。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；本批精确回归 5/5、`BattlefieldDefend|BattlefieldDefender|BattlefieldEphemeral|DeclareBattle` 相邻回归 71/71、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3125/3125 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整 cleanup queue、官方级战斗/法术对决任务状态机、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
