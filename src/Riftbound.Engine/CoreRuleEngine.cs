@@ -16829,7 +16829,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             foreach (var discardPlayerId in SeatPlayerIds(state))
             {
-                if (!TryDiscardPlayerHand(playerZones, discardPlayerId, out var discardedObjectIds)
+                if (!TryDiscardPlayerHand(playerZones, cardObjects, discardPlayerId, out var discardedObjectIds)
                     || discardedObjectIds.Count == 0)
                 {
                     continue;
@@ -20687,6 +20687,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardPlayerHand(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         out IReadOnlyList<string> discardedObjectIds)
     {
@@ -20697,11 +20698,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         discardedObjectIds = zones.Hand
-            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId =>
+                !string.IsNullOrWhiteSpace(objectId)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
             .ToArray();
+        var discardedObjectIdSet = discardedObjectIds.ToHashSet(StringComparer.Ordinal);
         playerZones[playerId] = zones with
         {
-            Hand = [],
+            Hand = zones.Hand
+                .Where(objectId => !discardedObjectIdSet.Contains(objectId))
+                .ToArray(),
             Graveyard = zones.Graveyard
                 .Concat(discardedObjectIds.Where(objectId =>
                     !zones.Graveyard.Contains(objectId, StringComparer.Ordinal)))

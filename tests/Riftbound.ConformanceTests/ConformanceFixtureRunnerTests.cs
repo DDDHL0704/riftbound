@@ -5661,6 +5661,64 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRewindTimelineDiscardsOnlyControlledHandCards()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-rewind-timeline-discard-hands-draw-four.fixture.json"),
+            CancellationToken.None);
+        var initial = fixture.InitialState!;
+        var players = initial.Players!.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        players["P1"] = players["P1"] with
+        {
+            Hand = ["P1-SPELL-REWIND-TIMELINE", "P1-HAND-DIRTY-P2-CARD", "P1-HAND-001", "P1-HAND-002"]
+        };
+        players["P2"] = players["P2"] with
+        {
+            Hand = ["P2-HAND-DIRTY-P1-CARD", "P2-HAND-001"]
+        };
+        var cardObjects = (initial.CardObjects ?? new Dictionary<string, ConformanceCardObjectState>(StringComparer.Ordinal))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-HAND-DIRTY-P2-CARD"] = new ConformanceCardObjectState
+        {
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+        cardObjects["P2-HAND-DIRTY-P1-CARD"] = new ConformanceCardObjectState
+        {
+            OwnerId = "P1",
+            ControllerId = "P1"
+        };
+        var dirtyFixture = fixture with
+        {
+            InitialState = initial with
+            {
+                Players = players,
+                CardObjects = cardObjects
+            }
+        };
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            dirtyFixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Equal(
+            ["P1-HAND-DIRTY-P2-CARD", "P1-DRAW-001", "P1-DRAW-002", "P1-DRAW-003", "P1-DRAW-004"],
+            result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(
+            ["P2-HAND-DIRTY-P1-CARD", "P2-DRAW-001", "P2-DRAW-002", "P2-DRAW-003", "P2-DRAW-004"],
+            result.FinalState.PlayerZones["P2"].Hand);
+        Assert.Equal(["P1-HAND-001", "P1-HAND-002", "P1-SPELL-REWIND-TIMELINE"], result.FinalState.PlayerZones["P1"].Graveyard);
+        Assert.Equal(["P2-HAND-001"], result.FinalState.PlayerZones["P2"].Graveyard);
+        var discardEvents = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "CARDS_DISCARDED", StringComparison.Ordinal))
+            .ToArray();
+        Assert.Equal(2, discardEvents.Length);
+        Assert.Equal(["P1-HAND-001", "P1-HAND-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(discardEvents[0].Payload["objectIds"]));
+        Assert.Equal(["P2-HAND-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(discardEvents[1].Payload["objectIds"]));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysReviveReturnGraveyardUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(
