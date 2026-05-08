@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十八批继续补服务端法术对决/战斗生命周期边界，没有新增前端 UI 代码。法术对决关闭时，如果同一时刻状态性 cleanup 抢占为 active task，服务端仍会识别并记录对应战场的 `START_SPELL_DUEL` 已完成；随后 cleanup 若摧毁并移走一方参战单位，authoritative battlefield 会收敛为非争夺，`START_BATTLE` / `DECLARE_BATTLE` 不再出现在服务端任务队列和 prompt 中。前端继续只展示服务端 snapshot/prompt/events，不自行判断“战斗是否还能发生”。
+- 本批验证：关闭/争夺/清理相关精确回归 3/3、`dotnet build` 0 warning/0 error、后端 full test 3136/3136 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签覆盖 110 个后端 event kind。没有启动 API/Vite/业务 Browser/Chrome smoke，因为本批没有新增前端交互流程；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百八十七批继续补服务端法术对决/清理生命周期，没有新增前端 UI 代码。双方在法术对决焦点窗口均让过后，服务端现在会先广播 `SPELL_DUEL_CLOSED`，再立即运行状态性 cleanup；因此法术对决期间累积的致命伤害、0 战力、非法待命、未贴附装备等清理会以服务端事件和 authoritative snapshot 进入前端，浏览器不需要也不能自行裁决。
 - 本批验证：关闭/争夺相关精确回归 3/3、后端 full test 3135/3135 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签覆盖 110 个后端 event kind。没有启动 API/Vite/业务 Browser/Chrome smoke，因为本批没有新增交互流程；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

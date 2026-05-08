@@ -12425,8 +12425,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (seatPlayerIds.All(passedPlayerIds.Contains))
         {
             var activeBattlefieldSpellDuelTask = state.PendingTaskQueue.Tasks.FirstOrDefault(task =>
-                string.Equals(task.TaskId, state.PendingTaskQueue.ActiveTaskId, StringComparison.Ordinal)
-                && string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
+                string.Equals(task.Kind, "START_SPELL_DUEL", StringComparison.Ordinal)
                 && !string.IsNullOrWhiteSpace(task.BattlefieldObjectId));
             var completedBattlefieldObjectIds = activeBattlefieldSpellDuelTask?.BattlefieldObjectId is { Length: > 0 } battlefieldObjectId
                 ? new[] { battlefieldObjectId }

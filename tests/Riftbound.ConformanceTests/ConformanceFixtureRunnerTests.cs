@@ -27008,6 +27008,124 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineSkipsStartBattleWhenSpellDuelCleanupRemovesParticipant()
+    {
+        var state = new MatchState(
+            "battlefield-contest-spell-duel-cleanup-removes-participant-room",
+            8,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["BF-1", "P1-UNIT-1"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-1"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new(
+                    "BF-1",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-1"] = new(
+                    "P1-UNIT-1",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-1"] = new(
+                    "P2-UNIT-1",
+                    cardNo: "SFD·125/221",
+                    damage: 3,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            focusPlayerId: "P1",
+            passedFocusPlayerIds: ["P2"],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["BF-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P1-UNIT-1"] = new("P1", "BATTLEFIELD", "BF-1"),
+                ["P2-UNIT-1"] = new("P2", "BATTLEFIELD", "BF-1")
+            });
+
+        Assert.Contains(
+            state.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal)
+                && string.Equals(task.BattlefieldObjectId, "BF-1", StringComparison.Ordinal));
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "P2-UNIT-1", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-pass-focus-contested-battlefield-cleanup-removes-participant", "P1", "PASS_FOCUS"),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(9, result.State.Tick);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Contains(BattlefieldTaskMarkers.SpellDuelCompleted("BF-1"), result.State.UntilEndOfTurnEffects);
+        Assert.DoesNotContain("P2-UNIT-1", result.State.PlayerZones["P2"].Battlefields);
+        Assert.Contains("P2-UNIT-1", result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-UNIT-1"].Zone);
+        Assert.Null(result.State.ObjectLocations["P2-UNIT-1"].BattlefieldObjectId);
+
+        var battlefield = Assert.Single(result.State.BattlefieldStates.Values);
+        Assert.False(battlefield.Contested);
+        Assert.Equal("P1", battlefield.ControllerId);
+        Assert.Equal(["P1-UNIT-1"], battlefield.OccupantObjectIds);
+        Assert.Equal(["P1"], battlefield.OccupantControllerIds);
+        Assert.Empty(battlefield.StandbyObjectIds);
+
+        Assert.Equal("IDLE", result.State.PendingTaskQueue.Phase);
+        Assert.DoesNotContain(
+            result.State.PendingTaskQueue.Tasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            result.State.BattlefieldTasks,
+            task => string.Equals(task.Kind, "START_BATTLE", StringComparison.Ordinal));
+        Assert.DoesNotContain("DECLARE_BATTLE", result.Prompts["P1"].Actions);
+        Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineAllowsDeclareBattleForActiveStartBattleTask()
     {
         var state = new MatchState(
