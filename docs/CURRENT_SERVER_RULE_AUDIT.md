@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十八批补充：前端卡牌详情不可组合警告继续去内部 reason 直显。`CardDetailDrawer` 的所有 composer `unsupportedReason` 显示现在统一走 `promptReasonLabel`，中文服务端原因保留，内部英文说明、协议 token、对象 ID 或未来裸 metadata 会降级为中文兜底；该批只影响前端展示，不改变服务端候选、`composable=false` 语义或命令提交。
+- 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件本批可用，房间 `smoke-unsupported-check`，P1/P2 通过真实 Chrome 页面入座，后台 development seed `battlefield-legend-attach-armament`；P1 打开《圣锤之毅》详情后显示服务端 LEGEND_ACT 元数据与中文不可组合警告，`确认传奇行动` disabled，正文/title 不含 raw ability id、对象 id、`unsupportedReason`、`composable`、`targetChoicesByIndex` 或 `sourceRequirements`，应用 error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百二十七批补充：前端规则队列 `StackPanel` 的未知 phase/result fallback 继续去 raw enum。通用 `labelFor` 现在会把未识别的协议 token 降级为“服务端阶段 / 服务端战斗结果 / 服务端战场结果”等中文占位，而不是直接显示 `IDLE`、`BATTLE_TASKS` 或未来新增的服务端枚举；自然文本仍经过内部 ID 脱敏后展示。该批只影响 snapshot 展示，不改变服务端 pending task、battle result 或命令提交。
 - 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件本批两次打开本地 Vite 标签被 Chrome 报 `ERR_BLOCKED_BY_CLIENT`，未使用 Computer Use；随后使用后台 bundled Playwright + 系统 Chrome headless smoke。房间 `smoke-stack-label-headless-1778243871233`，P1 页面连接，后台 P2 入座并 seed `basic-play`；规则队列显示“阶段：空闲”，正文不含 `IDLE`、`BATTLE_TASKS`、`BATTLEFIELD_TASKS`、`SPELL_DUEL_TASKS`、`STATE_BASED_CLEANUP`、`CONTROL_RESOLVED`、`NO_RESULT` 或 `CLOSED`，应用 error 0。smoke 后已清理后台 SignalR、headless Chrome、API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

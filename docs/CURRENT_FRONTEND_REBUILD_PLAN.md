@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百二十八批继续收口卡牌详情 composer 的 unsupported reason 展示。`CardDetailDrawer` 的 PLAY_CARD / HIDE_CARD / REVEAL_CARD / MOVE_UNIT / ASSEMBLE_EQUIPMENT / ACTIVATE_ABILITY / LEGEND_ACT / DECLARE_BATTLE 不可组合警告统一经过 `promptReasonLabel` 过滤：中文服务端原因保留，未来若服务端返回内部英文说明、协议 token 或对象 ID，会降级为对应中文兜底。前端仍只读服务端 `sourceRequirements` / authoritative prompt，不自行裁决这些操作是否可提交。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件本批可用，房间 `smoke-unsupported-check`：P1/P2 均通过真实 Chrome 页面入座，后台只调用 development `SeedScenario` 载入 `battlefield-legend-attach-armament`；P1 打开《圣锤之毅》详情后显示“魄罗熔炉传奇贴附技能”和中文警告“该传奇行动需要第二目标依赖第一目标...”，`确认传奇行动` 保持 disabled。页面正文和 title 不含 `LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD`、`P1-LEGEND-PORO-FORGE`、`P1-UNIT-PORO-FORGE-TARGET`、`P1-EQUIPMENT-PORO-FORGE-ARMAMENT`、`unsupportedReason`、`composable`、`targetChoicesByIndex` 或 `sourceRequirements`，应用 runtime error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百二十七批继续收口规则队列 fallback 展示。`StackPanel` 的通用 `labelFor` 不再在未知 phase、battle result 或 battlefield result kind 时回显服务端枚举；未识别的协议 token 会降级为“服务端阶段 / 服务端战斗结果 / 服务端战场结果”，自然文本仍会经过内部 ID 脱敏后展示。前端仍只读 authoritative snapshot，不新增任何规则判断。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件本批两次新标签导航本地 Vite 时被 Chrome 报 `ERR_BLOCKED_BY_CLIENT`，未使用 Computer Use 抢前台；随后按后台 smoke 路径使用 bundled Playwright + 系统 Chrome headless。房间 `smoke-stack-label-headless-1778243871233`，P1 页面连接对战页，后台 SignalR 让 P2 入座并 seed `basic-play`；规则队列显示“阶段：空闲”，正文不含 `IDLE`、`BATTLE_TASKS`、`BATTLEFIELD_TASKS`、`SPELL_DUEL_TASKS`、`STATE_BASED_CLEANUP`、`CONTROL_RESOLVED`、`NO_RESULT` 或 `CLOSED`，应用 runtime error 0。smoke 后已清理后台 SignalR、headless Chrome、API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 

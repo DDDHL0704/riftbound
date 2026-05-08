@@ -676,7 +676,7 @@ function PlayCardComposer({
         </ChoiceGroup>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该操作当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该操作当前不能由前端组合提交。")}</p>
       )}
       {!targetShapeValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
@@ -808,7 +808,7 @@ function HideCardComposer({
         </ChoiceGroup>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该待命操作当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该待命操作当前不能由前端组合提交。")}</p>
       )}
       {selectedRequirement.composable && !selectedCost && (
         <p className="composer-warning">请选择服务端给出的待命费用。</p>
@@ -935,7 +935,7 @@ function RevealCardComposer({
         </ChoiceGroup>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该待命翻开当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该待命翻开当前不能由前端组合提交。")}</p>
       )}
       {selectedRequirement.composable && !selectedCost && (
         <p className="composer-warning">请选择服务端给出的翻开费用。</p>
@@ -1098,7 +1098,7 @@ function MoveUnitComposer({
         </ChoiceGroup>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该移动当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该移动当前不能由前端组合提交。")}</p>
       )}
       <Button
         disabled={!canSubmit}
@@ -1254,7 +1254,7 @@ function AssembleEquipmentComposer({
         <p className="composer-warning">需要选择服务端给出的回收符文支付资源。</p>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该装配当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该装配当前不能由前端组合提交。")}</p>
       )}
       <Button
         disabled={!canSubmit}
@@ -1446,7 +1446,7 @@ function ActivateAbilityComposer({
         </ChoiceGroup>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该能力当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该能力当前不能由前端组合提交。")}</p>
       )}
       {!targetCountValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
@@ -1625,7 +1625,7 @@ function LegendActionComposer({
         </div>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该传奇行动当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该传奇行动当前不能由前端组合提交。")}</p>
       )}
       {!targetCountValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端目标槽候选完成目标选择。</p>
@@ -1840,7 +1840,7 @@ function DeclareBattleComposer({
         </div>
       )}
       {!selectedRequirement.composable && (
-        <p className="composer-warning">{selectedRequirement.unsupportedReason || "服务端标记该战斗声明当前不能由前端组合提交。"}</p>
+        <p className="composer-warning">{unsupportedWarning(selectedRequirement.unsupportedReason, "服务端标记该战斗声明当前不能由前端组合提交。")}</p>
       )}
       {!attackerCountValid && selectedRequirement.composable && (
         <p className="composer-warning">请按服务端攻击槽候选完成攻击单位选择。</p>
@@ -1910,6 +1910,10 @@ function ChoiceButton({
 
 function choiceTitle(choice: ActionPromptChoiceDto): string | undefined {
   return promptReasonTitle(choice.reason, "服务端候选");
+}
+
+function unsupportedWarning(reason: string | undefined, fallback: string): string {
+  return promptReasonLabel(reason, fallback);
 }
 
 function playCardRequirementsFor(candidate: ActionPromptCandidateDto, sourceObjectId?: string): PlayCardSourceRequirement[] {
