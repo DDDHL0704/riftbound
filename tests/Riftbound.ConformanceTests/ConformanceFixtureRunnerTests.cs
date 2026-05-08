@@ -30130,6 +30130,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerDiscardDrawSkipsOpponentControlledHandCard()
+    {
+        var baseState = BattlefieldConquerDiscardDrawState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", "P1-BATTLEFIELD-DISCARD-001"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD"] = new(
+            "P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD",
+            ownerId: "P2",
+            controllerId: "P2");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-discard-draw-dirty", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-ZAUN-SUMP",
+                ["P1-BATTLEFIELD-DISCARD-ATTACKER"],
+                ["P2-BATTLEFIELD-DISCARD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", "P1-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-BATTLEFIELD-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DISCARD-001", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-DISCARD-DIRTY-P2-CARD", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldConquerRecyclesRune()
     {
         var state = BattlefieldConquerRecycleRuneState();

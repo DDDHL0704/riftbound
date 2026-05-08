@@ -9892,7 +9892,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (playerZones.TryGetValue(playerId, out var zones)
             && zones.Hand.Count > 0)
         {
-            var discardedObjectId = zones.Hand.First();
+            var discardedObjectId = zones.Hand.FirstOrDefault(objectId =>
+                IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)) ?? string.Empty;
             if (TryDiscardCardFromHand(playerZones, playerId, discardedObjectId))
             {
                 events.Add(new GameEvent(
