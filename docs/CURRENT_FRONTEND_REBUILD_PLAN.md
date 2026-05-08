@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百一十五批继续收口卡牌详情操作 composer 的异常 fallback。`CardDetailDrawer` 不再在缺失 `displayName`、`abilityLabel`、`originLabel`、`modeLabel` 或 optional cost label 时把 `sourceObjectId`、`abilityId`、raw origin/mode/cost id 当作正文展示，统一降级为“攻击来源 / 能力来源 / 服务端能力 / 服务端区域 / 服务端移动 / 服务端费用”等中文占位；正常命令提交仍使用服务端 candidate/metadata 中的 id。
+- 本批验证：静态扫描确认 `CardDetailDrawer` 不再有 `|| sourceObjectId`、`|| abilityId`、`|| origin`、`|| mode` 或 `?? cost` 这类玩家可见 fallback；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detail-fallback-1778238527789`，P1 页面连接对战页，P2 后台 SignalR 加入并 seed `basic-play`；页面和卡牌详情 smoke 正文不含 `P1-...-001`、`P2-...-001`、`STACK-...` 或 raw 操作/费用 token，应用自身 runtime error 0。smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百一十四批继续收口服务端错误展示。房间页与对战日志不再把 `ROOM_FULL`、`PHASE_NOT_ALLOWED` 等 raw error code 作为正文，改为中文错误标题和说明；原始 code 仅保留在 title 供开发排查。`useMatchController.join()` 也会把预期服务端拒绝收敛为中文系统消息，`MatchSocket` 给 Join/Reconnect 等待 Promise 立即挂接 rejection handler，避免预期 ErrorDto 在浏览器 console 中变成未处理 `Object`。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-error-redaction-1778238256298`，后台 SignalR 先让 P1/P2 入座占满房间，再用 P3 通过房间页点击“连接/重连并入座”；页面房间日志显示“房间已满 / 该房间已经有两名玩家。”，正文不含 `ROOM_FULL`、`room already has two players`、`UNSUPPORTED_COMMAND` 或 `PHASE_NOT_ALLOWED`，应用自身 runtime error 0。smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百一十五批补充：前端卡牌详情操作 composer 继续去内部 fallback。缺失服务端展示名或能力/费用 label 时，前端不再把 objectId、abilityId 或 raw cost id 当作玩家正文，而是显示通用中文占位；真实提交参数仍只取服务端候选 id。
+- 已补验证：本批无服务端规则代码变更；静态扫描确认 `CardDetailDrawer` 不再有 `|| sourceObjectId`、`|| abilityId`、`|| origin`、`|| mode` 或 `?? cost` fallback；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detail-fallback-1778238527789`，P1/P2 后台 seed `basic-play` 后页面与卡牌详情 smoke 正文不含内部对象、结算链或 raw 操作/费用 token，应用自身 runtime error 0。smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百一十四批补充：前端服务端错误展示继续去 raw protocol code。房间页和对战日志使用中文错误标题/说明展示服务端 ErrorDto，raw code 仅保留在 title；预期 Join/Reconnect 拒绝不再冒泡成浏览器未处理 Promise。该批只改产品展示和错误处理，不改变服务端裁决或 ErrorDto 协议。
 - 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-error-redaction-1778238256298`，P1/P2 后台 SignalR 占满房间后，P3 在房间页连接得到中文“房间已满 / 该房间已经有两名玩家。”，正文不含 `ROOM_FULL`、`room already has two players`、`UNSUPPORTED_COMMAND` 或 `PHASE_NOT_ALLOWED`，应用自身 runtime error 0。smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

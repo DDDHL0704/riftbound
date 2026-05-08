@@ -1029,7 +1029,7 @@ function MoveUnitComposer({
   const requiredCosts = selectedRequirement.requiredOptionalCosts;
   const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) => !requiredCosts.includes(choice.id));
   const requiredCostLabels = requiredCosts.map((cost) =>
-    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+    optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts]);
   const canSubmit = Boolean(
     candidate.enabled
@@ -1174,7 +1174,7 @@ function AssembleEquipmentComposer({
   const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) =>
     !requiredCosts.includes(choice.id) && !paymentResourceChoiceIds.has(choice.id));
   const requiredCostLabels = requiredCosts.map((cost) =>
-    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+    optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const paymentResourceRequired = selectedRequirement.paymentResourceChoices.length > 0;
   const paymentResourceSelectionValid = !paymentResourceRequired || paymentResourceCosts.length === 1;
   const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts, ...paymentResourceCosts]);
@@ -1355,7 +1355,7 @@ function ActivateAbilityComposer({
   const requiredCosts = selectedRequirement.requiredOptionalCosts;
   const optionalChoices = selectedRequirement.optionalCostChoices.filter((choice) => !requiredCosts.includes(choice.id));
   const requiredCostLabels = requiredCosts.map((cost) =>
-    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+    optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const commandOptionalCosts = uniqueStrings([...requiredCosts, ...optionalCosts]);
   const canSubmit = Boolean(
     candidate.enabled
@@ -1548,7 +1548,7 @@ function LegendActionComposer({
     && !missingRequiredTargetChoice;
   const requiredCosts = selectedRequirement.requiredOptionalCosts;
   const requiredCostLabels = requiredCosts.map((cost) =>
-    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+    optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
@@ -1733,7 +1733,7 @@ function DeclareBattleComposer({
     && !missingRequiredDefenderChoice;
   const requiredCosts = selectedRequirement.requiredOptionalCosts;
   const requiredCostLabels = requiredCosts.map((cost) =>
-    selectedRequirement.optionalCostChoices.find((choice) => choice.id === cost)?.label ?? cost);
+    optionalCostLabel(selectedRequirement.optionalCostChoices, cost));
   const canSubmit = Boolean(
     candidate.enabled
     && selectedRequirement.composable
@@ -2060,7 +2060,7 @@ function parseDeclareBattleRequirement(value: unknown): DeclareBattleSourceRequi
   return {
     sourceObjectId,
     cardNo: stringField(record, "cardNo"),
-    displayName: stringField(record, "displayName") || sourceObjectId,
+    displayName: stringField(record, "displayName") || "攻击来源",
     minAttackerCount: numberField(record, "minAttackerCount") || 1,
     maxAttackerCount: numberField(record, "maxAttackerCount") || 1,
     attackerCountLabel: stringField(record, "attackerCountLabel") || "1 个攻击单位",
@@ -2093,8 +2093,8 @@ function parseLegendActionRequirement(value: unknown): LegendActionSourceRequire
     sourceObjectId,
     cardNo: stringField(record, "cardNo"),
     abilityId,
-    displayName: stringField(record, "displayName") || abilityId,
-    abilityLabel: stringField(record, "abilityLabel") || abilityId,
+    displayName: stringField(record, "displayName") || "传奇来源",
+    abilityLabel: stringField(record, "abilityLabel") || "服务端能力",
     manaCost: numberField(record, "manaCost"),
     experienceCost: numberField(record, "experienceCost"),
     minTargetCount: numberField(record, "minTargetCount"),
@@ -2128,8 +2128,8 @@ function parseActivateAbilityRequirement(value: unknown): ActivateAbilitySourceR
     sourceObjectId,
     cardNo: stringField(record, "cardNo"),
     abilityId,
-    displayName: stringField(record, "displayName") || abilityId,
-    abilityLabel: stringField(record, "abilityLabel") || abilityId,
+    displayName: stringField(record, "displayName") || "能力来源",
+    abilityLabel: stringField(record, "abilityLabel") || "服务端能力",
     manaCost: numberField(record, "manaCost"),
     powerCost: numberField(record, "powerCost"),
     minTargetCount: numberField(record, "minTargetCount"),
@@ -2191,9 +2191,9 @@ function parseMoveUnitRequirement(value: unknown): MoveUnitSourceRequirement | u
   return {
     sourceObjectId,
     origin,
-    originLabel: stringField(record, "originLabel") || origin,
+    originLabel: stringField(record, "originLabel") || "服务端区域",
     mode,
-    modeLabel: stringField(record, "modeLabel") || mode,
+    modeLabel: stringField(record, "modeLabel") || "服务端移动",
     destinationChoices: choiceList(record.destinationChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
     requiredOptionalCosts: stringList(record.requiredOptionalCosts),
@@ -2243,7 +2243,7 @@ function parseRevealCardRequirement(value: unknown): RevealCardSourceRequirement
     sourceObjectId,
     cardNo,
     mode,
-    modeLabel: stringField(record, "modeLabel") || mode,
+    modeLabel: stringField(record, "modeLabel") || "服务端模式",
     displayName: stringField(record, "displayName") || cardNo,
     destinationChoices: choiceList(record.destinationChoices),
     optionalCostChoices: choiceList(record.optionalCostChoices),
@@ -2401,6 +2401,10 @@ function toggleValue(values: string[], value: string): string[] {
   return values.includes(value)
     ? values.filter((current) => current !== value)
     : [...values, value];
+}
+
+function optionalCostLabel(choices: ActionPromptChoiceDto[], cost: string): string {
+  return choices.find((choice) => choice.id === cost)?.label ?? "服务端费用";
 }
 
 function toggleOptionalCost(values: string[], value: string): string[] {
