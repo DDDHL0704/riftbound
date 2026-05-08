@@ -30844,6 +30844,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("雷恩加尔传奇触发目标必须是场上的单位或本次打出的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Rengar legend trigger", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Contains("P1-UNIT-PLUCKY-PORO", result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }
@@ -30889,6 +30892,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("雷恩加尔传奇触发目标必须是场上的单位或本次打出的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Rengar legend trigger", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Contains("P1-UNIT-PLUCKY-PORO", result.State.PlayerZones["P1"].Hand);
         Assert.Equal(["STACK-RENGAR-DIRTY-GUARD-DUMMY"], result.State.StackItems.Select(stackItem => stackItem.StackItemId).ToArray());
     }
@@ -31106,6 +31112,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("蕾欧娜传奇触发目标必须是己方场上的单位或本次打出的单位。", result.ErrorMessage);
+        Assert.DoesNotContain("Leona legend trigger", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("PLAY_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Contains("P1-UNIT-SUN-SHIELDGUARD", result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
     }

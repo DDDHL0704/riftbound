@@ -11950,7 +11950,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "Rengar legend trigger target must be a unit on the board or the played source unit.",
+                "雷恩加尔传奇触发目标必须是场上的单位或本次打出的单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -11965,7 +11965,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "Leona legend trigger target must be a friendly unit on the board or the played source unit.",
+                "蕾欧娜传奇触发目标必须是己方场上的单位或本次打出的单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
