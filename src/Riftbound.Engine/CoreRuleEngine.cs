@@ -5039,7 +5039,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "DECLARE_BATTLE must match the active START_BATTLE task.",
+                "声明战斗必须匹配当前争夺战场的开始战斗任务。",
                 ErrorCodes.PhaseNotAllowed);
         }
 

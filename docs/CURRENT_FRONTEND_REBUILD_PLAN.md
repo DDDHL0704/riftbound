@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百三十四批继续收口 active battle task 错误文案。`CoreRuleEngine` 在当前行动玩家手写错误战场的 `DECLARE_BATTLE` 时，仍会拒绝并保持 authoritative state 不变，但错误消息从英文 raw 协议句改为中文“声明战斗必须匹配当前争夺战场的开始战斗任务。”；测试断言玩家可见错误不含 `DECLARE_BATTLE` / `START_BATTLE`。前端无需新增本地判断，继续只提交服务端 `DECLARE_BATTLE` candidate/sourceRequirements 支持的战场、攻击者和防守者。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask|FullyQualifiedName~CoreRuleEngineRejectsDeclareBattleThatDoesNotMatchActiveStartBattleTask"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百三十三批修复后端 full test 中的任务队列文案契约断言。当前服务端已经按产品安全口径把 `START_BATTLE` 阻塞原因显示为中文“开始战斗”，full test 中一条旧断言仍期待 raw `START_BATTLE` 出现在错误消息里；本批把断言改为要求中文原因，并明确禁止 `START_BATTLE` 泄漏到玩家可见 error message。无前端运行时代码变更，前端仍只展示服务端中文 prompt/error。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。此前同批已确认 `source ../../scripts/dev-env.sh && npm run build` 通过。没有新增前端 UI 行为，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

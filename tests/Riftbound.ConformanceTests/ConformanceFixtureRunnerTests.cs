@@ -27268,7 +27268,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("DECLARE_BATTLE must match the active START_BATTLE task.", result.ErrorMessage);
+        Assert.Equal("声明战斗必须匹配当前争夺战场的开始战斗任务。", result.ErrorMessage);
+        Assert.DoesNotContain("DECLARE_BATTLE", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("START_BATTLE", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(state.Tick, result.State.Tick);
         Assert.Empty(result.Events);
         Assert.True(result.Prompts["P1"].Actionable);

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百三十四批补充：`DECLARE_BATTLE` 匹配 active START_BATTLE 任务失败时的运行时错误文案去内部协议名。此前当前行动玩家绕过 UI、把声明战斗命令提交到错误战场时，服务端会拒绝且保持状态不变，但错误消息为英文并包含 raw `DECLARE_BATTLE` / `START_BATTLE`。现在服务端返回中文“声明战斗必须匹配当前争夺战场的开始战斗任务。”，测试同步断言错误消息不含 raw action/task kind；结构化 pending task / prompt action 仍保留协议枚举供客户端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask|FullyQualifiedName~CoreRuleEngineRejectsDeclareBattleThatDoesNotMatchActiveStartBattleTask"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百三十三批补充：START_BATTLE 阻塞原因的测试契约与当前玩家可见安全口径对齐。非当前行动玩家绕过 UI 手写 `DECLARE_BATTLE` 时，服务端仍以 `PhaseNotAllowed` 拒绝并保持状态不变，但 `ActionPrompt.reason`/error message 使用中文“开始战斗”，不再把 raw `START_BATTLE` 任务名作为玩家可见文本。该批只更新 conformance 断言，锁定“显示中文原因且不泄漏内部 task kind”的当前契约。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
