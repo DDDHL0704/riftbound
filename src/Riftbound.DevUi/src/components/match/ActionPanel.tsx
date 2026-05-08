@@ -142,7 +142,7 @@ function MulliganChoiceButton({
       className={`mulligan-choice ${selected ? "is-selected" : ""}`}
       disabled={disabled || lockedByLimit}
       onClick={toggle}
-      title={choice.reason ?? choice.id}
+      title={choice.reason ?? "服务端起手候选"}
       type="button"
     >
       <span>{choice.label}</span>

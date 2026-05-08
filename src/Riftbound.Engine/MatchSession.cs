@@ -2734,7 +2734,7 @@ internal static class ActionPromptBuilder
         {
             "MULLIGAN" => zones.Hand
                 .Where(objectId => IsPromptHandCardControlledByPlayerOrLegacyOwned(state, playerId, objectId))
-                .Select(objectId => ObjectChoice(state, objectId, "opening hand mulligan candidate"))
+                .Select(objectId => ObjectChoice(state, objectId, "起手调整候选"))
                 .ToArray(),
             "PLAY_CARD" => zones.Hand
                 .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))

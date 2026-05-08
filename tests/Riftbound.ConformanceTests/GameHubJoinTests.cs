@@ -333,6 +333,8 @@ public sealed class GameHubJoinTests
             {
                 Assert.DoesNotContain(source.Id, source.Label, StringComparison.Ordinal);
                 Assert.DoesNotContain("-MAIN-", source.Label, StringComparison.Ordinal);
+                Assert.Equal("起手调整候选", source.Reason);
+                Assert.DoesNotContain("opening hand mulligan candidate", source.Reason, StringComparison.Ordinal);
             });
         Assert.NotNull(mulliganCandidate.Metadata);
         Assert.Equal(2, mulliganCandidate.Metadata["maxSelectionCount"]);
