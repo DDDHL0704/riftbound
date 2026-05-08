@@ -186,11 +186,21 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BalancedDiscipleCardNo = "UNL-097/219";
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const string OgnFioraCardNo = "OGN·232/298";
+    private const string RavenbloomStudentCardNo = "OGN·103/298";
+    private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
         "金克丝",
         0,
         JinxDiscardedHandCardsEffectKind,
+        0,
+        0,
+        PowerModifierAmount: 1);
+    private static readonly CardBehaviorDefinition RavenbloomStudentSpellPowerBehavior = new(
+        RavenbloomStudentCardNo,
+        "拉文布鲁姆学生",
+        0,
+        RavenbloomStudentSpellPowerEffectKind,
         0,
         0,
         PowerModifierAmount: 1);
@@ -762,6 +772,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             discardedOptionalCostObjectIds);
 
         TryResolveBattlefieldSpellPowerBonusTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            behavior,
+            stackItem,
+            events);
+        ResolveRavenbloomStudentSpellPlayedTriggers(
             playerZones,
             cardObjects,
             intent.PlayerId,
@@ -16897,6 +16914,56 @@ public sealed class CoreRuleEngine : IRuleEngine
             out var powerEvent);
         events.Add(powerEvent);
         return true;
+    }
+
+    private static void ResolveRavenbloomStudentSpellPlayedTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        List<GameEvent> events)
+    {
+        if (!IsSpellPlayBehavior(behavior))
+        {
+            return;
+        }
+
+        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, playerId)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, RavenbloomStudentCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            var sourceState = cardObjects[sourceObjectId];
+            var triggerStackItem = new StackItemState(
+                stackItemId: $"{sourceObjectId}:spell-played-power",
+                controllerId: playerId,
+                sourceObjectId: sourceObjectId,
+                effectKind: RavenbloomStudentSpellPowerEffectKind,
+                cardNo: RavenbloomStudentCardNo);
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{playerId} 的拉文布鲁姆学生因法术打出获得战力",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["trigger"] = RavenbloomStudentSpellPowerEffectKind,
+                    ["triggerSourceObjectId"] = sourceObjectId,
+                    ["playedCardNo"] = stackItem.CardNo,
+                    ["playedSourceObjectId"] = stackItem.SourceObjectId,
+                    ["powerDelta"] = RavenbloomStudentSpellPowerBehavior.PowerModifierAmount
+                }));
+            cardObjects[sourceObjectId] = ApplyPowerModifier(
+                sourceState,
+                RavenbloomStudentSpellPowerBehavior,
+                triggerStackItem,
+                sourceObjectId,
+                RavenbloomStudentSpellPowerBehavior.PowerModifierAmount,
+                out var powerEvent);
+            events.Add(powerEvent);
+        }
     }
 
     private static bool TryResolveBattlefieldPlayUnitPayOneBoonTrigger(

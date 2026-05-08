@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百八十七批补齐《拉文布鲁姆学生》（OGN·103/298）“每当你打出一张法术牌时，本回合内战力 +1”的服务端代表路径。服务端在真实法术打出路径中解析场上正面、受控的 OGN·103 单位触发，广播 `TRIGGER_RESOLVED` 后用 `POWER_MODIFIED_UNTIL_END_OF_TURN` 修正自身战力；本批 paired fixture 使用《实战经验》作为真实法术，证明法术自身仍正常入栈并结算目标 +1。前端仍只展示服务端事件与 snapshot，不新增本地法术监听或战力裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《拉文布鲁姆学生》法术触发、《实战经验》基础战力修正与 OGN·103 带目标拒绝回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3198/3198；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十六批补齐《菲奥娜》（OGN·232/298）“自身变为强力单位时获得法盾、游走和坚守”的服务端代表路径。服务端在 authoritative 增益/战力修正把 OGN 菲奥娜推到 5 战力强力阈值后补齐 `法盾`、`游走` 与 `坚守` 标签；本批代表 fixture 使用《竞技场新人》的永久增益把 4 战力菲奥娜变为 5 战力。前端仍只展示服务端事件与 snapshot，不新增本地强力或关键词授予裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《菲奥娜》强力增益授予关键词单点 1/1 通过；相关 boon / OGN Fiora 回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3197/3197；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

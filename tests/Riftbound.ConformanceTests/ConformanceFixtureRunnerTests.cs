@@ -23081,6 +23081,27 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineTriggersRavenbloomStudentWhenSpellPlayed()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ravenbloom-student-spell-power-plus-1.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-RAVENBLOOM-STUDENT"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P1-UNIT-RAVENBLOOM-STUDENT"].UntilEndOfTurnPowerModifier);
+        Assert.Contains(result.Events, evt =>
+            string.Equals(evt.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && evt.Payload.TryGetValue("trigger", out var trigger)
+            && string.Equals(trigger as string, "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysDuelingStanceFriendlyPowerBoost()
     {
         var fixture = await ConformanceFixture.LoadAsync(

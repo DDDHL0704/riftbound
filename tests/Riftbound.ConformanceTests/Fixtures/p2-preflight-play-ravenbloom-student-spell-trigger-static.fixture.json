@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ravenbloom-student-spell-trigger-static",
-  "description": "Ravenbloom Student enters as a unit while spell play trigger text is deferred.",
+  "description": "Ravenbloom Student enters as a unit; its spell-play trigger is covered by a paired fixture.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·103/298 拉文布鲁姆学生",
-      "note": "官方卡面：费用 2；单位；战力 2；每当控制者打出一张法术牌时，本回合内自身战力 +1。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；法术打出触发本回合战力修正路径暂缓。"
+      "note": "官方卡面：费用 2；单位；战力 2；每当控制者打出一张法术牌时，本回合内自身战力 +1。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；法术打出触发本回合战力修正由 p2-preflight-play-ravenbloom-student-spell-power-plus-1 paired fixture 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

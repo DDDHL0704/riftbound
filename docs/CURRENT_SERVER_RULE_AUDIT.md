@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第二百八十七批补充：补齐《拉文布鲁姆学生》（OGN·103/298）“每当你打出一张法术牌时，让我本回合内战力 +1”的服务端代表路径。Core 现在在真实法术 `PLAY_CARD` 付费入栈路径写入法术回合记忆后，按 authoritative 场上对象找到控制者场上的正面 OGN·103 单位，并由服务端触发 `RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1`，随后以 `POWER_MODIFIED_UNTIL_END_OF_TURN` 把自身从 2 战力临时修正到 3 战力；面朝下、非单位或非控制者对象不会作为触发来源。前端仍只展示服务端事件与 snapshot，不在浏览器侧监听法术或自行修正战力。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《拉文布鲁姆学生》法术打出触发、《实战经验》基础战力修正与 OGN·103 带目标拒绝回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3198/3198；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，避免占用前台或常驻资源。整体仍 **NOT READY**，因为完整条件式战力/关键词族、完整正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第二百八十六批补充：补齐《菲奥娜》（OGN·232/298）“自身变为强力单位时获得法盾、游走和坚守”的服务端代表路径。Core 现在在 authoritative 增益/战力修正把 OGN 菲奥娜推到强力阈值 5 以上时，按服务端对象状态补齐 `法盾`、`游走` 与 `坚守` 标签；本批用《竞技场新人》的永久增益把 4 战力菲奥娜变为 5 战力，避免用临时修正提前引入回合结束关键词移除语义。前端仍只展示服务端事件与 snapshot，不在浏览器侧判断强力或授予关键词。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《菲奥娜》强力增益授予关键词单点 1/1 通过；相关 boon / OGN Fiora 回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3197/3197；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，避免占用前台或常驻资源。整体仍 **NOT READY**，因为完整条件式战力/关键词族、完整正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
