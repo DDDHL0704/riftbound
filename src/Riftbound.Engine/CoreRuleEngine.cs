@@ -16338,7 +16338,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryDiscardCardFromAnyHand(playerZones, targetObjectId, out var ownerPlayerId))
+                if (!TryDiscardCardFromAnyHand(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
                 {
                     continue;
                 }
@@ -20660,13 +20660,15 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardCardFromAnyHand(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         out string ownerPlayerId)
     {
         ownerPlayerId = string.Empty;
         foreach (var (playerId, zones) in playerZones)
         {
-            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal))
+            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }

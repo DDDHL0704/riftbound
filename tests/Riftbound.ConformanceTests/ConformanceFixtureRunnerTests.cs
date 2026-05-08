@@ -16702,6 +16702,85 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.State.StackItems);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineCharmingSpiritResolutionSkipsOpponentControlledHandTarget()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CHARMING-SPIRIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-CHARMING-SPIRIT-DISCARD-001", "P2-DIRTY-P1-OWNED-HAND-CARD"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CHARMING-SPIRIT"] = new(
+                    "P1-UNIT-CHARMING-SPIRIT",
+                    cardNo: "UNL-121/219",
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-CHARMING-SPIRIT-DISCARD-001"] = new(
+                    "P2-CHARMING-SPIRIT-DISCARD-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DIRTY-P1-OWNED-HAND-CARD"] = new(
+                    "P2-DIRTY-P1-OWNED-HAND-CARD",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-charming-spirit-dirty-resolution-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CHARMING-SPIRIT",
+                "UNL-121/219",
+                ["P2-CHARMING-SPIRIT-DISCARD-001"]),
+            CancellationToken.None);
+        Assert.True(play.Accepted);
+        var dirtyStackItem = Assert.Single(play.State.StackItems) with
+        {
+            TargetObjectIds = ["P2-DIRTY-P1-OWNED-HAND-CARD"]
+        };
+        var dirtyStackState = play.State with
+        {
+            StackItems = [dirtyStackItem]
+        };
+
+        var p1Pass = await engine.ResolveAsync(
+            dirtyStackState,
+            new PlayerIntent("intent-charming-spirit-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-charming-spirit-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P1-UNIT-CHARMING-SPIRIT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(
+            ["P2-CHARMING-SPIRIT-DISCARD-001", "P2-DIRTY-P1-OWNED-HAND-CARD"],
+            p2Pass.State.PlayerZones["P2"].Hand);
+        Assert.Empty(p2Pass.State.PlayerZones["P2"].Graveyard);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal));
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-teemo-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO")]
     [InlineData("p2-preflight-play-teemo-alt-a-self-power-plus-three.fixture.json", "P1-UNIT-TEEMO-A")]
