@@ -172,6 +172,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string PetalPixieCardNo = "UNL-076/219";
     private const string SoulShepherdCardNo = "UNL-077/219";
+    private const string ResonantSoulCardNo = "OGN·118/298";
     private const string SavageJawfishCardNo = "UNL-129/219";
     private const string GhostlyCentaurCardNo = "UNL-068/219";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
@@ -14088,6 +14089,90 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
     }
 
+    private static ResonantSoulTriggerResult ResolveResonantSoulFirstFriendlyDestroyedUnitDraw(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        long rngCursor,
+        List<GameEvent> events)
+    {
+        var nextPlayerScores = playerScores;
+        string? winnerPlayerId = null;
+        var nextRngCursor = rngCursor;
+        var triggeredPlayerIds = new HashSet<string>(StringComparer.Ordinal);
+        var destroyedUnitOwnerIds = events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                && TryGetPayloadString(gameEvent, "targetObjectId", out _)
+                && TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId)
+                && !state.DestroyedUnitOwnerIdsThisTurn.Contains(ownerPlayerId, StringComparer.Ordinal))
+            .Select(gameEvent =>
+            {
+                _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
+                _ = TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId);
+                return (DestroyedObjectId: destroyedObjectId, OwnerPlayerId: ownerPlayerId);
+            })
+            .ToArray();
+        foreach (var destroyedUnit in destroyedUnitOwnerIds)
+        {
+            if (!triggeredPlayerIds.Add(destroyedUnit.OwnerPlayerId))
+            {
+                continue;
+            }
+
+            var triggerSources = playerZones
+                .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+                .Distinct(StringComparer.Ordinal)
+                .Where(sourceObjectId => !string.Equals(
+                    sourceObjectId,
+                    destroyedUnit.DestroyedObjectId,
+                    StringComparison.Ordinal))
+                .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                    && string.Equals(sourceState.CardNo, ResonantSoulCardNo, StringComparison.Ordinal)
+                    && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !sourceState.IsFaceDown
+                    && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    && IsObjectOnField(playerZones, sourceObjectId)
+                    && string.Equals(
+                        EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                        destroyedUnit.OwnerPlayerId,
+                        StringComparison.Ordinal))
+                .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+                .ToArray();
+
+            foreach (var sourceObjectId in triggerSources)
+            {
+                events.Add(new GameEvent(
+                    "TRIGGER_RESOLVED",
+                    $"{destroyedUnit.OwnerPlayerId} 的残响之魂因友方单位被摧毁而触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = destroyedUnit.OwnerPlayerId,
+                        ["sourceObjectId"] = sourceObjectId,
+                        ["effectKind"] = "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1",
+                        ["triggeredByEventKind"] = "UNIT_DESTROYED"
+                    }));
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    nextPlayerScores,
+                    destroyedUnit.OwnerPlayerId,
+                    1,
+                    nextRngCursor,
+                    events);
+                nextPlayerScores = drawApplication.PlayerScores;
+                winnerPlayerId ??= drawApplication.WinnerPlayerId;
+                nextRngCursor = drawApplication.RngCursor;
+                if (winnerPlayerId is not null)
+                {
+                    return new ResonantSoulTriggerResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+                }
+            }
+        }
+
+        return new ResonantSoulTriggerResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
+    }
+
     private static bool StackEventsRecycledControllerRune(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -19142,6 +19227,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones,
             cardObjects,
             events);
+        var resonantSoulTrigger = ResolveResonantSoulFirstFriendlyDestroyedUnitDraw(
+            state,
+            playerZones,
+            cardObjects,
+            playerScores,
+            rngCursor,
+            events);
+        playerScores = resonantSoulTrigger.PlayerScores;
+        winnerPlayerId = resonantSoulTrigger.WinnerPlayerId ?? winnerPlayerId;
+        rngCursor = resonantSoulTrigger.RngCursor;
         var jhinTrigger = ResolveJhinHighCostSpellTrigger(
             state,
             playerZones,
@@ -24432,6 +24527,11 @@ public sealed class CoreRuleEngine : IRuleEngine
     private sealed record JhinHighCostSpellTriggerResult(
         bool HandledSourceMovement,
         IReadOnlyList<GameEvent> Events,
+        IReadOnlyDictionary<string, int> PlayerScores,
+        string? WinnerPlayerId,
+        long RngCursor);
+
+    private sealed record ResonantSoulTriggerResult(
         IReadOnlyDictionary<string, int> PlayerScores,
         string? WinnerPlayerId,
         long RngCursor);

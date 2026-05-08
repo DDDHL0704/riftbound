@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-resonant-soul-destroy-trigger-static",
-  "description": "Resonant Soul enters as a Spirit unit while first friendly destroyed trigger text is deferred.",
+  "description": "Resonant Soul enters as a Spirit unit while its stack destruction first friendly destroyed trigger is covered by a focused engine regression.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·118/298 残响之魂",
-      "note": "官方卡面：费用 6；单位；战力 5；灵体；每回合首次当控制者友方单位被摧毁时抽一张牌。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；每回合首次友方单位被摧毁后抽牌路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 5；灵体；每回合首次当控制者友方单位被摧毁时抽一张牌。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；栈摧毁监听本回合首次友方单位被摧毁并抽 1、同回合第二次不触发由 P79ResonantSoulDrawsOnlyForFirstFriendlyUnitDestroyedEachTurn 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

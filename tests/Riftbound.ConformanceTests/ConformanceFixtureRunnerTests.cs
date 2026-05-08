@@ -34691,6 +34691,145 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
     }
 
+    [Fact]
+    public async Task P79ResonantSoulDrawsOnlyForFirstFriendlyUnitDestroyedEachTurn()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 8) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P1-RESONANT-SOUL-DRAW-001", "P1-RESONANT-SOUL-DRAW-002"],
+                    Hand = ["P1-SPELL-VENGEANCE-1", "P1-SPELL-VENGEANCE-2"],
+                    Base =
+                    [
+                        "P1-RESONANT-SOUL",
+                        "P1-RESONANT-SOUL-FACEDOWN",
+                        "P1-RESONANT-SOUL-STANDBY",
+                        "P1-FRIENDLY-TARGET-1",
+                        "P1-FRIENDLY-TARGET-2"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-RESONANT-SOUL-DRAW-001"],
+                    Base = ["P2-RESONANT-SOUL"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-RESONANT-SOUL"] = new(
+                    "P1-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RESONANT-SOUL-FACEDOWN"] = new(
+                    "P1-RESONANT-SOUL-FACEDOWN",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    isFaceDown: true,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RESONANT-SOUL-STANDBY"] = new(
+                    "P1-RESONANT-SOUL-STANDBY",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FRIENDLY-TARGET-1"] = new(
+                    "P1-FRIENDLY-TARGET-1",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FRIENDLY-TARGET-2"] = new(
+                    "P1-FRIENDLY-TARGET-2",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-RESONANT-SOUL"] = new(
+                    "P2-RESONANT-SOUL",
+                    cardNo: "OGN·118/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var firstPlay = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-resonant-soul-play-vengeance-1", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE-1", "OGN·229/298", ["P1-FRIENDLY-TARGET-1"]),
+            CancellationToken.None);
+        var firstP1Pass = await engine.ResolveAsync(
+            firstPlay.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-p1-pass-1", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var firstP2Pass = await engine.ResolveAsync(
+            firstP1Pass.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-p2-pass-1", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(firstPlay.Accepted, firstPlay.ErrorMessage);
+        Assert.True(firstP1Pass.Accepted, firstP1Pass.ErrorMessage);
+        Assert.True(firstP2Pass.Accepted, firstP2Pass.ErrorMessage);
+        var triggerEvent = Assert.Single(firstP2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal("P1-RESONANT-SOUL", triggerEvent.Payload["sourceObjectId"]);
+        var firstDrawEvent = Assert.Single(firstP2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal("P1", firstDrawEvent.Payload["playerId"]);
+        Assert.Equal(1, firstDrawEvent.Payload["count"]);
+        Assert.Equal(["P1-SPELL-VENGEANCE-2", "P1-RESONANT-SOUL-DRAW-001"], firstP2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-002"], firstP2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P2-RESONANT-SOUL-DRAW-001"], firstP2Pass.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains("P1", firstP2Pass.State.DestroyedUnitOwnerIdsThisTurn);
+
+        var secondPlay = await engine.ResolveAsync(
+            firstP2Pass.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-play-vengeance-2", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE-2", "OGN·229/298", ["P1-FRIENDLY-TARGET-2"]),
+            CancellationToken.None);
+        var secondP1Pass = await engine.ResolveAsync(
+            secondPlay.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-p1-pass-2", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var secondP2Pass = await engine.ResolveAsync(
+            secondP1Pass.State,
+            new PlayerIntent("intent-p7-9-resonant-soul-p2-pass-2", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(secondPlay.Accepted, secondPlay.ErrorMessage);
+        Assert.True(secondP1Pass.Accepted, secondP1Pass.ErrorMessage);
+        Assert.True(secondP2Pass.Accepted, secondP2Pass.ErrorMessage);
+        Assert.DoesNotContain(secondP2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "RESONANT_SOUL_FIRST_FRIENDLY_DESTROYED_DRAW_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(secondP2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-001"], secondP2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-RESONANT-SOUL-DRAW-002"], secondP2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Contains("P1-FRIENDLY-TARGET-1", secondP2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-FRIENDLY-TARGET-2", secondP2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(secondP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET-1"));
+        Assert.False(secondP2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET-2"));
+    }
+
     [Theory]
     [InlineData("SFD·036/221", "P1-SAD-PORO")]
     [InlineData("UNL-221/219", "P1-UNL-SAD-PORO")]

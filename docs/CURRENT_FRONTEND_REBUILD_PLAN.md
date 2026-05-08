@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百七十三批补齐《残响之魂》（OGN·118/298）“每回合首次当你的友方单位被摧毁时抽一张牌”的服务端代表路径。普通栈结算生成 `UNIT_DESTROYED` 后，服务端从 authoritative field state 找到同控制者场上正面、非待命《残响之魂》，并用 `DestroyedUnitOwnerIdsThisTurn` 守住本回合首次；第一次触发广播 `TRIGGER_RESOLVED` 并抽 1 张，同回合第二次摧毁不再触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地摧毁监听或抽牌裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；残响之魂、幽魂半人马、凶残颚鱼摧毁触发回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3176/3176；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百七十二批补齐《幽魂半人马》（UNL-068/219）“每当另一名友方单位被摧毁时，本回合战力 +2”的服务端代表路径。普通栈结算生成 `UNIT_DESTROYED` 后，服务端从 authoritative field state 找到同控制者场上正面、非待命《幽魂半人马》，通过 `POWER_MODIFIED_UNTIL_END_OF_TURN` 将来源自身本回合战力 +2；面朝下、待命、对手控制来源不会误触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地摧毁监听或战力裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；幽魂半人马、凶残颚鱼、无名英雄摧毁触发回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3175/3175；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
