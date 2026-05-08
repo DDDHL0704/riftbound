@@ -9723,7 +9723,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var recycledRuneObjectId = zones.Base.FirstOrDefault(objectId =>
             cardObjects.TryGetValue(objectId, out var cardObject)
-            && IsRuneObject(objectId, cardObject)) ?? string.Empty;
+            && IsRuneObject(objectId, cardObject)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)) ?? string.Empty;
         if (string.IsNullOrWhiteSpace(recycledRuneObjectId))
         {
             return new RecycleResult(events, rngCursor);

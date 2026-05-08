@@ -30043,6 +30043,45 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldConquerRecycleRuneSkipsOpponentControlledBaseRune()
+    {
+        var baseState = BattlefieldConquerRecycleRuneState();
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Base = ["P1-BATTLEFIELD-RECYCLE-DIRTY-P2-RUNE", "P1-BATTLEFIELD-RECYCLE-RUNE-001"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-RECYCLE-DIRTY-P2-RUNE"] = new(
+            "P1-BATTLEFIELD-RECYCLE-DIRTY-P2-RUNE",
+            tags: [CardObjectTags.RuneCard],
+            ownerId: "P2");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-conquer-recycle-dirty-rune", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-THUNDER-RUNE",
+                ["P1-BATTLEFIELD-RECYCLE-ATTACKER"],
+                ["P2-BATTLEFIELD-RECYCLE-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-BATTLEFIELD-RECYCLE-DIRTY-P2-RUNE"], result.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-MAIN-001", "P1-BATTLEFIELD-RECYCLE-RUNE-001"], result.State.PlayerZones["P1"].MainDeck);
+        var recycleEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-BATTLEFIELD-THUNDER-RUNE", StringComparison.Ordinal));
+        Assert.Equal(["P1-BATTLEFIELD-RECYCLE-RUNE-001"], Assert.IsAssignableFrom<IReadOnlyList<string>>(recycleEvent.Payload["cardIds"]));
+    }
+
+    [Fact]
     public async Task P79BattlefieldDefendRevealSpellDrawsTopSpell()
     {
         var state = BattlefieldDefendRevealSpellState(topCardIsSpell: true);
