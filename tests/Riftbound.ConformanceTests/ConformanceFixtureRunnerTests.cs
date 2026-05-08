@@ -36529,6 +36529,106 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79EclipseVanguardReadiesAndGainsPowerWhenControllerStunsEnemyUnit()
+    {
+        var state = EclipseVanguardStunTriggerState(stunEnemy: true);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-play-stunner", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                "OGN·051/298",
+                ["P2-ECLIPSE-STUN-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Contains("P1-UNIT-SUN-SHIELDGUARD", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains("STUNNED", p2Pass.State.CardObjects["P2-ECLIPSE-STUN-TARGET"].UntilEndOfTurnEffects);
+
+        var vanguard = p2Pass.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"];
+        Assert.False(vanguard.IsExhausted);
+        Assert.Equal(8, vanguard.Power);
+        Assert.Equal(1, vanguard.UntilEndOfTurnPowerModifier);
+
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1", StringComparison.Ordinal));
+        Assert.Equal("P1-UNIT-ECLIPSE-VANGUARD", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-ECLIPSE-STUN-TARGET", triggerEvent.Payload["stunnedEnemyObjectId"]);
+        Assert.Equal(1, triggerEvent.Payload["powerDelta"]);
+
+        var readyEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
+        Assert.Equal(true, readyEvent.Payload["wasExhausted"]);
+
+        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
+        Assert.Equal(1, powerEvent.Payload["appliedPowerDelta"]);
+        Assert.Equal(8, powerEvent.Payload["resultingPower"]);
+    }
+
+    [Fact]
+    public async Task P79EclipseVanguardSkipsTriggerWhenControllerStunsFriendlyUnit()
+    {
+        var state = EclipseVanguardStunTriggerState(stunEnemy: false);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-play-friendly-stunner", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                "OGN·051/298",
+                ["P1-FRIENDLY-STUN-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-friendly-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-eclipse-vanguard-friendly-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Contains("STUNNED", p2Pass.State.CardObjects["P1-FRIENDLY-STUN-TARGET"].UntilEndOfTurnEffects);
+
+        var vanguard = p2Pass.State.CardObjects["P1-UNIT-ECLIPSE-VANGUARD"];
+        Assert.True(vanguard.IsExhausted);
+        Assert.Equal(7, vanguard.Power);
+        Assert.Equal(0, vanguard.UntilEndOfTurnPowerModifier);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-ECLIPSE-VANGUARD", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79WiseElderWithBoonAddsPowerInBattle()
     {
         var state = WiseElderBoonBattleState(hasBoon: true);
@@ -54336,6 +54436,71 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             }
+        };
+    }
+
+    private static MatchState EclipseVanguardStunTriggerState(bool stunEnemy)
+    {
+        string[] p1Base = stunEnemy
+            ? ["P1-UNIT-ECLIPSE-VANGUARD"]
+            : ["P1-UNIT-ECLIPSE-VANGUARD", "P1-FRIENDLY-STUN-TARGET"];
+        string[] p2Base = stunEnemy
+            ? ["P2-ECLIPSE-STUN-TARGET"]
+            : [];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-UNIT-SUN-SHIELDGUARD"] = new(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                cardNo: "OGN·051/298",
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1"),
+            ["P1-UNIT-ECLIPSE-VANGUARD"] = new(
+                "P1-UNIT-ECLIPSE-VANGUARD",
+                cardNo: "OGN·059/298",
+                power: 7,
+                tags: [CardObjectTags.UnitCard, "鸟类"],
+                isExhausted: true,
+                ownerId: "P1",
+                controllerId: "P1")
+        };
+
+        if (stunEnemy)
+        {
+            cardObjects["P2-ECLIPSE-STUN-TARGET"] = new(
+                "P2-ECLIPSE-STUN-TARGET",
+                cardNo: "SFD·125/221",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+        }
+        else
+        {
+            cardObjects["P1-FRIENDLY-STUN-TARGET"] = new(
+                "P1-FRIENDLY-STUN-TARGET",
+                cardNo: "SFD·125/221",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1");
+        }
+
+        return PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SUN-SHIELDGUARD"],
+                    Base = p1Base
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = p2Base
+                }
+            },
+            CardObjects = cardObjects
         };
     }
 

@@ -186,11 +186,13 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BalancedDiscipleCardNo = "UNL-097/219";
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const string OgnFioraCardNo = "OGN·232/298";
+    private const string EclipseVanguardCardNo = "OGN·059/298";
     private const string RavenbloomStudentCardNo = "OGN·103/298";
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string WiseElderCardNo = "OGN·065/298";
     private const string WaterbenderCardNo = "OGN·055/298";
+    private const string EclipseVanguardStunTriggerEffectKind = "ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1";
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
@@ -206,6 +208,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         "拉文布鲁姆学生",
         0,
         RavenbloomStudentSpellPowerEffectKind,
+        0,
+        0,
+        PowerModifierAmount: 1);
+    private static readonly CardBehaviorDefinition EclipseVanguardStunTriggerBehavior = new(
+        EclipseVanguardCardNo,
+        "星蚀先锋",
+        0,
+        EclipseVanguardStunTriggerEffectKind,
         0,
         0,
         PowerModifierAmount: 1);
@@ -14348,6 +14358,76 @@ public sealed class CoreRuleEngine : IRuleEngine
         return !string.IsNullOrWhiteSpace(targetObjectId);
     }
 
+    private static IReadOnlyList<GameEvent> ResolveEclipseVanguardStunTriggers(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        StackItemState stackItem,
+        IReadOnlyList<GameEvent> stackEvents)
+    {
+        var stunnedEnemyObjectIds = StackEventStunnedEnemyUnitObjectIds(
+            playerZones,
+            cardObjects,
+            stackItem.ControllerId,
+            stackEvents);
+        if (stunnedEnemyObjectIds.Count == 0)
+        {
+            return [];
+        }
+
+        var events = new List<GameEvent>();
+        foreach (var sourceObjectId in GetControlledFieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var sourceState)
+                && string.Equals(sourceState.CardNo, EclipseVanguardCardNo, StringComparison.Ordinal)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown)
+            .OrderBy(objectId => objectId, StringComparer.Ordinal))
+        {
+            foreach (var stunnedEnemyObjectId in stunnedEnemyObjectIds)
+            {
+                var sourceState = cardObjects[sourceObjectId];
+                var triggerStackItem = new StackItemState(
+                    stackItemId: $"{sourceObjectId}:enemy-stunned-ready-power:{stunnedEnemyObjectId}",
+                    controllerId: stackItem.ControllerId,
+                    sourceObjectId: sourceObjectId,
+                    effectKind: EclipseVanguardStunTriggerEffectKind,
+                    cardNo: EclipseVanguardCardNo);
+                events.Add(new GameEvent(
+                    "TRIGGER_RESOLVED",
+                    $"{stackItem.ControllerId} 的星蚀先锋因眩晕敌方单位而触发",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["trigger"] = EclipseVanguardStunTriggerEffectKind,
+                        ["effectKind"] = EclipseVanguardStunTriggerEffectKind,
+                        ["triggerSourceObjectId"] = sourceObjectId,
+                        ["sourceObjectId"] = sourceObjectId,
+                        ["playedCardNo"] = stackItem.CardNo,
+                        ["triggeredByStackItemId"] = stackItem.StackItemId,
+                        ["triggeredBySourceObjectId"] = stackItem.SourceObjectId,
+                        ["stunnedEnemyObjectId"] = stunnedEnemyObjectId,
+                        ["powerDelta"] = EclipseVanguardStunTriggerBehavior.PowerModifierAmount
+                    }));
+                var readiedState = ApplyReadyState(
+                    sourceState,
+                    EclipseVanguardStunTriggerBehavior,
+                    triggerStackItem,
+                    sourceObjectId,
+                    out var readyEvent);
+                events.Add(readyEvent);
+                cardObjects[sourceObjectId] = ApplyPowerModifier(
+                    readiedState,
+                    EclipseVanguardStunTriggerBehavior,
+                    triggerStackItem,
+                    sourceObjectId,
+                    EclipseVanguardStunTriggerBehavior.PowerModifierAmount,
+                    out var powerEvent);
+                events.Add(powerEvent);
+            }
+        }
+
+        return events;
+    }
+
     private static IReadOnlyList<GameEvent> ResolveLeonaStunBoonTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
@@ -14414,12 +14494,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         IReadOnlyList<GameEvent> stackEvents)
     {
-        return stackEvents.Any(gameEvent =>
-            string.Equals(gameEvent.Kind, "STATUS_EFFECT_APPLIED", StringComparison.Ordinal)
-            && TryGetPayloadString(gameEvent, "effectId", out var effectId)
-            && string.Equals(effectId, "STUNNED", StringComparison.Ordinal)
-            && TryGetPayloadString(gameEvent, "targetObjectId", out var targetObjectId)
-            && IsEnemyFieldUnit(playerZones, cardObjects, playerId, targetObjectId));
+        return StackEventStunnedEnemyUnitObjectIds(playerZones, cardObjects, playerId, stackEvents).Count > 0;
+    }
+
+    private static IReadOnlyList<string> StackEventStunnedEnemyUnitObjectIds(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        IReadOnlyList<GameEvent> stackEvents)
+    {
+        return stackEvents
+            .Where(gameEvent =>
+                string.Equals(gameEvent.Kind, "STATUS_EFFECT_APPLIED", StringComparison.Ordinal)
+                && TryGetPayloadString(gameEvent, "effectId", out var effectId)
+                && string.Equals(effectId, "STUNNED", StringComparison.Ordinal)
+                && TryGetPayloadString(gameEvent, "targetObjectId", out var targetObjectId)
+                && IsEnemyFieldUnit(playerZones, cardObjects, playerId, targetObjectId))
+            .Select(gameEvent =>
+                TryGetPayloadString(gameEvent, "targetObjectId", out var targetObjectId)
+                    ? targetObjectId
+                    : string.Empty)
+            .Where(targetObjectId => !string.IsNullOrWhiteSpace(targetObjectId))
+            .ToArray();
     }
 
     private static bool TryGetPayloadString(GameEvent gameEvent, string key, out string value)
@@ -20152,6 +20248,11 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         events.AddRange(ResolveLeonaStunBoonTrigger(
             state,
+            playerZones,
+            cardObjects,
+            stackItem,
+            events));
+        events.AddRange(ResolveEclipseVanguardStunTriggers(
             playerZones,
             cardObjects,
             stackItem,

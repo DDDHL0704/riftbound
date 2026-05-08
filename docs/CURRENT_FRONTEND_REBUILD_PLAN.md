@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十五批补齐《星蚀先锋》（OGN·059/298）眩晕敌方单位后自身变为活跃且本回合 +1 的服务端代表路径。服务端复用 authoritative `STATUS_EFFECT_APPLIED/STUNNED` 事件与场上对象控制权判断，只在控制者眩晕敌方正面单位时触发 `ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1`，随后写入 `UNIT_READIED` 和本回合临时战力修正；眩晕己方单位不会触发。前端不新增本地眩晕监听或战力裁决，只展示服务端事件和 snapshot。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79EclipseVanguard` 定向 2/2 通过；《星蚀先锋》/《烈阳盾卫》/蕾欧娜眩晕相邻回归 7/7 通过；后端 full test 3220/3220 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十四批补齐《魄罗牧者》（OGN·061/298）控制魄罗时增益并抽 1 的服务端代表路径。服务端在源单位结算后按 authoritative 场上对象确认当前控制者拥有正面魄罗单位，再由 Core 触发 `PORO_HERDER_BOON_DRAW`、为自身授予增益并抽牌；前端不新增本地魄罗判断，只展示服务端事件和 snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79PoroHerder` 定向 1/1 通过；后端 full test 3218/3218 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
