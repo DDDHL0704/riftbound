@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十六批补齐《自适应机器人》（OGN·056/298）征服效果摧毁装备并自增益的服务端测试证据。现有 Core 代表路径在《清算人竞技场》据守触发 `BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS` 时激活单位征服效果：有场上装备则摧毁装备、移动到拥有者废牌堆并给予自身增益；无装备时不增益。前端仍不新增本地装备选择或增益裁决，只展示服务端事件与 authoritative snapshot。
+- 本批验证：`P79BattlefieldHeldActivateConquestEffectsAdaptiveRobot` 定向 2/2 通过；`P79BattlefieldHeldActivateConquest` 相邻聚合 6/6 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十五批补齐《星蚀先锋》（OGN·059/298）眩晕敌方单位后自身变为活跃且本回合 +1 的服务端代表路径。服务端复用 authoritative `STATUS_EFFECT_APPLIED/STUNNED` 事件与场上对象控制权判断，只在控制者眩晕敌方正面单位时触发 `ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1`，随后写入 `UNIT_READIED` 和本回合临时战力修正；眩晕己方单位不会触发。前端不新增本地眩晕监听或战力裁决，只展示服务端事件和 snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79EclipseVanguard` 定向 2/2 通过；《星蚀先锋》/《烈阳盾卫》/蕾欧娜眩晕相邻回归 7/7 通过；后端 full test 3220/3220 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

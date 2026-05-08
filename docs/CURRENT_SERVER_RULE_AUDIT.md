@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第二百九十六批补充：补齐《自适应机器人》（OGN·056/298）“征服效果摧毁一件装备并给予自身增益”的服务端代表路径证据。Core 既有 `BATTLEFIELD_HELD_ACTIVATE_UNIT_CONQUEST_EFFECTS` 路径现在由直接引擎测试锁定：当《清算人竞技场》据守触发激活单位征服效果时，受控正面《自适应机器人》若存在场上装备，会广播 `UNIT_CONQUEST_EFFECT_ACTIVATED.effectId=UNIT_CONQUEST_DESTROY_EQUIPMENT_GRANT_SELF_BOON`，由服务端摧毁装备并将其移入拥有者废牌堆，再给予自身 `增益` 与 +1 战力；无装备时不授予增益。前端仍只展示服务端事件和 snapshot，不在浏览器侧选择或摧毁装备。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHeldActivateConquestEffectsAdaptiveRobot"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldHeldActivateConquest"` 相邻聚合通过 6/6。本批为服务端测试与证据收口，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第二百九十五批补充：补齐《星蚀先锋》（OGN·059/298）“每当你眩晕一名敌方单位时，让我变为活跃状态，且本回合 +1”的服务端代表路径。Core 现在复用服务端 `STATUS_EFFECT_APPLIED.effectId=STUNNED` 事件与 authoritative 场上对象判断，只在控制者真实眩晕敌方正面单位时解析其受控正面《星蚀先锋》，广播 `TRIGGER_RESOLVED.effectKind=ECLIPSE_VANGUARD_STUN_TRIGGER_READY_POWER_1`，随后写入 `UNIT_READIED` 与 `POWER_MODIFIED_UNTIL_END_OF_TURN`；眩晕己方单位不会触发。前端仍只展示服务端事件和 snapshot，不在浏览器侧监听眩晕或自行修正活跃/战力。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79EclipseVanguard"` 通过 2/2；《星蚀先锋》/《烈阳盾卫》/蕾欧娜眩晕相邻回归 7/7 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3220/3220；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，目标端口保持无监听。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
