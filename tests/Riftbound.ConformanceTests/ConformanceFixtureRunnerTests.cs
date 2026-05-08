@@ -2310,6 +2310,89 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineThunderingDropResolutionSkipsOpponentControlledFriendlyBaseTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-THUNDERING-DROP-DIRTY-BASE",
+                    "P1",
+                    "P1-SPELL-THUNDERING-DROP",
+                    "THUNDERING_DROP_BASE_UNIT_POWER_DAMAGE_ENEMY_BATTLEFIELD_MOVE",
+                    "OGN·250/298",
+                    ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P2-THUNDERING-DROP-DIRTY-ENEMY-001",
+                        "P2-THUNDERING-DROP-DIRTY-ENEMY-002"
+                    ]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"] = new(
+                    "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-THUNDERING-DROP-DIRTY-ENEMY-001"] = new(
+                    "P2-THUNDERING-DROP-DIRTY-ENEMY-001",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-THUNDERING-DROP-DIRTY-ENEMY-002"] = new(
+                    "P2-THUNDERING-DROP-DIRTY-ENEMY-002",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-thundering-drop-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-thundering-drop-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(0, p2Pass.State.CardObjects["P2-THUNDERING-DROP-DIRTY-ENEMY-001"].Damage);
+        Assert.Equal(0, p2Pass.State.CardObjects["P2-THUNDERING-DROP-DIRTY-ENEMY-002"].Damage);
+        Assert.Equal(["P1-SPELL-THUNDERING-DROP"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysBattleCommandMoveFriendlyAndOpponentUnit()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -2328,6 +2411,85 @@ public sealed class ConformanceFixtureRunnerTests
             result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Empty(result.FinalState.PlayerZones["P2"].Base);
         Assert.Equal(["P2-BATTLE-COMMAND-BASE-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineBattleCommandResolutionSkipsOpponentControlledFriendlyBaseTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-BATTLE-COMMAND-DIRTY-BASE",
+                    "P1",
+                    "P1-SPELL-BATTLE-COMMAND",
+                    "BATTLE_COMMAND_MOVE_FRIENDLY_AND_OPPONENT_UNIT_TO_BATTLEFIELD",
+                    "UNL-101/219",
+                    [
+                        "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
+                        "P2-BATTLE-COMMAND-VALID-BASE-UNIT"
+                    ])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-BATTLE-COMMAND-VALID-BASE-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"] = new(
+                    "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLE-COMMAND-VALID-BASE-UNIT"] = new(
+                    "P2-BATTLE-COMMAND-VALID-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-battle-command-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-battle-command-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P2-BATTLE-COMMAND-VALID-BASE-UNIT"], p2Pass.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P1-SPELL-BATTLE-COMMAND"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        var moveEvents = p2Pass.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal))
+            .ToArray();
+        var moveEvent = Assert.Single(moveEvents);
+        Assert.Equal("P2-BATTLE-COMMAND-VALID-BASE-UNIT", moveEvent.Payload["targetObjectId"]);
     }
 
     [Fact]
@@ -21692,6 +21854,69 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-BASE-BOON-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(3, result.FinalState.CardObjects["P1-BASE-BOON-UNIT-001"].Power);
         Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Boon], result.FinalState.CardObjects["P1-BASE-BOON-UNIT-001"].Tags);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineStunningDisplayResolutionSkipsOpponentControlledFriendlyBaseTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-STUNNING-DISPLAY-DIRTY-BASE",
+                    "P1",
+                    "P1-SPELL-STUNNING-DISPLAY",
+                    "STUNNING_DISPLAY_GRANT_BOON_MOVE_BASE_UNIT_TO_BATTLEFIELD",
+                    "OGN·270/298",
+                    ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"] = new(
+                    "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-stunning-display-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-stunning-display-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-SPELL-STUNNING-DISPLAY"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(2, p2Pass.State.CardObjects["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], p2Pass.State.CardObjects["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"].Tags);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "OBJECT_TAG_ADDED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BATTLEFIELD", StringComparison.Ordinal));
     }
 
     [Fact]

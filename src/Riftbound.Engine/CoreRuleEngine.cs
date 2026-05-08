@@ -17280,33 +17280,46 @@ public sealed class CoreRuleEngine : IRuleEngine
             && stackItem.TargetObjectIds.Count >= 1)
         {
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
-            var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
-                ? Math.Max(0, firstTargetState.Power)
-                : 0;
-            ApplyDamageToEnemyBattlefieldUnits(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                damageAmount,
-                events,
-                damageTriggeredDestroyTargetObjectIds,
-                preventDamageFromThisStackItem,
-                PreventSpellAndSkillDamageThisTurnEffectId);
-
-            if (behavior.MovesTargetToBattlefield
-                && TryMoveTargetToControllerBattlefield(playerZones, stackItem.ControllerId, firstTargetObjectId))
+            var canResolveTargetMove = !behavior.MovesTargetToBattlefield
+                || CanMoveTargetToControllerBattlefield(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    firstTargetObjectId);
+            if (canResolveTargetMove)
             {
-                events.Add(new GameEvent(
-                    "UNIT_MOVED_TO_BATTLEFIELD",
-                    $"{behavior.DisplayName}让单位移动到战场",
-                    new Dictionary<string, object?>
-                    {
-                        ["sourceObjectId"] = stackItem.SourceObjectId,
-                        ["targetObjectId"] = firstTargetObjectId,
-                        ["controllerId"] = stackItem.ControllerId,
-                        ["destinationZone"] = "BATTLEFIELD"
-                    }));
+                var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                    ? Math.Max(0, firstTargetState.Power)
+                    : 0;
+                ApplyDamageToEnemyBattlefieldUnits(
+                    playerZones,
+                    cardObjects,
+                    behavior,
+                    stackItem,
+                    damageAmount,
+                    events,
+                    damageTriggeredDestroyTargetObjectIds,
+                    preventDamageFromThisStackItem,
+                    PreventSpellAndSkillDamageThisTurnEffectId);
+
+                if (behavior.MovesTargetToBattlefield
+                    && TryMoveTargetToControllerBattlefield(
+                        playerZones,
+                        cardObjects,
+                        stackItem.ControllerId,
+                        firstTargetObjectId))
+                {
+                    events.Add(new GameEvent(
+                        "UNIT_MOVED_TO_BATTLEFIELD",
+                        $"{behavior.DisplayName}让单位移动到战场",
+                        new Dictionary<string, object?>
+                        {
+                            ["sourceObjectId"] = stackItem.SourceObjectId,
+                            ["targetObjectId"] = firstTargetObjectId,
+                            ["controllerId"] = stackItem.ControllerId,
+                            ["destinationZone"] = "BATTLEFIELD"
+                        }));
+                }
             }
         }
         else if (behavior.DestroysFirstTargetAndBuffsSecondByDestroyedPower
@@ -17404,6 +17417,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     var targetObjectId = stackItem.TargetObjectIds[targetIndex];
                     if (!IsFieldObject(playerZones, targetObjectId))
+                    {
+                        continue;
+                    }
+
+                    if (behavior.MovesTargetToBattlefield
+                        && !CanMoveTargetToControllerBattlefield(
+                            playerZones,
+                            cardObjects,
+                            stackItem.ControllerId,
+                            targetObjectId))
                     {
                         continue;
                     }
@@ -17850,7 +17873,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetsToOwnerBattlefields
-                        && TryMoveTargetToOwnerBattlefield(playerZones, targetObjectId, out var ownerBattlefieldPlayerId))
+                        && TryMoveTargetToOwnerBattlefield(
+                            playerZones,
+                            cardObjects,
+                            targetObjectId,
+                            out var ownerBattlefieldPlayerId))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BATTLEFIELD",
@@ -17866,7 +17893,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                     }
 
                     if (behavior.MovesTargetToBattlefield
-                        && TryMoveTargetToControllerBattlefield(playerZones, stackItem.ControllerId, targetObjectId))
+                        && TryMoveTargetToControllerBattlefield(
+                            playerZones,
+                            cardObjects,
+                            stackItem.ControllerId,
+                            targetObjectId))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BATTLEFIELD",
@@ -21070,13 +21101,15 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryMoveTargetToOwnerBattlefield(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         out string ownerPlayerId)
     {
         ownerPlayerId = string.Empty;
         foreach (var (playerId, zones) in playerZones)
         {
-            if (!zones.Base.Contains(targetObjectId, StringComparer.Ordinal))
+            if (!zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }
@@ -21097,11 +21130,16 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryMoveTargetToControllerBattlefield(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string controllerId,
         string targetObjectId)
     {
-        if (!playerZones.TryGetValue(controllerId, out var zones)
-            || !zones.Base.Contains(targetObjectId, StringComparer.Ordinal))
+        if (!CanMoveTargetToControllerBattlefield(
+                playerZones,
+                cardObjects,
+                controllerId,
+                targetObjectId)
+            || !playerZones.TryGetValue(controllerId, out var zones))
         {
             return false;
         }
@@ -21114,6 +21152,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : zones.Battlefields.Concat([targetObjectId]).ToArray()
         };
         return true;
+    }
+
+    private static bool CanMoveTargetToControllerBattlefield(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string controllerId,
+        string targetObjectId)
+    {
+        return playerZones.TryGetValue(controllerId, out var zones)
+            && zones.Base.Contains(targetObjectId, StringComparer.Ordinal)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, controllerId, targetObjectId);
     }
 
     private static bool TryMoveFirstTargetToSecondTargetLocation(
