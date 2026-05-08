@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百二十批继续收口结算链 destination 展示。`StackPanel` 把 stack item `destination` 映射为“战场 / 基地 / 结算链 / 待命 / 废牌堆 / 放逐区 / 服务端区域”，不再把 `BATTLEFIELD:P1-MAIN`、`STACK` 等协议值显示在规则队列正文；前端仍只读服务端 stack item，不改变命令提交或规则裁决。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-zone-label-field-1778240000004`，P1 页面连接对战页，后台 SignalR 让 P2 入座、seed `basic-play`，并由 P1 提交 `PLAY_CARD` 到 `BATTLEFIELD:P1-MAIN`；规则队列显示“去向：战场”，页面正文不含 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`。Chrome 仅有扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0；smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百一十九批继续收口资源条协议键展示。`runePoolText` 把 `powerByTrait` 的 `red/green/blue/yellow/purple` 渲染为“红色符能 / 绿色符能 / 蓝色符能 / 黄色符能 / 紫色符能”，未知 trait 降级为“服务端符能”，不再把 `red:2` 这类 protocol key 放进玩家正文；前端仍只展示服务端 rune pool snapshot。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-rune-trait-label-1778240000001`，P1 页面连接对战页，后台 SignalR 让 P2 入座并 seed `typed-power-payment`；P1 资源条显示“法力 1 / 符能 2 / 红色符能 2”，页面正文不含 `red:2`、`red : 2` 或 `red 2`。Chrome 仅有扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0；smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 
@@ -732,6 +735,7 @@
 - 服务端 cleanup task 阻塞原因继续中文化：`RECALL_UNATTACHED_EQUIPMENT` 现在显示为“装备清理”，致命伤害、0 战力、待命和未贴附装备清理的 prompt/error 回归均断言不再裸显 raw cleanup task kind；authoritative snapshot 仍保留结构化 `pendingTaskQueue.tasks[].kind` 供前端只读状态展示。验证：后端 build `--no-incremental` 通过，`ConformanceFixtureShapeTests` 75/75、`OfficialOpeningTests` 9/9、`GameHubJoinTests` 119/119 通过。本批没有前端 UI 交互变更，未启动新的 API/Vite/Chrome smoke；完成度仍约 **99%**，整体结论仍 **NOT READY**。
 - 规则队列 cleanup task 展示继续去 raw kind：前端把 `RECALL_UNATTACHED_EQUIPMENT` 显示为“装备清理”，未知全大写任务名显示为“服务端任务”；新增 `battlefield-unattached-equipment-cleanup` development-only seed 复现真实未贴附装备清理 pending task。验证：后端 build 通过，未贴附装备/非法待命/pending task 精确回归 3/3、`GameHubJoinTests` 120/120、前端 build 通过；Chrome 插件 smoke `smoke-unattached-equipment-1778239965401` 验证规则队列显示“装备清理：装备脱离清理”，正文不含 `RECALL_UNATTACHED_EQUIPMENT`、`UNATTACHED_EQUIPMENT_CLEANUP`、`cleanup:unattached-equipment` 或对象 ID，过滤扩展脚本 autoplay 噪声后应用 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 均无监听；完成度仍约 **99%**，整体结论仍 **NOT READY**。
 - 资源条 trait 显示继续中文化：`powerByTrait` 中的 `red/green/blue/yellow/purple` 不再以 `red:2` 这类协议键展示，而是显示为“红色符能 2”等中文资源。验证：前端 build 通过；Chrome 插件 smoke `smoke-rune-trait-label-1778240000001` 验证 P1 typed-power seed 资源条显示“法力 1 / 符能 2 / 红色符能 2”，页面正文不含 `red:2`、`red : 2` 或 `red 2`，过滤扩展脚本 autoplay 噪声后应用 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 均无监听；完成度仍约 **99%**，整体结论仍 **NOT READY**。
+- 结算链 destination 显示继续中文化：`StackPanel` 不再把 stack item 的 `BATTLEFIELD:P1-MAIN` / `STACK` 等协议值作为规则队列正文，改为“战场 / 结算链”等中文去向。验证：前端 build 通过；Chrome 插件 smoke `smoke-zone-label-field-1778240000004` 验证 P1 打出单位到战场后规则队列显示“去向：战场”，正文不含 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`，过滤扩展脚本 autoplay 噪声后应用 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 均无监听；完成度仍约 **99%**，整体结论仍 **NOT READY**。
 
 预计剩余批次数：**1-2 批左右**
 

@@ -61,6 +61,32 @@ function stackEffectLabel(value: unknown) {
   return key ? (stackEffectLabels[key] ?? "服务端效果") : "效果";
 }
 
+function stackDestinationLabel(value: unknown) {
+  const raw = asString(value, "");
+  if (!raw) {
+    return "";
+  }
+
+  if (raw.startsWith("BATTLEFIELD:")) {
+    return "战场";
+  }
+
+  switch (raw) {
+    case "BASE":
+      return "基地";
+    case "STACK":
+      return "结算链";
+    case "STANDBY":
+      return "待命";
+    case "GRAVEYARD":
+      return "废牌堆";
+    case "BANISHED":
+      return "放逐区";
+    default:
+      return /^[A-Z0-9_:-]+$/.test(raw) ? "服务端区域" : redactInternalText(raw);
+  }
+}
+
 function taskKindLabel(value: unknown) {
   const raw = asString(value, "");
   if (!raw) {
@@ -148,7 +174,7 @@ function StackItemSummary({ item, ordinal }: { item: unknown; ordinal: number })
   const record = asRecord(item);
   const cardNo = asString(record.cardNo, "");
   const targets = asArray<unknown>(record.targetObjectIds).length;
-  const destination = asString(record.destination, "");
+  const destination = stackDestinationLabel(record.destination);
 
   return (
     <article className="stack-item">

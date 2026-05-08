@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十批补充：前端结算链摘要继续去 destination 协议值。`StackPanel` 现在把 stack item 的 `destination` 显示为“战场 / 基地 / 结算链 / 待命 / 废牌堆 / 放逐区 / 服务端区域”，不再把 `BATTLEFIELD:P1-MAIN`、`STACK` 等 raw destination token 放进玩家正文；该批只改 UI 展示，服务端 stack item 与命令契约不变。
+- 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-zone-label-field-1778240000004`，P1 页面连接后由后台 SignalR 让 P2 入座、seed `basic-play`，并由 P1 提交服务端候选支持的 `PLAY_CARD` 到 `BATTLEFIELD:P1-MAIN`；结算链摘要显示“去向：战场”，页面正文不含 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`。Chrome 只记录扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0；smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百一十九批补充：前端资源条继续去协议键展示。`runePoolText` 现在把 `powerByTrait` 中的 `red/green/blue/yellow/purple` 渲染为“红色符能 / 绿色符能 / 蓝色符能 / 黄色符能 / 紫色符能”，未知 trait 降级为“服务端符能”，不再把 `red:2` 这类协议键作为玩家正文；该批只改 UI formatter，服务端权威 rune pool/snapshot 不变。
 - 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-rune-trait-label-1778240000001`，P1 页面连接后由后台 SignalR 让 P2 入座并 seed `typed-power-payment`；P1 资源条显示“法力 1 / 符能 2 / 红色符能 2”，页面正文不含 `red:2`、`red : 2` 或 `red 2`。Chrome 只记录扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0；smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
