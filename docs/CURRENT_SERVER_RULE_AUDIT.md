@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-003/P1-004 第一百九十三批补充：房间页按钮区继续与“只展示可提交且当前页面能提交的操作”对齐。`RoomPromptButtons` 现在只渲染 enabled 的 `SUBMIT_DECK` / `READY` 房间级候选；如果服务端当前 prompt 已进入对战动作（例如 `MOVE_UNIT`、`END_TURN`、`SURRENDER`），房间页只显示“其他可提交行动请进入对战桌面”，不再把这些动作渲染成 disabled ghost 按钮。房间页底部仍可只读汇总服务端 enabled candidate，帮助玩家理解状态但不代替对战桌面提交。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。后台 headless Chrome/CDP smoke 使用房间 `smoke-room-buttons-1778231212969`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接房间页，房间按钮列表只有“连接/重连并入座”和“进入对战桌面”，提示“其他可提交行动请进入对战桌面”，未出现“移动单位/结束回合/投降”按钮，也未出现 disabled 的“打出卡牌（需选择）”或“声明战斗（需选择）”；“当前可提交行动”摘要仍显示“移动单位、结束回合、投降”，browser runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P0-003/P1-004 第一百九十二批补充：继续收紧前端“可提交操作”展示面。`ActionPanel` 现在只渲染服务端 `candidates[].enabled == true` 的候选，避免把 disabled 的 `PLAY_CARD`、`DECLARE_BATTLE` 等宽泛候选显示成“需选择”的操作按钮；卡牌详情抽屉也改为“服务端可提交操作”，并只列出 enabled source candidate。前端仍不从卡面、`prompt.actions` 或 disabled candidate 自行裁决可玩入口。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-actions-1778230564156`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接对战页，主操作面板只显示“移动单位、结束回合、投降”，不显示 disabled 的“打出卡牌（需选择）”或“声明战斗（需选择）”；点击 P1 战场单位后，详情抽屉显示“服务端可提交操作”和“移动单位”，不再显示旧标题“可执行操作”，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十三批继续收口房间页候选按钮。房间页 `RoomPromptButtons` 现在只显示 enabled 且房间页能提交的 `SUBMIT_DECK` / `READY` 候选；当服务端 prompt 已进入对战动作时，房间页不再把 `MOVE_UNIT`、`END_TURN`、`SURRENDER` 或 disabled 候选渲染成不可点按钮，只提示玩家进入对战桌面处理。底部“当前可提交行动”仍只读展示 enabled candidate 摘要。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。后台 headless Chrome/CDP smoke 使用房间 `smoke-room-buttons-1778231212969`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接房间页，房间按钮只有“连接/重连并入座”和“进入对战桌面”，页面显示“其他可提交行动请进入对战桌面”，没有“移动单位/结束回合/投降”按钮，也没有“打出卡牌（需选择）/声明战斗（需选择）”，摘要仍显示“移动单位、结束回合、投降”，browser runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十二批继续收口服务端权威候选展示。对战页右侧 `ActionPanel` 现在只展示服务端 `candidates[].enabled == true` 的候选，卡牌详情抽屉标题改为“服务端可提交操作”，并只显示 enabled source candidate；因此 disabled 的 `PLAY_CARD`、`DECLARE_BATTLE` 等不会再以“需选择”按钮形式误导玩家。前端仍只提交服务端当前 prompt 允许的动作，不从卡面、`prompt.actions` 或 disabled candidate 自行推导规则。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-actions-1778230564156`，P1 在设置页写入 `serverUrl=http://127.0.0.1:5093` 后连接对战页，主操作面板只显示“移动单位、结束回合、投降”，不显示“打出卡牌（需选择）/声明战斗（需选择）”；点击 P1 战场单位后详情抽屉显示“服务端可提交操作”和“移动单位”，不再显示旧文案“可执行操作”，app runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

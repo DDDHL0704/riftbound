@@ -1,4 +1,4 @@
-import { Check, Hourglass, RefreshCw, Send, Swords } from "lucide-react";
+import { Check, RefreshCw, Send, Swords } from "lucide-react";
 import { AppRoute } from "../app/router";
 import { Button } from "../components/ui/Button";
 import { StatusPill } from "../components/ui/StatusPill";
@@ -90,14 +90,18 @@ function RoomPromptButtons({
   onReady: () => void;
   onSubmitStarterDeck: () => void;
 }) {
-  if (candidates.length === 0) {
-    return <span className="empty-hint">等待服务端候选。</span>;
+  const roomCandidates = candidates.filter((candidate) =>
+    candidate.enabled && (candidate.action === "SUBMIT_DECK" || candidate.action === "READY"));
+
+  if (roomCandidates.length === 0) {
+    const hasOtherEnabledCandidate = candidates.some((candidate) => candidate.enabled);
+    return <span className="empty-hint">{hasOtherEnabledCandidate ? "其他可提交行动请进入对战桌面。" : "等待服务端可提交候选。"}</span>;
   }
 
-  return candidates.map((candidate) => {
+  return roomCandidates.map((candidate) => {
     if (candidate.action === "SUBMIT_DECK") {
       return (
-        <Button disabled={!candidate.enabled} icon={<Send size={16} />} key={candidate.action} onClick={onSubmitStarterDeck} title={candidate.reason} variant="secondary">
+        <Button icon={<Send size={16} />} key={candidate.action} onClick={onSubmitStarterDeck} title={candidate.reason} variant="secondary">
           {promptActionLabel(candidate)}
         </Button>
       );
@@ -105,16 +109,12 @@ function RoomPromptButtons({
 
     if (candidate.action === "READY") {
       return (
-        <Button disabled={!candidate.enabled} icon={<Check size={16} />} key={candidate.action} onClick={onReady} title={candidate.reason} variant="secondary">
+        <Button icon={<Check size={16} />} key={candidate.action} onClick={onReady} title={candidate.reason} variant="secondary">
           {promptActionLabel(candidate)}
         </Button>
       );
     }
 
-    return (
-      <Button disabled icon={<Hourglass size={16} />} key={candidate.action} title={candidate.reason} variant="ghost">
-        {promptActionLabel(candidate)}
-      </Button>
-    );
+    return null;
   });
 }
