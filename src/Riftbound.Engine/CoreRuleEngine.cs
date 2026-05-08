@@ -8277,6 +8277,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHoldDrawCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8315,6 +8316,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHoldCreateMinionCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8352,6 +8354,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHoldEachPlayerCallRuneCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8401,6 +8404,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHoldCallRuneCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8533,6 +8537,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHoldGrantBoonCardNo(battlefieldState.CardNo)
             || !TryGetFirstSurvivingBattlefieldUnit(cardObjects, playerZones, defenderObjectIds, out var targetObjectId))
         {
@@ -8572,6 +8577,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         List<GameEvent> events)
     {
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldMoveUnitToBaseCardNo(battlefieldState.CardNo)
             || !TryGetFirstBattlefieldZoneUnit(cardObjects, playerZones, defenderObjectIds.Concat([sourceObjectId]), out var targetObjectId))
         {
@@ -8710,6 +8716,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         nextPlayerScores = playerScores;
         winnerPlayerId = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldPayPowerScoreCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8806,6 +8813,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         winnerPlayerId = null;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldSevenUnitsWinCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8859,6 +8867,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldUnitCostIncreaseCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8895,6 +8904,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldNextSpellEchoCardNo(battlefieldState.CardNo))
         {
             return false;
@@ -8936,6 +8946,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out var battlefieldState)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId)
             || !IsBattlefieldHeldActivateConquestEffectsCardNo(battlefieldState.CardNo)
             || !playerZones.TryGetValue(playerId, out var zones))
         {

@@ -32139,6 +32139,39 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldHeldDrawSkipsOpponentOwnedBattlefield()
+    {
+        var state = BattlefieldHeldDrawState();
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-BATTLEFIELD-DREAM-TREE"] = cardObjects["P2-BATTLEFIELD-DREAM-TREE"] with
+        {
+            OwnerId = "P1",
+            ControllerId = ""
+        };
+        state = state with { CardObjects = cardObjects };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-held-draw-dirty-source", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-BATTLEFIELD-DREAM-TREE",
+                ["P1-BATTLEFIELD-HELD-ATTACKER"],
+                ["P2-BATTLEFIELD-HELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Empty(result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-BATTLEFIELD-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_HELD_DRAW_ONE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldGrantsBoonToSurvivingDefender()
     {
         var state = BattlefieldHeldBoonState();
@@ -48593,8 +48626,7 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-DREAM-TREE",
                     cardNo: "OGN·280/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
-                    ownerId: "P2",
-                    controllerId: "P2"),
+                    ownerId: "P2"),
                 ["P2-BATTLEFIELD-HELD-DEFENDER"] = new(
                     "P2-BATTLEFIELD-HELD-DEFENDER",
                     cardNo: "SFD·125/221",

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第一百七十三批补充：基础据守触发族继续统一战场来源控制权。`TryResolveBattlefieldHeldDrawTrigger`、造随从、双方召符文、持有者召符文、赐福、移动到基地、支付能量得分、七单位胜利、单位费用增加、下个法术获得 Echo、激活己方单位征服效果等 held 分支，都会要求战场牌仍由据守玩家控制/legacy-owned；owner=P2/controller 空的旧恢复梦树仍能抽牌，owner 漂移到 P1 的脏梦树不再给 P2 抽牌。
+- 已补测试与验证：`P79BattlefieldHeldDrawsCardFromBattlefieldObject` 改为 owner=P2/controller 空的合法旧恢复梦树；新增 `P79BattlefieldHeldDrawSkipsOpponentOwnedBattlefield` 覆盖 owner=P1/controller 空的脏梦树不会触发 `BATTLEFIELD_HELD_DRAW_ONE` 或 `CARD_DRAWN`。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；基础 held 相关回归 18/18、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3123/3123 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Chrome smoke；整体仍 **NOT READY**，因为完整 cleanup queue、官方级战斗/法术对决任务状态机、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第一百七十二批补充：据守陵墓类 `BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD` 触发继续收口战场来源控制权。`TryResolveBattlefieldHeldReturnHeroTrigger` 现在要求陵墓战场牌仍由据守玩家控制/legacy-owned；owner=P2/controller 空的旧恢复陵墓仍能把 P2 英雄从墓地返回英雄区，owner 漂移到 P1 的脏陵墓不再触发返回。
 - 已补测试与验证：`P79BattlefieldHeldReturnsHeroFromGraveyardToChampionZone` 改为 owner=P2/controller 空的合法旧恢复陵墓；新增 `P79BattlefieldHeldReturnHeroSkipsOpponentOwnedTomb` 覆盖 owner=P1/controller 空的脏陵墓不触发 `BATTLEFIELD_HELD_RETURN_HERO_FROM_GRAVEYARD`，P2 英雄仍留在墓地。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`P79BattlefieldHeldReturnHero|BattlefieldHeldReturnsHero|BATTLEFIELD_HELD_RETURN_HERO` 相关回归 3/3、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3122/3122 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Chrome smoke；整体仍 **NOT READY**，因为完整 cleanup queue、官方级战斗/法术对决任务状态机、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
