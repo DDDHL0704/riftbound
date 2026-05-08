@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百一十一批继续收口首页/设置页玩家可见接口路径。`HomePage` 不再显示 `/catalog/behavior-specs`，改为“服务端卡牌证据”；`SettingsPage` 加载健康状态时不再显示 `/health`，改为“正在读取服务端健康状态。”；这些改动只影响产品文案。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过；Chrome 插件 smoke 依次打开 `/settings` 和 `/`，设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后，设置页显示“正在读取服务端健康状态 / 服务端健康”，首页显示“图鉴状态来自服务端卡牌证据”，页面正文不含 `/health`、`/catalog/behavior-specs`、`SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百一十批继续收口大厅页玩家可见协议词。`LobbyPage` 的说明文案不再显示 `SignalR` / `JoinRoom`，改为“房间由服务端实时连接创建；正式准备前必须提交服务端可验证卡组。”；这只改变展示文本，不改变房间连接、设置、服务端候选或命令提交逻辑。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过；Chrome 插件 smoke 打开 `http://127.0.0.1:5175/lobby`，页面显示“房间由服务端实时连接创建”，正文不含 `SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`NOT READY`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 

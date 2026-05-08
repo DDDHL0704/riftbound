@@ -26,7 +26,7 @@ export function HomePage({ onNavigate }: { onNavigate: (route: AppRoute) => void
         <article>
           <span className="eyebrow">卡牌数据</span>
           <h2>{catalog.loading ? "加载中" : `${catalog.specs.length} 张`}</h2>
-          <p>{catalog.error ? `加载失败：${catalog.error}` : "图鉴状态来自服务端 /catalog/behavior-specs。"}</p>
+          <p>{catalog.error ? `加载失败：${catalog.error}` : "图鉴状态来自服务端卡牌证据。"}</p>
         </article>
         <article>
           <span className="eyebrow">一致性口径</span>

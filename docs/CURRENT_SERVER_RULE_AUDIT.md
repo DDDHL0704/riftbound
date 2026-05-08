@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百一十一批补充：首页/设置页玩家可见接口路径继续中文化。`HomePage` 不再显示 `/catalog/behavior-specs`，`SettingsPage` 不再显示 `/health`；页面仍读取相同服务端接口和 authoritative evidence，只把产品文案收口到中文口径。
+- 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 依次打开 `/settings` 和 `/`，设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后，设置页显示“正在读取服务端健康状态 / 服务端健康”，首页显示“图鉴状态来自服务端卡牌证据”，页面正文不含 `/health`、`/catalog/behavior-specs`、`SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百一十批补充：大厅页玩家可见协议词继续中文化。`LobbyPage` 不再把 `SignalR` / `JoinRoom` 暴露给玩家，改为“服务端实时连接”口径；房间创建、入座、卡组提交和准备逻辑不变，前端仍只展示并提交服务端 prompt/candidate 支持的操作。
 - 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 打开 `http://127.0.0.1:5175/lobby`，页面显示“房间由服务端实时连接创建”，正文不含 `SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`NOT READY`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

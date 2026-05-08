@@ -7,9 +7,10 @@
 
 ## 1. 修改文件列表
 
-当前第二百一十批修改：
+当前第二百一十一批修改：
 
-- `src/Riftbound.DevUi/src/pages/LobbyPage.tsx`
+- `src/Riftbound.DevUi/src/pages/HomePage.tsx`
+- `src/Riftbound.DevUi/src/pages/SettingsPage.tsx`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -73,11 +74,11 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百一十批是前端文案收口批，`source ../../scripts/dev-env.sh && npm run build` 与 `git diff --check` 已通过。
+当前第二百一十一批是前端文案收口批，`source ../../scripts/dev-env.sh && npm run build` 与 `git diff --check` 已通过。
 
 ## 9. Browser smoke / E2E 结果
 
-已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十批 Chrome smoke 已覆盖大厅页协议词收口并在结束后清理测试标签和临时服务进程。
+已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十一批 Chrome smoke 已覆盖首页/设置页接口路径收口并在结束后清理测试标签和临时服务进程。
 
 最终仍缺一条覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：创建/加入房间、合法卡组、准备、起手、首回合、召符文、抽牌、出单位、移动到战场、争夺/战斗、法术对决、双方让过、结束回合、重连恢复、战场得分和投降/胜利结算。
 

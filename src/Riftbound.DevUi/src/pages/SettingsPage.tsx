@@ -129,7 +129,7 @@ export function SettingsPage() {
               </div>
             </dl>
           ) : (
-            <p>{health.error ?? "正在读取 /health。"}</p>
+            <p>{health.error ?? "正在读取服务端健康状态。"}</p>
           )}
         </article>
         <article className="diagnostic-card">
