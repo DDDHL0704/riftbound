@@ -3691,7 +3691,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "HIDE_CARD is only available during the active player's open main window.",
+                "待命埋伏只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3699,7 +3699,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Unsupported standby card behavior: {command.CardNo}",
+                $"暂不支持该牌的待命埋伏行为：{command.CardNo}",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -3708,7 +3708,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card is not in the player's hand.",
+                "待命埋伏只能选择自己手牌中的牌。",
                 ErrorCodes.CardNotInHand);
         }
 
@@ -3730,7 +3730,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Unsupported standby hide destination for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 不能以该去向进行待命埋伏。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -3738,7 +3738,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Unsupported standby hide cost for {behavior.DisplayName}.",
+                $"{behavior.DisplayName} 不能以该费用进行待命埋伏。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -3754,7 +3754,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 return RejectWithCorePrompts(
                     state,
-                    "HIDE_CARD battlefield destination requires a controlled Bandle Tree battlefield.",
+                    "向战场待命需要控制对应的班德尔树战场。",
                     ErrorCodes.InvalidTarget);
             }
 
@@ -3766,7 +3766,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card identity is unknown for HIDE_CARD.",
+                "待命埋伏需要服务端已确认的手牌信息。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3774,7 +3774,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card identity does not match HIDE_CARD cardNo.",
+                "待命埋伏的手牌信息与提交的牌不匹配。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3782,7 +3782,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "Source card is not controlled by the player for HIDE_CARD.",
+                "待命埋伏只能选择自己控制的手牌。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3796,7 +3796,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"{behavior.DisplayName} does not expose the Standby keyword for HIDE_CARD.",
+                $"{behavior.DisplayName} 没有待命关键词，不能进行待命埋伏。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -3806,7 +3806,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                $"Not enough mana to hide {behavior.DisplayName}.",
+                $"法力不足，无法让 {behavior.DisplayName} 待命埋伏。",
                 ErrorCodes.InsufficientCost);
         }
 

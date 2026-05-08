@@ -7,11 +7,10 @@
 
 ## 1. 修改文件列表
 
-当前第二百三十八批修改：
+当前第二百三十九批修改：
 
 - `src/Riftbound.Engine/CoreRuleEngine.cs`
 - `tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs`
-- `tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -71,7 +70,7 @@
 
 ## 7. 隐藏信息保护检查结果
 
-当前已有多批测试和 Chrome smoke 证明：对手手牌、隐藏待命、未知对象、内部对象 ID、stack/cleanup/task id 不应进入非授权玩家可见正文。最近的 object redaction smoke 覆盖了隐藏卡详情和页面正文；第二百一十二批确认官方开局起手调整候选只显示卡号；第二百一十三批确认任务队列 activeTaskId、cleanup/task id 与 raw reason 不进入玩家可见正文；第二百一十四批确认错误日志正文不再显示 raw error code 或英文内部错误消息；第二百一十五批确认卡牌详情操作 composer 的异常 fallback 不再显示 objectId、abilityId 或 raw cost id；第二百一十六批确认开发场景事件日志不再显示 development-only seed 名称或 scenario id；第二百一十七批确认 cleanup task 阻塞 prompt/error 只显示中文原因，不显示 raw task kind；第二百一十八批确认规则队列正文把 `RECALL_UNATTACHED_EQUIPMENT` 显示为“装备清理”，不显示 raw cleanup kind/reason 或未贴附装备对象 ID；第二百一十九批确认资源条把 typed rune trait 显示为“红色符能 2”，不显示 `red:2` 这类协议键；第二百二十批确认结算链 stack item destination 显示为“去向：战场”，不显示 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`；第二百二十一批确认服务端 disabled candidate reason 显示“横置符文 / 回收符文”等中文行动名，不显示 `TAP_RUNE` / `RECYCLE_RUNE`；第二百二十二批确认前端共享 formatter 对未来未知协议 action/phase/window/status 降级为中文占位；第二百二十三批确认官方起手候选 tooltip 显示“起手调整候选”，不显示英文内部 reason 或手牌对象 ID；第二百二十四批确认事件/错误日志标题 hover 不再暴露 `event.kind` 或 `error.code`；第二百二十五批确认卡牌详情操作选择 tooltip 过滤内部英文/协议 reason；第二百二十六批确认行动面板、房间页和卡牌详情中的 prompt/candidate reason 正文与 title 统一过滤，不显示内部英文 reason、协议 destination 或对象 ID；第二百二十七批确认规则队列 phase/result fallback 不再回显未知服务端枚举；第二百二十八批确认卡牌详情不可组合 warning 过滤 `unsupportedReason`，不显示 raw ability id、对象 id 或 sourceRequirements metadata；第二百三十三批确认非当前行动玩家手写 `DECLARE_BATTLE` 被 START_BATTLE 队列拒绝时，错误消息显示中文“开始战斗”且不含 raw `START_BATTLE`；第二百三十四批进一步确认当前行动玩家提交错误战场声明时，服务端错误消息为中文且不含 raw `DECLARE_BATTLE` / `START_BATTLE`；第二百三十五批确认非法窗口的让过优先权/让过焦点错误消息为中文且不含 raw `PASS_PRIORITY` / `PASS_FOCUS`；第二百三十六批确认符文资源动作未知牌号运行时错误消息为中文且不含 raw `TAP_RUNE` / `RECYCLE_RUNE`；第二百三十七批确认结束回合非法窗口/玩家错误消息为中文且不含 raw `END_TURN`；第二百三十八批确认正式起手调整多条拒绝错误消息为中文且不含 raw `MULLIGAN`。
+当前已有多批测试和 Chrome smoke 证明：对手手牌、隐藏待命、未知对象、内部对象 ID、stack/cleanup/task id 不应进入非授权玩家可见正文。最近的 object redaction smoke 覆盖了隐藏卡详情和页面正文；第二百一十二批确认官方开局起手调整候选只显示卡号；第二百一十三批确认任务队列 activeTaskId、cleanup/task id 与 raw reason 不进入玩家可见正文；第二百一十四批确认错误日志正文不再显示 raw error code 或英文内部错误消息；第二百一十五批确认卡牌详情操作 composer 的异常 fallback 不再显示 objectId、abilityId 或 raw cost id；第二百一十六批确认开发场景事件日志不再显示 development-only seed 名称或 scenario id；第二百一十七批确认 cleanup task 阻塞 prompt/error 只显示中文原因，不显示 raw task kind；第二百一十八批确认规则队列正文把 `RECALL_UNATTACHED_EQUIPMENT` 显示为“装备清理”，不显示 raw cleanup kind/reason 或未贴附装备对象 ID；第二百一十九批确认资源条把 typed rune trait 显示为“红色符能 2”，不显示 `red:2` 这类协议键；第二百二十批确认结算链 stack item destination 显示为“去向：战场”，不显示 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`；第二百二十一批确认服务端 disabled candidate reason 显示“横置符文 / 回收符文”等中文行动名，不显示 `TAP_RUNE` / `RECYCLE_RUNE`；第二百二十二批确认前端共享 formatter 对未来未知协议 action/phase/window/status 降级为中文占位；第二百二十三批确认官方起手候选 tooltip 显示“起手调整候选”，不显示英文内部 reason 或手牌对象 ID；第二百二十四批确认事件/错误日志标题 hover 不再暴露 `event.kind` 或 `error.code`；第二百二十五批确认卡牌详情操作选择 tooltip 过滤内部英文/协议 reason；第二百二十六批确认行动面板、房间页和卡牌详情中的 prompt/candidate reason 正文与 title 统一过滤，不显示内部英文 reason、协议 destination 或对象 ID；第二百二十七批确认规则队列 phase/result fallback 不再回显未知服务端枚举；第二百二十八批确认卡牌详情不可组合 warning 过滤 `unsupportedReason`，不显示 raw ability id、对象 id 或 sourceRequirements metadata；第二百三十三批确认非当前行动玩家手写 `DECLARE_BATTLE` 被 START_BATTLE 队列拒绝时，错误消息显示中文“开始战斗”且不含 raw `START_BATTLE`；第二百三十四批进一步确认当前行动玩家提交错误战场声明时，服务端错误消息为中文且不含 raw `DECLARE_BATTLE` / `START_BATTLE`；第二百三十五批确认非法窗口的让过优先权/让过焦点错误消息为中文且不含 raw `PASS_PRIORITY` / `PASS_FOCUS`；第二百三十六批确认符文资源动作未知牌号运行时错误消息为中文且不含 raw `TAP_RUNE` / `RECYCLE_RUNE`；第二百三十七批确认结束回合非法窗口/玩家错误消息为中文且不含 raw `END_TURN`；第二百三十八批确认正式起手调整多条拒绝错误消息为中文且不含 raw `MULLIGAN`；第二百三十九批确认待命埋伏多条拒绝错误消息为中文且不含 raw `HIDE_CARD`。
 
 最终验收前仍需再跑一次长链路隐藏信息检查，覆盖正式 deck、起手、手牌、牌堆顺序、面朝下待命、reconnect/replay 视角。
 
@@ -83,7 +82,7 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百三十八批是起手调整错误文案运行时收口批。`CoreRuleEngine` 在错误阶段、错误玩家、超过数量、重复选择、玩家区域缺失、非手牌选择与替换抽牌控制权异常时拒绝 `MULLIGAN` 并返回中文错误；正式 opening 与核心控制权回归测试断言不含 raw action kind；后端 full test 当前 HEAD 通过 3140/3140。此前第二百三十二批 Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 已覆盖战场得分 UI 代表路径。
+当前第二百三十九批是待命埋伏错误文案运行时收口批。`CoreRuleEngine` 在错误窗口、来源不在自己手牌、非法去向/费用、战场待命缺少对应班德尔树、手牌身份未知/不匹配、来源不受控、来源没有待命关键词或法力不足时拒绝 `HIDE_CARD` 并返回中文错误；关键回归测试断言不含 raw action kind；后端 full test 当前 HEAD 通过 3140/3140。此前第二百三十二批 Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 已覆盖战场得分 UI 代表路径。
 
 ## 9. Browser smoke / E2E 结果
 

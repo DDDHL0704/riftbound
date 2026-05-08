@@ -38759,7 +38759,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.CardNotInHand, result.ErrorCode);
-        Assert.Equal("Source card is not in the player's hand.", result.ErrorMessage);
+        Assert.Equal("待命埋伏只能选择自己手牌中的牌。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -38806,7 +38807,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.CardNotInHand, result.ErrorCode);
-        Assert.Equal("Source card is not in the player's hand.", result.ErrorMessage);
+        Assert.Equal("待命埋伏只能选择自己手牌中的牌。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -38857,7 +38859,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("竞技场理事 does not expose the Standby keyword for HIDE_CARD.", result.ErrorMessage);
+        Assert.Equal("竞技场理事 没有待命关键词，不能进行待命埋伏。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -38979,7 +38982,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby hide destination for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该去向进行待命埋伏。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39048,7 +39052,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby hide cost for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该费用进行待命埋伏。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39094,7 +39099,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("Unsupported standby hide cost for 提莫.", result.ErrorMessage);
+        Assert.Equal("提莫 不能以该费用进行待命埋伏。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39188,7 +39194,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("HIDE_CARD is only available during the active player's open main window.", result.ErrorMessage);
+        Assert.Equal("待命埋伏只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39270,7 +39277,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("HIDE_CARD is only available during the active player's open main window.", result.ErrorMessage);
+        Assert.Equal("待命埋伏只能在当前玩家的开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39342,7 +39350,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card identity does not match HIDE_CARD cardNo.", result.ErrorMessage);
+        Assert.Equal("待命埋伏的手牌信息与提交的牌不匹配。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39389,7 +39398,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card identity is unknown for HIDE_CARD.", result.ErrorMessage);
+        Assert.Equal("待命埋伏需要服务端已确认的手牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
@@ -39438,7 +39448,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
-        Assert.Equal("Source card is not controlled by the player for HIDE_CARD.", result.ErrorMessage);
+        Assert.Equal("待命埋伏只能选择自己控制的手牌。", result.ErrorMessage);
+        Assert.DoesNotContain("HIDE_CARD", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
