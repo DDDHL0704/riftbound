@@ -8080,7 +8080,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var discardedObjectId = zones.Hand.First();
+        var discardedObjectId = zones.Hand.FirstOrDefault(objectId =>
+            IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)) ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(discardedObjectId))
+        {
+            return false;
+        }
+
         if (!TryDiscardCardFromHand(playerZones, playerId, discardedObjectId))
         {
             return false;
@@ -8186,7 +8192,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
                 || !IsLeblancLegendCardNo(candidate.CardNo)
-                || candidate.IsExhausted)
+                || candidate.IsExhausted
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId))
             {
                 continue;
             }

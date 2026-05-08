@@ -29408,6 +29408,85 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerLeblancSkipsOpponentControlledDiscardInHand()
+    {
+        var baseState = LeblancBattlefieldConquerState("UNL-199/219", "P1-LEGEND-LEBLANC", hasDiscard: true);
+        var playerZones = baseState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P1"] = playerZones["P1"] with
+        {
+            Hand = ["P1-LEBLANC-DIRTY-P2-DISCARD", "P1-LEBLANC-DISCARD"]
+        };
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEBLANC-DIRTY-P2-DISCARD"] = new(
+            "P1-LEBLANC-DIRTY-P2-DISCARD",
+            cardNo: "UNL-002/219",
+            ownerId: "P2",
+            controllerId: "P2");
+        var state = baseState with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leblanc-dirty-discard", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-LEBLANC-ATTACKER"],
+                ["P2-LEBLANC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(["P1-LEBLANC-DIRTY-P2-DISCARD"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-LEBLANC-DISCARD"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEBLANC-DISCARD", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-LEBLANC-DIRTY-P2-DISCARD", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerLeblancRequiresControlledLegendSource()
+    {
+        var baseState = LeblancBattlefieldConquerState("UNL-199/219", "P1-LEGEND-LEBLANC", hasDiscard: true);
+        var cardObjects = baseState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-LEBLANC"] = cardObjects["P1-LEGEND-LEBLANC"] with
+        {
+            OwnerId = "P2",
+            ControllerId = "P2"
+        };
+        var state = baseState with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leblanc-dirty-legend", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-LEBLANC-ATTACKER"],
+                ["P2-LEBLANC-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.False(result.State.CardObjects["P1-LEGEND-LEBLANC"].IsExhausted);
+        Assert.Equal(["P1-LEBLANC-DISCARD"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_CONQUERED_CREATE_IMAGE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["tokenName"] as string, "映像", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerReksaiRevealsTopTwoPlaysUnitAndRecyclesRestOnConquer()
     {
         var state = ReksaiConquerState("SFD·187/221", "P1-LEGEND-REKSAI", legendExhausted: false, topUnit: true);
