@@ -4016,7 +4016,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("TAP_RUNE source must expose a known rune card number.", result.ErrorMessage);
+        Assert.Equal("横置符文需要服务端已确认的符文牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("TAP_RUNE", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);
@@ -4164,7 +4165,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
-        Assert.Equal("RECYCLE_RUNE source must expose a known rune card number.", result.ErrorMessage);
+        Assert.Equal("回收符文需要服务端已确认的符文牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("RECYCLE_RUNE", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal([runeObjectId], result.State.PlayerZones["P1"].Base);

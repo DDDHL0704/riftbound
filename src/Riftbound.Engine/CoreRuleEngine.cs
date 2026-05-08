@@ -3945,7 +3945,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "TAP_RUNE is only available during the active player's open main window.",
+                "横置符文只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -3959,7 +3959,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "TAP_RUNE requires a face-up controlled rune in the player's base.",
+                "横置符文需要选择己方基地中的正面符文。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3967,7 +3967,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "TAP_RUNE source rune is already exhausted.",
+                "该符文已经横置，不能再次横置。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -3975,7 +3975,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "TAP_RUNE source must expose a known rune card number.",
+                "横置符文需要服务端已确认的符文牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -4050,7 +4050,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "RECYCLE_RUNE is only available during the active player's open main window.",
+                "回收符文只能在当前玩家的开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
@@ -4064,7 +4064,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "RECYCLE_RUNE requires a face-up controlled trait rune in the player's base.",
+                "回收符文需要选择己方基地中的正面特性符文。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -4072,7 +4072,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "RECYCLE_RUNE source must expose a known rune card number.",
+                "回收符文需要服务端已确认的符文牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -4080,7 +4080,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "RECYCLE_RUNE requires a face-up controlled trait rune in the player's base.",
+                "回收符文需要选择己方基地中的正面特性符文。",
                 ErrorCodes.InvalidTarget);
         }
 
