@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百三十七批继续收口结束回合服务端错误文案。`CoreRuleEngine` 在非当前玩家、非开放主阶段或结算链未清空时拒绝 `END_TURN`，错误消息从英文 raw 协议句改为中文“结束回合只能由当前玩家在开放主阶段提交。”；测试断言非当前玩家和关闭窗口两条拒绝路径都不含 raw `END_TURN`。前端无需新增本地回合/窗口裁决，仍只在服务端 prompt 暴露结束回合候选时显示提交入口。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsEndTurnFromNonActivePlayer|FullyQualifiedName~CoreRuleEngineRejectsEndTurnDuringClosedPriorityWindow"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百三十六批继续收口符文资源动作的服务端错误文案。`CoreRuleEngine` 在手写或异常客户端提交不可横置/不可回收符文、符文已横置或符文缺少服务端确认牌号等路径时，错误消息改为中文“横置符文只能在当前玩家的开放主阶段提交。”、“横置符文需要选择己方基地中的正面符文。”、“该符文已经横置，不能再次横置。”、“横置符文需要服务端已确认的符文牌信息。”、“回收符文只能在当前玩家的开放主阶段提交。”、“回收符文需要选择己方基地中的正面特性符文。”和“回收符文需要服务端已确认的符文牌信息。”；测试断言未知牌号拒绝不含 raw `TAP_RUNE` / `RECYCLE_RUNE`。前端无需新增本地符文裁决，仍只展示和提交服务端 prompt 当前暴露的符文候选。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsTapRuneSourceWithoutCardNo|FullyQualifiedName~CoreRuleEngineRejectsRecycleRuneSourceWithoutCardNo"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

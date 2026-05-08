@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百三十七批补充：`END_TURN` 运行时拒绝文案继续去内部协议名。此前非当前玩家、非开放主阶段或结算链未清空时提交结束回合，服务端会正确拒绝并保持状态不变，但错误消息包含 raw `END_TURN` 和英文窗口说明。现在服务端返回中文“结束回合只能由当前玩家在开放主阶段提交。”，非当前玩家与关闭窗口测试同步断言错误消息不含 raw action kind；结构化 prompt action 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsEndTurnFromNonActivePlayer|FullyQualifiedName~CoreRuleEngineRejectsEndTurnDuringClosedPriorityWindow"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百三十六批补充：`TAP_RUNE` / `RECYCLE_RUNE` 运行时拒绝文案继续去内部协议名。此前手写客户端在错误窗口、错误来源、已横置符文、缺少已知符文牌号或非特性符文等路径提交符文资源动作时，服务端会正确拒绝并保持状态不变，但错误消息仍含 raw action kind 和英文规则说明。现在横置/回收符文的运行时错误均使用中文玩家文案，未知牌号回归测试同步断言错误消息不含 `TAP_RUNE` / `RECYCLE_RUNE`；结构化 prompt action 与 command kind 仍保留协议枚举供前端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsTapRuneSourceWithoutCardNo|FullyQualifiedName~CoreRuleEngineRejectsRecycleRuneSourceWithoutCardNo"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -12610,7 +12610,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "END_TURN is only available to the active player during an open main window.",
+                "结束回合只能由当前玩家在开放主阶段提交。",
                 ErrorCodes.PhaseNotAllowed);
         }
 

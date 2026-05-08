@@ -914,7 +914,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("END_TURN is only available to the active player during an open main window.", result.ErrorMessage);
+        Assert.Equal("结束回合只能由当前玩家在开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("END_TURN", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P1", result.State.ActivePlayerId);
@@ -952,7 +953,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Equal("END_TURN is only available to the active player during an open main window.", result.ErrorMessage);
+        Assert.Equal("结束回合只能由当前玩家在开放主阶段提交。", result.ErrorMessage);
+        Assert.DoesNotContain("END_TURN", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal("P1", result.State.ActivePlayerId);
