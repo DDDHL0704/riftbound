@@ -178,7 +178,10 @@ public sealed record CardBehaviorDefinition(
     int SourceDrawCountIfOptionalPowerCostPaid = 0,
     int SourceReadyPowerModifierAdditionalPowerCost = 0,
     string SourceReadyPowerModifierAdditionalPowerTrait = "",
-    int SourceReadyPowerModifierAmount = 0);
+    int SourceReadyPowerModifierAmount = 0,
+    int TargetEffectAdditionalManaCost = 0,
+    int TargetEffectAdditionalPowerCost = 0,
+    string TargetEffectAdditionalPowerTrait = "");
 
 public static class CardDamageConditionKinds
 {
@@ -2266,12 +2269,17 @@ public static class CardBehaviorRegistry
             "SFD·067/221",
             "霜衣幼崽",
             3,
-            "FROSTCOAT_CUB_PLAY_UNIT_NO_OPTIONAL_POWER_MINUS_2",
+            "FROSTCOAT_CUB_PLAY_UNIT_OPTIONAL_POWER_MINUS_2",
             0,
-            0,
+            1,
+            TargetScope: CardTargetScopes.AnyUnit,
+            MinTargetCount: 0,
+            PowerModifierAmount: -2,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 3,
-            SourceUnitTags: "犬形"),
+            SourceUnitTags: "犬形",
+            TargetEffectAdditionalPowerCost: 1,
+            TargetEffectAdditionalPowerTrait: RuneTrait.Blue),
         new(
             "SFD·098/221",
             "船猿",

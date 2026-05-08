@@ -4586,6 +4586,12 @@ internal static class ActionPromptBuilder
             return 0;
         }
 
+        if (behavior.TargetEffectAdditionalPowerCost > 0
+            && !PromptTargetEffectAdditionalCostAvailable(state, playerId, behavior))
+        {
+            return 0;
+        }
+
         if (!behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
         {
             return behavior.RequiredTargetCount;
@@ -5527,6 +5533,15 @@ internal static class ActionPromptBuilder
                 $"{behavior.DisplayName}的可选额外费用"));
         }
 
+        if (CanPromptTargetEffectAdditionalCost(state, playerId, runePool, paymentResourcePowerByTrait, behavior, sourceObjectId))
+        {
+            var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
+            choices.Add(new ActionPromptChoiceDto(
+                $"SPEND_POWER:{targetEffectPowerTrait}:{behavior.TargetEffectAdditionalPowerCost}",
+                TargetEffectAdditionalCostLabel(behavior, targetEffectPowerTrait),
+                $"{behavior.DisplayName}的可选额外费用"));
+        }
+
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
 
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
@@ -5752,6 +5767,7 @@ internal static class ActionPromptBuilder
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
             || NeedsSourceDrawOptionalPowerPaymentResource(runePool, behavior)
             || NeedsSourceReadyPowerModifierPaymentResource(runePool, behavior)
+            || NeedsTargetEffectAdditionalPowerPaymentResource(runePool, behavior)
             || NeedsHasteReadyPaymentResource(runePool, behavior)
             || NeedsCrescentGuardReadyPaymentResource(state, playerId, runePool, behavior);
         if (!needsPaymentResource)
@@ -5794,6 +5810,7 @@ internal static class ActionPromptBuilder
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
             || NeedsSourceDrawOptionalPowerPaymentResource(runePool, behavior)
             || NeedsSourceReadyPowerModifierPaymentResource(runePool, behavior)
+            || NeedsTargetEffectAdditionalPowerPaymentResource(runePool, behavior)
             || NeedsHasteReadyPaymentResource(runePool, behavior)
             || NeedsCrescentGuardReadyPaymentResource(state, playerId, runePool, behavior);
         if (!needsPaymentResource
@@ -5860,6 +5877,17 @@ internal static class ActionPromptBuilder
         return behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
             && behavior.SourceReadyPowerModifierAmount != 0
             && !CanPaySourceReadyPowerModifierOptionalCost(
+                runePool,
+                new Dictionary<string, int>(StringComparer.Ordinal),
+                behavior);
+    }
+
+    private static bool NeedsTargetEffectAdditionalPowerPaymentResource(
+        RunePool runePool,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.TargetEffectAdditionalPowerCost > 0
+            && !CanPayTargetEffectAdditionalPowerCost(
                 runePool,
                 new Dictionary<string, int>(StringComparer.Ordinal),
                 behavior);
@@ -5942,6 +5970,82 @@ internal static class ActionPromptBuilder
             && availablePower >= behavior.SourceReadyPowerModifierAdditionalPowerCost;
     }
 
+    private static bool CanPromptTargetEffectAdditionalCost(
+        MatchState state,
+        string playerId,
+        RunePool runePool,
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        return behavior.TargetEffectAdditionalPowerCost > 0
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId)
+                + behavior.TargetEffectAdditionalManaCost
+            && CanPayTargetEffectAdditionalPowerCost(runePool, paymentResourcePowerByTrait, behavior)
+            && PromptTargetChoicesForIndex(state, playerId, behavior, 0).Count > 0;
+    }
+
+    private static bool PromptTargetEffectAdditionalCostAvailable(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
+            ? currentPool
+            : RunePool.Empty;
+        var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior);
+        return CanPromptTargetEffectAdditionalCost(
+            state,
+            playerId,
+            runePool,
+            paymentResourcePowerByTrait,
+            behavior,
+            null);
+    }
+
+    private static bool CanPayTargetEffectAdditionalPowerCost(
+        RunePool runePool,
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait,
+        CardBehaviorDefinition behavior)
+    {
+        if (behavior.TargetEffectAdditionalPowerCost <= 0)
+        {
+            return false;
+        }
+
+        var targetEffectPowerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
+        if (string.IsNullOrWhiteSpace(targetEffectPowerTrait))
+        {
+            return false;
+        }
+
+        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
+        return availablePowerByTrait.TryGetValue(targetEffectPowerTrait, out var availablePower)
+            && availablePower >= behavior.TargetEffectAdditionalPowerCost;
+    }
+
+    private static string TargetEffectAdditionalCostLabel(
+        CardBehaviorDefinition behavior,
+        string powerTrait)
+    {
+        var costLabel = behavior.TargetEffectAdditionalManaCost > 0
+            ? $"{behavior.TargetEffectAdditionalManaCost} 法力 / {behavior.TargetEffectAdditionalPowerCost} {RuneTraitLabel(powerTrait)}符能"
+            : $"{behavior.TargetEffectAdditionalPowerCost} {RuneTraitLabel(powerTrait)}符能";
+        var effectLabel = behavior.PowerModifierAmount != 0
+            ? $"一名单位本回合战力 {FormatSignedNumber(behavior.PowerModifierAmount)}"
+            : behavior.DamageAmount > 0
+                ? $"对一名单位造成 {behavior.DamageAmount} 点伤害"
+                : "执行目标效果";
+        return $"额外支付 {costLabel}：{effectLabel}";
+    }
+
+    private static string FormatSignedNumber(int value)
+    {
+        return value > 0
+            ? $"+{value}"
+            : value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     private static bool CanPayCrescentGuardReadyPowerCost(
         RunePool runePool,
         IReadOnlyDictionary<string, int> paymentResourcePowerByTrait)
@@ -5968,6 +6072,7 @@ internal static class ActionPromptBuilder
         return behavior.DamageAmountFromOptionalPowerCost
             || behavior.SourceDrawAdditionalPowerCost > 0
             || behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
+            || behavior.TargetEffectAdditionalPowerCost > 0
             || behavior.HasteReadyPowerCost > 0
             || CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior);
     }
@@ -6455,6 +6560,7 @@ internal static class ActionPromptBuilder
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
             || NeedsSourceDrawOptionalPowerPaymentResource(runePool, behavior)
             || NeedsSourceReadyPowerModifierPaymentResource(runePool, behavior)
+            || NeedsTargetEffectAdditionalPowerPaymentResource(runePool, behavior)
             || NeedsHasteReadyPaymentResource(runePool, behavior)
             || NeedsCrescentGuardReadyPaymentResource(state, playerId, runePool, behavior);
         if (!needsPaymentResource

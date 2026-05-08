@@ -12991,6 +12991,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        if (!HasValidTargetEffectAdditionalCostTargets(behavior, targetObjectIds, optionalCosts))
+        {
+            rejection = RejectWithCorePrompts(
+                state,
+                $"{behavior.DisplayName} requires its optional target only when its additional cost is paid.",
+                ErrorCodes.InvalidTarget);
+            return false;
+        }
+
         if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
             && destroyedAdditionalCostTargetObjectIds.Count != 1)
         {
@@ -16655,6 +16664,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (TryBuildTargetEffectAdditionalCost(
+            normalizedOptionalCosts,
+            behavior,
+            out var targetEffectExtraManaCost,
+            out var targetEffectExtraPowerCostByTrait))
+        {
+            extraManaCost = targetEffectExtraManaCost;
+            extraPowerCostByTrait = targetEffectExtraPowerCostByTrait;
+            return true;
+        }
+
         if (normalizedOptionalCosts.Count == 1
             && behavior.DamageAmountFromOptionalPowerCost
             && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait))
@@ -16748,6 +16768,59 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryBuildTargetEffectAdditionalCost(
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out int extraManaCost,
+        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
+    {
+        extraManaCost = 0;
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (!HasTargetEffectAdditionalCost(behavior))
+        {
+            return false;
+        }
+
+        var expectedCostCount = (behavior.TargetEffectAdditionalManaCost > 0 ? 1 : 0)
+            + (behavior.TargetEffectAdditionalPowerCost > 0 ? 1 : 0);
+        if (normalizedOptionalCosts.Count != expectedCostCount)
+        {
+            return false;
+        }
+
+        if (behavior.TargetEffectAdditionalManaCost > 0
+            && !normalizedOptionalCosts.Any(optionalCost =>
+                TryParseSpendManaOptionalCost(optionalCost, out var spendManaCost)
+                && spendManaCost == behavior.TargetEffectAdditionalManaCost))
+        {
+            return false;
+        }
+
+        var powerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
+        if (behavior.TargetEffectAdditionalPowerCost > 0)
+        {
+            if (string.IsNullOrWhiteSpace(powerTrait)
+                || !normalizedOptionalCosts.Any(optionalCost =>
+                    TryParseSpendPowerOptionalCost(optionalCost, out var spendPowerCost, out var spendPowerTrait)
+                    && spendPowerCost == behavior.TargetEffectAdditionalPowerCost
+                    && string.Equals(RuneTrait.Normalize(spendPowerTrait), powerTrait, StringComparison.Ordinal)))
+            {
+                return false;
+            }
+        }
+
+        extraManaCost = behavior.TargetEffectAdditionalManaCost;
+        if (behavior.TargetEffectAdditionalPowerCost > 0)
+        {
+            extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [powerTrait] = behavior.TargetEffectAdditionalPowerCost
+            };
+        }
+
+        return true;
     }
 
     private static bool TryParseSpendManaOptionalCost(string optionalCost, out int manaCost)
@@ -17710,6 +17783,50 @@ public sealed class CoreRuleEngine : IRuleEngine
         return true;
     }
 
+    private static bool HasTargetEffectAdditionalCost(CardBehaviorDefinition behavior)
+    {
+        return behavior.TargetEffectAdditionalManaCost > 0
+            || behavior.TargetEffectAdditionalPowerCost > 0;
+    }
+
+    private static bool HasValidTargetEffectAdditionalCostTargets(
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> targetObjectIds,
+        IReadOnlyList<string> optionalCosts)
+    {
+        if (!HasTargetEffectAdditionalCost(behavior))
+        {
+            return true;
+        }
+
+        return TargetEffectAdditionalCostPaid(behavior, optionalCosts)
+            ? targetObjectIds.Count == behavior.RequiredTargetCount
+            : targetObjectIds.Count == 0;
+    }
+
+    private static bool TargetEffectAdditionalCostPaid(
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> optionalCosts)
+    {
+        if (!HasTargetEffectAdditionalCost(behavior))
+        {
+            return false;
+        }
+
+        var manaPaid = behavior.TargetEffectAdditionalManaCost <= 0
+            || optionalCosts.Any(optionalCost =>
+                TryParseSpendManaOptionalCost(optionalCost, out var manaCost)
+                && manaCost == behavior.TargetEffectAdditionalManaCost);
+        var powerTrait = RuneTrait.Normalize(behavior.TargetEffectAdditionalPowerTrait);
+        var powerPaid = behavior.TargetEffectAdditionalPowerCost <= 0
+            || optionalCosts.Any(optionalCost =>
+                TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var costTrait)
+                && powerCost == behavior.TargetEffectAdditionalPowerCost
+                && string.Equals(RuneTrait.Normalize(costTrait), powerTrait, StringComparison.Ordinal));
+
+        return manaPaid && powerPaid;
+    }
+
     private static bool TargetCountConditionApplies(
         MatchState state,
         string playerId,
@@ -18032,7 +18149,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (!CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
-            || !HasValidResolvedTargetCount(behavior, stackItem))
+            || !HasValidResolvedTargetCount(behavior, stackItem)
+            || !HasValidTargetEffectAdditionalCostTargets(behavior, stackItem.TargetObjectIds, stackItem.OptionalCosts))
         {
             return new StackResolutionResult(
                 state.PlayerZones,

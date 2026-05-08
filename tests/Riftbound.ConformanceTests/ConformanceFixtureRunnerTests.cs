@@ -18307,6 +18307,85 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("额外支付 1 红色符能：活跃并本回合战力 +2", optionalReadyPowerCost.Label);
     }
 
+    [Fact]
+    public async Task CoreRuleEnginePlaysFrostcoatCubOptionalPowerMinusTwo()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-frostcoat-cub-optional-power-minus-two.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-FROSTCOAT-CUB"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-FROSTCOAT-CUB"].Power);
+        Assert.Equal(1, result.FinalState.CardObjects["P2-FROSTCOAT-CUB-TARGET-001"].Power);
+        Assert.Equal(-2, result.FinalState.CardObjects["P2-FROSTCOAT-CUB-TARGET-001"].UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
+    public void CoreRuleEngineFrostcoatCubPromptExposesOptionalBluePowerModifierCost()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Blue] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-FROSTCOAT-CUB"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-FROSTCOAT-CUB-TARGET-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-FROSTCOAT-CUB"] = new(
+                    "P1-UNIT-FROSTCOAT-CUB",
+                    cardNo: "SFD·067/221",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-FROSTCOAT-CUB-TARGET-001"] = new(
+                    "P2-FROSTCOAT-CUB-TARGET-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "UNL-097/219",
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+
+        Assert.Equal(0, sourceRequirement["minTargetCount"]);
+        Assert.Equal(1, sourceRequirement["maxTargetCount"]);
+        var optionalPowerModifierCost = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "SPEND_POWER:blue:1", StringComparison.Ordinal));
+        Assert.Equal("额外支付 1 蓝色符能：一名单位本回合战力 -2", optionalPowerModifierCost.Label);
+    }
+
     [Theory]
     [InlineData(2, "P1-UNIT-BLAST-CREW-APPRENTICE", "SFD·013/221", "P1-BASE-BLAST-CREW-APPRENTICE-TARGET-001")]
     [InlineData(3, "P1-UNIT-FROSTCOAT-CUB", "SFD·067/221", "P1-BASE-FROSTCOAT-CUB-TARGET-001")]

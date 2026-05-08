@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-frostcoat-cub-no-optional-power-minus-two",
-  "description": "Frostcoat Cub enters as a unit object without paying its optional power modifier additional cost.",
+  "fixtureId": "p2-preflight-play-frostcoat-cub-optional-power-minus-two",
+  "description": "Frostcoat Cub enters as a unit object and gives a unit -2 power for the turn after paying its optional blue additional cost.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302362,
+  "seed": 2603302370,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·067/221 霜衣幼崽",
-      "note": "官方卡面：费用 3；单位；战力 3；犬形属性；你可以选择支付蓝色作为打出我的额外费用；如果支付该额外费用，则让一名单位本回合内战力 -2。当前 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；支付蓝色后的战力修正分支由 p2-preflight-play-frostcoat-cub-optional-power-minus-two 覆盖。"
+      "note": "官方卡面：费用 3；单位；战力 3；犬形属性；你可以选择支付蓝色作为打出我的额外费用；如果支付该额外费用，则让一名单位本回合内战力 -2。本 fixture 覆盖支付该蓝色可选额外费用后的条件战力修正分支。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果。"
+      "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；支付额外费用后的条件目标效果由服务端结算。"
     }
   ],
-  "roomId": "p2-preflight-frostcoat-cub-room",
+  "roomId": "p2-preflight-frostcoat-cub-optional-power-minus-two-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302362,
-    "turnNumber": 361,
+    "seed": 2603302370,
+    "turnNumber": 369,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
+      "P1": { "mana": 3, "power": 0, "powerByTrait": { "blue": 1 } },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -50,7 +50,7 @@
         "mainDeck": ["P2-MAIN-001"],
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
-        "base": [],
+        "base": ["P2-FROSTCOAT-CUB-TARGET-001"],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
@@ -58,21 +58,28 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P2-FROSTCOAT-CUB-TARGET-001": {
+        "cardNo": "UNL-097/219",
+        "power": 3,
+        "tags": ["CARD_TYPE:UNIT"]
+      }
+    }
   },
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-frostcoat-cub-play",
+      "clientIntentId": "intent-p2-preflight-frostcoat-cub-optional-power-minus-two-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-FROSTCOAT-CUB",
         "cardNo": "SFD·067/221",
-        "targetObjectIds": []
+        "targetObjectIds": ["P2-FROSTCOAT-CUB-TARGET-001"],
+        "optionalCosts": ["SPEND_POWER:blue:1"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-frostcoat-cub-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-frostcoat-cub-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-frostcoat-cub-optional-power-minus-two-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-frostcoat-cub-optional-power-minus-two-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -83,18 +90,29 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 3, "baseMana": 3 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "power": 1,
+          "powerByTrait": { "blue": 1 },
+          "baseMana": 3,
+          "optionalCosts": ["SPEND_POWER:blue:1"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
           "controllerId": "P1",
           "sourceObjectId": "P1-UNIT-FROSTCOAT-CUB",
           "cardNo": "SFD·067/221",
-          "targetObjectIds": [],
+          "targetObjectIds": ["P2-FROSTCOAT-CUB-TARGET-001"],
           "effectKind": "FROSTCOAT_CUB_PLAY_UNIT_OPTIONAL_POWER_MINUS_2"
         }
       },
@@ -112,11 +130,22 @@
           "power": 3,
           "tags": ["CARD_TYPE:UNIT", "犬形"]
         }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-FROSTCOAT-CUB",
+          "targetObjectId": "P2-FROSTCOAT-CUB-TARGET-001",
+          "powerDelta": -2,
+          "appliedPowerDelta": -2,
+          "minimumPower": 0,
+          "resultingPower": 1
+        }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 361,
+      "turnNumber": 369,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -132,6 +161,9 @@
           "hand": [],
           "base": ["P1-UNIT-FROSTCOAT-CUB"],
           "graveyard": []
+        },
+        "P2": {
+          "base": ["P2-FROSTCOAT-CUB-TARGET-001"]
         }
       },
       "stackItems": [],
@@ -140,6 +172,11 @@
           "power": 3,
           "tags": ["CARD_TYPE:UNIT", "犬形"],
           "isExhausted": false
+        },
+        "P2-FROSTCOAT-CUB-TARGET-001": {
+          "power": 1,
+          "untilEndOfTurnPowerModifier": -2,
+          "tags": ["CARD_TYPE:UNIT"]
         }
       }
     },
