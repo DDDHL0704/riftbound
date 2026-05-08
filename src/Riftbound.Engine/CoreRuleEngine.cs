@@ -14005,10 +14005,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || IsEquipmentObject(state, objectId),
             CardTargetScopes.AnyUnit => IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId),
             CardTargetScopes.BaseUnit => IsBaseObject(state, objectId),
-            CardTargetScopes.FriendlyUnit => IsControlledFieldObject(state, playerId, objectId),
-            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnit => IsPlayerControlledFieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyUnitThenFriendlyUnit => IsPlayerControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyUnits => targetIndex == 0
-                ? IsControlledFieldObject(state, playerId, objectId)
+                ? IsPlayerControlledFieldObject(state, playerId, objectId)
                 : IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.UnitThenItsControllersWeapon => targetIndex == 0
                 ? IsFieldUnitObject(state, objectId)
@@ -14017,18 +14017,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ? IsFriendlyEquipmentObject(state, playerId, objectId)
                 : IsEnemyEquipmentObject(state, playerId, objectId),
             CardTargetScopes.FriendlyThenEnemyBattlefieldUnits => targetIndex == 0
-                ? IsControlledFieldObject(state, playerId, objectId)
+                ? IsPlayerControlledFieldObject(state, playerId, objectId)
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldThenEnemyBattlefieldUnits => targetIndex == 0
-                ? IsControlledBattlefieldObject(state, playerId, objectId)
+                ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
                 : IsEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell => targetIndex == 0
-                ? IsControlledBattlefieldObject(state, playerId, objectId)
+                ? IsPlayerControlledBattlefieldObject(state, playerId, objectId)
                 : IsStackSpellItem(state, objectId),
             CardTargetScopes.AnyUnitThenFriendlyMainDeckCard => targetIndex == 0
                 ? IsBattlefieldObject(state, objectId) || IsBaseObject(state, objectId)
                 : IsFriendlyMainDeckCard(state, playerId, objectId),
-            CardTargetScopes.FriendlyBattlefieldUnit => IsControlledBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBattlefieldUnit => IsPlayerControlledBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyHandCard => IsFriendlyHandCard(state, playerId, objectId),
             CardTargetScopes.AnyHandCard => IsAnyHandCard(state, objectId),
             CardTargetScopes.FriendlyHandCardThenBattlefieldUnit => targetIndex == 0
@@ -14036,7 +14036,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : IsBattlefieldObject(state, objectId),
             CardTargetScopes.FriendlyMainDeckCard => IsFriendlyMainDeckCard(state, playerId, objectId),
             CardTargetScopes.FriendlyGraveyardCard => IsFriendlyGraveyardCard(state, playerId, objectId),
-            CardTargetScopes.FriendlyBaseUnit => IsControlledBaseObject(state, playerId, objectId),
+            CardTargetScopes.FriendlyBaseUnit => IsPlayerControlledBaseObject(state, playerId, objectId),
             CardTargetScopes.AttackingUnit => IsAttackingBattlefieldObject(state, objectId),
             CardTargetScopes.EnemyAttackingUnit => IsEnemyFieldObject(state, playerId, objectId)
                 && IsAttackingBattlefieldObject(state, objectId),
@@ -14063,6 +14063,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
     }
 
+    private static bool IsPlayerControlledFieldObject(MatchState state, string playerId, string objectId)
+    {
+        return IsControlledFieldObject(state, playerId, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
+    }
+
     private static bool IsControlledBattlefieldObject(MatchState state, string playerId, string objectId)
     {
         return !string.IsNullOrWhiteSpace(objectId)
@@ -14071,12 +14078,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             && zones.Battlefields.Contains(objectId, StringComparer.Ordinal);
     }
 
+    private static bool IsPlayerControlledBattlefieldObject(MatchState state, string playerId, string objectId)
+    {
+        return IsControlledBattlefieldObject(state, playerId, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
+    }
+
     private static bool IsControlledBaseObject(MatchState state, string playerId, string objectId)
     {
         return !string.IsNullOrWhiteSpace(objectId)
             && state.CardObjects.ContainsKey(objectId)
             && state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.Base.Contains(objectId, StringComparer.Ordinal);
+    }
+
+    private static bool IsPlayerControlledBaseObject(MatchState state, string playerId, string objectId)
+    {
+        return IsControlledBaseObject(state, playerId, objectId)
+            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId);
     }
 
     private static bool IsFriendlyHandCard(MatchState state, string playerId, string objectId)
@@ -14351,7 +14372,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !stackItem.TargetObjectIds.Any(targetObjectId =>
                 targetObjectIds.Count > 0
                 && !string.Equals(targetObjectId, targetObjectIds[0], StringComparison.Ordinal)
-                && IsControlledFieldObject(state, playerId, targetObjectId)
+                && IsPlayerControlledFieldObject(state, playerId, targetObjectId)
                 && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard));
     }
 
@@ -14423,7 +14444,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsFriendlyUnitOrEquipmentObject(MatchState state, string playerId, string objectId)
     {
-        return IsControlledFieldObject(state, playerId, objectId)
+        return IsPlayerControlledFieldObject(state, playerId, objectId)
             && (CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.UnitCard)
                 || CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard));
     }
@@ -14649,7 +14670,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool IsFriendlyEquipmentObject(MatchState state, string playerId, string objectId)
     {
-        return IsControlledFieldObject(state, playerId, objectId)
+        return IsPlayerControlledFieldObject(state, playerId, objectId)
             && CardObjectHasTag(state.CardObjects, objectId, CardObjectTags.EquipmentCard);
     }
 
@@ -15096,7 +15117,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && !targetState.IsExhausted;
     }
@@ -15106,7 +15127,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Power >= 5;
     }
@@ -15116,7 +15137,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        return IsControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);
     }
@@ -15126,7 +15147,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         string targetObjectId)
     {
-        if (!IsControlledFieldObject(state, playerId, targetObjectId)
+        if (!IsPlayerControlledFieldObject(state, playerId, targetObjectId)
             || !state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
         {
@@ -15255,7 +15276,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || targetObjectIds.Count == 0
             || !state.PlayerZones.TryGetValue(playerId, out var zones)
             || !targetObjectIds.Any(targetObjectId =>
-                IsControlledBattlefieldObject(state, playerId, targetObjectId)
+                IsPlayerControlledBattlefieldObject(state, playerId, targetObjectId)
                 && CardObjectHasTag(state.CardObjects, targetObjectId, CardObjectTags.UnitCard)))
         {
             return false;
@@ -15826,7 +15847,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        return IsControlledFieldObject(state, playerId, targetObjectId)
+        return IsPlayerControlledFieldObject(state, playerId, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown;

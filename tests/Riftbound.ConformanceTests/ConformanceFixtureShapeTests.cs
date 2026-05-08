@@ -1896,6 +1896,90 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptPlayCardMetadataFiltersFriendlyTargetsByController()
+    {
+        var state = new MatchState(
+            "prompt-play-friendly-target-control-room",
+            16,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-ARENA-ROOKIE"],
+                    Base =
+                    [
+                        "P1-FRIENDLY-TARGET",
+                        "P1-DIRTY-OPPONENT-CONTROLLED-TARGET"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ARENA-ROOKIE"] = new(
+                    "P1-UNIT-ARENA-ROOKIE",
+                    cardNo: "OGN·136/298",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FRIENDLY-TARGET"] = new(
+                    "P1-FRIENDLY-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DIRTY-OPPONENT-CONTROLLED-TARGET"] = new(
+                    "P1-DIRTY-OPPONENT-CONTROLLED-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+
+        Assert.True(playCandidate.Enabled);
+        Assert.Contains(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P1-FRIENDLY-TARGET", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            playCandidate.Targets ?? [],
+            target => string.Equals(target.Id, "P1-DIRTY-OPPONENT-CONTROLLED-TARGET", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]);
+        var sourceRequirement = Assert.Single(sourceRequirements);
+        Assert.Equal("FRIENDLY_UNIT", Assert.IsType<string>(sourceRequirement["targetScope"]));
+        var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
+            sourceRequirement["targetChoicesByIndex"]);
+        var firstTargetChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            targetChoicesByIndex["0"]);
+        Assert.Equal(["P1-FRIENDLY-TARGET"], firstTargetChoices.Select(choice => choice.Id).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptHidesPlayCardSourceWhenSpellshieldTaxLeavesNoLegalTargetSelection()
     {
         var insufficientState = new MatchState(

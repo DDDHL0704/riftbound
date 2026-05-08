@@ -11740,6 +11740,57 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsArenaRookieWhenFriendlyTargetIsOpponentControlled()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-ARENA-ROOKIE"],
+                    Base = ["P1-DIRTY-OPPONENT-CONTROLLED-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-ARENA-ROOKIE"] = new(
+                    "P1-UNIT-ARENA-ROOKIE",
+                    cardNo: "OGN·136/298",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-DIRTY-OPPONENT-CONTROLLED-TARGET"] = new(
+                    "P1-DIRTY-OPPONENT-CONTROLLED-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-arena-rookie-opponent-controlled-friendly-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-ARENA-ROOKIE",
+                "OGN·136/298",
+                ["P1-DIRTY-OPPONENT-CONTROLLED-TARGET"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(new RunePool(2, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-ARENA-ROOKIE"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-DIRTY-OPPONENT-CONTROLLED-TARGET"], result.State.PlayerZones["P1"].Base);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysSwordVagrantDestroyEquipment()
     {
         var fixture = await ConformanceFixture.LoadAsync(
