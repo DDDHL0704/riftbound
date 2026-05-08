@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十八批补齐《船猿》（SFD·098/221）额外支付 1 后自身增益的服务端代表路径。服务端现在把该牌的可选额外费用建模为 `SPEND_MANA:1`，只有该 optional cost 随 `PLAY_CARD` 入栈并结算时才授予自身 `增益` 与 +1 战力；ActionPrompt 按服务端法力判断公开“额外支付 1 法力：给予我增益”。前端仍不读取卡面或本地判断是否能支付/增益，只展示服务端候选。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Ship Monkey / no-optional 聚合过滤 39/39 通过；后端 full test 3226/3226 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十七批补齐《芭茹队长》（SFD·091/221）“抽 1 或给予自身增益”的完整服务端模式。CardBehavior 现在同时公开 `DRAW_1` 与 `SELF_BOON`，`SELF_BOON` 由服务端结算源单位入场后授予 `增益` 与 +1 战力；ActionPrompt mode 中文标签显示“抽 1 张 / 给予我增益”。前端仍不读取卡面或本地构造模式，只展示并提交服务端候选。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`FullyQualifiedName~BuhruCaptain` 过滤测试 4/4 通过，覆盖抽牌、自身增益、缺失 mode 拒绝和 prompt 双模式公开；后端 full test 3224/3224 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

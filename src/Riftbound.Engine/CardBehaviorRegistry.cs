@@ -171,7 +171,8 @@ public sealed record CardBehaviorDefinition(
     string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
     string TargetCountConditionKind = CardTargetCountConditionKinds.None,
     string CreatedBaseUnitTokenConditionKind = CardTokenCreationConditionKinds.None,
-    int ManaReductionIfDiscardHandCardOptionalCost = 0);
+    int ManaReductionIfDiscardHandCardOptionalCost = 0,
+    int SourceBoonAdditionalManaCost = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -2269,12 +2270,14 @@ public static class CardBehaviorRegistry
             "SFD·098/221",
             "船猿",
             2,
-            "SHIP_MONKEY_PLAY_UNIT_NO_OPTIONAL_BOON",
+            "SHIP_MONKEY_PLAY_UNIT_OPTIONAL_BOON",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: "海盗"),
+            SourceUnitTags: "海盗",
+            GrantsBoonToSourceUnit: true,
+            SourceBoonAdditionalManaCost: 1),
         new(
             "UNL-028/219",
             "派克",

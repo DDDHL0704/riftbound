@@ -16686,6 +16686,15 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
+            && behavior.SourceBoonAdditionalManaCost > 0
+            && TryParseSpendManaOptionalCost(normalizedOptionalCosts[0], out var spendManaCost)
+            && spendManaCost == behavior.SourceBoonAdditionalManaCost)
+        {
+            extraManaCost = spendManaCost;
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
             && (behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
                 || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0)
             && TryParseDiscardHandCardOptionalCost(
@@ -16703,6 +16712,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryParseSpendManaOptionalCost(string optionalCost, out int manaCost)
+    {
+        manaCost = 0;
+        return optionalCost.StartsWith(SpendManaOptionalCostPrefix, StringComparison.Ordinal)
+            && int.TryParse(optionalCost[SpendManaOptionalCostPrefix.Length..], out manaCost)
+            && manaCost > 0;
     }
 
     private static bool TryBuildBattlefieldHeldNextSpellEchoOptionalCost(
@@ -17549,6 +17566,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         if (!behavior.GrantsBoonToSourceUnit)
         {
             return false;
+        }
+
+        if (behavior.SourceBoonAdditionalManaCost > 0)
+        {
+            var requiredOptionalCost = $"{SpendManaOptionalCostPrefix}{behavior.SourceBoonAdditionalManaCost}";
+            return stackItem.OptionalCosts.Contains(requiredOptionalCost, StringComparer.Ordinal);
         }
 
         return behavior.SourceBoonConditionKind switch

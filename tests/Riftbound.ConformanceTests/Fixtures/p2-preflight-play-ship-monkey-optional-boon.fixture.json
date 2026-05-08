@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-ship-monkey-no-optional-boon",
-  "description": "Ship Monkey enters as a unit object without paying its optional self-boon additional cost.",
+  "fixtureId": "p2-preflight-play-ship-monkey-optional-boon",
+  "description": "Ship Monkey enters as a unit object and gains a boon after paying its optional additional mana cost.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302363,
+  "seed": 2603302364,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·098/221 船猿",
-      "note": "官方卡面：费用 2；单位；战力 2；海盗属性；你可以选择支付 1 作为打出我的额外费用；如果支付该额外费用，则给予我增益。本 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；额外费用与自身增益分支由 p2-preflight-play-ship-monkey-optional-boon 覆盖。"
+      "note": "官方卡面：费用 2；单位；战力 2；海盗属性；可以选择额外支付 1；若支付该额外费用，则给予自身增益。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果。"
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p33 rules 318-324; p39-p42 rules 355-356",
+      "note": "单位是游戏对象并可记录属性标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；支付额外费用后的条件效果由服务端结算。"
     }
   ],
-  "roomId": "p2-preflight-ship-monkey-room",
+  "roomId": "p2-preflight-ship-monkey-optional-boon-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302363,
+    "seed": 2603302364,
     "turnNumber": 362,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
@@ -31,7 +31,7 @@
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 3, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-ship-monkey-play",
+      "clientIntentId": "intent-p2-preflight-ship-monkey-optional-boon-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-SHIP-MONKEY",
         "cardNo": "SFD·098/221",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["SPEND_MANA:1"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ship-monkey-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ship-monkey-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ship-monkey-optional-boon-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ship-monkey-optional-boon-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -83,11 +84,21 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "OBJECT_TAG_ADDED",
+      "BOON_GRANTED"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 2, "baseMana": 2 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "baseMana": 2,
+          "optionalCosts": ["SPEND_MANA:1"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -111,6 +122,23 @@
           "destinationZone": "BASE",
           "power": 2,
           "tags": ["CARD_TYPE:UNIT", "海盗"]
+        }
+      },
+      {
+        "kind": "OBJECT_TAG_ADDED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-SHIP-MONKEY",
+          "targetObjectId": "P1-UNIT-SHIP-MONKEY",
+          "tag": "增益"
+        }
+      },
+      {
+        "kind": "BOON_GRANTED",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-SHIP-MONKEY",
+          "targetObjectId": "P1-UNIT-SHIP-MONKEY",
+          "powerDelta": 1,
+          "resultingPower": 3
         }
       }
     ],
@@ -137,8 +165,8 @@
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-SHIP-MONKEY": {
-          "power": 2,
-          "tags": ["CARD_TYPE:UNIT", "海盗"],
+          "power": 3,
+          "tags": ["CARD_TYPE:UNIT", "增益", "海盗"],
           "isExhausted": false
         }
       }

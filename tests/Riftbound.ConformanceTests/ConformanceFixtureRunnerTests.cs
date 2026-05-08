@@ -18112,6 +18112,64 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(expectedTags.Split('|'), result.FinalState.CardObjects[sourceObjectId].Tags);
     }
 
+    [Fact]
+    public async Task CoreRuleEnginePlaysShipMonkeyOptionalBoon()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ship-monkey-optional-boon.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-SHIP-MONKEY"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-SHIP-MONKEY"].Power);
+        Assert.Contains(CardObjectTags.Boon, result.FinalState.CardObjects["P1-UNIT-SHIP-MONKEY"].Tags);
+        Assert.Contains("海盗", result.FinalState.CardObjects["P1-UNIT-SHIP-MONKEY"].Tags);
+    }
+
+    [Fact]
+    public void CoreRuleEngineShipMonkeyPromptExposesOptionalBoonCost()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-SHIP-MONKEY"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-SHIP-MONKEY"] = new(
+                    "P1-UNIT-SHIP-MONKEY",
+                    cardNo: "SFD·098/221",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+
+        var optionalBoonCost = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
+        Assert.Equal("额外支付 1 法力：给予我增益", optionalBoonCost.Label);
+    }
+
     [Theory]
     [InlineData(2, "P1-UNIT-BLAST-CREW-APPRENTICE", "SFD·013/221", "P1-BASE-BLAST-CREW-APPRENTICE-TARGET-001")]
     [InlineData(3, "P1-UNIT-FROSTCOAT-CUB", "SFD·067/221", "P1-BASE-FROSTCOAT-CUB-TARGET-001")]

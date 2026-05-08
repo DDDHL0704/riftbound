@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第二百九十八批补充：补齐《船猿》（SFD·098/221）“可额外支付 1，若支付则给予自身增益”的服务端代表路径。CardBehavior 增加 `SourceBoonAdditionalManaCost=1`，Core 只在 `PLAY_CARD.optionalCosts=["SPEND_MANA:1"]` 进入结算链后授予来源单位 `增益` 与 +1 战力；未支付额外费用时仍只是 2 战力、`海盗` 标签单位。ActionPrompt 仅在服务端确认当前法力足够支付基础 2 + 额外 1 时公开“额外支付 1 法力：给予我增益”，前端仍只展示并提交服务端候选，不在浏览器侧推断额外费用或增益。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ShipMonkey|FullyQualifiedName~CoreRuleEnginePlaysSourceUnitWithoutOptionalAdditionalCost"` 通过 39/39；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3226/3226；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则与 ActionPrompt 可选费用元数据补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第二百九十七批补充：补齐《芭茹队长》（SFD·091/221）“抽一张牌或给予我增益”的第二个服务端模式。CardBehavior 现在为同一官方牌同时登记 `DRAW_1` 与 `SELF_BOON` 两个显式模式；`SELF_BOON` 结算后由服务端先将源单位打出到基地，再复用权威 `ApplyBoon` 写入 `OBJECT_TAG_ADDED` 与 `BOON_GRANTED`，使《芭茹队长》从 3 战力变为 4 战力并获得 `增益`。ActionPrompt 同步展示“抽 1 张 / 给予我增益”两个中文模式，前端仍只提交服务端公开的 mode，不读取卡面自行裁决。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~BuhruCaptain"` 通过 4/4，覆盖抽牌模式、自身增益模式、缺失模式拒绝和 prompt 模式公开；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3224/3224；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则与 ActionPrompt 元数据补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

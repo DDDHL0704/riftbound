@@ -5500,6 +5500,15 @@ internal static class ActionPromptBuilder
                 $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
         }
 
+        if (behavior.SourceBoonAdditionalManaCost > 0
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + behavior.SourceBoonAdditionalManaCost)
+        {
+            choices.Add(new ActionPromptChoiceDto(
+                $"SPEND_MANA:{behavior.SourceBoonAdditionalManaCost}",
+                $"额外支付 {behavior.SourceBoonAdditionalManaCost} 法力：给予我增益",
+                $"{behavior.DisplayName}的可选额外费用"));
+        }
+
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
 
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
