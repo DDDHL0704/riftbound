@@ -6548,11 +6548,11 @@ public sealed class PlaceholderRuleEngine : IRuleEngine
         GameCommand command,
         CancellationToken cancellationToken)
     {
-        if (command is UnsupportedCommand unsupported)
+        if (command is UnsupportedCommand)
         {
             return ValueTask.FromResult(ResolutionResult.Rejected(
                 state,
-                $"Unsupported command: {unsupported.RawCmdType}",
+                "当前命令不受服务端支持。",
                 ErrorCodes.UnsupportedCommand));
         }
 
@@ -7239,7 +7239,7 @@ public sealed class MatchSession : IMatchSession
                 {
                     throw new MatchSessionException(
                         ErrorCodes.ClientIntentConflict,
-                        "clientIntentId already belongs to another command");
+                        "该客户端行动编号已用于其他命令。");
                 }
 
                 return cached.Result;
@@ -7323,7 +7323,7 @@ public sealed class MatchSession : IMatchSession
                 {
                     throw new MatchSessionException(
                         ErrorCodes.ClientIntentConflict,
-                        "clientIntentId already belongs to another command");
+                        "该客户端行动编号已用于其他命令。");
                 }
 
                 return cached.Result;
@@ -7336,21 +7336,21 @@ public sealed class MatchSession : IMatchSession
             {
                 result = ResolutionResult.Rejected(
                     state,
-                    "match already finished",
+                    "对局已经结束，不能提交卡组。",
                     ErrorCodes.MatchFinished);
             }
             else if (state.Status == MatchStatuses.InProgress)
             {
                 result = ResolutionResult.Rejected(
                     state,
-                    "deck cannot be changed after the match starts.",
+                    "对局开始后不能更改卡组。",
                     ErrorCodes.PhaseNotAllowed);
             }
             else if (state.ReadyPlayerIds.Contains(normalizedPlayerId, StringComparer.Ordinal))
             {
                 result = ResolutionResult.Rejected(
                     state,
-                    "deck cannot be changed after the player is ready.",
+                    "玩家准备后不能更改卡组。",
                     ErrorCodes.PhaseNotAllowed);
             }
             else
@@ -7367,7 +7367,7 @@ public sealed class MatchSession : IMatchSession
                 {
                     result = ResolutionResult.Rejected(
                         state,
-                        $"invalid deck: {string.Join("; ", validation.Errors)}",
+                        $"卡组不合法：{string.Join("；", validation.Errors)}",
                         ErrorCodes.InvalidDeck);
                 }
                 else
@@ -7458,7 +7458,7 @@ public sealed class MatchSession : IMatchSession
                 {
                     throw new MatchSessionException(
                         ErrorCodes.ClientIntentConflict,
-                        "clientIntentId already belongs to another command");
+                        "该客户端行动编号已用于其他命令。");
                 }
 
                 return cached.Result;
@@ -7466,7 +7466,7 @@ public sealed class MatchSession : IMatchSession
 
             if (state.Status == MatchStatuses.Finished)
             {
-                throw new MatchSessionException(ErrorCodes.MatchFinished, "match already finished");
+                throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能准备。");
             }
 
             if (state.Status == MatchStatuses.InProgress)
@@ -7489,7 +7489,7 @@ public sealed class MatchSession : IMatchSession
             {
                 var rejected = ResolutionResult.Rejected(
                     state,
-                    "player must submit a valid deck before ready when the room uses official deck setup.",
+                    "正式卡组房间需要先提交合法卡组才能准备。",
                     ErrorCodes.InvalidDeck);
                 intentCache[cacheKey] = new CachedResolution("READY", rejected);
                 return rejected;
@@ -7612,7 +7612,7 @@ public sealed class MatchSession : IMatchSession
                 {
                     return ResolutionResult.Rejected(
                         state,
-                        "clientIntentId already belongs to another command",
+                        "该客户端行动编号已用于其他命令。",
                         ErrorCodes.ClientIntentConflict);
                 }
 
@@ -7621,12 +7621,12 @@ public sealed class MatchSession : IMatchSession
 
             if (state.Status == MatchStatuses.Finished)
             {
-                throw new MatchSessionException(ErrorCodes.MatchFinished, "match already finished");
+                throw new MatchSessionException(ErrorCodes.MatchFinished, "对局已经结束，不能继续提交行动。");
             }
 
             if (state.Status != MatchStatuses.InProgress)
             {
-                throw new MatchSessionException(ErrorCodes.MatchNotStarted, "match has not started");
+                throw new MatchSessionException(ErrorCodes.MatchNotStarted, "对局尚未开始。");
             }
 
             var startedTick = state.Tick;

@@ -47,29 +47,29 @@ public sealed class OfficialOpeningTests
         AssertInvalid(valid with
         {
             MainDeck = valid.MainDeck.Take(39).ToArray()
-        }, catalog, "mainDeck must contain at least 40 cards.");
+        }, catalog, "主牌堆至少需要 40 张牌。");
 
         AssertInvalid(valid with
         {
             RuneDeck = valid.RuneDeck.Take(11).ToArray()
-        }, catalog, "runeDeck must contain exactly 12 rune cards.");
+        }, catalog, "符文牌堆必须正好包含 12 张符文牌。");
 
         AssertInvalid(valid with
         {
             ChampionCardNo = "UNL-024/219",
             MainDeck = ReplaceFirst(valid.MainDeck, valid.ChampionCardNo, "UNL-024/219")
-        }, catalog, "champion hero tag must match");
+        }, catalog, "英雄牌的英雄标签必须与所选传奇一致。");
 
         var firstNonChampion = valid.MainDeck.First(cardNo => !string.Equals(cardNo, valid.ChampionCardNo, StringComparison.Ordinal));
         AssertInvalid(valid with
         {
             MainDeck = valid.MainDeck.Concat([firstNonChampion]).ToArray()
-        }, catalog, "maximum is 3.");
+        }, catalog, "上限为 3 张。");
 
         AssertInvalid(valid with
         {
             Battlefields = [valid.Battlefields[0], valid.Battlefields[0], valid.Battlefields[1]]
-        }, catalog, "battlefields cannot contain duplicate battlefield name");
+        }, catalog, "战场牌组不能包含重名战场");
     }
 
     [Fact]
@@ -84,28 +84,28 @@ public sealed class OfficialOpeningTests
         AssertInvalid(valid with
         {
             MainDeck = ReplaceFirst(valid.MainDeck, valid.ChampionCardNo, firstNonChampion)
-        }, catalog, "mainDeck must contain one copy of championCardNo");
+        }, catalog, "主牌堆必须包含 1 张所选英雄牌");
 
         var runeCard = catalog.Cards.First(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal));
         AssertInvalid(valid with
         {
             MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, runeCard.CardNo)
-        }, catalog, "has illegal category 符文");
+        }, catalog, "不能使用类别：符文。");
 
         AssertInvalid(valid with
         {
             MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, "UNKNOWN-000")
-        }, catalog, "mainDeck references unknown card UNKNOWN-000");
+        }, catalog, "主牌堆引用未知牌号 UNKNOWN-000。");
 
         AssertInvalid(valid with
         {
             RuneDeck = ReplaceFirst(valid.RuneDeck, valid.RuneDeck[0], valid.ChampionCardNo)
-        }, catalog, "must be a 符文 card.");
+        }, catalog, "必须是符文牌。");
 
         AssertInvalid(valid with
         {
             Battlefields = ReplaceFirst(valid.Battlefields, valid.Battlefields[0], valid.ChampionCardNo)
-        }, catalog, "must be a 战场 card.");
+        }, catalog, "必须是战场牌。");
 
         var offTraitMainDeckCard = catalog.Cards
             .Where(card => card.CardCategoryName is "单位" or "英雄单位" or "装备" or "法术")
@@ -113,7 +113,7 @@ public sealed class OfficialOpeningTests
         AssertInvalid(valid with
         {
             MainDeck = ReplaceFirst(valid.MainDeck, firstNonChampion, offTraitMainDeckCard.CardNo)
-        }, catalog, "has traits outside the selected legend traits");
+        }, catalog, "包含所选传奇不支持的特性");
 
         var offTraitRune = catalog.Cards
             .Where(card => string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
@@ -121,7 +121,35 @@ public sealed class OfficialOpeningTests
         AssertInvalid(valid with
         {
             RuneDeck = ReplaceFirst(valid.RuneDeck, valid.RuneDeck[0], offTraitRune.CardNo)
-        }, catalog, "has traits outside the selected legend traits");
+        }, catalog, "包含所选传奇不支持的特性");
+    }
+
+    [Fact]
+    public async Task SubmitDeckRejectsInvalidOfficialDeckWithChineseMessage()
+    {
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
+        var invalid = BuildValidDeck(catalog) with
+        {
+            MainDeck = []
+        };
+        var session = new MatchSession("official-invalid-deck-room", new PlaceholderRuleEngine());
+        session.EnsurePlayer("P1");
+
+        var result = await session.SubmitDeckAsync(
+            "P1",
+            "submit-invalid-deck",
+            ToSubmitCommand(invalid),
+            RawCommand("SUBMIT_DECK"),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
+        Assert.Contains("卡组不合法：", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("主牌堆至少需要 40 张牌。", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("invalid deck", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("mainDeck must", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(MatchStatuses.Seating, result.State.Status);
+        Assert.Empty(result.State.PlayerDecklists);
     }
 
     [Fact]
@@ -550,6 +578,13 @@ public sealed class OfficialOpeningTests
         var validation = OfficialDeckValidator.Validate(decklist, catalog);
         Assert.False(validation.IsValid);
         Assert.Contains(validation.Errors, error => error.Contains(expected, StringComparison.Ordinal));
+        var combined = string.Join(" | ", validation.Errors);
+        Assert.DoesNotContain("mainDeck must", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("runeDeck must", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("champion hero tag", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("battlefields cannot", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("has traits outside", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("references unknown card", combined, StringComparison.Ordinal);
     }
 
     private static SubmitDeckCommand ToSubmitCommand(OfficialDecklist decklist)

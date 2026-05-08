@@ -60,39 +60,39 @@ public static class OfficialDeckValidator
 
         if (legend is not null && !string.Equals(legend.CardCategoryName, "传奇", StringComparison.Ordinal))
         {
-            errors.Add("legendCardNo must reference a 传奇 card.");
+            errors.Add("传奇牌编号必须指向一张传奇牌。");
         }
 
         if (champion is not null && !string.Equals(champion.CardCategoryName, "英雄单位", StringComparison.Ordinal))
         {
-            errors.Add("championCardNo must reference a 英雄单位 card.");
+            errors.Add("英雄牌编号必须指向一张英雄单位牌。");
         }
 
         if (legend is not null
             && champion is not null
             && !string.Equals(legend.Hero, champion.Hero, StringComparison.Ordinal))
         {
-            errors.Add("champion hero tag must match the selected legend hero tag.");
+            errors.Add("英雄牌的英雄标签必须与所选传奇一致。");
         }
 
         if (mainDeck.Count < MinimumMainDeckCount)
         {
-            errors.Add($"mainDeck must contain at least {MinimumMainDeckCount} cards.");
+            errors.Add($"主牌堆至少需要 {MinimumMainDeckCount} 张牌。");
         }
 
         if (!mainDeck.Contains(championCardNo, StringComparer.Ordinal))
         {
-            errors.Add("mainDeck must contain one copy of championCardNo; the selected copy starts in the champion zone.");
+            errors.Add("主牌堆必须包含 1 张所选英雄牌；该牌开局进入英雄区。");
         }
 
         if (runeDeck.Count != RuneDeckCount)
         {
-            errors.Add($"runeDeck must contain exactly {RuneDeckCount} rune cards.");
+            errors.Add($"符文牌堆必须正好包含 {RuneDeckCount} 张符文牌。");
         }
 
         if (battlefields.Count != BattlefieldCount)
         {
-            errors.Add($"battlefields must contain exactly {BattlefieldCount} battlefield cards.");
+            errors.Add($"战场牌组必须正好包含 {BattlefieldCount} 张战场牌。");
         }
 
         ValidateMainDeck(cardsByNo, mainDeck, legend, errors);
@@ -133,17 +133,17 @@ public static class OfficialDeckValidator
             cards.Add(card);
             if (!MainDeckCategories.Contains(card.CardCategoryName))
             {
-                errors.Add($"mainDeck card {card.CardNo} has illegal category {card.CardCategoryName}.");
+                errors.Add($"主牌堆中的 {card.CardNo} 不能使用类别：{card.CardCategoryName}。");
             }
 
             if (IsExclusive(card)
                 && legend is not null
                 && !string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal))
             {
-                errors.Add($"exclusive card {card.CardNo} does not match the selected legend hero tag.");
+                errors.Add($"专属牌 {card.CardNo} 与所选传奇英雄标签不匹配。");
             }
 
-            ValidateLegendTraits(card, legend, $"mainDeck card {card.CardNo}", errors);
+            ValidateLegendTraits(card, legend, $"主牌堆中的 {card.CardNo}", errors);
         }
 
         ValidateCopyLimits(cards, errors);
@@ -154,7 +154,7 @@ public static class OfficialDeckValidator
                 && string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal));
             if (exclusiveCount > MaximumExclusiveCardsForLegend)
             {
-                errors.Add($"mainDeck can contain at most {MaximumExclusiveCardsForLegend} exclusive cards for the selected legend hero tag.");
+                errors.Add($"主牌堆中所选传奇的专属牌最多 {MaximumExclusiveCardsForLegend} 张。");
             }
         }
     }
@@ -175,10 +175,10 @@ public static class OfficialDeckValidator
 
             if (!string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
             {
-                errors.Add($"runeDeck card {card.CardNo} must be a 符文 card.");
+                errors.Add($"符文牌堆中的 {card.CardNo} 必须是符文牌。");
             }
 
-            ValidateLegendTraits(card, legend, $"runeDeck card {card.CardNo}", errors);
+            ValidateLegendTraits(card, legend, $"符文牌堆中的 {card.CardNo}", errors);
         }
     }
 
@@ -200,10 +200,10 @@ public static class OfficialDeckValidator
             battlefieldCards.Add(card);
             if (!string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
             {
-                errors.Add($"battlefield card {card.CardNo} must be a 战场 card.");
+                errors.Add($"战场牌组中的 {card.CardNo} 必须是战场牌。");
             }
 
-            ValidateLegendTraits(card, legend, $"battlefield card {card.CardNo}", errors);
+            ValidateLegendTraits(card, legend, $"战场牌组中的 {card.CardNo}", errors);
         }
 
         var duplicateBattlefields = battlefieldCards
@@ -213,7 +213,7 @@ public static class OfficialDeckValidator
             .ToArray();
         foreach (var duplicate in duplicateBattlefields)
         {
-            errors.Add($"battlefields cannot contain duplicate battlefield name {duplicate}.");
+            errors.Add($"战场牌组不能包含重名战场：{duplicate}。");
         }
     }
 
@@ -224,7 +224,7 @@ public static class OfficialDeckValidator
             var maxCopies = group.Any(IsUniqueCard) ? 1 : DefaultMaxCopiesByName;
             if (group.Count() > maxCopies)
             {
-                errors.Add($"mainDeck contains {group.Count()} copies of {group.Key}; maximum is {maxCopies}.");
+                errors.Add($"主牌堆包含 {group.Count()} 张《{group.Key}》，上限为 {maxCopies} 张。");
             }
         }
     }
@@ -248,7 +248,7 @@ public static class OfficialDeckValidator
             .ToArray();
         if (illegalColors.Length > 0)
         {
-            errors.Add($"{label} has traits outside the selected legend traits: {string.Join(", ", illegalColors)}.");
+            errors.Add($"{label} 包含所选传奇不支持的特性：{string.Join("、", illegalColors.Select(TraitLabel))}。");
         }
     }
 
@@ -260,7 +260,7 @@ public static class OfficialDeckValidator
     {
         if (string.IsNullOrWhiteSpace(cardNo))
         {
-            errors.Add($"{field} contains a blank card number.");
+            errors.Add($"{FieldLabel(field)}包含空白牌号。");
             return null;
         }
 
@@ -269,8 +269,35 @@ public static class OfficialDeckValidator
             return card;
         }
 
-        errors.Add($"{field} references unknown card {cardNo}.");
+        errors.Add($"{FieldLabel(field)}引用未知牌号 {cardNo}。");
         return null;
+    }
+
+    private static string FieldLabel(string field)
+    {
+        return field switch
+        {
+            "legendCardNo" => "传奇牌编号",
+            "championCardNo" => "英雄牌编号",
+            "mainDeck" => "主牌堆",
+            "runeDeck" => "符文牌堆",
+            "battlefields" => "战场牌组",
+            _ => "卡组字段"
+        };
+    }
+
+    private static string TraitLabel(string trait)
+    {
+        return RuneTrait.Normalize(trait) switch
+        {
+            RuneTrait.Red => "红色",
+            RuneTrait.Green => "绿色",
+            RuneTrait.Blue => "蓝色",
+            RuneTrait.Yellow => "黄色",
+            RuneTrait.Orange => "橙色",
+            RuneTrait.Purple => "紫色",
+            _ => trait
+        };
     }
 
     private static bool IsExclusive(OfficialCard card)

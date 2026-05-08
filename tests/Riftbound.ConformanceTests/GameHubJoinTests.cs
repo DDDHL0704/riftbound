@@ -205,7 +205,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.MatchNotStarted, payload.Code);
-        Assert.Equal("match has not started", payload.Message);
+        Assert.Equal("对局尚未开始。", payload.Message);
+        Assert.DoesNotContain("match has not started", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -448,7 +449,9 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.UnsupportedCommand, payload.Code);
-        Assert.Equal("Unsupported command: FLIP_TABLE", payload.Message);
+        Assert.Equal("当前命令不受服务端支持。", payload.Message);
+        Assert.DoesNotContain("FLIP_TABLE", payload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("Unsupported command", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -472,7 +475,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(clients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.ClientIntentConflict, payload.Code);
-        Assert.Equal("clientIntentId already belongs to another command", payload.Message);
+        Assert.Equal("该客户端行动编号已用于其他命令。", payload.Message);
+        Assert.DoesNotContain("clientIntentId", payload.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -6105,7 +6109,8 @@ public sealed class GameHubJoinTests
         var error = Assert.Single(afterFinishedClients.CallerClient.Errors);
         var payload = Assert.IsType<ErrorDto>(error.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, payload.Code);
-        Assert.Equal("match already finished", payload.Message);
+        Assert.Equal("对局已经结束，不能继续提交行动。", payload.Message);
+        Assert.DoesNotContain("match already finished", payload.Message, StringComparison.Ordinal);
         Assert.Empty(afterFinishedClients.GroupClient.EventMessages);
 
         var submitDeckAfterFinishedClients = new RecordingHubClients();
@@ -6124,7 +6129,8 @@ public sealed class GameHubJoinTests
         var submitDeckError = Assert.Single(submitDeckAfterFinishedClients.CallerClient.Errors);
         var submitDeckPayload = Assert.IsType<ErrorDto>(submitDeckError.Payload);
         Assert.Equal(ErrorCodes.MatchFinished, submitDeckPayload.Code);
-        Assert.Equal("match already finished", submitDeckPayload.Message);
+        Assert.Equal("对局已经结束，不能提交卡组。", submitDeckPayload.Message);
+        Assert.DoesNotContain("match already finished", submitDeckPayload.Message, StringComparison.Ordinal);
         Assert.Empty(submitDeckAfterFinishedClients.GroupClient.EventMessages);
     }
 

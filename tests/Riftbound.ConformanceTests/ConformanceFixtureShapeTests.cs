@@ -93,7 +93,8 @@ public sealed class ConformanceFixtureShapeTests
             await session.SubmitAsync("alice", "intent-pass", new PassCommand(), RawCommand("PASS"), CancellationToken.None));
 
         Assert.Equal(ErrorCodes.MatchNotStarted, error.Code);
-        Assert.Equal("match has not started", error.Message);
+        Assert.Equal("对局尚未开始。", error.Message);
+        Assert.DoesNotContain("match has not started", error.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -144,6 +145,8 @@ public sealed class ConformanceFixtureShapeTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.InvalidDeck, result.ErrorCode);
+        Assert.Equal("正式卡组房间需要先提交合法卡组才能准备。", result.ErrorMessage);
+        Assert.DoesNotContain("valid deck", result.ErrorMessage, StringComparison.Ordinal);
         Assert.DoesNotContain("P1", result.State.ReadyPlayerIds);
         Assert.Equal(MatchStatuses.Seating, result.State.Status);
     }
