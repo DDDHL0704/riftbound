@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十二批补充：前端共享 formatter 的未知协议 fallback 继续中文化。`promptActionLabel`、阶段、窗口、房间状态、服务端状态、就绪状态与证据状态等展示函数现在对未识别的全大写/下划线/冒号协议 token 或连字符枚举键降级为“服务端操作 / 服务端阶段 / 服务端窗口 / 服务端状态 / 服务端证据”等中文占位；普通中文或自然文本仍按原文显示。该批只改展示 fallback，前端仍只读取服务端 snapshot/prompt/event，不新增任何规则裁决。
+- 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过，包含 event label 覆盖检查、TypeScript build 与 Vite production build。本批没有新增服务端规则代码或可触发未知 action 的页面场景，未启动 API/Vite/Chrome smoke；5092/5093/5094/5175/5176/9223/9224 保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百二十一批补充：服务端禁用行动候选原因继续去 raw action token。`ActionPromptBuilder.DisabledReasonFor` 现在复用服务端中文行动名，缺少合法来源/目标/费用候选时显示“横置符文 当前没有服务端可执行候选”“回收符文 当前没有服务端可执行候选”，不再把 `TAP_RUNE`、`RECYCLE_RUNE` 或其他全大写协议 action 拼入玩家可见 reason；未知协议 action 降级为“服务端操作”。前端仍只展示服务端下发的候选和 reason，不在浏览器侧自行裁决可执行性。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~ActionPromptHidesRuneSourcesWhenRuneHasNoCardNo"` 1/1 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 75/75 通过。本批为服务端 prompt 文案契约与测试收口，没有前端 UI 代码变更，未启动新的 API/Vite/Chrome smoke；5092/5093/5094/5175/5176/9223/9224 保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

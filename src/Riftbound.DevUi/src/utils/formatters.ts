@@ -100,7 +100,7 @@ export function conformanceLabel(tier?: string): string {
     case "blocked":
       return "阻断";
     default:
-      return tier ?? "未知";
+      return protocolFallback(tier, "服务端证据", "未知");
   }
 }
 
@@ -134,7 +134,7 @@ export function statusLabel(status?: string): string {
     case "recognized-delegated":
       return "已识别代理";
     default:
-      return status ?? "未知";
+      return protocolFallback(status, "服务端状态", "未知");
   }
 }
 
@@ -145,7 +145,7 @@ export function readinessLabel(status?: string): string {
     case "READY":
       return "已就绪";
     default:
-      return status ?? "未知";
+      return protocolFallback(status, "服务端就绪状态", "未知");
   }
 }
 
@@ -155,7 +155,7 @@ export function serviceStatusLabel(status?: string): string {
     case "healthy":
       return "正常";
     default:
-      return status ?? "未知";
+      return protocolFallback(status, "服务端状态", "未知");
   }
 }
 
@@ -166,7 +166,7 @@ export function serviceNameLabel(service?: string): string {
     case "riftbound-dotnet":
       return "符文战场服务端";
     default:
-      return service ?? "未知服务";
+      return protocolFallback(service, "服务端", "未知服务");
   }
 }
 
@@ -183,7 +183,7 @@ export function serviceRoleLabel(role?: string): string {
     case "testing":
       return "测试模式";
     default:
-      return role ?? "未知";
+      return protocolFallback(role, "服务端角色", "未知");
   }
 }
 
@@ -236,7 +236,7 @@ export function roomStatusLabel(status?: string): string {
     case "FINISHED":
       return "对局已结束";
     default:
-      return status ?? "未知";
+      return protocolFallback(status, "服务端房间状态", "未知");
   }
 }
 
@@ -268,7 +268,7 @@ export function matchPhaseLabel(phase?: string): string {
     case "TURN_END":
       return "回合结束";
     default:
-      return phase ?? "等待开局";
+      return protocolFallback(phase, "服务端阶段", "等待开局");
   }
 }
 
@@ -287,7 +287,7 @@ export function timingStateLabel(state?: string): string {
     case "SPELL_DUEL_CLOSED":
       return "法术对决闭环";
     default:
-      return state ?? "未知窗口";
+      return protocolFallback(state, "服务端窗口", "未知窗口");
   }
 }
 
@@ -316,7 +316,20 @@ export function actionLabel(action: string): string {
     LEGEND_ACT: "传奇行动",
     WAIT: "等待服务端规则任务"
   };
-  return labels[action] ?? action;
+  return labels[action] ?? protocolFallback(action, "服务端操作", "服务端操作");
+}
+
+function protocolFallback(value: string | undefined, protocolLabel: string, emptyLabel: string): string {
+  if (!value || !value.trim()) {
+    return emptyLabel;
+  }
+
+  return isProtocolToken(value) ? protocolLabel : value;
+}
+
+function isProtocolToken(value: string): boolean {
+  const token = value.trim();
+  return /^[A-Z0-9_:-]+$/.test(token) || /^[a-z0-9]+(?:[-_:][a-z0-9]+)+$/.test(token);
 }
 
 export function runeTraitLabel(trait?: string): string {
