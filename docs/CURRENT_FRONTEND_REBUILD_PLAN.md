@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百四十七批仍为服务端规则收口，没有前端 UI 文件变更。服务端把废弃大厅、偶像谷、流星疗泉三个代表性战场触发的战场来源/目标选择接入所在场区控制权校验；前端收益仍是服务端 `ActionPrompt` / authoritative events 不会把恢复脏战场牌误展示成真实可发动效果。
+- 本批验证：`dotnet build` 通过；目标战场触发回归 10/10、相邻战场触发回归 17/17、`GameHubJoinTests` 118/118、后端 full test 3078/3078 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
+
 - 第一百四十六批仍为服务端规则收口，没有前端 UI 文件变更。服务端把 Rengar“打出单位后给目标单位 +1”的额外触发目标从提交侧到结算侧都接入所在场区控制权校验；前端继续只显示服务端 `ActionPrompt` 候选，不需要也不能在本地判断该传奇触发目标是否仍合法。
 - 本批验证：`dotnet build` 通过；Rengar/Leona 精确回归 7/7、传奇触发相关回归 46/46、`GameHubJoinTests` 118/118、后端 full test 3075/3075 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
 

@@ -15405,7 +15405,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceObjectId = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldSpellPowerBonusCardNo(cardObject.CardNo))
+                && IsBattlefieldSpellPowerBonusCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(sourceObjectId))
@@ -15414,7 +15415,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var targetObjectId = zones.Battlefields
-            .Where(objectId => cardObjects.TryGetValue(objectId, out _)
+            .Where(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
                 && CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
@@ -15463,6 +15464,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
             || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId)
             || sourceUnitState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal)
             || !runePools.TryGetValue(playerId, out var currentPool)
             || currentPool.Mana < 1)
@@ -15472,7 +15474,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var battlefieldObjectId = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldPlayUnitPayOneBoonCardNo(cardObject.CardNo))
+                && IsBattlefieldPlayUnitPayOneBoonCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
@@ -15535,14 +15538,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !playerZones.TryGetValue(playerId, out var zones)
             || !zones.Battlefields.Contains(stackItem.SourceObjectId, StringComparer.Ordinal)
             || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceUnitState)
-            || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+            || !sourceUnitState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceUnitState, playerId))
         {
             return false;
         }
 
         var battlefieldObjectId = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardObject.CardNo))
+                && IsBattlefieldFirstUnitPlayedMoveOtherToBaseCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
@@ -15561,7 +15566,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Where(objectId => !string.Equals(objectId, stackItem.SourceObjectId, StringComparison.Ordinal)
                 && !string.Equals(objectId, battlefieldObjectId, StringComparison.Ordinal)
                 && cardObjects.TryGetValue(objectId, out var cardObject)
-                && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();

@@ -32877,6 +32877,58 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldSpellPowerBonusSkipsOpponentControlledSource()
+    {
+        async Task AssertNoPowerBonus(MatchState state, string intentId)
+        {
+            state = state with
+            {
+                PriorityPlayerId = "P1",
+                StackItems =
+                [
+                    new(
+                        $"STACK-{intentId}-DUMMY",
+                        "P1",
+                        "P1-SPELL-DUMMY",
+                        "DUMMY_PENDING_EFFECT",
+                        "DUMMY",
+                        [])
+                ]
+            };
+
+            var result = await new CoreRuleEngine().ResolveAsync(
+                state,
+                new PlayerIntent(intentId, "P1", "PLAY_CARD"),
+                new PlayCardCommand(
+                    "P1-SPELL-SAVAGE-STRENGTH",
+                    "SFD·034/221",
+                    ["P1-BATTLEFIELD-ALLY"]),
+                CancellationToken.None);
+
+            Assert.True(result.Accepted);
+            var target = result.State.CardObjects["P1-BATTLEFIELD-ALLY"];
+            Assert.Equal(2, target.Power);
+            Assert.Equal(0, target.UntilEndOfTurnPowerModifier);
+            Assert.DoesNotContain(result.Events, gameEvent =>
+                string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_SPELL_POWER_PLUS_1", StringComparison.Ordinal));
+            Assert.DoesNotContain(result.Events, gameEvent =>
+                string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        }
+
+        var dirtySourceState = BattlefieldSpellPowerBonusState();
+        var dirtySourceObjects = dirtySourceState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtySourceObjects["P1-BATTLEFIELD-WASTE-HALL"] = dirtySourceObjects["P1-BATTLEFIELD-WASTE-HALL"] with
+        {
+            ControllerId = "P2"
+        };
+        await AssertNoPowerBonus(
+            dirtySourceState with { CardObjects = dirtySourceObjects },
+            "intent-p7-9-battlefield-spell-power-bonus-dirty-source");
+
+    }
+
+    [Fact]
     public async Task P79BattlefieldHighCostSpellInsightRecyclesTopCardOnPaidFourPlusSpell()
     {
         var state = BattlefieldHighCostSpellInsightState();
@@ -33310,6 +33362,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldPlayUnitBoonSkipsOpponentControlledBattlefieldSource()
+    {
+        var state = BattlefieldPlayUnitBoonState(mana: 4);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-IDOL-VALLEY"] = cardObjects["P1-BATTLEFIELD-IDOL-VALLEY"] with
+        {
+            ControllerId = "P2"
+        };
+        state = state with
+        {
+            CardObjects = cardObjects,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new(
+                    "STACK-BATTLEFIELD-PLAY-UNIT-BOON-DIRTY-SOURCE-DUMMY",
+                    "P1",
+                    "P1-SPELL-DUMMY",
+                    "DUMMY_PENDING_EFFECT",
+                    "DUMMY",
+                    [])
+            ]
+        };
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-dirty-source-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                [],
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-dirty-source-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-play-unit-boon-dirty-source-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(1, p2Pass.State.RunePools["P1"].Mana);
+        var unit = p2Pass.State.CardObjects["P1-UNIT-CRAFTSMAN"];
+        Assert.Equal(2, unit.Power);
+        Assert.DoesNotContain(CardObjectTags.Boon, unit.Tags);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_PLAY_UNIT_PAY_1_GRANT_BOON", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-UNIT-CRAFTSMAN", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldFirstUnitPlayedMovesOtherUnitToBase()
     {
         var state = BattlefieldFirstUnitMoveOtherState();
@@ -33394,6 +33507,68 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.DoesNotContain(p2Pass.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldFirstUnitPlayedMoveOtherSkipsOpponentControlledBattlefieldSource()
+    {
+        var state = BattlefieldFirstUnitMoveOtherState();
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-METEOR-SPRING"] = cardObjects["P1-BATTLEFIELD-METEOR-SPRING"] with
+        {
+            ControllerId = "P2"
+        };
+        state = state with
+        {
+            CardObjects = cardObjects,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new(
+                    "STACK-BATTLEFIELD-FIRST-UNIT-DIRTY-SOURCE-DUMMY",
+                    "P1",
+                    "P1-SPELL-DUMMY",
+                    "DUMMY_PENDING_EFFECT",
+                    "DUMMY",
+                    [])
+            ]
+        };
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-dirty-source-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRAFTSMAN",
+                "OGN·211/298",
+                [],
+                Destination: "BATTLEFIELD:P1-MAIN"),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-dirty-source-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-battlefield-first-unit-move-other-dirty-source-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted);
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Contains("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-BATTLEFIELD-ALLY", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(
+            "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE_USED:P1:P1-BATTLEFIELD-METEOR-SPRING",
+            p2Pass.State.UntilEndOfTurnEffects);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_UNIT_PLAYED_MOVE_OTHER_TO_BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_MOVED_TO_BASE", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, "P1-BATTLEFIELD-ALLY", StringComparison.Ordinal));
     }
 
     [Fact]
