@@ -180,6 +180,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnJinxDiscardTriggerAltCardNo = "OGN·202a/298";
     private const string ArcJinxDiscardTriggerCardNo = "ARC-005/006";
     private const string JinxDiscardedHandCardsEffectKind = "JINX_DISCARDED_HAND_CARDS_READY_POWER_1";
+    private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
@@ -322,6 +323,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
     private const string DiscardedHandCardThisTurnEffectPrefix = "DISCARDED_HAND_CARD_THIS_TURN:";
     private const string GainedExperienceThisTurnEffectPrefix = "GAINED_EXPERIENCE_THIS_TURN:";
+    private const string PlayedFourPlusCostSpellThisTurnEffectPrefix = "PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -558,6 +560,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             targetObjectIds);
+        untilEndOfTurnEffects = MarkPlayerPlayedFourPlusCostSpellThisTurn(
+            untilEndOfTurnEffects,
+            intent.PlayerId,
+            behavior,
+            plan.TotalManaCost);
         var battlefieldFriendlySpellDrawSourceObjectId = TryGetBattlefieldFriendlySpellDrawSourceObjectId(
                 state,
                 intent.PlayerId,
@@ -1392,6 +1399,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{GainedExperienceThisTurnEffectPrefix}{playerId}";
     }
 
+    private static string BuildPlayedFourPlusCostSpellThisTurnEffectId(string playerId)
+    {
+        return $"{PlayedFourPlusCostSpellThisTurnEffectPrefix}{playerId}";
+    }
+
     private static bool PlayerDiscardedHandCardThisTurn(
         IReadOnlyList<string> existingEffectIds,
         string playerId)
@@ -1418,6 +1430,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         return existingEffectIds.Contains(
             BuildGainedExperienceThisTurnEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool PlayerPlayedFourPlusCostSpellThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId)
+    {
+        return existingEffectIds.Contains(
+            BuildPlayedFourPlusCostSpellThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> MarkPlayerPlayedFourPlusCostSpellThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int totalManaCost)
+    {
+        return IsSpellPlayBehavior(behavior) && totalManaCost >= 4
+            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildPlayedFourPlusCostSpellThisTurnEffectId(playerId))
+            : existingEffectIds;
     }
 
     private static IReadOnlyList<string> MarkPlayersWhoGainedExperienceThisTurn(
@@ -20933,6 +20965,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyList<string> untilEndOfTurnEffects)
     {
+        if (string.Equals(behavior.CardNo, AscendedBelieverCardNo, StringComparison.Ordinal)
+            && PlayerPlayedFourPlusCostSpellThisTurn(untilEndOfTurnEffects, controllerId))
+        {
+            return 4;
+        }
+
         return string.Equals(behavior.CardNo, SlySalamanderCardNo, StringComparison.Ordinal)
             && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId)
                 ? 1

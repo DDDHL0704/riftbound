@@ -15220,6 +15220,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-minotaur-reckoner-vanilla-unit.fixture.json", "P1-UNIT-MINOTAUR-RECKONER", 5)]
     [InlineData("p2-preflight-play-voidling-seedling-vanilla-unit.fixture.json", "P1-UNIT-VOIDLING-SEEDLING", 2)]
     [InlineData("p2-preflight-play-ascended-believer-no-spell-vanilla-unit.fixture.json", "P1-UNIT-ASCENDED-BELIEVER", 1)]
+    [InlineData("p2-preflight-play-ascended-believer-four-plus-spell-unit.fixture.json", "P1-UNIT-ASCENDED-BELIEVER", 5)]
     [InlineData("p2-preflight-play-sly-salamander-no-experience-vanilla-unit.fixture.json", "P1-UNIT-SLY-SALAMANDER", 4)]
     [InlineData("p2-preflight-play-ogn-fiora-not-powerful-vanilla-unit.fixture.json", "P1-UNIT-OGN-FIORA", 4)]
     [InlineData("p2-preflight-play-balanced-disciple-no-other-power-vanilla-unit.fixture.json", "P1-UNIT-BALANCED-DISCIPLE", 3)]

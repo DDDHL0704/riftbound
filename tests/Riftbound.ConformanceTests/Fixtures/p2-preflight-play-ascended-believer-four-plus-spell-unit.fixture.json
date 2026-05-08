@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-ascended-believer-no-spell-vanilla-unit",
-  "description": "Ascended Believer enters as a baseline unit when no 4-plus-cost spell was played this turn.",
+  "fixtureId": "p2-preflight-play-ascended-believer-four-plus-spell-unit",
+  "description": "Ascended Believer enters with +4 power when its controller spent at least 4 mana to play a spell this turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302530,
+  "seed": 2603302535,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-004/219 晋升信徒",
-      "note": "官方卡面：费用 3；单位；战力 1；若本回合曾消耗不低于 4 点费用打出法术，则自身获得战力 +4。当前 fixture 未在本回合打出法术，覆盖普通主阶段打出后成为基础战力的基地单位对象；条件满足的战力修正由 paired four-plus-spell fixture 覆盖。"
+      "note": "官方卡面：费用 3；单位；战力 1；若本回合曾消耗不低于 4 点费用打出法术，则自身获得战力 +4。本 fixture 通过服务端回合效果记录 4+ 费用法术记忆，覆盖条件满足时的战力修正。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+      "note": "单位是游戏对象并记录战力；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
     }
   ],
-  "roomId": "p2-preflight-unl-004-ascended-believer-room",
+  "roomId": "p2-preflight-unl-004-ascended-believer-four-plus-spell-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302530,
-    "turnNumber": 530,
+    "seed": 2603302535,
+    "turnNumber": 534,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
@@ -34,6 +34,7 @@
       "P1": { "mana": 3, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
+    "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1"],
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
@@ -41,7 +42,7 @@
         "hand": ["P1-UNIT-ASCENDED-BELIEVER"],
         "base": [],
         "battlefields": [],
-        "graveyard": [],
+        "graveyard": ["P1-SPELL-PLAYED-EARLIER-001"],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
         "championZone": ["P1-CHAMPION-001"]
@@ -63,7 +64,7 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-unl-004-ascended-believer-play",
+      "clientIntentId": "intent-p2-preflight-unl-004-ascended-believer-four-plus-spell-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-ASCENDED-BELIEVER",
@@ -71,8 +72,8 @@
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-004-ascended-believer-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-004-ascended-believer-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-004-ascended-believer-four-plus-spell-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-004-ascended-believer-four-plus-spell-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -87,7 +88,7 @@
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 530,
+      "turnNumber": 534,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -97,18 +98,19 @@
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
+      "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1"],
       "players": {
         "P1": {
           "mainDeck": ["P1-MAIN-001"],
           "hand": [],
           "base": ["P1-UNIT-ASCENDED-BELIEVER"],
-          "graveyard": []
+          "graveyard": ["P1-SPELL-PLAYED-EARLIER-001"]
         }
       },
       "stackItems": [],
       "cardObjects": {
         "P1-UNIT-ASCENDED-BELIEVER": {
-          "power": 1,
+          "power": 5,
           "tags": ["CARD_TYPE:UNIT"],
           "isExhausted": false
         }
