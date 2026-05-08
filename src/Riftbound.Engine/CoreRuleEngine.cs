@@ -45,6 +45,19 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LoyalPoroLastBreathDrawEffectKind = "LOYAL_PORO_LAST_BREATH_DRAW_1";
     private const string ScoutingWarhawkCardNo = "OGN·216/298";
     private const string ScoutingWarhawkLastBreathCallRuneEffectKind = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
+    private const string MechanicalTricksterCardNo = "OGN·239/298";
+    private const string MechanicalTricksterLastBreathCreateMinionsEffectKind = "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS";
+    private static readonly CardBehaviorDefinition MechanicalTricksterLastBreathCreateMinionsBehavior = new(
+        MechanicalTricksterCardNo,
+        "机械戏法师",
+        0,
+        MechanicalTricksterLastBreathCreateMinionsEffectKind,
+        0,
+        0,
+        CreatedBaseUnitTokenCount: 3,
+        CreatedBaseUnitTokenPower: 1,
+        CreatedBaseUnitTokenName: "随从",
+        CreatedBaseUnitTokenTags: CardObjectTags.UnitCard);
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -1511,6 +1524,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !string.Equals(destroyedState.CardNo, ScoutingWarhawkCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveMechanicalTricksterLastBreathMinionPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, MechanicalTricksterCardNo, StringComparison.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -18398,6 +18431,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                                         ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
                                         ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
                                     }));
+                            }
+
+                            var mechanicalTricksterMinionPlayerId = ResolveMechanicalTricksterLastBreathMinionPlayerId(
+                                targetState,
+                                removalResult);
+                            if (mechanicalTricksterMinionPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    mechanicalTricksterMinionPlayerId,
+                                    MechanicalTricksterLastBreathCreateMinionsEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+                                var tokenStackItem = new StackItemState(
+                                    stackItemId: trigger.TriggerId,
+                                    controllerId: mechanicalTricksterMinionPlayerId,
+                                    sourceObjectId: targetObjectId,
+                                    effectKind: MechanicalTricksterLastBreathCreateMinionsEffectKind,
+                                    cardNo: MechanicalTricksterCardNo);
+                                CreateBaseUnitTokens(
+                                    playerZones,
+                                    cardObjects,
+                                    MechanicalTricksterLastBreathCreateMinionsBehavior,
+                                    tokenStackItem,
+                                    events);
                             }
 
                             if (sadPoroLastBreathDrawPlayerId is not null)

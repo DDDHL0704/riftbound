@@ -34793,6 +34793,80 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79MechanicalTricksterCreatesThreeMinionsWhenDestroyed()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-VENGEANCE"],
+                    Base = ["P1-MECHANICAL-TRICKSTER"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MECHANICAL-TRICKSTER"] = new(
+                    "P1-MECHANICAL-TRICKSTER",
+                    cardNo: "OGN·239/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-mechanical-trickster-play-vengeance", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", ["P1-MECHANICAL-TRICKSTER"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-mechanical-trickster-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-mechanical-trickster-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var triggerQueued = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", StringComparison.Ordinal));
+        Assert.Equal("P1-MECHANICAL-TRICKSTER", triggerQueued.Payload["sourceObjectId"]);
+        Assert.Equal("P1", triggerQueued.Payload["controllerId"]);
+        Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS", StringComparison.Ordinal));
+
+        Assert.Equal(3, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "UNIT_TOKEN_CREATED", StringComparison.Ordinal)));
+        Assert.Equal(
+            [
+                "P1-MECHANICAL-TRICKSTER-TOKEN-001",
+                "P1-MECHANICAL-TRICKSTER-TOKEN-002",
+                "P1-MECHANICAL-TRICKSTER-TOKEN-003"
+            ],
+            p2Pass.State.PlayerZones["P1"].Base);
+        foreach (var tokenObjectId in p2Pass.State.PlayerZones["P1"].Base)
+        {
+            Assert.Equal(1, p2Pass.State.CardObjects[tokenObjectId].Power);
+            Assert.Equal([CardObjectTags.UnitCard], p2Pass.State.CardObjects[tokenObjectId].Tags);
+        }
+
+        Assert.Equal(["P1-MECHANICAL-TRICKSTER", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-MECHANICAL-TRICKSTER"));
+    }
+
+    [Fact]
     public async Task P79LoyalPoroDrawsWhenDestroyedWithAnotherFriendlyUnitAtSameBase()
     {
         var engine = new CoreRuleEngine();
