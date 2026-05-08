@@ -2812,8 +2812,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return playerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(objectId =>
                 cardObjects.TryGetValue(objectId, out var legendState)
-                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
-                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && IsAzirLegendCardNo(legendState.CardNo));
     }
 
@@ -2822,8 +2821,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var legendState)
-                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
-                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && IsRengarLegendCardNo(legendState.CardNo));
     }
 
@@ -2832,8 +2830,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.PlayerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var legendState)
-                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
-                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && IsLeonaLegendCardNo(legendState.CardNo));
     }
 
@@ -2845,8 +2842,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         return playerZones.TryGetValue(playerId, out var zones)
             && zones.LegendZone.Any(objectId =>
                 cardObjects.TryGetValue(objectId, out var legendState)
-                && (string.IsNullOrWhiteSpace(legendState.ControllerId)
-                    || string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && IsJhinLegendCardNo(legendState.CardNo));
     }
 
@@ -2867,8 +2863,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var legendState)
-                || (!string.IsNullOrWhiteSpace(legendState.ControllerId)
-                    && !string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 || !IsRengarLegendCardNo(legendState.CardNo))
             {
                 continue;
@@ -2899,8 +2894,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var legendState)
-                || (!string.IsNullOrWhiteSpace(legendState.ControllerId)
-                    && !string.Equals(legendState.ControllerId, playerId, StringComparison.Ordinal))
+                || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 || !IsLeonaLegendCardNo(legendState.CardNo))
             {
                 continue;
@@ -2931,8 +2925,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         foreach (var objectId in zones.LegendZone)
         {
             if (!cardObjects.TryGetValue(objectId, out var candidate)
-                || (!string.IsNullOrWhiteSpace(candidate.ControllerId)
-                    && !string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal))
+                || !SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId)
                 || !IsSivirLegendCardNo(candidate.CardNo))
             {
                 continue;

@@ -29988,6 +29988,50 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerRengarSkipsPowerWhenLegendBecomesOpponentOwned()
+    {
+        var state = RengarLegendUnitPlayState("UNL-183/219", "P1-LEGEND-RENGAR");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rengar-play-unit-dirty-legend", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-PLUCKY-PORO", "UNL-220/219", ["P1-LEGEND-BASE-UNIT"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+
+        var cardObjects = playResult.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-RENGAR"] = cardObjects["P1-LEGEND-RENGAR"] with
+        {
+            OwnerId = "P2",
+            ControllerId = ""
+        };
+        var dirtyLegendState = playResult.State with { CardObjects = cardObjects };
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            dirtyLegendState,
+            new PlayerIntent("intent-p7-9-rengar-dirty-legend-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-rengar-dirty-legend-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));
+        var target = p2Pass.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal(2, target.Power);
+        Assert.Equal(0, target.UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLeonaGrantsBoonWhenEnemyStunned()
     {
         var state = LeonaLegendStunState("OGN·261/298", "P1-LEGEND-LEONA");
@@ -30154,6 +30198,48 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerSivirSkipsGoldWhenLegendBecomesOpponentOwned()
+    {
+        var state = SivirRuneRecycleState("SFD·203/221", "P1-LEGEND-SIVIR");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sivir-play-scrying-shell-dirty-legend", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SCRYING-SHELL", "UNL-161/219", ["P1-SIVIR-RUNE-RECYCLE"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+
+        var cardObjects = playResult.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-SIVIR"] = cardObjects["P1-LEGEND-SIVIR"] with
+        {
+            OwnerId = "P2",
+            ControllerId = ""
+        };
+        var dirtyLegendState = playResult.State with { CardObjects = cardObjects };
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            dirtyLegendState,
+            new PlayerIntent("intent-p7-9-sivir-dirty-legend-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-sivir-dirty-legend-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.False(p2Pass.State.CardObjects["P1-LEGEND-SIVIR"].IsExhausted);
+        Assert.DoesNotContain("P1-LEGEND-SIVIR-TOKEN-001", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "RUNE_RECYCLED_CREATE_GOLD", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "LEGEND_EXHAUSTED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "EQUIPMENT_TOKEN_CREATED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79LegendTriggerSivirReadiesWhenEnemyUnitDestroyed()
     {
         var state = SivirEnemyDestroyState("SFD·250/221", "P1-LEGEND-SIVIR-REPRINT");
@@ -30263,6 +30349,51 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(4, runeEvent.Payload["count"]);
         var drawEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
         Assert.Equal(1, drawEvent.Payload["count"]);
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerJhinSkipsHighCostSpellWhenLegendBecomesOpponentOwned()
+    {
+        var state = JhinHighCostSpellCompletionState("UNL-181/219", "P1-LEGEND-JHIN");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-jhin-play-ruination-dirty-legend", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-JHIN-RUINATION", "UNL-180/219", []),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+
+        var cardObjects = playResult.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-JHIN"] = cardObjects["P1-LEGEND-JHIN"] with
+        {
+            OwnerId = "P2",
+            ControllerId = ""
+        };
+        var dirtyLegendState = playResult.State with { CardObjects = cardObjects };
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            dirtyLegendState,
+            new PlayerIntent("intent-p7-9-jhin-dirty-legend-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-jhin-dirty-legend-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        var p1Zones = p2Pass.State.PlayerZones["P1"];
+        Assert.Contains("P1-JHIN-RUINATION", p1Zones.Graveyard);
+        Assert.DoesNotContain("P1-JHIN-RUINATION", p1Zones.Banished);
+        Assert.DoesNotContain("P1-JHIN-DRAW-001", p1Zones.Hand);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && (string.Equals(gameEvent.Payload["trigger"] as string, "HIGH_COST_SPELL_BANISHED", StringComparison.Ordinal)
+                || string.Equals(gameEvent.Payload["trigger"] as string, "FOUR_HIGH_COST_SPELLS_COMPLETED", StringComparison.Ordinal)));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
     }
 
     [Fact]

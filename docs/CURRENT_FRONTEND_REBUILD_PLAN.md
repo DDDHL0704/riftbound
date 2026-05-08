@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十八批仍为服务端规则收口，没有前端 UI 文件变更。Azir/Rengar/Leona/Jhin 传奇存在性判断与 Rengar/Leona/Sivir 具体传奇查找改用统一 source-control/legacy-owned 判断；对手拥有但 `controllerId` 为空的脏传奇不会再被当前玩家的传奇触发路径当作合法来源。前端继续只展示服务端 events/snapshot，不新增本地规则裁决。
+- 本批验证：`dotnet build` 通过；`LegendTriggerRengar|LegendTriggerSivir|LegendTriggerJhin` 相关回归 11/11、`GameHubJoinTests` 118/118、后端 full test 3107/3107 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十七批仍为服务端规则收口，没有前端 UI 文件变更。清算人竞技场据守后激活单位征服效果的单位枚举改用统一 source-control/legacy-owned 判断；对手拥有但 `controllerId` 为空的脏 Kai'Sa 不会再触发 P2 抽牌，合法 Bad Poro 征服效果仍保留。前端继续只展示服务端 events/snapshot。
 - 本批验证：`dotnet build` 通过；`BattlefieldHeldActivateConquest` 回归 4/4、`GameHubJoinTests` 118/118、后端 full test 3104/3104 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
