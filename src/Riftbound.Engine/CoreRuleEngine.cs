@@ -17428,7 +17428,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 for (var targetIndex = 0; targetIndex < stackItem.TargetObjectIds.Count; targetIndex++)
                 {
                     var targetObjectId = stackItem.TargetObjectIds[targetIndex];
-                    if (!IsFieldObject(playerZones, targetObjectId))
+                    if (!IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))
                     {
                         continue;
                     }
@@ -18596,6 +18596,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             && playerZones.Values.Any(zones =>
                 zones.Base.Contains(objectId, StringComparer.Ordinal)
                 || zones.Battlefields.Contains(objectId, StringComparer.Ordinal));
+    }
+
+    private static bool IsFieldObjectControlledByZonePlayer(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string objectId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        return location is not null
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, objectId);
     }
 
     private static bool IsControlledFieldUnit(
