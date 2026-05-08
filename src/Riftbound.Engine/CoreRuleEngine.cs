@@ -8553,7 +8553,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var targetPlayerId)
+        if (!TryMoveTargetToOwnerBase(playerZones, cardObjects, targetObjectId, out var targetPlayerId)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -15556,7 +15556,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId)
-            || !TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var targetPlayerId)
+            || !TryMoveTargetToOwnerBase(playerZones, cardObjects, targetObjectId, out var targetPlayerId)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState))
         {
             return false;
@@ -17835,7 +17835,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
                     if (behavior.MovesTargetToBase
                         && targetIndex >= behavior.MoveToBaseTargetStartIndex
-                        && TryMoveTargetToOwnerBase(playerZones, targetObjectId, out var movedOwnerPlayerId))
+                        && TryMoveTargetToOwnerBase(playerZones, cardObjects, targetObjectId, out var movedOwnerPlayerId))
                     {
                         events.Add(new GameEvent(
                             "UNIT_MOVED_TO_BASE",
@@ -21001,13 +21001,15 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryMoveTargetToOwnerBase(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string targetObjectId,
         out string ownerPlayerId)
     {
         ownerPlayerId = string.Empty;
         foreach (var (playerId, zones) in playerZones)
         {
-            if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal))
+            if (!zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }
