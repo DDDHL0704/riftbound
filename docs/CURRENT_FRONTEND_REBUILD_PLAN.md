@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百六十一批补齐《花瓣仙子》（UNL-076/219）“所处战场每有一名己方瞬息单位便获得战力 +1”的服务端代表性战斗静态规则。`ResolveBattleCombatPower` 现在按权威 `ObjectLocations` 只统计与《花瓣仙子》同一战场、同控制者、正面、非待命的瞬息单位，并把数量作为 `staticPowerBonus` 写入战斗伤害事件；其他战场瞬息、对手瞬息和待命瞬息不会被计入。前端仍只展示服务端事件/snapshot，不新增本地战力裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower` / 战场静态战力 / 瞬息坚守 / 乐芙兰瞬息静态精确回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3160/3160；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百六十批补齐乐芙兰（UNL-090/219、UNL-090a/219）“所在战场的瞬息效果不会触发”的服务端代表性静态规则。开始阶段瞬息清理现在只在权威 `ObjectLocations` 能确认同一战场且同控制者正面乐芙兰单位存在时，跳过同战场己方瞬息对象；基地瞬息、其他战场瞬息和其他玩家瞬息仍由服务端正常摧毁。新增 development-only `lifecycle-ephemeral-leblanc-static` seed 和 Hub 回归，前端仍只消费服务端事件与 snapshot，不新增本地规则裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；LeBlanc/瞬息目标回归 9/9 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3159/3159；`source ../../scripts/dev-env.sh && npm run build` 通过，`check:event-labels` 与 `check:user-facing-text` 均通过。无前端 UI 运行时代码变更，本批不启动业务 Chrome smoke；目标端口保持清理要求。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

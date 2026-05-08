@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-076/219 花瓣仙子",
-      "note": "官方卡面：费用 2；单位；战力 2；仙灵属性；所处战场每有一名己方瞬息单位便获得战力+1。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录属性标签；战场瞬息单位计数和静态战力修正路径暂缓。"
+      "note": "官方卡面：费用 2；单位；战力 2；仙灵属性；所处战场每有一名己方瞬息单位便获得战力+1。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录属性标签；战场瞬息单位计数和静态战力修正由 P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

@@ -34250,6 +34250,124 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79PetalPixieCountsFriendlyEphemeralUnitsAtSameBattlefieldForBattlePower()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields =
+                    [
+                        "P1-BATTLEFIELD-PETAL",
+                        "P1-PETAL-PIXIE",
+                        "P1-EPHEMERAL-SAME",
+                        "P1-EPHEMERAL-STANDBY",
+                        "P1-BATTLEFIELD-OTHER",
+                        "P1-EPHEMERAL-OTHER"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-DEFENDER", "P2-EPHEMERAL-SAME"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-PETAL"] = new(
+                    "P1-BATTLEFIELD-PETAL",
+                    cardNo: "UNL-208/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-PETAL-PIXIE"] = new(
+                    "P1-PETAL-PIXIE",
+                    cardNo: "UNL-076/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "仙灵"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EPHEMERAL-SAME"] = new(
+                    "P1-EPHEMERAL-SAME",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EPHEMERAL-STANDBY"] = new(
+                    "P1-EPHEMERAL-STANDBY",
+                    cardNo: "OGN·121/298",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-OTHER"] = new(
+                    "P1-BATTLEFIELD-OTHER",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EPHEMERAL-OTHER"] = new(
+                    "P1-EPHEMERAL-OTHER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DEFENDER"] = new(
+                    "P2-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-EPHEMERAL-SAME"] = new(
+                    "P2-EPHEMERAL-SAME",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-PETAL"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-PETAL"),
+                ["P1-PETAL-PIXIE"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-PETAL"),
+                ["P1-EPHEMERAL-SAME"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-PETAL"),
+                ["P1-EPHEMERAL-STANDBY"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-PETAL"),
+                ["P2-DEFENDER"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-PETAL"),
+                ["P2-EPHEMERAL-SAME"] = new("P2", "BATTLEFIELD", "P1-BATTLEFIELD-PETAL"),
+                ["P1-BATTLEFIELD-OTHER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-OTHER"),
+                ["P1-EPHEMERAL-OTHER"] = new("P1", "BATTLEFIELD", "P1-BATTLEFIELD-OTHER")
+            },
+            UntilEndOfTurnEffects = [BattlefieldTaskMarkers.SpellDuelCompleted("P1-BATTLEFIELD-PETAL")]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-petal-pixie-static-battle", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P1-BATTLEFIELD-PETAL",
+                ["P1-PETAL-PIXIE"],
+                ["P2-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var attackerDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["combatRole"] as string, "ATTACKER", StringComparison.Ordinal));
+        Assert.Equal("P1-PETAL-PIXIE", attackerDamageEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P2-DEFENDER", attackerDamageEvent.Payload["targetObjectId"]);
+        Assert.Equal(2, attackerDamageEvent.Payload["basePower"]);
+        Assert.Equal(0, attackerDamageEvent.Payload["keywordBonus"]);
+        Assert.Equal(1, attackerDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["combatPower"]);
+        Assert.Equal(3, attackerDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticRoamAllowsPreciseBattlefieldMovement()
     {
         var state = BattlefieldStaticRoamState();

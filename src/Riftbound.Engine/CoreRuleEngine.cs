@@ -122,6 +122,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const int LilliaLegendBaseManaCost = 4;
     private const string FaerieTokenCardNo = "UNL·T07";
+    private const string PetalPixieCardNo = "UNL-076/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
     private const string LucianLegendCardNo = "SFD·183/221";
@@ -6895,6 +6896,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         staticPowerBonus += ResolveMasterYiLevelLegendPowerBonus(state, playerZones, objectId);
+        staticPowerBonus += ResolvePetalPixieFriendlyEphemeralPowerBonus(state, playerZones, objectId, cardObject);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
@@ -6917,6 +6919,43 @@ public sealed class CoreRuleEngine : IRuleEngine
             && IsBattlefieldAllUnitsPowerPlusOneCardNo(battlefieldState.CardNo)
             ? 1
             : 0;
+    }
+
+    private static int ResolvePetalPixieFriendlyEphemeralPowerBonus(
+        MatchState state,
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!IsPetalPixieCardNo(cardObject.CardNo)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || !state.ObjectLocations.TryGetValue(objectId, out var sourceLocation)
+            || !string.Equals(sourceLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(sourceLocation.BattlefieldObjectId))
+        {
+            return 0;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, cardObject);
+        if (string.IsNullOrWhiteSpace(controllerId))
+        {
+            return 0;
+        }
+
+        var battlefieldObjectId = sourceLocation.BattlefieldObjectId;
+        return state.ObjectLocations.Count(entry =>
+            string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+            && IsObjectOnField(playerZones, entry.Key)
+            && state.CardObjects.TryGetValue(entry.Key, out var candidate)
+            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && candidate.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, entry.Key, candidate),
+                controllerId,
+                StringComparison.Ordinal));
     }
 
     private static bool HasBattlefieldEphemeralSteadfastBonus(
@@ -11433,6 +11472,11 @@ public sealed class CoreRuleEngine : IRuleEngine
                 cardObjects.TryGetValue(objectId, out var objectState)
                 && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
             : 0;
+    }
+
+    private static bool IsPetalPixieCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, PetalPixieCardNo, StringComparison.Ordinal);
     }
 
     private static bool HasRumbleLegendMechanicalSteadfastBonus(
