@@ -2503,7 +2503,15 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Base = ["P1-READY-UNIT", "P1-FACEDOWN-UNIT", "P1-ATTACKING-UNIT", "P1-OPPONENT-CONTROLLED-UNIT"]
+                    Base =
+                    [
+                        "P1-READY-UNIT",
+                        "P1-LEGACY-OWNED-UNIT",
+                        "P1-FACEDOWN-UNIT",
+                        "P1-ATTACKING-UNIT",
+                        "P1-OPPONENT-CONTROLLED-UNIT",
+                        "P1-DIRTY-P2-OWNED-UNIT"
+                    ]
                 },
                 ["P2"] = PlayerZones.Empty
             },
@@ -2516,6 +2524,13 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-LEGACY-OWNED-UNIT"] = new(
+                    "P1-LEGACY-OWNED-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: ""),
                 ["P1-FACEDOWN-UNIT"] = new(
                     "P1-FACEDOWN-UNIT",
                     isFaceDown: true,
@@ -2536,7 +2551,14 @@ public sealed class ConformanceFixtureShapeTests
                     power: 1,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
-                    controllerId: "P2")
+                    controllerId: "P2"),
+                ["P1-DIRTY-P2-OWNED-UNIT"] = new(
+                    "P1-DIRTY-P2-OWNED-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "")
             });
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
@@ -2544,13 +2566,15 @@ public sealed class ConformanceFixtureShapeTests
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
         Assert.True(moveCandidate.Enabled);
-        Assert.Equal(["P1-READY-UNIT"], (moveCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.Equal(["P1-READY-UNIT", "P1-LEGACY-OWNED-UNIT"], (moveCandidate.Sources ?? []).Select(source => source.Id).ToArray());
         Assert.Equal(["BATTLEFIELD"], (moveCandidate.Destinations ?? []).Select(destination => destination.Id).ToArray());
         Assert.Null(moveCandidate.OptionalCosts);
         var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
-            metadata["sourceRequirements"]);
-        var sourceRequirement = Assert.Single(sourceRequirements);
+            metadata["sourceRequirements"]).ToArray();
+        Assert.Equal(["P1-READY-UNIT", "P1-LEGACY-OWNED-UNIT"], sourceRequirements.Select(requirement => Assert.IsType<string>(requirement["sourceObjectId"])).ToArray());
+        var sourceRequirement = Assert.Single(sourceRequirements, requirement =>
+            string.Equals(Assert.IsType<string>(requirement["sourceObjectId"]), "P1-READY-UNIT", StringComparison.Ordinal));
         Assert.Equal("P1-READY-UNIT", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
         Assert.Equal("BASE", Assert.IsType<string>(sourceRequirement["origin"]));
         Assert.Equal("BASE_TO_BATTLEFIELD", Assert.IsType<string>(sourceRequirement["mode"]));

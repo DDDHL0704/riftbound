@@ -6245,8 +6245,10 @@ internal static class ActionPromptBuilder
         string tag)
     {
         return state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
-            && cardObject.Tags.Contains(tag, StringComparer.Ordinal);
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && cardObject.Tags.Contains(tag, StringComparer.Ordinal)
+            && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool IsImplementedActivatedAbilitySource(

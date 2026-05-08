@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百六十二批仍为服务端 prompt/规则收口，没有前端 UI 文件变更。`MOVE_UNIT` 候选来源改为和 Core 命令侧一致的 source-control/legacy-owned 语义；owner=P1/controller 空的旧恢复单位可继续展示为可移动来源，owner=P2/controller 空的脏单位不会进入候选。前端继续只渲染服务端候选。
+- 本批验证：`dotnet build` 通过；`MoveUnit` 相关回归 51/51、`GameHubJoinTests` 118/118、后端 full test 3116/3116 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百六十一批仍为服务端 prompt/规则收口，没有前端 UI 文件变更。`ACTIVATE_ABILITY` 的 `sourceRequirements` 与候选来源改为和 Core 命令侧一致的 source-control/legacy-owned 语义；owner=P1/controller 空的旧恢复 Vi/Xerath 会继续展示为 P1 可激活来源，owner=P2/controller 空的脏单位不会进入候选。前端继续只渲染服务端候选。
 - 本批验证：`dotnet build` 通过；`ActivateAbility` 相关回归 63/63、`GameHubJoinTests` 118/118、后端 full test 3116/3116 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
