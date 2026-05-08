@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百一十六批补充：前端开发场景事件日志继续去 fixture/debug 文本。`DEV_SCENARIO_SEEDED` 的玩家可见标题改为“载入测试状态”，描述固定为“测试状态已载入”，不再把 `basic-play`、`battlefield-*` 等 development-only seed 名称显示给玩家；事件本体仍来自服务端，不改变 seed、snapshot 或规则裁决。
+- 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-scenario-redaction-1778238780476`，P1 连接页面、P2 后台 SignalR seed `basic-play` 后，事件日志显示“载入测试状态 / 测试状态已载入”，页面正文不含 `basic-play`、`DEV_SCENARIO_SEEDED`、`开发测试场景已载入`、`SeedScenario` 或 `scenarioId`，应用自身 runtime error 0。随后只读确认 Codex Chrome Extension 可通信，并已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百一十五批补充：前端卡牌详情操作 composer 继续去内部 fallback。缺失服务端展示名或能力/费用 label 时，前端不再把 objectId、abilityId 或 raw cost id 当作玩家正文，而是显示通用中文占位；真实提交参数仍只取服务端候选 id。
 - 已补验证：本批无服务端规则代码变更；静态扫描确认 `CardDetailDrawer` 不再有 `|| sourceObjectId`、`|| abilityId`、`|| origin`、`|| mode` 或 `?? cost` fallback；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detail-fallback-1778238527789`，P1/P2 后台 seed `basic-play` 后页面与卡牌详情 smoke 正文不含内部对象、结算链或 raw 操作/费用 token，应用自身 runtime error 0。smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

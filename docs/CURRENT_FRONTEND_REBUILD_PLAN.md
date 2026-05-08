@@ -722,6 +722,7 @@
 - P0-004 补齐无胜者战斗状态代表性证据：服务端广播 `BATTLE_NO_RESULT`，前端事件日志中文显示“战斗无结果”，Development-only `battle-no-result` seed 与后台 smoke 验证双方同归于尽后 battle inactive、双方单位入墓；后端 full test 当前通过 2895/2895。
 - P0-004 补齐 2 攻击者 + 2 防守者组合代表路径：服务端 `DECLARE_BATTLE.sourceRequirements` 可同时暴露第二攻击者槽和第二防守者槽，metadata 明确 `multiParticipantBattlePolicy = up-to-two-attackers-and-defenders-without-independent-assignment-prompt`；Development-only `battle-multi-participant` seed 与后台 Chrome/CDP smoke 覆盖 P1 点击《盖伦》、选择《易》作为第二攻击者、选择壁垒与普通防守者后确认，事件日志显示“造成伤害”“战斗结束”，最终 snapshot 显示易留场 1 伤害、盖伦和 P2 两个防守者入墓，reload/reconnect 后恢复同一结果；后端 full test 当前通过 2897/2897。
 - P0-004 补齐最近战斗结果 snapshot：服务端 `timing.battleResolutions` 会持久公开最近 `BATTLE_CLOSED` / `BATTLE_NO_RESULT` 的结构化结果，包含攻防玩家、胜者/无胜者、攻防对象、幸存对象和摧毁对象；前端规则队列只读显示“战斗结束：P1”等结果。后台 Chrome/CDP smoke 覆盖 2 攻 + 2 防战斗后右侧显示 `战斗结束：P1`，reload/reconnect 后仍由 authoritative snapshot 恢复同一标签；后端 full test 当前通过 2897/2897。
+- 事件日志继续去 development-only 调试文本：`DEV_SCENARIO_SEEDED` 玩家可见标题改为“载入测试状态”，描述固定为“测试状态已载入”，不再把 `basic-play` 或其他 seed/scenario id 写入日志正文。`source ../../scripts/dev-env.sh && npm run build` 已通过；Chrome 插件 smoke `smoke-scenario-redaction-1778238780476` 验证页面显示“载入测试状态 / 测试状态已载入”，正文不含 `basic-play`、`DEV_SCENARIO_SEEDED`、`开发测试场景已载入`、`SeedScenario` 或 `scenarioId`，应用 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 均无监听；完成度仍约 **99%**，整体结论仍 **NOT READY**。
 
 预计剩余批次数：**1-2 批左右**
 

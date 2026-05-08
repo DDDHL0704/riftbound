@@ -38,7 +38,7 @@ const eventKindLabels: Record<string, string> = {
   DAMAGE_REMOVED: "移除伤害",
   DECK_SUBMITTED: "提交卡组",
   DESTROY_REPLACEMENT_EFFECT_APPLIED: "摧毁替代效果",
-  DEV_SCENARIO_SEEDED: "载入开发场景",
+  DEV_SCENARIO_SEEDED: "载入测试状态",
   EQUIPMENT_ATTACHED: "装备装配",
   EQUIPMENT_DESTROYED: "装备摧毁",
   EQUIPMENT_DETACHED: "装备脱离",
@@ -123,6 +123,10 @@ export function eventKindLabel(kind: string) {
 }
 
 export function eventDescriptionLabel(event: GameEvent) {
+  if (event.kind === "DEV_SCENARIO_SEEDED") {
+    return "测试状态已载入";
+  }
+
   const description = event.description?.trim() || eventKindLabel(event.kind);
   return redactInternalText(description);
 }
