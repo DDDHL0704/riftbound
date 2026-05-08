@@ -20847,7 +20847,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var (playerId, zones) in playerZones)
         {
-            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal))
+            if (!zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }

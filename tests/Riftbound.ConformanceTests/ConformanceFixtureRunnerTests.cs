@@ -4268,6 +4268,66 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineBoneSkewerResolutionSkipsOpponentControlledHandZoneTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-BONE-SKEWER-DIRTY-HAND",
+                    "P1",
+                    "P1-SPELL-BONE-SKEWER",
+                    "BONE_SKEWER_PLAY_OPPONENT_HAND_UNIT_STUNNED",
+                    "UNL-139/219",
+                    ["P2-DIRTY-P1-CONTROLLED-HAND-UNIT"])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-DIRTY-P1-CONTROLLED-HAND-UNIT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-DIRTY-P1-CONTROLLED-HAND-UNIT"] = new(
+                    "P2-DIRTY-P1-CONTROLLED-HAND-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-bone-skewer-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-bone-skewer-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P2-DIRTY-P1-CONTROLLED-HAND-UNIT"], p2Pass.State.PlayerZones["P2"].Hand);
+        Assert.Empty(p2Pass.State.PlayerZones["P2"].Base);
+        Assert.Equal(["P1-SPELL-BONE-SKEWER"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_PLAYED_TO_BASE", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "STATUS_EFFECT_APPLIED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEnginePlaysHelpArrivesFriendlyHandUnitForFree()
     {
         var fixture = await ConformanceFixture.LoadAsync(
