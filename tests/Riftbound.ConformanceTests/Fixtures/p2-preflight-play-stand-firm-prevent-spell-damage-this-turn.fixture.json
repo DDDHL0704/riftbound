@@ -258,7 +258,7 @@
         }
       },
       "stackItems": [],
-      "untilEndOfTurnEffects": ["PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN"],
+      "untilEndOfTurnEffects": ["PLAYED_SPELL_THIS_TURN:P1", "PLAYED_SPELL_THIS_TURN:P2", "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN"],
       "cardObjects": {
         "P2-UNIT-STAND-FIRM-001": {
           "damage": 0,

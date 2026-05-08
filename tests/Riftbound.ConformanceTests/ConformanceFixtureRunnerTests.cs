@@ -7256,7 +7256,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-GRAVE-NON-STANDBY-001", "P1-SPELL-GUERRILLA-WARFARE"], result.FinalState.PlayerZones["P1"].Graveyard);
         Assert.Equal([CardObjectTags.Standby], result.FinalState.CardObjects["P1-GRAVE-STANDBY-001"].Tags);
         Assert.Equal([CardObjectTags.Standby], result.FinalState.CardObjects["P1-GRAVE-STANDBY-002"].Tags);
-        Assert.Equal(["FREE_STANDBY_HIDE:P1"], result.FinalState.UntilEndOfTurnEffects);
+        Assert.Equal(["FREE_STANDBY_HIDE:P1", "PLAYED_SPELL_THIS_TURN:P1"], result.FinalState.UntilEndOfTurnEffects);
         Assert.Single(result.Events, evt => string.Equals(evt.Kind, "STANDBY_HIDE_PERMISSION_GRANTED", StringComparison.Ordinal));
     }
 
@@ -15361,6 +15361,86 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
         Assert.Equal(["P1-DRAWN-001"], result.FinalState.PlayerZones["P1"].Hand);
         Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-BALANCED-DISCIPLE"].Power);
+    }
+
+    [Fact]
+    public async Task CoreRuleEnginePlaysCrescentGuardReadyAfterSpellPayment()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-crescent-guard-spell-ready-payment.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-CRESCENT-GUARD"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.False(result.FinalState.CardObjects["P1-UNIT-CRESCENT-GUARD"].IsExhausted);
+        Assert.Equal(["PLAYED_SPELL_THIS_TURN:P1"], result.FinalState.UntilEndOfTurnEffects);
+        Assert.Equal(new RunePool(0, 0), result.FinalState.RunePools["P1"]);
+    }
+
+    [Fact]
+    public async Task CoreRuleEngineRejectsCrescentGuardReadyPaymentWithoutSpellMemory()
+    {
+        var state = new MatchState(
+            "crescent-guard-no-spell-ready-reject-room",
+            0,
+            260330537,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Purple] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with { Hand = ["P1-UNIT-CRESCENT-GUARD"] },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CRESCENT-GUARD"] = new(
+                    "P1-UNIT-CRESCENT-GUARD",
+                    cardNo: "UNL-122/219",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-crescent-guard-no-spell-ready-reject", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-CRESCENT-GUARD",
+                "UNL-122/219",
+                [],
+                OptionalCosts: ["SPEND_POWER:purple:1"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(["P1-UNIT-CRESCENT-GUARD"], result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(new RunePool(4, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Purple] = 1
+        }), result.State.RunePools["P1"]);
     }
 
     [Theory]

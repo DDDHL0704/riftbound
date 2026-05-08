@@ -217,7 +217,7 @@
         "P2-GRAVE-STANDBY-001": { "tags": ["待命"] }
       },
       "stackItems": [],
-      "untilEndOfTurnEffects": ["FREE_STANDBY_HIDE:P1"]
+      "untilEndOfTurnEffects": ["FREE_STANDBY_HIDE:P1", "PLAYED_SPELL_THIS_TURN:P1"]
     },
     "prompts": {
       "P1": { "actionable": true, "actions": ["END_TURN"] },

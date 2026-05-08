@@ -184,6 +184,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
     private const string BalancedDiscipleCardNo = "UNL-097/219";
+    private const string CrescentGuardCardNo = "UNL-122/219";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
         "金克丝",
@@ -324,6 +325,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
     private const string DiscardedHandCardThisTurnEffectPrefix = "DISCARDED_HAND_CARD_THIS_TURN:";
     private const string GainedExperienceThisTurnEffectPrefix = "GAINED_EXPERIENCE_THIS_TURN:";
+    private const string PlayedSpellThisTurnEffectPrefix = "PLAYED_SPELL_THIS_TURN:";
     private const string PlayedFourPlusCostSpellThisTurnEffectPrefix = "PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
@@ -561,6 +563,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             command.SourceObjectId,
             targetObjectIds);
+        untilEndOfTurnEffects = MarkPlayerPlayedSpellThisTurn(
+            untilEndOfTurnEffects,
+            intent.PlayerId,
+            behavior);
         untilEndOfTurnEffects = MarkPlayerPlayedFourPlusCostSpellThisTurn(
             untilEndOfTurnEffects,
             intent.PlayerId,
@@ -1405,6 +1411,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{PlayedFourPlusCostSpellThisTurnEffectPrefix}{playerId}";
     }
 
+    private static string BuildPlayedSpellThisTurnEffectId(string playerId)
+    {
+        return $"{PlayedSpellThisTurnEffectPrefix}{playerId}";
+    }
+
     private static bool PlayerDiscardedHandCardThisTurn(
         IReadOnlyList<string> existingEffectIds,
         string playerId)
@@ -1440,6 +1451,25 @@ public sealed class CoreRuleEngine : IRuleEngine
         return existingEffectIds.Contains(
             BuildPlayedFourPlusCostSpellThisTurnEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static bool PlayerPlayedSpellThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId)
+    {
+        return existingEffectIds.Contains(
+            BuildPlayedSpellThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> MarkPlayerPlayedSpellThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return IsSpellPlayBehavior(behavior)
+            ? AddUntilEndOfTurnEffect(existingEffectIds, BuildPlayedSpellThisTurnEffectId(playerId))
+            : existingEffectIds;
     }
 
     private static IReadOnlyList<string> MarkPlayerPlayedFourPlusCostSpellThisTurn(
@@ -16343,6 +16373,17 @@ public sealed class CoreRuleEngine : IRuleEngine
             return true;
         }
 
+        if (TryBuildCrescentGuardReadyOptionalCost(
+            state,
+            playerId,
+            normalizedOptionalCosts,
+            behavior,
+            out var crescentGuardExtraPowerCostByTrait))
+        {
+            extraPowerCostByTrait = crescentGuardExtraPowerCostByTrait;
+            return true;
+        }
+
         if (normalizedOptionalCosts.Count == 1
             && behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost > 0
             && TryParseExhaustFriendlyUnitOptionalCost(normalizedOptionalCosts[0], out var exhaustedTargetObjectId))
@@ -16456,6 +16497,31 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         extraManaCost = behavior.ManaCost;
         effectRepeatCount = 2;
+        return true;
+    }
+
+    private static bool TryBuildCrescentGuardReadyOptionalCost(
+        MatchState state,
+        string playerId,
+        IReadOnlyList<string> normalizedOptionalCosts,
+        CardBehaviorDefinition behavior,
+        out IReadOnlyDictionary<string, int> extraPowerCostByTrait)
+    {
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (normalizedOptionalCosts.Count != 1
+            || !string.Equals(behavior.CardNo, CrescentGuardCardNo, StringComparison.Ordinal)
+            || !PlayerPlayedSpellThisTurn(state.UntilEndOfTurnEffects, playerId)
+            || !TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait)
+            || powerCost != 1
+            || !string.Equals(powerTrait, RuneTrait.Purple, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            [RuneTrait.Purple] = 1
+        };
         return true;
     }
 
@@ -21021,6 +21087,17 @@ public sealed class CoreRuleEngine : IRuleEngine
                 : 0;
     }
 
+    private static bool IsCrescentGuardReadyOptionalCostPaid(
+        CardBehaviorDefinition behavior,
+        IReadOnlyList<string> optionalCosts)
+    {
+        return string.Equals(behavior.CardNo, CrescentGuardCardNo, StringComparison.Ordinal)
+            && optionalCosts.Any(optionalCost =>
+                TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
+                && powerCost == 1
+                && string.Equals(powerTrait, RuneTrait.Purple, StringComparison.Ordinal));
+    }
+
     private static void PlaySourceUnitToBase(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
@@ -21063,12 +21140,16 @@ public sealed class CoreRuleEngine : IRuleEngine
         var hasteReadyOptionalCostPaid = CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(
             behavior,
             stackItem.OptionalCosts);
+        var crescentGuardReadyOptionalCostPaid = IsCrescentGuardReadyOptionalCostPaid(
+            behavior,
+            stackItem.OptionalCosts);
         var unitState = existingState with
         {
             Power = unitPower,
             IsExhausted = entersActiveFromMasterYiLevel
-                ? false
-                : existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
+                || crescentGuardReadyOptionalCostPaid
+                    ? false
+                    : existingState.IsExhausted || (behavior.SourceUnitIsExhausted && !hasteReadyOptionalCostPaid),
             CardNo = string.IsNullOrWhiteSpace(existingState.CardNo) ? behavior.CardNo : existingState.CardNo,
             Tags = existingState.Tags
                 .Concat([CardObjectTags.UnitCard])
@@ -21095,7 +21176,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem,
                 behavior,
                 unitState,
-            hasteReadyOptionalCostPaid)));
+                hasteReadyOptionalCostPaid,
+                crescentGuardReadyOptionalCostPaid)));
     }
 
     private static void PlaySourceUnitToBattlefield(
@@ -21185,7 +21267,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         CardBehaviorDefinition behavior,
         CardObjectState unitState,
-        bool hasteReadyOptionalCostPaid)
+        bool hasteReadyOptionalCostPaid,
+        bool crescentGuardReadyOptionalCostPaid)
     {
         var payload = new Dictionary<string, object?>
         {
@@ -21206,6 +21289,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             payload["isExhausted"] = unitState.IsExhausted;
             payload["hasteReadyOptionalCostPaid"] = true;
+        }
+
+        if (crescentGuardReadyOptionalCostPaid)
+        {
+            payload["isExhausted"] = unitState.IsExhausted;
+            payload["crescentGuardReadyOptionalCostPaid"] = true;
         }
 
         return payload;

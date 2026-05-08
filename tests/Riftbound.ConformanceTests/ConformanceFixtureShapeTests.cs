@@ -1749,6 +1749,81 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptExposesCrescentGuardReadyPaymentAfterSpell()
+    {
+        var paymentRuneObjectId = "P1-RUNE-PURPLE-CRESCENT-001";
+        var paymentResourceAction = $"RECYCLE_RUNE:{paymentRuneObjectId}";
+        var state = new MatchState(
+            "prompt-crescent-guard-ready-room",
+            15,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(4, 0),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-CRESCENT-GUARD"],
+                    Base = [paymentRuneObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-CRESCENT-GUARD"] = new(
+                    "P1-UNIT-CRESCENT-GUARD",
+                    cardNo: "UNL-122/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [paymentRuneObjectId] = new(
+                    paymentRuneObjectId,
+                    cardNo: "SFD-R06",
+                    tags: [CardObjectTags.RuneCard, "COLOR:purple"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            untilEndOfTurnEffects: ["PLAYED_SPELL_THIS_TURN:P1"]);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["paymentResourceChoices"])
+            .Select(choice => choice.Id)
+            .ToArray();
+        var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
+            sourceRequirement["paymentResourcePowerByChoice"]);
+
+        Assert.Contains("SPEND_POWER:purple:1", optionalCostChoices);
+        Assert.Contains(paymentResourceAction, paymentResourceChoices);
+        Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(paymentResourcePowerByChoice[paymentResourceAction]["trait"]));
+    }
+
+    [Fact]
     public void ActionPromptFiltersHideCardSourcesByPayableStandbyCosts()
     {
         var noManaState = new MatchState(

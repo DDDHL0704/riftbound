@@ -211,7 +211,7 @@
         }
       },
       "stackItems": [],
-      "untilEndOfTurnEffects": ["FREE_STANDBY_HIDE:P1"]
+      "untilEndOfTurnEffects": ["FREE_STANDBY_HIDE:P1", "PLAYED_SPELL_THIS_TURN:P1"]
     }
   }
 }

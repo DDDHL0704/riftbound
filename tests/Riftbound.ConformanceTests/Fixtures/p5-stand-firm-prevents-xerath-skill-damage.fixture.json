@@ -299,7 +299,7 @@
         }
       },
       "stackItems": [],
-      "untilEndOfTurnEffects": ["PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN"],
+      "untilEndOfTurnEffects": ["PLAYED_SPELL_THIS_TURN:P2", "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN"],
       "cardObjects": {
         "P1-UNIT-XERATH": {
           "cardNo": "UNL-026/219",

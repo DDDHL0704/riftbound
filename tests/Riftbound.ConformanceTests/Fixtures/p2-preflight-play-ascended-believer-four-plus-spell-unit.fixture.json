@@ -34,7 +34,7 @@
       "P1": { "mana": 3, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
-    "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1"],
+    "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1", "PLAYED_SPELL_THIS_TURN:P1"],
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
@@ -98,7 +98,7 @@
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
-      "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1"],
+      "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1", "PLAYED_SPELL_THIS_TURN:P1"],
       "players": {
         "P1": {
           "mainDeck": ["P1-MAIN-001"],

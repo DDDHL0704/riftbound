@@ -2341,6 +2341,8 @@ internal static class ActionPromptBuilder
     private const string LongSwordCardNo = "SFD·022/221";
     private const int LongSwordAssemblePowerCost = 1;
     private const string LongSwordAssembleOptionalCost = "ASSEMBLE_RED";
+    private const string CrescentGuardCardNo = "UNL-122/219";
+    private const int CrescentGuardReadyPowerCost = 1;
     private const string BattlefieldEphemeralUnitsSteadfastCardNo = "UNL-208/219";
     private const string BattlefieldHeldMoveUnitToBaseCardNo = "UNL-207/219";
     private const string BattlefieldHoldCreateMinionCardNo = "OGN·275/298";
@@ -2575,6 +2577,7 @@ internal static class ActionPromptBuilder
     private const string LilliaLegendAbilityId = "LEGEND_DYNAMIC_PAY_EXHAUST_CREATE_FAERIE";
     private const string PlayedArmamentThisTurnEffectPrefix = "PLAYED_ARMAMENT_THIS_TURN:";
     private const string PlayedEquipmentThisTurnEffectPrefix = "PLAYED_EQUIPMENT_THIS_TURN:";
+    private const string PlayedSpellThisTurnEffectPrefix = "PLAYED_SPELL_THIS_TURN:";
     private const string EzrealEnemyTargetsThisTurnPrefix = "EZREAL_ENEMY_TARGETS_THIS_TURN:";
     private const int EzrealEnemyTargetThreshold = 2;
     private const int LilliaLegendBaseManaCost = 4;
@@ -5417,6 +5420,15 @@ internal static class ActionPromptBuilder
                 $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {powerLabel}"));
         }
 
+        if (CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior)
+            && CanPayCrescentGuardReadyPowerCost(runePool, paymentResourcePowerByTrait))
+        {
+            choices.Add(new ActionPromptChoiceDto(
+                $"SPEND_POWER:{RuneTrait.Purple}:{CrescentGuardReadyPowerCost}",
+                $"新月禁卫活跃：支付 {CrescentGuardReadyPowerCost} 紫色符能",
+                "本回合已打出过法术"));
+        }
+
         if (behavior.OptionalExperienceCost > 0
             && behavior.ManaReductionIfExperiencePaid > 0
             && experience >= behavior.OptionalExperienceCost)
@@ -5491,6 +5503,13 @@ internal static class ActionPromptBuilder
             StringComparer.Ordinal);
     }
 
+    private static bool PromptPlayerPlayedSpellThisTurn(MatchState state, string playerId)
+    {
+        return state.UntilEndOfTurnEffects.Contains(
+            $"{PlayedSpellThisTurnEffectPrefix}{playerId}",
+            StringComparer.Ordinal);
+    }
+
     private static int PromptBattlefieldEchoCostReductionMana(
         MatchState state,
         string playerId,
@@ -5552,8 +5571,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (!behavior.DamageAmountFromOptionalPowerCost
-            && behavior.HasteReadyPowerCost <= 0)
+        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior))
         {
             return [];
         }
@@ -5562,7 +5580,8 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
-            || NeedsHasteReadyPaymentResource(runePool, behavior);
+            || NeedsHasteReadyPaymentResource(runePool, behavior)
+            || NeedsCrescentGuardReadyPaymentResource(state, playerId, runePool, behavior);
         if (!needsPaymentResource)
         {
             return [];
@@ -5592,8 +5611,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (!behavior.DamageAmountFromOptionalPowerCost
-            && behavior.HasteReadyPowerCost <= 0)
+        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior))
         {
             return new Dictionary<string, int>(StringComparer.Ordinal);
         }
@@ -5602,7 +5620,8 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
-            || NeedsHasteReadyPaymentResource(runePool, behavior);
+            || NeedsHasteReadyPaymentResource(runePool, behavior)
+            || NeedsCrescentGuardReadyPaymentResource(state, playerId, runePool, behavior);
         if (!needsPaymentResource
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {
@@ -5645,7 +5664,19 @@ internal static class ActionPromptBuilder
             && !CanPayHasteReadyPowerCost(
                 runePool,
                 new Dictionary<string, int>(StringComparer.Ordinal),
-                behavior);
+            behavior);
+    }
+
+    private static bool NeedsCrescentGuardReadyPaymentResource(
+        MatchState state,
+        string playerId,
+        RunePool runePool,
+        CardBehaviorDefinition behavior)
+    {
+        return CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior)
+            && !CanPayCrescentGuardReadyPowerCost(
+                runePool,
+                new Dictionary<string, int>(StringComparer.Ordinal));
     }
 
     private static bool CanPayHasteReadyPowerCost(
@@ -5667,6 +5698,34 @@ internal static class ActionPromptBuilder
         var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
         return availablePowerByTrait.TryGetValue(hasteReadyPowerTrait, out var availablePower)
             && availablePower >= behavior.HasteReadyPowerCost;
+    }
+
+    private static bool CanPayCrescentGuardReadyPowerCost(
+        RunePool runePool,
+        IReadOnlyDictionary<string, int> paymentResourcePowerByTrait)
+    {
+        var availablePowerByTrait = PlayCardAvailablePowerByTrait(runePool, paymentResourcePowerByTrait);
+        return availablePowerByTrait.TryGetValue(RuneTrait.Purple, out var availablePower)
+            && availablePower >= CrescentGuardReadyPowerCost;
+    }
+
+    private static bool CanPromptCrescentGuardReadyOptionalCost(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return string.Equals(behavior.CardNo, CrescentGuardCardNo, StringComparison.Ordinal)
+            && PromptPlayerPlayedSpellThisTurn(state, playerId);
+    }
+
+    private static bool PlayCardBehaviorMayNeedPaymentResource(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
+        return behavior.DamageAmountFromOptionalPowerCost
+            || behavior.HasteReadyPowerCost > 0
+            || CanPromptCrescentGuardReadyOptionalCost(state, playerId, behavior);
     }
 
     private static string HasteReadyPowerTrait(CardBehaviorDefinition behavior)
@@ -6123,8 +6182,7 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
-        if (!behavior.DamageAmountFromOptionalPowerCost
-            && behavior.HasteReadyPowerCost <= 0)
+        if (!PlayCardBehaviorMayNeedPaymentResource(state, playerId, behavior))
         {
             return new Dictionary<string, IReadOnlyDictionary<string, object?>>(StringComparer.Ordinal);
         }
@@ -6133,7 +6191,8 @@ internal static class ActionPromptBuilder
             ? currentPool
             : RunePool.Empty;
         var needsPaymentResource = behavior.DamageAmountFromOptionalPowerCost
-            || NeedsHasteReadyPaymentResource(runePool, behavior);
+            || NeedsHasteReadyPaymentResource(runePool, behavior)
+            || NeedsCrescentGuardReadyPaymentResource(state, playerId, runePool, behavior);
         if (!needsPaymentResource
             || !state.PlayerZones.TryGetValue(playerId, out var zones))
         {

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百八十五批补齐《新月禁卫》（UNL-122/219）“本回合已打出法术时可支付 1 点紫色符能，以活跃状态入场”的服务端代表路径。服务端在真实法术 `PLAY_CARD` 付费路径记录 `PLAYED_SPELL_THIS_TURN:<playerId>`；《新月禁卫》只在该记忆存在时接受 `SPEND_POWER:purple:1`，入场事件标记 `crescentGuardReadyOptionalCostPaid`。ActionPrompt 仅在服务端判断当前/可回收紫色符能足够时暴露 optional cost 与 payment resource 元数据；前端继续只展示服务端候选，不新增本地卡面裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《新月禁卫》有/无法术记忆、紫色支付、ActionPrompt payment resource、相关法术回合记忆和 Hextech Ray end-turn 清理回归 9/9 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3196/3196；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十四批补齐《均衡门徒》（UNL-097/219）“其他己方单位总计战力不低于 5 时抽一张牌”的服务端代表路径。服务端在源单位入场后按 authoritative 场上对象统计其他己方单位战力，满足条件时执行抽牌并更新 snapshot；前端仍只展示服务端事件与 snapshot，不新增本地战力统计或抽牌裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《均衡门徒》条件未满足/满足抽牌回归 155/155 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3193/3193；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -178,7 +178,7 @@
         "P1": 0,
         "P2": 0
       },
-      "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1"],
+      "untilEndOfTurnEffects": ["PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:P1", "PLAYED_SPELL_THIS_TURN:P1"],
       "runePools": {
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
