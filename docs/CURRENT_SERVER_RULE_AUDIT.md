@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百七十六批补充：`DECLARE_BATTLE` 的服务端候选与命令校验现在真正要求攻防单位处于 ready/未横置状态。`CoreRuleEngine.IsReadyFaceUpUnitForMinimalBattle` 与 `ActionPromptBuilder.IsReadyFaceUpBattlefieldUnitForBattle` 均加入 `!IsExhausted`，prompt metadata 的 `candidateFiltering` 同步更新为 `battlefield-zone-controlled-ready-face-up-units-not-already-in-combat`；绕过前端提交横置攻击者或横置防守者会被服务端拒绝。
+- 已补测试与验证：新增 `ActionPromptDeclareBattleFiltersExhaustedAttackersAndDefenders` 与 `P4DeclareBattleCommandRejectsExhaustedAttackersAndDefenders`，并更新 Hub prompt 契约测试与一个据守激活征服 fixture，使横置 Lucian 保持为触发收益对象、由独立 ready 防守单位承接战斗。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；新增/代表路径精确回归 3/3、`DeclareBattleCommand|DeclareBattle|BattlefieldTask` 相邻回归 64/64、据守激活征服相关回归 5/5、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3129/3129 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
+
 - P0-004 第一百七十五批补充：战斗伤害中的眩晕状态已纳入服务端权威战力计算。`ResolveBattleCombatPower` 现在会在单位带有本回合 `STUNNED` 状态或旧展示标签“眩晕”时返回 0 战斗战力，并清空强攻/坚守及静态战斗修正贡献；眩晕单位仍会承受伤害，达到致命伤害时继续由状态性清理移入墓地。
 - 已补测试与验证：新增 `P4DeclareBattleCommandStunnedAttackerContributesZeroCombatPower` 与 `P4DeclareBattleCommandStunnedDefenderContributesZeroCombatPowerButCanBeDestroyed`，覆盖眩晕进攻者不造成攻击伤害、眩晕防守者不反击但被致命伤害摧毁。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；新增/代表路径精确回归 3/3、`DeclareBattleCommand|Stun` 相邻回归 88/88、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3127/3127 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；Chrome 插件只做了只读连通性确认并已清理 agent 标签页。整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
 

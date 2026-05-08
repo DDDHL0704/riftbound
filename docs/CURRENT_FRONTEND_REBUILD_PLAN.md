@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百七十六批仍为服务端战斗候选/命令契约收口，没有前端 UI 文件变更。`DECLARE_BATTLE` prompt 与 Core 命令现在都会过滤横置攻防单位，只把受控、正面、ready、未在战斗中的单位作为合法攻击/防守候选；前端继续只渲染服务端候选，不自行判断横置单位能否参战。
+- 本批验证：`dotnet build` 通过；新增/代表路径精确回归 3/3、`DeclareBattleCommand|DeclareBattle|BattlefieldTask` 相邻回归 64/64、据守激活征服相关回归 5/5、`GameHubJoinTests` 118/118、后端 full test 3129/3129 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百七十五批仍为服务端战斗规则收口，没有前端 UI 文件变更。战斗战力现在由服务端权威排除眩晕单位贡献：带 `STUNNED`/“眩晕”的进攻或防守单位不再造成战斗伤害，但仍会按承受的致命伤害进入墓地；前端继续只展示服务端事件和最终 snapshot，不在浏览器侧判断眩晕战力。
 - 本批验证：`dotnet build` 通过；新增/代表路径精确回归 3/3、`DeclareBattleCommand|Stun` 相邻回归 88/88、`GameHubJoinTests` 118/118、后端 full test 3127/3127 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为；Chrome 插件连通性已只读确认并清理 agent 标签页。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

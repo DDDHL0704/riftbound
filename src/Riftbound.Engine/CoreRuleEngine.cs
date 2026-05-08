@@ -11396,6 +11396,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown
+            && !cardObject.IsExhausted
             && !cardObject.IsAttacking
             && !cardObject.IsDefending
             && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal);

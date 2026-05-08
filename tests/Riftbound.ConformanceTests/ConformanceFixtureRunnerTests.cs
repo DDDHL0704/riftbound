@@ -35487,7 +35487,7 @@ public sealed class ConformanceFixtureRunnerTests
             new DeclareBattleCommand(
                 "P2-BATTLEFIELD-RECKONER-ARENA",
                 ["P1-BATTLEFIELD-RECKONER-ATTACKER"],
-                ["P2-BATTLEFIELD-LUCIAN"],
+                ["P2-BATTLEFIELD-READY-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
 
@@ -45098,6 +45098,158 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public void ActionPromptDeclareBattleFiltersExhaustedAttackersAndDefenders()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-READY-ATTACKER", "P1-BATTLEFIELD-EXHAUSTED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-READY-DEFENDER", "P2-BATTLEFIELD-EXHAUSTED-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-READY-ATTACKER",
+                    cardNo: "OGS·007/024",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-EXHAUSTED-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-EXHAUSTED-ATTACKER",
+                    isExhausted: true,
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-READY-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-EXHAUSTED-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-EXHAUSTED-DEFENDER",
+                    isExhausted: true,
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var declareBattleCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+
+        Assert.True(declareBattleCandidate.Enabled);
+        Assert.NotNull(declareBattleCandidate.Sources);
+        Assert.NotNull(declareBattleCandidate.Targets);
+        Assert.Equal(
+            ["P1-BATTLEFIELD-READY-ATTACKER"],
+            declareBattleCandidate.Sources.Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            ["P2-BATTLEFIELD-READY-DEFENDER"],
+            declareBattleCandidate.Targets.Select(choice => choice.Id).ToArray());
+        Assert.Equal(
+            "battlefield-zone-controlled-ready-face-up-units-not-already-in-combat",
+            declareBattleCandidate.Metadata?["candidateFiltering"]);
+    }
+
+    [Fact]
+    public async Task P4DeclareBattleCommandRejectsExhaustedAttackersAndDefenders()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-READY-ATTACKER", "P1-BATTLEFIELD-EXHAUSTED-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-READY-DEFENDER", "P2-BATTLEFIELD-EXHAUSTED-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-READY-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-READY-ATTACKER",
+                    cardNo: "OGS·007/024",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-EXHAUSTED-ATTACKER"] = new(
+                    "P1-BATTLEFIELD-EXHAUSTED-ATTACKER",
+                    isExhausted: true,
+                    cardNo: "SFD·125/221",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-READY-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-EXHAUSTED-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-EXHAUSTED-DEFENDER",
+                    isExhausted: true,
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var exhaustedAttackerResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-exhausted-attacker", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-EXHAUSTED-ATTACKER"],
+                ["P2-BATTLEFIELD-READY-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(exhaustedAttackerResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, exhaustedAttackerResult.ErrorCode);
+        Assert.DoesNotContain(exhaustedAttackerResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(0, exhaustedAttackerResult.State.Tick);
+
+        var exhaustedDefenderResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-exhausted-defender", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-READY-ATTACKER"],
+                ["P2-BATTLEFIELD-EXHAUSTED-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.False(exhaustedDefenderResult.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCommand, exhaustedDefenderResult.ErrorCode);
+        Assert.DoesNotContain(exhaustedDefenderResult.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLE_DECLARED", StringComparison.Ordinal));
+        Assert.Equal(0, exhaustedDefenderResult.State.Tick);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandGrantsHuntExperienceWhenAttackerConquersBattlefield()
     {
         var state = PunishmentState(mana: 0) with
@@ -50897,6 +51049,7 @@ public sealed class ConformanceFixtureRunnerTests
                     Battlefields =
                     [
                         "P2-BATTLEFIELD-RECKONER-ARENA",
+                        "P2-BATTLEFIELD-READY-DEFENDER",
                         "P2-BATTLEFIELD-LUCIAN",
                         "P2-BATTLEFIELD-SETT"
                     ]
@@ -50915,6 +51068,13 @@ public sealed class ConformanceFixtureRunnerTests
                     "P2-BATTLEFIELD-RECKONER-ARENA",
                     cardNo: "OGN·286/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-READY-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-READY-DEFENDER",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
                     ownerId: "P2",
                     controllerId: "P2"),
                 ["P2-BATTLEFIELD-LUCIAN"] = new(

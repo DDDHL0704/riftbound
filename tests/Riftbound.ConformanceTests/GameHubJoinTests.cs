@@ -2576,7 +2576,7 @@ public sealed class GameHubJoinTests
         var metadata = Assert.IsType<Dictionary<string, object?>>(battleCandidate.Metadata);
         Assert.Equal(1, Assert.IsType<int>(metadata["attackerCount"]));
         Assert.Equal(2, Assert.IsType<int>(metadata["defenderCountMax"]));
-        Assert.Equal("battlefield-zone-controlled-face-up-units-not-already-in-combat", metadata["candidateFiltering"]);
+        Assert.Equal("battlefield-zone-controlled-ready-face-up-units-not-already-in-combat", metadata["candidateFiltering"]);
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonDocument.Parse("""
