@@ -36346,6 +36346,81 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79WaterbenderGainsPowerWhenAttackingAlone()
+    {
+        var state = WaterbenderBattleState(isAttacking: true, lone: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-waterbender-lone-attacker", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-WATERBENDER"],
+                ["P2-WATERBENDER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var waterbenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-WATERBENDER", StringComparison.Ordinal));
+        Assert.Equal(2, waterbenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(2, waterbenderDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(4, waterbenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, waterbenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79WaterbenderSkipsPowerWhenAttackingWithAnotherUnit()
+    {
+        var state = WaterbenderBattleState(isAttacking: true, lone: false);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-waterbender-multi-attacker", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-WATERBENDER", "P1-WATERBENDER-ALLY"],
+                ["P2-WATERBENDER-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var waterbenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P1-WATERBENDER", StringComparison.Ordinal));
+        Assert.Equal(2, waterbenderDamageEvent.Payload["basePower"]);
+        Assert.False(waterbenderDamageEvent.Payload.ContainsKey("staticPowerBonus"));
+        Assert.Equal(2, waterbenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(2, waterbenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
+    public async Task P79WaterbenderGainsPowerWhenDefendingAlone()
+    {
+        var state = WaterbenderBattleState(isAttacking: false, lone: true);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-waterbender-lone-defender", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-WATERBENDER-ATTACKER"],
+                ["P2-WATERBENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var waterbenderDamageEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-WATERBENDER", StringComparison.Ordinal));
+        Assert.Equal(2, waterbenderDamageEvent.Payload["basePower"]);
+        Assert.Equal(2, waterbenderDamageEvent.Payload["staticPowerBonus"]);
+        Assert.Equal(4, waterbenderDamageEvent.Payload["combatPower"]);
+        Assert.Equal(4, waterbenderDamageEvent.Payload["damage"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit()
     {
         var state = BattlefieldStaticPreventMoveBaseState();
@@ -53961,6 +54036,87 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P2",
                     controllerId: "P2")
             }
+        };
+    }
+
+    private static MatchState WaterbenderBattleState(bool isAttacking, bool lone)
+    {
+        string[] p1Battlefields = isAttacking
+            ? lone ? ["P1-WATERBENDER"] : ["P1-WATERBENDER", "P1-WATERBENDER-ALLY"]
+            : ["P1-WATERBENDER-ATTACKER"];
+        string[] p2Battlefields = isAttacking
+            ? ["P2-WATERBENDER-DEFENDER"]
+            : lone ? ["P2-WATERBENDER"] : ["P2-WATERBENDER", "P2-WATERBENDER-ALLY"];
+        var cardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal);
+        if (isAttacking)
+        {
+            cardObjects["P1-WATERBENDER"] = new(
+                "P1-WATERBENDER",
+                cardNo: "OGN·055/298",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-WATERBENDER-DEFENDER"] = new(
+                "P2-WATERBENDER-DEFENDER",
+                cardNo: "SFD·125/221",
+                power: 10,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+            if (!lone)
+            {
+                cardObjects["P1-WATERBENDER-ALLY"] = new(
+                    "P1-WATERBENDER-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1");
+            }
+        }
+        else
+        {
+            cardObjects["P1-WATERBENDER-ATTACKER"] = new(
+                "P1-WATERBENDER-ATTACKER",
+                cardNo: "SFD·125/221",
+                power: 10,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P1",
+                controllerId: "P1");
+            cardObjects["P2-WATERBENDER"] = new(
+                "P2-WATERBENDER",
+                cardNo: "OGN·055/298",
+                power: 2,
+                tags: [CardObjectTags.UnitCard],
+                ownerId: "P2",
+                controllerId: "P2");
+            if (!lone)
+            {
+                cardObjects["P2-WATERBENDER-ALLY"] = new(
+                    "P2-WATERBENDER-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2");
+            }
+        }
+
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = p1Battlefields
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = p2Battlefields
+                }
+            },
+            CardObjects = cardObjects
         };
     }
 

@@ -190,6 +190,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string ArenaServiceCrewCardNo = "OGN·091/298";
     private const string WiseElderCardNo = "OGN·065/298";
+    private const string WaterbenderCardNo = "OGN·055/298";
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private const string ArenaServiceCrewEquipmentReadyEffectKind = "ARENA_SERVICE_CREW_EQUIPMENT_READY";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
@@ -7616,9 +7617,28 @@ public sealed class CoreRuleEngine : IRuleEngine
         staticPowerBonus += ResolveScarletPigeonMultiAttackerPowerBonus(cardObject, isAttacking, attackingUnitCount);
         staticPowerBonus += ResolveDuneDrakeReadyEnemyAttackPowerBonus(cardObject, isAttacking, attacksReadyEnemyUnit);
         staticPowerBonus += ResolveWiseElderBoonPowerBonus(cardObject);
+        staticPowerBonus += ResolveWaterbenderLoneBattlePowerBonus(cardObject, isAttacking, attackingUnitCount, defendingUnitCount);
         staticPowerBonus += ResolveBattlefieldAllUnitsPowerBonus(state, playerZones, battlefieldId, cardObject);
 
         return Math.Max(0, cardObject.Power + keywordBonus + staticPowerBonus);
+    }
+
+    private static int ResolveWaterbenderLoneBattlePowerBonus(
+        CardObjectState cardObject,
+        bool isAttacking,
+        int attackingUnitCount,
+        int defendingUnitCount)
+    {
+        if (!string.Equals(cardObject.CardNo, WaterbenderCardNo, StringComparison.Ordinal)
+            || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || cardObject.IsFaceDown)
+        {
+            return 0;
+        }
+
+        return isAttacking
+            ? attackingUnitCount == 1 ? 2 : 0
+            : defendingUnitCount == 1 ? 2 : 0;
     }
 
     private static int ResolveWiseElderBoonPowerBonus(CardObjectState cardObject)

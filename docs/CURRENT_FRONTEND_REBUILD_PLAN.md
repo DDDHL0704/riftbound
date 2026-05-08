@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十一批补齐《驭水者》（OGN·055/298）独自进攻/防守战力 +2 代表路径。服务端在 `DECLARE_BATTLE` 战斗伤害计算中根据攻击方/防守方参与单位数量判断是否独自作战，把 +2 写入 `DAMAGE_APPLIED.staticPowerBonus`、`combatPower` 与最终伤害；共同进攻时不加成。前端不新增本地战斗参与者统计，只展示服务端事件和 authoritative snapshot。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Waterbender 单独进攻、共同进攻不触发、单独防守、既有 OGN·055 带目标拒绝、Wise Elder 与 Dune Drake 战斗静态回归 8/8 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3210/3210；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十批补齐《睿智长者》（OGN·065/298）拥有增益时战斗静态 +1 代表路径。服务端在 `DECLARE_BATTLE` 战斗伤害计算中识别带 `增益` 标签的 OGN·065 单位，把 +1 写入 `DAMAGE_APPLIED.staticPowerBonus`、`combatPower` 和最终伤害；无增益时不加成。前端不新增本地战力裁决，继续展示服务端战斗事件和 authoritative snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Wise Elder 正/反向战斗静态、既有 OGN·065 带目标拒绝、战场全体静态与增益游走回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3207/3207；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
