@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百五十五批补充：`DECLARE_BATTLE` 的战场效果目标选择拒绝文案继续去英文内部说明。此前普通战场误带 `battlefieldTargetObjectIds`、防守方坚守战场选择非防守单位、或防守方召回战场选择超过一个目标时会被服务端拒绝并保持状态不变，但错误消息包含英文效果说明和具体英文战场名。现在服务端返回中文战场效果目标说明；结构化 battlefield target object ids、战场 id 和 command kind 仍保留协议枚举供前端按服务端候选提交。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79BattlefieldEphemeralSteadfastSeed|FullyQualifiedName~P79BattlefieldDefenderSteadfastSeedOffersBattlefieldDestinationAndChoice|FullyQualifiedName~P79BattlefieldDefendMoveToBaseSeedOffersBattlefieldDestinationAndChoice"` 通过 3/3；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3153/3153；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百五十四批补充：`ACTIVATE_ABILITY` 已开放代表路径的拒绝文案继续去内部协议名和英文 ability/debug 说明。此前 Vi、Xerath 与战场授予经验技能在错误时点、非法目标、非法来源、来源身份未知、来源已横置或资源不足时会正确拒绝并保持状态不变，但多条错误消息包含 raw `ACTIVATE_ABILITY`、英文技能名或 Mutation Garden 内部说明。现在服务端统一返回中文启动技能/战场授予经验/泽拉斯技能说明；结构化 prompt action、ability id、target choices 与 command kind 仍保留协议枚举供前端按服务端候选提交。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~ActivateAbilityCommandRejects|FullyQualifiedName~BattlefieldUnitExperienceAbility"` 通过 58/58；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3153/3153；`source ../../scripts/dev-env.sh && npm run build` 通过。无前端运行时代码变更，本批未启动 API/Vite/Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

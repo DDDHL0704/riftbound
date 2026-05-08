@@ -3654,6 +3654,27 @@ public sealed class GameHubJoinTests
         var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
         Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-BLACK-FLAME", StringComparison.Ordinal));
 
+        var invalidTargetClients = new RecordingHubClients();
+        var invalidTargetBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-BLACK-FLAME",
+              "attackerObjectIds": ["P1-BATTLEFIELD-EPHEMERAL-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"],
+              "battlefieldTargetObjectIds": ["P2-BATTLEFIELD-EPHEMERAL-DEFENDER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-ephemeral-invalid-target", invalidTargetBattle);
+
+        var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
+        var invalidTargetPayload = Assert.IsType<ErrorDto>(invalidTargetError.Payload);
+        Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetPayload.Code);
+        Assert.Equal("只有需要选择战场效果目标时才能提交战场目标。", invalidTargetPayload.Message);
+        Assert.DoesNotContain("Battlefield target choices", invalidTargetPayload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("DECLARE_BATTLE", invalidTargetPayload.Message, StringComparison.Ordinal);
+
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonDocument.Parse("""
             {
@@ -3699,6 +3720,27 @@ public sealed class GameHubJoinTests
         var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
         Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-POSITION", StringComparison.Ordinal));
         Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-FORTIFIED-DEFENDER", StringComparison.Ordinal));
+
+        var invalidTargetClients = new RecordingHubClients();
+        var invalidTargetBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-FORTIFIED-POSITION",
+              "attackerObjectIds": ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-FORTIFIED-DEFENDER"],
+              "battlefieldTargetObjectIds": ["P1-BATTLEFIELD-FORTIFIED-ATTACKER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defender-steadfast-invalid-target", invalidTargetBattle);
+
+        var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
+        var invalidTargetPayload = Assert.IsType<ErrorDto>(invalidTargetError.Payload);
+        Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetPayload.Code);
+        Assert.Equal("该战场效果需要且只能选择 1 个防守单位。", invalidTargetPayload.Message);
+        Assert.DoesNotContain("Fortified Position", invalidTargetPayload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("DECLARE_BATTLE", invalidTargetPayload.Message, StringComparison.Ordinal);
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonDocument.Parse("""
@@ -3754,6 +3796,27 @@ public sealed class GameHubJoinTests
         var battleCandidate = Assert.Single(p1Prompt.Candidates ?? [], candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
         Assert.Contains(battleCandidate.Destinations ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-PLUNDER-ALLEY", StringComparison.Ordinal));
         Assert.Contains(battleCandidate.Targets ?? [], choice => string.Equals(choice.Id, "P2-BATTLEFIELD-PLUNDER-DEFENDER", StringComparison.Ordinal));
+
+        var invalidTargetClients = new RecordingHubClients();
+        var invalidTargetBattle = JsonDocument.Parse("""
+            {
+              "cmdType": "DECLARE_BATTLE",
+              "battlefieldId": "P2-BATTLEFIELD-PLUNDER-ALLEY",
+              "attackerObjectIds": ["P1-BATTLEFIELD-PLUNDER-ATTACKER"],
+              "defenderObjectIds": ["P2-BATTLEFIELD-PLUNDER-DEFENDER"],
+              "battlefieldTargetObjectIds": ["P2-BATTLEFIELD-PLUNDER-DEFENDER", "P1-BATTLEFIELD-PLUNDER-ATTACKER"],
+              "optionalCosts": ["COMBAT_ASSIGNMENT"]
+            }
+            """).RootElement.Clone();
+        await CreateHub(invalidTargetClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-battlefield-defend-move-invalid-target", invalidTargetBattle);
+
+        var invalidTargetError = Assert.Single(invalidTargetClients.CallerClient.Errors);
+        var invalidTargetPayload = Assert.IsType<ErrorDto>(invalidTargetError.Payload);
+        Assert.Equal(ErrorCodes.InvalidTarget, invalidTargetPayload.Code);
+        Assert.Equal("该战场效果最多选择 1 个防守单位。", invalidTargetPayload.Message);
+        Assert.DoesNotContain("Plunder Ship Alley", invalidTargetPayload.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain("DECLARE_BATTLE", invalidTargetPayload.Message, StringComparison.Ordinal);
 
         var battleClients = new RecordingHubClients();
         var declareBattle = JsonDocument.Parse("""

@@ -9631,7 +9631,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 rejection = RejectWithCorePrompts(
                     state,
-                    "Battlefield target choices are only supported for battlefield effects that require them.",
+                    "只有需要选择战场效果目标时才能提交战场目标。",
                     ErrorCodes.InvalidTarget);
                 return false;
             }
@@ -9650,7 +9650,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "Fortified Position requires exactly one defending unit as its battlefield target.",
+                "该战场效果需要且只能选择 1 个防守单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
@@ -9696,7 +9696,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             rejection = RejectWithCorePrompts(
                 state,
-                "Plunder Ship Alley requires zero or one defending unit as its battlefield target.",
+                "该战场效果最多选择 1 个防守单位。",
                 ErrorCodes.InvalidTarget);
             return false;
         }
