@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "UNL-028/219 派克",
-      "note": "官方卡面：费用 3；英雄单位；战力 2；待命；游走；你可以选择支付红色作为打出我的额外费用；如果支付该额外费用，则让我变为活跃状态并让我本回合内战力 +2。当前 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；红色额外费用、条件活跃/+2、待命反应时机和游走移动路径暂缓。"
+      "note": "官方卡面：费用 3；英雄单位；战力 2；待命；游走；你可以选择支付红色作为打出我的额外费用；如果支付该额外费用，则让我变为活跃状态并让我本回合内战力 +2。当前 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；红色额外费用、条件活跃/+2 由 p2-preflight-play-pyke-optional-ready-power 覆盖；待命反应时机和游走移动路径暂缓。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -95,7 +95,7 @@
           "sourceObjectId": "P1-UNIT-PYKE",
           "cardNo": "UNL-028/219",
           "targetObjectIds": [],
-          "effectKind": "PYKE_PLAY_UNIT_NO_OPTIONAL_READY_POWER"
+          "effectKind": "PYKE_PLAY_UNIT_OPTIONAL_READY_POWER"
         }
       },
       { "kind": "PRIORITY_PASSED" },

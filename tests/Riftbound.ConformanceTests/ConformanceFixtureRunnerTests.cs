@@ -18237,6 +18237,77 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("p2-preflight-play-pyke-optional-ready-power.fixture.json", "P1-UNIT-PYKE")]
+    [InlineData("p2-preflight-play-pyke-alt-a-optional-ready-power.fixture.json", "P1-UNIT-PYKE-A")]
+    public async Task CoreRuleEnginePlaysPykeOptionalReadyPower(
+        string fixtureFileName,
+        string sourceObjectId)
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureFileName),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal([sourceObjectId], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(4, result.FinalState.CardObjects[sourceObjectId].Power);
+        Assert.Equal(2, result.FinalState.CardObjects[sourceObjectId].UntilEndOfTurnPowerModifier);
+        Assert.False(result.FinalState.CardObjects[sourceObjectId].IsExhausted);
+        Assert.Equal([CardObjectTags.UnitCard, CardObjectTags.Standby, "游走"], result.FinalState.CardObjects[sourceObjectId].Tags);
+    }
+
+    [Fact]
+    public void CoreRuleEnginePykePromptExposesOptionalRedReadyPowerCost()
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(3, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Red] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-PYKE"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-PYKE"] = new(
+                    "P1-UNIT-PYKE",
+                    cardNo: "UNL-028/219",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+
+        var optionalReadyPowerCost = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
+        Assert.Equal("额外支付 1 红色符能：活跃并本回合战力 +2", optionalReadyPowerCost.Label);
+    }
+
+    [Theory]
     [InlineData(2, "P1-UNIT-BLAST-CREW-APPRENTICE", "SFD·013/221", "P1-BASE-BLAST-CREW-APPRENTICE-TARGET-001")]
     [InlineData(3, "P1-UNIT-FROSTCOAT-CUB", "SFD·067/221", "P1-BASE-FROSTCOAT-CUB-TARGET-001")]
     [InlineData(2, "P1-UNIT-SHIP-MONKEY", "SFD·098/221", "P1-BASE-SHIP-MONKEY-TARGET-001")]

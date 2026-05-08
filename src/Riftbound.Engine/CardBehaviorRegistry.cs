@@ -175,7 +175,10 @@ public sealed record CardBehaviorDefinition(
     int SourceBoonAdditionalManaCost = 0,
     int SourceDrawAdditionalPowerCost = 0,
     string SourceDrawAdditionalPowerTrait = "",
-    int SourceDrawCountIfOptionalPowerCostPaid = 0);
+    int SourceDrawCountIfOptionalPowerCostPaid = 0,
+    int SourceReadyPowerModifierAdditionalPowerCost = 0,
+    string SourceReadyPowerModifierAdditionalPowerTrait = "",
+    int SourceReadyPowerModifierAmount = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -2285,22 +2288,28 @@ public static class CardBehaviorRegistry
             "UNL-028/219",
             "派克",
             3,
-            "PYKE_PLAY_UNIT_NO_OPTIONAL_READY_POWER",
+            "PYKE_PLAY_UNIT_OPTIONAL_READY_POWER",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: CardObjectTags.Standby + "|游走"),
+            SourceUnitTags: CardObjectTags.Standby + "|游走",
+            SourceReadyPowerModifierAdditionalPowerCost: 1,
+            SourceReadyPowerModifierAdditionalPowerTrait: RuneTrait.Red,
+            SourceReadyPowerModifierAmount: 2),
         new(
             "UNL-028a/219",
             "派克",
             3,
-            "PYKE_ALT_A_PLAY_UNIT_NO_OPTIONAL_READY_POWER",
+            "PYKE_ALT_A_PLAY_UNIT_OPTIONAL_READY_POWER",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
-            SourceUnitTags: CardObjectTags.Standby + "|游走"),
+            SourceUnitTags: CardObjectTags.Standby + "|游走",
+            SourceReadyPowerModifierAdditionalPowerCost: 1,
+            SourceReadyPowerModifierAdditionalPowerTrait: RuneTrait.Red,
+            SourceReadyPowerModifierAmount: 2),
         new(
             "OGN·044/298",
             "小小守护者",

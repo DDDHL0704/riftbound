@@ -1,44 +1,44 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-pyke-alt-a-no-optional-ready-power",
-  "description": "Pyke A enters as a standby and roam unit object without paying its optional red additional cost.",
+  "fixtureId": "p2-preflight-play-pyke-optional-ready-power",
+  "description": "Pyke enters as a standby and roam unit object, then readies and gets +2 power for the turn after paying its optional red additional cost.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302365,
+  "seed": 2603302368,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
-      "locator": "UNL-028a/219 派克",
-      "note": "官方卡面：费用 3；英雄单位；战力 2；待命；游走；你可以选择支付红色作为打出我的额外费用；如果支付该额外费用，则让我变为活跃状态并让我本回合内战力 +2。当前 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；红色额外费用、条件活跃/+2 由 p2-preflight-play-pyke-optional-ready-power 覆盖普通版代表路径；待命反应时机和游走移动路径暂缓。"
+      "locator": "UNL-028/219 派克",
+      "note": "官方卡面：费用 3；英雄单位；战力 2；待命；游走；你可以选择支付红色作为打出我的额外费用；如果支付该额外费用，则让我变为活跃状态并让我本回合内战力 +2。本 fixture 覆盖支付该红色可选额外费用后的条件活跃/+2 分支。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；待命和游走先作为关键词标签记录。"
+      "note": "单位是游戏对象；打出卡牌需要支付费用、支付可选额外费用、加入结算链并在双方让过后结算；支付额外费用后的条件效果由服务端结算；待命和游走先作为关键词标签记录。"
     }
   ],
-  "roomId": "p2-preflight-pyke-alt-a-room",
+  "roomId": "p2-preflight-pyke-optional-ready-power-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302365,
-    "turnNumber": 364,
+    "seed": 2603302368,
+    "turnNumber": 367,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 3, "power": 0 },
+      "P1": { "mana": 3, "power": 0, "powerByTrait": { "red": 1 } },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-PYKE-A"],
+        "hand": ["P1-UNIT-PYKE"],
         "base": [],
         "battlefields": [],
         "graveyard": [],
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-pyke-alt-a-play",
+      "clientIntentId": "intent-p2-preflight-pyke-optional-ready-power-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-UNIT-PYKE-A",
-        "cardNo": "UNL-028a/219",
-        "targetObjectIds": []
+        "sourceObjectId": "P1-UNIT-PYKE",
+        "cardNo": "UNL-028/219",
+        "targetObjectIds": [],
+        "optionalCosts": ["SPEND_POWER:red:1"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-pyke-alt-a-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-pyke-alt-a-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-pyke-optional-ready-power-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-pyke-optional-ready-power-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -83,19 +84,31 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "UNIT_READIED",
+      "POWER_MODIFIED_UNTIL_END_OF_TURN"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 3, "baseMana": 3 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 3,
+          "power": 1,
+          "powerByTrait": { "red": 1 },
+          "baseMana": 3,
+          "optionalCosts": ["SPEND_POWER:red:1"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
           "controllerId": "P1",
-          "sourceObjectId": "P1-UNIT-PYKE-A",
-          "cardNo": "UNL-028a/219",
+          "sourceObjectId": "P1-UNIT-PYKE",
+          "cardNo": "UNL-028/219",
           "targetObjectIds": [],
-          "effectKind": "PYKE_ALT_A_PLAY_UNIT_OPTIONAL_READY_POWER"
+          "effectKind": "PYKE_PLAY_UNIT_OPTIONAL_READY_POWER"
         }
       },
       { "kind": "PRIORITY_PASSED" },
@@ -105,18 +118,40 @@
         "kind": "UNIT_PLAYED_TO_BASE",
         "payload": {
           "playerId": "P1",
-          "sourceObjectId": "P1-UNIT-PYKE-A",
-          "unitObjectId": "P1-UNIT-PYKE-A",
+          "sourceObjectId": "P1-UNIT-PYKE",
+          "unitObjectId": "P1-UNIT-PYKE",
           "unitName": "派克",
           "destinationZone": "BASE",
           "power": 2,
           "tags": ["CARD_TYPE:UNIT", "待命", "游走"]
         }
+      },
+      {
+        "kind": "UNIT_READIED",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "P1-UNIT-PYKE",
+          "targetObjectId": "P1-UNIT-PYKE",
+          "wasExhausted": false,
+          "isExhausted": false,
+          "reason": "SOURCE_OPTIONAL_POWER_READY"
+        }
+      },
+      {
+        "kind": "POWER_MODIFIED_UNTIL_END_OF_TURN",
+        "payload": {
+          "sourceObjectId": "P1-UNIT-PYKE",
+          "targetObjectId": "P1-UNIT-PYKE",
+          "powerDelta": 2,
+          "appliedPowerDelta": 2,
+          "resultingPower": 4,
+          "reason": "SOURCE_OPTIONAL_POWER_READY"
+        }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 364,
+      "turnNumber": 367,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -130,14 +165,15 @@
         "P1": {
           "mainDeck": ["P1-MAIN-001"],
           "hand": [],
-          "base": ["P1-UNIT-PYKE-A"],
+          "base": ["P1-UNIT-PYKE"],
           "graveyard": []
         }
       },
       "stackItems": [],
       "cardObjects": {
-        "P1-UNIT-PYKE-A": {
-          "power": 2,
+        "P1-UNIT-PYKE": {
+          "power": 4,
+          "untilEndOfTurnPowerModifier": 2,
           "tags": ["CARD_TYPE:UNIT", "待命", "游走"],
           "isExhausted": false
         }

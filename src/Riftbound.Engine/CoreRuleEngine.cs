@@ -16704,6 +16704,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
+            && behavior.SourceReadyPowerModifierAdditionalPowerCost > 0
+            && behavior.SourceReadyPowerModifierAmount != 0
+            && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var sourceReadyPowerCost, out var sourceReadyPowerTrait)
+            && sourceReadyPowerCost == behavior.SourceReadyPowerModifierAdditionalPowerCost
+            && !string.IsNullOrWhiteSpace(RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait))
+            && string.Equals(
+                RuneTrait.Normalize(sourceReadyPowerTrait),
+                RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait),
+                StringComparison.Ordinal))
+        {
+            extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait)] = sourceReadyPowerCost
+            };
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
             && behavior.SourceBoonAdditionalManaCost > 0
             && TryParseSpendManaOptionalCost(normalizedOptionalCosts[0], out var spendManaCost)
             && spendManaCost == behavior.SourceBoonAdditionalManaCost)
@@ -17633,6 +17651,65 @@ public sealed class CoreRuleEngine : IRuleEngine
         return false;
     }
 
+    private static bool TryResolveSourceUnitOptionalReadyPower(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        Dictionary<string, CardObjectState> cardObjects,
+        List<GameEvent> events)
+    {
+        if (behavior.SourceReadyPowerModifierAdditionalPowerCost <= 0
+            || behavior.SourceReadyPowerModifierAmount == 0)
+        {
+            return false;
+        }
+
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceReadyPowerModifierAdditionalPowerTrait);
+        if (string.IsNullOrWhiteSpace(requiredTrait)
+            || !stackItem.OptionalCosts.Any(optionalCost =>
+                TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
+                && powerCost == behavior.SourceReadyPowerModifierAdditionalPowerCost
+                && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal))
+            || !cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState))
+        {
+            return false;
+        }
+
+        var wasExhausted = sourceState.IsExhausted;
+        var nextSourceState = sourceState with
+        {
+            IsExhausted = false,
+            Power = sourceState.Power + behavior.SourceReadyPowerModifierAmount,
+            UntilEndOfTurnPowerModifier = sourceState.UntilEndOfTurnPowerModifier + behavior.SourceReadyPowerModifierAmount
+        };
+        cardObjects[stackItem.SourceObjectId] = nextSourceState;
+
+        events.Add(new GameEvent(
+            "UNIT_READIED",
+            $"{behavior.DisplayName}因可选额外费用变为活跃状态",
+            new Dictionary<string, object?>
+            {
+                ["playerId"] = stackItem.ControllerId,
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = stackItem.SourceObjectId,
+                ["wasExhausted"] = wasExhausted,
+                ["isExhausted"] = false,
+                ["reason"] = "SOURCE_OPTIONAL_POWER_READY"
+            }));
+        events.Add(new GameEvent(
+            "POWER_MODIFIED_UNTIL_END_OF_TURN",
+            $"{behavior.DisplayName}因可选额外费用临时修正战力",
+            new Dictionary<string, object?>
+            {
+                ["sourceObjectId"] = stackItem.SourceObjectId,
+                ["targetObjectId"] = stackItem.SourceObjectId,
+                ["powerDelta"] = behavior.SourceReadyPowerModifierAmount,
+                ["appliedPowerDelta"] = behavior.SourceReadyPowerModifierAmount,
+                ["resultingPower"] = nextSourceState.Power,
+                ["reason"] = "SOURCE_OPTIONAL_POWER_READY"
+            }));
+        return true;
+    }
+
     private static bool TargetCountConditionApplies(
         MatchState state,
         string playerId,
@@ -18150,6 +18227,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
             }
+
+            TryResolveSourceUnitOptionalReadyPower(
+                behavior,
+                stackItem,
+                cardObjects,
+                events);
         }
 
         if (behavior.GainExperienceOnPlay > 0)
