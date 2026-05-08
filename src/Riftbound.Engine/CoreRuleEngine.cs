@@ -38,6 +38,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
+    private const string LoyalPoroCardNo = "UNL-156/219";
+    private const string LoyalPoroLastBreathDrawEffectKind = "LOYAL_PORO_LAST_BREATH_DRAW_1";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -1494,6 +1496,75 @@ public sealed class CoreRuleEngine : IRuleEngine
         return destroyedState.ControllerId
             ?? destroyedState.OwnerId
             ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveLoyalPoroLastBreathDrawPlayerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        CardObjectState destroyedState)
+    {
+        if (!string.Equals(destroyedState.CardNo, LoyalPoroCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
+        if (string.IsNullOrWhiteSpace(controllerId)
+            || !HasOtherFriendlyUnitAtSamePosition(playerZones, cardObjects, objectLocations, objectId, controllerId))
+        {
+            return null;
+        }
+
+        return controllerId;
+    }
+
+    private static bool HasOtherFriendlyUnitAtSamePosition(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        string controllerId)
+    {
+        var location = FindFieldObjectLocation(playerZones, objectId);
+        if (location is null
+            || !playerZones.TryGetValue(location.Value.PlayerId, out var zones))
+        {
+            return false;
+        }
+
+        IReadOnlyList<string> candidateObjectIds = location.Value.Zone switch
+        {
+            MoveUnitBaseZone => zones.Base,
+            MoveUnitBattlefieldZone when objectLocations.TryGetValue(objectId, out var objectLocation)
+                && string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && !string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId)
+                => objectLocations
+                    .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                        && string.Equals(
+                            entry.Value.BattlefieldObjectId,
+                            objectLocation.BattlefieldObjectId,
+                            StringComparison.Ordinal))
+                    .Select(entry => entry.Key)
+                    .ToArray(),
+            MoveUnitBattlefieldZone => zones.Battlefields,
+            _ => []
+        };
+
+        return candidateObjectIds.Any(candidateObjectId =>
+            !string.Equals(candidateObjectId, objectId, StringComparison.Ordinal)
+            && cardObjects.TryGetValue(candidateObjectId, out var candidate)
+            && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            && !candidate.IsFaceDown
+            && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+            && string.Equals(
+                EffectiveFieldControllerId(playerZones, candidateObjectId, candidate),
+                controllerId,
+                StringComparison.Ordinal));
     }
 
     private static TriggerQueueItemState BuildLastBreathTriggerQueueItem(
@@ -18190,6 +18261,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
                     cardObjects[targetObjectId] = targetState;
 
+                    var loyalPoroLastBreathDrawPlayerId = ResolveLoyalPoroLastBreathDrawPlayerId(
+                        playerZones,
+                        cardObjects,
+                        state.ObjectLocations,
+                        targetObjectId,
+                        targetState);
+
                     if (behavior.DestroysTarget
                         && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                     {
@@ -18225,6 +18303,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     playerZones,
                                     playerScores,
                                     lastBreathDrawPlayerId,
+                                    1,
+                                    rngCursor,
+                                    events);
+                                playerScores = drawApplication.PlayerScores;
+                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                                rngCursor = drawApplication.RngCursor;
+                            }
+
+                            if (loyalPoroLastBreathDrawPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    loyalPoroLastBreathDrawPlayerId,
+                                    LoyalPoroLastBreathDrawEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+
+                                var drawApplication = ApplyDrawToPlayer(
+                                    state,
+                                    playerZones,
+                                    playerScores,
+                                    loyalPoroLastBreathDrawPlayerId,
                                     1,
                                     rngCursor,
                                     events);
