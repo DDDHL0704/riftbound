@@ -17398,6 +17398,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             && stackItem.TargetObjectIds.Count >= 2
             && TrySwapTargetLocations(
                 playerZones,
+                cardObjects,
                 stackItem.TargetObjectIds[0],
                 stackItem.TargetObjectIds[1],
                 out var firstDestinationPlayerId,
@@ -21232,6 +21233,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TrySwapTargetLocations(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string firstObjectId,
         string secondObjectId,
         out string firstDestinationPlayerId,
@@ -21244,6 +21246,32 @@ public sealed class CoreRuleEngine : IRuleEngine
         secondDestinationPlayerId = string.Empty;
         secondDestinationZone = string.Empty;
 
+        if (!CanSwapTargetLocations(playerZones, cardObjects, firstObjectId, secondObjectId))
+        {
+            return false;
+        }
+
+        var firstLocation = FindFieldObjectLocation(playerZones, firstObjectId)!.Value;
+        var secondLocation = FindFieldObjectLocation(playerZones, secondObjectId)!.Value;
+
+        RemoveFieldObjectFromLocation(playerZones, firstLocation.PlayerId, firstLocation.Zone, firstObjectId);
+        RemoveFieldObjectFromLocation(playerZones, secondLocation.PlayerId, secondLocation.Zone, secondObjectId);
+        AddFieldObjectToLocation(playerZones, secondLocation.PlayerId, secondLocation.Zone, firstObjectId);
+        AddFieldObjectToLocation(playerZones, firstLocation.PlayerId, firstLocation.Zone, secondObjectId);
+
+        firstDestinationPlayerId = secondLocation.PlayerId;
+        firstDestinationZone = secondLocation.Zone;
+        secondDestinationPlayerId = firstLocation.PlayerId;
+        secondDestinationZone = firstLocation.Zone;
+        return true;
+    }
+
+    private static bool CanSwapTargetLocations(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string firstObjectId,
+        string secondObjectId)
+    {
         if (string.Equals(firstObjectId, secondObjectId, StringComparison.Ordinal))
         {
             return false;
@@ -21256,22 +21284,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (string.Equals(firstLocation.Value.PlayerId, secondLocation.Value.PlayerId, StringComparison.Ordinal)
-            && string.Equals(firstLocation.Value.Zone, secondLocation.Value.Zone, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        RemoveFieldObjectFromLocation(playerZones, firstLocation.Value.PlayerId, firstLocation.Value.Zone, firstObjectId);
-        RemoveFieldObjectFromLocation(playerZones, secondLocation.Value.PlayerId, secondLocation.Value.Zone, secondObjectId);
-        AddFieldObjectToLocation(playerZones, secondLocation.Value.PlayerId, secondLocation.Value.Zone, firstObjectId);
-        AddFieldObjectToLocation(playerZones, firstLocation.Value.PlayerId, firstLocation.Value.Zone, secondObjectId);
-
-        firstDestinationPlayerId = secondLocation.Value.PlayerId;
-        firstDestinationZone = secondLocation.Value.Zone;
-        secondDestinationPlayerId = firstLocation.Value.PlayerId;
-        secondDestinationZone = firstLocation.Value.Zone;
-        return true;
+        return (!string.Equals(firstLocation.Value.PlayerId, secondLocation.Value.PlayerId, StringComparison.Ordinal)
+                || !string.Equals(firstLocation.Value.Zone, secondLocation.Value.Zone, StringComparison.Ordinal))
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, firstLocation.Value.PlayerId, firstObjectId)
+            && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, secondLocation.Value.PlayerId, secondObjectId);
     }
 
     private static (string PlayerId, string Zone)? FindFieldObjectLocation(

@@ -2249,6 +2249,78 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineReflectionsResolutionSkipsOpponentControlledFriendlyZoneTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            TimingState = TimingStates.NeutralClosed,
+            ActivePlayerId = "P1",
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new StackItemState(
+                    "STACK-REFLECTIONS-DIRTY-SWAP",
+                    "P1",
+                    "P1-SPELL-REFLECTIONS",
+                    "REFLECTIONS_SWAP_FRIENDLY_UNITS_DRAW_1",
+                    "UNL-083/219",
+                    [
+                        "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
+                        "P1-REFLECTIONS-VALID-BATTLEFIELD-UNIT"
+                    ])
+            ],
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"],
+                    Battlefields = ["P1-REFLECTIONS-VALID-BATTLEFIELD-UNIT"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"] = new(
+                    "P1-DIRTY-P2-CONTROLLED-BASE-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P1-REFLECTIONS-VALID-BATTLEFIELD-UNIT"] = new(
+                    "P1-REFLECTIONS-VALID-BATTLEFIELD-UNIT",
+                    cardNo: "SFD·125/221",
+                    manaCost: 3,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+        var engine = new CoreRuleEngine();
+
+        var p1Pass = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-reflections-dirty-resolution-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-reflections-dirty-resolution-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p1Pass.Accepted);
+        Assert.True(p2Pass.Accepted);
+        Assert.Equal(["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-REFLECTIONS-VALID-BATTLEFIELD-UNIT"], p2Pass.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-SPELL-REFLECTIONS"], p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "UNIT_LOCATIONS_SWAPPED", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsReflectionsWithoutEphemeralTarget()
     {
         var state = PunishmentState(mana: 2) with
