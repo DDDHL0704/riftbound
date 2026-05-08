@@ -26893,8 +26893,7 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·125/221",
                     power: 4,
                     tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
+                    ownerId: "P1"),
                 ["P2-UNIT-1"] = new(
                     "P2-UNIT-1",
                     cardNo: "SFD·125/221",

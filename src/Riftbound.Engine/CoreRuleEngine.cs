@@ -6158,6 +6158,14 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var occupantControllerIds = objectLocations
+            .Select(entry => new
+            {
+                entry.Key,
+                entry.Value,
+                FieldControllerId = TryGetFieldControllerId(playerZones, entry.Key, out var fieldControllerId)
+                    ? fieldControllerId
+                    : string.Empty
+            })
             .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
                 && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
                 && !string.Equals(entry.Key, battlefieldObjectId, StringComparison.Ordinal)
@@ -6166,8 +6174,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
                 && !cardObject.IsFaceDown
                 && !cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
-                && !string.IsNullOrWhiteSpace(cardObject.ControllerId))
-            .Select(entry => cardObjects[entry.Key].ControllerId!)
+                && !string.IsNullOrWhiteSpace(entry.FieldControllerId)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.FieldControllerId))
+            .Select(entry => entry.FieldControllerId)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(controllerId => controllerId, StringComparer.Ordinal)
             .ToArray();
