@@ -69,13 +69,13 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
           {controller.state.errors.length === 0 && controller.state.events.length === 0 && <span className="empty-hint">暂无服务端事件或错误。</span>}
           {controller.state.errors.map((error, index) => (
             <article className="room-log-entry is-error" key={`${error.code}-${index}`}>
-              <strong title={error.code}>{errorCodeLabel(error.code)}</strong>
+              <strong>{errorCodeLabel(error.code)}</strong>
               <span>{errorMessageLabel(error)}</span>
             </article>
           ))}
           {controller.state.events.slice(0, 8).map((event, index) => (
             <article className="room-log-entry" key={`${event.kind}-${index}`}>
-              <strong title={event.kind}>{eventKindLabel(event.kind)}</strong>
+              <strong>{eventKindLabel(event.kind)}</strong>
               <span>{eventDescriptionLabel(event)}</span>
             </article>
           ))}

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十四批补充：事件/错误日志标题 tooltip 继续去 raw enum/code。`EventLog` 与 `RoomPage` 房间日志不再把 `event.kind` 或 `error.code` 放入 `<strong title=...>`，玩家 hover 也只能看到中文标题与中文描述；日志正文仍来自服务端事件/错误并通过既有中文 formatter 展示，不改变事件协议或规则裁决。
+- 已补验证：静态扫描确认 `title={event.kind}` / `title={error.code}` 已清零；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-log-title-1778242330553`，P1 页面连接、后台 P2 入座并 seed `basic-play`，事件日志显示“载入测试状态”，`.event-log strong[title]` / `.room-log-list strong[title]` 数量为 0，正文不含 `DEV_SCENARIO_SEEDED`、`MATCH_STARTED`、`ROOM_FULL` 或 `UNSUPPORTED_COMMAND`，过滤非应用扩展噪声后应用 error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百二十三批补充：官方起手调整候选 tooltip 继续去内部英文 reason / 对象 ID fallback。服务端 `MULLIGAN` source choice reason 从 `opening hand mulligan candidate` 改为“起手调整候选”，前端起手候选按钮在缺少 reason 时也只显示“服务端起手候选”，不再用 `choice.id` 作为浏览器 tooltip。前端仍按服务端候选 source id 提交 `MULLIGAN`，不在浏览器侧裁决可调度手牌。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub"` 1/1 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-mulligan-title-1778242041908`，P1 页面连接、后台 P2 入座并推动双方正式提交卡组/准备到起手调整；最终 P2 视角显示 4 个起手候选，候选 tooltip 全为“起手调整候选”，页面正文和 title 均不含 `opening hand mulligan candidate`、`P1-MAIN`、`P1-HAND`、`P2-MAIN` 或 `P2-HAND`，过滤非应用扩展噪声后应用 error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
