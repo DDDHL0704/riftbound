@@ -12449,6 +12449,15 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var drawCount = Math.Min(selectedObjectIds.Count, zones.MainDeck.Count);
         var drawnObjectIds = zones.MainDeck.Take(drawCount).ToArray();
+        if (drawnObjectIds.Any(objectId =>
+            !IsPrivateZoneObjectControlledByPlayerOrLegacyOwned(state, intent.PlayerId, objectId)))
+        {
+            return RejectWithCorePrompts(
+                state,
+                "MULLIGAN can only draw replacement cards from the player's main deck.",
+                ErrorCodes.InvalidTarget);
+        }
+
         var remainingMainDeck = zones.MainDeck.Skip(drawCount).ToList();
         var returnedObjectIds = RandomizeForMainDeckBottom(
             selectedObjectIds,

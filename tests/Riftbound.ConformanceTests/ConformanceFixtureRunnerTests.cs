@@ -441,6 +441,61 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsMulliganWhenReplacementDrawIsNotControlledByPlayer()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            Phase = MatchPhases.Mulligan,
+            TimingState = TimingStates.Mulligan,
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-MULLIGAN-HAND-RETURN-001", "P1-MULLIGAN-HAND-KEEP-001"],
+                    MainDeck = ["P1-MULLIGAN-DIRTY-P2-OWNED-DRAW"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-MULLIGAN-HAND-RETURN-001"] = new(
+                    "P1-MULLIGAN-HAND-RETURN-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MULLIGAN-HAND-KEEP-001"] = new(
+                    "P1-MULLIGAN-HAND-KEEP-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-MULLIGAN-DIRTY-P2-OWNED-DRAW"] = new(
+                    "P1-MULLIGAN-DIRTY-P2-OWNED-DRAW",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-mulligan-dirty-draw-card", "P1", "MULLIGAN"),
+            new MulliganCommand(["P1-MULLIGAN-HAND-RETURN-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Empty(result.State.MulliganCompletedPlayerIds);
+        Assert.Equal(
+            ["P1-MULLIGAN-HAND-RETURN-001", "P1-MULLIGAN-HAND-KEEP-001"],
+            result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-MULLIGAN-DIRTY-P2-OWNED-DRAW"], result.State.PlayerZones["P1"].MainDeck);
+    }
+
+    [Fact]
     public async Task P4EphemeralKeywordDestroysControlledObjectsAtTurnStart()
     {
         var fixture = await ConformanceFixture.LoadAsync(
