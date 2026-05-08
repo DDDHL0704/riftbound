@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百三十二批补充战场得分真实 UI smoke。Chrome 插件房间 `smoke-battlefield-held-score-1778247059745`：P1 页面连接对战页，后台 P2 入座并 seed `battlefield-held-score`；P1 打开《大力仙灵》卡牌详情，在服务端 `DECLARE_BATTLE` composer 中选择战场 `SFD·214/221` 和防守单位 `SFD·125/221`，点击“确认声明战斗”。页面事件日志显示“声明战斗 / 造成伤害 / 单位摧毁 / 据守战场 / 战场触发结算 / 支付费用 / 获得分数 / 战斗结束 / 战场控制结算”，P2 视角分数显示 `1/8`，能量枢纽控制者为 P2。前端全程只按服务端 prompt/sourceRequirements 组合并提交 `DECLARE_BATTLE`，不自行裁决战斗或得分。
+- 本批验证：Chrome 插件 smoke 通过；浏览器 error 日志仅有 Chrome 扩展 autoplay `NotAllowedError` 噪声，应用 runtime error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite 进程，`5092/5093/5094/5175/5176/9223/9224` 无监听。无源码改动，整体仍 **NOT READY**，因为完整正式 18 步还缺同一连续正式牌局里的战场争夺/战斗/得分整合，以及服务端 P0/P1 规则缺口未清零。
+
 - 第二百三十一批修复投降确认产品交互。`ActionPanel` 不再使用浏览器原生 `window.confirm`，改为服务端 `SURRENDER` 候选驱动的站内确认区：第一次点击“投降”只显示“确认投降 / 取消”，取消会收起确认区，点击“确认投降”才提交服务端 `SURRENDER`。这只改变提交前的 UI 确认，不改变服务端候选、命令结构或胜负裁决。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-surrender-confirm-1778246799998`，P1 页面连接对战页，后台 P2 入座并 seed `basic-play`；P1 点击“投降”后页面显示“确认投降 / 取消”，点击“取消”后确认区消失，再次点击“投降 -> 确认投降”后结果页显示“胜者：P2”。smoke 后已 finalize Chrome 标签并清理 API/Vite 进程，`5092/5093/5094/5175/5176/9223/9224` 无监听。整体仍 **NOT READY**，因为完整正式 18 步还缺同一连续正式牌局里的战场争夺/战斗与战场得分。
 

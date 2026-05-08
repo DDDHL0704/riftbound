@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百三十二批补充：战场得分与战斗声明前端 smoke 覆盖新增代表路径。Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 中，P1 页面从服务端 `DECLARE_BATTLE` candidate/sourceRequirements 打开《大力仙灵》详情，选择战场 `SFD·214/221` 与防守单位 `SFD·125/221` 并提交声明战斗；服务端结算战斗伤害、单位摧毁、据守战场、能量枢纽据守支付、`SCORE_GAINED` 和战斗/战场控制清理，P2 分数变为 `1/8`。该批无服务端规则代码变更，只补前端真实操作证据。
+- 已补验证：Chrome 插件 smoke 通过，应用 runtime error 0；仅记录 Chrome 扩展 autoplay `NotAllowedError` 噪声。验证后已清理 Chrome 标签、API/Vite 进程，目标端口无监听。整体仍 **NOT READY**，因为该证据仍是 development seed 代表路径，不替代同一连续正式 E2E，也不代表完整 battle task/central cleanup/PaymentEngine/LayerEngine/全卡证据清零。
+
 - P1-004 第二百三十一批补充：前端投降确认从浏览器原生确认弹窗改为站内确认区，避免 Chrome/Browser smoke 卡在 `window.confirm`，也让产品交互保持在 Web UI 内。该批没有修改服务端规则；前端仍只在服务端 prompt 暴露 enabled `SURRENDER` 候选时显示投降入口，确认后提交同一个 `SURRENDER` 命令，由服务端裁决胜者。
 - 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件房间 `smoke-surrender-confirm-1778246799998` 中，P1 页面连接，后台 P2 入座并 seed `basic-play`；点击“投降”显示“确认投降 / 取消”，取消可收起，再次确认后结果页显示 `胜者：P2`。验证后已清理 Chrome 标签、API/Vite 进程，目标端口无监听。整体仍 **NOT READY**，因为同一正式 E2E 还没有覆盖战场争夺/战斗、战场得分，服务端 P0/P1 规则缺口也仍未清零。
 

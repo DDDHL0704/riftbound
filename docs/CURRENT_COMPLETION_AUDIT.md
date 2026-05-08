@@ -7,10 +7,8 @@
 
 ## 1. 修改文件列表
 
-当前第二百三十一批修改：
+当前第二百三十二批修改：
 
-- `src/Riftbound.DevUi/src/components/match/ActionPanel.tsx`
-- `src/Riftbound.DevUi/src/styles/globals.css`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -82,7 +80,7 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百三十一批修复投降确认 UI：前端不再使用 `window.confirm`，改为站内“确认投降 / 取消”二步确认，确认后仍提交服务端 `SURRENDER` 命令。本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。
+当前第二百三十二批是战场得分 UI smoke 文档收口批。Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 中，P1 页面连接对战页，后台 P2 入座并 seed `battlefield-held-score`；P1 通过卡牌详情 `DECLARE_BATTLE` composer 选择战场与防守单位并提交声明战斗，页面事件显示战斗伤害、单位摧毁、据守战场、支付费用、获得分数与战斗结束，P2 分数显示 `1/8`。本批无源码变更。
 
 ## 9. Browser smoke / E2E 结果
 
@@ -92,7 +90,9 @@
 
 第二百三十一批补齐纯前端投降确认 smoke：Chrome 插件房间 `smoke-surrender-confirm-1778246799998` 中，P1 页面连接，后台 P2 入座并 seed `basic-play`；P1 点击“投降”后显示“确认投降 / 取消”，取消可收起，再次“投降 -> 确认投降”后结果页显示“胜者：P2”。smoke 后已 finalize Chrome 标签并清理 API/Vite 进程，目标端口无监听。
 
-最终仍缺一条完全覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：同一连续正式牌局还没有覆盖战场争夺/战斗与战场得分。
+第二百三十二批补充战场得分真实 UI smoke：Chrome 插件房间 `smoke-battlefield-held-score-1778247059745` 中，P1 从服务端行动提示打开《大力仙灵》详情，选择服务端候选战场 `SFD·214/221` 与防守单位 `SFD·125/221`，点击“确认声明战斗”；页面显示“声明战斗 / 造成伤害 / 单位摧毁 / 据守战场 / 战场触发结算 / 支付费用 / 获得分数 / 战斗结束 / 战场控制结算”，P2 分数为 `1/8`。应用 runtime error 0，结束后已清理 Chrome 标签和 API/Vite 进程。
+
+最终仍缺一条完全覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：同一连续正式牌局还没有覆盖战场争夺/战斗与战场得分整合；当前战场得分证据仍是 development seed 代表路径。
 
 ## 10. 仍未完成的 P2 项
 
