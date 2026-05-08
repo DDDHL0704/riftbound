@@ -5,7 +5,7 @@ import { StatusPill } from "../components/ui/StatusPill";
 import { useMatchController } from "../stores/useMatchController";
 import { useSettings } from "../stores/settingsStore";
 import { candidateListLabel } from "../components/match/ActionPanel";
-import { eventKindLabel } from "../components/match/EventLog";
+import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { ActionPromptCandidateDto } from "../types/protocol";
 import { promptActionLabel } from "../utils/formatters";
 
@@ -73,7 +73,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
           {controller.state.events.slice(0, 8).map((event, index) => (
             <article className="room-log-entry" key={`${event.kind}-${index}`}>
               <strong title={event.kind}>{eventKindLabel(event.kind)}</strong>
-              <span>{event.description}</span>
+              <span>{eventDescriptionLabel(event)}</span>
             </article>
           ))}
         </div>

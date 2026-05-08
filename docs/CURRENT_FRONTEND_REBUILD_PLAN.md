@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十七批继续收口日志隐藏信息与调试口径。`EventLog` / `RoomPage` 共用 `eventDescriptionLabel`，在展示服务端事件描述时把内部对象 ID、结算链 ID、hidden 占位和 task/cleanup ID 脱敏为“对象 / 结算链项目 / 隐藏对象 / 服务端任务”；只改 UI 文案，不改 snapshot/payload/prompt，也不新增任何客户端规则判断。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-event-redaction-1778232667598`，P1 连接房间页后由 P2 外部连接、seed `legend-act` 并提交 `LEGEND_ACT`，房间日志显示“传奇横置 / 对象 横置”，不显示 `P1-LEGEND-POPPY` 或 `STACK-...`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十六批继续收口房间日志展示。`RoomPage` 复用对战桌面的服务端事件 kind 中文标签，房间日志主标题显示“载入开发场景”等中文文案，不再裸显 `DEV_SCENARIO_SEEDED` 这类 raw event kind；raw kind 只保留在 `title` 供开发排查，前端仍只读服务端 events，不新增规则裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-room-event-label-1778232358005`，P1 连接房间页后由 P2 外部连接并 seed `basic-play`，房间日志显示“载入开发场景”，页面正文不含 `DEV_SCENARIO_SEEDED`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

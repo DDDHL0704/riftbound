@@ -120,6 +120,21 @@ export function eventKindLabel(kind: string) {
   return eventKindLabels[kind] ?? "服务端事件";
 }
 
+const eventDescriptionRedactions: Array<{ pattern: RegExp; replacement: string }> = [
+  { pattern: /\bSTACK-\d+-[A-Z0-9_-]+\b/g, replacement: "结算链项目" },
+  { pattern: /\bP\d+-[A-Z0-9][A-Z0-9_-]*(?:-\d{3,})?\b/g, replacement: "对象" },
+  { pattern: /\bhidden-\d+\b/g, replacement: "隐藏对象" },
+  { pattern: /\b(?:cleanup|task):[a-z0-9:-]+\b/gi, replacement: "服务端任务" }
+];
+
+export function eventDescriptionLabel(event: GameEvent) {
+  const description = event.description?.trim() || eventKindLabel(event.kind);
+  return eventDescriptionRedactions
+    .reduce((current, redaction) => current.replace(redaction.pattern, redaction.replacement), description)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function EventLog({ density = "standard", events, errors }: { density?: LogDensity; events: GameEvent[]; errors: ErrorDto[] }) {
   const visibleEvents = density === "compact" ? events.slice(-12) : events;
   const hiddenEventCount = events.length - visibleEvents.length;
@@ -142,7 +157,7 @@ export function EventLog({ density = "standard", events, errors }: { density?: L
         <article className="log-row" key={`${event.kind}-${index}`}>
           <strong title={event.kind}>{eventKindLabel(event.kind)}</strong>
           {density === "detailed" && <code>{event.kind}</code>}
-          <span>{event.description}</span>
+          <span>{eventDescriptionLabel(event)}</span>
         </article>
       ))}
     </section>
