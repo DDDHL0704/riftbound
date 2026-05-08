@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百八十八批补齐《踊跃的学徒》（OGN·084/298）战场静态法术减费代表路径。服务端在真实法术打出付费计划中解析受控、正面 OGN·084 战场单位，把法术法力费用减少 1 且守住最低 1 费；`COST_PAID` 记录 `battlefieldSpellCostReductionMana`，ActionPrompt 的 `sourceRequirements` 同步暴露 `minimumManaCost` 与战场法术减费元数据。前端卡牌详情 composer 只展示服务端给出的“战场法术减费 -1”，仍不根据卡面本地计算费用。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Eager/Well Trained 相关定点回归 6/6 通过；`GameHubJoinTests` 121/121 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3202/3202；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-eager-apprentice-1778271465789`，P1 页面设置 `serverUrl=http://127.0.0.1:5093` 后连接对战页，后台 P2 seed `battlefield-eager-apprentice-spell-cost-reduction`；P1 打开《训练有素》详情看到“费用 1 / 战场法术减费 -1”，通过前端选择 P2《均衡门徒》并确认打出，P1 前端让过、P2 后台让过后事件日志显示支付 1 点费用、临时战力修正与抽牌，authoritative snapshot 显示 P1 法力 0、`P1-SPELL-WELL-TRAINED` 在废牌堆、P2 `P2-UNIT-001` 有效战力 5；reload/reconnect 后最终 snapshot 仍恢复。Chrome 应用 runtime error 0，测试标签与 API/Vite 已清理，目标端口无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十七批补齐《拉文布鲁姆学生》（OGN·103/298）“每当你打出一张法术牌时，本回合内战力 +1”的服务端代表路径。服务端在真实法术打出路径中解析场上正面、受控的 OGN·103 单位触发，广播 `TRIGGER_RESOLVED` 后用 `POWER_MODIFIED_UNTIL_END_OF_TURN` 修正自身战力；本批 paired fixture 使用《实战经验》作为真实法术，证明法术自身仍正常入栈并结算目标 +1。前端仍只展示服务端事件与 snapshot，不新增本地法术监听或战力裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《拉文布鲁姆学生》法术触发、《实战经验》基础战力修正与 OGN·103 带目标拒绝回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3198/3198；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

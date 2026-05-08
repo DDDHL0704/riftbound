@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-eager-apprentice-spell-cost-static",
-  "description": "Eager Apprentice enters as a unit while spell cost reduction is deferred.",
+  "description": "Eager Apprentice enters as a unit; its battlefield spell cost reduction is covered by a paired fixture.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·084/298 踊跃的学徒",
-      "note": "官方卡面：费用 3；单位；战力 3；位于战场上时法术的法力费用减少 1 且不得低于 1。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；战场上的法术费用减少静态路径暂缓。"
+      "note": "官方卡面：费用 3；单位；战力 3；位于战场上时法术的法力费用减少 1 且不得低于 1。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；战场上的法术费用减少静态路径由 p2-preflight-play-eager-apprentice-spell-cost-reduction paired fixture 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

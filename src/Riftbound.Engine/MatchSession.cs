@@ -2392,6 +2392,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
     private const string BattlefieldEquipmentCostReductionCardNo = "SFD·213/221";
+    private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string BattlefieldFriendlySpellDrawCardNo = "OGN·292/298";
     private const string BattlefieldSpellPowerBonusCardNo = "UNL-205/219";
     private const string BattlefieldGrantUnitExperienceCardNo = "UNL-213/219";
@@ -4406,6 +4407,22 @@ internal static class ActionPromptBuilder
         string playerId,
         CardBehaviorDefinition behavior)
     {
+        var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior);
+        reduction += PromptBattlefieldSpellCostReductionMana(
+            state,
+            playerId,
+            behavior,
+            reduction);
+
+        return Math.Max(0, behavior.ManaCost - reduction)
+            + PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
+    }
+
+    private static int PromptBaseManaReductionBeforeBattlefieldSpellCost(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior)
+    {
         var reduction = string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal)
             ? 0
             : behavior.CostReductionMana;
@@ -4418,10 +4435,8 @@ internal static class ActionPromptBuilder
         {
             reduction += behavior.ManaReductionIfExperiencePaid;
         }
-        reduction += PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
 
-        return Math.Max(0, behavior.ManaCost - reduction)
-            + PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior);
+        return reduction + PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
     }
 
     private static IReadOnlyList<CardBehaviorDefinition> PlayCardPromptBehaviorsForSource(
@@ -5548,6 +5563,30 @@ internal static class ActionPromptBuilder
         return Math.Min(1, behavior.ManaCost);
     }
 
+    private static int PromptBattlefieldSpellCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int alreadyAppliedBaseReductionMana)
+    {
+        if (!IsPromptSpellPlayBehavior(behavior)
+            || behavior.ManaCost <= 1
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, EagerApprenticeCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && !cardObject.IsFaceDown))
+        {
+            return 0;
+        }
+
+        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
+        return baseManaAfterExistingReductions > 1
+            ? Math.Min(1, baseManaAfterExistingReductions - 1)
+            : 0;
+    }
+
     private static int PromptBattlefieldHeldUnitCostIncreaseMana(
         MatchState state,
         string playerId,
@@ -6151,6 +6190,11 @@ internal static class ActionPromptBuilder
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior),
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
+            ["battlefieldSpellCostReductionMana"] = PromptBattlefieldSpellCostReductionMana(
+                state,
+                playerId,
+                behavior,
+                PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior)),
             ["battlefieldHeldUnitCostIncreaseMana"] = PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior),
             ["minTargetCount"] = minTargetCount,
             ["maxTargetCount"] = maxTargetCount,
@@ -8357,6 +8401,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-held-next-spell-echo" => BuildBattlefieldHeldNextSpellEchoScenario(current, seed),
             "battlefield-held-next-spell-echo-prompt" => BuildBattlefieldHeldNextSpellEchoPromptScenario(current, seed),
             "battlefield-static-equipment-cost-reduction" => BuildBattlefieldStaticEquipmentCostReductionScenario(current, seed),
+            "battlefield-eager-apprentice-spell-cost-reduction" => BuildBattlefieldEagerApprenticeSpellCostReductionScenario(current, seed),
             "battlefield-legend-attach-armament" => BuildBattlefieldLegendAttachArmamentScenario(current, seed),
             "battlefield-extra-standby" => BuildBattlefieldExtraStandbyScenario(current, seed),
             "battlefield-held-activate-conquest" => BuildBattlefieldHeldActivateConquestScenario(current, seed),
@@ -12475,6 +12520,58 @@ public sealed class MatchSession : IMatchSession
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P1,
                     controllerId: seed.P1)
+            });
+    }
+
+    private static MatchState BuildBattlefieldEagerApprenticeSpellCostReductionScenario(MatchState current, DevScenarioSeed seed)
+    {
+        return BuildScenarioState(
+            current,
+            seed,
+            2603303069,
+            169,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = new(1, 0),
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-DRAW-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-WELL-TRAINED"],
+                    battlefields: ["P1-UNIT-EAGER-APPRENTICE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-UNIT-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-WELL-TRAINED"] = new(
+                    "P1-SPELL-WELL-TRAINED",
+                    cardNo: "OGN·058/298",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-EAGER-APPRENTICE"] = new(
+                    "P1-UNIT-EAGER-APPRENTICE",
+                    cardNo: "OGN·084/298",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    cardNo: "UNL-097/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
             });
     }
 

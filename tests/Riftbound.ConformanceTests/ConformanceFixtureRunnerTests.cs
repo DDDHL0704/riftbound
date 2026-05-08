@@ -23046,6 +23046,24 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineReducesSpellCostForBattlefieldEagerApprentice()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-eager-apprentice-spell-cost-reduction.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costPaid.Payload["mana"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldSpellCostReductionMana"]);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineExpiresWellTrainedPowerAtEndTurn()
     {
         var fixture = await ConformanceFixture.LoadAsync(
@@ -36550,6 +36568,75 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, costPaid.Payload["mana"]);
         Assert.Equal(2, costPaid.Payload["baseMana"]);
         Assert.Equal(1, costPaid.Payload["battlefieldEquipmentCostReductionMana"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldStaticEagerApprenticeReducesSpellCost()
+    {
+        var state = BattlefieldEagerApprenticeSpellCostReductionState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-eager-apprentice-spell-cost-reduction", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-WELL-TRAINED",
+                "OGN·058/298",
+                ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Single(result.State.StackItems);
+        var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(1, costPaid.Payload["battlefieldSpellCostReductionMana"]);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldStaticEagerApprenticeSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldEagerApprenticeSpellCostReductionState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-UNIT-EAGER-APPRENTICE"] = dirtyObjects["P1-UNIT-EAGER-APPRENTICE"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-eager-apprentice-spell-cost-dirty-source", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-SPELL-WELL-TRAINED",
+                "OGN·058/298",
+                ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(new RunePool(1, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-SPELL-WELL-TRAINED"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.StackItems);
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void P79BattlefieldStaticEagerApprenticePromptShowsSpellCostReduction()
+    {
+        var state = BattlefieldEagerApprenticeSpellCostReductionState();
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("P1-SPELL-WELL-TRAINED", sourceRequirement["sourceObjectId"]);
+        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["manaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["minimumManaCost"]));
+        Assert.Equal(1, Assert.IsType<int>(sourceRequirement["battlefieldSpellCostReductionMana"]));
     }
 
     [Fact]
@@ -53885,6 +53972,45 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: "P1",
                     controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BattlefieldEagerApprenticeSpellCostReductionState()
+    {
+        return PunishmentState(mana: 1) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-WELL-TRAINED"],
+                    MainDeck = ["P1-DRAW-001"],
+                    Battlefields = ["P1-UNIT-EAGER-APPRENTICE"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT-001"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-WELL-TRAINED"] = new(
+                    "P1-SPELL-WELL-TRAINED",
+                    cardNo: "OGN·058/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-UNIT-EAGER-APPRENTICE"] = new(
+                    "P1-UNIT-EAGER-APPRENTICE",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    cardNo: "OGN·084/298",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard])
             }
         };
     }

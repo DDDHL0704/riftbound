@@ -187,6 +187,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string CrescentGuardCardNo = "UNL-122/219";
     private const string OgnFioraCardNo = "OGN·232/298";
     private const string RavenbloomStudentCardNo = "OGN·103/298";
+    private const string EagerApprenticeCardNo = "OGN·084/298";
     private const string RavenbloomStudentSpellPowerEffectKind = "RAVENBLOOM_STUDENT_SPELL_POWER_PLUS_1";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
@@ -661,6 +662,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
                     ["battlefieldEchoCostReductionMana"] = plan.BattlefieldEchoCostReductionMana,
                     ["battlefieldEquipmentCostReductionMana"] = plan.BattlefieldEquipmentCostReductionMana,
+                    ["battlefieldSpellCostReductionMana"] = plan.BattlefieldSpellCostReductionMana,
                     ["battlefieldHeldUnitCostIncreaseMana"] = plan.BattlefieldHeldUnitCostIncreaseMana,
                     ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
                     ["spellshieldTaxTargetObjectIds"] = plan.SpellshieldTaxTargetObjectIds.ToArray(),
@@ -13019,6 +13021,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             state,
             intent.PlayerId,
             behavior);
+        var battlefieldSpellCostReductionMana = ResolveBattlefieldSpellCostReductionMana(
+            state,
+            intent.PlayerId,
+            behavior,
+            costReductionMana + optionalCostManaReduction + battlefieldEquipmentCostReductionMana);
         var battlefieldHeldUnitCostIncreaseMana = ResolveBattlefieldHeldUnitCostIncreaseMana(
             state,
             intent.PlayerId,
@@ -13032,7 +13039,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         var totalManaCost = Math.Max(0, behavior.ManaCost
                 - costReductionMana
                 - optionalCostManaReduction
-                - battlefieldEquipmentCostReductionMana)
+                - battlefieldEquipmentCostReductionMana
+                - battlefieldSpellCostReductionMana)
             + extraManaCost
             + battlefieldHeldUnitCostIncreaseMana
             + spellshieldTaxMana;
@@ -13102,6 +13110,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCostManaReduction,
             battlefieldEchoCostReductionMana,
             battlefieldEquipmentCostReductionMana,
+            battlefieldSpellCostReductionMana,
             battlefieldHeldUnitCostIncreaseMana,
             spellshieldTaxMana,
             spellshieldTaxTargetObjectIds,
@@ -16809,6 +16818,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return Math.Min(1, behavior.ManaCost);
+    }
+
+    private static int ResolveBattlefieldSpellCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int alreadyAppliedBaseReductionMana)
+    {
+        if (!IsSpellPlayBehavior(behavior)
+            || behavior.ManaCost <= 1
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)
+            || !zones.Battlefields.Any(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, EagerApprenticeCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+                && !cardObject.IsFaceDown))
+        {
+            return 0;
+        }
+
+        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
+        return baseManaAfterExistingReductions > 1
+            ? Math.Min(1, baseManaAfterExistingReductions - 1)
+            : 0;
     }
 
     private static int ResolveBattlefieldHeldUnitCostIncreaseMana(
@@ -25265,6 +25298,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int OptionalCostManaReduction,
         int BattlefieldEchoCostReductionMana,
         int BattlefieldEquipmentCostReductionMana,
+        int BattlefieldSpellCostReductionMana,
         int BattlefieldHeldUnitCostIncreaseMana,
         int SpellshieldTaxMana,
         IReadOnlyList<string> SpellshieldTaxTargetObjectIds,
