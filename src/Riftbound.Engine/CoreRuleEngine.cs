@@ -173,6 +173,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PetalPixieCardNo = "UNL-076/219";
     private const string SoulShepherdCardNo = "UNL-077/219";
     private const string ResonantSoulCardNo = "OGN·118/298";
+    private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string SavageJawfishCardNo = "UNL-129/219";
     private const string GhostlyCentaurCardNo = "UNL-068/219";
     private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
@@ -14708,7 +14709,14 @@ public sealed class CoreRuleEngine : IRuleEngine
     {
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
+            || HasBilgewaterBullyBoonRoamPermission(sourceState)
             || HasBattlefieldStaticRoamPermission(state, playerId, sourceObjectId);
+    }
+
+    private static bool HasBilgewaterBullyBoonRoamPermission(CardObjectState sourceState)
+    {
+        return string.Equals(sourceState.CardNo, BilgewaterBullyCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
     }
 
     private static bool HasBattlefieldStaticRoamPermission(MatchState state, string playerId, string sourceObjectId)

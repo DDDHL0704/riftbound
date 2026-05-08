@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百七十四批补齐《比尔吉沃特恶霸》（OGN·125/298）“拥有增益时获得游走”的服务端代表路径。服务端 MOVE_UNIT 校验与 ActionPrompt 均从 authoritative `CardObjectState` 动态判断来源是否带 `增益`：满足时开放 `ROAM` 精确战场移动，不满足时拒绝并且不向前端暴露游走候选；对象标签不会被伪造为永久 `游走`。前端仍只展示服务端 prompt 与 authoritative snapshot，不新增本地关键词裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；比尔吉沃特恶霸增益/无增益游走与既有战场静态游走回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3178/3178；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则与 prompt 代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整游走移动/战斗时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百七十三批补齐《残响之魂》（OGN·118/298）“每回合首次当你的友方单位被摧毁时抽一张牌”的服务端代表路径。普通栈结算生成 `UNIT_DESTROYED` 后，服务端从 authoritative field state 找到同控制者场上正面、非待命《残响之魂》，并用 `DestroyedUnitOwnerIdsThisTurn` 守住本回合首次；第一次触发广播 `TRIGGER_RESOLVED` 并抽 1 张，同回合第二次摧毁不再触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地摧毁监听或抽牌裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；残响之魂、幽魂半人马、凶残颚鱼摧毁触发回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3176/3176；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

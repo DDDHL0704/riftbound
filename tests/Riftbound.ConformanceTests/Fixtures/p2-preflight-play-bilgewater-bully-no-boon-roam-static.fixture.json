@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·125/298 比尔吉沃特恶霸",
-      "note": "官方卡面：费用 6；单位；战力 6；如果自身拥有增益，则获得游走。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；拥有增益时获得游走的静态路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 6；如果自身拥有增益，则获得游走。当前 fixture 覆盖普通主阶段打出后成为基地单位对象；拥有增益时服务端 prompt/校验动态开放 ROAM 精确战场移动，无增益时不开放且拒绝由 P79BilgewaterBullyWithBoonCanUseRoam 与 P79BilgewaterBullyWithoutBoonDoesNotUseRoam 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

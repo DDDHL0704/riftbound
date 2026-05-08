@@ -2385,6 +2385,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
+    private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
@@ -3092,10 +3093,17 @@ internal static class ActionPromptBuilder
 
         return sourceState.Tags.Contains(MoveUnitRoamKeyword, StringComparer.Ordinal)
             || sourceState.UntilEndOfTurnEffects.Contains(MoveUnitRoamOptionalCost, StringComparer.Ordinal)
+            || HasBilgewaterBullyBoonPromptRoamPermission(sourceState)
             || zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, BattlefieldStaticRoamCardNo, StringComparison.Ordinal)
                 && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
+    }
+
+    private static bool HasBilgewaterBullyBoonPromptRoamPermission(CardObjectState sourceState)
+    {
+        return string.Equals(sourceState.CardNo, BilgewaterBullyCardNo, StringComparison.Ordinal)
+            && sourceState.Tags.Contains(CardObjectTags.Boon, StringComparer.Ordinal);
     }
 
     private static bool TryMoveUnitPreciseBattlefieldOrigin(

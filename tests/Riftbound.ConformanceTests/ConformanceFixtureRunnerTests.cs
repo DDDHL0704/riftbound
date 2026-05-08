@@ -35669,6 +35669,79 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BilgewaterBullyWithBoonCanUseRoam()
+    {
+        var state = BilgewaterBullyBoonRoamState(hasBoon: true);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        Assert.Contains(sourceRequirements, requirement =>
+            string.Equals(requirement["sourceObjectId"] as string, "P1-BILGEWATER-BULLY", StringComparison.Ordinal)
+            && string.Equals(requirement["mode"] as string, "ROAM", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-bilgewater-bully-boon-roam", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BILGEWATER-BULLY",
+                "BATTLEFIELD:P1-BILGEWATER-DOCK",
+                "BATTLEFIELD:P1-MAIN",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var moveEvent = Assert.Single(result.Events);
+        Assert.Equal("UNIT_MOVED_TO_BATTLEFIELD", moveEvent.Kind);
+        Assert.Equal("游走", moveEvent.Payload["movementKeyword"]);
+        Assert.Equal("BATTLEFIELD:P1-BILGEWATER-DOCK", moveEvent.Payload["origin"]);
+        Assert.Equal("BATTLEFIELD:P1-MAIN", moveEvent.Payload["destination"]);
+        var bully = result.State.CardObjects["P1-BILGEWATER-BULLY"];
+        Assert.Contains(CardObjectTags.Boon, bully.Tags);
+        Assert.DoesNotContain("游走", bully.Tags);
+        Assert.Equal("P1-MAIN", result.State.ObjectLocations["P1-BILGEWATER-BULLY"].BattlefieldObjectId);
+    }
+
+    [Fact]
+    public async Task P79BilgewaterBullyWithoutBoonDoesNotUseRoam()
+    {
+        var state = BilgewaterBullyBoonRoamState(hasBoon: false);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var moveCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "MOVE_UNIT", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(moveCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        Assert.DoesNotContain(sourceRequirements, requirement =>
+            string.Equals(requirement["sourceObjectId"] as string, "P1-BILGEWATER-BULLY", StringComparison.Ordinal)
+            && string.Equals(requirement["mode"] as string, "ROAM", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-bilgewater-bully-no-boon-roam", "P1", "MOVE_UNIT"),
+            new MoveUnitCommand(
+                "P1-BILGEWATER-BULLY",
+                "BATTLEFIELD:P1-BILGEWATER-DOCK",
+                "BATTLEFIELD:P1-MAIN",
+                ["ROAM"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("精确战场移动需要游走许可。", result.ErrorMessage);
+        Assert.Empty(result.Events);
+        Assert.Equal("P1-BILGEWATER-DOCK", result.State.ObjectLocations["P1-BILGEWATER-BULLY"].BattlefieldObjectId);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit()
     {
         var state = BattlefieldStaticPreventMoveBaseState();
@@ -52862,6 +52935,45 @@ public sealed class ConformanceFixtureRunnerTests
                     tags: [CardObjectTags.UnitCard],
                     ownerId: "P1",
                     controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState BilgewaterBullyBoonRoamState(bool hasBoon)
+    {
+        string[] bullyTags = hasBoon
+            ? [CardObjectTags.UnitCard, CardObjectTags.Boon]
+            : [CardObjectTags.UnitCard];
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BILGEWATER-DOCK", "P1-BILGEWATER-BULLY"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BILGEWATER-DOCK"] = new(
+                    "P1-BILGEWATER-DOCK",
+                    cardNo: "TEST-BATTLEFIELD",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BILGEWATER-BULLY"] = new(
+                    "P1-BILGEWATER-BULLY",
+                    cardNo: "OGN·125/298",
+                    power: 6,
+                    tags: bullyTags,
+                    ownerId: "P1",
+                    controllerId: "P1")
+            },
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BILGEWATER-DOCK"] = new("P1", "BATTLEFIELD", "P1-BILGEWATER-DOCK"),
+                ["P1-BILGEWATER-BULLY"] = new("P1", "BATTLEFIELD", "P1-BILGEWATER-DOCK")
             }
         };
     }
