@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百八十四批补齐《均衡门徒》（UNL-097/219）“其他己方单位总计战力不低于 5 时抽一张牌”的服务端代表路径。服务端在源单位入场后按 authoritative 场上对象统计其他己方单位战力，满足条件时执行抽牌并更新 snapshot；前端仍只展示服务端事件与 snapshot，不新增本地战力统计或抽牌裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《均衡门徒》条件未满足/满足抽牌回归 155/155 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3193/3193；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十三批补齐《晋升信徒》（UNL-004/219）“本回合曾消耗不低于 4 点费用打出法术时获得 +4 战力”的服务端代表路径。服务端在真实付费 `PLAY_CARD` 法术路径写入 `PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:<playerId>` 回合记忆；《晋升信徒》结算成单位时只根据 authoritative 回合记忆修正为 5 战力，未满足条件时仍是 1 战力普通单位。前端仍只展示服务端 prompt、事件与 snapshot，不新增本地法术费用记忆或战力裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《晋升信徒》有/无法术费用记忆和 6 费法术真实记忆写入回归 155/155 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3192/3192；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

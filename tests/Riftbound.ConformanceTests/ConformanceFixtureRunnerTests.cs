@@ -15346,6 +15346,23 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects[sourceObjectId].Tags);
     }
 
+    [Fact]
+    public async Task CoreRuleEnginePlaysBalancedDiscipleOtherPowerDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-balanced-disciple-other-power-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-DRAWN-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Equal(3, result.FinalState.CardObjects["P1-UNIT-BALANCED-DISCIPLE"].Power);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-demacia-envoy-experience-static.fixture.json", 1)]
     [InlineData("p2-preflight-play-spring-messenger-experience-static.fixture.json", 2)]

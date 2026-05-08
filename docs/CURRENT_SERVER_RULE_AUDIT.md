@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第二百八十四批补充：补齐《均衡门徒》（UNL-097/219）“当你打出我时，如果你的其他单位总计战力不低于 5，则抽一张牌”的服务端代表路径。Core 现在在源单位结算入场后，按 authoritative 场上对象统计同控制者、排除来源自身的其他单位总战力；满足阈值时由服务端执行抽 1 张牌并更新权威牌堆/手牌。前端仍只展示服务端 `CARD_DRAWN` 事件和 authoritative snapshot，不在浏览器侧统计战力或抽牌。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysVanillaSourceUnit|FullyQualifiedName~CoreRuleEnginePlaysBalancedDiscipleOtherPowerDraw"` 通过 155/155；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3193/3193；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，避免占用前台或常驻资源。整体仍 **NOT READY**，因为完整条件式战力/关键词族、完整正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第二百八十三批补充：补齐《晋升信徒》（UNL-004/219）“若本回合曾消耗不低于 4 点费用打出法术，则我获得 +4 战力”的服务端代表路径。Core 现在在真实 `PLAY_CARD` 付费路径中，仅当来源是法术且本次实际支付 mana 费用不低于 4 时写入 `PLAYED_FOUR_PLUS_COST_SPELL_THIS_TURN:<playerId>` 回合记忆；《晋升信徒》结算为单位时只读取服务端回合记忆，条件满足才把战力从 1 修正到 5。前端仍只展示服务端 prompt、事件和 authoritative snapshot，不在浏览器侧推断法术费用记忆或战力。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEnginePlaysVanillaSourceUnit|FullyQualifiedName~CoreRuleEnginePlaysGrandStrategyAllFriendlyPowerBoost"` 通过 155/155；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3192/3192；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，避免占用前台或常驻资源。整体仍 **NOT READY**，因为完整条件式战力/关键词族、完整正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

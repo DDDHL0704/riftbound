@@ -183,6 +183,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string AscendedBelieverCardNo = "UNL-004/219";
     private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
+    private const string BalancedDiscipleCardNo = "UNL-097/219";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
         "金克丝",
@@ -17528,6 +17529,26 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 cardObjects,
                 stackItem));
+
+            if (string.Equals(behavior.CardNo, BalancedDiscipleCardNo, StringComparison.Ordinal)
+                && SumOtherControlledUnitPower(
+                    playerZones,
+                    cardObjects,
+                    stackItem.ControllerId,
+                    stackItem.SourceObjectId) >= PowerfulUnitPowerThreshold)
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    stackItem.ControllerId,
+                    1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
         }
 
         if (behavior.GainExperienceOnPlay > 0)
@@ -20274,6 +20295,29 @@ public sealed class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .Count(objectId => IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
                 && CardObjectHasTag(cardObjects, objectId, CardObjectTags.UnitCard));
+    }
+
+    private static int SumOtherControlledUnitPower(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string excludedObjectId)
+    {
+        if (!playerZones.TryGetValue(playerId, out var zones))
+        {
+            return 0;
+        }
+
+        return zones.Base
+            .Concat(zones.Battlefields)
+            .Where(objectId => !string.IsNullOrWhiteSpace(objectId))
+            .Where(objectId => !string.Equals(objectId, excludedObjectId, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .Sum(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    ? cardObject.Power
+                    : 0);
     }
 
     private static IReadOnlyList<string> GetEnemyFieldUnitObjectIds(
