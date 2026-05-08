@@ -3098,6 +3098,79 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptHidesLegendActionSourceWhenRequiredBattlefieldIsOpponentOwned()
+    {
+        var state = new MatchState(
+            "prompt-legend-dirty-required-battlefield-room",
+            23,
+            6,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-LEGEND-ACTION-TARGET", "P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT"],
+                    Battlefields = ["P1-BATTLEFIELD-PORO-FORGE"],
+                    LegendZone = ["P1-LEGEND-PORO-FORGE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-LEGEND-PORO-FORGE"] = new(
+                    "P1-LEGEND-PORO-FORGE",
+                    cardNo: "UNL-237/219",
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-PORO-FORGE"] = new(
+                    "P1-BATTLEFIELD-PORO-FORGE",
+                    cardNo: "SFD·208/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: ""),
+                ["P1-UNIT-LEGEND-ACTION-TARGET"] = new(
+                    "P1-UNIT-LEGEND-ACTION-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT"] = new(
+                    "P1-EQUIPMENT-LEGEND-ACTION-ARMAMENT",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var legendCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "LEGEND_ACT", StringComparison.Ordinal));
+
+        Assert.False(legendCandidate.Enabled);
+        Assert.Empty(legendCandidate.Sources ?? []);
+        var metadata = Assert.IsType<Dictionary<string, object?>>(legendCandidate.Metadata);
+        Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+    }
+
+    [Fact]
     public void ActionPromptHidesLegendActionTargetWhenUnitHasNoCardNo()
     {
         var state = new MatchState(

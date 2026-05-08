@@ -29417,6 +29417,38 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldForgeLegendAttachRejectsOpponentOwnedForge()
+    {
+        var state = BattlefieldLegendAttachArmamentState(includeForge: true, armamentAttachedToObjectId: null);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-BATTLEFIELD-PORO-FORGE"] = cardObjects["P1-BATTLEFIELD-PORO-FORGE"] with
+        {
+            OwnerId = "P2",
+            ControllerId = ""
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-forge-dirty-control", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-PORO-FORGE",
+                "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD",
+                ["P1-LEGEND-BASE-UNIT", "P1-PORO-FORGE-ARMAMENT"],
+                []),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.False(result.State.CardObjects["P1-LEGEND-PORO-FORGE"].IsExhausted);
+        Assert.Null(result.State.CardObjects["P1-PORO-FORGE-ARMAMENT"].AttachedToObjectId);
+        Assert.Empty(result.Events);
+    }
+
+    [Fact]
     public async Task P79BattlefieldForgeLegendAttachRejectsLegendSourceWithoutCardNo()
     {
         var state = BattlefieldLegendAttachArmamentState(includeForge: true, armamentAttachedToObjectId: null);

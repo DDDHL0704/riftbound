@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十五批仍为服务端规则收口，没有前端 UI 文件变更。Poro Forge 这类战场牌授予传奇行动的 required battlefield source 已统一按 source-control/legacy-owned 过滤；对手拥有但 `controllerId` 为空的脏战场牌不会再让前端看到 `LEGEND_ACT` 候选，也不能被手写命令触发贴附武装。前端继续只消费服务端候选。
+- 本批验证：`dotnet build` 通过；Poro Forge 精确回归 5/5、`LegendAct` 相关回归 38/38、`GameHubJoinTests` 118/118、后端 full test 3102/3102 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十四批仍为服务端规则收口，没有前端 UI 文件变更。蜕变花园授予战场单位激活能力的 prompt 与 Core 结算都改用统一 source-control/legacy-owned 判断；对手拥有但 `controllerId` 为空的脏战场牌不会再授予 P1 单位“横置获得经验”的候选，也不能被手写 `ACTIVATE_ABILITY` 触发。前端继续只消费服务端候选。
 - 本批验证：`dotnet build` 通过；目标回归 7/7、`ActivateAbility` 相关回归 62/62、`GameHubJoinTests` 118/118、后端 full test 3100/3100 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

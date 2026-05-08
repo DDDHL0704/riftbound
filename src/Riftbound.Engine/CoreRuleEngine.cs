@@ -2386,8 +2386,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             if (cardObjects.TryGetValue(objectId, out var candidate)
                 && string.Equals(candidate.CardNo, cardNo, StringComparison.Ordinal)
-                && (string.IsNullOrWhiteSpace(candidate.ControllerId)
-                    || string.Equals(candidate.ControllerId, playerId, StringComparison.Ordinal)))
+                && SourceObjectControlledByPlayerOrLegacyOwned(candidate, playerId))
             {
                 battlefieldObjectId = objectId;
                 battlefieldState = candidate;

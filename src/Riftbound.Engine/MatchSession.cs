@@ -6231,8 +6231,7 @@ internal static class ActionPromptBuilder
             && zones.Battlefields.Any(objectId =>
                 state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && string.Equals(cardObject.CardNo, cardNo, StringComparison.Ordinal)
-                && (string.IsNullOrWhiteSpace(cardObject.ControllerId)
-                    || string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)));
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static bool IsControlledObjectWithTag(
