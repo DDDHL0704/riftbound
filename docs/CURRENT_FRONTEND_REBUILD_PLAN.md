@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第三百零四批补齐《穿沙角兽》（SFD·027/221）据守抽两张的服务端代表路径。服务端现在在 `DECLARE_BATTLE` 结算出防守方据守后，若幸存防守单位中存在当前据守玩家控制的《穿沙角兽》，广播 `TRIGGER_RESOLVED.effectKind=DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2`，并由权威抽牌路径将主牌堆顶两张移入手牌；未幸存或不受据守玩家控制时不触发。前端仍不根据卡面或本地战斗结果判断抽牌，只展示服务端事件、战场据守结果和 snapshot。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Dunehorn / BattlefieldHeld 聚合过滤 37/37 通过；后端 full test 3238/3238 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持清理。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第三百零三批补齐《山猿老祖》（SFD·047/221）获得新增益后活跃的服务端代表路径。服务端现在在 `ApplyBoon` 成功授予 `增益` 与 +1 基础战力后，若目标是当前玩家控制的《山猿老祖》，继续由权威事件链广播 `TRIGGER_RESOLVED.effectKind=MOUNTAIN_APE_ELDER_BOON_READY` 与 `UNIT_READIED.reason=MOUNTAIN_APE_ELDER_BOON_READY`，最终 snapshot 将该单位恢复为活跃；已有增益时不会重复触发。前端仍不监听卡面或本地判断增益触发，只展示服务端事件与 snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Mountain Ape / PoroHerder / battlefield boon 聚合过滤 9/9 通过；后端 full test 3237/3237 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持清理。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

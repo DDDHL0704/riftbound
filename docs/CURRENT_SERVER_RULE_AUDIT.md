@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第三百零四批补充：补齐《穿沙角兽》（SFD·027/221）“当我据守一处战场时，抽两张牌”的服务端代表路径。Core 现在在 `DECLARE_BATTLE` 结算出防守方据守后，按幸存防守单位解析当前玩家控制的《穿沙角兽》，广播 `TRIGGER_RESOLVED.effectKind=DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2`，随后由 authoritative draw 路径移动主牌堆顶两张到手牌并写入 `CARD_DRAWN.count=2`；若《穿沙角兽》未在据守后的战场幸存或不受据守玩家控制，则不会触发。前端继续只展示服务端战场据守事件、触发事件和 snapshot，不在浏览器侧判断据守抽牌。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~Dunehorn|FullyQualifiedName~BattlefieldHeldDraw|FullyQualifiedName~BattlefieldHeld"` 通过 37/37；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3238/3238；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端战场据守触发与事件证据补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，目标端口保持清理。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第三百零三批补充：补齐《山猿老祖》（SFD·047/221）“当你给予我增益时，让我变为活跃状态”的服务端代表路径。Core 现在在权威 `ApplyBoon` 成功写入新 `增益` 标签与 +1 基础战力后，若受增益对象是当前玩家控制的《山猿老祖》，继续广播 `TRIGGER_RESOLVED.effectKind=MOUNTAIN_APE_ELDER_BOON_READY` 与 `UNIT_READIED.reason=MOUNTAIN_APE_ELDER_BOON_READY`，并将其 `isExhausted=false`；若对象已经拥有增益，服务端不重复授予增益，也不会错误触发活跃。前端继续只展示服务端事件与 authoritative snapshot，不在浏览器侧监听增益或自行改写休眠/活跃状态。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~MountainApe|FullyQualifiedName~PoroHerder|FullyQualifiedName~BattlefieldPlayUnitBoon"` 通过 9/9；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3237/3237；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则与事件证据补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，目标端口保持清理。整体仍 **NOT READY**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

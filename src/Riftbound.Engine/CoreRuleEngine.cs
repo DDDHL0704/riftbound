@@ -90,6 +90,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseEquipmentTokenIsExhausted: true);
     private const string MountainApeElderCardNo = "SFD·047/221";
     private const string MountainApeElderBoonReadyEffectKind = "MOUNTAIN_APE_ELDER_BOON_READY";
+    private const string DunehornBeastCardNo = "SFD·027/221";
+    private const string DunehornBeastBattlefieldHeldDrawEffectKind = "DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2";
     private const string UnsungHeroCardNo = "SFD·167/221";
     private const string UnsungHeroLastBreathPowerfulDrawEffectKind = "UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
@@ -6380,6 +6382,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                     rngCursor = battlefieldDrawApplication.RngCursor;
                 }
 
+                var dunehornBeastHeldEvents = new List<GameEvent>();
+                if (TryResolveDunehornBeastBattlefieldHeldDrawTrigger(
+                        state,
+                        playerZones,
+                        cardObjects,
+                        playerScores,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        defenderObjectIds,
+                        rngCursor,
+                        dunehornBeastHeldEvents,
+                        out var dunehornBeastHeldDrawApplication))
+                {
+                    AddBattlefieldHeldEventIfNeeded(
+                        combatEvents,
+                        ref battlefieldHeldEventEmitted,
+                        battleWinnerPlayerId,
+                        battlefieldId,
+                        attackerObjectId,
+                        defenderObjectIds);
+                    combatEvents.AddRange(dunehornBeastHeldEvents);
+                    playerScores = dunehornBeastHeldDrawApplication.PlayerScores;
+                    winnerPlayerId = dunehornBeastHeldDrawApplication.WinnerPlayerId ?? winnerPlayerId;
+                    rngCursor = dunehornBeastHeldDrawApplication.RngCursor;
+                }
+
                 var battlefieldMinionEvents = new List<GameEvent>();
                 if (TryResolveBattlefieldHeldCreateMinionTrigger(
                         playerZones,
@@ -9446,6 +9474,64 @@ public sealed class CoreRuleEngine : IRuleEngine
             1,
             rngCursor,
             events);
+        return true;
+    }
+
+    private static bool TryResolveDunehornBeastBattlefieldHeldDrawTrigger(
+        MatchState state,
+        Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, int> playerScores,
+        string playerId,
+        string battlefieldId,
+        IReadOnlyList<string> defenderObjectIds,
+        long rngCursor,
+        List<GameEvent> events,
+        out DrawApplicationResult drawApplication)
+    {
+        drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
+        var sourceObjectIds = SurvivingBattleUnitObjectIds(playerZones, cardObjects, defenderObjectIds)
+            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
+                && string.Equals(cardObject.CardNo, DunehornBeastCardNo, StringComparison.Ordinal)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        if (sourceObjectIds.Length == 0)
+        {
+            return false;
+        }
+
+        var nextPlayerScores = playerScores;
+        var nextRngCursor = rngCursor;
+        string? nextWinnerPlayerId = null;
+        foreach (var sourceObjectId in sourceObjectIds)
+        {
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{sourceObjectId} 据守战场并抽两张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["battlefieldId"] = battlefieldId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["effectKind"] = DunehornBeastBattlefieldHeldDrawEffectKind,
+                    ["drawCount"] = 2
+                }));
+            var sourceDrawApplication = ApplyDrawToPlayer(
+                state,
+                playerZones,
+                nextPlayerScores,
+                playerId,
+                2,
+                nextRngCursor,
+                events);
+            nextPlayerScores = sourceDrawApplication.PlayerScores;
+            nextWinnerPlayerId ??= sourceDrawApplication.WinnerPlayerId;
+            nextRngCursor = sourceDrawApplication.RngCursor;
+        }
+
+        drawApplication = new DrawApplicationResult(nextPlayerScores, nextWinnerPlayerId, nextRngCursor);
         return true;
     }
 

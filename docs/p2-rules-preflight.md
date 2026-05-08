@@ -2898,7 +2898,7 @@ P4 延展 204. 已完成：新增 OGN·230《阿不思·菲罗斯》普通手牌
 
 P4 延展 205. 已完成：新增 OGN·236《卡尔萨斯》普通手牌打出带目标拒绝 fixture。`PLAY_CARD sourceObjectId=P1-UNIT-OGN-KARTHUS cardNo=OGN·236/298 targetObjectIds=["P1-BASE-OGN-KARTHUS-TARGET-001"]` 给当前 0 目标英雄单位入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，3 点费用保留未支付，也不会把 OGN·236《卡尔萨斯》入场为单位对象。P4.269 同时把该 fixture 纳入基础动作聚合回放，绝念额外触发静态路径仍暂缓。
 
-P4 延展 206. 已完成：新增 SFD·027《穿沙角兽》普通手牌打出带目标拒绝 fixture。`PLAY_CARD sourceObjectId=P1-UNIT-DUNEHORN-BEAST cardNo=SFD·027/221 targetObjectIds=["P1-BASE-DUNEHORN-BEAST-TARGET-001"]` 给当前 0 目标单位入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，7 点费用保留未支付，也不会把 SFD·027《穿沙角兽》入场为单位对象。P4.270 同时把该 fixture 纳入基础动作聚合回放，低手牌活跃进场和据守抽两张牌路径仍暂缓。
+P4 延展 206. 已完成：新增 SFD·027《穿沙角兽》普通手牌打出带目标拒绝 fixture。`PLAY_CARD sourceObjectId=P1-UNIT-DUNEHORN-BEAST cardNo=SFD·027/221 targetObjectIds=["P1-BASE-DUNEHORN-BEAST-TARGET-001"]` 给当前 0 目标单位入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，7 点费用保留未支付，也不会把 SFD·027《穿沙角兽》入场为单位对象。P4.270 同时把该 fixture 纳入基础动作聚合回放；第三百零四批补齐据守抽两张的直接引擎代表路径：防守方据守成功且《穿沙角兽》幸存时，服务端广播 `TRIGGER_RESOLVED.effectKind=DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2` 并执行 `CARD_DRAWN.count=2`；低手牌活跃进场路径仍暂缓。
 
 P4 延展 207. 已完成：新增 SFD·035《幽径守卫》普通手牌打出带目标拒绝 fixture。`PLAY_CARD sourceObjectId=P1-UNIT-GLOOMPATH-GUARD cardNo=SFD·035/221 targetObjectIds=["P1-BASE-GLOOMPATH-GUARD-TARGET-001"]` 给当前 0 目标单位入场路径提供显式单位目标时不满足当前手牌打出目标数量要求；命令被拒绝后 tick、事件、符文池、手牌、主牌堆、基地目标对象和结算链均不改变，6 点费用保留未支付，也不会把 SFD·035《幽径守卫》入场为带 `灵体` 标签的单位对象。P4.271 同时把该 fixture 纳入基础动作聚合回放，据守时废牌堆单位或装备返回手牌路径仍暂缓。
 

@@ -33784,6 +33784,37 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79DunehornBeastDrawsTwoWhenHoldingBattlefield()
+    {
+        var state = DunehornBeastHeldDrawState();
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-dunehorn-beast-held-draw", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "P2-DUNEHORN-BATTLEFIELD",
+                ["P1-DUNEHORN-HELD-ATTACKER"],
+                ["P2-DUNEHORN-BEAST"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(["P2-DUNEHORN-DRAW-001", "P2-DUNEHORN-DRAW-002"], result.State.PlayerZones["P2"].Hand);
+        Assert.Empty(result.State.PlayerZones["P2"].MainDeck);
+        Assert.Contains(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_HELD", StringComparison.Ordinal));
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "DUNEHORN_BEAST_BATTLEFIELD_HELD_DRAW_2", StringComparison.Ordinal));
+        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal("P2-DUNEHORN-BEAST", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, triggerEvent.Payload["drawCount"]);
+        var drawEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["playerId"] as string, "P2", StringComparison.Ordinal));
+        Assert.Equal(2, drawEvent.Payload["count"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldHeldDrawSkipsOpponentOwnedBattlefield()
     {
         var state = BattlefieldHeldDrawState();
@@ -53634,6 +53665,56 @@ public sealed class ConformanceFixtureRunnerTests
                     cardNo: "SFD·125/221",
                     power: 3,
                     tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+    }
+
+    private static MatchState DunehornBeastHeldDrawState()
+    {
+        return PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-DUNEHORN-HELD-ATTACKER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-DUNEHORN-DRAW-001", "P2-DUNEHORN-DRAW-002"],
+                    Battlefields = ["P2-DUNEHORN-BATTLEFIELD", "P2-DUNEHORN-BEAST"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-DUNEHORN-HELD-ATTACKER"] = new(
+                    "P1-DUNEHORN-HELD-ATTACKER",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-DUNEHORN-BATTLEFIELD"] = new(
+                    "P2-DUNEHORN-BATTLEFIELD",
+                    cardNo: "SFD·209/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DUNEHORN-BEAST"] = new(
+                    "P2-DUNEHORN-BEAST",
+                    cardNo: "SFD·027/221",
+                    power: 7,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DUNEHORN-DRAW-001"] = new(
+                    "P2-DUNEHORN-DRAW-001",
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-DUNEHORN-DRAW-002"] = new(
+                    "P2-DUNEHORN-DRAW-002",
                     ownerId: "P2",
                     controllerId: "P2")
             }
