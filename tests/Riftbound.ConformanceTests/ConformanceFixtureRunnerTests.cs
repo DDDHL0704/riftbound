@@ -45721,6 +45721,85 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P4DeclareBattleCommandGrantsHuntExperienceFromSurvivingSecondAttacker()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-VANGUARD", "P1-BATTLEFIELD-HUNTER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-VANGUARD"] = new(
+                    "P1-BATTLEFIELD-VANGUARD",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-BATTLEFIELD-HUNTER"] = new(
+                    "P1-BATTLEFIELD-HUNTER",
+                    cardNo: "UNL-059/219",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "狩猎2"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-BATTLEFIELD-DEFENDER"] = new(
+                    "P2-BATTLEFIELD-DEFENDER",
+                    cardNo: "UNL-036/219",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-declare-battle-second-hunter", "P1", "DECLARE_BATTLE"),
+            new DeclareBattleCommand(
+                "BATTLEFIELD:P1-MAIN",
+                ["P1-BATTLEFIELD-VANGUARD", "P1-BATTLEFIELD-HUNTER"],
+                ["P2-BATTLEFIELD-DEFENDER"],
+                ["COMBAT_ASSIGNMENT"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Null(result.ErrorCode);
+        var conqueredEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "BATTLEFIELD_CONQUERED", StringComparison.Ordinal));
+        Assert.Equal("P1", conqueredEvent.Payload["playerId"]);
+        Assert.Equal("P1-BATTLEFIELD-HUNTER", conqueredEvent.Payload["sourceObjectId"]);
+        Assert.Equal(2, conqueredEvent.Payload["huntAmount"]);
+        Assert.Equal(["P1-BATTLEFIELD-HUNTER"], Assert.IsType<string[]>(conqueredEvent.Payload["huntSourceObjectIds"]));
+        var huntAmountsBySource = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(conqueredEvent.Payload["huntAmountsBySource"]);
+        Assert.Equal(2, huntAmountsBySource["P1-BATTLEFIELD-HUNTER"]);
+        var experienceEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P1-BATTLEFIELD-HUNTER", experienceEvent.Payload["sourceObjectId"]);
+        Assert.Equal("UNL-059/219", experienceEvent.Payload["cardNo"]);
+        Assert.Equal(2, experienceEvent.Payload["amount"]);
+        Assert.Equal(2, experienceEvent.Payload["totalExperience"]);
+
+        Assert.Equal(2, result.State.PlayerExperience["P1"]);
+        Assert.Equal(["P1-BATTLEFIELD-HUNTER"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-BATTLEFIELD-VANGUARD"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-DEFENDER"], result.State.PlayerZones["P2"].Graveyard);
+        Assert.False(result.State.CardObjects.ContainsKey("P1-BATTLEFIELD-VANGUARD"));
+        Assert.False(result.State.CardObjects.ContainsKey("P2-BATTLEFIELD-DEFENDER"));
+        Assert.False(result.State.CardObjects["P1-BATTLEFIELD-HUNTER"].IsAttacking);
+        Assert.Equal(["P1", "P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P4DeclareBattleCommandAssignsDamageForMultiAttackerMultiDefenderRepresentativePath()
     {
         var state = PunishmentState(mana: 0) with

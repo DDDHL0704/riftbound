@@ -5056,7 +5056,6 @@ public sealed class CoreRuleEngine : IRuleEngine
             defenderObjectId => defenderObjectId,
             defenderObjectId => cardObjects[defenderObjectId],
             StringComparer.Ordinal);
-        var huntAmount = CardResourceKeywordRules.HuntAmountFromTags(attackerState.Tags);
         foreach (var attackingObjectId in attackerObjectIds)
         {
             var attackingState = cardObjects[attackingObjectId];
@@ -5317,12 +5316,26 @@ public sealed class CoreRuleEngine : IRuleEngine
         var playerScores = state.PlayerScores;
         string? winnerPlayerId = null;
         string? resolvedBattleWinnerPlayerId = null;
+        var survivingConquerAttackerObjectIds = attackerObjectIds
+            .Where(attackingObjectId => cardObjects.TryGetValue(attackingObjectId, out var survivingAttackerState)
+                && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, attackingObjectId))
+            .ToArray();
+        var huntConquerSources = survivingConquerAttackerObjectIds
+            .Select(objectId => new
+            {
+                ObjectId = objectId,
+                CardObject = cardObjects[objectId],
+                HuntAmount = CardResourceKeywordRules.HuntAmountFromTags(cardObjects[objectId].Tags)
+            })
+            .Where(source => source.HuntAmount > 0)
+            .ToArray();
+        var huntAmount = huntConquerSources.Sum(source => source.HuntAmount);
         if (huntAmount > 0
             && defenderObjectIds.All(defenderObjectId => lethalCleanup.DestroyedObjectIds.Contains(defenderObjectId, StringComparer.Ordinal))
-            && cardObjects.TryGetValue(attackerObjectId, out var survivingAttackerState)
-            && survivingAttackerState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && IsObjectOnField(playerZones, attackerObjectId))
+            && survivingConquerAttackerObjectIds.Length > 0)
         {
+            var huntSource = huntConquerSources[0];
             combatEvents.Add(new GameEvent(
                 "BATTLEFIELD_CONQUERED",
                 $"{intent.PlayerId} 征服战场",
@@ -5330,9 +5343,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                 {
                     ["playerId"] = intent.PlayerId,
                     ["battlefieldId"] = battlefieldId,
-                    ["sourceObjectId"] = attackerObjectId,
+                    ["sourceObjectId"] = huntSource.ObjectId,
                     ["defeatedObjectIds"] = defenderObjectIds.ToArray(),
                     ["huntAmount"] = huntAmount,
+                    ["huntSourceObjectIds"] = huntConquerSources
+                        .Select(source => source.ObjectId)
+                        .ToArray(),
+                    ["huntAmountsBySource"] = huntConquerSources.ToDictionary(
+                        source => source.ObjectId,
+                        source => source.HuntAmount,
+                        StringComparer.Ordinal),
                     ["assignedOverkillDamageToEnemyUnits"] = assignedOverkillDamageToEnemyUnits
                 }));
             playerExperience = GainExperience(
@@ -5340,7 +5360,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 intent.PlayerId,
                 huntAmount,
                 combatStackItem,
-                combatEvents);
+                combatEvents,
+                huntSource.ObjectId,
+                huntSource.CardObject.CardNo);
             TryResolveBattlefieldConquerMillTwoTrigger(
                 playerZones,
                 cardObjects,
@@ -22738,7 +22760,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         int amount,
         StackItemState stackItem,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        string? sourceObjectId = null,
+        string? cardNo = null)
     {
         var playerExperience = currentExperience.ToDictionary(
             entry => entry.Key,
@@ -22753,8 +22777,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             new Dictionary<string, object?>
             {
                 ["playerId"] = playerId,
-                ["sourceObjectId"] = stackItem.SourceObjectId,
-                ["cardNo"] = stackItem.CardNo,
+                ["sourceObjectId"] = sourceObjectId ?? stackItem.SourceObjectId,
+                ["cardNo"] = cardNo ?? stackItem.CardNo,
                 ["amount"] = amount,
                 ["totalExperience"] = playerExperience[playerId]
             }));
