@@ -11152,10 +11152,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects)
     {
-        var battlefieldModifier = playerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Count(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldIncreaseWinningScoreCardNo(cardObject.CardNo));
+        var battlefieldModifier = playerZones
+            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+                cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldIncreaseWinningScoreCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
         return BaseWinningScore + battlefieldModifier;
     }
 
@@ -22214,10 +22215,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         long currentTick,
         IReadOnlyDictionary<string, RunePool> runePools)
     {
-        var sourceObjectIds = playerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldTurnStartDamageAllUnitsCardNo(cardObject.CardNo))
+        var sourceObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
+                cardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldTurnStartDamageAllUnitsCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -22226,10 +22228,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return BattlefieldStartDamageResult.Empty;
         }
 
-        var targetObjectIds = playerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+        var targetObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
+                cardObjects.TryGetValue(objectId, out var cardObject)
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, entry.Key, objectId)))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -22314,7 +22317,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var sourceObjectIds = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardObject.CardNo))
+                && IsBattlefieldTurnStartDestroyUnitDrawCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, turnPlayerId))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -22325,7 +22329,8 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         var targetObjectId = zones.Battlefields
             .Where(objectId => cardObjects.TryGetValue(objectId, out var cardObject)
-                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal))
+                && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, turnPlayerId, objectId))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .FirstOrDefault();
         if (string.IsNullOrWhiteSpace(targetObjectId))
@@ -22404,10 +22409,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return new ScoreApplicationResult(playerScores, null, []);
         }
 
-        var sourceObjectIds = state.PlayerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldFirstTurnScoreCardNo(cardObject.CardNo))
+        var sourceObjectIds = state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldFirstTurnScoreCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
         if (sourceObjectIds.Length == 0)
@@ -22475,10 +22481,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        var sourceObjectIds = state.PlayerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldScoreDelayCardNo(cardObject.CardNo))
+        var sourceObjectIds = state.PlayerZones
+            .SelectMany(entry => entry.Value.Battlefields.Where(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldScoreDelayCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
         if (sourceObjectIds.Length == 0)
@@ -22543,10 +22550,11 @@ public sealed class CoreRuleEngine : IRuleEngine
             return 0;
         }
 
-        return state.PlayerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Count(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                && IsBattlefieldFirstTurnExtraRuneCardNo(cardObject.CardNo));
+        return state.PlayerZones
+            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
+                && IsBattlefieldFirstTurnExtraRuneCardNo(cardObject.CardNo)
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
     }
 
     private static bool IsTurnPlayersFirstTurn(MatchState state)

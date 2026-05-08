@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十批仍为服务端规则收口，没有前端 UI 文件变更。服务端把胜利分数阈值、第一回合额外召符文、第一回合战场得分、得分延迟、回合开始全战场伤害、回合开始摧毁抽牌这组计分/回合开始战场来源接入所在场区控制权校验；同时修正 `Snapshot.timing.winningScore` 与 Core 胜负阈值一致，前端继续只展示 authoritative snapshot。
+- 本批验证：`dotnet build` 通过；新增/相邻精确回归 17/17、计分/回合开始相关回归 18/18、`GameHubJoinTests` 118/118、后端 full test 3093/3093 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
+
 - 第一百四十九批仍为服务端规则收口，没有前端 UI 文件变更。服务端把风丘游走许可、卑尔居恩巢穴阻止移回基地、落石阻止单位打到战场、后巷酒吧移动单位 +1、虚空之门目标法术/技能伤害 +1 接入所在场区控制权校验；前端继续只消费服务端候选与事件，不会自己判断这些战场静态是否生效。
 - 本批验证：`dotnet build` 通过；新增/相邻精确回归 12/12、`BattlefieldStatic|BattlefieldTargetDamageBonus|MoveUnit` 相关回归 75/75、`GameHubJoinTests` 118/118、后端 full test 3087/3087 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
 

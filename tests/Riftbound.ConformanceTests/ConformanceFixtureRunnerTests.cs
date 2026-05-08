@@ -33878,6 +33878,32 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticWinningScoreIncreaseSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldWinningScoreState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-HIGHROAD"] = dirtyObjects["P1-BATTLEFIELD-HIGHROAD"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-winning-score-dirty-source", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(8, result.State.PlayerScores["P1"]);
+        Assert.Equal("P1", result.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.Finished, result.State.Status);
+        var winEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+        Assert.Equal(8, winEvent.Payload["winningScore"]);
+        var p2Snapshot = result.Snapshots["P2"];
+        Assert.Equal(8, p2Snapshot.Timing["winningScore"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticWinningScoreIncreaseStillWinsAtNine()
     {
         var state = BattlefieldWinningScoreState(score: 8);
@@ -33920,6 +33946,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldStaticFirstTurnRuneSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldFirstTurnRuneState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-RUNE-OBELISK"] = dirtyObjects["P1-BATTLEFIELD-RUNE-OBELISK"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-first-turn-rune-dirty-source", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal(["P2-RUNE-004"], result.State.PlayerZones["P2"].RuneDeck);
+        Assert.Equal(
+            ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
+            result.State.PlayerZones["P2"].Base);
+        var runeEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNES_CALLED", StringComparison.Ordinal));
+        Assert.Equal("P2", runeEvent.Payload["playerId"]);
+        Assert.Equal(3, runeEvent.Payload["count"]);
+    }
+
+    [Fact]
     public async Task P79BattlefieldStaticFirstTurnScoreGainsOneScore()
     {
         var state = BattlefieldFirstTurnScoreState();
@@ -33942,6 +33995,31 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, scoreEvent.Payload["amount"]);
         Assert.Equal(1, scoreEvent.Payload["score"]);
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldStaticFirstTurnScoreSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldFirstTurnScoreState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-GLORY-ARENA"] = dirtyObjects["P1-BATTLEFIELD-GLORY-ARENA"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-first-turn-score-dirty-source", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal(0, result.State.PlayerScores.TryGetValue("P2", out var score) ? score : 0);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_FIRST_TURN_GAIN_SCORE", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -33984,6 +34062,46 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(1, preventedEvent.Payload["turnOrdinal"]);
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79BattlefieldScoreDelaySkipsOpponentControlledSource()
+    {
+        var baseState = BattlefieldFirstTurnScoreState();
+        var state = baseState with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(baseState.PlayerZones, StringComparer.Ordinal)
+            {
+                ["P1"] = baseState.PlayerZones["P1"] with
+                {
+                    Battlefields = ["P1-BATTLEFIELD-GLORY-ARENA", "P1-BATTLEFIELD-FORGOTTEN-MONUMENT"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(baseState.CardObjects, StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-FORGOTTEN-MONUMENT"] = new(
+                    "P1-BATTLEFIELD-FORGOTTEN-MONUMENT",
+                    cardNo: "SFD·209/221",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P1",
+                    controllerId: "P2")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-battlefield-score-delay-dirty-source", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.Equal(1, result.State.PlayerScores["P2"]);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_SCORE_PREVENTED", StringComparison.Ordinal));
+        var scoreEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "SCORE_GAINED", StringComparison.Ordinal));
+        Assert.Equal("P2", scoreEvent.Payload["playerId"]);
+        Assert.Equal(1, scoreEvent.Payload["amount"]);
     }
 
     [Fact]
@@ -34031,6 +34149,36 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79BattlefieldTurnStartDamageSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldTurnStartDamageState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P1-BATTLEFIELD-FROST-HOLD"] = dirtyObjects["P1-BATTLEFIELD-FROST-HOLD"] with
+        {
+            ControllerId = "P2"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-turn-start-damage-dirty-source", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DAMAGE_ALL_UNITS", StringComparison.Ordinal));
+        Assert.Contains("P1-BATTLEFIELD-FROST-FALLING", result.State.PlayerZones["P1"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Equal(0, result.State.CardObjects["P1-BATTLEFIELD-FROST-FALLING"].Damage);
+        Assert.Equal(0, result.State.CardObjects["P2-BATTLEFIELD-FROST-SURVIVOR"].Damage);
+    }
+
+    [Fact]
     public async Task P79BattlefieldTurnStartDestroyDrawsBeforeScoring()
     {
         var state = BattlefieldTurnStartDestroyDrawState();
@@ -34068,6 +34216,37 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.True(triggerIndex >= 0);
         Assert.True(firstDrawIndex > triggerIndex);
         Assert.True(runeIndex > firstDrawIndex);
+    }
+
+    [Fact]
+    public async Task P79BattlefieldTurnStartDestroyDrawSkipsOpponentControlledSource()
+    {
+        var state = BattlefieldTurnStartDestroyDrawState();
+        var dirtyObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        dirtyObjects["P2-BATTLEFIELD-ROSE-LAB"] = dirtyObjects["P2-BATTLEFIELD-ROSE-LAB"] with
+        {
+            ControllerId = "P1"
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state with { CardObjects = dirtyObjects },
+            new PlayerIntent("intent-p7-9-battlefield-turn-start-destroy-draw-dirty-source", "P1", "END_TURN"),
+            new EndTurnCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal("P2", result.State.TurnPlayerId);
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "BATTLEFIELD_TURN_START_DESTROY_UNIT_DRAW", StringComparison.Ordinal));
+        Assert.Equal(["P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Empty(result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(["P2-ROSE-DRAW-001"], result.State.PlayerZones["P2"].Hand);
+        Assert.Equal(["P2-NORMAL-DRAW-001"], result.State.PlayerZones["P2"].MainDeck);
+        Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
     }
 
     [Fact]

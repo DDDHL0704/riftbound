@@ -1612,12 +1612,24 @@ public sealed record ResolutionResult(
 
     private static int EffectiveWinningScore(MatchState state)
     {
-        var modifier = state.PlayerZones.Values
-            .SelectMany(zones => zones.Battlefields)
-            .Count(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
+        var modifier = state.PlayerZones
+            .Sum(entry => entry.Value.Battlefields.Count(objectId =>
+                state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && (string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreCardNo, StringComparison.Ordinal)
-                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal)));
+                    || string.Equals(cardObject.CardNo, BattlefieldIncreaseWinningScoreAltCardNo, StringComparison.Ordinal))
+                && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, entry.Key)));
         return BaseWinningScore + modifier;
+    }
+
+    private static bool SourceObjectControlledByPlayerOrLegacyOwned(CardObjectState cardObject, string playerId)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+        }
+
+        return string.IsNullOrWhiteSpace(cardObject.OwnerId)
+            || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
     private static Dictionary<string, object?> BuildStackItemSnapshotView(StackItemState item)
