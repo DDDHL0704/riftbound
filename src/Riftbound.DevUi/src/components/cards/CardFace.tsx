@@ -34,7 +34,7 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
       <Container className={`card-face card-back ${selected ? "is-selected" : ""}`} {...containerProps}>
         <div className="card-frame-top">未公开</div>
         <strong>卡背</strong>
-        <span>{objectId ?? "隐藏对象"}</span>
+        <span>隐藏信息</span>
       </Container>
     );
   }

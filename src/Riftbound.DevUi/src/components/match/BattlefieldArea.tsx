@@ -98,7 +98,7 @@ function BattlefieldObjectStrip({
                 spec={object.cardNo ? specs[object.cardNo] : undefined}
               />
             ) : (
-              <span className="empty-hint" key={id}>{id}</span>
+              <span className="empty-hint" key={id}>未公开对象</span>
             );
           })}
         </div>

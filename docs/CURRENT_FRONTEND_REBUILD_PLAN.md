@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十四批继续收口隐藏信息展示。`CardFace` 对隐藏对象只显示“未公开 / 卡背 / 隐藏信息”，不再显示对象 ID；隐藏卡牌详情抽屉的编号状态改为“未公开”；战场对象缺失占位也显示通用“未公开对象”。前端仍消费服务端 authoritative snapshot，但不把内部对象标识当作产品可见信息。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-hidden-object-labels-1778231623362`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接对战页，页面可见文本不含 `P2-LEGEND-001`、`P2-CHAMPION-001` 或 `hidden-0`，仍显示“隐藏信息”；点击对手未公开传奇后，详情抽屉显示“未公开卡牌 / 隐藏信息 / 未公开”，不显示对象 ID，app runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十三批继续收口房间页候选按钮。房间页 `RoomPromptButtons` 现在只显示 enabled 且房间页能提交的 `SUBMIT_DECK` / `READY` 候选；当服务端 prompt 已进入对战动作时，房间页不再把 `MOVE_UNIT`、`END_TURN`、`SURRENDER` 或 disabled 候选渲染成不可点按钮，只提示玩家进入对战桌面处理。底部“当前可提交行动”仍只读展示 enabled candidate 摘要。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。后台 headless Chrome/CDP smoke 使用房间 `smoke-room-buttons-1778231212969`，P1 设置 `serverUrl=http://127.0.0.1:5093` 后连接房间页，房间按钮只有“连接/重连并入座”和“进入对战桌面”，页面显示“其他可提交行动请进入对战桌面”，没有“移动单位/结束回合/投降”按钮，也没有“打出卡牌（需选择）/声明战斗（需选择）”，摘要仍显示“移动单位、结束回合、投降”，browser runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

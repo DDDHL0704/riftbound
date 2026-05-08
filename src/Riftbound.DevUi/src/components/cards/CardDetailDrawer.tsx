@@ -48,7 +48,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
         </header>
         <div className="detail-section">
           <StatusPill tone={hidden ? "warn" : "info"}>{hidden ? "隐藏信息" : objectTypeText(card.object, card.spec)}</StatusPill>
-          <StatusPill tone="neutral">{card.spec?.cardNo ?? card.object?.cardNo ?? card.objectId ?? "无编号"}</StatusPill>
+          <StatusPill tone="neutral">{hidden ? "未公开" : card.spec?.cardNo ?? card.object?.cardNo ?? card.objectId ?? "无编号"}</StatusPill>
           {card.spec && <StatusPill tone={conformanceTone(card.spec.conformanceTier)}>{conformanceLabel(card.spec.conformanceTier)}</StatusPill>}
           {card.spec && <StatusPill tone={card.spec.status === "implemented" ? "info" : "warn"}>{statusLabel(card.spec.status)}</StatusPill>}
         </div>
