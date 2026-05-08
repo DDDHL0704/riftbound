@@ -185,6 +185,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RampagingSoulCardNo = "OGN·019/298";
     private const string BalancedDiscipleCardNo = "UNL-097/219";
     private const string CrescentGuardCardNo = "UNL-122/219";
+    private const string OgnFioraCardNo = "OGN·232/298";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
         "金克丝",
@@ -21440,6 +21441,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             UntilEndOfTurnPowerModifier = targetState.UntilEndOfTurnPowerModifier
                 + appliedPowerDelta
         };
+        nextTargetState = ApplyOgnFioraPowerfulKeywordTags(nextTargetState);
         powerEvent = new GameEvent(
             "POWER_MODIFIED_UNTIL_END_OF_TURN",
             $"{behavior.DisplayName}临时修正战力",
@@ -21478,6 +21480,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .OrderBy(tag => tag, StringComparer.Ordinal)
                 .ToArray()
         };
+        nextTargetState = ApplyOgnFioraPowerfulKeywordTags(nextTargetState);
         boonEvents =
         [
             new GameEvent(
@@ -21502,6 +21505,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         ];
 
         return nextTargetState;
+    }
+
+    private static CardObjectState ApplyOgnFioraPowerfulKeywordTags(CardObjectState state)
+    {
+        if (!string.Equals(state.CardNo, OgnFioraCardNo, StringComparison.Ordinal)
+            || state.Power < PowerfulUnitPowerThreshold)
+        {
+            return state;
+        }
+
+        return state with
+        {
+            Tags = state.Tags
+                .Concat([CardObjectTags.Spellshield, CardCombatKeywordNames.Roam, CardCombatKeywordNames.Steadfast])
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(tag => tag, StringComparer.Ordinal)
+                .ToArray()
+        };
     }
 
     private static CardObjectState ApplyTargetTag(

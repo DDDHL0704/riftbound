@@ -15443,6 +15443,25 @@ public sealed class ConformanceFixtureRunnerTests
         }), result.State.RunePools["P1"]);
     }
 
+    [Fact]
+    public async Task CoreRuleEngineGrantsOgnFioraKeywordsWhenBoonMakesPowerful()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-ogn-fiora-powerful-boon-keywords.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(5, result.FinalState.CardObjects["P1-UNIT-OGN-FIORA"].Power);
+        Assert.Equal(
+            [CardObjectTags.UnitCard, CardCombatKeywordNames.Steadfast, CardObjectTags.Boon, CardObjectTags.Spellshield, CardCombatKeywordNames.Roam],
+            result.FinalState.CardObjects["P1-UNIT-OGN-FIORA"].Tags);
+    }
+
     [Theory]
     [InlineData("p2-preflight-play-demacia-envoy-experience-static.fixture.json", 1)]
     [InlineData("p2-preflight-play-spring-messenger-experience-static.fixture.json", 2)]

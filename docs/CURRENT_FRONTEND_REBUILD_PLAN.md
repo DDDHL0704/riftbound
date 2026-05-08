@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百八十六批补齐《菲奥娜》（OGN·232/298）“自身变为强力单位时获得法盾、游走和坚守”的服务端代表路径。服务端在 authoritative 增益/战力修正把 OGN 菲奥娜推到 5 战力强力阈值后补齐 `法盾`、`游走` 与 `坚守` 标签；本批代表 fixture 使用《竞技场新人》的永久增益把 4 战力菲奥娜变为 5 战力。前端仍只展示服务端事件与 snapshot，不新增本地强力或关键词授予裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《菲奥娜》强力增益授予关键词单点 1/1 通过；相关 boon / OGN Fiora 回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3197/3197；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十五批补齐《新月禁卫》（UNL-122/219）“本回合已打出法术时可支付 1 点紫色符能，以活跃状态入场”的服务端代表路径。服务端在真实法术 `PLAY_CARD` 付费路径记录 `PLAYED_SPELL_THIS_TURN:<playerId>`；《新月禁卫》只在该记忆存在时接受 `SPEND_POWER:purple:1`，入场事件标记 `crescentGuardReadyOptionalCostPaid`。ActionPrompt 仅在服务端判断当前/可回收紫色符能足够时暴露 optional cost 与 payment resource 元数据；前端继续只展示服务端候选，不新增本地卡面裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《新月禁卫》有/无法术记忆、紫色支付、ActionPrompt payment resource、相关法术回合记忆和 Hextech Ray end-turn 清理回归 9/9 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3196/3196；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
