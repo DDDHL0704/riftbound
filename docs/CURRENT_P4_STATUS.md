@@ -3851,11 +3851,11 @@ Prompt-to-artifact checklist：
 
 ## P4.266 OGN 202 Jinx Target Rejection Fixture Slice
 
-本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖 OGN·202《金克丝》普通手牌打出带目标时拒绝；本批次只把该 0 目标英雄单位入场边界提升为可回放 fixture，不扩展弃牌触发活跃或本回合战力修正能力。
+本阶段继续 completion audit：P4 仍不能标记 goal complete。已有直接 engine 测试覆盖 OGN·202《金克丝》普通手牌打出带目标时拒绝；本批次只把该 0 目标英雄单位入场边界提升为可回放 fixture；弃牌触发活跃和本回合战力修正能力已由后续 P7.9 代表路径覆盖。
 
 - `PLAY_CARD sourceObjectId=P1-UNIT-OGN-JINX cardNo=OGN·202/298 targetObjectIds=["P1-BASE-OGN-JINX-TARGET-001"]` 为 OGN·202《金克丝》的当前 0 目标英雄单位入场路径提供显式单位目标，不满足目标数量要求；命令返回 `INVALID_TARGET`，不推进 tick、不写事件、不支付 5 点费用、不移动手牌、不入场单位，也不创建 stack item。
 - 新增 fixture `p4-play-ogn-202-jinx-target-rejected.fixture.json` 和回放测试 `P4Ogn202JinxTargetRejectedFixture`，把 OGN·202《金克丝》普通手牌打出带目标拒绝边界纳入 conformance 证据。
-- `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 0 目标英雄单位打出拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，弃牌触发活跃和本回合战力 +1 路径仍 deferred。
+- `P4BasicActionProfilesKeepExistingRepresentativeFixturesGreen` 现在实际回放该 0 目标英雄单位打出拒绝 fixture；本批次没有改变 `CoreRuleEngine` 主实现，弃牌触发活跃和本回合战力 +1 路径由后续 P7.9 代表路径覆盖。
 
 ## P4.267 Ghost Matron Target Rejection Fixture Slice
 

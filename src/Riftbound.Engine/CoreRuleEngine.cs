@@ -176,6 +176,18 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string FaerieTokenCardNo = "UNL·T07";
     private const string PetalPixieCardNo = "UNL-076/219";
     private const string SoulShepherdCardNo = "UNL-077/219";
+    private const string OgnJinxDiscardTriggerCardNo = "OGN·202/298";
+    private const string OgnJinxDiscardTriggerAltCardNo = "OGN·202a/298";
+    private const string ArcJinxDiscardTriggerCardNo = "ARC-005/006";
+    private const string JinxDiscardedHandCardsEffectKind = "JINX_DISCARDED_HAND_CARDS_READY_POWER_1";
+    private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
+        OgnJinxDiscardTriggerCardNo,
+        "金克丝",
+        0,
+        JinxDiscardedHandCardsEffectKind,
+        0,
+        0,
+        PowerModifierAmount: 1);
     private const string ResonantSoulCardNo = "OGN·118/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
     private const string DuneDrakeCardNo = "OGN·131/298";
@@ -696,6 +708,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 "ADDITIONAL_COST"));
         }
 
+        var discardedOptionalCostObjectIds = new List<string>();
         foreach (var discardedOptionalCostTargetObjectId in plan.DiscardedOptionalCostTargetObjectIds)
         {
             if (!TryDiscardCardFromHand(playerZones, cardObjects, intent.PlayerId, discardedOptionalCostTargetObjectId))
@@ -714,7 +727,16 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["reason"] = "OPTIONAL_COST",
                     ["destinationZone"] = "GRAVEYARD"
                 }));
+            discardedOptionalCostObjectIds.Add(discardedOptionalCostTargetObjectId);
         }
+        ResolveJinxDiscardedHandCardsTrigger(
+            playerZones,
+            cardObjects,
+            intent.PlayerId,
+            "CARD_DISCARDED",
+            command.SourceObjectId,
+            discardedOptionalCostObjectIds,
+            events);
 
         TryResolveBattlefieldSpellPowerBonusTrigger(
             playerZones,
@@ -4274,6 +4296,86 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return events;
+    }
+
+    private static void ResolveJinxDiscardedHandCardsTrigger(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string playerId,
+        string triggeredByEventKind,
+        string discardSourceObjectId,
+        IReadOnlyList<string> discardedObjectIds,
+        List<GameEvent> events)
+    {
+        if (discardedObjectIds.Count == 0)
+        {
+            return;
+        }
+
+        var triggerSourceObjectIds = playerZones
+            .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+            .Distinct(StringComparer.Ordinal)
+            .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                && IsJinxDiscardTriggerCardNo(sourceState.CardNo)
+                && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !sourceState.IsFaceDown
+                && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && IsObjectOnField(playerZones, sourceObjectId)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                    playerId,
+                    StringComparison.Ordinal))
+            .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var sourceObjectId in triggerSourceObjectIds)
+        {
+            var sourceState = cardObjects[sourceObjectId];
+            var triggerStackItem = new StackItemState(
+                $"{sourceObjectId}:discarded-hand-cards",
+                playerId,
+                sourceObjectId,
+                JinxDiscardedHandCardsEffectKind,
+                sourceState.CardNo);
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{playerId} 的金克丝因弃置手牌而触发",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["sourceObjectId"] = sourceObjectId,
+                    ["effectKind"] = JinxDiscardedHandCardsEffectKind,
+                    ["triggeredByEventKind"] = triggeredByEventKind,
+                    ["discardSourceObjectId"] = discardSourceObjectId,
+                    ["discardedObjectIds"] = discardedObjectIds.ToArray(),
+                    ["discardedCount"] = discardedObjectIds.Count
+                }));
+            var readiedSourceState = ApplyReadyState(
+                sourceState,
+                JinxDiscardedHandCardsBehavior,
+                triggerStackItem,
+                sourceObjectId,
+                out var readyEvent);
+            cardObjects[sourceObjectId] = readiedSourceState;
+            events.Add(readyEvent);
+
+            var poweredSourceState = ApplyPowerModifier(
+                readiedSourceState,
+                JinxDiscardedHandCardsBehavior,
+                triggerStackItem,
+                sourceObjectId,
+                JinxDiscardedHandCardsBehavior.PowerModifierAmount,
+                out var powerEvent);
+            cardObjects[sourceObjectId] = poweredSourceState;
+            events.Add(powerEvent);
+        }
+    }
+
+    private static bool IsJinxDiscardTriggerCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, OgnJinxDiscardTriggerCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, OgnJinxDiscardTriggerAltCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, ArcJinxDiscardTriggerCardNo, StringComparison.Ordinal);
     }
 
     private static ResolutionResult ResolveTapRune(
@@ -8881,9 +8983,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             Battlefields = updatedZones.Battlefields.Concat([tokenObjectId]).ToArray()
         };
 
-        events =
-        [
-            new GameEvent(
+        var triggerEvents = new List<GameEvent>
+        {
+            new(
                 "CARD_DISCARDED",
                 $"{playerId} 弃置一张手牌以触发诡术妖姬",
                 new Dictionary<string, object?>
@@ -8893,7 +8995,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["targetObjectId"] = discardedObjectId,
                     ["reason"] = trigger,
                     ["destinationZone"] = "GRAVEYARD"
-                }),
+                })
+        };
+        ResolveJinxDiscardedHandCardsTrigger(
+            playerZones,
+            cardObjects,
+            playerId,
+            "CARD_DISCARDED",
+            legendObjectId,
+            [discardedObjectId],
+            triggerEvents);
+        triggerEvents.AddRange(
+        [
             new GameEvent(
                 "LEGEND_TRIGGER_RESOLVED",
                 $"{playerId} 的诡术妖姬因战场结果触发",
@@ -8936,7 +9049,8 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["tokenTags"] = tokenTags,
                     ["trigger"] = trigger
                 })
-        ];
+        ]);
+        events = triggerEvents;
         return true;
     }
 
@@ -10662,7 +10776,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static bool TryResolveBattlefieldConquerDiscardDrawTrigger(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
         string battlefieldId,
@@ -10710,6 +10824,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["reason"] = "BATTLEFIELD_CONQUERED_DISCARD_DRAW",
                         ["destinationZone"] = "GRAVEYARD"
                     }));
+                ResolveJinxDiscardedHandCardsTrigger(
+                    playerZones,
+                    cardObjects,
+                    playerId,
+                    "CARD_DISCARDED",
+                    battlefieldObjectId,
+                    [discardedObjectId],
+                    events);
             }
         }
 
@@ -17460,6 +17582,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         if (behavior.DiscardsTargetFromHand)
         {
+            var discardedTargetObjectIds = new List<string>();
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
                 if (!TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
@@ -17484,11 +17607,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     "CARD_DISCARDED",
                     $"{behavior.DisplayName}弃置手牌",
                     payload));
+                discardedTargetObjectIds.Add(targetObjectId);
             }
+            ResolveJinxDiscardedHandCardsTrigger(
+                playerZones,
+                cardObjects,
+                stackItem.ControllerId,
+                "CARD_DISCARDED",
+                stackItem.SourceObjectId,
+                discardedTargetObjectIds,
+                events);
         }
 
         if (behavior.DiscardsTargetFromOwnerHand)
         {
+            var discardedTargetObjectIdsByPlayer = new Dictionary<string, List<string>>(StringComparer.Ordinal);
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
                 if (!TryDiscardCardFromAnyHand(playerZones, cardObjects, targetObjectId, out var ownerPlayerId))
@@ -17507,6 +17640,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["discardedByPlayerId"] = stackItem.ControllerId,
                         ["destinationZone"] = "GRAVEYARD"
                     }));
+                if (!discardedTargetObjectIdsByPlayer.TryGetValue(ownerPlayerId, out var discardedTargetObjectIds))
+                {
+                    discardedTargetObjectIds = [];
+                    discardedTargetObjectIdsByPlayer[ownerPlayerId] = discardedTargetObjectIds;
+                }
+
+                discardedTargetObjectIds.Add(targetObjectId);
+            }
+
+            foreach (var (discardPlayerId, discardedTargetObjectIds) in discardedTargetObjectIdsByPlayer)
+            {
+                ResolveJinxDiscardedHandCardsTrigger(
+                    playerZones,
+                    cardObjects,
+                    discardPlayerId,
+                    "CARD_DISCARDED",
+                    stackItem.SourceObjectId,
+                    discardedTargetObjectIds,
+                    events);
             }
         }
 
@@ -17999,6 +18151,14 @@ public sealed class CoreRuleEngine : IRuleEngine
                         ["objectIds"] = discardedObjectIds.ToArray(),
                         ["destinationZone"] = "GRAVEYARD"
                     }));
+                ResolveJinxDiscardedHandCardsTrigger(
+                    playerZones,
+                    cardObjects,
+                    discardPlayerId,
+                    "CARDS_DISCARDED",
+                    stackItem.SourceObjectId,
+                    discardedObjectIds,
+                    events);
             }
 
             var perPlayerDrawCount = ResolveDrawCount(playerZones, cardObjects, stackItem.ControllerId, behavior);

@@ -14892,6 +14892,151 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Theory]
+    [InlineData("OGN·202/298", "P1-OGN-JINX-DISCARD-TRIGGER")]
+    [InlineData("OGN·202a/298", "P1-OGN-JINX-A-DISCARD-TRIGGER")]
+    [InlineData("ARC-005/006", "P1-ARC-JINX-DISCARD-TRIGGER")]
+    public async Task P79JinxDiscardTriggerReadiesAndGainsPowerOnceForDiscardBatch(
+        string triggerCardNo,
+        string triggerSourceObjectId)
+    {
+        var state = PunishmentState(mana: 3) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand =
+                    [
+                        "P1-JINX-DISCARDER",
+                        "P1-JINX-DISCARD-001",
+                        "P1-JINX-DISCARD-002"
+                    ],
+                    Base =
+                    [
+                        triggerSourceObjectId,
+                        "P1-JINX-DISCARD-TRIGGER-FACEDOWN",
+                        "P1-JINX-DISCARD-TRIGGER-STANDBY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-JINX-DISCARD-TRIGGER"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-JINX-DISCARDER"] = new(
+                    "P1-JINX-DISCARDER",
+                    cardNo: "OGN·030/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "急速", "强攻2"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-JINX-DISCARD-001"] = new(
+                    "P1-JINX-DISCARD-001",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-JINX-DISCARD-002"] = new(
+                    "P1-JINX-DISCARD-002",
+                    cardNo: "SFD·125/221",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                [triggerSourceObjectId] = new(
+                    triggerSourceObjectId,
+                    cardNo: triggerCardNo,
+                    isExhausted: true,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-JINX-DISCARD-TRIGGER-FACEDOWN"] = new(
+                    "P1-JINX-DISCARD-TRIGGER-FACEDOWN",
+                    cardNo: triggerCardNo,
+                    isFaceDown: true,
+                    isExhausted: true,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-JINX-DISCARD-TRIGGER-STANDBY"] = new(
+                    "P1-JINX-DISCARD-TRIGGER-STANDBY",
+                    cardNo: triggerCardNo,
+                    isExhausted: true,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-JINX-DISCARD-TRIGGER"] = new(
+                    "P2-JINX-DISCARD-TRIGGER",
+                    cardNo: triggerCardNo,
+                    isExhausted: true,
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var engine = new CoreRuleEngine();
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-jinx-discard-trigger-play-discarder", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-JINX-DISCARDER",
+                "OGN·030/298",
+                ["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-jinx-discard-trigger-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-jinx-discard-trigger-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(2, p2Pass.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal)));
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "JINX_DISCARDED_HAND_CARDS_READY_POWER_1", StringComparison.Ordinal));
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
+        Assert.Equal(triggerSourceObjectId, triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(["P1-JINX-DISCARD-001", "P1-JINX-DISCARD-002"], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["discardedObjectIds"]));
+        Assert.Equal(2, triggerEvent.Payload["discardedCount"]);
+
+        var readyEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_READIED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, triggerSourceObjectId, StringComparison.Ordinal));
+        Assert.True((bool)readyEvent.Payload["wasExhausted"]!);
+        Assert.False((bool)readyEvent.Payload["isExhausted"]!);
+
+        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["targetObjectId"] as string, triggerSourceObjectId, StringComparison.Ordinal));
+        Assert.Equal(1, powerEvent.Payload["powerDelta"]);
+        Assert.Equal(6, powerEvent.Payload["resultingPower"]);
+        Assert.False(p2Pass.State.CardObjects[triggerSourceObjectId].IsExhausted);
+        Assert.Equal(6, p2Pass.State.CardObjects[triggerSourceObjectId].Power);
+        Assert.Equal(1, p2Pass.State.CardObjects[triggerSourceObjectId].UntilEndOfTurnPowerModifier);
+        Assert.True(p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-FACEDOWN"].IsExhausted);
+        Assert.Equal(5, p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-FACEDOWN"].Power);
+        Assert.True(p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-STANDBY"].IsExhausted);
+        Assert.Equal(5, p2Pass.State.CardObjects["P1-JINX-DISCARD-TRIGGER-STANDBY"].Power);
+        Assert.True(p2Pass.State.CardObjects["P2-JINX-DISCARD-TRIGGER"].IsExhausted);
+        Assert.Equal(5, p2Pass.State.CardObjects["P2-JINX-DISCARD-TRIGGER"].Power);
+    }
+
+    [Theory]
     [InlineData("OGN·030/298", "P1-UNIT-JINX", "P1-JINX-DISCARD-001")]
     [InlineData("OGN·030a/298", "P1-UNIT-JINX-A", "P1-JINX-A-DISCARD-001")]
     public async Task CoreRuleEngineRejectsJinxWhenDiscardTargetIncludesSource(

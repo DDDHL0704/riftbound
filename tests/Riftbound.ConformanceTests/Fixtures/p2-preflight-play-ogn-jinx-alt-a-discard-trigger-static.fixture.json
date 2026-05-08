@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ogn-jinx-alt-a-discard-trigger-static",
-  "description": "OGN 202a Jinx enters as a hero unit while the discard trigger is deferred.",
+  "description": "OGN 202a Jinx enters as a hero unit; discard ready and power trigger is covered by direct engine tests.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·202a/298 金克丝",
-      "note": "官方卡面：费用 5；英雄单位；战力 5；每当控制者弃置任意数量手牌时变为活跃且本回合内战力 +1。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；弃牌触发活跃和本回合战力修正路径暂缓。"
+      "note": "官方卡面：费用 5；英雄单位；战力 5；每当控制者弃置任意数量手牌时变为活跃且本回合内战力 +1。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；弃牌触发活跃和本回合战力修正已由 P7.9 直接引擎测试覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
