@@ -628,7 +628,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
         foreach (var discardedOptionalCostTargetObjectId in plan.DiscardedOptionalCostTargetObjectIds)
         {
-            if (!TryDiscardCardFromHand(playerZones, intent.PlayerId, discardedOptionalCostTargetObjectId))
+            if (!TryDiscardCardFromHand(playerZones, cardObjects, intent.PlayerId, discardedOptionalCostTargetObjectId))
             {
                 continue;
             }
@@ -8087,7 +8087,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (!TryDiscardCardFromHand(playerZones, playerId, discardedObjectId))
+        if (!TryDiscardCardFromHand(playerZones, cardObjects, playerId, discardedObjectId))
         {
             return false;
         }
@@ -9894,7 +9894,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var discardedObjectId = zones.Hand.FirstOrDefault(objectId =>
                 IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, objectId)) ?? string.Empty;
-            if (TryDiscardCardFromHand(playerZones, playerId, discardedObjectId))
+            if (TryDiscardCardFromHand(playerZones, cardObjects, playerId, discardedObjectId))
             {
                 events.Add(new GameEvent(
                     "CARD_DISCARDED",
@@ -16309,7 +16309,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
             {
-                if (!TryDiscardCardFromHand(playerZones, stackItem.ControllerId, targetObjectId))
+                if (!TryDiscardCardFromHand(playerZones, cardObjects, stackItem.ControllerId, targetObjectId))
                 {
                     continue;
                 }
@@ -20639,11 +20639,13 @@ public sealed class CoreRuleEngine : IRuleEngine
 
     private static bool TryDiscardCardFromHand(
         Dictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
         string targetObjectId)
     {
         if (!playerZones.TryGetValue(playerId, out var zones)
-            || !zones.Hand.Contains(targetObjectId, StringComparer.Ordinal))
+            || !zones.Hand.Contains(targetObjectId, StringComparer.Ordinal)
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
         {
             return false;
         }
