@@ -16532,12 +16532,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
-            && behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
+            && (behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0
+                || behavior.ManaReductionIfDiscardHandCardOptionalCost > 0)
             && TryParseDiscardHandCardOptionalCost(
                 normalizedOptionalCosts[0],
                 out var discardedTargetObjectId))
         {
-            effectRepeatCount = behavior.EffectRepeatCountIfDiscardHandCardOptionalCost;
+            if (behavior.EffectRepeatCountIfDiscardHandCardOptionalCost > 0)
+            {
+                effectRepeatCount = behavior.EffectRepeatCountIfDiscardHandCardOptionalCost;
+            }
+
+            optionalCostManaReduction = behavior.ManaReductionIfDiscardHandCardOptionalCost;
             discardedOptionalCostTargetObjectIds = [discardedTargetObjectId];
             return true;
         }

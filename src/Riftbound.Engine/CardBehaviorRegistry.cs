@@ -170,7 +170,8 @@ public sealed record CardBehaviorDefinition(
     int LevelDrawOnPlayCount = 0,
     string SourceBoonConditionKind = CardSourceBoonConditionKinds.None,
     string TargetCountConditionKind = CardTargetCountConditionKinds.None,
-    string CreatedBaseUnitTokenConditionKind = CardTokenCreationConditionKinds.None);
+    string CreatedBaseUnitTokenConditionKind = CardTokenCreationConditionKinds.None,
+    int ManaReductionIfDiscardHandCardOptionalCost = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -4003,7 +4004,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 5,
-            SourceUnitTags: "海盗"),
+            SourceUnitTags: "海盗",
+            ManaReductionIfDiscardHandCardOptionalCost: 2),
         new(
             "OGN·055/298",
             "驭水者",

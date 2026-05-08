@@ -4405,9 +4405,10 @@ internal static class ActionPromptBuilder
     private static int PromptMinimumManaCost(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
-        var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior);
+        var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId);
         reduction += PromptBattlefieldSpellCostReductionMana(
             state,
             playerId,
@@ -4421,7 +4422,8 @@ internal static class ActionPromptBuilder
     private static int PromptBaseManaReductionBeforeBattlefieldSpellCost(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         var reduction = string.Equals(behavior.CostReductionConditionKind, CardCostReductionConditionKinds.None, StringComparison.Ordinal)
             ? 0
@@ -4436,7 +4438,36 @@ internal static class ActionPromptBuilder
             reduction += behavior.ManaReductionIfExperiencePaid;
         }
 
+        if (behavior.ManaReductionIfDiscardHandCardOptionalCost > 0
+            && !string.IsNullOrWhiteSpace(sourceObjectId)
+            && HasPromptDiscardHandCardOptionalCostTarget(state, playerId, sourceObjectId))
+        {
+            reduction += behavior.ManaReductionIfDiscardHandCardOptionalCost;
+        }
+
         return reduction + PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior);
+    }
+
+    private static bool HasPromptDiscardHandCardOptionalCostTarget(
+        MatchState state,
+        string playerId,
+        string? sourceObjectId)
+    {
+        return state.PlayerZones.TryGetValue(playerId, out var zones)
+            && zones.Hand.Any(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId));
+    }
+
+    private static bool CanPromptDiscardHandCardAsOptionalCost(
+        MatchState state,
+        string playerId,
+        string? sourceObjectId,
+        string objectId)
+    {
+        return !string.IsNullOrWhiteSpace(objectId)
+            && (string.IsNullOrWhiteSpace(sourceObjectId)
+                || !string.Equals(sourceObjectId, objectId, StringComparison.Ordinal))
+            && (!state.CardObjects.TryGetValue(objectId, out var cardObject)
+                || SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId));
     }
 
     private static IReadOnlyList<CardBehaviorDefinition> PlayCardPromptBehaviorsForSource(
@@ -4456,7 +4487,7 @@ internal static class ActionPromptBuilder
         return CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
-            .Where(behavior => runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior))
+            .Where(behavior => runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, objectId))
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
     }
@@ -5260,8 +5291,12 @@ internal static class ActionPromptBuilder
 
     private static IReadOnlyList<ActionPromptChoiceDto>? PlayCardOptionalCostChoices(MatchState state, string playerId)
     {
-        var choices = PlayablePlayCardBehaviors(state, playerId)
-            .SelectMany(behavior => PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior))
+        var choices = PlayablePlayCardBehaviorSources(state, playerId)
+            .SelectMany(entry => PlayCardOptionalCostChoicesForBehavior(
+                state,
+                playerId,
+                entry.Behavior,
+                entry.SourceObjectId))
             .GroupBy(choice => choice.Id, StringComparer.Ordinal)
             .Select(group => group.First())
             .ToArray();
@@ -5387,6 +5422,13 @@ internal static class ActionPromptBuilder
 
     private static IEnumerable<CardBehaviorDefinition> PlayablePlayCardBehaviors(MatchState state, string playerId)
     {
+        return PlayablePlayCardBehaviorSources(state, playerId).Select(entry => entry.Behavior);
+    }
+
+    private static IEnumerable<(string SourceObjectId, CardBehaviorDefinition Behavior)> PlayablePlayCardBehaviorSources(
+        MatchState state,
+        string playerId)
+    {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return [];
@@ -5394,13 +5436,15 @@ internal static class ActionPromptBuilder
 
         return zones.Hand
             .Where(objectId => IsImplementedPlayableHandSource(state, playerId, objectId))
-            .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId));
+            .SelectMany(objectId => PlayCardPromptBehaviorsForSource(state, playerId, objectId)
+                .Select(behavior => (SourceObjectId: objectId, Behavior: behavior)));
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PlayCardOptionalCostChoicesForBehavior(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId = null)
     {
         var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
             ? currentPool
@@ -5415,7 +5459,7 @@ internal static class ActionPromptBuilder
         var choices = new List<ActionPromptChoiceDto>();
 
         if (TryPromptEchoOptionalCost(state, playerId, behavior, out var effectiveEchoManaCost, out var echoReason)
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + effectiveEchoManaCost)
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + effectiveEchoManaCost)
         {
             choices.Add(new ActionPromptChoiceDto(
                 "ECHO",
@@ -5424,7 +5468,7 @@ internal static class ActionPromptBuilder
         }
 
         if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior) + behavior.HasteReadyManaCost
+            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId) + behavior.HasteReadyManaCost
             && CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait, behavior))
         {
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
@@ -5453,6 +5497,8 @@ internal static class ActionPromptBuilder
                 $"支付 {behavior.OptionalExperienceCost} 经验：费用减少 {behavior.ManaReductionIfExperiencePaid}"));
         }
 
+        choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
+
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
             for (var amount = 1; amount <= effectivePowerWithRecycle; amount++)
@@ -5475,6 +5521,35 @@ internal static class ActionPromptBuilder
 
         choices.AddRange(paymentResourceChoices);
         return choices;
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandManaReductionOptionalCostChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (behavior.ManaReductionIfDiscardHandCardOptionalCost <= 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        {
+            return [];
+        }
+
+        return zones.Hand
+            .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
+            .Select(objectId => new ActionPromptChoiceDto(
+                $"DISCARD_HAND_CARD:{objectId}",
+                $"弃置 {PromptHandCardLabel(state, objectId)}：费用减少 {behavior.ManaReductionIfDiscardHandCardOptionalCost}",
+                $"{behavior.DisplayName}的可选额外费用"))
+            .ToArray();
+    }
+
+    private static string PromptHandCardLabel(MatchState state, string objectId)
+    {
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && !string.IsNullOrWhiteSpace(cardObject.CardNo)
+            ? cardObject.CardNo
+            : "一张手牌";
     }
 
     private static bool TryPromptEchoOptionalCost(
@@ -6188,13 +6263,13 @@ internal static class ActionPromptBuilder
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,
-            ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior),
+            ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId),
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
             ["battlefieldSpellCostReductionMana"] = PromptBattlefieldSpellCostReductionMana(
                 state,
                 playerId,
                 behavior,
-                PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior)),
+                PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId)),
             ["battlefieldHeldUnitCostIncreaseMana"] = PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior),
             ["minTargetCount"] = minTargetCount,
             ["maxTargetCount"] = maxTargetCount,
@@ -6207,7 +6282,7 @@ internal static class ActionPromptBuilder
             ["targetChoicesByIndex"] = targetChoicesByIndex,
             ["legalTargetSelections"] = PlayCardLegalTargetSelections(state, playerId, behavior),
             ["destinationChoices"] = PlayCardDestinationChoicesForBehavior(state, playerId, behavior),
-            ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior),
+            ["optionalCostChoices"] = PlayCardOptionalCostChoicesForBehavior(state, playerId, behavior, sourceObjectId),
             ["paymentResourceChoices"] = paymentResourceChoices,
             ["paymentResourcePowerByChoice"] = paymentResourcePowerByChoice,
             ["availablePower"] = runePool.TotalPower,

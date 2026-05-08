@@ -36296,6 +36296,98 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public void P79RudePiratePromptOffersDiscardCostReduction()
+    {
+        var state = RudePirateOptionalDiscardState(mana: 4);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-UNIT-RUDE-PIRATE", StringComparison.Ordinal));
+
+        Assert.Equal(4, sourceRequirement["minimumManaCost"]);
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+                sourceRequirement["optionalCostChoices"])
+            .ToArray();
+        var discardChoice = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "DISCARD_HAND_CARD:P1-RUDE-PIRATE-DISCARD-001", StringComparison.Ordinal));
+        Assert.Contains("费用减少 2", discardChoice.Label, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "DISCARD_HAND_CARD:P1-UNIT-RUDE-PIRATE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P79RudePirateDiscardOptionalCostReducesManaAndDiscards()
+    {
+        var state = RudePirateOptionalDiscardState(mana: 4);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rude-pirate-discard-cost-reduction", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-RUDE-PIRATE",
+                "OGN·002/298",
+                [],
+                OptionalCosts: ["DISCARD_HAND_CARD:P1-RUDE-PIRATE-DISCARD-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["P1-RUDE-PIRATE-DISCARD-001"], result.State.PlayerZones["P1"].Graveyard);
+        Assert.Single(result.State.StackItems);
+        Assert.Contains("DISCARDED_HAND_CARD_THIS_TURN:P1", result.State.UntilEndOfTurnEffects);
+
+        var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(4, costPaid.Payload["mana"]);
+        Assert.Equal(6, costPaid.Payload["baseMana"]);
+        Assert.Equal(2, costPaid.Payload["optionalCostManaReduction"]);
+        Assert.Equal(
+            ["DISCARD_HAND_CARD:P1-RUDE-PIRATE-DISCARD-001"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(costPaid.Payload["optionalCosts"]));
+
+        var discardEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DISCARDED", StringComparison.Ordinal));
+        Assert.Equal("P1", discardEvent.Payload["playerId"]);
+        Assert.Equal("P1-UNIT-RUDE-PIRATE", discardEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-RUDE-PIRATE-DISCARD-001", discardEvent.Payload["targetObjectId"]);
+        Assert.Equal("OPTIONAL_COST", discardEvent.Payload["reason"]);
+        Assert.Equal("GRAVEYARD", discardEvent.Payload["destinationZone"]);
+    }
+
+    [Fact]
+    public async Task P79RudePirateRejectsDiscardingSourceAsOptionalCost()
+    {
+        var state = RudePirateOptionalDiscardState(mana: 4);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rude-pirate-self-discard-rejected", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-RUDE-PIRATE",
+                "OGN·002/298",
+                [],
+                OptionalCosts: ["DISCARD_HAND_CARD:P1-UNIT-RUDE-PIRATE"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Empty(result.Events);
+        Assert.Equal(new RunePool(4, 0), result.State.RunePools["P1"]);
+        Assert.Equal(["P1-UNIT-RUDE-PIRATE", "P1-RUDE-PIRATE-DISCARD-001"], result.State.PlayerZones["P1"].Hand);
+        Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
+        Assert.Empty(result.State.StackItems);
+    }
+
+    [Fact]
     public async Task P79WiseElderWithBoonAddsPowerInBattle()
     {
         var state = WiseElderBoonBattleState(hasBoon: true);
@@ -53996,6 +54088,38 @@ public sealed class ConformanceFixtureRunnerTests
             {
                 ["P1-BILGEWATER-DOCK"] = new("P1", "BATTLEFIELD", "P1-BILGEWATER-DOCK"),
                 ["P1-BILGEWATER-BULLY"] = new("P1", "BATTLEFIELD", "P1-BILGEWATER-DOCK")
+            }
+        };
+    }
+
+    private static MatchState RudePirateOptionalDiscardState(int mana)
+    {
+        return PunishmentState(mana) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-RUDE-PIRATE", "P1-RUDE-PIRATE-DISCARD-001"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-RUDE-PIRATE"] = new(
+                    "P1-UNIT-RUDE-PIRATE",
+                    cardNo: "OGN·002/298",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "海盗"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-RUDE-PIRATE-DISCARD-001"] = new(
+                    "P1-RUDE-PIRATE-DISCARD-001",
+                    cardNo: "SFD·126/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
             }
         };
     }

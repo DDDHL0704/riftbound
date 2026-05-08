@@ -14,6 +14,9 @@
 
 ## 2026-05-09 开发进度更新
 
+- P1-002/P1-004 第二百九十二批补充：补齐《粗鲁的海盗》（OGN·002/298）“打出时可额外弃置一张手牌，使费用减少 2”的服务端代表路径。CardBehavior 增加弃手牌可选费用减法力字段，Core 复用服务端 `DISCARD_HAND_CARD:<objectId>` 可选费用计划，校验目标必须是同玩家另一张手牌，支付事件记录 `optionalCostManaReduction=2`，并由权威弃牌路径广播 `CARD_DISCARDED`、写入废牌堆与 `DISCARDED_HAND_CARD_THIS_TURN:<playerId>` 回合记忆；弃置来源牌自身会被 `INVALID_TARGET` 拒绝。ActionPrompt 的 `PLAY_CARD.sourceRequirements.optionalCostChoices` 现在按具体来源牌枚举可弃置手牌，P1 只有 4 法力但有另一张手牌时仍会显示粗鲁的海盗可打出、`minimumManaCost=4`，前端继续只展示并提交服务端候选，不在浏览器侧自行构造弃牌减费。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79RudePirate"` 通过 3/3；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3213/3213；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端可选费用/ActionPrompt 代表路径补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke，避免新增前台窗口或常驻进程。整体仍 **NOT READY**，因为正式 18 步 E2E、完整费用模型、central cleanup queue、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-004 第二百九十一批补充：补齐《驭水者》（OGN·055/298）“独自进攻或防守一处战场时战力 +2”的服务端代表路径。Core 现在在 authoritative 战斗伤害计算中按攻击方/防守方参与单位数量判断 OGN·055 是否独自进攻或防守，并把 +2 写入 `DAMAGE_APPLIED.staticPowerBonus`、`combatPower` 与最终伤害；共同进攻时不加成。前端仍只展示服务端战斗事件和 snapshot，不在浏览器侧统计战斗参与者或修正战力。
 - 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P79Waterbender|FullyQualifiedName~P4WaterbenderTargetRejectedFixture|FullyQualifiedName~P79WiseElder|FullyQualifiedName~P79DuneDrake"` 通过 8/8；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3210/3210；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端战斗静态代表路径补齐，无 DevUi 运行时代码变更，未启动 API/Vite/Chrome 业务 smoke。整体仍 **NOT READY**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
