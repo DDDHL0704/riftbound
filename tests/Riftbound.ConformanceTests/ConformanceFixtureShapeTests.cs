@@ -3588,6 +3588,100 @@ public sealed class ConformanceFixtureShapeTests
     }
 
     [Fact]
+    public void ActionPromptActivateAbilityMetadataUsesLegacyOwnedSources()
+    {
+        var state = new MatchState(
+            "prompt-activate-ability-legacy-room",
+            17,
+            3,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 1),
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-UNIT-VI-LEGACY", "P1-UNIT-VI-DIRTY-P2"],
+                    Battlefields = ["P1-UNIT-XERATH-LEGACY", "P1-UNIT-XERATH-DIRTY-P2"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Battlefields = ["P2-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-VI-LEGACY"] = new(
+                    "P1-UNIT-VI-LEGACY",
+                    cardNo: "UNL-030/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: ""),
+                ["P1-UNIT-VI-DIRTY-P2"] = new(
+                    "P1-UNIT-VI-DIRTY-P2",
+                    cardNo: "UNL-030/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: ""),
+                ["P1-UNIT-XERATH-LEGACY"] = new(
+                    "P1-UNIT-XERATH-LEGACY",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: ""),
+                ["P1-UNIT-XERATH-DIRTY-P2"] = new(
+                    "P1-UNIT-XERATH-DIRTY-P2",
+                    cardNo: "UNL-026/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: ""),
+                ["P2-UNIT"] = new(
+                    "P2-UNIT",
+                    cardNo: "SFD·125/221",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            });
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var candidate = Assert.Single(
+            prompt.Candidates ?? [],
+            promptCandidate => string.Equals(promptCandidate.Action, "ACTIVATE_ABILITY", StringComparison.Ordinal));
+
+        Assert.True(candidate.Enabled);
+        Assert.Equal(
+            ["P1-UNIT-VI-LEGACY", "P1-UNIT-XERATH-LEGACY"],
+            (candidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.DoesNotContain(candidate.Sources ?? [], source => string.Equals(source.Id, "P1-UNIT-VI-DIRTY-P2", StringComparison.Ordinal));
+        Assert.DoesNotContain(candidate.Sources ?? [], source => string.Equals(source.Id, "P1-UNIT-XERATH-DIRTY-P2", StringComparison.Ordinal));
+
+        var metadata = Assert.IsType<Dictionary<string, object?>>(candidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]).ToArray();
+        Assert.Equal(
+            ["P1-UNIT-VI-LEGACY", "P1-UNIT-XERATH-LEGACY"],
+            sourceRequirements.Select(requirement => Assert.IsType<string>(requirement["sourceObjectId"])).ToArray());
+    }
+
+    [Fact]
     public void ActionPromptLegendActMetadataFiltersSourcesAbilitiesTargetsAndCosts()
     {
         var noResourceState = new MatchState(

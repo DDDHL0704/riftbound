@@ -3136,7 +3136,7 @@ internal static class ActionPromptBuilder
     {
         if (!state.PlayerZones.TryGetValue(playerId, out var zones)
             || !state.CardObjects.TryGetValue(sourceObjectId, out var cardObject)
-            || !string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal)
+            || !SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
             || !cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || cardObject.IsFaceDown)
         {
@@ -4764,7 +4764,9 @@ internal static class ActionPromptBuilder
     {
         return IsPromptFieldUnitObject(state, objectId)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool IsPromptEnemyFieldObject(MatchState state, string playerId, string objectId)
@@ -4803,7 +4805,9 @@ internal static class ActionPromptBuilder
     {
         return IsPromptEquipmentObject(state, objectId)
             && state.CardObjects.TryGetValue(objectId, out var cardObject)
-            && string.Equals(cardObject.ControllerId, playerId, StringComparison.Ordinal);
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && TryFindLegendActionFieldObjectLocation(state.PlayerZones, objectId, out var location)
+            && string.Equals(location.PlayerId, playerId, StringComparison.Ordinal);
     }
 
     private static bool IsPromptEnemyEquipmentObject(MatchState state, string playerId, string objectId)
