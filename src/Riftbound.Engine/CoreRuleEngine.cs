@@ -20596,7 +20596,8 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var isInBase = zones.Base.Contains(targetObjectId, StringComparer.Ordinal);
             var isInBattlefield = zones.Battlefields.Contains(targetObjectId, StringComparer.Ordinal);
-            if (!isInBase && !isInBattlefield)
+            if ((!isInBase && !isInBattlefield)
+                || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, playerId, targetObjectId))
             {
                 continue;
             }
