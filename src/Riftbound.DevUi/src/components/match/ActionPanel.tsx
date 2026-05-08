@@ -1,7 +1,7 @@
 import { Check, Flag, Hourglass, Play, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
-import { connectionStatusLabel, promptActionLabel } from "../../utils/formatters";
+import { connectionStatusLabel, promptActionLabel, promptReasonLabel, promptReasonTitle } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -29,7 +29,7 @@ export function ActionPanel({ prompt, snapshot, connectionStatus, playerId, onRe
       <div className="prompt-summary">
         <StatusPill tone={canAct ? "good" : "neutral"}>{canAct ? "轮到你操作" : "等待服务端或对手"}</StatusPill>
         <span>提示状态：{prompt ? "已收到" : "无"}</span>
-        <span>原因：{prompt?.reason ?? "尚未收到行动提示"}</span>
+        <span>原因：{prompt ? promptReasonLabel(prompt.reason, "服务端行动提示") : "尚未收到行动提示"}</span>
         {!connected && <span>连接状态：{connectionStatusLabel(connectionStatus)}，行动入口已暂停。</span>}
       </div>
       <div className="action-buttons">
@@ -112,7 +112,7 @@ function MulliganCandidate({
         disabled={!canSubmit}
         icon={<Check size={16} />}
         onClick={() => onCommand({ cmdType: "MULLIGAN", handObjectIds: selectedObjectIds })}
-        title={disabledByConnection ? "连接恢复前不能提交起手调整" : candidate.reason}
+        title={disabledByConnection ? "连接恢复前不能提交起手调整" : promptReasonTitle(candidate.reason)}
         variant={candidate.enabled ? "primary" : "ghost"}
       >
         确认起手调整
@@ -142,7 +142,7 @@ function MulliganChoiceButton({
       className={`mulligan-choice ${selected ? "is-selected" : ""}`}
       disabled={disabled || lockedByLimit}
       onClick={toggle}
-      title={choice.reason ?? "服务端起手候选"}
+      title={promptReasonLabel(choice.reason, "服务端起手候选")}
       type="button"
     >
       <span>{choice.label}</span>
@@ -183,7 +183,7 @@ function CandidateButton({
           onCommand(command);
         }
       }}
-      title={disabledByConnection ? "连接恢复前不能提交行动" : candidate.reason}
+      title={disabledByConnection ? "连接恢复前不能提交行动" : promptReasonTitle(candidate.reason)}
       variant={candidate.action === "SURRENDER" && candidate.enabled ? "danger" : candidate.enabled ? "primary" : "ghost"}
     >
       {promptActionLabel(candidate)}

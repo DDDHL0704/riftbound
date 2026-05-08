@@ -295,6 +295,18 @@ export function promptActionLabel(candidate: ActionPromptCandidateDto): string {
   return candidate.label || actionLabel(candidate.action);
 }
 
+export function promptReasonLabel(reason: string | null | undefined, fallback = "服务端候选"): string {
+  return playerFacingReason(reason) ?? fallback;
+}
+
+export function promptReasonTitle(reason: string | null | undefined, fallback = "服务端候选"): string | undefined {
+  if (!reason?.trim()) {
+    return undefined;
+  }
+
+  return playerFacingReason(reason) ?? fallback;
+}
+
 export function actionLabel(action: string): string {
   const labels: Record<string, string> = {
     READY: "准备",
@@ -330,6 +342,19 @@ function protocolFallback(value: string | undefined, protocolLabel: string, empt
 function isProtocolToken(value: string): boolean {
   const token = value.trim();
   return /^[A-Z0-9_:-]+$/.test(token) || /^[a-z0-9]+(?:[-_:][a-z0-9]+)+$/.test(token);
+}
+
+function playerFacingReason(reason: string | null | undefined): string | undefined {
+  const cleaned = reason?.trim();
+  if (!cleaned) {
+    return undefined;
+  }
+
+  if (!/[\u3400-\u9fff]/.test(cleaned)) {
+    return undefined;
+  }
+
+  return /[A-Z0-9]{2,}[_:-]/.test(cleaned) ? undefined : cleaned;
 }
 
 export function runeTraitLabel(trait?: string): string {

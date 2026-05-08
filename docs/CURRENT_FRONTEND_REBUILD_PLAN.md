@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百二十六批继续收口服务端行动提示 reason 展示。`formatters.ts` 新增 `promptReasonLabel` / `promptReasonTitle`，`ActionPanel`、`RoomPage` 和 `CardDetailDrawer` 的 prompt/candidate reason 正文与 tooltip 统一经过过滤：中文服务端原因保留，明显内部英文说明、协议 token 或对象 ID 降级为“服务端候选 / 服务端行动提示”。前端仍只展示服务端 authoritative prompt/candidate，不改变候选筛选、命令构造或规则裁决。
+- 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-reason-filter-1778243194494`，P1 页面通过真实设置页写入 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后连接对战页，后台 SignalR 让 P2 入座并 seed `basic-play`；P1 打开《魔法小仙灵》卡牌详情后，页面显示“当前玩家普通开环行动 / 服务端可提交操作”，正文和 title 均不含 `implemented payable PLAY_CARD source`、`implemented coarse battlefield destination`、`required for precise battlefield movement`、`opening hand mulligan candidate`、`P1-UNIT-MIGHTY-FAERIE`、`P1-MAIN-001` 或 `BATTLEFIELD:P1-MAIN`，过滤非应用扩展噪声后应用 runtime error 0。smoke 后已 finalize Chrome 标签并清理后台 SignalR、API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百二十批继续收口结算链 destination 展示。`StackPanel` 把 stack item `destination` 映射为“战场 / 基地 / 结算链 / 待命 / 废牌堆 / 放逐区 / 服务端区域”，不再把 `BATTLEFIELD:P1-MAIN`、`STACK` 等协议值显示在规则队列正文；前端仍只读服务端 stack item，不改变命令提交或规则裁决。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-zone-label-field-1778240000004`，P1 页面连接对战页，后台 SignalR 让 P2 入座、seed `basic-play`，并由 P1 提交 `PLAY_CARD` 到 `BATTLEFIELD:P1-MAIN`；规则队列显示“去向：战场”，页面正文不含 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`。Chrome 仅有扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0；smoke 后已清理后台 SignalR、Chrome 测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 

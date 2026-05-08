@@ -8,6 +8,8 @@ import {
   keywordsText,
   objectTypeText,
   promptActionLabel,
+  promptReasonLabel,
+  promptReasonTitle,
   rulesText,
   statusLabel
 } from "../../utils/formatters";
@@ -212,7 +214,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
                             onClose();
                           }
                         }}
-                        title={command ? candidate.reason : "该操作还需要服务端提供目标、模式或费用选择后才能提交"}
+                        title={command ? promptReasonTitle(candidate.reason) : "该操作还需要服务端提供目标、模式或费用选择后才能提交"}
                         variant={candidate.enabled && command ? "primary" : "ghost"}
                       >
                         {promptActionLabel(candidate)}
@@ -509,7 +511,7 @@ function PlayCardComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张牌提供可提交的出牌约束。</p>
       </article>
@@ -560,7 +562,7 @@ function PlayCardComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>费用 {selectedRequirement.minimumManaCost}</span>
@@ -750,7 +752,7 @@ function HideCardComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张牌提供可提交的待命约束。</p>
       </article>
@@ -771,7 +773,7 @@ function HideCardComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>费用 {selectedCostMana}</span>
@@ -874,7 +876,7 @@ function RevealCardComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张牌提供可提交的翻开待命约束。</p>
       </article>
@@ -897,7 +899,7 @@ function RevealCardComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>费用 0</span>
@@ -1019,7 +1021,7 @@ function MoveUnitComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张牌提供可提交的移动约束。</p>
       </article>
@@ -1043,7 +1045,7 @@ function MoveUnitComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>来源 {selectedRequirement.originLabel}</span>
@@ -1162,7 +1164,7 @@ function AssembleEquipmentComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张装备提供可提交的装配约束。</p>
       </article>
@@ -1190,7 +1192,7 @@ function AssembleEquipmentComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
@@ -1332,7 +1334,7 @@ function ActivateAbilityComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张牌提供可提交的激活能力约束。</p>
       </article>
@@ -1368,7 +1370,7 @@ function ActivateAbilityComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
@@ -1526,7 +1528,7 @@ function LegendActionComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张传奇提供可提交的传奇行动约束。</p>
       </article>
@@ -1560,7 +1562,7 @@ function LegendActionComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
@@ -1693,7 +1695,7 @@ function DeclareBattleComposer({
       <article className="play-card-composer">
         <div className="composer-heading">
           <strong>{promptActionLabel(candidate)}</strong>
-          <span>{candidate.reason}</span>
+          <span>{promptReasonLabel(candidate.reason)}</span>
         </div>
         <p className="detail-muted">服务端尚未为这张牌提供可提交的战斗声明约束。</p>
       </article>
@@ -1747,7 +1749,7 @@ function DeclareBattleComposer({
     <article className="play-card-composer">
       <div className="composer-heading">
         <strong>{promptActionLabel(candidate)}</strong>
-        <span>{candidate.reason}</span>
+        <span>{promptReasonLabel(candidate.reason)}</span>
       </div>
       <div className="composer-meta">
         <span>{selectedRequirement.displayName}</span>
@@ -1907,16 +1909,7 @@ function ChoiceButton({
 }
 
 function choiceTitle(choice: ActionPromptChoiceDto): string | undefined {
-  const reason = choice.reason?.trim();
-  if (!reason) {
-    return undefined;
-  }
-
-  return playerFacingChoiceReason(reason) ? reason : "服务端候选";
-}
-
-function playerFacingChoiceReason(reason: string): boolean {
-  return /[\u3400-\u9fff]/.test(reason) && !/[A-Z0-9]{2,}[_:-]/.test(reason);
+  return promptReasonTitle(choice.reason, "服务端候选");
 }
 
 function playCardRequirementsFor(candidate: ActionPromptCandidateDto, sourceObjectId?: string): PlayCardSourceRequirement[] {

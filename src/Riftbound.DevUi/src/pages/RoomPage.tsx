@@ -8,7 +8,7 @@ import { candidateListLabel } from "../components/match/ActionPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { ActionPromptCandidateDto } from "../types/protocol";
 import { errorCodeLabel, errorMessageLabel } from "../utils/errors";
-import { connectionStatusLabel, connectionStatusTone, promptActionLabel } from "../utils/formatters";
+import { connectionStatusLabel, connectionStatusTone, promptActionLabel, promptReasonTitle } from "../utils/formatters";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -105,7 +105,7 @@ function RoomPromptButtons({
   return roomCandidates.map((candidate) => {
     if (candidate.action === "SUBMIT_DECK") {
       return (
-        <Button icon={<Send size={16} />} key={candidate.action} onClick={onSubmitStarterDeck} title={candidate.reason} variant="secondary">
+        <Button icon={<Send size={16} />} key={candidate.action} onClick={onSubmitStarterDeck} title={promptReasonTitle(candidate.reason)} variant="secondary">
           {promptActionLabel(candidate)}
         </Button>
       );
@@ -113,7 +113,7 @@ function RoomPromptButtons({
 
     if (candidate.action === "READY") {
       return (
-        <Button icon={<Check size={16} />} key={candidate.action} onClick={onReady} title={candidate.reason} variant="secondary">
+        <Button icon={<Check size={16} />} key={candidate.action} onClick={onReady} title={promptReasonTitle(candidate.reason)} variant="secondary">
           {promptActionLabel(candidate)}
         </Button>
       );
