@@ -17011,13 +17011,15 @@ public sealed class CoreRuleEngine : IRuleEngine
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
 
-            var canResolveLocationMove = !behavior.MovesFirstTargetToSecondTargetLocation
+            var canResolveTargets = IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)
+                && (!behavior.MovesFirstTargetToSecondTargetLocation
                 || CanMoveFirstTargetToSecondTargetLocation(
                     playerZones,
                     cardObjects,
                     firstTargetObjectId,
-                    secondTargetObjectId);
-            if (canResolveLocationMove)
+                    secondTargetObjectId));
+            if (canResolveTargets)
             {
                 if (behavior.MovesFirstTargetToSecondTargetLocation
                     && TryMoveFirstTargetToSecondTargetLocation(
@@ -17110,51 +17112,55 @@ public sealed class CoreRuleEngine : IRuleEngine
             && stackItem.TargetObjectIds.Count >= 1)
         {
             var targetObjectId = stackItem.TargetObjectIds[0];
-            var sourcePower = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
-                ? Math.Max(0, sourceState.Power)
-                : 0;
-            var targetPower = cardObjects.TryGetValue(targetObjectId, out var targetState)
-                ? Math.Max(0, targetState.Power)
-                : 0;
-
-            if (sourcePower > 0
-                && cardObjects.ContainsKey(targetObjectId))
+            if (IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, stackItem.SourceObjectId)
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId))
             {
-                var damageApplication = ApplyDamageToCardObject(
-                    cardObjects,
-                    targetObjectId,
-                    sourcePower,
-                    damageTriggeredDestroyTargetObjectIds,
-                    preventDamageFromThisStackItem,
-                    PreventSpellAndSkillDamageThisTurnEffectId);
-                events.Add(new GameEvent(
-                    "DAMAGE_APPLIED",
-                    $"{behavior.DisplayName}造成源单位互斗伤害",
-                    BuildDamagePayload(
-                        stackItem.SourceObjectId,
+                var sourcePower = cardObjects.TryGetValue(stackItem.SourceObjectId, out var sourceState)
+                    ? Math.Max(0, sourceState.Power)
+                    : 0;
+                var targetPower = cardObjects.TryGetValue(targetObjectId, out var targetState)
+                    ? Math.Max(0, targetState.Power)
+                    : 0;
+
+                if (sourcePower > 0
+                    && cardObjects.ContainsKey(targetObjectId))
+                {
+                    var damageApplication = ApplyDamageToCardObject(
+                        cardObjects,
                         targetObjectId,
-                        damageApplication,
-                        stackItem.SourceObjectId)));
-            }
+                        sourcePower,
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成源单位互斗伤害",
+                        BuildDamagePayload(
+                            stackItem.SourceObjectId,
+                            targetObjectId,
+                            damageApplication,
+                            stackItem.SourceObjectId)));
+                }
 
-            if (targetPower > 0
-                && cardObjects.ContainsKey(stackItem.SourceObjectId))
-            {
-                var damageApplication = ApplyDamageToCardObject(
-                    cardObjects,
-                    stackItem.SourceObjectId,
-                    targetPower,
-                    damageTriggeredDestroyTargetObjectIds,
-                    preventDamageFromThisStackItem,
-                    PreventSpellAndSkillDamageThisTurnEffectId);
-                events.Add(new GameEvent(
-                    "DAMAGE_APPLIED",
-                    $"{behavior.DisplayName}造成目标单位互斗伤害",
-                    BuildDamagePayload(
+                if (targetPower > 0
+                    && cardObjects.ContainsKey(stackItem.SourceObjectId))
+                {
+                    var damageApplication = ApplyDamageToCardObject(
+                        cardObjects,
                         stackItem.SourceObjectId,
-                        stackItem.SourceObjectId,
-                        damageApplication,
-                        targetObjectId)));
+                        targetPower,
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}造成目标单位互斗伤害",
+                        BuildDamagePayload(
+                            stackItem.SourceObjectId,
+                            stackItem.SourceObjectId,
+                            damageApplication,
+                            targetObjectId)));
+                }
             }
         }
         else if (behavior.DamagesSecondTargetByFirstTargetPower
@@ -17163,28 +17169,31 @@ public sealed class CoreRuleEngine : IRuleEngine
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
             var damagedTargetObjectId = stackItem.TargetObjectIds[1];
 
-            var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
-                ? Math.Max(0, firstTargetState.Power)
-                : 0;
-            if (damageAmount > 0
-                && IsFieldObject(playerZones, damagedTargetObjectId)
-                && cardObjects.ContainsKey(damagedTargetObjectId))
+            if (IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, damagedTargetObjectId))
             {
-                var damageApplication = ApplyDamageToCardObject(
-                    cardObjects,
-                    damagedTargetObjectId,
-                    damageAmount,
-                    damageTriggeredDestroyTargetObjectIds,
-                    preventDamageFromThisStackItem,
-                    PreventSpellAndSkillDamageThisTurnEffectId);
-                events.Add(new GameEvent(
-                    "DAMAGE_APPLIED",
-                    $"{behavior.DisplayName}按友方单位战力造成伤害",
-                    BuildDamagePayload(
-                        stackItem.SourceObjectId,
+                var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+                    ? Math.Max(0, firstTargetState.Power)
+                    : 0;
+                if (damageAmount > 0
+                    && cardObjects.ContainsKey(damagedTargetObjectId))
+                {
+                    var damageApplication = ApplyDamageToCardObject(
+                        cardObjects,
                         damagedTargetObjectId,
-                        damageApplication,
-                        firstTargetObjectId)));
+                        damageAmount,
+                        damageTriggeredDestroyTargetObjectIds,
+                        preventDamageFromThisStackItem,
+                        PreventSpellAndSkillDamageThisTurnEffectId);
+                    events.Add(new GameEvent(
+                        "DAMAGE_APPLIED",
+                        $"{behavior.DisplayName}按友方单位战力造成伤害",
+                        BuildDamagePayload(
+                            stackItem.SourceObjectId,
+                            damagedTargetObjectId,
+                            damageApplication,
+                            firstTargetObjectId)));
+                }
             }
         }
         else if (behavior.ReadiesFirstTargetAndDamagesSecondByFirstPower
@@ -17193,7 +17202,9 @@ public sealed class CoreRuleEngine : IRuleEngine
             var readyTargetObjectId = stackItem.TargetObjectIds[0];
             var damagedTargetObjectId = stackItem.TargetObjectIds[1];
 
-            if (cardObjects.TryGetValue(readyTargetObjectId, out var readyTargetState))
+            if (IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, readyTargetObjectId)
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, damagedTargetObjectId)
+                && cardObjects.TryGetValue(readyTargetObjectId, out var readyTargetState))
             {
                 var readiedTargetState = ApplyReadyState(
                     readyTargetState,
@@ -17232,7 +17243,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var modifiedTargetObjectId = stackItem.TargetObjectIds[0];
             var comparisonTargetObjectId = stackItem.TargetObjectIds[1];
-            if (cardObjects.TryGetValue(modifiedTargetObjectId, out var modifiedTargetState)
+            if (IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, modifiedTargetObjectId)
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, comparisonTargetObjectId)
+                && cardObjects.TryGetValue(modifiedTargetObjectId, out var modifiedTargetState)
                 && cardObjects.TryGetValue(comparisonTargetObjectId, out var comparisonTargetState)
                 && modifiedTargetState.Power < comparisonTargetState.Power)
             {
@@ -17253,7 +17266,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
             var secondTargetObjectId = stackItem.TargetObjectIds[1];
-            if (cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
+            if (IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, secondTargetObjectId)
+                && cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
                 && cardObjects.TryGetValue(secondTargetObjectId, out var secondTargetState))
             {
                 var firstPowerDelta = secondTargetState.Power - firstTargetState.Power;
@@ -17290,12 +17305,13 @@ public sealed class CoreRuleEngine : IRuleEngine
             && stackItem.TargetObjectIds.Count >= 1)
         {
             var firstTargetObjectId = stackItem.TargetObjectIds[0];
-            var canResolveTargetMove = !behavior.MovesTargetToBattlefield
+            var canResolveTargetMove = IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
+                && (!behavior.MovesTargetToBattlefield
                 || CanMoveTargetToControllerBattlefield(
                     playerZones,
                     cardObjects,
                     stackItem.ControllerId,
-                    firstTargetObjectId);
+                    firstTargetObjectId));
             if (canResolveTargetMove)
             {
                 var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
@@ -17358,7 +17374,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                 }
             }
 
-            if (destroyedPower > 0
+            if (removalResult.WasDestroyed
+                && destroyedPower > 0
+                && IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, buffedTargetObjectId)
                 && cardObjects.TryGetValue(buffedTargetObjectId, out var buffedTargetState))
             {
                 var modifiedTargetState = ApplyPowerModifier(
