@@ -39205,6 +39205,67 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P5EquipmentStateAssembleLongSwordAllowsControlledOpponentOwnedTarget()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(
+                    0,
+                    0,
+                    new Dictionary<string, int>(StringComparer.Ordinal)
+                    {
+                        [RuneTrait.Red] = 1
+                    }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EQUIPMENT-LONG-SWORD", "P1-CONTROLLED-OPPONENT-OWNED-TARGET"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EQUIPMENT-LONG-SWORD"] = new(
+                    "P1-EQUIPMENT-LONG-SWORD",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-CONTROLLED-OPPONENT-OWNED-TARGET"] = new(
+                    "P1-CONTROLLED-OPPONENT-OWNED-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P1")
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p5-equipment-state-controlled-opponent-owned-target", "P1", "ASSEMBLE_EQUIPMENT"),
+            new AssembleEquipmentCommand(
+                "P1-EQUIPMENT-LONG-SWORD",
+                "P1-CONTROLLED-OPPONENT-OWNED-TARGET",
+                ["ASSEMBLE_RED"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted);
+        Assert.Equal(1, result.State.Tick);
+        Assert.Equal(
+            "P1-CONTROLLED-OPPONENT-OWNED-TARGET",
+            result.State.CardObjects["P1-EQUIPMENT-LONG-SWORD"].AttachedToObjectId);
+        Assert.Equal("P2", result.State.CardObjects["P1-CONTROLLED-OPPONENT-OWNED-TARGET"].OwnerId);
+        Assert.Equal("P1", result.State.CardObjects["P1-CONTROLLED-OPPONENT-OWNED-TARGET"].ControllerId);
+        Assert.Equal(["COST_PAID", "EQUIPMENT_ATTACHED"], result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+    }
+
+    [Fact]
     public async Task P4AssembleEquipmentCommandInPriorityWindowIsRejectedUntilEquipmentSystemExists()
     {
         var state = PunishmentState(mana: 0) with

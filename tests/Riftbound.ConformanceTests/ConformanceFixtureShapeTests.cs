@@ -2467,7 +2467,7 @@ public sealed class ConformanceFixtureShapeTests
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Base = ["P1-LONG-SWORD", "P1-UNIT"]
+                    Base = ["P1-LONG-SWORD", "P1-LONG-SWORD-OPPONENT-CONTROLLED", "P1-UNIT"]
                 },
                 ["P2"] = PlayerZones.Empty
             },
@@ -2479,6 +2479,12 @@ public sealed class ConformanceFixtureShapeTests
                     tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
                     ownerId: "P1",
                     controllerId: "P1"),
+                ["P1-LONG-SWORD-OPPONENT-CONTROLLED"] = new(
+                    "P1-LONG-SWORD-OPPONENT-CONTROLLED",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装", "灵便"],
+                    ownerId: "P1",
+                    controllerId: "P2"),
                 ["P1-UNIT"] = new(
                     "P1-UNIT",
                     cardNo: "SFD·125/221",

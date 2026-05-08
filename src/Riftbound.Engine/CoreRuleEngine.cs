@@ -1131,7 +1131,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !knownEquipmentState.Tags.Contains("武装", StringComparer.Ordinal)
             || !knownEquipmentState.Tags.Contains("灵便", StringComparer.Ordinal)
             || !string.IsNullOrWhiteSpace(knownEquipmentState.AttachedToObjectId)
-            || !FieldIdentityMatchesZone(knownEquipmentState, sourceLocation.Value.PlayerId))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(knownEquipmentState, sourceLocation.Value.PlayerId))
         {
             return false;
         }
@@ -1148,7 +1148,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.IsNullOrWhiteSpace(knownTargetState.CardNo)
             || knownTargetState.IsFaceDown
             || !knownTargetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !FieldIdentityMatchesZone(knownTargetState, targetLocation.Value.PlayerId))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(knownTargetState, targetLocation.Value.PlayerId))
         {
             return false;
         }

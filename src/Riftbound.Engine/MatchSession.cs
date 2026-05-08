@@ -4154,6 +4154,11 @@ internal static class ActionPromptBuilder
             return false;
         }
 
+        if (!SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId))
+        {
+            return false;
+        }
+
         if (!string.Equals(cardObject.CardNo, LongSwordCardNo, StringComparison.Ordinal))
         {
             return false;
@@ -4249,8 +4254,9 @@ internal static class ActionPromptBuilder
 
     private static bool IsImplementedAssembleEquipmentTarget(MatchState state, string playerId, string objectId)
     {
-        return IsControlledObjectWithTag(state, playerId, objectId, CardObjectTags.UnitCard)
-            && state.CardObjects.TryGetValue(objectId, out var cardObject)
+        return state.CardObjects.TryGetValue(objectId, out var cardObject)
+            && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, playerId)
+            && cardObject.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !string.IsNullOrWhiteSpace(cardObject.CardNo)
             && !cardObject.IsFaceDown;
     }
