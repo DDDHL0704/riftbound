@@ -12454,6 +12454,9 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["turnPlayerId"] = state.TurnPlayerId,
                     ["completedBattlefieldObjectIds"] = completedBattlefieldObjectIds
                 }));
+            var cleanupResult = RunStateBasedCleanupAfterSpellDuelClosed(nextState);
+            nextState = cleanupResult.State;
+            events.AddRange(cleanupResult.Events);
         }
         else
         {
@@ -12476,6 +12479,42 @@ public sealed class CoreRuleEngine : IRuleEngine
             events,
             ResolutionResult.BuildSnapshots(nextState),
             BuildCorePrompts(nextState));
+    }
+
+    private static (MatchState State, IReadOnlyList<GameEvent> Events) RunStateBasedCleanupAfterSpellDuelClosed(MatchState state)
+    {
+        var playerZones = NormalizeZonesForSeats(state);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        var objectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones);
+        var cleanupStackItem = new StackItemState(
+            $"spell-duel-cleanup-{state.Tick}",
+            state.ActivePlayerId,
+            "SPELL_DUEL_CLEANUP",
+            "SPELL_DUEL_CLEANUP");
+        var cleanup = RunStateBasedCleanupLoop(
+            playerZones,
+            cardObjects,
+            cleanupStackItem,
+            state.RunePools,
+            objectLocations: objectLocations);
+        if (cleanup.Events.Count == 0
+            && cleanup.DestroyedObjectIds.Count == 0
+            && cleanup.DestroyedUnitOwnerIds.Count == 0)
+        {
+            return (state, []);
+        }
+
+        objectLocations = ReconcileObjectLocations(objectLocations, playerZones);
+        return (state with
+        {
+            PlayerZones = playerZones,
+            ObjectLocations = objectLocations,
+            RunePools = cleanup.RunePools,
+            CardObjects = cardObjects,
+            DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(
+                state.DestroyedUnitOwnerIdsThisTurn,
+                cleanup.DestroyedUnitOwnerIds)
+        }, cleanup.Events);
     }
 
     private static (MatchState State, IReadOnlyList<GameEvent> Events) AdvancePendingBattlefieldTasksAfterStateChange(

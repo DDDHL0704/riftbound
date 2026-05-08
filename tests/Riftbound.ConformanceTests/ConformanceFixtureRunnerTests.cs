@@ -26704,6 +26704,77 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRunsStateBasedCleanupAfterSpellDuelCloses()
+    {
+        var state = new MatchState(
+            "spell-duel-close-cleanup-room",
+            4,
+            2,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.SpellDuelOpen,
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-SPELL-DUEL-LETHAL-UNIT"]
+                }
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-SPELL-DUEL-LETHAL-UNIT"] = new(
+                    "P2-SPELL-DUEL-LETHAL-UNIT",
+                    cardNo: "SFD·125/221",
+                    damage: 3,
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            focusPlayerId: "P1",
+            passedFocusPlayerIds: ["P2"],
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P2-SPELL-DUEL-LETHAL-UNIT"] = new("P2", "BASE")
+            });
+
+        Assert.Contains(
+            state.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal)
+                && string.Equals(task.ObjectId, "P2-SPELL-DUEL-LETHAL-UNIT", StringComparison.Ordinal));
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-pass-focus-closes-and-cleans", "P1", "PASS_FOCUS"),
+            new PassFocusCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED"],
+            result.Events.Select(gameEvent => gameEvent.Kind).ToArray());
+        Assert.Equal(TimingStates.NeutralOpen, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.DoesNotContain("P2-SPELL-DUEL-LETHAL-UNIT", result.State.PlayerZones["P2"].Base);
+        Assert.Contains("P2-SPELL-DUEL-LETHAL-UNIT", result.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-SPELL-DUEL-LETHAL-UNIT"].Zone);
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.DoesNotContain(
+            result.State.PendingCleanupTasks,
+            task => string.Equals(task.Kind, "DESTROY_LETHAL_UNIT", StringComparison.Ordinal));
+        Assert.Equal(["END_TURN", "SURRENDER"], result.Prompts["P1"].Actions);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineStartsBattlefieldSpellDuelAfterStackResolutionLeavesContestedBattlefield()
     {
         var state = new MatchState(
