@@ -23,6 +23,47 @@ export function keywordsText(spec?: BehaviorSpec): string {
   return spec.keywords.map((keyword) => keyword.value ? `${keyword.keyword} ${keyword.value}` : keyword.keyword).join("、");
 }
 
+export function rulesText(text?: string): string {
+  if (!text) {
+    return "服务端未提供卡面规则文本。";
+  }
+
+  return text
+    .replace(/\{\{([^}]+)\}\}/g, (_match, token: string) => ruleTokenLabel(token.trim()))
+    .replace(/\s+([，。：；、）])/g, "$1")
+    .replace(/\s+（/g, "（")
+    .replace(/（\s+/g, "（")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function ruleTokenLabel(token: string): string {
+  const cleaned = token.replace(/>+$/g, "");
+
+  if (token === ">>") {
+    return "";
+  }
+
+  if (/^\d+$/.test(cleaned)) {
+    return cleaned;
+  }
+
+  switch (cleaned) {
+    case "S":
+      return "战力";
+    case "A":
+      return "任意符能";
+    case "红色":
+    case "绿色":
+    case "蓝色":
+    case "黄色":
+    case "紫色":
+      return `${cleaned}符能`;
+    default:
+      return cleaned;
+  }
+}
+
 export function objectTypeText(object?: CardObjectView, spec?: BehaviorSpec): string {
   const tags = object?.tags ?? [];
   if (tags.includes("CARD_TYPE:UNIT")) {

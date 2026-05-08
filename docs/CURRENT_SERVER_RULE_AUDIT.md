@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百零三批补充：前端官方规则文本去模板语法。`CardFace` 与 `CardDetailDrawer` 现在通过共享 `rulesText` formatter 展示 `officialText`，把官方数据中的 `{{S}}`、`{{A}}`、`{{红色}}`、`{{横置}}`、`{{反应>}}` 等模板 token 转为玩家可读中文文本，避免卡面/详情裸显 `{{...}}`。该 formatter 只影响 UI 文本，不改变服务端卡牌数据、规则裁决、prompt 或命令提交。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 打开 `/cards` 并进入首张卡详情，图鉴正文与详情正文均不含 `{{` 或 `}}`，规则文本显示“游走（我可以向其他战场进行移动。）”“战力+1”等可读中文 token，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百零二批补充：卡牌详情抽屉继续去内部调试字段。公开卡牌详情不再显示“对象 ID”、raw `CARD_TYPE:*` 标签、raw location zone、贴附目标对象 ID、英文 conformance reason 或 raw effect/template 标识；位置改为中文区域（如 `P1 / 手牌`），服务端证据只保留中文完成度说明。该变更只影响展示层，不改变 prompt/candidate 组合或命令提交。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-card-detail-redaction-1778234066612`，P1 连接对战页，P2 外部连接并 seed `basic-play`，打开公开手牌详情后可见中文位置和中文服务端证据，正文不含“对象 ID”、`CARD_TYPE:`、raw `BATTLEFIELD/BASE/HAND` zone、`P1-...-001` 对象 ID 模式、raw effect id 或英文 representative reason，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

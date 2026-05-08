@@ -1,6 +1,6 @@
 import { BehaviorSpec } from "../../types/catalog";
 import { CardObjectView } from "../../types/protocol";
-import { conformanceLabel, conformanceTone, costText, keywordsText, objectTypeText, statusLabel } from "../../utils/formatters";
+import { conformanceLabel, conformanceTone, costText, keywordsText, objectTypeText, rulesText, statusLabel } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -62,7 +62,7 @@ export function CardFace({ objectId, object, spec, compact = false, selected = f
         </div>
       ) : (
         <>
-          <p className="card-rules">{spec?.officialText || "服务端未提供卡面规则文本。"}</p>
+          <p className="card-rules">{rulesText(spec?.officialText)}</p>
           <div className="card-keywords">{keywordsText(spec)}</div>
           <div className="card-meta-line">
             <span>所属：{object?.ownerId ?? "未知"}</span>

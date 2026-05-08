@@ -8,6 +8,7 @@ import {
   keywordsText,
   objectTypeText,
   promptActionLabel,
+  rulesText,
   statusLabel
 } from "../../utils/formatters";
 import { isHiddenObject } from "../../utils/hiddenInfo";
@@ -82,7 +83,7 @@ export function CardDetailDrawer({ card, onClose, onCommand, prompt }: CardDetai
             </section>
             <section className="detail-section">
               <strong>规则文本</strong>
-              <p className="card-rules">{card.spec?.officialText || "服务端未提供卡面规则文本。"}</p>
+              <p className="card-rules">{rulesText(card.spec?.officialText)}</p>
             </section>
             {card.spec && (
               <section className="detail-section">
