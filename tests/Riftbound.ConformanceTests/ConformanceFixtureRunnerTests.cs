@@ -45426,6 +45426,10 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("BATTLEFIELD:P1-MAIN", heldEvent.Payload["battlefieldId"]);
         Assert.Equal("P1-BATTLEFIELD-ATTACKER", heldEvent.Payload["sourceObjectId"]);
         Assert.Equal(["P2-BATTLEFIELD-HUNTER"], Assert.IsType<string[]>(heldEvent.Payload["defenderObjectIds"]));
+        Assert.Equal(2, heldEvent.Payload["huntAmount"]);
+        Assert.Equal(["P2-BATTLEFIELD-HUNTER"], Assert.IsType<string[]>(heldEvent.Payload["huntSourceObjectIds"]));
+        var huntAmountsBySource = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(heldEvent.Payload["huntAmountsBySource"]);
+        Assert.Equal(2, huntAmountsBySource["P2-BATTLEFIELD-HUNTER"]);
         var experienceEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal));
         Assert.Equal("P2", experienceEvent.Payload["playerId"]);
         Assert.Equal("P2-BATTLEFIELD-HUNTER", experienceEvent.Payload["sourceObjectId"]);

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-004 第一百八十批补充：据守狩猎的事件 payload 继续补齐回放/日志证据。`BATTLEFIELD_HELD` 在由幸存防守狩猎单位触发经验时，现在会携带 `huntAmount`、`huntSourceObjectIds` 和 `huntAmountsBySource`，与征服路径的狩猎来源证据对齐；`EXPERIENCE_GAINED` 仍以实际幸存防守狩猎单位作为来源。既有非狩猎据守事件保持原 payload，不引入新的前端裁决。
+- 已补测试与验证：扩展 `P4DeclareBattleCommandGrantsHuntExperienceWhenDefenderHoldsBattlefield`，断言 `BATTLEFIELD_HELD` payload 中的狩猎来源和数值。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；狩猎征服/据守精确回归 3/3、`DeclareBattleCommand|Hunt|BattlefieldHeld` 相邻回归 104/104、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
+
 - P1-002/P1-003 第一百七十九批补充：狩猎关键词的证据口径与上一批服务端能力对齐。`CardResourceKeywordRules` 的 resource keyword profile reason 不再只写 “Hunt conquest experience”，而是明确为 “Hunt conquest/held battle experience”；`p2-preflight-play-spring-messenger-experience-static` 与 `p4-declare-battle-hunt-conquest-experience` 的 fixture 证据说明同步改为征服/据守代表路径已由 `DECLARE_BATTLE` 命令级回归覆盖，完整得分、任务状态机、多攻防选择和其他狩猎触发仍暂缓。`docs/conformance-fixture-format.md` 与 `docs/rules-evidence-index.md` 也同步修正，避免图鉴/审计继续把已覆盖的狩猎据守经验误列为暂缓。
 - 已补测试与验证：扩展 `P4ResourceKeywordProfilesMapOfficialTextToRegistryTags` 断言 profile reason 包含 `Hunt conquest/held battle experience`。验证结果：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；resource keyword/profile 精确回归 2/2、经验/关键词 fixture 相关回归 45/45、`GameHubJoinTests` 118/118 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3131/3131 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批没有前端 UI 代码变更，没有启动 API/Vite/Browser/Chrome smoke；整体仍 **NOT READY**，因为完整官方战斗/法术对决状态机、PaymentEngine、LayerEngine、cleanup queue 与全官方卡牌证据仍未清零。
 

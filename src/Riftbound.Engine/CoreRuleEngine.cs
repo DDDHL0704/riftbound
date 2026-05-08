@@ -5636,7 +5636,18 @@ public sealed class CoreRuleEngine : IRuleEngine
                         battleWinnerPlayerId,
                         battlefieldId,
                         attackerObjectId,
-                        defenderObjectIds);
+                        defenderObjectIds,
+                        new Dictionary<string, object?>
+                        {
+                            ["huntAmount"] = heldHuntAmount,
+                            ["huntSourceObjectIds"] = huntHeldSources
+                                .Select(source => source.ObjectId)
+                                .ToArray(),
+                            ["huntAmountsBySource"] = huntHeldSources.ToDictionary(
+                                source => source.ObjectId,
+                                source => source.HuntAmount,
+                                StringComparer.Ordinal)
+                        });
                     playerExperience = GainExperience(
                         playerExperience.Count == 0 ? NormalizeExperienceForSeats(state) : playerExperience,
                         battleWinnerPlayerId,
@@ -8309,23 +8320,33 @@ public sealed class CoreRuleEngine : IRuleEngine
         string playerId,
         string battlefieldId,
         string attackerObjectId,
-        IReadOnlyList<string> defenderObjectIds)
+        IReadOnlyList<string> defenderObjectIds,
+        IReadOnlyDictionary<string, object?>? additionalPayload = null)
     {
         if (battlefieldHeldEventEmitted)
         {
             return;
         }
 
+        var payload = new Dictionary<string, object?>
+        {
+            ["playerId"] = playerId,
+            ["battlefieldId"] = battlefieldId,
+            ["sourceObjectId"] = attackerObjectId,
+            ["defenderObjectIds"] = defenderObjectIds.ToArray()
+        };
+        if (additionalPayload is not null)
+        {
+            foreach (var entry in additionalPayload)
+            {
+                payload[entry.Key] = entry.Value;
+            }
+        }
+
         events.Add(new GameEvent(
             "BATTLEFIELD_HELD",
             $"{playerId} 据守战场",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["battlefieldId"] = battlefieldId,
-                ["sourceObjectId"] = attackerObjectId,
-                ["defenderObjectIds"] = defenderObjectIds.ToArray()
-        }));
+            payload));
         battlefieldHeldEventEmitted = true;
     }
 

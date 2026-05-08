@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百八十批仍为服务端事件证据收口，没有前端 UI 文件变更。据守狩猎触发时，`BATTLEFIELD_HELD` 现在直接携带 `huntAmount`、`huntSourceObjectIds` 和 `huntAmountsBySource`，前端日志/战报/回放可以继续只读服务端事件，看到据守经验的来源与数值，而不需要从卡面或本地规则推断。
+- 本批验证：`dotnet build` 通过；狩猎征服/据守精确回归 3/3、`DeclareBattleCommand|Hunt|BattlefieldHeld` 相邻回归 104/104、`GameHubJoinTests` 118/118、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百七十九批仍为服务端证据口径收口，没有前端 UI 文件变更。狩猎关键词 profile、fixture 说明和核心证据文档已同步到最新规则能力：征服与据守战斗经验均由服务端 `DECLARE_BATTLE` 代表路径覆盖；图鉴/API 仍保持 `recognized-deferred` 总体状态，避免把狩猎相关等级、经验消耗、进攻触发等未完整官方化分支误写成 full official pass。
 - 本批验证：`dotnet build` 通过；resource keyword/profile 精确回归 2/2、经验/关键词 fixture 相关回归 45/45、`GameHubJoinTests` 118/118、后端 full test 3131/3131 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Browser/Chrome smoke，因为本批不改变前端 UI 行为。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
