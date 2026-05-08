@@ -27241,7 +27241,8 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.False(result.Accepted);
         Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
-        Assert.Contains("START_BATTLE", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Contains("开始战斗", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.DoesNotContain("START_BATTLE", result.ErrorMessage, StringComparison.Ordinal);
         Assert.Equal(state.Tick, result.State.Tick);
         Assert.Empty(result.Events);
         Assert.False(result.Prompts["P2"].Actionable);

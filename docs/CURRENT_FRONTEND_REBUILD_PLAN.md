@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百三十三批修复后端 full test 中的任务队列文案契约断言。当前服务端已经按产品安全口径把 `START_BATTLE` 阻塞原因显示为中文“开始战斗”，full test 中一条旧断言仍期待 raw `START_BATTLE` 出现在错误消息里；本批把断言改为要求中文原因，并明确禁止 `START_BATTLE` 泄漏到玩家可见 error message。无前端运行时代码变更，前端仍只展示服务端中文 prompt/error。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask"` 通过 1/1；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。此前同批已确认 `source ../../scripts/dev-env.sh && npm run build` 通过。没有新增前端 UI 行为，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百三十二批补充战场得分真实 UI smoke。Chrome 插件房间 `smoke-battlefield-held-score-1778247059745`：P1 页面连接对战页，后台 P2 入座并 seed `battlefield-held-score`；P1 打开《大力仙灵》卡牌详情，在服务端 `DECLARE_BATTLE` composer 中选择战场 `SFD·214/221` 和防守单位 `SFD·125/221`，点击“确认声明战斗”。页面事件日志显示“声明战斗 / 造成伤害 / 单位摧毁 / 据守战场 / 战场触发结算 / 支付费用 / 获得分数 / 战斗结束 / 战场控制结算”，P2 视角分数显示 `1/8`，能量枢纽控制者为 P2。前端全程只按服务端 prompt/sourceRequirements 组合并提交 `DECLARE_BATTLE`，不自行裁决战斗或得分。
 - 本批验证：Chrome 插件 smoke 通过；浏览器 error 日志仅有 Chrome 扩展 autoplay `NotAllowedError` 噪声，应用 runtime error 0。smoke 后已 finalize Chrome 标签并清理 API/Vite 进程，`5092/5093/5094/5175/5176/9223/9224` 无监听。无源码改动，整体仍 **NOT READY**，因为完整正式 18 步还缺同一连续正式牌局里的战场争夺/战斗/得分整合，以及服务端 P0/P1 规则缺口未清零。
 
