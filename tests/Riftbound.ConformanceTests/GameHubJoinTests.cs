@@ -6697,6 +6697,52 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6LifecycleEphemeralLeblancStaticSeedKeepsSameBattlefieldEphemeralInDevelopment()
+    {
+        const string roomId = "p6-8b-lifecycle-ephemeral-leblanc-static";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        await CreateHub(
+                new RecordingHubClients(),
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "lifecycle-ephemeral-leblanc-static", "seed-p6-lifecycle-ephemeral-leblanc-static");
+
+        var endTurnClients = new RecordingHubClients();
+        var endTurn = JsonDocument.Parse("""{"cmdType":"END_TURN"}""").RootElement.Clone();
+        await CreateHub(endTurnClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p6-ephemeral-leblanc-static-end-turn", endTurn);
+
+        Assert.Empty(endTurnClients.CallerClient.Errors);
+        var events = EventsFor(endTurnClients);
+        var ephemeralDestroyedObjectIds = events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal))
+            .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["targetObjectId"]))
+            .ToArray();
+        Assert.Equal(["P2-EPHEMERAL-BASE", "P2-EPHEMERAL-OTHER-BATTLEFIELD"], ephemeralDestroyedObjectIds);
+        Assert.DoesNotContain("P2-EPHEMERAL-PROTECTED", ephemeralDestroyedObjectIds);
+
+        var snapshot = SnapshotFor(endTurnClients, "P2");
+        var p2 = Assert.IsType<Dictionary<string, object?>>(snapshot.Players["P2"]);
+        var p2Zones = Assert.IsType<Dictionary<string, object?>>(p2["zones"]);
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["battlefields"]);
+        Assert.Contains("P2-BATTLEFIELD-LEBLANC", battlefields);
+        Assert.Contains("P2-LEBLANC-STATIC", battlefields);
+        Assert.Contains("P2-EPHEMERAL-PROTECTED", battlefields);
+        Assert.Contains("P2-BATTLEFIELD-OTHER", battlefields);
+        Assert.DoesNotContain("P2-EPHEMERAL-OTHER-BATTLEFIELD", battlefields);
+        Assert.Equal(
+            ["P2-EPHEMERAL-BASE", "P2-EPHEMERAL-OTHER-BATTLEFIELD"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(p2Zones["graveyard"]));
+    }
+
+    [Fact]
     public async Task P6LifecycleLastBreathSeedBroadcastsTriggerQueueInDevelopment()
     {
         const string roomId = "p6-8b-lifecycle-last-breath-core";

@@ -150,6 +150,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const int RenataGoldBonusWinningScoreDistance = 3;
     private const string RenataGoldBonusTag = "RENATA_GOLD_EXTRA_1_MANA";
     private const string LeblancLegendCardNo = "UNL-199/219";
+    private const string LeblancEphemeralStaticUnitCardNo = "UNL-090/219";
     private const string ReksaiLegendCardNo = "SFD·187/221";
     private const string IvernLegendCardNo = "UNL-195/219";
     private const string BrushBattlefieldTokenCardNo = "UNL·T03";
@@ -8427,6 +8428,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return cardNo is LeblancLegendCardNo or "UNL-235/219" or "UNL-235*/219";
     }
 
+    private static bool IsLeblancEphemeralStaticUnitCardNo(string? cardNo)
+    {
+        return cardNo is LeblancEphemeralStaticUnitCardNo or "UNL-090a/219";
+    }
+
     private static void AddBattlefieldHeldEventIfNeeded(
         List<GameEvent> events,
         ref bool battlefieldHeldEventEmitted,
@@ -12876,6 +12882,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         var ephemeralCleanupResult = DestroyEphemeralObjectsAtTurnStart(
             playerZones,
             cardObjects,
+            state.ObjectLocations,
             turnPlayerId,
             state.Tick);
         var battlefieldStartDamageResult = ApplyBattlefieldTurnStartDamageAllUnits(
@@ -13731,6 +13738,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private static EphemeralCleanupResult DestroyEphemeralObjectsAtTurnStart(
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
         string turnPlayerId,
         long currentTick)
     {
@@ -13740,9 +13748,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         var controlledFieldObjectIds = zones.Base
-            .Concat(zones.Battlefields)
-            .Where(objectId => cardObjects.TryGetValue(objectId, out var objectState)
-                && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal))
+            .Select(objectId => (objectId, isBattlefield: false))
+            .Concat(zones.Battlefields.Select(objectId => (objectId, isBattlefield: true)))
+            .Where(entry => cardObjects.TryGetValue(entry.objectId, out var objectState)
+                && objectState.Tags.Contains(CardObjectTags.Ephemeral, StringComparer.Ordinal)
+                && (!entry.isBattlefield
+                    || !IsEphemeralTurnStartSuppressedByLeblancStatic(
+                        playerZones,
+                        cardObjects,
+                        objectLocations,
+                        turnPlayerId,
+                        entry.objectId)))
+            .Select(entry => entry.objectId)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
             .ToArray();
@@ -13786,6 +13803,38 @@ public sealed class CoreRuleEngine : IRuleEngine
                 .Distinct(StringComparer.Ordinal)
                 .OrderBy(ownerId => ownerId, StringComparer.Ordinal)
                 .ToArray());
+    }
+
+    private static bool IsEphemeralTurnStartSuppressedByLeblancStatic(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string turnPlayerId,
+        string objectId)
+    {
+        if (!objectLocations.TryGetValue(objectId, out var objectLocation)
+            || !string.Equals(objectLocation.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+            || string.IsNullOrWhiteSpace(objectLocation.BattlefieldObjectId))
+        {
+            return false;
+        }
+
+        var battlefieldObjectId = objectLocation.BattlefieldObjectId;
+        return objectLocations
+            .Where(entry => string.Equals(entry.Value.Zone, MoveUnitBattlefieldZone, StringComparison.Ordinal)
+                && string.Equals(entry.Value.BattlefieldObjectId, battlefieldObjectId, StringComparison.Ordinal)
+                && IsObjectOnField(playerZones, entry.Key)
+                && cardObjects.TryGetValue(entry.Key, out var candidate)
+                && IsLeblancEphemeralStaticUnitCardNo(candidate.CardNo)
+                && candidate.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                && !candidate.IsFaceDown
+                && !candidate.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                && string.Equals(
+                    EffectiveFieldControllerId(playerZones, entry.Key, candidate),
+                    turnPlayerId,
+                    StringComparison.Ordinal))
+            .Select(entry => entry.Key)
+            .Any();
     }
 
     private static ResolutionResult RejectWithCorePrompts(

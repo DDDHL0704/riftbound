@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-090a/219 乐芙兰",
-      "note": "官方卡面：费用 4；英雄单位；战力 4；后排；所在战场的瞬息效果不会触发。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录关键词标签；瞬息静态免触发路径暂缓。"
+      "note": "官方卡面：费用 4；英雄单位；战力 4；后排；所在战场的瞬息效果不会触发。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录关键词标签；开始阶段同战场己方瞬息免触发由 CoreRuleEngineSuppressesEphemeralTurnStartAtLeblancBattlefield 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

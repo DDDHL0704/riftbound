@@ -8256,6 +8256,7 @@ public sealed class MatchSession : IMatchSession
             "legend-act" => BuildLegendActScenario(current, seed),
             "legend-active-actions" => BuildLegendActiveActionsScenario(current, seed),
             "lifecycle-ephemeral" => BuildLifecycleEphemeralScenario(current, seed),
+            "lifecycle-ephemeral-leblanc-static" => BuildLifecycleEphemeralLeblancStaticScenario(current, seed),
             "lifecycle-last-breath" => BuildLifecycleLastBreathScenario(current, seed),
             "control" => BuildControlScenario(current, seed),
             "battle-declare" => BuildBattleDeclareScenario(current, seed),
@@ -10640,6 +10641,108 @@ public sealed class MatchSession : IMatchSession
                 ["P2-EPHEMERAL-BATTLEFIELD"] = new(power: 2, tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral]),
                 ["P2-KEEP-BASE"] = new(power: 3, tags: [CardObjectTags.UnitCard])
             });
+    }
+
+    private static MatchState BuildLifecycleEphemeralLeblancStaticScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303811,
+            811,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-MAIN-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    baseZone: ["P2-EPHEMERAL-BASE", "P2-KEEP-BASE"],
+                    battlefields:
+                    [
+                        "P2-BATTLEFIELD-LEBLANC",
+                        "P2-LEBLANC-STATIC",
+                        "P2-EPHEMERAL-PROTECTED",
+                        "P2-BATTLEFIELD-OTHER",
+                        "P2-EPHEMERAL-OTHER-BATTLEFIELD"
+                    ],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-EPHEMERAL-BASE"] = new(
+                    "P2-EPHEMERAL-BASE",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-KEEP-BASE"] = new(
+                    "P2-KEEP-BASE",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-LEBLANC"] = new(
+                    "P2-BATTLEFIELD-LEBLANC",
+                    cardNo: "UNL·T01",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-LEBLANC-STATIC"] = new(
+                    "P2-LEBLANC-STATIC",
+                    cardNo: "UNL-090a/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.BackRow],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-EPHEMERAL-PROTECTED"] = new(
+                    "P2-EPHEMERAL-PROTECTED",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-OTHER"] = new(
+                    "P2-BATTLEFIELD-OTHER",
+                    cardNo: "UNL·T03",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-EPHEMERAL-OTHER-BATTLEFIELD"] = new(
+                    "P2-EPHEMERAL-OTHER-BATTLEFIELD",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+
+        return state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-MAIN-001"] = new(seed.P1, "MAIN_DECK"),
+                ["P1-RUNE-001"] = new(seed.P1, "RUNE_DECK"),
+                ["P1-RUNE-002"] = new(seed.P1, "RUNE_DECK"),
+                ["P2-MAIN-001"] = new(seed.P2, "MAIN_DECK"),
+                ["P2-RUNE-001"] = new(seed.P2, "RUNE_DECK"),
+                ["P2-RUNE-002"] = new(seed.P2, "RUNE_DECK"),
+                ["P2-EPHEMERAL-BASE"] = new(seed.P2, "BASE"),
+                ["P2-KEEP-BASE"] = new(seed.P2, "BASE"),
+                ["P2-BATTLEFIELD-LEBLANC"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-LEBLANC"),
+                ["P2-LEBLANC-STATIC"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-LEBLANC"),
+                ["P2-EPHEMERAL-PROTECTED"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-LEBLANC"),
+                ["P2-BATTLEFIELD-OTHER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-OTHER"),
+                ["P2-EPHEMERAL-OTHER-BATTLEFIELD"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-OTHER")
+            }
+        };
     }
 
     private static MatchState BuildLifecycleLastBreathScenario(MatchState current, DevScenarioSeed seed)

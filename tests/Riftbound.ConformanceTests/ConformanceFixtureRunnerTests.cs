@@ -814,6 +814,146 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineSuppressesEphemeralTurnStartAtLeblancBattlefield()
+    {
+        var state = new MatchState(
+            "p4-ephemeral-leblanc-static-room",
+            0,
+            9,
+            "P2",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P2",
+            phase: MatchPhases.TurnStart,
+            timingState: TimingStates.NeutralClosed,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = RunePool.Empty
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Base = ["P1-EPHEMERAL-OTHER"]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    MainDeck = ["P2-MAIN-001"],
+                    Base = ["P2-EPHEMERAL-BASE", "P2-KEEP-BASE"],
+                    Battlefields =
+                    [
+                        "P2-BATTLEFIELD-LEBLANC",
+                        "P2-LEBLANC-STATIC",
+                        "P2-EPHEMERAL-PROTECTED",
+                        "P2-BATTLEFIELD-OTHER",
+                        "P2-EPHEMERAL-OTHER-BATTLEFIELD"
+                    ]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-EPHEMERAL-OTHER"] = new(
+                    "P1-EPHEMERAL-OTHER",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-EPHEMERAL-BASE"] = new(
+                    "P2-EPHEMERAL-BASE",
+                    power: 1,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-KEEP-BASE"] = new(
+                    "P2-KEEP-BASE",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-LEBLANC"] = new(
+                    "P2-BATTLEFIELD-LEBLANC",
+                    cardNo: "UNL·T01",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-LEBLANC-STATIC"] = new(
+                    "P2-LEBLANC-STATIC",
+                    cardNo: "UNL-090a/219",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, CardCombatKeywordNames.BackRow],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-EPHEMERAL-PROTECTED"] = new(
+                    "P2-EPHEMERAL-PROTECTED",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-BATTLEFIELD-OTHER"] = new(
+                    "P2-BATTLEFIELD-OTHER",
+                    cardNo: "UNL·T03",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-EPHEMERAL-OTHER-BATTLEFIELD"] = new(
+                    "P2-EPHEMERAL-OTHER-BATTLEFIELD",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Ephemeral],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-EPHEMERAL-OTHER"] = new("P1", "BASE"),
+                ["P2-MAIN-001"] = new("P2", "MAIN_DECK"),
+                ["P2-EPHEMERAL-BASE"] = new("P2", "BASE"),
+                ["P2-KEEP-BASE"] = new("P2", "BASE"),
+                ["P2-BATTLEFIELD-LEBLANC"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-LEBLANC"),
+                ["P2-LEBLANC-STATIC"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-LEBLANC"),
+                ["P2-EPHEMERAL-PROTECTED"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-LEBLANC"),
+                ["P2-BATTLEFIELD-OTHER"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER"),
+                ["P2-EPHEMERAL-OTHER-BATTLEFIELD"] = new("P2", "BATTLEFIELD", "P2-BATTLEFIELD-OTHER")
+            });
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-ephemeral-leblanc-static", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        var destroyedObjectIds = result.Events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                && string.Equals(gameEvent.Payload["reason"] as string, "EPHEMERAL_TURN_START", StringComparison.Ordinal))
+            .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["targetObjectId"]))
+            .ToArray();
+        Assert.Equal(["P2-EPHEMERAL-BASE", "P2-EPHEMERAL-OTHER-BATTLEFIELD"], destroyedObjectIds);
+        Assert.DoesNotContain("P2-EPHEMERAL-BASE", result.State.CardObjects.Keys);
+        Assert.DoesNotContain("P2-EPHEMERAL-OTHER-BATTLEFIELD", result.State.CardObjects.Keys);
+        Assert.Contains("P2-EPHEMERAL-PROTECTED", result.State.CardObjects.Keys);
+        Assert.Contains("P2-LEBLANC-STATIC", result.State.CardObjects.Keys);
+        Assert.Equal(["P2"], result.State.DestroyedUnitOwnerIdsThisTurn);
+        Assert.Equal("BATTLEFIELD", result.State.ObjectLocations["P2-EPHEMERAL-PROTECTED"].Zone);
+        Assert.Equal("P2-BATTLEFIELD-LEBLANC", result.State.ObjectLocations["P2-EPHEMERAL-PROTECTED"].BattlefieldObjectId);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-EPHEMERAL-BASE"].Zone);
+        Assert.Equal("GRAVEYARD", result.State.ObjectLocations["P2-EPHEMERAL-OTHER-BATTLEFIELD"].Zone);
+        var leblancBattlefield = result.State.BattlefieldStates["P2-BATTLEFIELD-LEBLANC"];
+        Assert.Equal(["P2-EPHEMERAL-PROTECTED", "P2-LEBLANC-STATIC"], leblancBattlefield.OccupantObjectIds);
+        Assert.Empty(result.State.BattlefieldStates["P2-BATTLEFIELD-OTHER"].OccupantObjectIds);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineCallsAvailableRunesWhenRuneDeckIsShort()
     {
         var fixture = await ConformanceFixture.LoadAsync(

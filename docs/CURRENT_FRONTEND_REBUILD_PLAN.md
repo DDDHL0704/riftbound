@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百六十批补齐乐芙兰（UNL-090/219、UNL-090a/219）“所在战场的瞬息效果不会触发”的服务端代表性静态规则。开始阶段瞬息清理现在只在权威 `ObjectLocations` 能确认同一战场且同控制者正面乐芙兰单位存在时，跳过同战场己方瞬息对象；基地瞬息、其他战场瞬息和其他玩家瞬息仍由服务端正常摧毁。新增 development-only `lifecycle-ephemeral-leblanc-static` seed 和 Hub 回归，前端仍只消费服务端事件与 snapshot，不新增本地规则裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；LeBlanc/瞬息目标回归 9/9 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3159/3159；`source ../../scripts/dev-env.sh && npm run build` 通过，`check:event-labels` 与 `check:user-facing-text` 均通过。无前端 UI 运行时代码变更，本批不启动业务 Chrome smoke；目标端口保持清理要求。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百五十九批继续收口前端/API fallback 文案并新增构建门禁。`MatchSocket` 等待 `Joined` 超时时不再抛出英文 `Timed out waiting for Joined.`，API 行为规格单卡查询未命中时不再返回 `BehaviorSpec not found.`；新增 `scripts/check-user-facing-text.mjs` 并接入 `npm run build`，持续扫描 DevUi、Api、Engine 中已收口的玩家可见英文 fallback。前端仍只展示服务端/API 返回，不新增本地规则判断。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`source ../../scripts/dev-env.sh && npm run build` 通过，且实际执行 `check:user-facing-text` 输出 `User-facing fallback text check passed.`；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3157/3157。无业务交互流程变更，本批不启动业务 Chrome smoke；目标端口保持无监听。整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
