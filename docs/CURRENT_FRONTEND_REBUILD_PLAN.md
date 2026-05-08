@@ -1,11 +1,14 @@
 # 符文战场 Web 前端重建与服务端补齐计划
 
-更新日期：2026-05-08
+更新日期：2026-05-09
 当前结论：**NOT READY**
 当前完成度：约 **99%**，预计仍需 completion audit 与少量收口修复。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
 最新批次补充：
+
+- 第二百六十七批补齐《侦察飞鹰》（OGN·216/298）“绝念时召出 1 枚休眠符文”的服务端代表路径。普通栈摧毁路径确认正面、非待命《侦察飞鹰》作为单位进入废牌堆后，由服务端排入并解析 `SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1`，随后从控制者符文牌堆召出 1 枚符文到基地，并保持休眠/横置状态；前端仍只展示服务端触发、召符文事件和 authoritative snapshot，不新增本地绝念或符文状态裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；侦察飞鹰绝念召休眠符文与哀哀魄罗/忠忠魄罗绝念回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3169/3169；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整绝念引擎、非栈摧毁触发时机、创建随从等分支、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
 - 第二百六十六批补齐《哀哀魄罗》（SFD·036/221、UNL-221/219）“绝念，落单时抽 1”的服务端代表路径。普通栈摧毁路径在移除前按 authoritative field/object location 判断同位置是否没有其他同控制者正面、非待命单位；满足时服务端排入并解析 `SAD_PORO_LAST_BREATH_DRAW_1`，随后抽 1 张牌，非落单时不触发。前端仍只展示服务端事件与 snapshot，不新增本地落单裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；哀哀魄罗 SFD/UNL 落单抽牌、非落单不抽、忠忠魄罗非落单/孤立回归 5/5 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3168/3168；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整绝念引擎、召符文/创建随从等分支、非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。

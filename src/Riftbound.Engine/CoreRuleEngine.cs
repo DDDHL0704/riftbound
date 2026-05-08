@@ -43,6 +43,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string SadPoroLastBreathDrawEffectKind = "SAD_PORO_LAST_BREATH_DRAW_1";
     private const string LoyalPoroCardNo = "UNL-156/219";
     private const string LoyalPoroLastBreathDrawEffectKind = "LOYAL_PORO_LAST_BREATH_DRAW_1";
+    private const string ScoutingWarhawkCardNo = "OGN·216/298";
+    private const string ScoutingWarhawkLastBreathCallRuneEffectKind = "SCOUTING_WARHAWK_LAST_BREATH_CALL_RUNE_1";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -1492,6 +1494,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !string.Equals(destroyedState.CardNo, WatchfulSentinelCardNo, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveScoutingWarhawkLastBreathRunePlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, ScoutingWarhawkCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
         {
             return null;
         }
@@ -18349,6 +18371,33 @@ public sealed class CoreRuleEngine : IRuleEngine
                                 playerScores = drawApplication.PlayerScores;
                                 winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                                 rngCursor = drawApplication.RngCursor;
+                            }
+
+                            var warhawkRunePlayerId = ResolveScoutingWarhawkLastBreathRunePlayerId(
+                                targetState,
+                                removalResult);
+                            if (warhawkRunePlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    warhawkRunePlayerId,
+                                    ScoutingWarhawkLastBreathCallRuneEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+
+                                var runeCallResult = CallRunes(playerZones, cardObjects, warhawkRunePlayerId, 1);
+                                events.Add(new GameEvent(
+                                    "RUNES_CALLED",
+                                    $"{warhawkRunePlayerId} 召出 {runeCallResult.CalledRuneObjectIds.Count} 张休眠符文",
+                                    new Dictionary<string, object?>
+                                    {
+                                        ["playerId"] = warhawkRunePlayerId,
+                                        ["sourceObjectId"] = targetObjectId,
+                                        ["count"] = runeCallResult.CalledRuneObjectIds.Count,
+                                        ["runeObjectIds"] = runeCallResult.CalledRuneObjectIds.ToArray(),
+                                        ["reason"] = ScoutingWarhawkLastBreathCallRuneEffectKind
+                                    }));
                             }
 
                             if (sadPoroLastBreathDrawPlayerId is not null)
