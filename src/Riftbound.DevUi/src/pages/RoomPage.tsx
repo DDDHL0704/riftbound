@@ -7,7 +7,7 @@ import { useSettings } from "../stores/settingsStore";
 import { candidateListLabel } from "../components/match/ActionPanel";
 import { eventDescriptionLabel, eventKindLabel } from "../components/match/EventLog";
 import { ActionPromptCandidateDto } from "../types/protocol";
-import { promptActionLabel } from "../utils/formatters";
+import { connectionStatusLabel, connectionStatusTone, promptActionLabel } from "../utils/formatters";
 
 export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (route: AppRoute) => void }) {
   const { settings } = useSettings();
@@ -22,7 +22,9 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
           <h1>{roomId}</h1>
           <p>入座、提交卡组、准备和开局均通过 GameHub 服务端确认。</p>
         </div>
-        <StatusPill tone={controller.state.status === "connected" ? "good" : "warn"}>{controller.state.status}</StatusPill>
+        <StatusPill tone={connectionStatusTone(controller.state.status)}>
+          {connectionStatusLabel(controller.state.status)}
+        </StatusPill>
       </section>
       <section className="room-actions">
         <Button icon={<RefreshCw size={18} />} onClick={() => void controller.join()}>连接/重连并入座</Button>

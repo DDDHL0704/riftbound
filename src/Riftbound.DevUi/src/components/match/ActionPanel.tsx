@@ -1,7 +1,7 @@
 import { Check, Flag, Hourglass, Play, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
-import { promptActionLabel } from "../../utils/formatters";
+import { connectionStatusLabel, promptActionLabel } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -190,25 +190,6 @@ function CandidateButton({
       {!command && !directAction && candidate.action !== "WAIT" ? `（需选择）` : ""}
     </Button>
   );
-}
-
-function connectionStatusLabel(status: ConnectionStatus): string {
-  switch (status) {
-    case "idle":
-      return "未连接";
-    case "connecting":
-      return "连接中";
-    case "connected":
-      return "已连接";
-    case "reconnecting":
-      return "重连中";
-    case "resyncing":
-      return "重新同步中";
-    case "disconnected":
-      return "已断开";
-    case "error":
-      return "连接错误";
-  }
 }
 
 function directCandidateAction(candidate: ActionPromptCandidateDto, onReady: () => void, onSubmitStarterDeck: () => void): (() => void) | undefined {

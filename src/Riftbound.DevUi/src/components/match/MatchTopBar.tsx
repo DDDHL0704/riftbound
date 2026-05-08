@@ -1,6 +1,7 @@
 import { Wifi, WifiOff } from "lucide-react";
 import { ConnectionStatus, SnapshotDto } from "../../types/protocol";
 import { asRecord, asString } from "../../utils/collections";
+import { connectionStatusLabel, connectionStatusTone } from "../../utils/formatters";
 import { StatusPill } from "../ui/StatusPill";
 
 export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: SnapshotDto; status: ConnectionStatus; playerId: string }) {
@@ -8,7 +9,6 @@ export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: Snapsho
   const turnWindow = asRecord(timing.turnWindow);
   const spellDuel = asRecord(timing.spellDuel);
   const promptPlayer = asString(timing.promptPlayerId, "无");
-  const connection = connectionStatusView(status);
 
   return (
     <section className="match-topbar">
@@ -16,7 +16,7 @@ export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: Snapsho
         <span className="eyebrow">对战状态</span>
         <h1>第 {snapshot?.turnNumber ?? 0} 回合｜{asString(timing.phase, "等待开局")}｜{asString(turnWindow.state, asString(timing.timingState, "未知窗口"))}</h1>
       </div>
-      <StatusPill tone={connection.tone}>{connection.label}</StatusPill>
+      <StatusPill tone={connectionStatusTone(status)}>{connectionStatusLabel(status)}</StatusPill>
       <StatusPill tone={snapshot?.activePlayerId === playerId ? "good" : "neutral"}>回合玩家：{snapshot?.activePlayerId ?? "无"}</StatusPill>
       <StatusPill tone={asString(turnWindow.actingPlayerId, "") === playerId ? "good" : "neutral"}>行动权：{asString(turnWindow.actingPlayerId, "无")}</StatusPill>
       <StatusPill tone={asString(spellDuel.focusPlayerId, "") === playerId ? "good" : "info"}>焦点：{asString(spellDuel.focusPlayerId, "无")}</StatusPill>
@@ -24,23 +24,4 @@ export function MatchTopBar({ snapshot, status, playerId }: { snapshot?: Snapsho
       {status === "connected" ? <Wifi size={20} aria-hidden /> : <WifiOff size={20} aria-hidden />}
     </section>
   );
-}
-
-function connectionStatusView(status: ConnectionStatus): { label: string; tone: "neutral" | "good" | "warn" | "bad" | "info" } {
-  switch (status) {
-    case "idle":
-      return { label: "未连接", tone: "neutral" };
-    case "connecting":
-      return { label: "连接中", tone: "info" };
-    case "connected":
-      return { label: "已连接", tone: "good" };
-    case "reconnecting":
-      return { label: "重连中", tone: "warn" };
-    case "resyncing":
-      return { label: "重新同步中", tone: "info" };
-    case "disconnected":
-      return { label: "已断开", tone: "bad" };
-    case "error":
-      return { label: "连接错误", tone: "bad" };
-  }
 }

@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第一百九十八批补充：房间页连接状态继续中文化并与对战桌面统一。`connectionStatusLabel` / `connectionStatusTone` 已抽到共享 formatter，`RoomPage`、`MatchTopBar` 和 `ActionPanel` 共用同一套连接状态文案与色调；房间页不再把 `connected` 等 raw 状态枚举作为玩家可见主文案。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-status-label-1778233017487`，房间页连接前显示“未连接”，点击“连接/重连并入座”后显示“已连接”，页面正文不含 raw `connected`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P0-005/P1-004 第一百九十七批补充：前端服务端日志描述增加展示级内部 ID 脱敏。`EventLog` 与 `RoomPage` 现在共用 `eventDescriptionLabel`，会把日志描述中的 `P1-...` / `P2-...` 对象 ID、`STACK-...` 结算链 ID、`hidden-...` 占位和 `task:`/`cleanup:` 服务端任务 ID 显示为“对象 / 结算链项目 / 隐藏对象 / 服务端任务”。这只影响 UI 文案，不修改 authoritative snapshot、payload、prompt 或命令提交；前端仍不从日志描述裁决规则。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-event-redaction-1778232667598`，P1 连接房间页后外部连接 P2、seed `legend-act` 并提交 `LEGEND_ACT`，房间日志显示“传奇横置 / 对象 横置”，页面正文不含 `P1-LEGEND-POPPY` 或 `STACK-...`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -1,5 +1,5 @@
 import { BehaviorSpec } from "../types/catalog";
-import { ActionPromptCandidateDto, CardObjectView, RunePoolView } from "../types/protocol";
+import { ActionPromptCandidateDto, CardObjectView, ConnectionStatus, RunePoolView } from "../types/protocol";
 
 export function costText(spec?: BehaviorSpec): string {
   if (!spec) {
@@ -88,6 +88,44 @@ export function statusLabel(status?: string): string {
       return "未实现";
     default:
       return status ?? "未知";
+  }
+}
+
+export function connectionStatusLabel(status: ConnectionStatus): string {
+  switch (status) {
+    case "idle":
+      return "未连接";
+    case "connecting":
+      return "连接中";
+    case "connected":
+      return "已连接";
+    case "reconnecting":
+      return "重连中";
+    case "resyncing":
+      return "重新同步中";
+    case "disconnected":
+      return "已断开";
+    case "error":
+      return "连接错误";
+  }
+}
+
+export function connectionStatusTone(status: ConnectionStatus): "neutral" | "good" | "warn" | "bad" | "info" {
+  switch (status) {
+    case "idle":
+      return "neutral";
+    case "connecting":
+      return "info";
+    case "connected":
+      return "good";
+    case "reconnecting":
+      return "warn";
+    case "resyncing":
+      return "info";
+    case "disconnected":
+      return "bad";
+    case "error":
+      return "bad";
   }
 }
 
