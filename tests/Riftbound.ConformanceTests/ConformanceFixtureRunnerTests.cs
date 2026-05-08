@@ -607,6 +607,33 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task CoreRuleEngineRejectsSurrenderWithoutOpponent()
+    {
+        var state = PunishmentState(mana: 0) with
+        {
+            Seats = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1"
+            }
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p1-surrender-no-opponent", "P1", "SURRENDER"),
+            new SurrenderCommand(),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.PhaseNotAllowed, result.ErrorCode);
+        Assert.Equal("投降需要存在对手。", result.ErrorMessage);
+        Assert.DoesNotContain("SURRENDER", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(MatchStatuses.InProgress, result.State.Status);
+        Assert.Null(result.State.WinnerPlayerId);
+    }
+
+    [Fact]
     public async Task CoreRuleEngineRejectsMulliganAfterMatchFinished()
     {
         var state = PunishmentState(mana: 0) with

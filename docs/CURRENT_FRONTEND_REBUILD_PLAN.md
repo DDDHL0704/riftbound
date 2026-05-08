@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百四十二批继续收口投降服务端错误文案。`CoreRuleEngine` 在异常单人房间或缺少对手时拒绝 `SURRENDER`，错误消息从 raw 协议句改为中文“投降需要存在对手。”；新增回归覆盖无对手投降拒绝并断言不含 raw `SURRENDER`，同时保留正常投降胜负裁决路径。前端仍只在服务端 prompt 暴露 `SURRENDER` 候选时显示站内确认，不自行裁决胜负。
+- 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~CoreRuleEngineRejectsSurrenderWithoutOpponent|FullyQualifiedName~CoreRuleEngineSurrenderFinishesMatchAndOpponentWins"` 通过 2/2；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3141/3141。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百四十一批继续收口移动单位服务端错误文案。`CoreRuleEngine` 在错误窗口、非法粗粒度区域、暂未开放额外费用、目的地相同、来源不在提交起点、来源非正面单位、来源不受控、缺少已知单位牌号、战斗中、战场静态禁止回基地、贴附装备移动、精确战场路径/战场身份/起点权威位置/游走许可等路径拒绝 `MOVE_UNIT` 时，错误消息改为中文移动单位说明；核心、official opening 与 Hub seed 回归断言不含 raw `MOVE_UNIT`。前端仍只展示服务端 `MOVE_UNIT` prompt/sourceRequirements/destinationChoices，不自行裁决移动合法性。
 - 本批验证：`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~P4MoveUnitCommandRejects|FullyQualifiedName~P79BattlefieldStaticPreventMoveToBaseRejectsMoveUnit|FullyQualifiedName~PreciseRoamMoveRejectsOriginThatDoesNotMatchAuthoritativeLocation|FullyQualifiedName~P79BattlefieldStaticPreventMoveBaseSeedRejectsMoveToBase"` 通过 22/22；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3140/3140。无前端运行时代码变更，本批不启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 

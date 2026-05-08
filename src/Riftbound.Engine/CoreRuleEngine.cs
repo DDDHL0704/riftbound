@@ -13934,7 +13934,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "SURRENDER requires an opponent.",
+                "投降需要存在对手。",
                 ErrorCodes.PhaseNotAllowed);
         }
 
