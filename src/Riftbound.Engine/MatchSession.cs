@@ -4099,8 +4099,7 @@ internal static class ActionPromptBuilder
             !string.Equals(battlefieldObjectId, sourceObjectId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldState)
             && string.Equals(battlefieldState.CardNo, BattlefieldGrantUnitExperienceCardNo, StringComparison.Ordinal)
-            && (string.IsNullOrWhiteSpace(battlefieldState.ControllerId)
-                || string.Equals(battlefieldState.ControllerId, playerId, StringComparison.Ordinal)));
+            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, playerId));
     }
 
     private static IReadOnlyList<AssembleEquipmentPromptRequirement> AssembleEquipmentSourceRequirements(

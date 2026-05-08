@@ -1741,8 +1741,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             !string.Equals(objectId, command.SourceObjectId, StringComparison.Ordinal)
             && state.CardObjects.TryGetValue(objectId, out var battlefieldState)
             && IsBattlefieldGrantUnitExperienceCardNo(battlefieldState.CardNo)
-            && (string.IsNullOrWhiteSpace(battlefieldState.ControllerId)
-                || string.Equals(battlefieldState.ControllerId, intent.PlayerId, StringComparison.Ordinal)));
+            && SourceObjectControlledByPlayerOrLegacyOwned(battlefieldState, intent.PlayerId));
         if (string.IsNullOrWhiteSpace(battlefieldObjectId)
             || !state.CardObjects.TryGetValue(battlefieldObjectId, out var battlefieldCardState))
         {

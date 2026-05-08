@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百五十四批仍为服务端规则收口，没有前端 UI 文件变更。蜕变花园授予战场单位激活能力的 prompt 与 Core 结算都改用统一 source-control/legacy-owned 判断；对手拥有但 `controllerId` 为空的脏战场牌不会再授予 P1 单位“横置获得经验”的候选，也不能被手写 `ACTIVATE_ABILITY` 触发。前端继续只消费服务端候选。
+- 本批验证：`dotnet build` 通过；目标回归 7/7、`ActivateAbility` 相关回归 62/62、`GameHubJoinTests` 118/118、后端 full test 3100/3100 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百五十三批仍为服务端规则收口，没有前端 UI 文件变更。服务端 `HIDE_CARD` 命令侧的 Bandle Tree 额外待命目的地与 prompt 层统一：`controllerId` 为空但 `ownerId` 已明确属于对手的战场牌，不再能被手写命令绕过前端用作额外待命目的地。前端继续只消费服务端候选，不新增本地规则判断。
 - 本批验证：`dotnet build` 通过；`P79BattlefieldBandleTree|HideCard` 相关回归 33/33、`GameHubJoinTests` 118/118、后端 full test 3098/3098 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Chrome smoke，因为本批不改变前端 UI 行为；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
