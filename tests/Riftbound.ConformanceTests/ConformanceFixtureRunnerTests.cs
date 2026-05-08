@@ -34585,6 +34585,112 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
     }
 
+    [Fact]
+    public async Task P79GhostlyCentaurGainsTemporaryPowerWhenAnotherFriendlyUnitDestroyed()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-VENGEANCE"],
+                    Base =
+                    [
+                        "P1-GHOSTLY-CENTAUR",
+                        "P1-GHOSTLY-CENTAUR-FACEDOWN",
+                        "P1-GHOSTLY-CENTAUR-STANDBY",
+                        "P1-FRIENDLY-TARGET"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Base = ["P2-GHOSTLY-CENTAUR"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-GHOSTLY-CENTAUR"] = new(
+                    "P1-GHOSTLY-CENTAUR",
+                    cardNo: "UNL-068/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GHOSTLY-CENTAUR-FACEDOWN"] = new(
+                    "P1-GHOSTLY-CENTAUR-FACEDOWN",
+                    cardNo: "UNL-068/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    isFaceDown: true,
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-GHOSTLY-CENTAUR-STANDBY"] = new(
+                    "P1-GHOSTLY-CENTAUR-STANDBY",
+                    cardNo: "UNL-068/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, CardObjectTags.Standby, "灵体"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-FRIENDLY-TARGET"] = new(
+                    "P1-FRIENDLY-TARGET",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P2-GHOSTLY-CENTAUR"] = new(
+                    "P2-GHOSTLY-CENTAUR",
+                    cardNo: "UNL-068/219",
+                    power: 5,
+                    tags: [CardObjectTags.UnitCard, "灵体"],
+                    ownerId: "P2",
+                    controllerId: "P2")
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-ghostly-centaur-play-vengeance", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", ["P1-FRIENDLY-TARGET"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-ghostly-centaur-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-ghostly-centaur-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var destroyedEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal));
+        Assert.Equal("P1-FRIENDLY-TARGET", destroyedEvent.Payload["targetObjectId"]);
+        Assert.Equal("P1", destroyedEvent.Payload["ownerPlayerId"]);
+
+        var powerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal));
+        Assert.Equal("P1-GHOSTLY-CENTAUR", powerEvent.Payload["sourceObjectId"]);
+        Assert.Equal("P1-GHOSTLY-CENTAUR", powerEvent.Payload["targetObjectId"]);
+        Assert.Equal(2, powerEvent.Payload["powerDelta"]);
+        Assert.Equal(2, powerEvent.Payload["appliedPowerDelta"]);
+        Assert.Equal(7, powerEvent.Payload["resultingPower"]);
+        Assert.Equal(7, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].Power);
+        Assert.Equal(2, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR"].UntilEndOfTurnPowerModifier);
+        Assert.Equal(5, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR-FACEDOWN"].Power);
+        Assert.Equal(5, p2Pass.State.CardObjects["P1-GHOSTLY-CENTAUR-STANDBY"].Power);
+        Assert.Equal(5, p2Pass.State.CardObjects["P2-GHOSTLY-CENTAUR"].Power);
+        Assert.Contains("P1-FRIENDLY-TARGET", p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.Contains("P1-SPELL-VENGEANCE", p2Pass.State.PlayerZones["P1"].Graveyard);
+        Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
+    }
+
     [Theory]
     [InlineData("SFD·036/221", "P1-SAD-PORO")]
     [InlineData("UNL-221/219", "P1-UNL-SAD-PORO")]

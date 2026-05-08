@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-ghostly-centaur-friendly-destroyed-static",
-  "description": "UNL 068 Ghostly Centaur enters as a Spirit unit while its friendly destroyed power trigger is deferred.",
+  "description": "UNL 068 Ghostly Centaur enters as a Spirit unit; stack destruction friendly destroyed power trigger is covered by a focused engine regression.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-068/219 幽魂半人马",
-      "note": "官方卡面：费用 6；单位；战力 5；灵体属性；每当另一名友方单位被摧毁时，其本回合战力 +2。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，并记录灵体属性标签；友方单位被摧毁记忆和本回合战力修正路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 5；灵体属性；每当另一名友方单位被摧毁时，其本回合战力 +2。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，并记录灵体属性标签；栈摧毁监听另一名友方单位并获得本回合战力 +2 由 P79GhostlyCentaurGainsTemporaryPowerWhenAnotherFriendlyUnitDestroyed 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

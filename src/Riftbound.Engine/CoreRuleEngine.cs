@@ -173,6 +173,16 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string PetalPixieCardNo = "UNL-076/219";
     private const string SoulShepherdCardNo = "UNL-077/219";
     private const string SavageJawfishCardNo = "UNL-129/219";
+    private const string GhostlyCentaurCardNo = "UNL-068/219";
+    private const string GhostlyCentaurFriendlyDestroyedPowerEffectKind = "GHOSTLY_CENTAUR_FRIENDLY_DESTROYED_POWER_2";
+    private static readonly CardBehaviorDefinition GhostlyCentaurFriendlyDestroyedPowerBehavior = new(
+        GhostlyCentaurCardNo,
+        "幽魂半人马",
+        0,
+        GhostlyCentaurFriendlyDestroyedPowerEffectKind,
+        0,
+        0,
+        PowerModifierAmount: 2);
     private const string ScarletPigeonCardNo = "UNL-154/219";
     private const string SandSoldierTokenCardNo = "SFD·T02";
     private const string RumbleLegendCardNo = "SFD·181/221";
@@ -14014,6 +14024,70 @@ public sealed class CoreRuleEngine : IRuleEngine
         return playerExperience;
     }
 
+    private static void ResolveGhostlyCentaurFriendlyDestroyedUnitPower(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        List<GameEvent> events)
+    {
+        var destroyedUnits = events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "UNIT_DESTROYED", StringComparison.Ordinal)
+                && TryGetPayloadString(gameEvent, "targetObjectId", out _)
+                && TryGetPayloadString(gameEvent, "ownerPlayerId", out _))
+            .Select(gameEvent =>
+            {
+                _ = TryGetPayloadString(gameEvent, "targetObjectId", out var destroyedObjectId);
+                _ = TryGetPayloadString(gameEvent, "ownerPlayerId", out var ownerPlayerId);
+                return (DestroyedObjectId: destroyedObjectId, OwnerPlayerId: ownerPlayerId);
+            })
+            .ToArray();
+        if (destroyedUnits.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var destroyedUnit in destroyedUnits)
+        {
+            var triggerSources = playerZones
+                .SelectMany(entry => entry.Value.Base.Concat(entry.Value.Battlefields))
+                .Distinct(StringComparer.Ordinal)
+                .Where(sourceObjectId => !string.Equals(
+                    sourceObjectId,
+                    destroyedUnit.DestroyedObjectId,
+                    StringComparison.Ordinal))
+                .Where(sourceObjectId => cardObjects.TryGetValue(sourceObjectId, out var sourceState)
+                    && string.Equals(sourceState.CardNo, GhostlyCentaurCardNo, StringComparison.Ordinal)
+                    && sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+                    && !sourceState.IsFaceDown
+                    && !sourceState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal)
+                    && IsObjectOnField(playerZones, sourceObjectId)
+                    && string.Equals(
+                        EffectiveFieldControllerId(playerZones, sourceObjectId, sourceState),
+                        destroyedUnit.OwnerPlayerId,
+                        StringComparison.Ordinal))
+                .OrderBy(sourceObjectId => sourceObjectId, StringComparer.Ordinal)
+                .ToArray();
+
+            foreach (var sourceObjectId in triggerSources)
+            {
+                var sourceState = cardObjects[sourceObjectId];
+                var triggerStackItem = new StackItemState(
+                    stackItemId: $"{sourceObjectId}:friendly-destroyed-power",
+                    controllerId: destroyedUnit.OwnerPlayerId,
+                    sourceObjectId: sourceObjectId,
+                    effectKind: GhostlyCentaurFriendlyDestroyedPowerEffectKind,
+                    cardNo: GhostlyCentaurCardNo);
+                cardObjects[sourceObjectId] = ApplyPowerModifier(
+                    sourceState,
+                    GhostlyCentaurFriendlyDestroyedPowerBehavior,
+                    triggerStackItem,
+                    sourceObjectId,
+                    GhostlyCentaurFriendlyDestroyedPowerBehavior.PowerModifierAmount,
+                    out var powerEvent);
+                events.Add(powerEvent);
+            }
+        }
+    }
+
     private static bool StackEventsRecycledControllerRune(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string playerId,
@@ -19063,6 +19137,10 @@ public sealed class CoreRuleEngine : IRuleEngine
             cardObjects,
             playerExperience,
             stackItem,
+            events);
+        ResolveGhostlyCentaurFriendlyDestroyedUnitPower(
+            playerZones,
+            cardObjects,
             events);
         var jhinTrigger = ResolveJhinHighCostSpellTrigger(
             state,

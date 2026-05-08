@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "UNL-068/219 幽魂半人马",
-      "note": "官方卡面：费用 6；单位；战力 5；灵体；当另一名友方单位被摧毁时，本回合内战力 +2。当前 fixture 覆盖普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；友方单位被摧毁记忆和本回合战力修正路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 5；灵体；当另一名友方单位被摧毁时，本回合内战力 +2。当前 fixture 覆盖普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；栈摧毁监听另一名友方单位并获得本回合战力 +2 由 P79GhostlyCentaurGainsTemporaryPowerWhenAnotherFriendlyUnitDestroyed 覆盖。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",

@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百七十二批补齐《幽魂半人马》（UNL-068/219）“每当另一名友方单位被摧毁时，本回合战力 +2”的服务端代表路径。普通栈结算生成 `UNIT_DESTROYED` 后，服务端从 authoritative field state 找到同控制者场上正面、非待命《幽魂半人马》，通过 `POWER_MODIFIED_UNTIL_END_OF_TURN` 将来源自身本回合战力 +2；面朝下、待命、对手控制来源不会误触发。前端仍只展示服务端事件和 authoritative snapshot，不新增本地摧毁监听或战力裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；幽魂半人马、凶残颚鱼、无名英雄摧毁触发回归 4/4 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3175/3175；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百七十一批补齐《无名英雄》（SFD·167/221）“绝念时若我是强力单位则抽两张牌”的服务端代表路径。普通栈摧毁路径确认正面、非待命《无名英雄》作为单位进入废牌堆，且被摧毁前战力达到强力阈值 5 以上后，由服务端排入并解析 `UNSUNG_HERO_LAST_BREATH_POWERFUL_DRAW_2`，随后抽 2 张牌；低于强力阈值时不会触发。前端仍只展示服务端触发、抽牌事件和 authoritative snapshot，不新增本地强力或绝念裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；无名英雄、诚实掮客、铁甲先锋、机械戏法师、侦察飞鹰绝念创建/召符文/抽牌回归 6/6 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3174/3174；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整绝念引擎、非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
