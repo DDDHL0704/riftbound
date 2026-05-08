@@ -319,6 +319,28 @@ export function actionLabel(action: string): string {
   return labels[action] ?? action;
 }
 
+export function runeTraitLabel(trait?: string): string {
+  switch (trait?.trim().toLowerCase()) {
+    case "red":
+    case "红色":
+      return "红色符能";
+    case "green":
+    case "绿色":
+      return "绿色符能";
+    case "blue":
+    case "蓝色":
+      return "蓝色符能";
+    case "yellow":
+    case "黄色":
+      return "黄色符能";
+    case "purple":
+    case "紫色":
+      return "紫色符能";
+    default:
+      return "服务端符能";
+  }
+}
+
 export function runePoolText(pool?: RunePoolView): string {
   if (!pool) {
     return "法力 0 / 符能 0";
@@ -326,7 +348,7 @@ export function runePoolText(pool?: RunePoolView): string {
 
   const traitText = Object.entries(pool.powerByTrait ?? {})
     .filter(([, value]) => value > 0)
-    .map(([trait, value]) => `${trait}:${value}`)
-    .join(" ");
+    .map(([trait, value]) => `${runeTraitLabel(trait)} ${value}`)
+    .join(" / ");
   return `法力 ${pool.mana ?? 0} / 符能 ${pool.power ?? pool.totalPower ?? 0}${traitText ? ` / ${traitText}` : ""}`;
 }
