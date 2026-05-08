@@ -1884,7 +1884,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT source must be a controlled legend object.",
+                "传奇行动需要选择自己传奇区中的传奇。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1892,7 +1892,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT source must be controlled by the acting player.",
+                "传奇行动只能选择当前玩家控制的传奇。",
                 ErrorCodes.InvalidTarget);
         }
 
@@ -1900,7 +1900,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT source must expose a known legend card number.",
+                "传奇行动需要服务端已确认的传奇牌信息。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -1908,7 +1908,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT source does not expose the requested implemented legend ability.",
+                "该传奇没有服务端已开放的对应传奇行动。",
                 ErrorCodes.UnsupportedCardBehavior);
         }
 
@@ -1916,7 +1916,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             return RejectWithCorePrompts(
                 state,
-                "LEGEND_ACT source must be active.",
+                "传奇行动需要选择未横置的传奇。",
                 ErrorCodes.InvalidTarget);
         }
 

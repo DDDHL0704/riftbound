@@ -29763,6 +29763,169 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendActRejectsSourceOutsideLegendZoneWithChineseError()
+    {
+        var state = LegendActState(experience: 3);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-source-outside-zone", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-DRAW-001",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                [],
+                ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("传奇行动需要选择自己传奇区中的传奇。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task P79LegendActRejectsOpponentControlledSourceWithChineseError()
+    {
+        var state = LegendActState(experience: 3);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-POPPY"] = cardObjects["P1-LEGEND-POPPY"] with
+        {
+            ControllerId = "P2"
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-opponent-controlled-source", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                [],
+                ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("传奇行动只能选择当前玩家控制的传奇。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Equal("P2", result.State.CardObjects["P1-LEGEND-POPPY"].ControllerId);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task P79LegendActRejectsSourceWithoutCardNoWithChineseError()
+    {
+        var state = LegendActState(experience: 3);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-POPPY"] = cardObjects["P1-LEGEND-POPPY"] with
+        {
+            CardNo = null
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-source-without-card-no", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                [],
+                ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("传奇行动需要服务端已确认的传奇牌信息。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.False(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
+    public async Task P79LegendActRejectsSourceWithoutRequestedAbilityWithChineseError()
+    {
+        var state = LegendActiveAbilityState("UNL-237/219", "P1-LEGEND-POPPY", mana: 2);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-source-without-ability", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_PAY_2_EXHAUST_MOVE_FRIENDLY_UNIT",
+                ["P1-LEGEND-BATTLEFIELD-UNIT"],
+                ["SPEND_MANA:2"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.UnsupportedCardBehavior, result.ErrorCode);
+        Assert.Equal("该传奇没有服务端已开放的对应传奇行动。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(2, result.State.RunePools["P1"].Mana);
+        Assert.False(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Contains("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Battlefields);
+        Assert.DoesNotContain("P1-LEGEND-BATTLEFIELD-UNIT", result.State.PlayerZones["P1"].Base);
+    }
+
+    [Fact]
+    public async Task P79LegendActRejectsExhaustedSourceWithChineseError()
+    {
+        var state = LegendActState(experience: 3);
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-POPPY"] = cardObjects["P1-LEGEND-POPPY"] with
+        {
+            IsExhausted = true
+        };
+        state = state with
+        {
+            CardObjects = cardObjects
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-legend-act-exhausted-source", "P1", "LEGEND_ACT"),
+            new LegendActCommand(
+                "P1-LEGEND-POPPY",
+                "LEGEND_SPEND_3_EXPERIENCE_EXHAUST_DRAW",
+                [],
+                ["SPEND_EXPERIENCE:3"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Equal("传奇行动需要选择未横置的传奇。", result.ErrorMessage);
+        Assert.DoesNotContain("LEGEND_ACT", result.ErrorMessage, StringComparison.Ordinal);
+        Assert.Empty(result.Events);
+        Assert.Equal(0, result.State.Tick);
+        Assert.Equal(3, result.State.PlayerExperience["P1"]);
+        Assert.True(result.State.CardObjects["P1-LEGEND-POPPY"].IsExhausted);
+        Assert.Equal(["P1-LEGEND-DRAW-001"], result.State.PlayerZones["P1"].MainDeck);
+        Assert.Empty(result.State.PlayerZones["P1"].Hand);
+    }
+
+    [Fact]
     public async Task P79LegendActMovesFriendlyUnitWithYasuo()
     {
         var state = LegendActiveAbilityState("FND-259/298", "P1-LEGEND-YASUO", mana: 2);
