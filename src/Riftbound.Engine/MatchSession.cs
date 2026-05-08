@@ -1618,7 +1618,21 @@ public sealed record ResolutionResult(
             return "等待服务端处理任务队列";
         }
 
-        return $"等待服务端处理任务队列：{activeTask.Kind} ({activeTask.TaskId})";
+        return $"等待服务端处理任务队列：{PendingTaskKindLabel(activeTask.Kind)}";
+    }
+
+    private static string PendingTaskKindLabel(string kind)
+    {
+        return kind switch
+        {
+            "BATTLEFIELD_CONTESTED" => "战场控制检查",
+            "DESTROY_LETHAL_UNIT" => "致命伤害清理",
+            "DESTROY_ZERO_POWER_UNIT" => "0 战力清理",
+            "REMOVE_ILLEGAL_STANDBY" => "待命清理",
+            "START_BATTLE" => "开始战斗",
+            "START_SPELL_DUEL" => "开始法术对决",
+            _ => "服务端任务"
+        };
     }
 
     public static IReadOnlyDictionary<string, SnapshotDto> BuildSnapshots(MatchState state)

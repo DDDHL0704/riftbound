@@ -585,7 +585,9 @@ public sealed class GameHubJoinTests
         var p2Prompt = PromptFor(seedClients, "P2");
         Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.Actions);
         Assert.Equal(["WAIT", "SURRENDER"], p2Prompt.Actions);
-        Assert.Contains("REMOVE_ILLEGAL_STANDBY", p1Prompt.Reason, StringComparison.Ordinal);
+        Assert.Contains("待命清理", p1Prompt.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("REMOVE_ILLEGAL_STANDBY", p1Prompt.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("cleanup:illegal-standby", p1Prompt.Reason, StringComparison.Ordinal);
     }
 
     [Fact]

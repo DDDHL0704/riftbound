@@ -1,4 +1,5 @@
 import { ErrorDto, GameEvent } from "../../types/protocol";
+import { redactInternalText } from "../../utils/redaction";
 
 export type LogDensity = "compact" | "standard" | "detailed";
 
@@ -120,19 +121,9 @@ export function eventKindLabel(kind: string) {
   return eventKindLabels[kind] ?? "服务端事件";
 }
 
-const eventDescriptionRedactions: Array<{ pattern: RegExp; replacement: string }> = [
-  { pattern: /\bSTACK-\d+-[A-Z0-9_-]+\b/g, replacement: "结算链项目" },
-  { pattern: /\bP\d+-[A-Z0-9][A-Z0-9_-]*(?:-\d{3,})?\b/g, replacement: "对象" },
-  { pattern: /\bhidden-\d+\b/g, replacement: "隐藏对象" },
-  { pattern: /\b(?:cleanup|task):[a-z0-9:-]+\b/gi, replacement: "服务端任务" }
-];
-
 export function eventDescriptionLabel(event: GameEvent) {
   const description = event.description?.trim() || eventKindLabel(event.kind);
-  return eventDescriptionRedactions
-    .reduce((current, redaction) => current.replace(redaction.pattern, redaction.replacement), description)
-    .replace(/\s+/g, " ")
-    .trim();
+  return redactInternalText(description);
 }
 
 export function EventLog({ density = "standard", events, errors }: { density?: LogDensity; events: GameEvent[]; errors: ErrorDto[] }) {

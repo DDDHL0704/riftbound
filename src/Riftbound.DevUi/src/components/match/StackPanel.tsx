@@ -1,5 +1,6 @@
 import { SnapshotDto } from "../../types/protocol";
 import { asArray, asRecord, asString } from "../../utils/collections";
+import { redactInternalText } from "../../utils/redaction";
 
 const taskKindLabels: Record<string, string> = {
   BATTLEFIELD_CONTESTED: "战场控制检查",
@@ -38,6 +39,17 @@ const stackEffectLabels: Record<string, string> = {
   REVEAL_CARD: "翻开待命"
 };
 
+const taskReasonLabels: Record<string, string> = {
+  ADDITIONAL_COST: "额外费用",
+  BATTLE_CLEANUP: "战斗清理",
+  BATTLE_CLEANUP_ATTACKER_RECALL: "战斗后召回攻击者",
+  BATTLEFIELD_CONTROL_CLEANUP: "战场控制清理",
+  BATTLEFIELD_CONTESTED: "战场争夺",
+  LETHAL_DAMAGE: "致命伤害",
+  UNATTACHED_EQUIPMENT_CLEANUP: "装备脱离清理",
+  ZERO_POWER: "0 战力"
+};
+
 function labelFor(map: Record<string, string>, value: unknown, fallback = "无") {
   const key = asString(value, "");
   return key ? (map[key] ?? key) : fallback;
@@ -46,6 +58,27 @@ function labelFor(map: Record<string, string>, value: unknown, fallback = "无")
 function stackEffectLabel(value: unknown) {
   const key = asString(value, "");
   return key ? (stackEffectLabels[key] ?? "服务端效果") : "效果";
+}
+
+function activeTaskLabel(value: unknown) {
+  return asString(value, "") ? "处理中" : "无";
+}
+
+function taskReasonLabel(value: unknown) {
+  const raw = asString(value, "");
+  if (!raw) {
+    return "服务端规则";
+  }
+
+  if (taskReasonLabels[raw]) {
+    return taskReasonLabels[raw];
+  }
+
+  if (/^[A-Z0-9_:-]+$/.test(raw)) {
+    return "服务端规则";
+  }
+
+  return redactInternalText(raw);
 }
 
 export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
@@ -69,11 +102,11 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
       <div className="task-queue">
         <strong>待处理任务</strong>
         <span>阶段：{labelFor(phaseLabels, queue.phase)}</span>
-        <span>活动任务：{asString(queue.activeTaskId, "无")}</span>
+        <span>活动任务：{activeTaskLabel(queue.activeTaskId)}</span>
         <span>{queue.isBlocking ? "阻塞普通行动" : "不阻塞"}</span>
         {tasks.slice(0, 4).map((task, index) => (
           <span key={asString(task.taskId, `task-${index}`)}>
-            {labelFor(taskKindLabels, task.kind, "任务")}：{asString(task.reason, "服务端规则")}
+            {labelFor(taskKindLabels, task.kind, "任务")}：{taskReasonLabel(task.reason)}
           </span>
         ))}
         {battleResolutions.slice(0, 3).map((resolution, index) => (
