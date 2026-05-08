@@ -304,6 +304,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldHeldSevenUnitsWinAltCardNo = "OGN·293a/298";
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
+    private const string RagingDrakeCardNo = "OGN·031/298";
+    private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
@@ -335,6 +337,8 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string BattlefieldConquerReadyRuneAtEndEffectPrefix = "BATTLEFIELD_CONQUER_READY_RUNE_AT_END:";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
     private const string BattlefieldHeldNextSpellEchoEffectPrefix = "BATTLEFIELD_HELD_NEXT_SPELL_GAINS_ECHO:";
+    private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
+    private const string RagingDrakeNextSpellCostReductionEffectKind = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION";
     private const string UnitConquestReadySelfOnceEffectPrefix = "UNIT_CONQUEST_READY_SELF_ONCE:";
     private const string BattlefieldDestroyedInBattleRecallEffectId = "BATTLEFIELD_DESTROYED_IN_BATTLE_PAY_3_RECALL";
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
@@ -612,6 +616,13 @@ public sealed class CoreRuleEngine : IRuleEngine
                 untilEndOfTurnEffects,
                 BuildBattlefieldHeldNextSpellEchoEffectId(intent.PlayerId));
         }
+        var nextSpellCostReductionConsumedEffectIds = IsSpellPlayBehavior(behavior)
+            ? RagingDrakeNextSpellCostReductionEffectIds(state, intent.PlayerId)
+            : Array.Empty<string>();
+        foreach (var effectId in nextSpellCostReductionConsumedEffectIds)
+        {
+            untilEndOfTurnEffects = RemoveUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId);
+        }
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -666,6 +677,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCostManaReduction"] = plan.OptionalCostManaReduction,
                     ["battlefieldEchoCostReductionMana"] = plan.BattlefieldEchoCostReductionMana,
                     ["battlefieldEquipmentCostReductionMana"] = plan.BattlefieldEquipmentCostReductionMana,
+                    ["nextSpellCostReductionMana"] = plan.NextSpellCostReductionMana,
                     ["battlefieldSpellCostReductionMana"] = plan.BattlefieldSpellCostReductionMana,
                     ["battlefieldHeldUnitCostIncreaseMana"] = plan.BattlefieldHeldUnitCostIncreaseMana,
                     ["spellshieldTaxMana"] = plan.SpellshieldTaxMana,
@@ -688,6 +700,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     ["optionalCosts"] = plan.OptionalCosts.ToArray(),
                     ["echoPaid"] = plan.OptionalCosts.Contains(EchoOptionalCostNames.Echo, StringComparer.Ordinal),
                     ["effectRepeatCount"] = plan.EffectRepeatCount
+                }));
+        }
+        if (nextSpellCostReductionConsumedEffectIds.Count > 0)
+        {
+            events.Add(new GameEvent(
+                "TRIGGER_RESOLVED",
+                $"{intent.PlayerId} 的狂暴龙怪减免下一张法术",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = intent.PlayerId,
+                    ["trigger"] = RagingDrakeNextSpellCostReductionEffectKind,
+                    ["playedCardNo"] = command.CardNo,
+                    ["playedSourceObjectId"] = command.SourceObjectId,
+                    ["costReductionMana"] = plan.NextSpellCostReductionMana,
+                    ["effectIds"] = nextSpellCostReductionConsumedEffectIds.ToArray()
                 }));
         }
         IReadOnlyDictionary<string, int> playerScores = state.PlayerScores;
@@ -1558,6 +1585,13 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{BattlefieldHeldNextSpellEchoEffectPrefix}{playerId}";
     }
 
+    private static string BuildRagingDrakeNextSpellCostReductionEffectId(
+        string playerId,
+        string sourceObjectId)
+    {
+        return $"{RagingDrakeNextSpellCostReductionEffectPrefix}{playerId}:{sourceObjectId}";
+    }
+
     private static bool ControllerPlayedArmamentThisTurn(MatchState state, string playerId)
     {
         return state.UntilEndOfTurnEffects.Contains(
@@ -1594,6 +1628,18 @@ public sealed class CoreRuleEngine : IRuleEngine
         return state.UntilEndOfTurnEffects.Contains(
             BuildBattlefieldHeldNextSpellEchoEffectId(playerId),
             StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> RagingDrakeNextSpellCostReductionEffectIds(
+        MatchState state,
+        string playerId)
+    {
+        var effectPrefix = $"{RagingDrakeNextSpellCostReductionEffectPrefix}{playerId}:";
+        return state.UntilEndOfTurnEffects
+            .Where(effectId => effectId.StartsWith(effectPrefix, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(effectId => effectId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static IReadOnlyList<string> MarkRengarUnitPlayedTriggerTarget(
@@ -13062,11 +13108,19 @@ public sealed class CoreRuleEngine : IRuleEngine
             state,
             intent.PlayerId,
             behavior);
-        var battlefieldSpellCostReductionMana = ResolveBattlefieldSpellCostReductionMana(
+        var nextSpellCostReductionMana = ResolveRagingDrakeNextSpellCostReductionMana(
             state,
             intent.PlayerId,
             behavior,
             costReductionMana + optionalCostManaReduction + battlefieldEquipmentCostReductionMana);
+        var battlefieldSpellCostReductionMana = ResolveBattlefieldSpellCostReductionMana(
+            state,
+            intent.PlayerId,
+            behavior,
+            costReductionMana
+                + optionalCostManaReduction
+                + battlefieldEquipmentCostReductionMana
+                + nextSpellCostReductionMana);
         var battlefieldHeldUnitCostIncreaseMana = ResolveBattlefieldHeldUnitCostIncreaseMana(
             state,
             intent.PlayerId,
@@ -13081,6 +13135,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 - costReductionMana
                 - optionalCostManaReduction
                 - battlefieldEquipmentCostReductionMana
+                - nextSpellCostReductionMana
                 - battlefieldSpellCostReductionMana)
             + extraManaCost
             + battlefieldHeldUnitCostIncreaseMana
@@ -13151,6 +13206,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             optionalCostManaReduction,
             battlefieldEchoCostReductionMana,
             battlefieldEquipmentCostReductionMana,
+            nextSpellCostReductionMana,
             battlefieldSpellCostReductionMana,
             battlefieldHeldUnitCostIncreaseMana,
             spellshieldTaxMana,
@@ -16867,6 +16923,30 @@ public sealed class CoreRuleEngine : IRuleEngine
         return Math.Min(1, behavior.ManaCost);
     }
 
+    private static int ResolveRagingDrakeNextSpellCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int alreadyAppliedBaseReductionMana)
+    {
+        if (!IsSpellPlayBehavior(behavior)
+            || behavior.ManaCost <= 0)
+        {
+            return 0;
+        }
+
+        var effectCount = RagingDrakeNextSpellCostReductionEffectIds(state, playerId).Count;
+        if (effectCount == 0)
+        {
+            return 0;
+        }
+
+        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
+        return Math.Min(
+            effectCount * RagingDrakeNextSpellCostReductionMana,
+            baseManaAfterExistingReductions);
+    }
+
     private static int ResolveBattlefieldSpellCostReductionMana(
         MatchState state,
         string playerId,
@@ -17798,6 +17878,25 @@ public sealed class CoreRuleEngine : IRuleEngine
                 playerZones,
                 cardObjects,
                 stackItem));
+
+            if (string.Equals(behavior.CardNo, RagingDrakeCardNo, StringComparison.Ordinal))
+            {
+                var effectId = BuildRagingDrakeNextSpellCostReductionEffectId(
+                    stackItem.ControllerId,
+                    stackItem.SourceObjectId);
+                untilEndOfTurnEffects = AddUntilEndOfTurnEffect(untilEndOfTurnEffects, effectId).ToList();
+                events.Add(new GameEvent(
+                    "TRIGGER_RESOLVED",
+                    $"{stackItem.ControllerId} 的狂暴龙怪使下一张法术费用减少 5",
+                    new Dictionary<string, object?>
+                    {
+                        ["playerId"] = stackItem.ControllerId,
+                        ["sourceObjectId"] = stackItem.SourceObjectId,
+                        ["effectKind"] = RagingDrakeNextSpellCostReductionEffectKind,
+                        ["effectId"] = effectId,
+                        ["amount"] = RagingDrakeNextSpellCostReductionMana
+                    }));
+            }
 
             if (string.Equals(behavior.CardNo, BalancedDiscipleCardNo, StringComparison.Ordinal)
                 && SumOtherControlledUnitPower(
@@ -25400,6 +25499,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         int OptionalCostManaReduction,
         int BattlefieldEchoCostReductionMana,
         int BattlefieldEquipmentCostReductionMana,
+        int NextSpellCostReductionMana,
         int BattlefieldSpellCostReductionMana,
         int BattlefieldHeldUnitCostIncreaseMana,
         int SpellshieldTaxMana,

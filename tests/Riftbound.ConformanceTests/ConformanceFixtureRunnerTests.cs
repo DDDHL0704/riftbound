@@ -36388,6 +36388,102 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79RagingDrakeCreatesNextSpellCostReductionAfterResolution()
+    {
+        var state = RagingDrakePlayState();
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-raging-drake-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-RAGING-DRAKE", "OGN·031/298", []),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-raging-drake-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-raging-drake-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), play.State.RunePools["P1"]);
+        Assert.Contains("P1-UNIT-RAGING-DRAKE", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Contains(
+            "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE",
+            p2Pass.State.UntilEndOfTurnEffects);
+
+        var drake = p2Pass.State.CardObjects["P1-UNIT-RAGING-DRAKE"];
+        Assert.Equal(4, drake.Power);
+        Assert.Contains(CardObjectTags.UnitCard, drake.Tags);
+        Assert.Contains("龙", drake.Tags);
+
+        var triggerEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION", StringComparison.Ordinal));
+        Assert.Equal("P1-UNIT-RAGING-DRAKE", triggerEvent.Payload["sourceObjectId"]);
+        Assert.Equal(5, triggerEvent.Payload["amount"]);
+    }
+
+    [Fact]
+    public void P79RagingDrakeNextSpellCostReductionPromptShowsReducedSpellCost()
+    {
+        var state = RagingDrakeNextSpellCostReductionState(mana: 0);
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+                metadata["sourceRequirements"])
+            .ToArray();
+        var sourceRequirement = Assert.Single(
+            sourceRequirements,
+            requirement => string.Equals(requirement["sourceObjectId"] as string, "P1-SPELL-PUNISHMENT", StringComparison.Ordinal));
+
+        Assert.Equal(0, sourceRequirement["minimumManaCost"]);
+        Assert.Equal(2, sourceRequirement["nextSpellCostReductionMana"]);
+        Assert.Equal(0, sourceRequirement["battlefieldSpellCostReductionMana"]);
+    }
+
+    [Fact]
+    public async Task P79RagingDrakeNextSpellCostReductionPaysReducedSpellCostAndConsumesMarker()
+    {
+        var state = RagingDrakeNextSpellCostReductionState(mana: 0);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-raging-drake-next-spell-reduced", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-PUNISHMENT", "UNL-007/219", ["P2-UNIT-001"]),
+            CancellationToken.None);
+
+        Assert.True(result.Accepted, result.ErrorMessage);
+        Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
+        Assert.DoesNotContain(
+            "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE",
+            result.State.UntilEndOfTurnEffects);
+        var stackItem = Assert.Single(result.State.StackItems);
+        Assert.Equal("P1-SPELL-PUNISHMENT", stackItem.SourceObjectId);
+
+        var costPaid = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(0, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(2, costPaid.Payload["nextSpellCostReductionMana"]);
+
+        var triggerEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION", StringComparison.Ordinal));
+        Assert.Equal("UNL-007/219", triggerEvent.Payload["playedCardNo"]);
+        Assert.Equal(2, triggerEvent.Payload["costReductionMana"]);
+    }
+
+    [Fact]
     public async Task P79WiseElderWithBoonAddsPowerInBattle()
     {
         var state = WiseElderBoonBattleState(hasBoon: true);
@@ -54121,6 +54217,42 @@ public sealed class ConformanceFixtureRunnerTests
                     ownerId: "P1",
                     controllerId: "P1")
             }
+        };
+    }
+
+    private static MatchState RagingDrakePlayState()
+    {
+        return PunishmentState(mana: 6) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-RAGING-DRAKE"]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-RAGING-DRAKE"] = new(
+                    "P1-UNIT-RAGING-DRAKE",
+                    cardNo: "OGN·031/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "龙"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+    }
+
+    private static MatchState RagingDrakeNextSpellCostReductionState(int mana)
+    {
+        return PunishmentState(mana) with
+        {
+            UntilEndOfTurnEffects =
+            [
+                "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE"
+            ]
         };
     }
 

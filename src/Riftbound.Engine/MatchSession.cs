@@ -2388,6 +2388,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldPreventMoveToBaseCardNo = "OGN·295/298";
     private const string BattlefieldStaticRoamCardNo = "OGN·297/298";
     private const string BilgewaterBullyCardNo = "OGN·125/298";
+    private const int RagingDrakeNextSpellCostReductionMana = 5;
     private const string BattlefieldPreventUnitPlayCardNo = "SFD·216/221";
     private const string BattlefieldEchoCostReductionCardNo = "SFD·211/221";
     private const string BattlefieldHeldNextSpellEchoCardNo = "UNL-216/219";
@@ -2542,6 +2543,7 @@ internal static class ActionPromptBuilder
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
+    private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
     private const string BattlefieldGrantedLegendAttachArmamentAbilityId = "LEGEND_EXHAUST_ATTACH_CONTROLLED_ARMAMENT_FROM_BATTLEFIELD";
     private const string YasuoLegendCardNo = "FND-259/298";
@@ -4409,6 +4411,7 @@ internal static class ActionPromptBuilder
         string? sourceObjectId = null)
     {
         var reduction = PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId);
+        reduction += PromptNextSpellCostReductionMana(state, playerId, behavior, reduction);
         reduction += PromptBattlefieldSpellCostReductionMana(
             state,
             playerId,
@@ -5638,6 +5641,32 @@ internal static class ActionPromptBuilder
         return Math.Min(1, behavior.ManaCost);
     }
 
+    private static int PromptNextSpellCostReductionMana(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        int alreadyAppliedBaseReductionMana)
+    {
+        if (!IsPromptSpellPlayBehavior(behavior)
+            || behavior.ManaCost <= 0)
+        {
+            return 0;
+        }
+
+        var effectPrefix = $"{RagingDrakeNextSpellCostReductionEffectPrefix}{playerId}:";
+        var effectCount = state.UntilEndOfTurnEffects
+            .Count(effectId => effectId.StartsWith(effectPrefix, StringComparison.Ordinal));
+        if (effectCount == 0)
+        {
+            return 0;
+        }
+
+        var baseManaAfterExistingReductions = Math.Max(0, behavior.ManaCost - alreadyAppliedBaseReductionMana);
+        return Math.Min(
+            effectCount * RagingDrakeNextSpellCostReductionMana,
+            baseManaAfterExistingReductions);
+    }
+
     private static int PromptBattlefieldSpellCostReductionMana(
         MatchState state,
         string playerId,
@@ -6254,6 +6283,21 @@ internal static class ActionPromptBuilder
         var availablePowerByTraitWithPaymentResources = PlayCardAvailablePowerByTrait(
             runePool,
             paymentResourcePowerByTrait);
+        var baseManaReductionBeforeBattlefieldSpellCost = PromptBaseManaReductionBeforeBattlefieldSpellCost(
+            state,
+            playerId,
+            behavior,
+            sourceObjectId);
+        var nextSpellCostReductionMana = PromptNextSpellCostReductionMana(
+            state,
+            playerId,
+            behavior,
+            baseManaReductionBeforeBattlefieldSpellCost);
+        var battlefieldSpellCostReductionMana = PromptBattlefieldSpellCostReductionMana(
+            state,
+            playerId,
+            behavior,
+            baseManaReductionBeforeBattlefieldSpellCost + nextSpellCostReductionMana);
 
         return new Dictionary<string, object?>
         {
@@ -6265,11 +6309,8 @@ internal static class ActionPromptBuilder
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = PromptMinimumManaCost(state, playerId, behavior, sourceObjectId),
             ["battlefieldEquipmentCostReductionMana"] = PromptBattlefieldEquipmentCostReductionMana(state, playerId, behavior),
-            ["battlefieldSpellCostReductionMana"] = PromptBattlefieldSpellCostReductionMana(
-                state,
-                playerId,
-                behavior,
-                PromptBaseManaReductionBeforeBattlefieldSpellCost(state, playerId, behavior, sourceObjectId)),
+            ["nextSpellCostReductionMana"] = nextSpellCostReductionMana,
+            ["battlefieldSpellCostReductionMana"] = battlefieldSpellCostReductionMana,
             ["battlefieldHeldUnitCostIncreaseMana"] = PromptBattlefieldHeldUnitCostIncreaseMana(state, playerId, behavior),
             ["minTargetCount"] = minTargetCount,
             ["maxTargetCount"] = maxTargetCount,
@@ -7097,6 +7138,7 @@ public sealed class MatchSession : IMatchSession
     private const string BattlefieldTargetSpellSkillDamageBonusCardNo = "OGN·296/298";
     private const string BattlefieldHeldUnitCostIncreaseCardNo = "UNL-219/219";
     private const string BattlefieldHeldUnitCostIncreaseEffectPrefix = "BATTLEFIELD_HELD_NON_TOKEN_UNIT_COST_INCREASE:";
+    private const string RagingDrakeNextSpellCostReductionEffectPrefix = "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:";
     private const string BattlefieldUnitGainExperienceAbilityId = "BATTLEFIELD_UNIT_EXHAUST_GAIN_EXPERIENCE";
 
     private static readonly SemaphoreSlim OfficialCatalogGate = new(1, 1);
@@ -8477,6 +8519,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-held-next-spell-echo-prompt" => BuildBattlefieldHeldNextSpellEchoPromptScenario(current, seed),
             "battlefield-static-equipment-cost-reduction" => BuildBattlefieldStaticEquipmentCostReductionScenario(current, seed),
             "battlefield-eager-apprentice-spell-cost-reduction" => BuildBattlefieldEagerApprenticeSpellCostReductionScenario(current, seed),
+            "raging-drake-next-spell-cost-reduction-prompt" => BuildRagingDrakeNextSpellCostReductionPromptScenario(current, seed),
             "battlefield-legend-attach-armament" => BuildBattlefieldLegendAttachArmamentScenario(current, seed),
             "battlefield-extra-standby" => BuildBattlefieldExtraStandbyScenario(current, seed),
             "battlefield-held-activate-conquest" => BuildBattlefieldHeldActivateConquestScenario(current, seed),
@@ -12648,6 +12691,66 @@ public sealed class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+    }
+
+    private static MatchState BuildRagingDrakeNextSpellCostReductionPromptScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303070,
+            170,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    mainDeck: ["P1-DRAW-001"],
+                    runeDeck: ["P1-RUNE-001", "P1-RUNE-002"],
+                    hand: ["P1-SPELL-WELL-TRAINED"],
+                    baseZone: ["P1-UNIT-RAGING-DRAKE"],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    mainDeck: ["P2-MAIN-001"],
+                    runeDeck: ["P2-RUNE-001", "P2-RUNE-002"],
+                    battlefields: ["P2-UNIT-001"],
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SPELL-WELL-TRAINED"] = new(
+                    "P1-SPELL-WELL-TRAINED",
+                    cardNo: "OGN·058/298",
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-UNIT-RAGING-DRAKE"] = new(
+                    "P1-UNIT-RAGING-DRAKE",
+                    cardNo: "OGN·031/298",
+                    power: 4,
+                    tags: [CardObjectTags.UnitCard, "龙"],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P2-UNIT-001"] = new(
+                    "P2-UNIT-001",
+                    cardNo: "UNL-097/219",
+                    power: 3,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2)
+            });
+
+        return state with
+        {
+            UntilEndOfTurnEffects =
+            [
+                $"{RagingDrakeNextSpellCostReductionEffectPrefix}{seed.P1}:P1-UNIT-RAGING-DRAKE"
+            ]
+        };
     }
 
     private static MatchState BuildBattlefieldLegendAttachArmamentScenario(MatchState current, DevScenarioSeed seed)

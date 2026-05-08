@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-raging-drake-next-spell-cost-static",
-  "description": "Raging Drake enters as a Dragon unit while next spell cost reduction is deferred.",
+  "description": "Raging Drake enters as a Dragon unit and grants the next spell cost reduction marker.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -12,7 +12,7 @@
     {
       "source": "data/official/card-catalog.zh-CN.json",
       "locator": "OGN·031/298 狂暴龙怪",
-      "note": "官方卡面：费用 6；单位；战力 4；龙；打出时本回合内下一张法术费用减少 5。当前 fixture 覆盖普通主阶段打出后成为基地单位对象并记录属性标签；下一张法术减费持续效果路径暂缓。"
+      "note": "官方卡面：费用 6；单位；战力 4；龙；打出时本回合内下一张法术费用减少 5。当前 fixture 覆盖普通主阶段打出后成为基地单位对象、记录属性标签并写入下一张法术减费持续效果。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -83,7 +83,8 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "TRIGGER_RESOLVED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
@@ -97,6 +98,9 @@
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
+      "untilEndOfTurnEffects": [
+        "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION:P1:P1-UNIT-RAGING-DRAKE"
+      ],
       "players": {
         "P1": {
           "mainDeck": ["P1-MAIN-001"],

@@ -5799,6 +5799,61 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P79RagingDrakeNextSpellCostReductionPromptOffersReducedSpellThroughHub()
+    {
+        const string roomId = "p7-9-raging-drake-next-spell-cost-reduction-prompt";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(
+                roomId,
+                "P1",
+                "raging-drake-next-spell-cost-reduction-prompt",
+                "seed-p7-9-raging-drake-next-spell-cost-reduction-prompt");
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        var playCandidate = Assert.Single(
+            p1Prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(
+            Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
+        Assert.Equal("P1-SPELL-WELL-TRAINED", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
+        Assert.Equal(0, sourceRequirement["minimumManaCost"]);
+        Assert.Equal(2, sourceRequirement["nextSpellCostReductionMana"]);
+
+        var playClients = new RecordingHubClients();
+        await CreateHub(playClients, new RecordingGroupManager(), "connection-1", registry)
+            .SubmitIntent(roomId, "P1", "intent-p7-9-raging-drake-next-spell-cost-reduction-play", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PLAY_CARD",
+                sourceObjectId = "P1-SPELL-WELL-TRAINED",
+                cardNo = "OGN·058/298",
+                targetObjectIds = new[] { "P2-UNIT-001" },
+                optionalCosts = Array.Empty<string>()
+            }));
+
+        Assert.Empty(playClients.CallerClient.Errors);
+        var playEvents = EventsFor(playClients);
+        var costPaid = Assert.Single(playEvents, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(0, costPaid.Payload["mana"]);
+        Assert.Equal(2, costPaid.Payload["baseMana"]);
+        Assert.Equal(2, costPaid.Payload["nextSpellCostReductionMana"]);
+        Assert.Contains(playEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "RAGING_DRAKE_NEXT_SPELL_COST_REDUCTION", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task P79BattlefieldBattleDestroyedRecallSeedOffersBattlefieldDestinationAndRecalls()
     {
         const string roomId = "p7-9-battlefield-battle-destroyed-recall";

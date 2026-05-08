@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十三批补齐《狂暴龙怪》（OGN·031/298）下一张法术费用减少 5 的服务端代表路径与前端费用元数据展示。服务端在《狂暴龙怪》结算入场后写入本回合持续效果，下一张真实法术打出时由 Core 计算并消耗标记，`COST_PAID.nextSpellCostReductionMana` 与 Hub `PLAY_CARD.sourceRequirements.nextSpellCostReductionMana` 同步暴露；DevUi 详情抽屉只展示服务端给出的“下一法术减费 -N”，不做本地费用裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；`P79RagingDrake` 定向 4/4 通过；Raging Drake 相关 keyword-only 聚合回归 236/236 通过；后端 full test 3217/3217 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 房间 `smoke-raging-drake-1778275056356` 覆盖 P1 页面显示“费用 0 / 下一法术减费 -2”、前端选择目标并确认打出、服务端支付 0 与狂暴龙怪触发、双方让过后法术结算、reload/reconnect 恢复最终 snapshot；应用 runtime error 0，测试标签与 API/Vite 已清理，目标端口无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十一批补齐《驭水者》（OGN·055/298）独自进攻/防守战力 +2 代表路径。服务端在 `DECLARE_BATTLE` 战斗伤害计算中根据攻击方/防守方参与单位数量判断是否独自作战，把 +2 写入 `DAMAGE_APPLIED.staticPowerBonus`、`combatPower` 与最终伤害；共同进攻时不加成。前端不新增本地战斗参与者统计，只展示服务端事件和 authoritative snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Waterbender 单独进攻、共同进攻不触发、单独防守、既有 OGN·055 带目标拒绝、Wise Elder 与 Dune Drake 战斗静态回归 8/8 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3210/3210；`source ../../scripts/dev-env.sh && npm run build` 通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式费用/静态族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
