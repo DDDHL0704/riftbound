@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百九十九批补齐《小小守护者》（OGN·044/298）绿色可选额外费用抽 1 的服务端代表路径。服务端现在把该牌建模为 `TINY_GUARDIAN_PLAY_UNIT_OPTIONAL_DRAW`，只有 `PLAY_CARD.optionalCosts=["SPEND_POWER:green:1"]` 通过权威有色符能付费并结算时才在源单位入场后抽 1；ActionPrompt 按当前/可回收绿色符能公开“额外支付 1 绿色符能：抽 1 张牌”。前端仍不读取卡面或本地判断绿色额外费用，只展示服务端候选。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Tiny Guardian / source-unit no-optional / target-reject 聚合过滤 77/77 通过；后端 full test 3228/3228 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百九十八批补齐《船猿》（SFD·098/221）额外支付 1 后自身增益的服务端代表路径。服务端现在把该牌的可选额外费用建模为 `SPEND_MANA:1`，只有该 optional cost 随 `PLAY_CARD` 入栈并结算时才授予自身 `增益` 与 +1 战力；ActionPrompt 按服务端法力判断公开“额外支付 1 法力：给予我增益”。前端仍不读取卡面或本地判断是否能支付/增益，只展示服务端候选。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Ship Monkey / no-optional 聚合过滤 39/39 通过；后端 full test 3226/3226 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

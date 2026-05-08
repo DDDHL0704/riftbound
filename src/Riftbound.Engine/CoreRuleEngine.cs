@@ -16686,6 +16686,24 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
+            && behavior.SourceDrawAdditionalPowerCost > 0
+            && behavior.SourceDrawCountIfOptionalPowerCostPaid > 0
+            && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var sourceDrawPowerCost, out var sourceDrawPowerTrait)
+            && sourceDrawPowerCost == behavior.SourceDrawAdditionalPowerCost
+            && !string.IsNullOrWhiteSpace(RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait))
+            && string.Equals(
+                RuneTrait.Normalize(sourceDrawPowerTrait),
+                RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait),
+                StringComparison.Ordinal))
+        {
+            extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                [RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait)] = sourceDrawPowerCost
+            };
+            return true;
+        }
+
+        if (normalizedOptionalCosts.Count == 1
             && behavior.SourceBoonAdditionalManaCost > 0
             && TryParseSpendManaOptionalCost(normalizedOptionalCosts[0], out var spendManaCost)
             && spendManaCost == behavior.SourceBoonAdditionalManaCost)
@@ -17583,6 +17601,38 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     }
 
+    private static bool TryResolveSourceUnitOptionalPowerDraw(
+        CardBehaviorDefinition behavior,
+        StackItemState stackItem,
+        out int drawCount)
+    {
+        drawCount = 0;
+        if (behavior.SourceDrawAdditionalPowerCost <= 0
+            || behavior.SourceDrawCountIfOptionalPowerCostPaid <= 0)
+        {
+            return false;
+        }
+
+        var requiredTrait = RuneTrait.Normalize(behavior.SourceDrawAdditionalPowerTrait);
+        if (string.IsNullOrWhiteSpace(requiredTrait))
+        {
+            return false;
+        }
+
+        foreach (var optionalCost in stackItem.OptionalCosts)
+        {
+            if (TryParseSpendPowerOptionalCost(optionalCost, out var powerCost, out var powerTrait)
+                && powerCost == behavior.SourceDrawAdditionalPowerCost
+                && string.Equals(RuneTrait.Normalize(powerTrait), requiredTrait, StringComparison.Ordinal))
+            {
+                drawCount = behavior.SourceDrawCountIfOptionalPowerCostPaid;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static bool TargetCountConditionApplies(
         MatchState state,
         string playerId,
@@ -18079,6 +18129,21 @@ public sealed class CoreRuleEngine : IRuleEngine
                     playerScores,
                     stackItem.ControllerId,
                     1,
+                    rngCursor,
+                    events);
+                playerScores = drawApplication.PlayerScores;
+                winnerPlayerId = drawApplication.WinnerPlayerId;
+                rngCursor = drawApplication.RngCursor;
+            }
+
+            if (TryResolveSourceUnitOptionalPowerDraw(behavior, stackItem, out var optionalSourceDrawCount))
+            {
+                var drawApplication = ApplyDrawToPlayer(
+                    state,
+                    playerZones,
+                    playerScores,
+                    stackItem.ControllerId,
+                    optionalSourceDrawCount,
                     rngCursor,
                     events);
                 playerScores = drawApplication.PlayerScores;

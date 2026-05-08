@@ -1,42 +1,42 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-tiny-guardian-no-optional-draw",
-  "description": "Tiny Guardian enters as a unit object without paying its optional green additional cost to draw.",
+  "fixtureId": "p2-preflight-play-tiny-guardian-optional-draw",
+  "description": "Tiny Guardian enters as a unit object and draws one card after paying its optional green additional power cost.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302366,
+  "seed": 2603302367,
   "rulesEvidence": [
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGN·044/298 小小守护者",
-      "note": "官方卡面：费用 2；单位；战力 2；打出我时，你可以选择额外支付绿色来抽一张牌。当前 fixture 覆盖普通主阶段从手牌打出且不支付该可选额外费用时的源单位入场；绿色额外费用与抽 1 分支由 p2-preflight-play-tiny-guardian-optional-draw 覆盖。"
+      "note": "官方卡面：费用 2；单位；战力 2；打出我时，你可以选择额外支付绿色来抽一张牌。本 fixture 覆盖支付该绿色可选额外费用后的抽 1 分支。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p57 rule 413.4",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；未支付可选额外费用时不执行对应的条件效果；抽牌规则用于后续绿色额外费用分支。"
+      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算；支付额外费用后的条件效果由服务端结算；抽牌按主牌堆顶顺序移动到手牌。"
     }
   ],
-  "roomId": "p2-preflight-tiny-guardian-room",
+  "roomId": "p2-preflight-tiny-guardian-optional-draw-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302366,
-    "turnNumber": 365,
+    "seed": 2603302367,
+    "turnNumber": 366,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 2, "power": 0, "powerByTrait": { "green": 1 } },
       "P2": { "mana": 0, "power": 0 }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
+        "mainDeck": ["P1-TINY-GUARDIAN-DRAW-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-UNIT-TINY-GUARDIAN"],
         "base": [],
@@ -63,16 +63,17 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-tiny-guardian-play",
+      "clientIntentId": "intent-p2-preflight-tiny-guardian-optional-draw-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-UNIT-TINY-GUARDIAN",
         "cardNo": "OGN·044/298",
-        "targetObjectIds": []
+        "targetObjectIds": [],
+        "optionalCosts": ["SPEND_POWER:green:1"]
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-tiny-guardian-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-tiny-guardian-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-tiny-guardian-optional-draw-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-tiny-guardian-optional-draw-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -83,11 +84,22 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE"
+      "UNIT_PLAYED_TO_BASE",
+      "CARD_DRAWN"
     ],
     "events": [
       { "kind": "CARD_PLAYED" },
-      { "kind": "COST_PAID", "payload": { "playerId": "P1", "mana": 2, "baseMana": 2 } },
+      {
+        "kind": "COST_PAID",
+        "payload": {
+          "playerId": "P1",
+          "mana": 2,
+          "power": 1,
+          "powerByTrait": { "green": 1 },
+          "baseMana": 2,
+          "optionalCosts": ["SPEND_POWER:green:1"]
+        }
+      },
       {
         "kind": "STACK_ITEM_ADDED",
         "payload": {
@@ -112,11 +124,18 @@
           "power": 2,
           "tags": ["CARD_TYPE:UNIT"]
         }
+      },
+      {
+        "kind": "CARD_DRAWN",
+        "payload": {
+          "playerId": "P1",
+          "count": 1
+        }
       }
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 365,
+      "turnNumber": 366,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
@@ -128,8 +147,8 @@
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
-          "hand": [],
+          "mainDeck": [],
+          "hand": ["P1-TINY-GUARDIAN-DRAW-001"],
           "base": ["P1-UNIT-TINY-GUARDIAN"],
           "graveyard": []
         }

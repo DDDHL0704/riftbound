@@ -172,7 +172,10 @@ public sealed record CardBehaviorDefinition(
     string TargetCountConditionKind = CardTargetCountConditionKinds.None,
     string CreatedBaseUnitTokenConditionKind = CardTokenCreationConditionKinds.None,
     int ManaReductionIfDiscardHandCardOptionalCost = 0,
-    int SourceBoonAdditionalManaCost = 0);
+    int SourceBoonAdditionalManaCost = 0,
+    int SourceDrawAdditionalPowerCost = 0,
+    string SourceDrawAdditionalPowerTrait = "",
+    int SourceDrawCountIfOptionalPowerCostPaid = 0);
 
 public static class CardDamageConditionKinds
 {
@@ -2302,11 +2305,14 @@ public static class CardBehaviorRegistry
             "OGN·044/298",
             "小小守护者",
             2,
-            "TINY_GUARDIAN_PLAY_UNIT_NO_OPTIONAL_DRAW",
+            "TINY_GUARDIAN_PLAY_UNIT_OPTIONAL_DRAW",
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 2),
+            SourceUnitPower: 2,
+            SourceDrawAdditionalPowerCost: 1,
+            SourceDrawAdditionalPowerTrait: RuneTrait.Green,
+            SourceDrawCountIfOptionalPowerCostPaid: 1),
         new(
             "OGN·001/298",
             "灼焰飞龙",

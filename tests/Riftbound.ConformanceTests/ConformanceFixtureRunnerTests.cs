@@ -18170,6 +18170,72 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal("额外支付 1 法力：给予我增益", optionalBoonCost.Label);
     }
 
+    [Fact]
+    public async Task CoreRuleEnginePlaysTinyGuardianOptionalDraw()
+    {
+        var fixture = await ConformanceFixture.LoadAsync(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "p2-preflight-play-tiny-guardian-optional-draw.fixture.json"),
+            CancellationToken.None);
+
+        var result = await ConformanceFixtureRunner.RunAsync(
+            fixture,
+            new CoreRuleEngine(),
+            CancellationToken.None);
+
+        Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.Equal(["P1-UNIT-TINY-GUARDIAN"], result.FinalState.PlayerZones["P1"].Base);
+        Assert.Equal(["P1-TINY-GUARDIAN-DRAW-001"], result.FinalState.PlayerZones["P1"].Hand);
+        Assert.Empty(result.FinalState.PlayerZones["P1"].MainDeck);
+        Assert.Equal(2, result.FinalState.CardObjects["P1-UNIT-TINY-GUARDIAN"].Power);
+        Assert.Equal([CardObjectTags.UnitCard], result.FinalState.CardObjects["P1-UNIT-TINY-GUARDIAN"].Tags);
+    }
+
+    [Fact]
+    public void CoreRuleEngineTinyGuardianPromptExposesOptionalGreenDrawCost()
+    {
+        var state = PunishmentState(mana: 2) with
+        {
+            RunePools = new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = new(2, 0, new Dictionary<string, int>(StringComparer.Ordinal)
+                {
+                    [RuneTrait.Green] = 1
+                }),
+                ["P2"] = RunePool.Empty
+            },
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-UNIT-TINY-GUARDIAN"]
+                }
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-UNIT-TINY-GUARDIAN"] = new(
+                    "P1-UNIT-TINY-GUARDIAN",
+                    cardNo: "OGN·044/298",
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var playCandidate = Assert.Single(
+            prompt.Candidates ?? [],
+            candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
+        var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
+        var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
+            metadata["sourceRequirements"]));
+        var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
+            sourceRequirement["optionalCostChoices"]);
+
+        var optionalDrawCost = Assert.Single(
+            optionalCostChoices,
+            choice => string.Equals(choice.Id, "SPEND_POWER:green:1", StringComparison.Ordinal));
+        Assert.Equal("额外支付 1 绿色符能：抽 1 张牌", optionalDrawCost.Label);
+    }
+
     [Theory]
     [InlineData(2, "P1-UNIT-BLAST-CREW-APPRENTICE", "SFD·013/221", "P1-BASE-BLAST-CREW-APPRENTICE-TARGET-001")]
     [InlineData(3, "P1-UNIT-FROSTCOAT-CUB", "SFD·067/221", "P1-BASE-FROSTCOAT-CUB-TARGET-001")]
