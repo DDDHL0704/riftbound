@@ -1,44 +1,46 @@
 {
   "schemaVersion": 2,
-  "fixtureId": "p2-preflight-play-demacia-envoy-experience-static",
-  "description": "Demacia Envoy enters as a unit and grants its controller 1 experience.",
+  "fixtureId": "p2-preflight-play-sly-salamander-experience-keyword-unit",
+  "description": "Sly Salamander enters with +1 power and Roam when its controller gained experience this turn.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
   "faqVersion": "official-pdf-faq-set-2026-04-28",
   "catalogVersion": "official-2026-04-27",
-  "seed": 2603302725,
+  "seed": 2603302534,
   "rulesEvidence": [
     {
       "source": "data/official/card-catalog.zh-CN.json",
-      "locator": "UNL-092/219 德玛西亚使节",
-      "note": "官方卡面：费用 2；单位；战力 2；当你打出我时获得 1 经验。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，并获得 1 经验。"
+      "locator": "UNL-108/219 狡猾的蝾螈",
+      "note": "官方卡面：费用 4；单位；战力 4；若本回合已经获得经验，则自身获得战力 +1 和游走。本 fixture 通过服务端回合效果记录已获得经验记忆，覆盖条件满足时的战力修正与关键词授予。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356",
-      "note": "单位是游戏对象；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+      "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+      "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算；游走是单位关键词。"
     }
   ],
-  "roomId": "p2-preflight-demacia-envoy-experience-room",
+  "roomId": "p2-preflight-unl-108-sly-salamander-experience-room",
   "players": ["P1", "P2"],
   "initialState": {
-    "seed": 2603302725,
-    "turnNumber": 725,
+    "seed": 2603302534,
+    "turnNumber": 533,
     "activePlayerId": "P1",
     "turnPlayerId": "P1",
     "phase": "MAIN",
     "timingState": "NEUTRAL_OPEN",
     "scores": { "P1": 0, "P2": 0 },
+    "experience": { "P1": 1, "P2": 0 },
     "runePools": {
-      "P1": { "mana": 2, "power": 0 },
+      "P1": { "mana": 4, "power": 0 },
       "P2": { "mana": 0, "power": 0 }
     },
+    "untilEndOfTurnEffects": ["GAINED_EXPERIENCE_THIS_TURN:P1"],
     "players": {
       "P1": {
         "mainDeck": ["P1-MAIN-001"],
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-UNIT-DEMACIA-ENVOY"],
+        "hand": ["P1-UNIT-SLY-SALAMANDER"],
         "base": [],
         "battlefields": [],
         "graveyard": [],
@@ -63,16 +65,16 @@
   "commands": [
     {
       "playerId": "P1",
-      "clientIntentId": "intent-p2-preflight-demacia-envoy-play",
+      "clientIntentId": "intent-p2-preflight-unl-108-sly-salamander-experience-play",
       "cmd": {
         "cmdType": "PLAY_CARD",
-        "sourceObjectId": "P1-UNIT-DEMACIA-ENVOY",
-        "cardNo": "UNL-092/219",
+        "sourceObjectId": "P1-UNIT-SLY-SALAMANDER",
+        "cardNo": "UNL-108/219",
         "targetObjectIds": []
       }
     },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-demacia-envoy-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-demacia-envoy-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-unl-108-sly-salamander-experience-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-unl-108-sly-salamander-experience-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
   ],
   "expected": {
     "finalTick": 3,
@@ -83,36 +85,35 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_PLAYED_TO_BASE",
-      "EXPERIENCE_GAINED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {
-      "turnNumber": 725,
+      "turnNumber": 533,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
       "timingState": "NEUTRAL_OPEN",
       "scores": { "P1": 0, "P2": 0 },
       "experience": { "P1": 1, "P2": 0 },
-      "untilEndOfTurnEffects": ["GAINED_EXPERIENCE_THIS_TURN:P1"],
       "runePools": {
         "P1": { "mana": 0, "power": 0 },
         "P2": { "mana": 0, "power": 0 }
       },
+      "untilEndOfTurnEffects": ["GAINED_EXPERIENCE_THIS_TURN:P1"],
       "players": {
         "P1": {
           "mainDeck": ["P1-MAIN-001"],
           "hand": [],
-          "base": ["P1-UNIT-DEMACIA-ENVOY"],
+          "base": ["P1-UNIT-SLY-SALAMANDER"],
           "graveyard": []
         }
       },
       "stackItems": [],
       "cardObjects": {
-        "P1-UNIT-DEMACIA-ENVOY": {
-          "power": 2,
-          "tags": ["CARD_TYPE:UNIT"],
+        "P1-UNIT-SLY-SALAMANDER": {
+          "power": 5,
+          "tags": ["CARD_TYPE:UNIT", "游走"],
           "isExhausted": false
         }
       }

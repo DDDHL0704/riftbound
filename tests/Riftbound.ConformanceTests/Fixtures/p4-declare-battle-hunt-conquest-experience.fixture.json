@@ -223,6 +223,7 @@
         "P1": 3,
         "P2": 0
       },
+      "untilEndOfTurnEffects": ["GAINED_EXPERIENCE_THIS_TURN:P1"],
       "players": {
         "P1": {
           "hand": [],

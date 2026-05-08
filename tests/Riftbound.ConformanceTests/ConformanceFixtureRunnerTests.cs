@@ -17395,6 +17395,7 @@ public sealed class ConformanceFixtureRunnerTests
     [InlineData("p2-preflight-play-atakhan-no-optional-destroy-roam-static.fixture.json", "P1-UNIT-ATAKHAN", 7, "CARD_TYPE:UNIT|游走")]
     [InlineData("p2-preflight-play-ivern-trait-choice-score-static.fixture.json", "P1-UNIT-IVERN-TRAIT", 6, "CARD_TYPE:UNIT|犬形")]
     [InlineData("p2-preflight-play-ivern-alt-a-trait-choice-score-static.fixture.json", "P1-UNIT-IVERN-A-TRAIT", 6, "CARD_TYPE:UNIT|魄罗")]
+    [InlineData("p2-preflight-play-sly-salamander-experience-keyword-unit.fixture.json", "P1-UNIT-SLY-SALAMANDER", 5, "CARD_TYPE:UNIT|游走")]
     public async Task CoreRuleEnginePlaysKeywordOnlySourceUnit(
         string fixtureFileName,
         string sourceObjectId,

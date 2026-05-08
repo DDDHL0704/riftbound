@@ -180,6 +180,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string OgnJinxDiscardTriggerAltCardNo = "OGN·202a/298";
     private const string ArcJinxDiscardTriggerCardNo = "ARC-005/006";
     private const string JinxDiscardedHandCardsEffectKind = "JINX_DISCARDED_HAND_CARDS_READY_POWER_1";
+    private const string SlySalamanderCardNo = "UNL-108/219";
     private const string RampagingSoulCardNo = "OGN·019/298";
     private static readonly CardBehaviorDefinition JinxDiscardedHandCardsBehavior = new(
         OgnJinxDiscardTriggerCardNo,
@@ -320,6 +321,7 @@ public sealed class CoreRuleEngine : IRuleEngine
     private const string RengarUnitPlayedTargetEffectPrefix = "RENGAR_UNIT_PLAYED_TARGET:";
     private const string LeonaStunBoonTargetEffectPrefix = "LEONA_STUN_BOON_TARGET:";
     private const string DiscardedHandCardThisTurnEffectPrefix = "DISCARDED_HAND_CARD_THIS_TURN:";
+    private const string GainedExperienceThisTurnEffectPrefix = "GAINED_EXPERIENCE_THIS_TURN:";
 
     private readonly IRuleEngine fallback = new PlaceholderRuleEngine();
 
@@ -1385,6 +1387,11 @@ public sealed class CoreRuleEngine : IRuleEngine
         return $"{DiscardedHandCardThisTurnEffectPrefix}{playerId}";
     }
 
+    private static string BuildGainedExperienceThisTurnEffectId(string playerId)
+    {
+        return $"{GainedExperienceThisTurnEffectPrefix}{playerId}";
+    }
+
     private static bool PlayerDiscardedHandCardThisTurn(
         IReadOnlyList<string> existingEffectIds,
         string playerId)
@@ -1402,6 +1409,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         return discardedObjectIds.Count > 0
             ? AddUntilEndOfTurnEffect(existingEffectIds, BuildDiscardedHandCardThisTurnEffectId(playerId))
             : existingEffectIds;
+    }
+
+    private static bool PlayerGainedExperienceThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        string playerId)
+    {
+        return existingEffectIds.Contains(
+            BuildGainedExperienceThisTurnEffectId(playerId),
+            StringComparer.Ordinal);
+    }
+
+    private static IReadOnlyList<string> MarkPlayersWhoGainedExperienceThisTurn(
+        IReadOnlyList<string> existingEffectIds,
+        IEnumerable<GameEvent> events)
+    {
+        var nextEffectIds = existingEffectIds;
+        foreach (var playerId in events
+            .Where(gameEvent => string.Equals(gameEvent.Kind, "EXPERIENCE_GAINED", StringComparison.Ordinal)
+                && TryGetPayloadString(gameEvent, "playerId", out _))
+            .Select(gameEvent =>
+            {
+                _ = TryGetPayloadString(gameEvent, "playerId", out var experiencePlayerId);
+                return experiencePlayerId;
+            })
+            .Where(playerId => !string.IsNullOrWhiteSpace(playerId))
+            .Distinct(StringComparer.Ordinal))
+        {
+            nextEffectIds = AddUntilEndOfTurnEffect(nextEffectIds, BuildGainedExperienceThisTurnEffectId(playerId));
+        }
+
+        return nextEffectIds;
     }
 
     private static string BuildBattlefieldFriendlySpellDrawUsedEffectId(string playerId, string sourceObjectId)
@@ -2141,7 +2179,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             ActivePlayerId = intent.PlayerId,
             CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, state.PlayerZones),
-            PlayerExperience = playerExperience
+            PlayerExperience = playerExperience,
+            UntilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(state.UntilEndOfTurnEffects, events)
         };
 
         return new ResolutionResult(
@@ -6648,6 +6687,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             defenderObjectIds,
             playerZones,
             cardObjects);
+        untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, combatEvents);
         var nextState = state with
         {
             Tick = state.Tick + 1,
@@ -19714,6 +19754,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             playerZones[stackItem.ControllerId] = controllerZones;
         }
 
+        untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, events).ToList();
         return new StackResolutionResult(
             playerZones,
             cardObjects,
@@ -20872,6 +20913,12 @@ public sealed class CoreRuleEngine : IRuleEngine
         string controllerId,
         IReadOnlyList<string> untilEndOfTurnEffects)
     {
+        if (string.Equals(behavior.CardNo, SlySalamanderCardNo, StringComparison.Ordinal)
+            && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId))
+        {
+            return [CardCombatKeywordNames.Roam];
+        }
+
         if (string.Equals(behavior.CardNo, RampagingSoulCardNo, StringComparison.Ordinal)
             && PlayerDiscardedHandCardThisTurn(untilEndOfTurnEffects, controllerId))
         {
@@ -20879,6 +20926,17 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return [];
+    }
+
+    private static int ResolveConditionalSourceUnitPowerBonus(
+        CardBehaviorDefinition behavior,
+        string controllerId,
+        IReadOnlyList<string> untilEndOfTurnEffects)
+    {
+        return string.Equals(behavior.CardNo, SlySalamanderCardNo, StringComparison.Ordinal)
+            && PlayerGainedExperienceThisTurn(untilEndOfTurnEffects, controllerId)
+                ? 1
+                : 0;
     }
 
     private static void PlaySourceUnitToBase(
@@ -20918,6 +20976,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
         }
+        unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
 
         var hasteReadyOptionalCostPaid = CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(
             behavior,
@@ -20994,6 +21053,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         {
             unitPower += behavior.LevelSourceUnitPowerBonus;
         }
+        unitPower += ResolveConditionalSourceUnitPowerBonus(behavior, stackItem.ControllerId, untilEndOfTurnEffects);
 
         var unitState = existingState with
         {

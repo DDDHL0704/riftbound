@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百八十二批补齐《狡猾的蝾螈》（UNL-108/219）“本回合已获得经验时获得 +1 战力和游走”的服务端代表路径。服务端从真实 `EXPERIENCE_GAINED` 事件写入 `GAINED_EXPERIENCE_THIS_TURN:<playerId>` 回合记忆；《狡猾的蝾螈》结算成单位时只根据 authoritative 回合记忆修正为 5 战力并附加 `游走` 标签，未获得经验时仍是 4 战力普通单位。前端仍只展示服务端 prompt、事件与 snapshot，不新增本地经验记忆、战力或关键词裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《狡猾的蝾螈》有/无经验记忆、打出获得经验与狩猎战斗经验回归 232/232 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3191/3191；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - 第二百八十一批补齐《肆虐狂魂》（OGN·019/298）“本回合已弃置手牌时获得强攻和游走”的服务端代表路径。服务端在真实弃牌入口写入 `DISCARDED_HAND_CARD_THIS_TURN:<playerId>` 回合记忆；《肆虐狂魂》结算成单位时只根据 authoritative 回合记忆附加 `强攻` / `游走` 标签，未弃牌时仍只保留 `灵体`。前端仍只展示服务端 prompt、事件与 snapshot，不新增本地弃牌记忆或关键词裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；《肆虐狂魂》有/无弃牌记忆和金克丝弃牌记忆回归 234/234 通过；Discard/RampagingSoul/游走相关回归 41/41 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3190/3190；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无 DevUi 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为完整条件式战力/关键词族、正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 
