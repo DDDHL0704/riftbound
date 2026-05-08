@@ -13,7 +13,7 @@
     "eventKinds" : [ "TURN_ENDED" ],
     "finalTick" : 1,
     "promptActions" : {
-      "P1" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ],
+      "P1" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "END_TURN" ],
       "P2" : [ "WAIT" ]
     }
   },

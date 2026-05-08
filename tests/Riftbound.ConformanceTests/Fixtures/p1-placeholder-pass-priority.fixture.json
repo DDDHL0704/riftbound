@@ -29,7 +29,6 @@
         "TAP_RUNE",
         "RECYCLE_RUNE",
         "LEGEND_ACT",
-        "PASS",
         "END_TURN"
       ],
       "P2": ["WAIT"]

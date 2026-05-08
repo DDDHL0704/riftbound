@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百九十一批收紧前端房间页的候选展示和重连 prompt 口径。房间页底部汇总从“当前候选行动”改为“当前可提交行动”，并只汇总服务端 `candidates[].enabled == true` 的候选；服务端 `JoinRoom/RequestSnapshot` 的普通开环 prompt 同步移除旧占位 `PASS`，避免 reload/reconnect 后前端看到一个实时 Core prompt 不再使用的“让过”入口。前端仍不从 `prompt.actions` 自行判断可玩操作。
+- 本批验证：`RequestSnapshot|GameHubJoinTests|CoreRuleEngineSkipsStartBattleWhenSpellDuelCleanupRemovesParticipant` 相关回归 120/120、后端 full test 3139/3139、`dotnet build` 0 warning/0 error、`source ../../scripts/dev-env.sh && npm run build` 均通过。Chrome 插件 smoke 使用房间 `smoke-room-candidate-label-1778230235113`，P1 重连房间页显示“当前可提交行动：移动单位、结束回合、投降”，不显示旧文案“当前候选行动”，也不显示“让过”或“声明战斗”，app runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第一百九十批继续收口服务端战场任务命令边界，没有新增前端 UI 代码。`START_BATTLE` active task 存在时，后端现在有专门回归证据锁住两类绕 UI 手写命令：非当前任务玩家提交 `DECLARE_BATTLE` 会保持等待并被 task queue 拒绝，当前任务玩家把声明战斗切到另一个战场也会被拒绝。前端仍只展示服务端 prompt/candidate，不自行裁决谁能声明或声明哪个战场。
 - 本批验证：active battle task 精确回归 3/3、后端 full test 3139/3139、`source ../../scripts/dev-env.sh && npm run build` 均通过，事件标签覆盖 110 个后端 event kind。没有前端 UI 代码变更，未启动业务 Chrome smoke；整体仍 **NOT READY**，当前完成度仍约 **99%**。
 

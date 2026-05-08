@@ -1,7 +1,7 @@
 import { Check, Flag, Hourglass, Play, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ActionPromptCandidateDto, ActionPromptChoiceDto, ActionPromptDto, ConnectionStatus, GameCommand, SnapshotDto } from "../../types/protocol";
-import { actionLabel, promptActionLabel } from "../../utils/formatters";
+import { promptActionLabel } from "../../utils/formatters";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -300,5 +300,6 @@ function numberMetadata(metadata: Record<string, unknown> | null | undefined, ke
 }
 
 export function candidateListLabel(prompt?: ActionPromptDto): string {
-  return (prompt?.actions ?? []).map(actionLabel).join("、") || "无";
+  const enabledCandidates = (prompt?.candidates ?? []).filter((candidate) => candidate.enabled);
+  return enabledCandidates.map(promptActionLabel).join("、") || "无可提交行动";
 }

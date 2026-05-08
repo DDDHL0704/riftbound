@@ -14,7 +14,7 @@
     "finalTick" : 1,
     "promptActions" : {
       "P1" : [ "WAIT" ],
-      "P2" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "PASS", "END_TURN" ]
+      "P2" : [ "PLAY_CARD", "ACTIVATE_ABILITY", "ASSEMBLE_EQUIPMENT", "MOVE_UNIT", "DECLARE_BATTLE", "HIDE_CARD", "REVEAL_CARD", "TAP_RUNE", "RECYCLE_RUNE", "LEGEND_ACT", "END_TURN" ]
     }
   },
   "faqVersion" : "CORE-260330 + JFAQ-251023 + BREAK-JFAQ-260416 conflict scan; audit incomplete",

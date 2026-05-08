@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P0-003/P1-004 第一百九十一批补充：收紧 JoinRoom/RequestSnapshot 的普通开环 prompt 口径，移除旧占位 `PASS`。此前实时 Core prompt 已只公开产品支持的 `MOVE_UNIT`、`END_TURN`、`SURRENDER` 等动作，但重连/房间页从 `ResolutionResult.BuildPrompts` 取 prompt 时仍会把旧 `PASS` 作为 enabled candidate 暴露；现在服务端重连 prompt 与实时 prompt 对齐，避免前端在恢复/刷新后出现“让过”这种非当前产品路径的可提交入口。
+- 已补验证：同步更新 legacy Java/placeholder fixture 的 `expected.promptActions`，保留历史 oracle 原文但让当前 expected 契约不再要求普通开环 `PASS`；`RequestSnapshot|GameHubJoinTests|CoreRuleEngineSkipsStartBattleWhenSpellDuelCleanupRemovesParticipant` 相关回归 120/120 通过；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3139/3139 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-room-candidate-label-1778230235113`，P1 重连房间页显示“当前可提交行动：移动单位、结束回合、投降”，不再出现“让过”或“声明战斗”，app runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P0-003/P0-004 第一百九十批补充：补齐 `START_BATTLE` active task 的服务端命令护栏测试。当前战场战斗任务激活时，服务端只允许 `ActivePlayerId` 按该 active task 的战场与参战对象提交 `DECLARE_BATTLE`；非当前玩家即使手写同名命令也只能得到 task queue 阻塞错误，当前玩家若把命令切到另一个战场也会被拒绝为“必须匹配 active START_BATTLE task”。这保证前端之外的客户端不能绕过 UI 只读候选去推进错误战斗任务。
 - 已补测试与验证：新增 `CoreRuleEngineRejectsNonActivePlayerDeclareBattleForActiveStartBattleTask` 与 `CoreRuleEngineRejectsDeclareBattleThatDoesNotMatchActiveStartBattleTask`，覆盖非 active 玩家、错误战场、prompt 保持 P1 可声明/P2 等待、tick/events 不变和 pending queue 仍停留在 `BATTLE_TASKS`。验证结果：active battle task 精确回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 3139/3139 通过；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签覆盖 110 个后端 event kind。本批没有前端 UI 代码变更，没有启动业务 Chrome smoke；整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

@@ -2247,7 +2247,6 @@ public sealed record ResolutionResult(
                     "TAP_RUNE",
                     "RECYCLE_RUNE",
                     "LEGEND_ACT",
-                    "PASS",
                     "END_TURN"
                 )
                 : WithSurrender("WAIT")));

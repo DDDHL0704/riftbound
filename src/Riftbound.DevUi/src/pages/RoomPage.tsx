@@ -47,7 +47,7 @@ export function RoomPage({ roomId, onNavigate }: { roomId: string; onNavigate: (
         {!snapshot && <div className="empty-panel">尚未收到房间 snapshot，请先连接。</div>}
       </section>
       <section className="audit-banner">
-        <strong>当前候选行动：</strong>
+        <strong>当前可提交行动：</strong>
         <span>{candidateListLabel(controller.state.prompt)}</span>
       </section>
       <section className="room-log-panel">
