@@ -38,6 +38,9 @@ public sealed class CoreRuleEngine : IRuleEngine
         };
     private const string WatchfulSentinelCardNo = "OGN·096/298";
     private const string WatchfulSentinelLastBreathDrawEffectKind = "WATCHFUL_SENTINEL_LAST_BREATH_DRAW_1";
+    private const string SadPoroOriginalCardNo = "SFD·036/221";
+    private const string SadPoroUnleashedCardNo = "UNL-221/219";
+    private const string SadPoroLastBreathDrawEffectKind = "SAD_PORO_LAST_BREATH_DRAW_1";
     private const string LoyalPoroCardNo = "UNL-156/219";
     private const string LoyalPoroLastBreathDrawEffectKind = "LOYAL_PORO_LAST_BREATH_DRAW_1";
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
@@ -1521,6 +1524,37 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return controllerId;
+    }
+
+    private static string? ResolveSadPoroLastBreathDrawPlayerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyDictionary<string, ObjectLocationState> objectLocations,
+        string objectId,
+        CardObjectState destroyedState)
+    {
+        if (!IsSadPoroCardNo(destroyedState.CardNo)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        var controllerId = EffectiveFieldControllerId(playerZones, objectId, destroyedState);
+        if (string.IsNullOrWhiteSpace(controllerId)
+            || HasOtherFriendlyUnitAtSamePosition(playerZones, cardObjects, objectLocations, objectId, controllerId))
+        {
+            return null;
+        }
+
+        return controllerId;
+    }
+
+    private static bool IsSadPoroCardNo(string? cardNo)
+    {
+        return string.Equals(cardNo, SadPoroOriginalCardNo, StringComparison.Ordinal)
+            || string.Equals(cardNo, SadPoroUnleashedCardNo, StringComparison.Ordinal);
     }
 
     private static bool HasOtherFriendlyUnitAtSamePosition(
@@ -18267,6 +18301,12 @@ public sealed class CoreRuleEngine : IRuleEngine
                         state.ObjectLocations,
                         targetObjectId,
                         targetState);
+                    var sadPoroLastBreathDrawPlayerId = ResolveSadPoroLastBreathDrawPlayerId(
+                        playerZones,
+                        cardObjects,
+                        state.ObjectLocations,
+                        targetObjectId,
+                        targetState);
 
                     if (behavior.DestroysTarget
                         && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
@@ -18303,6 +18343,29 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     playerZones,
                                     playerScores,
                                     lastBreathDrawPlayerId,
+                                    1,
+                                    rngCursor,
+                                    events);
+                                playerScores = drawApplication.PlayerScores;
+                                winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
+                                rngCursor = drawApplication.RngCursor;
+                            }
+
+                            if (sadPoroLastBreathDrawPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    sadPoroLastBreathDrawPlayerId,
+                                    SadPoroLastBreathDrawEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+
+                                var drawApplication = ApplyDrawToPlayer(
+                                    state,
+                                    playerZones,
+                                    playerScores,
+                                    sadPoroLastBreathDrawPlayerId,
                                     1,
                                     rngCursor,
                                     events);

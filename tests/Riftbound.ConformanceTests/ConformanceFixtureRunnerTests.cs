@@ -34585,6 +34585,135 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(p2Pass.State.CardObjects.ContainsKey("P1-FRIENDLY-TARGET"));
     }
 
+    [Theory]
+    [InlineData("SFD·036/221", "P1-SAD-PORO")]
+    [InlineData("UNL-221/219", "P1-UNL-SAD-PORO")]
+    public async Task P79SadPoroDrawsWhenDestroyedWhileIsolated(string cardNo, string sourceObjectId)
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-VENGEANCE"],
+                    MainDeck = ["P1-SAD-PORO-DRAW"],
+                    Base = [sourceObjectId]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                [sourceObjectId] = new(
+                    sourceObjectId,
+                    cardNo: cardNo,
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "魄罗"],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-p7-9-sad-poro-{sourceObjectId}-play-vengeance", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", [sourceObjectId]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent($"intent-p7-9-sad-poro-{sourceObjectId}-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent($"intent-p7-9-sad-poro-{sourceObjectId}-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        var triggerQueued = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "SAD_PORO_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
+        Assert.Equal(sourceObjectId, triggerQueued.Payload["sourceObjectId"]);
+        Assert.Equal("UNIT_DESTROYED", triggerQueued.Payload["triggeredByEventKind"]);
+        Assert.Contains(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "SAD_PORO_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
+        var drawnEvent = Assert.Single(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal("P1", drawnEvent.Payload["playerId"]);
+        Assert.Equal(1, drawnEvent.Payload["count"]);
+        Assert.Equal(["P1-SAD-PORO-DRAW"], p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal([sourceObjectId, "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+    }
+
+    [Fact]
+    public async Task P79SadPoroSkipsDrawWhenDestroyedWithAnotherFriendlyUnitAtSameBase()
+    {
+        var engine = new CoreRuleEngine();
+        var state = PunishmentState(mana: 4) with
+        {
+            PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty with
+                {
+                    Hand = ["P1-SPELL-VENGEANCE"],
+                    MainDeck = ["P1-SAD-PORO-DRAW"],
+                    Base =
+                    [
+                        "P1-SAD-PORO",
+                        "P1-SAD-PORO-ALLY"
+                    ]
+                },
+                ["P2"] = PlayerZones.Empty
+            },
+            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-SAD-PORO"] = new(
+                    "P1-SAD-PORO",
+                    cardNo: "SFD·036/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard, "魄罗"],
+                    ownerId: "P1",
+                    controllerId: "P1"),
+                ["P1-SAD-PORO-ALLY"] = new(
+                    "P1-SAD-PORO-ALLY",
+                    cardNo: "SFD·125/221",
+                    power: 2,
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P1",
+                    controllerId: "P1")
+            }
+        };
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-sad-poro-non-isolated-play-vengeance", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-SPELL-VENGEANCE", "OGN·229/298", ["P1-SAD-PORO"]),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent("intent-p7-9-sad-poro-non-isolated-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-sad-poro-non-isolated-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "TRIGGER_QUEUED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["effectKind"] as string, "SAD_PORO_LAST_BREATH_DRAW_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        Assert.Equal(["P1-SAD-PORO-DRAW"], p2Pass.State.PlayerZones["P1"].MainDeck);
+        Assert.Equal(["P1-SAD-PORO", "P1-SPELL-VENGEANCE"], p2Pass.State.PlayerZones["P1"].Graveyard);
+    }
+
     [Fact]
     public async Task P79LoyalPoroDrawsWhenDestroyedWithAnotherFriendlyUnitAtSameBase()
     {
