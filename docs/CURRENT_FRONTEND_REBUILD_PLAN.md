@@ -7,6 +7,8 @@
 
 最新批次补充：
 
+- 第三百零七批补齐《奥恩》不选择装备分支的服务端证据。Hub prompt 已证明 `PLAY_CARD.sourceRequirements.minTargetCount=0`，前端可显示“不选择”但仍只提交空目标意图；服务端结算时不抽牌，回收查看到的四张牌并写入 `CARDS_RECYCLED.count=4`。本批无 DevUi 运行时代码变更，不启动业务 Chrome smoke，目标端口保持无监听；Ornn 过滤 11/11 通过，后端 full test 3248/3248 通过。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第三百零六批补齐《奥恩》（SFD·058/221 与 SFD·058a/221）打出时查看顶部四张并抽取装备的服务端代表路径。服务端 `PLAY_CARD` prompt 现在只公开主牌堆顶部四张中权威可选的装备候选，前端详情抽屉显示这些候选并提交服务端候选目标；结算仍完全由服务端移动源单位、抽取选中装备、回收其余查看候选，前端不读取卡面自行筛选牌堆。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；Ornn / paired fixture / 目标拒绝过滤 8/8 通过；后端 full test 3245/3245 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-ornn-1778283334154`，P1 前端连接本地 `http://127.0.0.1:5093`，后台 P2 join 并 seed `ornn-equipment-look`；P1 打开《奥恩》详情看到两个服务端装备候选 `SFD·022/221`，选择第一件并确认打出，P1 前端让过、P2 后台让过后事件日志显示“单位进入基地 / 抽牌 / 回收卡牌”，authoritative P1 snapshot 显示 `P1-UNIT-SFD-058-ORNN` 在 P1 基地、`P1-ORNN-EQUIPMENT-001` 在 P1 手牌、`CARD_DRAWN.count=1`、`CARDS_RECYCLED.count=3`、结算链为空；reload/reconnect 恢复最终 snapshot，Chrome runtime error 0，API/Vite/SignalR/Chrome 测试资源已清理，目标端口无监听。整体仍 **NOT READY**，当前完成度仍约 **99%**，因为正式 18 步 E2E、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

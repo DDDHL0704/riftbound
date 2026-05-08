@@ -37180,6 +37180,51 @@ public sealed class ConformanceFixtureRunnerTests
                 .ToArray());
     }
 
+    [Theory]
+    [InlineData("SFD·058/221", "P1-UNIT-SFD-058-ORNN")]
+    [InlineData("SFD·058a/221", "P1-UNIT-SFD-058A-ORNN")]
+    public async Task P79OrnnMayDeclineEquipmentAndRecyclesViewedCards(string cardNo, string sourceObjectId)
+    {
+        var state = OrnnEquipmentLookState(cardNo, sourceObjectId);
+        var engine = new CoreRuleEngine();
+
+        var play = await engine.ResolveAsync(
+            state,
+            new PlayerIntent($"intent-ornn-{cardNo}-decline-play", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                sourceObjectId,
+                cardNo,
+                []),
+            CancellationToken.None);
+        var p1Pass = await engine.ResolveAsync(
+            play.State,
+            new PlayerIntent($"intent-ornn-{cardNo}-decline-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await engine.ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent($"intent-ornn-{cardNo}-decline-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(play.Accepted, play.ErrorMessage);
+        Assert.True(p1Pass.Accepted, p1Pass.ErrorMessage);
+        Assert.True(p2Pass.Accepted, p2Pass.ErrorMessage);
+        Assert.Equal([sourceObjectId], p2Pass.State.PlayerZones["P1"].Base);
+        Assert.Empty(p2Pass.State.PlayerZones["P1"].Hand);
+        Assert.Equal(5, p2Pass.State.PlayerZones["P1"].MainDeck.Count);
+        Assert.Equal("P1-ORNN-DECK-TAIL-001", p2Pass.State.PlayerZones["P1"].MainDeck[0]);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal));
+        var recycleEvent = Assert.Single(p2Pass.Events, gameEvent => string.Equals(gameEvent.Kind, "CARDS_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal("P1", recycleEvent.Payload["playerId"]);
+        Assert.Equal(4, recycleEvent.Payload["count"]);
+        Assert.Equal(
+            ["P1-ORNN-EQUIPMENT-001", "P1-ORNN-EQUIPMENT-002", "P1-ORNN-SPELL-001", "P1-ORNN-UNIT-001"],
+            Assert.IsAssignableFrom<IEnumerable<string>>(recycleEvent.Payload["cardIds"])
+                .Order(StringComparer.Ordinal)
+                .ToArray());
+    }
+
     [Fact]
     public async Task P79OrnnRejectsNonEquipmentTopDeckSelection()
     {
