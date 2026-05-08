@@ -58,6 +58,19 @@ public sealed class CoreRuleEngine : IRuleEngine
         CreatedBaseUnitTokenPower: 1,
         CreatedBaseUnitTokenName: "随从",
         CreatedBaseUnitTokenTags: CardObjectTags.UnitCard);
+    private const string IroncladVanguardCardNo = "SFD·021/221";
+    private const string IroncladVanguardLastBreathCreateRobotsEffectKind = "IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS";
+    private static readonly CardBehaviorDefinition IroncladVanguardLastBreathCreateRobotsBehavior = new(
+        IroncladVanguardCardNo,
+        "铁甲先锋",
+        0,
+        IroncladVanguardLastBreathCreateRobotsEffectKind,
+        0,
+        0,
+        CreatedBaseUnitTokenCount: 2,
+        CreatedBaseUnitTokenPower: 3,
+        CreatedBaseUnitTokenName: "机器人",
+        CreatedBaseUnitTokenTags: CardObjectTags.UnitCard + "|机械");
     private const string DeclareBattleBattlefieldPrefix = "BATTLEFIELD:";
     private const string DeclareBattleOptionalCost = "COMBAT_ASSIGNMENT";
     private const string GuerrillaWarfareEffectKind = "GUERRILLA_WARFARE_RETURN_STANDBY_GRAVEYARD_TO_HAND";
@@ -1544,6 +1557,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !removalResult.WasUnit
             || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
             || !string.Equals(destroyedState.CardNo, MechanicalTricksterCardNo, StringComparison.Ordinal)
+            || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
+            || destroyedState.IsFaceDown
+            || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
+        {
+            return null;
+        }
+
+        return destroyedState.ControllerId
+            ?? destroyedState.OwnerId
+            ?? removalResult.OwnerPlayerId;
+    }
+
+    private static string? ResolveIroncladVanguardLastBreathRobotPlayerId(
+        CardObjectState destroyedState,
+        FieldRemovalResult removalResult)
+    {
+        if (!removalResult.WasDestroyed
+            || !removalResult.WasUnit
+            || !string.Equals(removalResult.DestinationZone, "GRAVEYARD", StringComparison.Ordinal)
+            || !string.Equals(destroyedState.CardNo, IroncladVanguardCardNo, StringComparison.Ordinal)
             || !destroyedState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || destroyedState.IsFaceDown
             || destroyedState.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
@@ -18455,6 +18488,32 @@ public sealed class CoreRuleEngine : IRuleEngine
                                     playerZones,
                                     cardObjects,
                                     MechanicalTricksterLastBreathCreateMinionsBehavior,
+                                    tokenStackItem,
+                                    events);
+                            }
+
+                            var ironcladVanguardRobotPlayerId = ResolveIroncladVanguardLastBreathRobotPlayerId(
+                                targetState,
+                                removalResult);
+                            if (ironcladVanguardRobotPlayerId is not null)
+                            {
+                                var trigger = BuildLastBreathTriggerQueueItem(
+                                    stackItem,
+                                    targetObjectId,
+                                    ironcladVanguardRobotPlayerId,
+                                    IroncladVanguardLastBreathCreateRobotsEffectKind);
+                                events.Add(BuildTriggerQueuedEvent(trigger));
+                                events.Add(BuildTriggerResolvedEvent(trigger));
+                                var tokenStackItem = new StackItemState(
+                                    stackItemId: trigger.TriggerId,
+                                    controllerId: ironcladVanguardRobotPlayerId,
+                                    sourceObjectId: targetObjectId,
+                                    effectKind: IroncladVanguardLastBreathCreateRobotsEffectKind,
+                                    cardNo: IroncladVanguardCardNo);
+                                CreateBaseUnitTokens(
+                                    playerZones,
+                                    cardObjects,
+                                    IroncladVanguardLastBreathCreateRobotsBehavior,
                                     tokenStackItem,
                                     events);
                             }

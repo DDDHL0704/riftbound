@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百六十九批补齐《铁甲先锋》（SFD·021/221）“绝念时打出两名 3 战力机器人到你的基地”的服务端代表路径。普通栈摧毁路径确认正面、非待命《铁甲先锋》作为单位进入废牌堆后，由服务端排入并解析 `IRONCLAD_VANGUARD_LAST_BREATH_CREATE_ROBOTS`，随后在控制者基地创建两名 3 战力、带 `CARD_TYPE:UNIT` / `机械` 标签的机器人指示物；前端仍只展示服务端触发、指示物创建事件和 authoritative snapshot，不新增本地绝念或 token 裁决。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；铁甲先锋、机械戏法师、侦察飞鹰绝念创建/召符文回归 3/3 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3171/3171；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整绝念引擎、非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
+
 - 第二百六十八批补齐《机械戏法师》（OGN·239/298）“绝念时打出三名 1 战力随从到你的基地”的服务端代表路径。普通栈摧毁路径确认正面、非待命《机械戏法师》作为单位进入废牌堆后，由服务端排入并解析 `MECHANICAL_TRICKSTER_LAST_BREATH_CREATE_MINIONS`，随后在控制者基地创建三名 1 战力 `CARD_TYPE:UNIT` 随从指示物；前端仍只展示服务端触发、指示物创建事件和 authoritative snapshot，不新增本地绝念或 token 裁决。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过；机械戏法师绝念创建随从与侦察飞鹰/魄罗绝念回归 5/5 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore` 后端 full test 通过 3170/3170；`source ../../scripts/dev-env.sh && npm run build` 通过，事件标签与玩家可见 fallback 门禁均通过。本批为服务端规则代表路径补齐，无前端 UI 运行时代码变更，不启动业务 Chrome smoke。整体仍 **NOT READY**，因为完整绝念引擎、非栈摧毁触发时机、完整正式 18 步 E2E 与服务端 P0/P1 规则缺口仍未清零。
 
