@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第一百四十六批仍为服务端规则收口，没有前端 UI 文件变更。服务端把 Rengar“打出单位后给目标单位 +1”的额外触发目标从提交侧到结算侧都接入所在场区控制权校验；前端继续只显示服务端 `ActionPrompt` 候选，不需要也不能在本地判断该传奇触发目标是否仍合法。
+- 本批验证：`dotnet build` 通过；Rengar/Leona 精确回归 7/7、传奇触发相关回归 46/46、`GameHubJoinTests` 118/118、后端 full test 3075/3075 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
+
 - 第一百四十五批仍为服务端规则收口，没有前端 UI 文件变更。服务端把通用 target scope 依赖的 `IsBattlefieldObject`、`IsBaseObject`、`IsFieldUnitObject`、`IsEquipmentObject` 也接入所在场区控制权校验，覆盖默认战场单位目标、`AnyUnit`、`Equipment`、`AttackingUnit` 等前端只按 `ActionPrompt.candidates` 展示的候选来源，减少恢复/旧日志脏对象被暴露为可选目标的风险。
 - 本批验证：`dotnet build` 通过；新增/相邻精确回归 6/6、通用目标范围相关回归 64/64、`GameHubJoinTests` 118/118、后端 full test 3073/3073 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为。
 

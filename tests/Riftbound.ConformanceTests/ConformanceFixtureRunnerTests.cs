@@ -29866,6 +29866,96 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerRengarRejectsOpponentControlledFieldTriggerTarget()
+    {
+        var state = RengarLegendUnitPlayState("UNL-227/219", "P1-LEGEND-RENGAR-ALT");
+        var playerZones = state.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        playerZones["P2"] = playerZones["P2"] with
+        {
+            Base = ["P2-DIRTY-P1-CONTROLLED-RENGAR-TARGET"]
+        };
+        var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P2-DIRTY-P1-CONTROLLED-RENGAR-TARGET"] = new(
+            "P2-DIRTY-P1-CONTROLLED-RENGAR-TARGET",
+            cardNo: "SFD·125/221",
+            tags: [CardObjectTags.UnitCard],
+            ownerId: "P1",
+            controllerId: "P1");
+        state = state with
+        {
+            PlayerZones = playerZones,
+            CardObjects = cardObjects,
+            PriorityPlayerId = "P1",
+            StackItems =
+            [
+                new(
+                    "STACK-RENGAR-DIRTY-GUARD-DUMMY",
+                    "P1",
+                    "P1-SPELL-DUMMY",
+                    "DUMMY_PENDING_EFFECT",
+                    "DUMMY",
+                    [])
+            ]
+        };
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rengar-dirty-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-PLUCKY-PORO", "UNL-220/219", ["P2-DIRTY-P1-CONTROLLED-RENGAR-TARGET"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Contains("P1-UNIT-PLUCKY-PORO", result.State.PlayerZones["P1"].Hand);
+        Assert.Equal(["STACK-RENGAR-DIRTY-GUARD-DUMMY"], result.State.StackItems.Select(stackItem => stackItem.StackItemId).ToArray());
+    }
+
+    [Fact]
+    public async Task P79LegendTriggerRengarSkipsPowerWhenStoredTargetControlChanges()
+    {
+        var state = RengarLegendUnitPlayState("UNL-183/219", "P1-LEGEND-RENGAR");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-rengar-play-unit-dirty-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand("P1-UNIT-PLUCKY-PORO", "UNL-220/219", ["P1-LEGEND-BASE-UNIT"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+
+        var cardObjects = playResult.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-BASE-UNIT"] = cardObjects["P1-LEGEND-BASE-UNIT"] with
+        {
+            ControllerId = "P2"
+        };
+        var dirtyControlState = playResult.State with { CardObjects = cardObjects };
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            dirtyControlState,
+            new PlayerIntent("intent-p7-9-rengar-dirty-target-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-rengar-dirty-target-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.Contains("P1-UNIT-PLUCKY-PORO", p2Pass.State.PlayerZones["P1"].Base);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "POWER_MODIFIED_UNTIL_END_OF_TURN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["reason"] as string, "UNIT_PLAYED_POWER_PLUS_1", StringComparison.Ordinal));
+        var target = p2Pass.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal("P2", target.ControllerId);
+        Assert.Equal(2, target.Power);
+        Assert.Equal(0, target.UntilEndOfTurnPowerModifier);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLeonaGrantsBoonWhenEnemyStunned()
     {
         var state = LeonaLegendStunState("OGN·261/298", "P1-LEGEND-LEONA");

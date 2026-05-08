@@ -13025,6 +13025,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 out var legendObjectId,
                 out var legendCardNo)
+            || !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             || targetState.IsFaceDown)
@@ -15893,6 +15894,7 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return FindFieldObjectLocation(state.PlayerZones, targetObjectId) is not null
+            && IsFieldObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, targetObjectId)
             && state.CardObjects.TryGetValue(targetObjectId, out var targetState)
             && targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
             && !targetState.IsFaceDown;
