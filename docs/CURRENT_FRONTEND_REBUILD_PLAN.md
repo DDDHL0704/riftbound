@@ -5,6 +5,11 @@
 当前完成度：约 **99%**，预计仍需 completion audit 与少量收口修复。
 用途：作为本轮“产品级 Web 前端重建 + 服务端规则补齐”的短入口，后续每个批次都应回到本文更新范围、验收和剩余风险。
 
+最新批次补充：
+
+- 第一百四十四批为服务端规则收口，没有前端 UI 文件变更。服务端继续补齐场上对象控制权语义：`IsControlledFieldUnit` / `IsEnemyFieldUnit` 要求对象仍由所在场区玩家控制/legacy-owned，《取放自如》这类单位 + 武装双目标牌的提交前校验也与结算路径一样校验 owner/controller 匹配。前端收益是后续只展示服务端 `ActionPrompt` 时，不会因为恢复/旧日志脏对象而看到可提交但必拒绝或误结算的武装/单位目标。
+- 本批验证：`dotnet build` 通过；新增/相邻精确回归 6/6、`TakeUp|Leona|EquipmentAttachment` 10/10、`GameHubJoinTests` 118/118、后端 full test 3072/3072 均通过；`source ../../scripts/dev-env.sh && npm run build` 通过。没有启动 API/Vite/Web smoke，因为本批不改变 Web 行为；已确认 Chrome 插件可连通，后续显著前端批次优先用 Chrome 插件做 smoke，并在结束时清理标签页和本地进程。
+
 ## 1. 已读取并确认的资料
 
 本批次已先读取并确认以下资料：

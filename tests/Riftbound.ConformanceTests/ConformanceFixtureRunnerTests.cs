@@ -29802,6 +29802,51 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
+    public async Task P79LegendTriggerLeonaSkipsBoonWhenStoredTargetControlChanges()
+    {
+        var state = LeonaLegendStunState("OGN·261/298", "P1-LEGEND-LEONA");
+
+        var playResult = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p7-9-leona-play-stunner-dirty-target", "P1", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P1-UNIT-SUN-SHIELDGUARD",
+                "OGN·051/298",
+                ["P2-LEONA-STUN-TARGET", "P1-LEGEND-BASE-UNIT"]),
+            CancellationToken.None);
+
+        Assert.True(playResult.Accepted);
+
+        var cardObjects = playResult.State.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects["P1-LEGEND-BASE-UNIT"] = cardObjects["P1-LEGEND-BASE-UNIT"] with
+        {
+            ControllerId = "P2"
+        };
+        var dirtyControlState = playResult.State with { CardObjects = cardObjects };
+
+        var p1Pass = await new CoreRuleEngine().ResolveAsync(
+            dirtyControlState,
+            new PlayerIntent("intent-p7-9-leona-dirty-target-p1-pass", "P1", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+        var p2Pass = await new CoreRuleEngine().ResolveAsync(
+            p1Pass.State,
+            new PlayerIntent("intent-p7-9-leona-dirty-target-p2-pass", "P2", "PASS_PRIORITY"),
+            new PassPriorityCommand(),
+            CancellationToken.None);
+
+        Assert.True(p2Pass.Accepted);
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "LEGEND_TRIGGER_RESOLVED", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["trigger"] as string, "ENEMY_STUNNED_GRANT_BOON", StringComparison.Ordinal));
+        Assert.DoesNotContain(p2Pass.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "BOON_GRANTED", StringComparison.Ordinal));
+        var boonTarget = p2Pass.State.CardObjects["P1-LEGEND-BASE-UNIT"];
+        Assert.Equal("P2", boonTarget.ControllerId);
+        Assert.DoesNotContain(CardObjectTags.Boon, boonTarget.Tags);
+    }
+
+    [Fact]
     public async Task P79LegendTriggerLeonaRejectsNonFriendlyUnitBoonTarget()
     {
         var state = LeonaLegendStunState("OGN·306*/298", "P1-LEGEND-LEONA-REPRINT");
@@ -45615,6 +45660,89 @@ public sealed class ConformanceFixtureRunnerTests
             eventKind,
             expectedAttachedToObjectId is null ? "EQUIPMENT_DETACHED" : "EQUIPMENT_ATTACHED",
             StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task P4EquipmentAttachmentRejectsOpponentControlledWeaponInControllersZone()
+    {
+        var state = new MatchState(
+            "p4-take-up-dirty-control-room",
+            0,
+            4,
+            "P1",
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["P1"] = "P1",
+                ["P2"] = "P2"
+            },
+            status: MatchStatuses.InProgress,
+            readyPlayerIds: ["P1", "P2"],
+            turnPlayerId: "P1",
+            phase: MatchPhases.Main,
+            timingState: TimingStates.NeutralOpen,
+            runePools: new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                ["P1"] = RunePool.Empty,
+                ["P2"] = new(2, 0)
+            },
+            playerZones: new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                ["P1"] = PlayerZones.Empty,
+                ["P2"] = PlayerZones.Empty with
+                {
+                    Hand = ["P2-SPELL-TAKE-UP"],
+                    Base = ["P2-EQUIPMENT-TAKE-UP-WEAPON"],
+                    Battlefields = ["P2-UNIT-TAKE-UP-001"]
+                }
+            },
+            playerScores: new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                ["P1"] = 0,
+                ["P2"] = 0
+            },
+            cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P2-UNIT-TAKE-UP-001"] = new(
+                    "P2-UNIT-TAKE-UP-001",
+                    cardNo: "SFD·125/221",
+                    tags: [CardObjectTags.UnitCard],
+                    ownerId: "P2",
+                    controllerId: "P2"),
+                ["P2-EQUIPMENT-TAKE-UP-WEAPON"] = new(
+                    "P2-EQUIPMENT-TAKE-UP-WEAPON",
+                    cardNo: "SFD·022/221",
+                    tags: [CardObjectTags.EquipmentCard, "武装"],
+                    ownerId: "P2",
+                    controllerId: "P1")
+            },
+            priorityPlayerId: "P2",
+            passedPriorityPlayerIds: ["P1"],
+            stackItems:
+            [
+                new(
+                    "STACK-1-P1-SPELL-INCINERATE",
+                    "P1",
+                    "P1-SPELL-INCINERATE",
+                    "INCINERATE_DAMAGE_2",
+                    "OGS·003/024",
+                    ["P2-UNIT-TAKE-UP-001"],
+                    damageAmount: 2)
+            ]);
+
+        var result = await new CoreRuleEngine().ResolveAsync(
+            state,
+            new PlayerIntent("intent-p4-take-up-dirty-control", "P2", "PLAY_CARD"),
+            new PlayCardCommand(
+                "P2-SPELL-TAKE-UP",
+                "SFD·011/221",
+                ["P2-UNIT-TAKE-UP-001", "P2-EQUIPMENT-TAKE-UP-WEAPON"]),
+            CancellationToken.None);
+
+        Assert.False(result.Accepted);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
+        Assert.Contains("P2-SPELL-TAKE-UP", result.State.PlayerZones["P2"].Hand);
+        Assert.Null(result.State.CardObjects["P2-EQUIPMENT-TAKE-UP-WEAPON"].AttachedToObjectId);
+        Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], result.State.StackItems.Select(stackItem => stackItem.StackItemId).ToArray());
     }
 
     [Theory]

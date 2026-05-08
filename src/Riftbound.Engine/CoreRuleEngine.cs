@@ -14554,13 +14554,16 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !TryGetFieldControllerId(state.PlayerZones, unitObjectId, out var unitControllerId)
             || !TryGetFieldControllerId(state.PlayerZones, equipmentObjectId, out var equipmentControllerId)
             || !string.Equals(unitControllerId, equipmentControllerId, StringComparison.Ordinal)
+            || !state.CardObjects.TryGetValue(unitObjectId, out var unitState)
             || !state.CardObjects.TryGetValue(equipmentObjectId, out var equipmentState))
         {
             return false;
         }
 
-        return string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId)
-            || string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal);
+        return FieldIdentityMatchesZone(unitState, unitControllerId)
+            && FieldIdentityMatchesZone(equipmentState, equipmentControllerId)
+            && (string.IsNullOrWhiteSpace(equipmentState.AttachedToObjectId)
+                || string.Equals(equipmentState.AttachedToObjectId, unitObjectId, StringComparison.Ordinal));
     }
 
     private static bool HasValidSacredJudgmentKeepTargets(
@@ -18652,7 +18655,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
             && cardObjects.TryGetValue(objectId, out var objectState)
             && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !objectState.IsFaceDown;
+            && !objectState.IsFaceDown
+            && SourceObjectControlledByPlayerOrLegacyOwned(objectState, playerId);
     }
 
     private static bool IsEnemyFieldUnit(
@@ -18666,7 +18670,8 @@ public sealed class CoreRuleEngine : IRuleEngine
             && !string.Equals(location.Value.PlayerId, playerId, StringComparison.Ordinal)
             && cardObjects.TryGetValue(objectId, out var objectState)
             && objectState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            && !objectState.IsFaceDown;
+            && !objectState.IsFaceDown
+            && SourceObjectControlledByPlayerOrLegacyOwned(objectState, location.Value.PlayerId);
     }
 
     private static bool TryGetFieldControllerId(
