@@ -754,13 +754,6 @@ button.card-face:hover {
   padding: 7px 8px;
 }
 
-.event-log-detailed .log-row code {
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 800;
-  overflow-wrap: anywhere;
-}
-
 .detail-layer {
   position: fixed;
   inset: 0;

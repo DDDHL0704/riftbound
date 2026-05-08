@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百零一批补充：对战事件日志详细模式继续去调试化。`EventLog` 的 detailed density 不再额外渲染 `event.kind` raw 枚举，只保留中文事件标题和经过 `eventDescriptionLabel` 脱敏后的服务端描述；raw kind 仍仅作为标题 tooltip 供开发排查，不作为产品正文展示。前端仍只读服务端 events/snapshot/prompt，不从日志文本自行裁决规则。
+- 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detailed-log-1778233665607`，P1 连接对战页并切到详细日志后，由 P2 外部连接并 seed `basic-play`，页面显示“载入开发场景”等中文日志，正文不含 raw `DEV_SCENARIO_SEEDED` 或 `MATCH_STARTED`，应用自身 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百批补充：对战顶栏 phase/timingState 继续中文化。`MatchTopBar` 现在通过共享 `matchPhaseLabel` / `timingStateLabel` 显示服务端阶段与窗口，主 HUD 会显示“房间阶段 / 起手调整 / 回合开始 / 主阶段 / 回合结束”和“普通开环 / 普通闭环 / 法术对决开环 / 法术对决闭环”等中文文案，不再裸显 `MAIN`、`NEUTRAL_OPEN` 等服务端枚举；前端仍只读 authoritative snapshot。
 - 已补验证：本批无服务端规则代码变更；`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-topbar-label-1778233450965`，外部连接 P1/P2 并 seed `basic-play` 后，P1 对战桌面顶栏显示“第 690 回合｜主阶段｜普通开环”，顶栏不含 raw `MAIN` 或 `NEUTRAL_OPEN`，应用 runtime error 0。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

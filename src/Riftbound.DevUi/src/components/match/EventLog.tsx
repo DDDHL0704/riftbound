@@ -156,7 +156,6 @@ export function EventLog({ density = "standard", events, errors }: { density?: L
       {visibleEvents.map((event, index) => (
         <article className="log-row" key={`${event.kind}-${index}`}>
           <strong title={event.kind}>{eventKindLabel(event.kind)}</strong>
-          {density === "detailed" && <code>{event.kind}</code>}
           <span>{eventDescriptionLabel(event)}</span>
         </article>
       ))}

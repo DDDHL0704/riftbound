@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百零一批继续收口详细事件日志展示。`EventLog` 的详细模式不再把服务端 raw `event.kind` 作为正文 `<code>` 额外显示，只展示中文事件名和脱敏后的服务端描述；内部枚举仍保留在标题 tooltip 便于开发排查，产品正文不再出现 `DEV_SCENARIO_SEEDED` / `MATCH_STARTED` 这类 raw kind。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-detailed-log-1778233665607`，P1 连接对战页并切到详细日志后，由 P2 外部连接并 seed `basic-play`，页面显示“载入开发场景”等中文日志，正文不含 raw `DEV_SCENARIO_SEEDED` 或 `MATCH_STARTED`，应用自身 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
+
 - 第二百批继续收口对战顶栏中文展示。`MatchTopBar` 通过共享 `matchPhaseLabel` / `timingStateLabel` 把服务端 phase 与 timingState 渲染为“主阶段 / 普通开环”等中文文案，主 HUD 不再裸显 `MAIN`、`NEUTRAL_OPEN` 等枚举；展示仍完全来自 authoritative snapshot。
 - 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-restore --filter "FullyQualifiedName~GameHubJoinTests"` 119/119 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-topbar-label-1778233450965`，P1/P2 外部连接并 seed `basic-play` 后，P1 对战桌面顶栏显示“第 690 回合｜主阶段｜普通开环”，顶栏不含 raw `MAIN` 或 `NEUTRAL_OPEN`，应用 runtime error 0。整体仍 **NOT READY**，当前完成度仍约 **99%**。
 
