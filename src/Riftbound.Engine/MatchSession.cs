@@ -6401,8 +6401,8 @@ internal static class ActionPromptBuilder
     private static ActionPromptChoiceDto ObjectChoice(MatchState state, string objectId, string reason)
     {
         var label = state.CardObjects.TryGetValue(objectId, out var cardObject)
-            ? string.IsNullOrWhiteSpace(cardObject.CardNo) ? objectId : $"{cardObject.CardNo} / {objectId}"
-            : objectId;
+            ? string.IsNullOrWhiteSpace(cardObject.CardNo) ? "服务端对象" : cardObject.CardNo
+            : "服务端对象";
         return new ActionPromptChoiceDto(objectId, label, reason);
     }
 
@@ -6411,8 +6411,8 @@ internal static class ActionPromptBuilder
         var stackItem = state.StackItems.FirstOrDefault(item =>
             string.Equals(item.StackItemId, stackItemId, StringComparison.Ordinal));
         var label = stackItem is null
-            ? stackItemId
-            : $"{stackItem.CardNo} / {stackItem.StackItemId}";
+            ? "结算链项目"
+            : string.IsNullOrWhiteSpace(stackItem.CardNo) ? "结算链项目" : stackItem.CardNo;
         return new ActionPromptChoiceDto(stackItemId, label, reason);
     }
 

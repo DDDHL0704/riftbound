@@ -327,6 +327,13 @@ public sealed class GameHubJoinTests
             activePrompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "MULLIGAN", StringComparison.Ordinal));
         Assert.Equal(activeHand, (mulliganCandidate.Sources ?? []).Select(source => source.Id).ToArray());
+        Assert.All(
+            mulliganCandidate.Sources ?? [],
+            source =>
+            {
+                Assert.DoesNotContain(source.Id, source.Label, StringComparison.Ordinal);
+                Assert.DoesNotContain("-MAIN-", source.Label, StringComparison.Ordinal);
+            });
         Assert.NotNull(mulliganCandidate.Metadata);
         Assert.Equal(2, mulliganCandidate.Metadata["maxSelectionCount"]);
         var activeMulliganClients = new RecordingHubClients();

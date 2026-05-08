@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百一十二批补充：服务端行动提示候选标签继续去内部标识。`MatchSession` 构造 object/stack choice label 时不再向玩家可见文本拼接对象 ID 或结算链 ID；公开对象显示服务端卡号，缺失卡号时显示通用中文 fallback。候选 `id` 仍作为服务端提交参数保留在协议内，前端继续只提交当前 enabled candidate 支持的对象，不在浏览器侧裁决规则。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 精确回归通过；`GameHubJoinTests` 119/119 通过；`ConformanceFixtureShapeTests` 75/75 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-official-redaction-1778237277600`，P1 页面与 P2 后台 SignalR 完成提交卡组、准备、起手调整，并推进到第 1 回合主阶段；P1 UI 不含 `P1-MAIN...`、`P2-MAIN...` 或 `opening hand mulligan candidate`，应用自身 runtime error 0。smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百一十一批补充：首页/设置页玩家可见接口路径继续中文化。`HomePage` 不再显示 `/catalog/behavior-specs`，`SettingsPage` 不再显示 `/health`；页面仍读取相同服务端接口和 authoritative evidence，只把产品文案收口到中文口径。
 - 已补验证：本批无服务端规则代码变更；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 依次打开 `/settings` 和 `/`，设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后，设置页显示“正在读取服务端健康状态 / 服务端健康”，首页显示“图鉴状态来自服务端卡牌证据”，页面正文不含 `/health`、`/catalog/behavior-specs`、`SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

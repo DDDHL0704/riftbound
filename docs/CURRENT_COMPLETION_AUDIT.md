@@ -7,10 +7,10 @@
 
 ## 1. 修改文件列表
 
-当前第二百一十一批修改：
+当前第二百一十二批修改：
 
-- `src/Riftbound.DevUi/src/pages/HomePage.tsx`
-- `src/Riftbound.DevUi/src/pages/SettingsPage.tsx`
+- `src/Riftbound.Engine/MatchSession.cs`
+- `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -62,7 +62,7 @@
 
 ## 7. 隐藏信息保护检查结果
 
-当前已有多批测试和 Chrome smoke 证明：对手手牌、隐藏待命、未知对象、内部对象 ID、stack/cleanup/task id 不应进入非授权玩家可见正文。最近的 object redaction smoke 覆盖了隐藏卡详情和页面正文。
+当前已有多批测试和 Chrome smoke 证明：对手手牌、隐藏待命、未知对象、内部对象 ID、stack/cleanup/task id 不应进入非授权玩家可见正文。最近的 object redaction smoke 覆盖了隐藏卡详情和页面正文；第二百一十二批进一步确认官方开局起手调整候选只显示卡号，不在玩家可见 choice label 中暴露对象 ID。
 
 最终验收前仍需再跑一次长链路隐藏信息检查，覆盖正式 deck、起手、手牌、牌堆顺序、面朝下待命、reconnect/replay 视角。
 
@@ -74,11 +74,11 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百一十一批是前端文案收口批，`source ../../scripts/dev-env.sh && npm run build` 与 `git diff --check` 已通过。
+当前第二百一十二批是服务端行动提示标签收口批：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 精确回归通过；`GameHubJoinTests` 119/119 通过；`ConformanceFixtureShapeTests` 75/75 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。
 
 ## 9. Browser smoke / E2E 结果
 
-已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十一批 Chrome smoke 已覆盖首页/设置页接口路径收口并在结束后清理测试标签和临时服务进程。
+已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十二批 Chrome smoke 使用房间 `smoke-official-redaction-1778237277600` 覆盖 P1 页面 + P2 后台 SignalR 的官方测试卡组提交、准备、起手调整和进入第 1 回合主阶段；P1 UI 不含 `P1-MAIN...`、`P2-MAIN...` 或 `opening hand mulligan candidate`，应用自身 runtime error 0，并在结束后清理测试标签和临时服务进程。
 
 最终仍缺一条覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：创建/加入房间、合法卡组、准备、起手、首回合、召符文、抽牌、出单位、移动到战场、争夺/战斗、法术对决、双方让过、结束回合、重连恢复、战场得分和投降/胜利结算。
 

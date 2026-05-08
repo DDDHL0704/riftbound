@@ -7,6 +7,9 @@
 
 最新批次补充：
 
+- 第二百一十二批修复服务端行动提示候选标签里的内部对象标识泄漏。`MatchSession` 构造 `ActionPrompt` choice 时，object/stack choice label 不再拼接对象 ID 或结算链 ID；公开对象显示服务端卡号，异常缺失卡号时显示“服务端对象 / 结算链项目”。命令提交仍保留候选 `id` 作为服务端权威参数，前端不新增本地裁决或 masking 规则。
+- 本批验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`OfficialDeckSubmitReadyAndMulliganFlowWorksThroughHub` 精确回归通过；`GameHubJoinTests` 119/119 通过；`ConformanceFixtureShapeTests` 75/75 通过；`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-official-redaction-1778237277600`，P1 通过真实页面设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P1`，连接房间、提交官方测试卡组、准备并完成起手调整；P2 由后台 SignalR 连接并完成相同开局步骤。P1 UI 从“确认起手调整”推进到“第 1 回合｜主阶段｜普通开环”，可见候选只显示 `ARC-003/006`、`OGN·009/298`、`OGN·006/298` 等卡号，不含 `P1-MAIN...`、`P2-MAIN...` 或 `opening hand mulligan candidate`，应用自身 runtime error 0。smoke 后已清理 P2 连接、Chrome 测试标签、API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
+
 - 第二百一十一批继续收口首页/设置页玩家可见接口路径。`HomePage` 不再显示 `/catalog/behavior-specs`，改为“服务端卡牌证据”；`SettingsPage` 加载健康状态时不再显示 `/health`，改为“正在读取服务端健康状态。”；这些改动只影响产品文案。
 - 本批验证：`source ../../scripts/dev-env.sh && npm run build` 通过；Chrome 插件 smoke 依次打开 `/settings` 和 `/`，设置 `serverUrl=http://127.0.0.1:5093`、`playerId=P1` 后，设置页显示“正在读取服务端健康状态 / 服务端健康”，首页显示“图鉴状态来自服务端卡牌证据”，页面正文不含 `/health`、`/catalog/behavior-specs`、`SignalR`、`JoinRoom`、`ActionPrompt`、`SUBMIT_DECK`、`REST`、`BehaviorSpec` 或 `Deferred family`，应用自身 runtime error 0。smoke 后已清理 API/Vite/Chrome 测试标签，5092/5093/5094/5175/5176/9223/9224 无监听。当前完成度仍约 **99%**，整体仍 **NOT READY**。
 
