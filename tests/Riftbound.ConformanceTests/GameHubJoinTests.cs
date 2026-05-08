@@ -2405,6 +2405,101 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task P6BattlefieldContestSpellDuelCleanupSeedSkipsBattleAfterFocusPass()
+    {
+        const string roomId = "p6-3d-battlefield-contest-spell-duel-cleanup";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+
+        var seedClients = new RecordingHubClients();
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-contest-spell-duel-cleanup", "seed-p6-battlefield-contest-spell-duel-cleanup");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var seededP2Prompt = PromptFor(seedClients, "P2");
+        Assert.True(seededP2Prompt.Actionable);
+        Assert.Equal(["PASS_FOCUS", "SURRENDER"], seededP2Prompt.Actions);
+        var seededP2Snapshot = SnapshotFor(seedClients, "P2");
+        Assert.Equal("SPELL_DUEL_OPEN", seededP2Snapshot.Timing["timingState"]);
+        Assert.Equal("P2", seededP2Snapshot.Timing["focusPlayerId"]);
+        var seededTaskQueue = Assert.IsType<Dictionary<string, object?>>(seededP2Snapshot.Timing["pendingTaskQueue"]);
+        var seededTasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(seededTaskQueue["tasks"]);
+        Assert.Contains(
+            seededTasks,
+            task => string.Equals(task["kind"] as string, "START_BATTLE", StringComparison.Ordinal));
+
+        var passFocusClients = new RecordingHubClients();
+        await CreateHub(passFocusClients, new RecordingGroupManager(), "connection-2", registry)
+            .SubmitIntent(roomId, "P2", "intent-p6-battlefield-contest-spell-duel-cleanup-p2-focus-pass", JsonSerializer.SerializeToElement(new
+            {
+                cmdType = "PASS_FOCUS"
+            }));
+
+        Assert.Empty(passFocusClients.CallerClient.Errors);
+        var events = EventsFor(passFocusClients);
+        Assert.Equal(
+            ["FOCUS_PASSED", "SPELL_DUEL_CLOSED", "UNIT_DESTROYED"],
+            events.Select(gameEvent => gameEvent.Kind).ToArray());
+        var closedEvent = Assert.Single(
+            events,
+            gameEvent => string.Equals(gameEvent.Kind, "SPELL_DUEL_CLOSED", StringComparison.Ordinal));
+        Assert.Equal(
+            ["P1-BATTLEFIELD-SPELL-DUEL-CLEANUP-001"],
+            Assert.IsType<string[]>(closedEvent.Payload["completedBattlefieldObjectIds"]));
+
+        var p1Snapshot = SnapshotFor(passFocusClients, "P1");
+        Assert.Equal("NEUTRAL_OPEN", p1Snapshot.Timing["timingState"]);
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.Equal("IDLE", Assert.IsType<string>(taskQueue["phase"]));
+        var tasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        Assert.DoesNotContain(
+            tasks,
+            task => string.Equals(task["kind"] as string, "START_BATTLE", StringComparison.Ordinal));
+
+        var p1Prompt = PromptFor(passFocusClients, "P1");
+        Assert.True(p1Prompt.Actionable);
+        Assert.DoesNotContain("DECLARE_BATTLE", p1Prompt.Actions);
+        Assert.Equal(["MOVE_UNIT", "END_TURN", "SURRENDER"], p1Prompt.Actions);
+
+        var resyncClients = new RecordingHubClients();
+        await CreateHub(resyncClients, new RecordingGroupManager(), "connection-1", registry)
+            .RequestSnapshot(roomId, "P1");
+        Assert.Empty(resyncClients.CallerClient.Errors);
+        var resyncP1Prompt = Assert.IsType<ActionPromptDto>(
+            Assert.Single(resyncClients.CallerClient.Prompts, message => string.Equals(message.PlayerId, "P1", StringComparison.Ordinal)).Payload);
+        Assert.True(resyncP1Prompt.Actionable);
+        var resyncDeclareBattleCandidate = (resyncP1Prompt.Candidates ?? [])
+            .FirstOrDefault(candidate => string.Equals(candidate.Action, "DECLARE_BATTLE", StringComparison.Ordinal));
+        Assert.True(resyncDeclareBattleCandidate is null || !resyncDeclareBattleCandidate.Enabled);
+
+        var p2 = PlayerView(p1Snapshot, "P2");
+        var p2Zones = ZoneView(p2);
+        Assert.DoesNotContain(
+            "P2-UNIT-SPELL-DUEL-CLEANUP-001",
+            StringList(p2Zones["battlefields"]));
+        Assert.Contains(
+            "P2-UNIT-SPELL-DUEL-CLEANUP-001",
+            StringList(p2Zones["graveyard"]));
+        var battlefields = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(p1Snapshot.Lanes["battlefields"]);
+        var battlefield = Assert.Single(
+            battlefields,
+            item => string.Equals(item["battlefieldObjectId"] as string, "P1-BATTLEFIELD-SPELL-DUEL-CLEANUP-001", StringComparison.Ordinal));
+        Assert.False(Assert.IsType<bool>(battlefield["contested"]));
+        Assert.Equal("P1", Assert.IsType<string>(battlefield["controllerId"]));
+        Assert.Equal(
+            ["P1-UNIT-SPELL-DUEL-CLEANUP-001"],
+            Assert.IsAssignableFrom<IReadOnlyList<string>>(battlefield["occupantObjectIds"]));
+    }
+
+    [Fact]
     public async Task P6MovementAndScoreSeedsBroadcastCoreSnapshotsInDevelopment()
     {
         var movementRegistry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
