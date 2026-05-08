@@ -90,6 +90,7 @@ npm run dev
 
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`：当前产品级 Web 前端重建、Browser smoke 和剩余验收入口。
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`：当前服务端核心规则复审、P0/P1 剩余缺口和 NOT READY 结论。
+- `docs/CURRENT_COMPLETION_AUDIT.md`：active goal 当前 completion audit 清单；结论为 NOT READY 时不得标记 goal complete。
 - `docs/CURRENT_P7_9_STATUS.md`：P7.9 本地产品版全卡可玩完成状态、最终验证和 Browser smoke。
 - `docs/CURRENT_P7_STATUS.md`：P7 产品级 Web 对战完成状态、Browser smoke 和最终验证。
 - `docs/CURRENT_P6_STATUS.md`：P6 全卡状态矩阵，保留 P6 final 的 `713/811` implemented 与 `98/811` manual deferred 边界；P7.9 当前数字以 `docs/CURRENT_P7_9_STATUS.md` 为准。
