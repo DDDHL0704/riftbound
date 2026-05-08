@@ -4442,6 +4442,26 @@ public sealed class CoreRuleEngine : IRuleEngine
             || string.Equals(cardObject.OwnerId, playerId, StringComparison.Ordinal);
     }
 
+    private static string EffectiveFieldControllerId(
+        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        string objectId,
+        CardObjectState cardObject)
+    {
+        if (!string.IsNullOrWhiteSpace(cardObject.ControllerId))
+        {
+            return cardObject.ControllerId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(cardObject.OwnerId))
+        {
+            return cardObject.OwnerId;
+        }
+
+        return TryGetFieldControllerId(playerZones, objectId, out var fieldControllerId)
+            ? fieldControllerId
+            : string.Empty;
+    }
+
     private static bool TryGetBattlefieldExtraStandbyObject(
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
@@ -6247,7 +6267,10 @@ public sealed class CoreRuleEngine : IRuleEngine
                 && IsObjectOnField(playerZones, entry.Key)
                 && cardObjects.TryGetValue(entry.Key, out var cardObject)
                 && (cardObject.IsFaceDown || cardObject.Tags.Contains(CardObjectTags.Standby, StringComparer.Ordinal))
-                && !string.Equals(cardObject.ControllerId, battlefieldControllerId, StringComparison.Ordinal))
+                && !string.Equals(
+                    EffectiveFieldControllerId(playerZones, entry.Key, cardObject),
+                    battlefieldControllerId,
+                    StringComparison.Ordinal))
             .Select(entry => entry.Key)
             .Distinct(StringComparer.Ordinal)
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -6300,7 +6323,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             {
                 ["objectId"] = objectId,
                 ["ownerPlayerId"] = ownerPlayerId,
-                ["previousControllerId"] = cardObject.ControllerId,
+                ["previousControllerId"] = EffectiveFieldControllerId(playerZones, objectId, cardObject),
                 ["destinationZone"] = "GRAVEYARD"
             });
         }
