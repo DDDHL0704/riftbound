@@ -17341,7 +17341,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                 ? Math.Max(0, destroyedTargetState.Power)
                 : 0;
 
-            if (TryDestroyTarget(playerZones, cardObjects, destroyedTargetObjectId, out var removalResult))
+            if (TryDestroyControlledFieldTarget(playerZones, cardObjects, destroyedTargetObjectId, out var removalResult))
             {
                 events.Add(BuildFieldRemovalEvent(
                     behavior.DisplayName,
@@ -17513,7 +17513,7 @@ public sealed class CoreRuleEngine : IRuleEngine
 
                         if (behavior.DestroysTargetIfAlreadyHasStatusEffect
                             && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
-                            && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var statusRemovalResult))
+                            && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var statusRemovalResult))
                         {
                             events.Add(BuildFieldRemovalEvent(
                                 behavior.DisplayName,
@@ -17614,7 +17614,7 @@ public sealed class CoreRuleEngine : IRuleEngine
                     cardObjects[targetObjectId] = targetState;
 
                     if (behavior.DestroysTarget
-                        && TryDestroyTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
+                        && TryDestroyControlledFieldTarget(playerZones, cardObjects, targetObjectId, out var removalResult))
                     {
                         events.Add(BuildFieldRemovalEvent(
                             behavior.DisplayName,
@@ -20443,6 +20443,23 @@ public sealed class CoreRuleEngine : IRuleEngine
         }
 
         return false;
+    }
+
+    private static bool TryDestroyControlledFieldTarget(
+        Dictionary<string, PlayerZones> playerZones,
+        Dictionary<string, CardObjectState> cardObjects,
+        string targetObjectId,
+        out FieldRemovalResult removalResult)
+    {
+        removalResult = FieldRemovalResult.Empty;
+        var location = FindFieldObjectLocation(playerZones, targetObjectId);
+        if (location is null
+            || !IsCardObjectControlledByPlayerOrLegacyOwned(cardObjects, location.Value.PlayerId, targetObjectId))
+        {
+            return false;
+        }
+
+        return TryDestroyTarget(playerZones, cardObjects, targetObjectId, out removalResult);
     }
 
     private static IReadOnlyList<string> DetachEquipmentFromRemovedHost(
