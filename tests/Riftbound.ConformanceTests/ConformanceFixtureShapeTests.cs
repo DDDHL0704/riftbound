@@ -3006,14 +3006,16 @@ public sealed class ConformanceFixtureShapeTests
             candidate => string.Equals(candidate.Action, "TAP_RUNE", StringComparison.Ordinal));
         Assert.False(tapCandidate.Enabled);
         Assert.Empty(tapCandidate.Sources ?? []);
-        Assert.Equal("TAP_RUNE 当前没有服务端可执行候选", tapCandidate.Reason);
+        Assert.Equal("横置符文 当前没有服务端可执行候选", tapCandidate.Reason);
+        Assert.DoesNotContain("TAP_RUNE", tapCandidate.Reason);
 
         var recycleCandidate = Assert.Single(
             prompt.Candidates ?? [],
             candidate => string.Equals(candidate.Action, "RECYCLE_RUNE", StringComparison.Ordinal));
         Assert.False(recycleCandidate.Enabled);
         Assert.Empty(recycleCandidate.Sources ?? []);
-        Assert.Equal("RECYCLE_RUNE 当前没有服务端可执行候选", recycleCandidate.Reason);
+        Assert.Equal("回收符文 当前没有服务端可执行候选", recycleCandidate.Reason);
+        Assert.DoesNotContain("RECYCLE_RUNE", recycleCandidate.Reason);
     }
 
     [Fact]

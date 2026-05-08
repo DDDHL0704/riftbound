@@ -14,6 +14,9 @@
 
 ## 2026-05-08 开发进度更新
 
+- P1-004 第二百二十一批补充：服务端禁用行动候选原因继续去 raw action token。`ActionPromptBuilder.DisabledReasonFor` 现在复用服务端中文行动名，缺少合法来源/目标/费用候选时显示“横置符文 当前没有服务端可执行候选”“回收符文 当前没有服务端可执行候选”，不再把 `TAP_RUNE`、`RECYCLE_RUNE` 或其他全大写协议 action 拼入玩家可见 reason；未知协议 action 降级为“服务端操作”。前端仍只展示服务端下发的候选和 reason，不在浏览器侧自行裁决可执行性。
+- 已补验证：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore` 通过，0 warning/0 error；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~ActionPromptHidesRuneSourcesWhenRuneHasNoCardNo"` 1/1 通过；`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 75/75 通过。本批为服务端 prompt 文案契约与测试收口，没有前端 UI 代码变更，未启动新的 API/Vite/Chrome smoke；5092/5093/5094/5175/5176/9223/9224 保持无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
+
 - P1-004 第二百二十批补充：前端结算链摘要继续去 destination 协议值。`StackPanel` 现在把 stack item 的 `destination` 显示为“战场 / 基地 / 结算链 / 待命 / 废牌堆 / 放逐区 / 服务端区域”，不再把 `BATTLEFIELD:P1-MAIN`、`STACK` 等 raw destination token 放进玩家正文；该批只改 UI 展示，服务端 stack item 与命令契约不变。
 - 已补验证：`source ../../scripts/dev-env.sh && npm run build` 通过。Chrome 插件 smoke 使用房间 `smoke-zone-label-field-1778240000004`，P1 页面连接后由后台 SignalR 让 P2 入座、seed `basic-play`，并由 P1 提交服务端候选支持的 `PLAY_CARD` 到 `BATTLEFIELD:P1-MAIN`；结算链摘要显示“去向：战场”，页面正文不含 `BATTLEFIELD:P1-MAIN` 或 raw `BATTLEFIELD`。Chrome 只记录扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0；smoke 后已清理临时连接、测试标签和 API/Vite 进程，5092/5093/5094/5175/5176/9223/9224 无监听。整体仍 **NOT READY**，因为完整 battle task 自动化、central cleanup queue、PaymentEngine、LayerEngine 与全官方卡牌证据仍未清零。
 

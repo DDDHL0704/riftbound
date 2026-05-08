@@ -6505,8 +6505,21 @@ internal static class ActionPromptBuilder
             "PASS_FOCUS" => "让过焦点",
             "END_TURN" => "结束回合",
             "SURRENDER" => "投降",
-            _ => action
+            _ => IsProtocolActionToken(action) ? "服务端操作" : action
         };
+    }
+
+    private static bool IsProtocolActionToken(string action)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return false;
+        }
+
+        return action.All(character =>
+            character is '_' or '-' or ':'
+            || (character >= 'A' && character <= 'Z')
+            || (character >= '0' && character <= '9'));
     }
 
     private static string DisabledReasonFor(
@@ -6514,14 +6527,16 @@ internal static class ActionPromptBuilder
         string promptReason,
         bool hasRequiredChoices)
     {
+        var actionLabel = LabelFor(action);
+
         if (!hasRequiredChoices)
         {
-            return $"{action} 当前没有服务端可执行候选";
+            return $"{actionLabel} 当前没有服务端可执行候选";
         }
 
         return string.Equals(action, "WAIT", StringComparison.Ordinal)
             ? promptReason
-            : $"当前 prompt 不允许执行 {action}";
+            : $"当前行动提示不允许执行 {actionLabel}";
     }
 }
 
