@@ -1713,7 +1713,7 @@ public sealed class CoreRuleEngine : IRuleEngine
             || !zones.Battlefields.Contains(command.SourceObjectId, StringComparer.Ordinal)
             || !state.CardObjects.TryGetValue(command.SourceObjectId, out var sourceState)
             || !sourceState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
-            || !string.Equals(sourceState.ControllerId, intent.PlayerId, StringComparison.Ordinal))
+            || !SourceObjectControlledByPlayerOrLegacyOwned(sourceState, intent.PlayerId))
         {
             return RejectWithCorePrompts(
                 state,
