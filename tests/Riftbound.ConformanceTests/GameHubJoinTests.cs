@@ -591,6 +591,43 @@ public sealed class GameHubJoinTests
     }
 
     [Fact]
+    public async Task SeedScenarioBroadcastsUnattachedEquipmentCleanupTask()
+    {
+        const string roomId = "unattached-equipment-cleanup-task-room";
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), NoopMatchJournal.Instance);
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry)
+            .JoinRoom(roomId, "P1");
+        await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry)
+            .JoinRoom(roomId, "P2");
+        var seedClients = new RecordingHubClients();
+
+        await CreateHub(
+                seedClients,
+                new RecordingGroupManager(),
+                "connection-1",
+                registry,
+                new TestHostEnvironment(Environments.Development))
+            .SeedScenario(roomId, "P1", "battlefield-unattached-equipment-cleanup", "seed-unattached-equipment-cleanup-task");
+
+        Assert.Empty(seedClients.CallerClient.Errors);
+        var p1Snapshot = SnapshotFor(seedClients, "P1");
+        var taskQueue = Assert.IsType<Dictionary<string, object?>>(p1Snapshot.Timing["pendingTaskQueue"]);
+        Assert.True(Assert.IsType<bool>(taskQueue["hasTasks"]));
+        Assert.True(Assert.IsType<bool>(taskQueue["isBlocking"]));
+        Assert.Equal("STATE_BASED_CLEANUP", Assert.IsType<string>(taskQueue["phase"]));
+        var tasks = Assert.IsAssignableFrom<IReadOnlyList<Dictionary<string, object?>>>(taskQueue["tasks"]);
+        var task = Assert.Single(tasks);
+        Assert.Equal("RECALL_UNATTACHED_EQUIPMENT", Assert.IsType<string>(task["kind"]));
+        Assert.Equal("UNATTACHED_EQUIPMENT_CLEANUP", Assert.IsType<string>(task["reason"]));
+
+        var p1Prompt = PromptFor(seedClients, "P1");
+        Assert.Equal(["WAIT", "SURRENDER"], p1Prompt.Actions);
+        Assert.Contains("装备清理", p1Prompt.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("RECALL_UNATTACHED_EQUIPMENT", p1Prompt.Reason, StringComparison.Ordinal);
+        Assert.DoesNotContain("cleanup:unattached-equipment", p1Prompt.Reason, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task P79TypedPowerPaymentSeedOffersAmountChoicesAndPlaysThroughHub()
     {
         const string roomId = "p7-9-typed-power-payment-core";

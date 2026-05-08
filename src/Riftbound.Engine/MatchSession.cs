@@ -8204,6 +8204,7 @@ public sealed class MatchSession : IMatchSession
             "battlefield-contest-stack" => BuildBattlefieldContestStackScenario(current, seed),
             "battlefield-contest-spell-duel-cleanup" => BuildBattlefieldContestSpellDuelCleanupScenario(current, seed),
             "battlefield-illegal-standby" => BuildBattlefieldIllegalStandbyScenario(current, seed),
+            "battlefield-unattached-equipment-cleanup" => BuildBattlefieldUnattachedEquipmentCleanupScenario(current, seed),
             "typed-power-payment" => BuildTypedPowerPaymentScenario(current, seed),
             "typed-power-payment-recycle" => BuildTypedPowerPaymentRecycleScenario(current, seed),
             "typed-power-payment-over-recycle" => BuildTypedPowerPaymentOverRecycleScenario(current, seed),
@@ -8359,6 +8360,59 @@ public sealed class MatchSession : IMatchSession
             {
                 ["P1-BATTLEFIELD-ILLEGAL-STANDBY-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ILLEGAL-STANDBY-001"),
                 ["P1-STANDBY-ILLEGAL-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-ILLEGAL-STANDBY-001")
+            }
+        };
+    }
+
+    private static MatchState BuildBattlefieldUnattachedEquipmentCleanupScenario(MatchState current, DevScenarioSeed seed)
+    {
+        var state = BuildScenarioState(
+            current,
+            seed,
+            2603303072,
+            72,
+            new Dictionary<string, RunePool>(StringComparer.Ordinal)
+            {
+                [seed.P1] = RunePool.Empty,
+                [seed.P2] = RunePool.Empty
+            },
+            new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
+            {
+                [seed.P1] = Zones(
+                    battlefields:
+                    [
+                        "P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001",
+                        "P1-EQUIPMENT-UNATTACHED-001"
+                    ],
+                    legendZone: ["P1-LEGEND-001"],
+                    championZone: ["P1-CHAMPION-001"]),
+                [seed.P2] = Zones(
+                    legendZone: ["P2-LEGEND-001"],
+                    championZone: ["P2-CHAMPION-001"])
+            },
+            new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001"] = new(
+                    "P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001",
+                    cardNo: "OGN·275/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1),
+                ["P1-EQUIPMENT-UNATTACHED-001"] = new(
+                    "P1-EQUIPMENT-UNATTACHED-001",
+                    cardNo: "SFD·022/221",
+                    power: 1,
+                    tags: [CardObjectTags.EquipmentCard],
+                    ownerId: seed.P1,
+                    controllerId: seed.P1)
+            });
+
+        return state with
+        {
+            ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+            {
+                ["P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001"),
+                ["P1-EQUIPMENT-UNATTACHED-001"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-UNATTACHED-EQUIPMENT-001")
             }
         };
     }

@@ -7,11 +7,11 @@
 
 ## 1. 修改文件列表
 
-当前第二百一十七批修改：
+当前第二百一十八批修改：
 
+- `src/Riftbound.DevUi/src/components/match/StackPanel.tsx`
 - `src/Riftbound.Engine/MatchSession.cs`
-- `tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs`
-- `tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs`
+- `tests/Riftbound.ConformanceTests/GameHubJoinTests.cs`
 - `docs/CURRENT_COMPLETION_AUDIT.md`
 - `docs/CURRENT_FRONTEND_REBUILD_PLAN.md`
 - `docs/CURRENT_SERVER_RULE_AUDIT.md`
@@ -71,7 +71,7 @@
 
 ## 7. 隐藏信息保护检查结果
 
-当前已有多批测试和 Chrome smoke 证明：对手手牌、隐藏待命、未知对象、内部对象 ID、stack/cleanup/task id 不应进入非授权玩家可见正文。最近的 object redaction smoke 覆盖了隐藏卡详情和页面正文；第二百一十二批确认官方开局起手调整候选只显示卡号；第二百一十三批确认任务队列 activeTaskId、cleanup/task id 与 raw reason 不进入玩家可见正文；第二百一十四批确认错误日志正文不再显示 raw error code 或英文内部错误消息；第二百一十五批确认卡牌详情操作 composer 的异常 fallback 不再显示 objectId、abilityId 或 raw cost id；第二百一十六批确认开发场景事件日志不再显示 development-only seed 名称或 scenario id；第二百一十七批确认 cleanup task 阻塞 prompt/error 只显示中文原因，不显示 raw task kind。
+当前已有多批测试和 Chrome smoke 证明：对手手牌、隐藏待命、未知对象、内部对象 ID、stack/cleanup/task id 不应进入非授权玩家可见正文。最近的 object redaction smoke 覆盖了隐藏卡详情和页面正文；第二百一十二批确认官方开局起手调整候选只显示卡号；第二百一十三批确认任务队列 activeTaskId、cleanup/task id 与 raw reason 不进入玩家可见正文；第二百一十四批确认错误日志正文不再显示 raw error code 或英文内部错误消息；第二百一十五批确认卡牌详情操作 composer 的异常 fallback 不再显示 objectId、abilityId 或 raw cost id；第二百一十六批确认开发场景事件日志不再显示 development-only seed 名称或 scenario id；第二百一十七批确认 cleanup task 阻塞 prompt/error 只显示中文原因，不显示 raw task kind；第二百一十八批确认规则队列正文把 `RECALL_UNATTACHED_EQUIPMENT` 显示为“装备清理”，不显示 raw cleanup kind/reason 或未贴附装备对象 ID。
 
 最终验收前仍需再跑一次长链路隐藏信息检查，覆盖正式 deck、起手、手牌、牌堆顺序、面朝下待命、reconnect/replay 视角。
 
@@ -83,11 +83,11 @@
 - 前端 `npm run build` 在最近前端收口批次通过。
 - 后端 full test 最近完整通过记录见 `docs/CURRENT_FRONTEND_REBUILD_PLAN.md` 批次记录；最终验收前必须重新运行当前 HEAD 的 full test。
 
-当前第二百一十七批是 pending cleanup task 阻塞文案收口批：`RECALL_UNATTACHED_EQUIPMENT` 映射为“装备清理”，致命伤害、0 战力、待命和未贴附装备清理的 prompt/error 回归均禁止 raw task kind。验证已通过：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore --no-incremental`，`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~ConformanceFixtureShapeTests"` 75/75，`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~OfficialOpeningTests"` 9/9，`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~GameHubJoinTests"` 119/119。
+当前第二百一十八批是规则队列 cleanup task 展示收口批：前端把 `RECALL_UNATTACHED_EQUIPMENT` 显示为“装备清理”，未知全大写任务名降级为“服务端任务”；服务端新增 `battlefield-unattached-equipment-cleanup` development-only seed 作为真实 pending task smoke 入口。验证已通过：`source scripts/dev-env.sh && dotnet build Riftbound.slnx --no-restore`，`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~SeedScenarioBroadcastsUnattachedEquipmentCleanupTask|FullyQualifiedName~SeedScenarioBroadcastsIllegalStandbyCleanupTask|FullyQualifiedName~PendingTaskQueueExposesUnattachedBattlefieldEquipmentCleanupAsStateBasedTask"` 3/3，`source scripts/dev-env.sh && dotnet test Riftbound.slnx --no-build --filter "FullyQualifiedName~GameHubJoinTests"` 120/120，`source ../../scripts/dev-env.sh && npm run build`。
 
 ## 9. Browser smoke / E2E 结果
 
-已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十六批 Chrome smoke 使用房间 `smoke-scenario-redaction-1778238780476` 覆盖 `basic-play` seed 事件日志；页面显示“载入测试状态 / 测试状态已载入”，正文不含 `basic-play`、`DEV_SCENARIO_SEEDED`、`开发测试场景已载入`、`SeedScenario` 或 `scenarioId`，应用自身 runtime error 0，并在结束后清理测试标签和临时服务进程。第二百一十七批没有前端 UI 交互变更，未启动新的 API/Vite/Chrome smoke 进程。
+已有大量 Browser/Chrome smoke 覆盖中文化、候选展示、隐藏信息、spell duel cleanup、battle result、reconnect 等代表路径。Codex Chrome Extension 当前已确认可通信，第二百一十六批 Chrome smoke 使用房间 `smoke-scenario-redaction-1778238780476` 覆盖 `basic-play` seed 事件日志；页面显示“载入测试状态 / 测试状态已载入”，正文不含 `basic-play`、`DEV_SCENARIO_SEEDED`、`开发测试场景已载入`、`SeedScenario` 或 `scenarioId`，应用自身 runtime error 0，并在结束后清理测试标签和临时服务进程。第二百一十八批 Chrome smoke 使用房间 `smoke-unattached-equipment-1778239965401`，P2 页面连接并由后台 P1/P2 seed `battlefield-unattached-equipment-cleanup`；规则队列显示“阶段：状态清理 / 活动任务：处理中 / 装备清理：装备脱离清理”，prompt 显示“等待服务端处理任务队列：装备清理”，正文不含 raw cleanup kind/reason 或对象 ID。Chrome 只记录扩展脚本 autoplay `NotAllowedError` 噪声，过滤非应用 extension 日志后应用 runtime error 0，结束后已清理测试标签和临时服务进程。
 
 最终仍缺一条覆盖 `docs/任务补充.md` 18 步最低流程的双浏览器或等效 E2E：创建/加入房间、合法卡组、准备、起手、首回合、召符文、抽牌、出单位、移动到战场、争夺/战斗、法术对决、双方让过、结束回合、重连恢复、战场得分和投降/胜利结算。
 

@@ -7,6 +7,7 @@ const taskKindLabels: Record<string, string> = {
   DESTROY_LETHAL_UNIT: "致命伤害清理",
   DESTROY_ZERO_POWER_UNIT: "0 战力清理",
   REMOVE_ILLEGAL_STANDBY: "待命清理",
+  RECALL_UNATTACHED_EQUIPMENT: "装备清理",
   START_BATTLE: "开始战斗",
   START_SPELL_DUEL: "开始法术对决"
 };
@@ -60,6 +61,23 @@ function stackEffectLabel(value: unknown) {
   return key ? (stackEffectLabels[key] ?? "服务端效果") : "效果";
 }
 
+function taskKindLabel(value: unknown) {
+  const raw = asString(value, "");
+  if (!raw) {
+    return "任务";
+  }
+
+  if (taskKindLabels[raw]) {
+    return taskKindLabels[raw];
+  }
+
+  if (/^[A-Z0-9_:-]+$/.test(raw)) {
+    return "服务端任务";
+  }
+
+  return redactInternalText(raw);
+}
+
 function activeTaskLabel(value: unknown) {
   return asString(value, "") ? "处理中" : "无";
 }
@@ -106,7 +124,7 @@ export function StackPanel({ snapshot }: { snapshot?: SnapshotDto }) {
         <span>{queue.isBlocking ? "阻塞普通行动" : "不阻塞"}</span>
         {tasks.slice(0, 4).map((task, index) => (
           <span key={asString(task.taskId, `task-${index}`)}>
-            {labelFor(taskKindLabels, task.kind, "任务")}：{taskReasonLabel(task.reason)}
+            {taskKindLabel(task.kind)}：{taskReasonLabel(task.reason)}
           </span>
         ))}
         {battleResolutions.slice(0, 3).map((resolution, index) => (
